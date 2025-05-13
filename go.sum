@@ -444,8 +444,8 @@ github.com/apparentlymart/go-textseg/v15 v15.0.0 h1:uYvfpb3DyLSCGWnctWKGj857c6ew
 github.com/apparentlymart/go-textseg/v15 v15.0.0/go.mod h1:K8XmNZdhEBkdlyDdvbmmsvpAG721bKi0joRfFdHIWJ4=
 github.com/artefactual-labs/bagit-gython v0.2.0 h1:Zje4Lb1goZVUPoxpc/k65sWtYpNgK9Rvphvaok5cYzE=
 github.com/artefactual-labs/bagit-gython v0.2.0/go.mod h1:C+hFZQMDnji1hjGt3nrlMK3BahaBhvo/hU2uqd+Q9Z4=
-github.com/artefactual-labs/bine v0.13.0 h1:irRY0ATuKjaESPf7AdHC+AjR9WGHj1PLpTIyTpvJE4E=
-github.com/artefactual-labs/bine v0.13.0/go.mod h1:49n18pj9guj9BaunOjvLoxyvkyGNtcafDE4kbrLwWCc=
+github.com/artefactual-labs/bine v0.17.0 h1:xHjbvb/pnK3whcfQActfJ5zQNB6pkq6bUq9Pglb/rTU=
+github.com/artefactual-labs/bine v0.17.0/go.mod h1:3ATwoGPsrzzNlqapnwIx3XKWW+G+7f3w/FbqJ47tAv8=
 github.com/artefactual-sdps/temporal-activities v0.0.0-20250411163551-a3b6ecf735e5 h1:MleKr9TTZmk7RvapptJpm/PttwQsiFcfIhNDfbXV9Jw=
 github.com/artefactual-sdps/temporal-activities v0.0.0-20250411163551-a3b6ecf735e5/go.mod h1:azRTgEUYLwKy9cLboLf4QySx1/ihVWoT/XT15zfUau8=
 github.com/aws/aws-sdk-go v1.55.5 h1:KKUZBfBoyqy5d3swXyiC7Q76ic40rYcbqH7qjh59kzU=
@@ -707,6 +707,8 @@ github.com/google/pprof v0.0.0-20210601050228-01bbb1931b22/go.mod h1:kpwsk12EmLe
 github.com/google/pprof v0.0.0-20210609004039-a478d1d731e9/go.mod h1:kpwsk12EmLew5upagYY7GY0pfYCcupk39gWOCRROcvE=
 github.com/google/pprof v0.0.0-20210720184732-4bb14d4b1be1/go.mod h1:kpwsk12EmLew5upagYY7GY0pfYCcupk39gWOCRROcvE=
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
+github.com/google/renameio/v2 v2.0.0 h1:UifI23ZTGY8Tt29JbYFiuyIU3eX+RNFtUwefq9qAhxg=
+github.com/google/renameio/v2 v2.0.0/go.mod h1:BtmJXm5YlszgC+TD4HOEEUFgkJP3nLxehU6hfe7jRt4=
 github.com/google/s2a-go v0.1.8 h1:zZDs9gcbt9ZPLV0ndSyQk6Kacx2g/X+SKYovpnz3SMM=
 github.com/google/s2a-go v0.1.8/go.mod h1:6iNWHTpQ+nfNRN5E00MSdfDwVesa8hhS32PhPO8deJA=
 github.com/google/safeopen v0.0.0-20240125081138-66b54d5181c6 h1:XBC2BmsUTvyeeahMA2wdvIaaKpYrr7za7F6lNK+0oL8=
@@ -976,8 +978,8 @@ github.com/zclconf/go-cty-yaml v1.1.0 h1:nP+jp0qPHv2IhUVqmQSzjvqAWcObN0KBkUl2rWB
 github.com/zclconf/go-cty-yaml v1.1.0/go.mod h1:9YLUH4g7lOhVWqUbctnVlZ5KLpg7JAprQNgxSZ1Gyxs=
 go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c h1:kMgKuV9yx0LTQpkWdPxPC4GHAKMS9pDQ0x3CD8SmLfI=
 go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c/go.mod h1:oAOlZHC78IWjWDCqRM1/8K1x/WYmRUL3peujKCdoXaA=
-go.artefactual.dev/tools v0.14.0 h1:ESLbemsnkdIPmYXtz0uZTcPqVnTUXIEZd9DSTRyTZqY=
-go.artefactual.dev/tools v0.14.0/go.mod h1:5RJ7ObocHZv/zQFYFv/zG9cW/UVRGPFywcJx/oQ+TG8=
+go.artefactual.dev/tools v0.18.0 h1:YoXfTiUyw0yNHRy8DhliPsAwX9HUMCgwGV8MH1HRsxs=
+go.artefactual.dev/tools v0.18.0/go.mod h1:w/GgR7TdTLP+MDUz6xBbaX9a7XKUaVnFTW3o/vQ9h5Y=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=

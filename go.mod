@@ -43,7 +43,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.10.0
 	go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c
-	go.artefactual.dev/tools v0.14.0
+	go.artefactual.dev/tools v0.18.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.54.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.54.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.54.0
@@ -75,7 +75,7 @@ require (
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
 	github.com/artefactual-labs/bagit-gython v0.2.0 // indirect
-	github.com/artefactual-labs/bine v0.13.0 // indirect
+	github.com/artefactual-labs/bine v0.17.0 // indirect
 	github.com/aws/aws-sdk-go v1.55.5 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.30.3 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.6.3 // indirect
@@ -118,6 +118,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/mock v1.6.0 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/google/renameio/v2 v2.0.0 // indirect
 	github.com/google/safeopen v0.0.0-20240125081138-66b54d5181c6 // indirect
 	github.com/google/wire v0.6.0 // indirect
 	github.com/googleapis/gax-go/v2 v2.13.0 // indirect
