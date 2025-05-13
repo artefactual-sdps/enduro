@@ -201,6 +201,25 @@ export const useAipStore = defineStore("aip", {
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     },
+    async fetchPendingDeletionWorkflow(
+      id: string,
+    ): Promise<api.EnduroStorageAipWorkflow | null> {
+      return client.storage
+        .storageListAipWorkflows({
+          uuid: id,
+          listAipWorkflowsRequestBody: {
+            status: api.EnduroStorageAipWorkflowStatusEnum.Pending,
+            type: api.EnduroStorageAipWorkflowTypeEnum.DeleteAip,
+          },
+        })
+        .then((resp) => {
+          return resp.workflows?.[0] || null;
+        })
+        .catch((err) => {
+          console.error("Error fetching pending deletion workflow", err);
+          return null;
+        });
+    },
   },
 });
 

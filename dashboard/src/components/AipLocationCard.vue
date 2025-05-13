@@ -2,7 +2,7 @@
 import { ref, watch } from "vue";
 import { openDialog } from "vue3-promise-dialog";
 
-import { storageServiceDownloadURL } from "@/client";
+import { api, storageServiceDownloadURL } from "@/client";
 import AipDeletionRequestDialog from "@/components/AipDeletionRequestDialog.vue";
 import LocationDialog from "@/components/LocationDialog.vue";
 import UUID from "@/components/UUID.vue";
@@ -12,6 +12,8 @@ import { useAuthStore } from "@/stores/auth";
 const authStore = useAuthStore();
 const aipStore = useAipStore();
 const failed = ref(false);
+
+const pendingDeletionRequest = ref<api.EnduroStorageAipWorkflow | null>(null);
 
 const choose = async () => {
   failed.value = false;
@@ -32,6 +34,27 @@ const download = () => {
 };
 
 watch(aipStore.ui.download, () => download());
+
+watch(
+  () => aipStore.current,
+  (newValue) => {
+    if (newValue) {
+      alert("AIP changed");
+      aipStore
+        .fetchPendingDeletionWorkflow(newValue.uuid)
+        .then((resp) => {
+          alert("got a response");
+          if (resp) {
+            alert("Fetched pending deletion workflow");
+            pendingDeletionRequest.value = resp;
+          }
+        })
+        .catch((error) => {
+          console.error("Error fetching pending deletion workflow:", error);
+        });
+    }
+  },
+);
 
 const requestDeletion = async () => {
   if (!aipStore.current) return;
@@ -97,6 +120,13 @@ const requestDeletion = async () => {
           :disabled="!aipStore.isStored"
         >
           Delete
+        </button>
+        <button
+          v-if="pendingDeletionRequest"
+          type="button"
+          class="btn btn-primary btn-sm"
+        >
+          Cancel deletion request
         </button>
       </div>
     </div>
