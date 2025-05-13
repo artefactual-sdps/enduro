@@ -37,7 +37,6 @@ TEST_PACKAGES = $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 TEST_IGNORED_PACKAGES = $(filter $(IGNORED_PACKAGES),$(PACKAGES))
 
 # Configure bine.
-include hack/make/tools.mk
 export PATH := $(shell go tool bine path):$(PATH)
 
 atlas-hash: tool-atlas # @HELP Recalculate the migration hashes.
@@ -212,8 +211,12 @@ tilt-am-knownhosts:
 	tilt trigger enduro-am
 	tilt wait --for=condition=Ready uiresource/enduro-am
 
-tools: # @HELP Install all tools.
-tools: $(addprefix tool-, $(TOOLS))
+tool-%:
+	@go tool bine get $* 1> /dev/null
+
+tools: # @HELP Install all tools managed by bine.
+tools:
+	go tool bine sync
 
 tparse: # @HELP Run all tests and output a coverage report using tparse.
 tparse: tool-tparse
