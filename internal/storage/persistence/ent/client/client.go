@@ -185,7 +185,10 @@ func (c *Client) UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid
 	return nil
 }
 
-func (c *Client) ListWorkflows(ctx context.Context, f *persistence.WorkflowFilter) (goastorage.AIPWorkflowCollection, error) {
+func (c *Client) ListWorkflows(
+	ctx context.Context,
+	f *persistence.WorkflowFilter,
+) (goastorage.AIPWorkflowCollection, error) {
 	q := c.c.Workflow.Query()
 
 	if f.AIPUUID != nil {
