@@ -141,8 +141,8 @@ fmt: FMT_FLAGS ?=
 fmt: tool-golangci-lint
 	golangci-lint fmt $(FMT_FLAGS)
 
-lint: # @HELP Lint the project Go files with golangci-lint.
-lint: LINT_FLAGS ?= --timeout=5m --fix --output.text.colors
+lint: # @HELP Lint the project Go files with golangci-lint (linters + formatters).
+lint: LINT_FLAGS ?= --fix=1
 lint: tool-golangci-lint
 	golangci-lint run $(LINT_FLAGS)
 
