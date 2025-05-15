@@ -1,4 +1,4 @@
-h1:TNGHQ9cuCQ7TgZsWPoh2Q4OW2LGVbwcWdgAYR3renhw=
+h1:vYEd7x8KdJ1A3k542E8fWQbbs8D+DrUMZziZukqoz8I=
 20220818175139_init.up.sql h1:HHQsCjGWtqn5x6D41LxQygUccaH/3upRWQJxnDfdI8I=
 20220819155618_location_config.up.sql h1:XmexSe7Z7izOJfdb+i38OYjClJm6nOnabL/NfjzjNCQ=
 20220829164223_created_at.up.sql h1:lyGClRB0OjzTmF8OTEuU8PwK1ep1OISEVHBvC/JK1cw=
@@ -10,3 +10,4 @@ h1:TNGHQ9cuCQ7TgZsWPoh2Q4OW2LGVbwcWdgAYR3renhw=
 20250328171353_add_status_enums.up.sql h1:3WExrKkt1lJFdiRQdqAcXQYvSVqnICRx4hLyg2yb73k=
 20250330021845_update_deletion_request.up.sql h1:gmduWNU4PSjiEReMeeAcnIdHuYmz+1F0qYkup27O9lc=
 20250415223433_update_aip_statuses.up.sql h1:4ud6faJy4X31Qp+gDTjAgZks0FZ8w7RT04wDXZ5OPOQ=
+20250521161725_add_deletion_request_canceled_status.up.sql h1:bwT7qElfJ7huN9c+1R5R5cmOzxlY9sIt/UXbZIIqqaQ=

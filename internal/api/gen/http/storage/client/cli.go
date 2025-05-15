@@ -453,6 +453,40 @@ func BuildReviewAipDeletionPayload(storageReviewAipDeletionBody string, storageR
 	return v, nil
 }
 
+// BuildCancelAipDeletionPayload builds the payload for the storage
+// cancel_aip_deletion endpoint from CLI flags.
+func BuildCancelAipDeletionPayload(storageCancelAipDeletionBody string, storageCancelAipDeletionUUID string, storageCancelAipDeletionToken string) (*storage.CancelAipDeletionPayload, error) {
+	var err error
+	var body CancelAipDeletionRequestBody
+	{
+		err = json.Unmarshal([]byte(storageCancelAipDeletionBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"check\": false\n   }'")
+		}
+	}
+	var uuid string
+	{
+		uuid = storageCancelAipDeletionUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageCancelAipDeletionToken != "" {
+			token = &storageCancelAipDeletionToken
+		}
+	}
+	v := &storage.CancelAipDeletionPayload{
+		Check: body.Check,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
 // BuildListLocationsPayload builds the payload for the storage list_locations
 // endpoint from CLI flags.
 func BuildListLocationsPayload(storageListLocationsToken string) (*storage.ListLocationsPayload, error) {

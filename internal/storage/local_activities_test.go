@@ -294,8 +294,8 @@ func TestReviewDeletionRequestLocalActivity(t *testing.T) {
 	svc := fake.NewMockService(gomock.NewController(t))
 	ctx := context.Background()
 	dbID := 1
-	drs := storage.DeletionReviewedSignal{
-		Approved:  true,
+	drs := storage.DeletionDecisionSignal{
+		Status:    enums.DeletionRequestStatusApproved,
 		UserEmail: "reviewer@example.com",
 		UserISS:   "issuer",
 		UserSub:   "subject-2",
@@ -320,6 +320,32 @@ func TestReviewDeletionRequestLocalActivity(t *testing.T) {
 		).
 		Return(nil, nil)
 
-	err := storage.ReviewDeletionRequestLocalActivity(ctx, svc, dbID, drs)
+	err := storage.UpdateDeletionRequestLocalActivity(ctx, svc, dbID, drs)
+	assert.NilError(t, err)
+}
+
+func TestCancelDeletionRequestLocalActivity(t *testing.T) {
+	t.Parallel()
+
+	svc := fake.NewMockService(gomock.NewController(t))
+	ctx := context.Background()
+	dbID := 1
+	svc.EXPECT().
+		UpdateDeletionRequest(
+			ctx,
+			dbID,
+			mockutil.Func(
+				"should update deletion request",
+				func(updater persistence.DeletionRequestUpdater) error {
+					dr, err := updater(&types.DeletionRequest{})
+					assert.NilError(t, err)
+					assert.DeepEqual(t, dr.Status, enums.DeletionRequestStatusCanceled)
+					return nil
+				},
+			),
+		).
+		Return(nil, nil)
+
+	err := storage.CancelDeletionRequestLocalActivity(ctx, svc, dbID)
 	assert.NilError(t, err)
 }

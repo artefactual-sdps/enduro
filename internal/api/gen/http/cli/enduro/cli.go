@@ -25,7 +25,7 @@ import (
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip)
-storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|list-locations|create-location|show-location|list-location-aips)
+storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)
 `
 }
 
@@ -148,6 +148,11 @@ func ParseEndpoint(
 		storageReviewAipDeletionUUIDFlag  = storageReviewAipDeletionFlags.String("uuid", "REQUIRED", "Identifier of AIP")
 		storageReviewAipDeletionTokenFlag = storageReviewAipDeletionFlags.String("token", "", "")
 
+		storageCancelAipDeletionFlags     = flag.NewFlagSet("cancel-aip-deletion", flag.ExitOnError)
+		storageCancelAipDeletionBodyFlag  = storageCancelAipDeletionFlags.String("body", "REQUIRED", "")
+		storageCancelAipDeletionUUIDFlag  = storageCancelAipDeletionFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageCancelAipDeletionTokenFlag = storageCancelAipDeletionFlags.String("token", "", "")
+
 		storageListLocationsFlags     = flag.NewFlagSet("list-locations", flag.ExitOnError)
 		storageListLocationsTokenFlag = storageListLocationsFlags.String("token", "", "")
 
@@ -186,6 +191,7 @@ func ParseEndpoint(
 	storageListAipWorkflowsFlags.Usage = storageListAipWorkflowsUsage
 	storageRequestAipDeletionFlags.Usage = storageRequestAipDeletionUsage
 	storageReviewAipDeletionFlags.Usage = storageReviewAipDeletionUsage
+	storageCancelAipDeletionFlags.Usage = storageCancelAipDeletionUsage
 	storageListLocationsFlags.Usage = storageListLocationsUsage
 	storageCreateLocationFlags.Usage = storageCreateLocationUsage
 	storageShowLocationFlags.Usage = storageShowLocationUsage
@@ -291,6 +297,9 @@ func ParseEndpoint(
 			case "review-aip-deletion":
 				epf = storageReviewAipDeletionFlags
 
+			case "cancel-aip-deletion":
+				epf = storageCancelAipDeletionFlags
+
 			case "list-locations":
 				epf = storageListLocationsFlags
 
@@ -395,6 +404,9 @@ func ParseEndpoint(
 			case "review-aip-deletion":
 				endpoint = c.ReviewAipDeletion()
 				data, err = storagec.BuildReviewAipDeletionPayload(*storageReviewAipDeletionBodyFlag, *storageReviewAipDeletionUUIDFlag, *storageReviewAipDeletionTokenFlag)
+			case "cancel-aip-deletion":
+				endpoint = c.CancelAipDeletion()
+				data, err = storagec.BuildCancelAipDeletionPayload(*storageCancelAipDeletionBodyFlag, *storageCancelAipDeletionUUIDFlag, *storageCancelAipDeletionTokenFlag)
 			case "list-locations":
 				endpoint = c.ListLocations()
 				data, err = storagec.BuildListLocationsPayload(*storageListLocationsTokenFlag)
@@ -560,6 +572,7 @@ COMMAND:
     list-aip-workflows: List workflows related to an AIP
     request-aip-deletion: Request an AIP deletion
     review-aip-deletion: Review an AIP deletion request
+    cancel-aip-deletion: Cancel an AIP deletion request
     list-locations: List locations
     create-location: Create a storage location
     show-location: Show location by UUID
@@ -736,6 +749,21 @@ Review an AIP deletion request
 Example:
     %[1]s storage review-aip-deletion --body '{
       "approved": false
+   }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+`, os.Args[0])
+}
+
+func storageCancelAipDeletionUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage cancel-aip-deletion -body JSON -uuid STRING -token STRING
+
+Cancel an AIP deletion request
+    -body JSON: 
+    -uuid STRING: Identifier of AIP
+    -token STRING: 
+
+Example:
+    %[1]s storage cancel-aip-deletion --body '{
+      "check": false
    }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }

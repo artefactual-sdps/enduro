@@ -66,7 +66,7 @@ func (w *StorageDeleteWorkflow) Execute(
 	aipStatus := enums.AIPStatusStored
 	defer func() {
 		workflowStatus := enums.WorkflowStatusDone
-		// Only looking at internal cancelation.
+		// Only looking at internal cancellation.
 		if errors.Is(e, temporalsdk_workflow.ErrCanceled) {
 			workflowStatus = enums.WorkflowStatusCanceled
 		} else if e != nil {
@@ -106,10 +106,15 @@ func (w *StorageDeleteWorkflow) Execute(
 	if err != nil {
 		taskStatus = enums.TaskStatusError
 		taskNote = fmt.Sprintf("%s\n\nFailed to review AIP deletion request:\n%v", taskNote, err)
-	} else if reviewSignal.Approved {
-		taskNote = fmt.Sprintf("%s\n\nAIP deletion request approved by %s.", taskNote, reviewSignal.UserEmail)
 	} else {
-		taskNote = fmt.Sprintf("%s\n\nAIP deletion request rejected by %s.", taskNote, reviewSignal.UserEmail)
+		switch reviewSignal.Status {
+		case enums.DeletionRequestStatusApproved:
+			taskNote = fmt.Sprintf("%s\n\nAIP deletion request approved by %s.", taskNote, reviewSignal.UserEmail)
+		case enums.DeletionRequestStatusRejected:
+			taskNote = fmt.Sprintf("%s\n\nAIP deletion request rejected by %s.", taskNote, reviewSignal.UserEmail)
+		case enums.DeletionRequestStatusCanceled:
+			taskNote = fmt.Sprintf("%s\n\nAIP deletion request canceled by %s.", taskNote, reviewSignal.UserEmail)
+		}
 	}
 	taskErr := completeTask(ctx, w.storagesvc, reviewTaskDBID, taskStatus, taskNote)
 	if err = errors.Join(err, taskErr); err != nil {
@@ -117,7 +122,7 @@ func (w *StorageDeleteWorkflow) Execute(
 	}
 
 	// Cancel workflow if the request is not approved.
-	if !reviewSignal.Approved {
+	if reviewSignal.Status != enums.DeletionRequestStatusApproved {
 		return temporalsdk_workflow.ErrCanceled
 	}
 
@@ -201,7 +206,7 @@ func (w *StorageDeleteWorkflow) review(
 	logger temporalsdk_log.Logger,
 	req storage.StorageDeleteWorkflowRequest,
 	workflowDBID int,
-) (*storage.DeletionReviewedSignal, error) {
+) (*storage.DeletionDecisionSignal, error) {
 	// Create DeletionRequest.
 	var drDBID int
 	activityOpts := localActivityOptions(ctx)
@@ -232,14 +237,14 @@ func (w *StorageDeleteWorkflow) review(
 		return nil, err
 	}
 
-	// Wait for user review signal.
-	var review storage.DeletionReviewedSignal
-	open := temporalsdk_workflow.GetSignalChannel(ctx, storage.DeletionReviewedSignalName).Receive(ctx, &review)
+	// Wait for a delete request decision signal.
+	var signal storage.DeletionDecisionSignal
+	open := temporalsdk_workflow.GetSignalChannel(ctx, storage.DeletionDecisionSignalName).Receive(ctx, &signal)
 	if !open {
-		return nil, fmt.Errorf("deletion review signal channel closed")
+		return nil, fmt.Errorf("deletion decision signal channel closed")
 	}
 
-	logger.Info("Received AIP deletion workflow review signal", "signal", review)
+	logger.Info("Received AIP deletion workflow decision", "signal", signal)
 
 	// Set AIP status to processing.
 	if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, enums.AIPStatusProcessing); err != nil {
@@ -251,20 +256,19 @@ func (w *StorageDeleteWorkflow) review(
 		return nil, err
 	}
 
-	// Review DeletionRequest.
-	activityOpts = localActivityOptions(ctx)
+	// Update DeletionRequest.
 	err = temporalsdk_workflow.ExecuteLocalActivity(
 		activityOpts,
-		storage.ReviewDeletionRequestLocalActivity,
+		storage.UpdateDeletionRequestLocalActivity,
 		w.storagesvc,
 		drDBID,
-		review,
+		signal,
 	).Get(activityOpts, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	return &review, nil
+	return &signal, nil
 }
 
 func (w *StorageDeleteWorkflow) deleteAIPFromAMSSLocation(

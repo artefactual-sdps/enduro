@@ -43,6 +43,8 @@ type Service interface {
 	RequestAipDeletion(context.Context, *RequestAipDeletionPayload) (err error)
 	// Review an AIP deletion request
 	ReviewAipDeletion(context.Context, *ReviewAipDeletionPayload) (err error)
+	// Cancel an AIP deletion request
+	CancelAipDeletion(context.Context, *CancelAipDeletionPayload) (err error)
 	// List locations
 	ListLocations(context.Context, *ListLocationsPayload) (res LocationCollection, err error)
 	// Create a storage location
@@ -73,7 +75,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [16]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [17]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // AIP is the result type of the storage service create_aip method.
 type AIP struct {
@@ -141,6 +143,17 @@ type AMSSConfig struct {
 	APIKey   string
 	URL      string
 	Username string
+}
+
+// CancelAipDeletionPayload is the payload type of the storage service
+// cancel_aip_deletion method.
+type CancelAipDeletionPayload struct {
+	// Identifier of AIP
+	UUID  string
+	Token *string
+	// If check is true, check user authorization to cancel deletion but don't
+	// execute the cancellation.
+	Check *bool
 }
 
 // CreateAipPayload is the payload type of the storage service create_aip

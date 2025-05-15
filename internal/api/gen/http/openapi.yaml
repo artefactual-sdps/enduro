@@ -597,6 +597,55 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
+    /storage/aips/{uuid}/deletion-cancel:
+        post:
+            tags:
+                - storage
+            summary: cancel_aip_deletion storage
+            description: |-
+                Cancel an AIP deletion request
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:deletion:request`
+            operationId: storage#cancel_aip_deletion
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+                - name: cancel_aip_deletion_request_body
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/StorageCancelAipDeletionRequestBody'
+            responses:
+                "200":
+                    description: OK response.
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/StorageCancelAipDeletionNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
     /storage/aips/{uuid}/deletion-request:
         post:
             tags:
@@ -2611,6 +2660,35 @@ definitions:
               object_key: abc123
               status: stored
               uuid: abc123
+    StorageCancelAipDeletionNotFoundResponseBody:
+        title: StorageCancelAipDeletionNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing AIP
+                example: abc123
+        description: AIP not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
+    StorageCancelAipDeletionRequestBody:
+        title: StorageCancelAipDeletionRequestBody
+        type: object
+        properties:
+            check:
+                type: boolean
+                description: If check is true, check user authorization to cancel deletion but don't execute the cancellation.
+                example: false
+        example:
+            check: false
     StorageCreateAipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object

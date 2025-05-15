@@ -66,6 +66,10 @@ type Client struct {
 	// review_aip_deletion endpoint.
 	ReviewAipDeletionDoer goahttp.Doer
 
+	// CancelAipDeletion Doer is the HTTP client used to make requests to the
+	// cancel_aip_deletion endpoint.
+	CancelAipDeletionDoer goahttp.Doer
+
 	// ListLocations Doer is the HTTP client used to make requests to the
 	// list_locations endpoint.
 	ListLocationsDoer goahttp.Doer
@@ -117,6 +121,7 @@ func NewClient(
 		ListAipWorkflowsDoer:   doer,
 		RequestAipDeletionDoer: doer,
 		ReviewAipDeletionDoer:  doer,
+		CancelAipDeletionDoer:  doer,
 		ListLocationsDoer:      doer,
 		CreateLocationDoer:     doer,
 		ShowLocationDoer:       doer,
@@ -413,6 +418,30 @@ func (c *Client) ReviewAipDeletion() goa.Endpoint {
 		resp, err := c.ReviewAipDeletionDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "review_aip_deletion", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// CancelAipDeletion returns an endpoint that makes HTTP requests to the
+// storage service cancel_aip_deletion server.
+func (c *Client) CancelAipDeletion() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeCancelAipDeletionRequest(c.encoder)
+		decodeResponse = DecodeCancelAipDeletionResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildCancelAipDeletionRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.CancelAipDeletionDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "cancel_aip_deletion", err)
 		}
 		return decodeResponse(resp)
 	}
