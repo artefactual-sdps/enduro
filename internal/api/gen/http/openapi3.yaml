@@ -804,6 +804,63 @@ paths:
             security:
                 - jwt_header_Authorization:
                     - storage:aips:read
+    /storage/aips/{uuid}/deletion-cancel:
+        post:
+            tags:
+                - storage
+            summary: cancel_aip_deletion storage
+            description: Cancel an AIP deletion request
+            operationId: storage#cancel_aip_deletion
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/CancelAipDeletionRequestBody'
+                        example:
+                            check: false
+            responses:
+                "200":
+                    description: OK response.
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:deletion:request
     /storage/aips/{uuid}/deletion-request:
         post:
             tags:
@@ -1749,6 +1806,15 @@ components:
             required:
                 - items
                 - page
+        CancelAipDeletionRequestBody:
+            type: object
+            properties:
+                check:
+                    type: boolean
+                    description: If check is true, check user authorization to cancel deletion but don't execute the cancellation.
+                    example: false
+            example:
+                check: false
         ConfirmSipRequestBody:
             type: object
             properties:

@@ -106,7 +106,7 @@ const DefaultStatus enums.DeletionRequestStatus = "pending"
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s enums.DeletionRequestStatus) error {
 	switch s.String() {
-	case "pending", "approved", "rejected":
+	case "pending", "approved", "rejected", "canceled":
 		return nil
 	default:
 		return fmt.Errorf("deletionrequest: invalid enum value for status field: %q", s)

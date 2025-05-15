@@ -56,7 +56,7 @@ var (
 		{Name: "reviewer_iss", Type: field.TypeString, Nullable: true, Size: 1024},
 		{Name: "reviewer_sub", Type: field.TypeString, Nullable: true, Size: 1024},
 		{Name: "reason", Type: field.TypeString, Size: 2048},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "approved", "rejected"}, Default: "pending"},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "approved", "rejected", "canceled"}, Default: "pending"},
 		{Name: "requested_at", Type: field.TypeTime},
 		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "aip_id", Type: field.TypeInt},

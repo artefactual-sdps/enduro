@@ -442,6 +442,7 @@ func newStorageClient(tp trace.TracerProvider, cfg config.Configuration) *goasto
 		storageHttpClient.ShowAip(),
 		storageHttpClient.ListAipWorkflows(),
 		storageHttpClient.RequestAipDeletion(),
+		storageHttpClient.CancelAipDeletion(),
 		storageHttpClient.ReviewAipDeletion(),
 		storageHttpClient.ListLocations(),
 		storageHttpClient.CreateLocation(),

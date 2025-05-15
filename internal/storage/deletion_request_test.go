@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/mock"
+	"go.artefactual.dev/tools/ref"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
@@ -340,9 +341,9 @@ func TestReviewAipDeletion(t *testing.T) {
 					mock.AnythingOfType("*context.valueCtx"),
 					fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
 					"",
-					storage.DeletionReviewedSignalName,
-					storage.DeletionReviewedSignal{
-						Approved:  false,
+					storage.DeletionDecisionSignalName,
+					storage.DeletionDecisionSignal{
+						Status:    enums.DeletionRequestStatusRejected,
 						UserEmail: "reviewer@example.com",
 						UserISS:   "issuer",
 						UserSub:   "subject-2",
@@ -373,9 +374,9 @@ func TestReviewAipDeletion(t *testing.T) {
 					mock.AnythingOfType("*context.valueCtx"),
 					fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
 					"",
-					storage.DeletionReviewedSignalName,
-					storage.DeletionReviewedSignal{
-						Approved:  true,
+					storage.DeletionDecisionSignalName,
+					storage.DeletionDecisionSignal{
+						Status:    enums.DeletionRequestStatusApproved,
 						UserEmail: "reviewer@example.com",
 						UserISS:   "issuer",
 						UserSub:   "subject-2",
@@ -396,6 +397,188 @@ func TestReviewAipDeletion(t *testing.T) {
 			}
 
 			err := svc.ReviewAipDeletion(ctx, tt.payload)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+		})
+	}
+}
+
+func TestCancelAipDeletion(t *testing.T) {
+	t.Parallel()
+
+	type test struct {
+		name    string
+		claims  *auth.Claims
+		payload *goastorage.CancelAipDeletionPayload
+		mock    func(context.Context, *fake.MockStorage, *temporalsdk_mocks.Client)
+		wantErr string
+	}
+
+	for _, tt := range []test{
+		{
+			name: "Fails when user is not authenticated",
+			payload: &goastorage.CancelAipDeletionPayload{
+				UUID: aipID.String(),
+			},
+			wantErr: "authentication is required",
+		},
+		{
+			name: "Fails on invalid AIP UUID",
+			claims: &auth.Claims{
+				Email: "reviewer@example.com",
+				ISS:   "issuer",
+				Sub:   "subject-2",
+			},
+			payload: &goastorage.CancelAipDeletionPayload{
+				UUID: "invalid-uuid",
+			},
+			wantErr: "invalid UUID",
+		},
+		{
+			name: "Fails when deletion request is not found",
+			claims: &auth.Claims{
+				Email: "reviewer@example.com",
+				ISS:   "issuer",
+				Sub:   "subject-2",
+			},
+			payload: &goastorage.CancelAipDeletionPayload{
+				UUID: aipID.String(),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(nil, errors.New("db: deletion_request not found"))
+			},
+			wantErr: "db: deletion_request not found",
+		},
+		{
+			name: "Fails on deletion request read error",
+			claims: &auth.Claims{
+				Email: "reviewer@example.com",
+				ISS:   "issuer",
+				Sub:   "subject-2",
+			},
+			payload: &goastorage.CancelAipDeletionPayload{
+				UUID: aipID.String(),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(nil, errors.New("db: persistence error"))
+			},
+			wantErr: "db: persistence error",
+		},
+		{
+			name: "Fails if auth user is not the requester",
+			claims: &auth.Claims{
+				Email: "requester@example.com",
+				ISS:   "issuer",
+				Sub:   "subject",
+			},
+			payload: &goastorage.CancelAipDeletionPayload{
+				UUID: aipID.String(),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
+					RequesterISS: "issuer",
+					RequesterSub: "subject-2",
+				}, nil)
+			},
+			wantErr: "Unauthorized",
+		},
+		{
+			name: "Fails on signal workflow failure",
+			claims: &auth.Claims{
+				Email: "reviewer@example.com",
+				ISS:   "issuer",
+				Sub:   "subject",
+			},
+			payload: &goastorage.CancelAipDeletionPayload{
+				UUID: aipID.String(),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(
+					&types.DeletionRequest{
+						RequesterISS: "issuer",
+						RequesterSub: "subject",
+					}, nil,
+				)
+				tc.On(
+					"SignalWorkflow",
+					mock.AnythingOfType("*context.valueCtx"),
+					fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
+					"",
+					storage.DeletionDecisionSignalName,
+					storage.DeletionDecisionSignal{
+						Status:    enums.DeletionRequestStatusCanceled,
+						UserEmail: "reviewer@example.com",
+						UserISS:   "issuer",
+						UserSub:   "subject",
+					},
+				).Return(errors.New("temporal error"))
+			},
+			wantErr: "cannot perform operation",
+		},
+		{
+			name: "Cancels AIP deletion request",
+			claims: &auth.Claims{
+				Email: "reviewer@example.com",
+				ISS:   "issuer",
+				Sub:   "subject",
+			},
+			payload: &goastorage.CancelAipDeletionPayload{
+				UUID: aipID.String(),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
+					RequesterISS: "issuer",
+					RequesterSub: "subject",
+				}, nil)
+				tc.On(
+					"SignalWorkflow",
+					mock.AnythingOfType("*context.valueCtx"),
+					fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
+					"",
+					storage.DeletionDecisionSignalName,
+					storage.DeletionDecisionSignal{
+						Status:    enums.DeletionRequestStatusCanceled,
+						UserEmail: "reviewer@example.com",
+						UserISS:   "issuer",
+						UserSub:   "subject",
+					},
+				).Return(nil)
+			},
+		},
+		{
+			name: "Doesn't cancel deletion request when test flag is set",
+			claims: &auth.Claims{
+				Email: "reviewer@example.com",
+				ISS:   "issuer",
+				Sub:   "subject",
+			},
+			payload: &goastorage.CancelAipDeletionPayload{
+				UUID:  aipID.String(),
+				Check: ref.New(true),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
+					RequesterISS: "issuer",
+					RequesterSub: "subject",
+				}, nil)
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := auth.WithUserClaims(context.Background(), tt.claims)
+			attrs := &setUpAttrs{}
+			svc := setUpService(t, attrs)
+
+			if tt.mock != nil {
+				tt.mock(ctx, attrs.persistenceMock, attrs.temporalClientMock)
+			}
+
+			err := svc.CancelAipDeletion(ctx, tt.payload)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

@@ -64,6 +64,14 @@ type ReviewAipDeletionRequestBody struct {
 	Approved bool `form:"approved" json:"approved" xml:"approved"`
 }
 
+// CancelAipDeletionRequestBody is the type of the "storage" service
+// "cancel_aip_deletion" endpoint HTTP request body.
+type CancelAipDeletionRequestBody struct {
+	// If check is true, check user authorization to cancel deletion but don't
+	// execute the cancellation.
+	Check *bool `form:"check,omitempty" json:"check,omitempty" xml:"check,omitempty"`
+}
+
 // CreateLocationRequestBody is the type of the "storage" service
 // "create_location" endpoint HTTP request body.
 type CreateLocationRequestBody struct {
@@ -465,6 +473,15 @@ type ReviewAipDeletionNotFoundResponseBody struct {
 	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
+// CancelAipDeletionNotFoundResponseBody is the type of the "storage" service
+// "cancel_aip_deletion" endpoint HTTP response body for the "not_found" error.
+type CancelAipDeletionNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing AIP
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
 // CreateLocationNotValidResponseBody is the type of the "storage" service
 // "create_location" endpoint HTTP response body for the "not_valid" error.
 type CreateLocationNotValidResponseBody struct {
@@ -671,6 +688,15 @@ func NewRequestAipDeletionRequestBody(p *storage.RequestAipDeletionPayload) *Req
 func NewReviewAipDeletionRequestBody(p *storage.ReviewAipDeletionPayload) *ReviewAipDeletionRequestBody {
 	body := &ReviewAipDeletionRequestBody{
 		Approved: p.Approved,
+	}
+	return body
+}
+
+// NewCancelAipDeletionRequestBody builds the HTTP request body from the
+// payload of the "cancel_aip_deletion" endpoint of the "storage" service.
+func NewCancelAipDeletionRequestBody(p *storage.CancelAipDeletionPayload) *CancelAipDeletionRequestBody {
+	body := &CancelAipDeletionRequestBody{
+		Check: p.Check,
 	}
 	return body
 }
@@ -1246,6 +1272,33 @@ func NewReviewAipDeletionForbidden(body string) storage.Forbidden {
 // NewReviewAipDeletionUnauthorized builds a storage service
 // review_aip_deletion endpoint unauthorized error.
 func NewReviewAipDeletionUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
+// NewCancelAipDeletionNotFound builds a storage service cancel_aip_deletion
+// endpoint not_found error.
+func NewCancelAipDeletionNotFound(body *CancelAipDeletionNotFoundResponseBody) *storage.AIPNotFound {
+	v := &storage.AIPNotFound{
+		Message: *body.Message,
+		UUID:    *body.UUID,
+	}
+
+	return v
+}
+
+// NewCancelAipDeletionForbidden builds a storage service cancel_aip_deletion
+// endpoint forbidden error.
+func NewCancelAipDeletionForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewCancelAipDeletionUnauthorized builds a storage service
+// cancel_aip_deletion endpoint unauthorized error.
+func NewCancelAipDeletionUnauthorized(body string) storage.Unauthorized {
 	v := storage.Unauthorized(body)
 
 	return v
@@ -1836,6 +1889,18 @@ func ValidateRequestAipDeletionNotFoundResponseBody(body *RequestAipDeletionNotF
 // ValidateReviewAipDeletionNotFoundResponseBody runs the validations defined
 // on review_aip_deletion_not_found_response_body
 func ValidateReviewAipDeletionNotFoundResponseBody(body *ReviewAipDeletionNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
+// ValidateCancelAipDeletionNotFoundResponseBody runs the validations defined
+// on cancel_aip_deletion_not_found_response_body
+func ValidateCancelAipDeletionNotFoundResponseBody(body *CancelAipDeletionNotFoundResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}

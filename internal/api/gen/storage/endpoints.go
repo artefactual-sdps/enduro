@@ -29,6 +29,7 @@ type Endpoints struct {
 	ListAipWorkflows   goa.Endpoint
 	RequestAipDeletion goa.Endpoint
 	ReviewAipDeletion  goa.Endpoint
+	CancelAipDeletion  goa.Endpoint
 	ListLocations      goa.Endpoint
 	CreateLocation     goa.Endpoint
 	ShowLocation       goa.Endpoint
@@ -52,6 +53,7 @@ func NewEndpoints(s Service) *Endpoints {
 		ListAipWorkflows:   NewListAipWorkflowsEndpoint(s, a.JWTAuth),
 		RequestAipDeletion: NewRequestAipDeletionEndpoint(s, a.JWTAuth),
 		ReviewAipDeletion:  NewReviewAipDeletionEndpoint(s, a.JWTAuth),
+		CancelAipDeletion:  NewCancelAipDeletionEndpoint(s, a.JWTAuth),
 		ListLocations:      NewListLocationsEndpoint(s, a.JWTAuth),
 		CreateLocation:     NewCreateLocationEndpoint(s, a.JWTAuth),
 		ShowLocation:       NewShowLocationEndpoint(s, a.JWTAuth),
@@ -73,6 +75,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.ListAipWorkflows = m(e.ListAipWorkflows)
 	e.RequestAipDeletion = m(e.RequestAipDeletion)
 	e.ReviewAipDeletion = m(e.ReviewAipDeletion)
+	e.CancelAipDeletion = m(e.CancelAipDeletion)
 	e.ListLocations = m(e.ListLocations)
 	e.CreateLocation = m(e.CreateLocation)
 	e.ShowLocation = m(e.ShowLocation)
@@ -372,6 +375,29 @@ func NewReviewAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa
 			return nil, err
 		}
 		return nil, s.ReviewAipDeletion(ctx, p)
+	}
+}
+
+// NewCancelAipDeletionEndpoint returns an endpoint function that calls the
+// method "cancel_aip_deletion" of service "storage".
+func NewCancelAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		p := req.(*CancelAipDeletionPayload)
+		var err error
+		sc := security.JWTScheme{
+			Name:           "jwt",
+			Scopes:         []string{"ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:aips:deletion:request"},
+		}
+		var token string
+		if p.Token != nil {
+			token = *p.Token
+		}
+		ctx, err = authJWTFn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
+		return nil, s.CancelAipDeletion(ctx, p)
 	}
 }
 

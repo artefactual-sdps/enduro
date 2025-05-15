@@ -64,6 +64,14 @@ type ReviewAipDeletionRequestBody struct {
 	Approved *bool `form:"approved,omitempty" json:"approved,omitempty" xml:"approved,omitempty"`
 }
 
+// CancelAipDeletionRequestBody is the type of the "storage" service
+// "cancel_aip_deletion" endpoint HTTP request body.
+type CancelAipDeletionRequestBody struct {
+	// If check is true, check user authorization to cancel deletion but don't
+	// execute the cancellation.
+	Check *bool `form:"check,omitempty" json:"check,omitempty" xml:"check,omitempty"`
+}
+
 // CreateLocationRequestBody is the type of the "storage" service
 // "create_location" endpoint HTTP request body.
 type CreateLocationRequestBody struct {
@@ -449,6 +457,15 @@ type RequestAipDeletionNotFoundResponseBody struct {
 // ReviewAipDeletionNotFoundResponseBody is the type of the "storage" service
 // "review_aip_deletion" endpoint HTTP response body for the "not_found" error.
 type ReviewAipDeletionNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// CancelAipDeletionNotFoundResponseBody is the type of the "storage" service
+// "cancel_aip_deletion" endpoint HTTP response body for the "not_found" error.
+type CancelAipDeletionNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing AIP
@@ -958,6 +975,16 @@ func NewReviewAipDeletionNotFoundResponseBody(res *storage.AIPNotFound) *ReviewA
 	return body
 }
 
+// NewCancelAipDeletionNotFoundResponseBody builds the HTTP response body from
+// the result of the "cancel_aip_deletion" endpoint of the "storage" service.
+func NewCancelAipDeletionNotFoundResponseBody(res *storage.AIPNotFound) *CancelAipDeletionNotFoundResponseBody {
+	body := &CancelAipDeletionNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
 // NewCreateLocationNotValidResponseBody builds the HTTP response body from the
 // result of the "create_location" endpoint of the "storage" service.
 func NewCreateLocationNotValidResponseBody(res *goa.ServiceError) *CreateLocationNotValidResponseBody {
@@ -1137,6 +1164,18 @@ func NewRequestAipDeletionPayload(body *RequestAipDeletionRequestBody, uuid stri
 func NewReviewAipDeletionPayload(body *ReviewAipDeletionRequestBody, uuid string, token *string) *storage.ReviewAipDeletionPayload {
 	v := &storage.ReviewAipDeletionPayload{
 		Approved: *body.Approved,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v
+}
+
+// NewCancelAipDeletionPayload builds a storage service cancel_aip_deletion
+// endpoint payload.
+func NewCancelAipDeletionPayload(body *CancelAipDeletionRequestBody, uuid string, token *string) *storage.CancelAipDeletionPayload {
+	v := &storage.CancelAipDeletionPayload{
+		Check: body.Check,
 	}
 	v.UUID = uuid
 	v.Token = token
