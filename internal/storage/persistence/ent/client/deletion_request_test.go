@@ -282,3 +282,37 @@ func TestReadAipPendingDeletionRequest(t *testing.T) {
 		})
 	}
 }
+
+func TestDeleteDeletionRequest(t *testing.T) {
+	t.Parallel()
+
+	var (
+		ctx         = context.Background()
+		drUUID      = uuid.New()
+		requestedAt = time.Now()
+	)
+
+	entc, c := setUpClient(t)
+	initialDataForDeletionRequestTests(t, ctx, entc)
+
+	dr, err := entc.DeletionRequest.Create().
+		SetUUID(drUUID).
+		SetRequester("requester@example.com").
+		SetRequesterIss("issuer").
+		SetRequesterSub("sub").
+		SetRequestedAt(requestedAt).
+		SetReason("Reason").
+		SetAipID(1).
+		SetWorkflowID(1).
+		Save(ctx)
+	if err != nil {
+		t.Fatalf("failed to create deletion request: %v", err)
+	}
+
+	// Delete the deletion request.
+	err = c.DeleteDeletionRequest(ctx, dr.ID)
+	assert.NilError(t, err)
+
+	_, err = entc.DeletionRequest.Get(ctx, dr.ID)
+	assert.Error(t, err, "db: deletion_request not found")
+}

@@ -108,6 +108,15 @@ func (c *Client) ReadAipPendingDeletionRequest(
 	return convertDeletionRequest(dr), nil
 }
 
+func (c *Client) DeleteDeletionRequest(ctx context.Context, id int) error {
+	err := c.c.DeletionRequest.DeleteOneID(id).Exec(ctx)
+	if err != nil {
+		return fmt.Errorf("delete deletion request: %v", err)
+	}
+
+	return nil
+}
+
 func convertDeletionRequest(dbdr *db.DeletionRequest) *types.DeletionRequest {
 	return &types.DeletionRequest{
 		DBID:         dbdr.ID,

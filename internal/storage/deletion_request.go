@@ -11,9 +11,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 )
 
-func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorage.RequestAipDeletionPayload) error {
-	// Authentication must be enabled for now.
-	claims := auth.UserClaimsFromContext(ctx)
+func checkClaims(claims *auth.Claims) error {
 	if claims == nil {
 		return goastorage.MakeNotValid(errors.New("authentication is required"))
 	}
@@ -25,6 +23,16 @@ func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorag
 	}
 	if claims.ISS == "" {
 		return goastorage.MakeNotValid(errors.New("iss claim is required"))
+	}
+
+	return nil
+}
+
+func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorage.RequestAipDeletionPayload) error {
+	// Authentication must be enabled for now.
+	claims := auth.UserClaimsFromContext(ctx)
+	if err := checkClaims(claims); err != nil {
+		return err
 	}
 
 	aipID, err := uuid.Parse(payload.UUID)
@@ -62,17 +70,8 @@ func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorag
 func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage.ReviewAipDeletionPayload) error {
 	// Authentication must be enabled for now.
 	claims := auth.UserClaimsFromContext(ctx)
-	if claims == nil {
-		return goastorage.MakeNotValid(errors.New("authentication is required"))
-	}
-	if claims.Email == "" {
-		return goastorage.MakeNotValid(errors.New("email claim is required"))
-	}
-	if claims.Sub == "" {
-		return goastorage.MakeNotValid(errors.New("sub claim is required"))
-	}
-	if claims.ISS == "" {
-		return goastorage.MakeNotValid(errors.New("iss claim is required"))
+	if err := checkClaims(claims); err != nil {
+		return err
 	}
 
 	aipID, err := uuid.Parse(payload.UUID)
@@ -104,6 +103,53 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 		UserISS:   claims.ISS,
 	}
 	err = s.tc.SignalWorkflow(ctx, StorageDeleteWorkflowID(aipID), "", DeletionReviewedSignalName, signal)
+	if err != nil {
+		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	return nil
+}
+
+func (s *serviceImpl) CancelAipDeletion(
+	ctx context.Context,
+	payload *goastorage.CancelAipDeletionPayload,
+) error {
+	// Authentication must be enabled for now.
+	claims := auth.UserClaimsFromContext(ctx)
+	if err := checkClaims(claims); err != nil {
+		return err
+	}
+
+	aipID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return goastorage.MakeNotValid(errors.New("invalid UUID"))
+	}
+
+	dr, err := s.storagePersistence.ReadAipPendingDeletionRequest(ctx, aipID)
+	if err != nil {
+		return err
+	}
+
+	// Check that the user is authorized to cancel the deletion request.
+	if claims.Sub != dr.RequesterSub || claims.ISS != dr.RequesterISS {
+		return ErrUnauthorized
+	}
+
+	// If the test flag is set, do not cancel the deletion request.
+	if payload.Test != nil && *payload.Test {
+		return nil
+	}
+
+	err = s.tc.SignalWorkflow(
+		ctx,
+		StorageDeleteWorkflowID(aipID),
+		"",
+		DeletionCancelledSignalName,
+		DeletionCancelledSignal{
+			UserSub: claims.Sub,
+			UserISS: claims.ISS,
+		},
+	)
 	if err != nil {
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}

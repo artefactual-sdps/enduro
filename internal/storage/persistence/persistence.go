@@ -47,6 +47,7 @@ type Storage interface {
 	CreateDeletionRequest(context.Context, *types.DeletionRequest) error
 	UpdateDeletionRequest(context.Context, int, DeletionRequestUpdater) (*types.DeletionRequest, error)
 	ReadAipPendingDeletionRequest(context.Context, uuid.UUID) (*types.DeletionRequest, error)
+	DeleteDeletionRequest(context.Context, int) error
 }
 
 type WorkflowFilter struct {

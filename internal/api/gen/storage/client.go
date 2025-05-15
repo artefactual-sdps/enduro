@@ -28,6 +28,7 @@ type Client struct {
 	ListAipWorkflowsEndpoint   goa.Endpoint
 	RequestAipDeletionEndpoint goa.Endpoint
 	ReviewAipDeletionEndpoint  goa.Endpoint
+	CancelAipDeletionEndpoint  goa.Endpoint
 	ListLocationsEndpoint      goa.Endpoint
 	CreateLocationEndpoint     goa.Endpoint
 	ShowLocationEndpoint       goa.Endpoint
@@ -35,7 +36,7 @@ type Client struct {
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(listAips, createAip, submitAip, updateAip, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(listAips, createAip, submitAip, updateAip, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
 		ListAipsEndpoint:           listAips,
 		CreateAipEndpoint:          createAip,
@@ -49,6 +50,7 @@ func NewClient(listAips, createAip, submitAip, updateAip, downloadAip, moveAip, 
 		ListAipWorkflowsEndpoint:   listAipWorkflows,
 		RequestAipDeletionEndpoint: requestAipDeletion,
 		ReviewAipDeletionEndpoint:  reviewAipDeletion,
+		CancelAipDeletionEndpoint:  cancelAipDeletion,
 		ListLocationsEndpoint:      listLocations,
 		CreateLocationEndpoint:     createLocation,
 		ShowLocationEndpoint:       showLocation,
@@ -226,6 +228,18 @@ func (c *Client) RequestAipDeletion(ctx context.Context, p *RequestAipDeletionPa
 //   - error: internal error
 func (c *Client) ReviewAipDeletion(ctx context.Context, p *ReviewAipDeletionPayload) (err error) {
 	_, err = c.ReviewAipDeletionEndpoint(ctx, p)
+	return
+}
+
+// CancelAipDeletion calls the "cancel_aip_deletion" endpoint of the "storage"
+// service.
+// CancelAipDeletion may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) CancelAipDeletion(ctx context.Context, p *CancelAipDeletionPayload) (err error) {
+	_, err = c.CancelAipDeletionEndpoint(ctx, p)
 	return
 }
 

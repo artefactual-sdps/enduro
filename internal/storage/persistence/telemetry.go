@@ -264,3 +264,19 @@ func (w *wrapper) ReadAipPendingDeletionRequest(
 
 	return r, nil
 }
+
+func (w *wrapper) DeleteDeletionRequest(
+	ctx context.Context,
+	id int,
+) error {
+	ctx, span := w.tracer.Start(ctx, "DeleteDeletionRequest")
+	defer span.End()
+
+	err := w.wrapped.DeleteDeletionRequest(ctx, id)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return updateError(err, "DeleteDeletionRequest")
+	}
+
+	return nil
+}

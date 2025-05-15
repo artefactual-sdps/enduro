@@ -17,6 +17,7 @@ const (
 	StorageUploadWorkflowName           = "storage-upload-workflow"
 	StorageMoveWorkflowName             = "storage-move-workflow"
 	DeletionReviewedSignalName          = "deletion-reviewed-signal"
+	DeletionCancelledSignalName         = "deletion-cancelled-signal"
 	UploadDoneSignalName                = "upload-done-signal"
 )
 
@@ -34,6 +35,11 @@ type DeletionReviewedSignal struct {
 	UserEmail string
 	UserSub   string
 	UserISS   string
+}
+
+type DeletionCancelledSignal struct {
+	UserSub string
+	UserISS string
 }
 
 type StorageUploadWorkflowRequest struct {

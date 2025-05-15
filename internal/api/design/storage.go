@@ -281,6 +281,24 @@ var _ = Service("storage", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
+	Method("cancel_aip_deletion", func() {
+		Description("Cancel an AIP deletion request")
+		Security(JWTAuth, func() {
+			Scope("storage:aips:deletion:request")
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of AIP")
+			Token("token", String)
+			Attribute("test", Boolean, "If test is true user authorization to cancel deletion is checked but the request is not cancelled.")
+			Required("uuid")
+		})
+		Error("not_found", AIPNotFound, "AIP not found")
+		HTTP(func() {
+			POST("/aips/{uuid}/deletion-cancel")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+		})
+	})
 	Method("list_locations", func() {
 		Description("List locations")
 		Security(JWTAuth, func() {
