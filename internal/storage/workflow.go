@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/google/uuid"
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
@@ -16,8 +17,7 @@ const (
 	StorageDeleteWorkflowName           = "storage-delete-workflow"
 	StorageUploadWorkflowName           = "storage-upload-workflow"
 	StorageMoveWorkflowName             = "storage-move-workflow"
-	DeletionReviewedSignalName          = "deletion-reviewed-signal"
-	DeletionCancelledSignalName         = "deletion-cancelled-signal"
+	DeletionDecisionSignalName          = "deletion-request-signal"
 	UploadDoneSignalName                = "upload-done-signal"
 )
 
@@ -30,16 +30,11 @@ type StorageDeleteWorkflowRequest struct {
 	TaskQueue string
 }
 
-type DeletionReviewedSignal struct {
-	Approved  bool
+type DeletionDecisionSignal struct {
+	Status    enums.DeletionRequestStatus
 	UserEmail string
 	UserSub   string
 	UserISS   string
-}
-
-type DeletionCancelledSignal struct {
-	UserSub string
-	UserISS string
 }
 
 type StorageUploadWorkflowRequest struct {

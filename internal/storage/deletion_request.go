@@ -96,13 +96,18 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 		return goastorage.MakeNotValid(errors.New("requester cannot review their own request"))
 	}
 
-	signal := DeletionReviewedSignal{
-		Approved:  payload.Approved,
+	status := enums.DeletionRequestStatusRejected
+	if payload.Approved {
+		status = enums.DeletionRequestStatusApproved
+	}
+
+	signal := DeletionDecisionSignal{
+		Status:    status,
 		UserEmail: claims.Email,
 		UserSub:   claims.Sub,
 		UserISS:   claims.ISS,
 	}
-	err = s.tc.SignalWorkflow(ctx, StorageDeleteWorkflowID(aipID), "", DeletionReviewedSignalName, signal)
+	err = s.tc.SignalWorkflow(ctx, StorageDeleteWorkflowID(aipID), "", DeletionDecisionSignalName, signal)
 	if err != nil {
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
@@ -144,10 +149,12 @@ func (s *serviceImpl) CancelAipDeletion(
 		ctx,
 		StorageDeleteWorkflowID(aipID),
 		"",
-		DeletionCancelledSignalName,
-		DeletionCancelledSignal{
-			UserSub: claims.Sub,
-			UserISS: claims.ISS,
+		DeletionDecisionSignalName,
+		DeletionDecisionSignal{
+			Status:    enums.DeletionRequestStatusCanceled,
+			UserEmail: claims.Email,
+			UserSub:   claims.Sub,
+			UserISS:   claims.ISS,
 		},
 	)
 	if err != nil {

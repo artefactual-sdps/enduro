@@ -15,6 +15,7 @@ const (
 	DeletionRequestStatusPending  DeletionRequestStatus = "pending"
 	DeletionRequestStatusApproved DeletionRequestStatus = "approved"
 	DeletionRequestStatusRejected DeletionRequestStatus = "rejected"
+	DeletionRequestStatusCanceled DeletionRequestStatus = "canceled"
 )
 
 var ErrInvalidDeletionRequestStatus = fmt.Errorf("not a valid DeletionRequestStatus, try [%s]", strings.Join(_DeletionRequestStatusNames, ", "))
@@ -23,6 +24,7 @@ var _DeletionRequestStatusNames = []string{
 	string(DeletionRequestStatusPending),
 	string(DeletionRequestStatusApproved),
 	string(DeletionRequestStatusRejected),
+	string(DeletionRequestStatusCanceled),
 }
 
 // DeletionRequestStatusNames returns a list of possible string values of DeletionRequestStatus.
@@ -48,6 +50,7 @@ var _DeletionRequestStatusValue = map[string]DeletionRequestStatus{
 	"pending":  DeletionRequestStatusPending,
 	"approved": DeletionRequestStatusApproved,
 	"rejected": DeletionRequestStatusRejected,
+	"canceled": DeletionRequestStatusCanceled,
 }
 
 // ParseDeletionRequestStatus attempts to convert a string to a DeletionRequestStatus.

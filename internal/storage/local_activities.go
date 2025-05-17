@@ -234,7 +234,7 @@ func ReviewDeletionRequestLocalActivity(
 	ctx context.Context,
 	storagesvc Service,
 	dbID int,
-	review DeletionReviewedSignal,
+	review DeletionDecisionSignal,
 ) error {
 	_, err := storagesvc.UpdateDeletionRequest(
 		ctx,
@@ -244,11 +244,24 @@ func ReviewDeletionRequestLocalActivity(
 			dr.ReviewerISS = review.UserISS
 			dr.ReviewerSub = review.UserSub
 			dr.ReviewedAt = time.Now()
-			if review.Approved {
-				dr.Status = enums.DeletionRequestStatusApproved
-			} else {
-				dr.Status = enums.DeletionRequestStatusRejected
-			}
+			dr.Status = review.Status
+			return dr, nil
+		},
+	)
+
+	return err
+}
+
+func CancelDeletionRequestLocalActivity(
+	ctx context.Context,
+	storagesvc Service,
+	dbID int,
+) error {
+	_, err := storagesvc.UpdateDeletionRequest(
+		ctx,
+		dbID,
+		func(dr *types.DeletionRequest) (*types.DeletionRequest, error) {
+			dr.Status = enums.DeletionRequestStatusCanceled
 			return dr, nil
 		},
 	)

@@ -341,9 +341,9 @@ func TestReviewAipDeletion(t *testing.T) {
 					mock.AnythingOfType("*context.valueCtx"),
 					fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
 					"",
-					storage.DeletionReviewedSignalName,
-					storage.DeletionReviewedSignal{
-						Approved:  false,
+					storage.DeletionDecisionSignalName,
+					storage.DeletionDecisionSignal{
+						Status:    enums.DeletionRequestStatusRejected,
 						UserEmail: "reviewer@example.com",
 						UserISS:   "issuer",
 						UserSub:   "subject-2",
@@ -374,9 +374,9 @@ func TestReviewAipDeletion(t *testing.T) {
 					mock.AnythingOfType("*context.valueCtx"),
 					fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
 					"",
-					storage.DeletionReviewedSignalName,
-					storage.DeletionReviewedSignal{
-						Approved:  true,
+					storage.DeletionDecisionSignalName,
+					storage.DeletionDecisionSignal{
+						Status:    enums.DeletionRequestStatusApproved,
 						UserEmail: "reviewer@example.com",
 						UserISS:   "issuer",
 						UserSub:   "subject-2",
@@ -507,10 +507,12 @@ func TestCancelAipDeletion(t *testing.T) {
 					mock.AnythingOfType("*context.valueCtx"),
 					fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
 					"",
-					storage.DeletionCancelledSignalName,
-					storage.DeletionCancelledSignal{
-						UserISS: "issuer",
-						UserSub: "subject",
+					storage.DeletionDecisionSignalName,
+					storage.DeletionDecisionSignal{
+						Status:    enums.DeletionRequestStatusCanceled,
+						UserEmail: "reviewer@example.com",
+						UserISS:   "issuer",
+						UserSub:   "subject",
 					},
 				).Return(errors.New("temporal error"))
 			},
@@ -536,10 +538,12 @@ func TestCancelAipDeletion(t *testing.T) {
 					mock.AnythingOfType("*context.valueCtx"),
 					fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
 					"",
-					storage.DeletionCancelledSignalName,
-					storage.DeletionCancelledSignal{
-						UserISS: "issuer",
-						UserSub: "subject",
+					storage.DeletionDecisionSignalName,
+					storage.DeletionDecisionSignal{
+						Status:    enums.DeletionRequestStatusCanceled,
+						UserEmail: "reviewer@example.com",
+						UserISS:   "issuer",
+						UserSub:   "subject",
 					},
 				).Return(nil)
 			},
