@@ -611,12 +611,11 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&ingest.ProcessingWorkflowRequest{
-			Key:                        key,
-			WatcherName:                watcherName,
-			RetentionPeriod:            &retentionPeriod,
-			AutoApproveAIP:             true,
-			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
-			SIPUUID:                    sipUUID,
+			Key:             key,
+			WatcherName:     watcherName,
+			RetentionPeriod: &retentionPeriod,
+			AutoApproveAIP:  true,
+			SIPUUID:         sipUUID,
 		},
 	)
 
@@ -635,8 +634,11 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 
 	cfg := config.Configuration{
-		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
-		AM:           am.Config{ZipPIP: true},
+		A3m: a3m.Config{ShareDir: s.CreateTransferDir()},
+		AM: am.Config{
+			ZipPIP:           true,
+			TransferDeadline: time.Second,
+		},
 		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
 		Storage:      storage.Config{DefaultPermanentLocationID: amssLocationID},
 		ValidatePREMIS: premis.Config{
@@ -804,13 +806,11 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&ingest.ProcessingWorkflowRequest{
-			WatcherName:                watcherName,
-			RetentionPeriod:            &retentionPeriod,
-			AutoApproveAIP:             true,
-			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
-			Key:                        key,
-			TransferDeadline:           time.Second,
-			SIPUUID:                    sipUUID,
+			WatcherName:     watcherName,
+			RetentionPeriod: &retentionPeriod,
+			AutoApproveAIP:  true,
+			Key:             key,
+			SIPUUID:         sipUUID,
 		},
 	)
 
@@ -1199,12 +1199,11 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&ingest.ProcessingWorkflowRequest{
-			Key:                        key,
-			WatcherName:                watcherName,
-			RetentionPeriod:            &retentionPeriod,
-			AutoApproveAIP:             true,
-			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
-			SIPUUID:                    sipUUID,
+			Key:             key,
+			WatcherName:     watcherName,
+			RetentionPeriod: &retentionPeriod,
+			AutoApproveAIP:  true,
+			SIPUUID:         sipUUID,
 		},
 	)
 
@@ -1325,12 +1324,11 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&ingest.ProcessingWorkflowRequest{
-			Key:                        key,
-			WatcherName:                watcherName,
-			RetentionPeriod:            &retentionPeriod,
-			AutoApproveAIP:             true,
-			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
-			SIPUUID:                    sipUUID,
+			Key:             key,
+			WatcherName:     watcherName,
+			RetentionPeriod: &retentionPeriod,
+			AutoApproveAIP:  true,
+			SIPUUID:         sipUUID,
 		},
 	)
 
@@ -1491,12 +1489,11 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&ingest.ProcessingWorkflowRequest{
-			Key:                        key,
-			WatcherName:                watcherName,
-			RetentionPeriod:            &retentionPeriod,
-			AutoApproveAIP:             true,
-			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
-			SIPUUID:                    sipUUID,
+			Key:             key,
+			WatcherName:     watcherName,
+			RetentionPeriod: &retentionPeriod,
+			AutoApproveAIP:  true,
+			SIPUUID:         sipUUID,
 		},
 	)
 
@@ -1607,13 +1604,11 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&ingest.ProcessingWorkflowRequest{
-			WatcherName:                watcherName,
-			RetentionPeriod:            &retentionPeriod,
-			AutoApproveAIP:             true,
-			DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
-			Key:                        key,
-			TransferDeadline:           time.Second,
-			SIPUUID:                    sipUUID,
+			WatcherName:     watcherName,
+			RetentionPeriod: &retentionPeriod,
+			AutoApproveAIP:  true,
+			Key:             key,
+			SIPUUID:         sipUUID,
 		},
 	)
 

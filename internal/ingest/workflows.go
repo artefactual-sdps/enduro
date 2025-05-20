@@ -24,10 +24,6 @@ type ReviewPerformedSignal struct {
 }
 
 type ProcessingWorkflowRequest struct {
-	// The zero value represents a new SIP. It can be used to indicate
-	// an existing SIP in retries.
-	SIPID int
-
 	// Unique identifier of the SIP.
 	SIPUUID uuid.UUID
 
@@ -53,29 +49,20 @@ type ProcessingWorkflowRequest struct {
 
 	// Whether the AIP is stored automatically in the default permanent location.
 	AutoApproveAIP bool
-
-	// Location identifier for storing auto approved AIPs.
-	DefaultPermanentLocationID *uuid.UUID
-
-	// Task queues used for starting new workflows.
-	GlobalTaskQueue       string
-	PreservationTaskQueue string
-
-	// PollInterval is the time to wait between poll requests to the AM API.
-	PollInterval time.Duration
-
-	// TransferDeadline is the maximum time to wait for a transfer to complete.
-	// Set to zero for no deadline.
-	TransferDeadline time.Duration
 }
 
-func InitProcessingWorkflow(ctx context.Context, tc temporalsdk_client.Client, req *ProcessingWorkflowRequest) error {
+func InitProcessingWorkflow(
+	ctx context.Context,
+	tc temporalsdk_client.Client,
+	taskQueue string,
+	req *ProcessingWorkflowRequest,
+) error {
 	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
 
 	opts := temporalsdk_client.StartWorkflowOptions{
 		ID:                    fmt.Sprintf("processing-workflow-%s", req.SIPUUID.String()),
-		TaskQueue:             req.GlobalTaskQueue,
+		TaskQueue:             taskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
 	_, err := tc.ExecuteWorkflow(ctx, opts, ProcessingWorkflowName, req)

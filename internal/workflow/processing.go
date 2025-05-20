@@ -165,35 +165,16 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 	// Persist the SIP as early as possible.
 	{
 		activityOpts := withLocalActivityOpts(ctx)
-		var err error
-
-		if state.sip.dbID == 0 {
-			err = temporalsdk_workflow.ExecuteLocalActivity(
-				activityOpts,
-				createSIPLocalActivity,
-				w.ingestsvc,
-				&createSIPLocalActivityParams{
-					UUID:   state.sip.uuid,
-					Name:   state.sip.name,
-					Status: state.sip.status,
-				},
-			).Get(activityOpts, &state.sip.dbID)
-		} else {
-			// TODO: investigate better way to reset the ingest.
-			err = temporalsdk_workflow.ExecuteLocalActivity(
-				activityOpts,
-				updateSIPLocalActivity,
-				w.ingestsvc,
-				&updateSIPLocalActivityParams{
-					UUID:        state.sip.uuid,
-					Name:        state.sip.name,
-					AIPUUID:     "",
-					CompletedAt: temporalsdk_workflow.Now(ctx).UTC(),
-					Status:      state.sip.status,
-				},
-			).Get(activityOpts, nil)
-		}
-
+		err := temporalsdk_workflow.ExecuteLocalActivity(
+			activityOpts,
+			createSIPLocalActivity,
+			w.ingestsvc,
+			&createSIPLocalActivityParams{
+				UUID:   state.sip.uuid,
+				Name:   state.sip.name,
+				Status: state.sip.status,
+			},
+		).Get(activityOpts, nil)
 		if err != nil {
 			return fmt.Errorf("error persisting SIP: %v", err)
 		}
@@ -286,7 +267,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 
 	w.logger.Info(
 		"Workflow completed successfully!",
-		"SIPID", state.sip.dbID,
+		"SIPUUID", state.sip.uuid,
 		"watcher", req.WatcherName,
 		"name", state.sip.name,
 		"status", state.status,
@@ -582,7 +563,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	if state.req.AutoApproveAIP {
 		reviewResult = &ingest.ReviewPerformedSignal{
 			Accepted:   true,
-			LocationID: state.req.DefaultPermanentLocationID,
+			LocationID: &w.cfg.Storage.DefaultPermanentLocationID,
 		}
 	} else {
 		// Set SIP to pending status.
@@ -899,7 +880,7 @@ func (w *ProcessingWorkflow) transferAM(
 	activityOpts := temporalsdk_workflow.WithActivityOptions(ctx,
 		temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
-			HeartbeatTimeout:    2 * state.req.PollInterval,
+			HeartbeatTimeout:    2 * w.cfg.AM.PollInterval,
 			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
 				InitialInterval:    time.Second * 5,
 				BackoffCoefficient: 2,
@@ -939,8 +920,8 @@ func (w *ProcessingWorkflow) transferAM(
 	pollOpts := temporalsdk_workflow.WithActivityOptions(
 		ctx,
 		temporalsdk_workflow.ActivityOptions{
-			HeartbeatTimeout:    2 * state.req.PollInterval,
-			StartToCloseTimeout: state.req.TransferDeadline,
+			HeartbeatTimeout:    2 * w.cfg.AM.PollInterval,
+			StartToCloseTimeout: w.cfg.AM.TransferDeadline,
 			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
 				InitialInterval:    5 * time.Second,
 				BackoffCoefficient: 2,
@@ -997,7 +978,7 @@ func (w *ProcessingWorkflow) transferAM(
 				Name:       state.sip.name,
 				AIPID:      state.aip.id,
 				ObjectKey:  state.aip.id,
-				LocationID: state.req.DefaultPermanentLocationID,
+				LocationID: &w.cfg.Storage.DefaultPermanentLocationID,
 				Status:     "stored",
 			}).
 			Get(activityOpts, nil)

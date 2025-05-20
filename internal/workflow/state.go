@@ -42,7 +42,6 @@ func newWorkflowState(req *ingest.ProcessingWorkflowRequest) *workflowState {
 		status: enums.WorkflowStatusUnspecified,
 		sip: &sipInfo{
 			uuid:  req.SIPUUID,
-			dbID:  req.SIPID,
 			name:  req.Key,
 			isDir: req.IsDir,
 
@@ -70,10 +69,6 @@ func (s *workflowState) addTempPath(path string) {
 type sipInfo struct {
 	// uuid is the unique identifier of the SIP, it's passed in the request.
 	uuid uuid.UUID
-
-	// dbID is the database ID of the SIP. It is populated by
-	// createSIPLocalActivity as one of the first steps of processing.
-	dbID int
 
 	// name is the original blob "key" (filename) of the SIP. It is used as a
 	// human-readable identifier for the SIP in the database and UI.

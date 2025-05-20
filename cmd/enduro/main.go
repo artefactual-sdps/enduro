@@ -388,21 +388,16 @@ func main() {
 							go func() {
 								defer span.End()
 								req := ingest.ProcessingWorkflowRequest{
-									WatcherName:                event.WatcherName,
-									RetentionPeriod:            event.RetentionPeriod,
-									CompletedDir:               event.CompletedDir,
-									StripTopLevelDir:           event.StripTopLevelDir,
-									Key:                        event.Key,
-									IsDir:                      event.IsDir,
-									AutoApproveAIP:             autoApproveAIP,
-									DefaultPermanentLocationID: &cfg.Storage.DefaultPermanentLocationID,
-									GlobalTaskQueue:            cfg.Temporal.TaskQueue,
-									PreservationTaskQueue:      cfg.Preservation.TaskQueue,
-									PollInterval:               cfg.AM.PollInterval,
-									TransferDeadline:           cfg.AM.TransferDeadline,
-									SIPUUID:                    uuid.New(),
+									WatcherName:      event.WatcherName,
+									RetentionPeriod:  event.RetentionPeriod,
+									CompletedDir:     event.CompletedDir,
+									StripTopLevelDir: event.StripTopLevelDir,
+									Key:              event.Key,
+									IsDir:            event.IsDir,
+									AutoApproveAIP:   autoApproveAIP,
+									SIPUUID:          uuid.New(),
 								}
-								if err := ingest.InitProcessingWorkflow(ctx, temporalClient, &req); err != nil {
+								if err := ingest.InitProcessingWorkflow(ctx, temporalClient, cfg.Temporal.TaskQueue, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")
 									span.RecordError(err)
 									span.SetStatus(codes.Error, err.Error())
