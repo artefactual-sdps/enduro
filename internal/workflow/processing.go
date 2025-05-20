@@ -304,26 +304,21 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Persist the workflow for the ingest workflow.
 	{
-		{
-			var workflowType enums.WorkflowType
-			if state.req.AutoApproveAIP {
-				workflowType = enums.WorkflowTypeCreateAip
-			} else {
-				workflowType = enums.WorkflowTypeCreateAndReviewAip
-			}
-
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, createWorkflowLocalActivity, w.ingestsvc, &createWorkflowLocalActivityParams{
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(
+			ctx,
+			createWorkflowLocalActivity,
+			w.ingestsvc,
+			&createWorkflowLocalActivityParams{
 				TemporalID: temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
-				Type:       workflowType,
+				Type:       state.req.Type,
 				Status:     enums.WorkflowStatusInProgress,
 				StartedAt:  sipStartedAt,
 				SIPUUID:    state.sip.uuid,
-			}).
-				Get(ctx, &state.workflowID)
-			if err != nil {
-				return err
-			}
+			},
+		).Get(ctx, &state.workflowID)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -503,7 +498,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	var uploadTaskID int
 
 	// Add task for upload to review bucket.
-	if !state.req.AutoApproveAIP {
+	if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
 		id, err := w.createTask(
 			sessCtx,
 			datatypes.Task{
@@ -541,7 +536,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	}
 
 	// Complete task for upload to review bucket.
-	if !state.req.AutoApproveAIP {
+	if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
 			ID:          uploadTaskID,
@@ -560,7 +555,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	// Identifier of the task for SIP/AIP review
 	var reviewTaskID int
 
-	if state.req.AutoApproveAIP {
+	if state.req.Type == enums.WorkflowTypeCreateAip {
 		reviewResult = &ingest.ReviewPerformedSignal{
 			Accepted:   true,
 			LocationID: &w.cfg.Storage.DefaultPermanentLocationID,
@@ -627,7 +622,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	if reviewResult.Accepted {
 		// Record SIP/AIP confirmation in review task.
-		if !state.req.AutoApproveAIP {
+		if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
 				ID:          reviewTaskID,
@@ -704,7 +699,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		if err := w.poststorage(sessCtx, state.aip.id); err != nil {
 			return err
 		}
-	} else if !state.req.AutoApproveAIP {
+	} else if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
 		// Record SIP/AIP rejection in review task
 		{
 			ctx := withLocalActivityOpts(sessCtx)

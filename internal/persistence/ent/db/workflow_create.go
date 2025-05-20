@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
@@ -29,8 +30,8 @@ func (wc *WorkflowCreate) SetTemporalID(s string) *WorkflowCreate {
 }
 
 // SetType sets the "type" field.
-func (wc *WorkflowCreate) SetType(i int8) *WorkflowCreate {
-	wc.mutation.SetType(i)
+func (wc *WorkflowCreate) SetType(et enums.WorkflowType) *WorkflowCreate {
+	wc.mutation.SetType(et)
 	return wc
 }
 
@@ -134,6 +135,11 @@ func (wc *WorkflowCreate) check() error {
 	if _, ok := wc.mutation.GetType(); !ok {
 		return &ValidationError{Name: "type", err: errors.New(`db: missing required field "Workflow.type"`)}
 	}
+	if v, ok := wc.mutation.GetType(); ok {
+		if err := workflow.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`db: validator failed for field "Workflow.type": %w`, err)}
+		}
+	}
 	if _, ok := wc.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "Workflow.status"`)}
 	}
@@ -179,7 +185,7 @@ func (wc *WorkflowCreate) createSpec() (*Workflow, *sqlgraph.CreateSpec) {
 		_node.TemporalID = value
 	}
 	if value, ok := wc.mutation.GetType(); ok {
-		_spec.SetField(workflow.FieldType, field.TypeInt8, value)
+		_spec.SetField(workflow.FieldType, field.TypeEnum, value)
 		_node.Type = value
 	}
 	if value, ok := wc.mutation.Status(); ok {

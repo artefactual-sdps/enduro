@@ -3,6 +3,8 @@ package watcher
 import (
 	"path/filepath"
 	"time"
+
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 const defaultPollInterval = 200 * time.Millisecond
@@ -43,6 +45,10 @@ type FilesystemConfig struct {
 	// PollInterval sets the length of time between filesystem polls (default:
 	// 200ms). If Inotify is true then PollInterval is ignored.
 	PollInterval time.Duration
+
+	// WorkflowType specifies which workflow this watcher should execute
+	// (default: "create aip").
+	WorkflowType enums.WorkflowType
 }
 
 func (cfg *FilesystemConfig) setDefaults() {
@@ -73,4 +79,8 @@ type MinioConfig struct {
 
 	// PollInterval sets the length of time between Redis polls (default: 1s).
 	PollInterval time.Duration
+
+	// WorkflowType specifies which workflow this watcher should execute
+	// (default: "create aip").
+	WorkflowType enums.WorkflowType
 }

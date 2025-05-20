@@ -99,6 +99,11 @@ secret = "minio123"
 region = "us-west-1"
 bucket = "sips"
 stripTopLevelDir = true
+# workflowType is the processing workflow type related to this watcher.
+# Available workflow types are "create aip" and "create and review aip",
+# the later only works properly when the preservation system is "a3m".
+# Default: "create aip".
+workflowType = "create aip"
 
 [storage]
 enduroAddress = "enduro.enduro-sdps:9002"

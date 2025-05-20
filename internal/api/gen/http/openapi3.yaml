@@ -490,7 +490,7 @@ paths:
                                           task_id: abc123
                                           workflow_id: 1
                                       temporal_id: abc123
-                                      type: create aip
+                                      type: create and review aip
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
@@ -2049,9 +2049,8 @@ components:
                     example: abc123
                 type:
                     type: string
-                    example: create aip
+                    example: create and review aip
                     enum:
-                        - unspecified
                         - create aip
                         - create and review aip
             description: SIPWorkflow describes a workflow of a SIP.
@@ -2071,7 +2070,7 @@ components:
                       task_id: abc123
                       workflow_id: 1
                 temporal_id: abc123
-                type: create aip
+                type: create and review aip
             required:
                 - id
                 - temporal_id
@@ -2763,7 +2762,7 @@ components:
                       task_id: abc123
                       workflow_id: 1
                   temporal_id: abc123
-                  type: create aip
+                  type: create and review aip
         SIPWorkflowCreatedEvent:
             type: object
             properties:
@@ -2792,7 +2791,7 @@ components:
                           task_id: abc123
                           workflow_id: 1
                     temporal_id: abc123
-                    type: create aip
+                    type: create and review aip
             required:
                 - id
                 - item
@@ -2824,7 +2823,7 @@ components:
                           task_id: abc123
                           workflow_id: 1
                     temporal_id: abc123
-                    type: create aip
+                    type: create and review aip
             required:
                 - id
                 - item
@@ -2850,7 +2849,7 @@ components:
                           task_id: abc123
                           workflow_id: 1
                       temporal_id: abc123
-                      type: create aip
+                      type: create and review aip
         SIPs:
             type: object
             properties:

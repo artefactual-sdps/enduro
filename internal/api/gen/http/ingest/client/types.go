@@ -1251,8 +1251,8 @@ func ValidateSIPWorkflowResponseBody(body *SIPWorkflowResponseBody) (err error) 
 		err = goa.MergeErrors(err, goa.MissingFieldError("sip_uuid", "body"))
 	}
 	if body.Type != nil {
-		if !(*body.Type == "unspecified" || *body.Type == "create aip" || *body.Type == "create and review aip") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "create aip", "create and review aip"}))
+		if !(*body.Type == "create aip" || *body.Type == "create and review aip") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"create aip", "create and review aip"}))
 		}
 	}
 	if body.Status != nil {

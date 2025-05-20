@@ -1624,8 +1624,7 @@ type WorkflowMutation struct {
 	typ           string
 	id            *int
 	temporal_id   *string
-	_type         *int8
-	add_type      *int8
+	_type         *enums.WorkflowType
 	status        *int8
 	addstatus     *int8
 	started_at    *time.Time
@@ -1776,13 +1775,12 @@ func (m *WorkflowMutation) ResetTemporalID() {
 }
 
 // SetType sets the "type" field.
-func (m *WorkflowMutation) SetType(i int8) {
-	m._type = &i
-	m.add_type = nil
+func (m *WorkflowMutation) SetType(et enums.WorkflowType) {
+	m._type = &et
 }
 
 // GetType returns the value of the "type" field in the mutation.
-func (m *WorkflowMutation) GetType() (r int8, exists bool) {
+func (m *WorkflowMutation) GetType() (r enums.WorkflowType, exists bool) {
 	v := m._type
 	if v == nil {
 		return
@@ -1793,7 +1791,7 @@ func (m *WorkflowMutation) GetType() (r int8, exists bool) {
 // OldType returns the old "type" field's value of the Workflow entity.
 // If the Workflow object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *WorkflowMutation) OldType(ctx context.Context) (v int8, err error) {
+func (m *WorkflowMutation) OldType(ctx context.Context) (v enums.WorkflowType, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldType is only allowed on UpdateOne operations")
 	}
@@ -1807,28 +1805,9 @@ func (m *WorkflowMutation) OldType(ctx context.Context) (v int8, err error) {
 	return oldValue.Type, nil
 }
 
-// AddType adds i to the "type" field.
-func (m *WorkflowMutation) AddType(i int8) {
-	if m.add_type != nil {
-		*m.add_type += i
-	} else {
-		m.add_type = &i
-	}
-}
-
-// AddedType returns the value that was added to the "type" field in this mutation.
-func (m *WorkflowMutation) AddedType() (r int8, exists bool) {
-	v := m.add_type
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
 // ResetType resets all changes to the "type" field.
 func (m *WorkflowMutation) ResetType() {
 	m._type = nil
-	m.add_type = nil
 }
 
 // SetStatus sets the "status" field.
@@ -2213,7 +2192,7 @@ func (m *WorkflowMutation) SetField(name string, value ent.Value) error {
 		m.SetTemporalID(v)
 		return nil
 	case workflow.FieldType:
-		v, ok := value.(int8)
+		v, ok := value.(enums.WorkflowType)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2255,9 +2234,6 @@ func (m *WorkflowMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *WorkflowMutation) AddedFields() []string {
 	var fields []string
-	if m.add_type != nil {
-		fields = append(fields, workflow.FieldType)
-	}
 	if m.addstatus != nil {
 		fields = append(fields, workflow.FieldStatus)
 	}
@@ -2269,8 +2245,6 @@ func (m *WorkflowMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *WorkflowMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case workflow.FieldType:
-		return m.AddedType()
 	case workflow.FieldStatus:
 		return m.AddedStatus()
 	}
@@ -2282,13 +2256,6 @@ func (m *WorkflowMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *WorkflowMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case workflow.FieldType:
-		v, ok := value.(int8)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddType(v)
-		return nil
 	case workflow.FieldStatus:
 		v, ok := value.(int8)
 		if !ok {

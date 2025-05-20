@@ -53,7 +53,7 @@ func createWorkflow(
 ) (*db.Workflow, error) {
 	return entc.Workflow.Create().
 		SetTemporalID("12345").
-		SetType(int8(enums.WorkflowTypeCreateAip)).
+		SetType(enums.WorkflowTypeCreateAip).
 		SetStatus(int8(status)). // #nosec G115 -- constrained value.
 		SetSipID(sipID).
 		Save(context.Background())

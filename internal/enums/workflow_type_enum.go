@@ -12,22 +12,17 @@ import (
 )
 
 const (
-	// Type is indeterminate.
-	WorkflowTypeUnspecified WorkflowType = iota
 	// Create an AIP and store it.
-	WorkflowTypeCreateAip
+	WorkflowTypeCreateAip WorkflowType = "create aip"
 	// Create an AIP then wait for a manual review.
-	WorkflowTypeCreateAndReviewAip
+	WorkflowTypeCreateAndReviewAip WorkflowType = "create and review aip"
 )
 
 var ErrInvalidWorkflowType = fmt.Errorf("not a valid WorkflowType, try [%s]", strings.Join(_WorkflowTypeNames, ", "))
 
-const _WorkflowTypeName = "unspecifiedcreate aipcreate and review aip"
-
 var _WorkflowTypeNames = []string{
-	_WorkflowTypeName[0:11],
-	_WorkflowTypeName[11:21],
-	_WorkflowTypeName[21:42],
+	string(WorkflowTypeCreateAip),
+	string(WorkflowTypeCreateAndReviewAip),
 }
 
 // WorkflowTypeNames returns a list of possible string values of WorkflowType.
@@ -37,31 +32,21 @@ func WorkflowTypeNames() []string {
 	return tmp
 }
 
-var _WorkflowTypeMap = map[WorkflowType]string{
-	WorkflowTypeUnspecified:        _WorkflowTypeName[0:11],
-	WorkflowTypeCreateAip:          _WorkflowTypeName[11:21],
-	WorkflowTypeCreateAndReviewAip: _WorkflowTypeName[21:42],
-}
-
 // String implements the Stringer interface.
 func (x WorkflowType) String() string {
-	if str, ok := _WorkflowTypeMap[x]; ok {
-		return str
-	}
-	return fmt.Sprintf("WorkflowType(%d)", x)
+	return string(x)
 }
 
 // IsValid provides a quick way to determine if the typed value is
 // part of the allowed enumerated values
 func (x WorkflowType) IsValid() bool {
-	_, ok := _WorkflowTypeMap[x]
-	return ok
+	_, err := ParseWorkflowType(string(x))
+	return err == nil
 }
 
 var _WorkflowTypeValue = map[string]WorkflowType{
-	_WorkflowTypeName[0:11]:  WorkflowTypeUnspecified,
-	_WorkflowTypeName[11:21]: WorkflowTypeCreateAip,
-	_WorkflowTypeName[21:42]: WorkflowTypeCreateAndReviewAip,
+	"create aip":            WorkflowTypeCreateAip,
+	"create and review aip": WorkflowTypeCreateAndReviewAip,
 }
 
 // ParseWorkflowType attempts to convert a string to a WorkflowType.
@@ -69,7 +54,7 @@ func ParseWorkflowType(name string) (WorkflowType, error) {
 	if x, ok := _WorkflowTypeValue[name]; ok {
 		return x, nil
 	}
-	return WorkflowType(0), fmt.Errorf("%s is %w", name, ErrInvalidWorkflowType)
+	return WorkflowType(""), fmt.Errorf("%s is %w", name, ErrInvalidWorkflowType)
 }
 
 // Values implements the entgo.io/ent/schema/field EnumValues interface.

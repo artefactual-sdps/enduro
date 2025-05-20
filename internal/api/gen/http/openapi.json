@@ -654,7 +654,7 @@
               }
             ],
             "temporal_id": "abc123",
-            "type": "create aip"
+            "type": "create and review aip"
           }
         ]
       },
@@ -1604,7 +1604,7 @@
           }
         ],
         "temporal_id": "abc123",
-        "type": "create aip"
+        "type": "create and review aip"
       },
       "properties": {
         "completed_at": {
@@ -1649,11 +1649,10 @@
         },
         "type": {
           "enum": [
-            "unspecified",
             "create aip",
             "create and review aip"
           ],
-          "example": "create aip",
+          "example": "create and review aip",
           "type": "string"
         }
       },
@@ -1690,7 +1689,7 @@
             }
           ],
           "temporal_id": "abc123",
-          "type": "create aip"
+          "type": "create and review aip"
         }
       ],
       "items": {

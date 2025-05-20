@@ -90,6 +90,7 @@ func NewMinioWatcher(
 			name:             config.Name,
 			retentionPeriod:  config.RetentionPeriod,
 			stripTopLevelDir: config.StripTopLevelDir,
+			workflowType:     config.WorkflowType,
 		},
 	}, nil
 }

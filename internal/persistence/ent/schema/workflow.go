@@ -6,6 +6,8 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 // Workflow holds the schema definition for the Workflow entity.
@@ -27,7 +29,8 @@ func (Workflow) Fields() []ent.Field {
 			Annotations(entsql.Annotation{
 				Size: 255,
 			}),
-		field.Int8("type"),
+		field.Enum("type").
+			GoType(enums.WorkflowTypeCreateAip),
 		field.Int8("status"),
 		field.Time("started_at").
 			Optional(),

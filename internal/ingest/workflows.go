@@ -8,6 +8,8 @@ import (
 	"github.com/google/uuid"
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
+
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 const (
@@ -26,6 +28,9 @@ type ReviewPerformedSignal struct {
 type ProcessingWorkflowRequest struct {
 	// Unique identifier of the SIP.
 	SIPUUID uuid.UUID
+
+	// Type of workflow to execute.
+	Type enums.WorkflowType
 
 	// Name of the watcher that received this blob.
 	WatcherName string
@@ -46,9 +51,6 @@ type ProcessingWorkflowRequest struct {
 
 	// Whether the blob is a directory (fs watcher)
 	IsDir bool
-
-	// Whether the AIP is stored automatically in the default permanent location.
-	AutoApproveAIP bool
 }
 
 func InitProcessingWorkflow(

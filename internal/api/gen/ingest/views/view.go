@@ -400,8 +400,8 @@ func ValidateSIPWorkflowViewSimple(result *SIPWorkflowView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("sip_uuid", "result"))
 	}
 	if result.Type != nil {
-		if !(*result.Type == "unspecified" || *result.Type == "create aip" || *result.Type == "create and review aip") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"unspecified", "create aip", "create and review aip"}))
+		if !(*result.Type == "create aip" || *result.Type == "create and review aip") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"create aip", "create and review aip"}))
 		}
 	}
 	if result.Status != nil {
@@ -440,8 +440,8 @@ func ValidateSIPWorkflowView(result *SIPWorkflowView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("sip_uuid", "result"))
 	}
 	if result.Type != nil {
-		if !(*result.Type == "unspecified" || *result.Type == "create aip" || *result.Type == "create and review aip") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"unspecified", "create aip", "create and review aip"}))
+		if !(*result.Type == "create aip" || *result.Type == "create and review aip") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"create aip", "create and review aip"}))
 		}
 	}
 	if result.Status != nil {
