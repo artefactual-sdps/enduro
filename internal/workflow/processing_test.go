@@ -90,7 +90,7 @@ func preprocessingChildWorkflow(
 func poststorageChildWorkflow(
 	ctx temporalsdk_workflow.Context,
 	params *poststorage.WorkflowParams,
-) (*interface{}, error) {
+) (*any, error) {
 	return nil, nil
 }
 

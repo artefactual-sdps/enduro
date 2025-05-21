@@ -171,7 +171,7 @@ func setCORSOriginEnv(config *Configuration) error {
 // stringToUUIDHookFunc decodes a string to a uuid.UUID. Copied from
 // https://github.com/go-saas/kit/blob/main/pkg/mapstructure/mapstructure.go
 func stringToUUIDHookFunc() mapstructure.DecodeHookFunc {
-	return func(f, t reflect.Type, data interface{}) (interface{}, error) {
+	return func(f, t reflect.Type, data any) (any, error) {
 		if f.Kind() != reflect.String || t != reflect.TypeOf(uuid.UUID{}) {
 			return data, nil
 		}
@@ -182,7 +182,7 @@ func stringToUUIDHookFunc() mapstructure.DecodeHookFunc {
 
 // stringToMapHookFunc decodes a JSON string to a map[string][]string.
 func stringToMapHookFunc() mapstructure.DecodeHookFunc {
-	return func(f, t reflect.Type, data interface{}) (interface{}, error) {
+	return func(f, t reflect.Type, data any) (any, error) {
 		value := map[string][]string{}
 		if f.Kind() != reflect.String || t != reflect.TypeOf(value) {
 			return data, nil

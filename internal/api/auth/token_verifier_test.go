@@ -19,7 +19,7 @@ const (
 	subject  = "test-subject"
 )
 
-func token(t *testing.T, signer jose.Signer, iss string, claims interface{}) (token string) {
+func token(t *testing.T, signer jose.Signer, iss string, claims any) (token string) {
 	t.Helper()
 
 	// Use signed builder to generate token with given claims.
@@ -154,13 +154,13 @@ func TestParseAttributes(t *testing.T) {
 	signer, iss := oidctest.NewIssuer(t)
 
 	type nestedAttr struct {
-		NestedAttributes interface{} `json:"nested_attributes,omitempty"`
+		NestedAttributes any `json:"nested_attributes,omitempty"`
 	}
 
 	type customClaims struct {
-		Email         string      `json:"email,omitempty"`
-		EmailVerified bool        `json:"email_verified,omitempty"`
-		Attributes    interface{} `json:"attributes,omitempty"`
+		Email         string `json:"email,omitempty"`
+		EmailVerified bool   `json:"email_verified,omitempty"`
+		Attributes    any    `json:"attributes,omitempty"`
 	}
 
 	type test struct {

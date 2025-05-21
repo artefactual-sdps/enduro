@@ -4,7 +4,7 @@ import (
 	"goa.design/goa/v3/dsl"
 )
 
-func PaginatedCollectionOf(v interface{}, adsl ...func()) interface{} {
+func PaginatedCollectionOf(v any, adsl ...func()) any {
 	return func() {
 		dsl.Attribute("items", dsl.CollectionOf(v, adsl...))
 		dsl.Attribute("next_cursor", dsl.String)

@@ -131,7 +131,7 @@ func (svc *ingestImpl) UpdateSIP(
 	}
 
 	query := `UPDATE sip SET name = ?, aip_id = ?, status = ?, completed_at = ? WHERE uuid = ?`
-	args := []interface{}{
+	args := []any{
 		name,
 		aipID,
 		status,
@@ -153,7 +153,7 @@ func (svc *ingestImpl) UpdateSIP(
 
 func (svc *ingestImpl) SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error {
 	query := `UPDATE sip SET status = ? WHERE uuid = ?`
-	args := []interface{}{
+	args := []any{
 		status,
 		id.String(),
 	}
@@ -170,7 +170,7 @@ func (svc *ingestImpl) SetStatus(ctx context.Context, id uuid.UUID, status enums
 
 func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, id uuid.UUID, startedAt time.Time) error {
 	var query string
-	args := []interface{}{enums.SIPStatusProcessing}
+	args := []any{enums.SIPStatusProcessing}
 
 	if !startedAt.IsZero() {
 		query = `UPDATE sip SET status = ?, started_at = ? WHERE uuid = ?`
@@ -192,7 +192,7 @@ func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, id uuid.UUID, st
 	return nil
 }
 
-func (svc *ingestImpl) updateRow(ctx context.Context, query string, args []interface{}) error {
+func (svc *ingestImpl) updateRow(ctx context.Context, query string, args []any) error {
 	_, err := svc.db.ExecContext(ctx, query, args...)
 	if err != nil {
 		return fmt.Errorf("error updating SIP: %v", err)
@@ -203,7 +203,7 @@ func (svc *ingestImpl) updateRow(ctx context.Context, query string, args []inter
 
 func (svc *ingestImpl) read(ctx context.Context, id string) (*datatypes.SIP, error) {
 	query := "SELECT id, uuid, name, aip_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM sip WHERE uuid = ?"
-	args := []interface{}{id}
+	args := []any{id}
 	c := datatypes.SIP{}
 
 	if err := svc.db.GetContext(ctx, &c, query, args...); err != nil {

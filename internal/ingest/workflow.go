@@ -35,7 +35,7 @@ func (svc *ingestImpl) SetWorkflowStatus(
 	status enums.WorkflowStatus,
 ) error {
 	query := `UPDATE workflow SET status = ? WHERE id = ?`
-	args := []interface{}{
+	args := []any{
 		status,
 		ID,
 	}
@@ -63,7 +63,7 @@ func (svc *ingestImpl) CompleteWorkflow(
 	completedAt time.Time,
 ) error {
 	query := `UPDATE workflow SET status = ?, completed_at = ? WHERE id = ?`
-	args := []interface{}{
+	args := []any{
 		status,
 		completedAt,
 		ID,
@@ -104,7 +104,7 @@ func (svc *ingestImpl) readWorkflow(
 		WHERE workflow.id = ?
 	`
 
-	args := []interface{}{ID}
+	args := []any{ID}
 	w := datatypes.Workflow{}
 	if err := svc.db.GetContext(ctx, &w, query, args...); err != nil {
 		return nil, err
