@@ -11,6 +11,8 @@ import (
 	"github.com/go-logr/logr"
 	"go.opentelemetry.io/otel/trace"
 	"gocloud.dev/blob"
+
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 var (
@@ -40,6 +42,7 @@ type Watcher interface {
 	RetentionPeriod() *time.Duration
 	CompletedDir() string
 	StripTopLevelDir() bool
+	WorkflowType() enums.WorkflowType
 
 	// Full path of the watched bucket when available, empty string otherwise.
 	Path() string
@@ -52,6 +55,7 @@ type commonWatcherImpl struct {
 	retentionPeriod  *time.Duration
 	completedDir     string
 	stripTopLevelDir bool
+	workflowType     enums.WorkflowType
 }
 
 func (w *commonWatcherImpl) String() string {
@@ -68,6 +72,10 @@ func (w *commonWatcherImpl) CompletedDir() string {
 
 func (w *commonWatcherImpl) StripTopLevelDir() bool {
 	return w.stripTopLevelDir
+}
+
+func (w *commonWatcherImpl) WorkflowType() enums.WorkflowType {
+	return w.workflowType
 }
 
 type Service interface {

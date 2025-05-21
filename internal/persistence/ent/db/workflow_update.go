@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
@@ -45,23 +46,16 @@ func (wu *WorkflowUpdate) SetNillableTemporalID(s *string) *WorkflowUpdate {
 }
 
 // SetType sets the "type" field.
-func (wu *WorkflowUpdate) SetType(i int8) *WorkflowUpdate {
-	wu.mutation.ResetType()
-	wu.mutation.SetType(i)
+func (wu *WorkflowUpdate) SetType(et enums.WorkflowType) *WorkflowUpdate {
+	wu.mutation.SetType(et)
 	return wu
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (wu *WorkflowUpdate) SetNillableType(i *int8) *WorkflowUpdate {
-	if i != nil {
-		wu.SetType(*i)
+func (wu *WorkflowUpdate) SetNillableType(et *enums.WorkflowType) *WorkflowUpdate {
+	if et != nil {
+		wu.SetType(*et)
 	}
-	return wu
-}
-
-// AddType adds i to the "type" field.
-func (wu *WorkflowUpdate) AddType(i int8) *WorkflowUpdate {
-	wu.mutation.AddType(i)
 	return wu
 }
 
@@ -221,6 +215,11 @@ func (wu *WorkflowUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (wu *WorkflowUpdate) check() error {
+	if v, ok := wu.mutation.GetType(); ok {
+		if err := workflow.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`db: validator failed for field "Workflow.type": %w`, err)}
+		}
+	}
 	if v, ok := wu.mutation.SipID(); ok {
 		if err := workflow.SipIDValidator(v); err != nil {
 			return &ValidationError{Name: "sip_id", err: fmt.Errorf(`db: validator failed for field "Workflow.sip_id": %w`, err)}
@@ -248,10 +247,7 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		_spec.SetField(workflow.FieldTemporalID, field.TypeString, value)
 	}
 	if value, ok := wu.mutation.GetType(); ok {
-		_spec.SetField(workflow.FieldType, field.TypeInt8, value)
-	}
-	if value, ok := wu.mutation.AddedType(); ok {
-		_spec.AddField(workflow.FieldType, field.TypeInt8, value)
+		_spec.SetField(workflow.FieldType, field.TypeEnum, value)
 	}
 	if value, ok := wu.mutation.Status(); ok {
 		_spec.SetField(workflow.FieldStatus, field.TypeInt8, value)
@@ -380,23 +376,16 @@ func (wuo *WorkflowUpdateOne) SetNillableTemporalID(s *string) *WorkflowUpdateOn
 }
 
 // SetType sets the "type" field.
-func (wuo *WorkflowUpdateOne) SetType(i int8) *WorkflowUpdateOne {
-	wuo.mutation.ResetType()
-	wuo.mutation.SetType(i)
+func (wuo *WorkflowUpdateOne) SetType(et enums.WorkflowType) *WorkflowUpdateOne {
+	wuo.mutation.SetType(et)
 	return wuo
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (wuo *WorkflowUpdateOne) SetNillableType(i *int8) *WorkflowUpdateOne {
-	if i != nil {
-		wuo.SetType(*i)
+func (wuo *WorkflowUpdateOne) SetNillableType(et *enums.WorkflowType) *WorkflowUpdateOne {
+	if et != nil {
+		wuo.SetType(*et)
 	}
-	return wuo
-}
-
-// AddType adds i to the "type" field.
-func (wuo *WorkflowUpdateOne) AddType(i int8) *WorkflowUpdateOne {
-	wuo.mutation.AddType(i)
 	return wuo
 }
 
@@ -569,6 +558,11 @@ func (wuo *WorkflowUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (wuo *WorkflowUpdateOne) check() error {
+	if v, ok := wuo.mutation.GetType(); ok {
+		if err := workflow.TypeValidator(v); err != nil {
+			return &ValidationError{Name: "type", err: fmt.Errorf(`db: validator failed for field "Workflow.type": %w`, err)}
+		}
+	}
 	if v, ok := wuo.mutation.SipID(); ok {
 		if err := workflow.SipIDValidator(v); err != nil {
 			return &ValidationError{Name: "sip_id", err: fmt.Errorf(`db: validator failed for field "Workflow.sip_id": %w`, err)}
@@ -613,10 +607,7 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 		_spec.SetField(workflow.FieldTemporalID, field.TypeString, value)
 	}
 	if value, ok := wuo.mutation.GetType(); ok {
-		_spec.SetField(workflow.FieldType, field.TypeInt8, value)
-	}
-	if value, ok := wuo.mutation.AddedType(); ok {
-		_spec.AddField(workflow.FieldType, field.TypeInt8, value)
+		_spec.SetField(workflow.FieldType, field.TypeEnum, value)
 	}
 	if value, ok := wuo.mutation.Status(); ok {
 		_spec.SetField(workflow.FieldStatus, field.TypeInt8, value)

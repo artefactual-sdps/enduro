@@ -51,6 +51,10 @@ func newRequiredFieldError(field string) error {
 	return fmt.Errorf("%w: field %q is required", persistence.ErrNotValid, field)
 }
 
+func newInvalidFieldError(field, value string) error {
+	return fmt.Errorf("%w: field %q is invalid %q", persistence.ErrNotValid, field, value)
+}
+
 func newUpdaterError(err error) error {
 	return fmt.Errorf("%w: updater error: %v", persistence.ErrNotValid, err)
 }

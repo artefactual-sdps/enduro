@@ -1811,7 +1811,7 @@ definitions:
                       task_id: abc123
                       workflow_id: 1
                   temporal_id: abc123
-                  type: create aip
+                  type: create and review aip
     IngestListSipsNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2594,9 +2594,8 @@ definitions:
                 example: abc123
             type:
                 type: string
-                example: create aip
+                example: create and review aip
                 enum:
-                    - unspecified
                     - create aip
                     - create and review aip
         description: SIPWorkflow describes a workflow of a SIP. (default view)
@@ -2616,7 +2615,7 @@ definitions:
                   task_id: abc123
                   workflow_id: 1
             temporal_id: abc123
-            type: create aip
+            type: create and review aip
         required:
             - id
             - temporal_id
@@ -2646,7 +2645,7 @@ definitions:
                   task_id: abc123
                   workflow_id: 1
               temporal_id: abc123
-              type: create aip
+              type: create and review aip
     StorageAIPResponseCollection:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip; type=collection; view=default'
         type: array

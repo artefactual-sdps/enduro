@@ -50,9 +50,9 @@ app.config.globalProperties.$filters = {
       | api.EnduroStorageAipWorkflowTypeEnum,
   ) {
     switch (value) {
-      case api.EnduroIngestSipWorkflowTypeEnum.CreateAip:
+      case api.EnduroIngestSipWorkflowTypeEnum.Aip:
         return "Create AIP";
-      case api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip:
+      case api.EnduroIngestSipWorkflowTypeEnum.AndReviewAip:
         return "Create and Review AIP";
       case api.EnduroStorageAipWorkflowTypeEnum.UploadAip:
         return "Upload AIP";

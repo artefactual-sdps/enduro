@@ -52,10 +52,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
-const (
-	appName        = "enduro"
-	autoApproveAIP = true
-)
+const appName = "enduro"
 
 func main() {
 	p := pflag.NewFlagSet(appName, pflag.ExitOnError)
@@ -394,7 +391,7 @@ func main() {
 									StripTopLevelDir: event.StripTopLevelDir,
 									Key:              event.Key,
 									IsDir:            event.IsDir,
-									AutoApproveAIP:   autoApproveAIP,
+									Type:             event.WorkflowType,
 									SIPUUID:          uuid.New(),
 								}
 								if err := ingest.InitProcessingWorkflow(ctx, temporalClient, cfg.Temporal.TaskQueue, &req); err != nil {

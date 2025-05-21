@@ -3,6 +3,8 @@ package watcher
 import (
 	"fmt"
 	"time"
+
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 // BlobEvent is a serializable event that describes a blob.
@@ -34,6 +36,9 @@ type BlobEvent struct {
 
 	// Bucket where the blob lives.
 	Bucket string `json:"Bucket,omitempty"`
+
+	// Type of workflow to execute.
+	WorkflowType enums.WorkflowType
 }
 
 func NewBlobEvent(w Watcher, key string, isDir bool) *BlobEvent {
@@ -42,6 +47,7 @@ func NewBlobEvent(w Watcher, key string, isDir bool) *BlobEvent {
 		RetentionPeriod:  w.RetentionPeriod(),
 		CompletedDir:     w.CompletedDir(),
 		StripTopLevelDir: w.StripTopLevelDir(),
+		WorkflowType:     w.WorkflowType(),
 		Key:              key,
 		IsDir:            isDir,
 	}

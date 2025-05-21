@@ -43,11 +43,12 @@ func TestCreateWorkflow(t *testing.T) {
 			w: datatypes.Workflow{
 				TemporalID: temporalID,
 				SIPUUID:    sipUUID,
+				Type:       enums.WorkflowTypeCreateAip,
 			},
 			want: datatypes.Workflow{
 				ID:         11,
 				TemporalID: temporalID,
-				Type:       enums.WorkflowTypeUnspecified,
+				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusUnspecified,
 				StartedAt: sql.NullTime{
 					Time:  time.Date(2024, 6, 3, 9, 4, 23, 0, time.UTC),

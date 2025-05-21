@@ -65,10 +65,19 @@ func TestCreateWorkflow(t *testing.T) {
 			wantErr: "invalid data error: field \"SIPUUID\" is required",
 		},
 		{
+			name: "Invalid Type field error",
+			args: &datatypes.Workflow{
+				SIPUUID:    sipUUID,
+				TemporalID: temporalID,
+				Type:       "invalid",
+			},
+			wantErr: "invalid data error: field \"Type\" is invalid \"invalid\"",
+		},
+		{
 			name: "Not found SIP error",
 			args: &datatypes.Workflow{
 				TemporalID: temporalID,
-				Type:       9,
+				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,
 				SIPUUID:    uuid.New(),
 			},

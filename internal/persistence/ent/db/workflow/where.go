@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 )
 
@@ -58,11 +59,6 @@ func IDLTE(id int) predicate.Workflow {
 // TemporalID applies equality check predicate on the "temporal_id" field. It's identical to TemporalIDEQ.
 func TemporalID(v string) predicate.Workflow {
 	return predicate.Workflow(sql.FieldEQ(FieldTemporalID, v))
-}
-
-// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
-func Type(v int8) predicate.Workflow {
-	return predicate.Workflow(sql.FieldEQ(FieldType, v))
 }
 
 // Status applies equality check predicate on the "status" field. It's identical to StatusEQ.
@@ -151,43 +147,33 @@ func TemporalIDContainsFold(v string) predicate.Workflow {
 }
 
 // TypeEQ applies the EQ predicate on the "type" field.
-func TypeEQ(v int8) predicate.Workflow {
-	return predicate.Workflow(sql.FieldEQ(FieldType, v))
+func TypeEQ(v enums.WorkflowType) predicate.Workflow {
+	vc := v
+	return predicate.Workflow(sql.FieldEQ(FieldType, vc))
 }
 
 // TypeNEQ applies the NEQ predicate on the "type" field.
-func TypeNEQ(v int8) predicate.Workflow {
-	return predicate.Workflow(sql.FieldNEQ(FieldType, v))
+func TypeNEQ(v enums.WorkflowType) predicate.Workflow {
+	vc := v
+	return predicate.Workflow(sql.FieldNEQ(FieldType, vc))
 }
 
 // TypeIn applies the In predicate on the "type" field.
-func TypeIn(vs ...int8) predicate.Workflow {
-	return predicate.Workflow(sql.FieldIn(FieldType, vs...))
+func TypeIn(vs ...enums.WorkflowType) predicate.Workflow {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Workflow(sql.FieldIn(FieldType, v...))
 }
 
 // TypeNotIn applies the NotIn predicate on the "type" field.
-func TypeNotIn(vs ...int8) predicate.Workflow {
-	return predicate.Workflow(sql.FieldNotIn(FieldType, vs...))
-}
-
-// TypeGT applies the GT predicate on the "type" field.
-func TypeGT(v int8) predicate.Workflow {
-	return predicate.Workflow(sql.FieldGT(FieldType, v))
-}
-
-// TypeGTE applies the GTE predicate on the "type" field.
-func TypeGTE(v int8) predicate.Workflow {
-	return predicate.Workflow(sql.FieldGTE(FieldType, v))
-}
-
-// TypeLT applies the LT predicate on the "type" field.
-func TypeLT(v int8) predicate.Workflow {
-	return predicate.Workflow(sql.FieldLT(FieldType, v))
-}
-
-// TypeLTE applies the LTE predicate on the "type" field.
-func TypeLTE(v int8) predicate.Workflow {
-	return predicate.Workflow(sql.FieldLTE(FieldType, v))
+func TypeNotIn(vs ...enums.WorkflowType) predicate.Workflow {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.Workflow(sql.FieldNotIn(FieldType, v...))
 }
 
 // StatusEQ applies the EQ predicate on the "status" field.

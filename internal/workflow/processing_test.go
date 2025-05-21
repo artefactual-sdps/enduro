@@ -418,7 +418,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 			Key:             "transfer.zip",
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
-			AutoApproveAIP:  false,
+			Type:            enums.WorkflowTypeCreateAndReviewAip,
 			SIPUUID:         sipUUID,
 		},
 	)
@@ -614,7 +614,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 			Key:             key,
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
-			AutoApproveAIP:  true,
+			Type:            enums.WorkflowTypeCreateAip,
 			SIPUUID:         sipUUID,
 		},
 	)
@@ -808,7 +808,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&ingest.ProcessingWorkflowRequest{
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
-			AutoApproveAIP:  true,
+			Type:            enums.WorkflowTypeCreateAip,
 			Key:             key,
 			SIPUUID:         sipUUID,
 		},
@@ -915,7 +915,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 			Key:             "transfer.zip",
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
-			AutoApproveAIP:  false,
+			Type:            enums.WorkflowTypeCreateAndReviewAip,
 			SIPUUID:         sipUUID,
 		},
 	)
@@ -1202,7 +1202,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 			Key:             key,
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
-			AutoApproveAIP:  true,
+			Type:            enums.WorkflowTypeCreateAip,
 			SIPUUID:         sipUUID,
 		},
 	)
@@ -1327,7 +1327,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 			Key:             key,
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
-			AutoApproveAIP:  true,
+			Type:            enums.WorkflowTypeCreateAip,
 			SIPUUID:         sipUUID,
 		},
 	)
@@ -1492,7 +1492,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 			Key:             key,
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
-			AutoApproveAIP:  true,
+			Type:            enums.WorkflowTypeCreateAip,
 			SIPUUID:         sipUUID,
 		},
 	)
@@ -1606,7 +1606,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		&ingest.ProcessingWorkflowRequest{
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
-			AutoApproveAIP:  true,
+			Type:            enums.WorkflowTypeCreateAip,
 			Key:             key,
 			SIPUUID:         sipUUID,
 		},

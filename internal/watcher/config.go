@@ -1,8 +1,12 @@
 package watcher
 
 import (
+	"errors"
+	"fmt"
 	"path/filepath"
 	"time"
+
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 const defaultPollInterval = 200 * time.Millisecond
@@ -11,6 +15,49 @@ type Config struct {
 	Filesystem []*FilesystemConfig
 	Minio      []*MinioConfig
 	Embedded   *MinioConfig
+}
+
+func (c Config) setDefaults() {
+	if c.Embedded != nil && c.Embedded.WorkflowType == "" {
+		c.Embedded.WorkflowType = enums.WorkflowTypeCreateAip
+	}
+	for _, fs := range c.Filesystem {
+		if fs != nil && fs.WorkflowType == "" {
+			fs.WorkflowType = enums.WorkflowTypeCreateAip
+		}
+	}
+	for _, minio := range c.Minio {
+		if minio != nil && minio.WorkflowType == "" {
+			minio.WorkflowType = enums.WorkflowTypeCreateAip
+		}
+	}
+}
+
+func (c Config) Validate() error {
+	c.setDefaults()
+
+	var err error
+	if c.Embedded != nil && !c.Embedded.WorkflowType.IsValid() {
+		err = fmt.Errorf("invalid workflowType in [watcher.embedded] config: %q", c.Embedded.WorkflowType)
+	}
+	for _, fs := range c.Filesystem {
+		if fs != nil && !fs.WorkflowType.IsValid() {
+			err = errors.Join(
+				err,
+				fmt.Errorf("invalid workflowType in [watcher.filesystem] config: %q", fs.WorkflowType),
+			)
+		}
+	}
+	for _, minio := range c.Minio {
+		if minio != nil && !minio.WorkflowType.IsValid() {
+			err = errors.Join(
+				err,
+				fmt.Errorf("invalid workflowType in [watcher.minio] config: %q", minio.WorkflowType),
+			)
+		}
+	}
+
+	return err
 }
 
 func (c Config) CompletedDirs() []string {
@@ -43,6 +90,10 @@ type FilesystemConfig struct {
 	// PollInterval sets the length of time between filesystem polls (default:
 	// 200ms). If Inotify is true then PollInterval is ignored.
 	PollInterval time.Duration
+
+	// WorkflowType specifies which workflow this watcher should execute
+	// (default: "create aip").
+	WorkflowType enums.WorkflowType
 }
 
 func (cfg *FilesystemConfig) setDefaults() {
@@ -73,4 +124,8 @@ type MinioConfig struct {
 
 	// PollInterval sets the length of time between Redis polls (default: 1s).
 	PollInterval time.Duration
+
+	// WorkflowType specifies which workflow this watcher should execute
+	// (default: "create aip").
+	WorkflowType enums.WorkflowType
 }

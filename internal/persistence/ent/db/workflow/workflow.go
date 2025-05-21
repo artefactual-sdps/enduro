@@ -3,8 +3,11 @@
 package workflow
 
 import (
+	"fmt"
+
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 const (
@@ -71,6 +74,16 @@ var (
 	// SipIDValidator is a validator for the "sip_id" field. It is called by the builders before save.
 	SipIDValidator func(int) error
 )
+
+// TypeValidator is a validator for the "type" field enum values. It is called by the builders before save.
+func TypeValidator(_type enums.WorkflowType) error {
+	switch _type.String() {
+	case "create aip", "create and review aip":
+		return nil
+	default:
+		return fmt.Errorf("workflow: invalid enum value for type field: %q", _type)
+	}
+}
 
 // OrderOption defines the ordering options for the Workflow queries.
 type OrderOption func(*sql.Selector)

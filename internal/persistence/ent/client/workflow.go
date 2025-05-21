@@ -18,6 +18,9 @@ func (c *client) CreateWorkflow(ctx context.Context, w *datatypes.Workflow) erro
 	if w.SIPUUID == uuid.Nil {
 		return newRequiredFieldError("SIPUUID")
 	}
+	if !w.Type.IsValid() {
+		return newInvalidFieldError("Type", w.Type.String())
+	}
 
 	// Handle nullable fields.
 	var startedAt *time.Time
@@ -41,7 +44,7 @@ func (c *client) CreateWorkflow(ctx context.Context, w *datatypes.Workflow) erro
 
 	q := tx.Workflow.Create().
 		SetTemporalID(w.TemporalID).
-		SetType(int8(w.Type)).     // #nosec G115 -- constrained value.
+		SetType(w.Type).
 		SetStatus(int8(w.Status)). // #nosec G115 -- constrained value.
 		SetNillableStartedAt(startedAt).
 		SetNillableCompletedAt(completedAt).

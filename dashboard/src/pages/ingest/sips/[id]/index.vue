@@ -2,7 +2,6 @@
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { computed, onMounted, ref } from "vue";
 
-import { api } from "@/client";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import WorkflowCollapse from "@/components/WorkflowCollapse.vue";
@@ -23,12 +22,7 @@ const toggleHelp = () => {
 };
 
 const createAipWorkflow = computed(
-  () =>
-    sipStore.currentWorkflows?.workflows?.filter(
-      (w) =>
-        w.type === api.EnduroIngestSipWorkflowTypeEnum.CreateAip ||
-        w.type === api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip,
-    )[0],
+  () => sipStore.currentWorkflows?.workflows?.[0],
 );
 
 let tooltip: Tooltip | null = null;

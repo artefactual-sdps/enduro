@@ -87,6 +87,7 @@ func (c *Configuration) Validate() error {
 		c.Preprocessing.Validate(),
 		c.Upload.Validate(),
 		c.ValidatePREMIS.Validate(),
+		c.Watcher.Validate(),
 	)
 }
 

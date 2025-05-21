@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 )
@@ -21,7 +22,7 @@ type Workflow struct {
 	// TemporalID holds the value of the "temporal_id" field.
 	TemporalID string `json:"temporal_id,omitempty"`
 	// Type holds the value of the "type" field.
-	Type int8 `json:"type,omitempty"`
+	Type enums.WorkflowType `json:"type,omitempty"`
 	// Status holds the value of the "status" field.
 	Status int8 `json:"status,omitempty"`
 	// StartedAt holds the value of the "started_at" field.
@@ -72,9 +73,9 @@ func (*Workflow) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case workflow.FieldID, workflow.FieldType, workflow.FieldStatus, workflow.FieldSipID:
+		case workflow.FieldID, workflow.FieldStatus, workflow.FieldSipID:
 			values[i] = new(sql.NullInt64)
-		case workflow.FieldTemporalID:
+		case workflow.FieldTemporalID, workflow.FieldType:
 			values[i] = new(sql.NullString)
 		case workflow.FieldStartedAt, workflow.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
@@ -106,10 +107,10 @@ func (w *Workflow) assignValues(columns []string, values []any) error {
 				w.TemporalID = value.String
 			}
 		case workflow.FieldType:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				w.Type = int8(value.Int64)
+				w.Type = enums.WorkflowType(value.String)
 			}
 		case workflow.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
