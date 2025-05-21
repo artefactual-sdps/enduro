@@ -1,6 +1,7 @@
 package entfilter_test
 
 import (
+	"slices"
 	"testing"
 	"time"
 
@@ -65,9 +66,9 @@ func (q query) Clone() *query {
 		table:  q.table,
 		limit:  q.limit,
 		offset: q.offset,
-		order:  append([]string{}, q.order...),
+		order:  slices.Clone(q.order),
 		where:  q.where,
-		args:   append([]any{}, q.args...),
+		args:   slices.Clone(q.args),
 	}
 }
 
@@ -104,7 +105,7 @@ func TestFilter(t *testing.T) {
 				table: "data",
 				limit: entfilter.DefaultPageSize,
 				order: []string{"`data`.`id`", "`data`.`name`"},
-				args:  []any{},
+				args:  nil,
 			},
 			cmp.AllowUnexported(query{}),
 		)
@@ -136,7 +137,7 @@ func TestFilter(t *testing.T) {
 				table: "data",
 				limit: entfilter.DefaultPageSize,
 				order: []string{"`data`.`name` DESC"},
-				args:  []any{},
+				args:  nil,
 			},
 			cmp.AllowUnexported(query{}),
 		)
@@ -170,7 +171,7 @@ func TestFilter(t *testing.T) {
 				table: "data",
 				limit: entfilter.DefaultPageSize,
 				order: []string{"`data`.`name`"},
-				args:  []any{},
+				args:  nil,
 			},
 			cmp.AllowUnexported(query{}),
 		)
@@ -232,7 +233,7 @@ func TestFilter(t *testing.T) {
 				table: "data",
 				limit: entfilter.DefaultPageSize,
 				order: []string{"`data`.`id`"},
-				args:  []any{},
+				args:  nil,
 			},
 			cmp.AllowUnexported(query{}),
 		)

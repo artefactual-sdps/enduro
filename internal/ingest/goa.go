@@ -182,7 +182,7 @@ func (w *goaWrapper) ListSipWorkflows(
 	}
 
 	query := "SELECT id, temporal_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM workflow WHERE sip_id = ? ORDER BY started_at DESC"
-	args := []interface{}{s.ID}
+	args := []any{s.ID}
 
 	rows, err := w.db.QueryxContext(ctx, query, args...)
 	if err != nil {
@@ -200,7 +200,7 @@ func (w *goaWrapper) ListSipWorkflows(
 		goaworkflow := workflowToGoa(&workflow)
 
 		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM task WHERE workflow_id = ?"
-		ptQueryArgs := []interface{}{workflow.ID}
+		ptQueryArgs := []any{workflow.ID}
 
 		ptRows, err := w.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)
 		if err != nil {

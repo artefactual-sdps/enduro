@@ -6,7 +6,7 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 )
 
-func PublishEvent(ctx context.Context, events EventService, event interface{}) {
+func PublishEvent(ctx context.Context, events EventService, event any) {
 	update := &goaingest.MonitorEvent{}
 
 	switch v := event.(type) {

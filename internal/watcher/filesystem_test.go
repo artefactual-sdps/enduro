@@ -55,8 +55,7 @@ func TestFileSystemWatcher(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx, cancel := context.WithCancel(context.Background())
-			defer cancel()
+			ctx := t.Context()
 
 			w, err := watcher.NewFilesystemWatcher(ctx, tt.config)
 			assert.NilError(t, err)
@@ -92,8 +91,7 @@ func TestFileSystemWatcher(t *testing.T) {
 		t.Parallel()
 
 		td := t.TempDir()
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
+		ctx := t.Context()
 
 		w, err := watcher.NewFilesystemWatcher(ctx, &watcher.FilesystemConfig{
 			Name: "filesystem",
@@ -106,8 +104,7 @@ func TestFileSystemWatcher(t *testing.T) {
 	t.Run("OpenBucket returns a bucket", func(t *testing.T) {
 		t.Parallel()
 
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
+		ctx := t.Context()
 
 		w, err := watcher.NewFilesystemWatcher(ctx, &watcher.FilesystemConfig{
 			Name: "filesystem",
@@ -128,8 +125,7 @@ func TestFileSystemWatcher(t *testing.T) {
 			fs.WithDir("transfer", fs.WithFile("test.txt", "A test file.")),
 		)
 
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
+		ctx := t.Context()
 
 		w, err := watcher.NewFilesystemWatcher(ctx, &watcher.FilesystemConfig{
 			Name: "filesystem",
@@ -150,8 +146,7 @@ func TestFileSystemWatcher(t *testing.T) {
 		)
 		dest := fs.NewDir(t, "enduro-test-fswatcher")
 
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
+		ctx := t.Context()
 
 		w, err := watcher.NewFilesystemWatcher(ctx, &watcher.FilesystemConfig{
 			Name:         "filesystem",
@@ -170,8 +165,7 @@ func TestFileSystemWatcher(t *testing.T) {
 	t.Run("Download copies a directory", func(t *testing.T) {
 		t.Parallel()
 
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
+		ctx := t.Context()
 
 		src := fs.NewDir(t, "enduro-test-fswatcher",
 			fs.WithDir("transfer",

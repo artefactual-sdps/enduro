@@ -81,7 +81,7 @@ func (t *OIDCTokenVerifier) parseAttributes(token *oidc.IDToken) ([]string, erro
 		return nil, nil
 	}
 
-	var data map[string]interface{}
+	var data map[string]any
 	if err := token.Claims(&data); err != nil {
 		return nil, err
 	}
@@ -136,7 +136,7 @@ func (t *OIDCTokenVerifier) parseAttributes(token *oidc.IDToken) ([]string, erro
 			return attributes, nil
 		}
 
-		nested, ok := value.(map[string]interface{})
+		nested, ok := value.(map[string]any)
 		if !ok {
 			return nil, fmt.Errorf("attributes not found in token, claim path: %s", t.cfg.ABAC.ClaimPath)
 		}

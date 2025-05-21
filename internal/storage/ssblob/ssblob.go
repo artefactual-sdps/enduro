@@ -76,7 +76,7 @@ func (b *bucket) ErrorCode(err error) gcerrors.ErrorCode {
 	}
 }
 
-func (b *bucket) As(i interface{}) bool {
+func (b *bucket) As(i any) bool {
 	p, ok := i.(**http.Client)
 	if !ok {
 		return false
@@ -85,7 +85,7 @@ func (b *bucket) As(i interface{}) bool {
 	return true
 }
 
-func (b *bucket) ErrorAs(err error, i interface{}) bool {
+func (b *bucket) ErrorAs(err error, i any) bool {
 	switch v := err.(type) {
 	case *APIError:
 		if p, ok := i.(**APIError); ok {
@@ -176,6 +176,6 @@ func (r *reader) Attributes() *driver.ReaderAttributes {
 	return &r.attrs
 }
 
-func (r *reader) As(i interface{}) bool {
+func (r *reader) As(i any) bool {
 	return false
 }
