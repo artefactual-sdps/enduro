@@ -45,13 +45,6 @@ type MoveAipRequestBody struct {
 	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
 }
 
-// ListAipWorkflowsRequestBody is the type of the "storage" service
-// "list_aip_workflows" endpoint HTTP request body.
-type ListAipWorkflowsRequestBody struct {
-	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	Type   *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
-}
-
 // RequestAipDeletionRequestBody is the type of the "storage" service
 // "request_aip_deletion" endpoint HTTP request body.
 type RequestAipDeletionRequestBody struct {
@@ -1136,12 +1129,11 @@ func NewShowAipPayload(uuid string, token *string) *storage.ShowAipPayload {
 
 // NewListAipWorkflowsPayload builds a storage service list_aip_workflows
 // endpoint payload.
-func NewListAipWorkflowsPayload(body *ListAipWorkflowsRequestBody, uuid string, token *string) *storage.ListAipWorkflowsPayload {
-	v := &storage.ListAipWorkflowsPayload{
-		Status: body.Status,
-		Type:   body.Type,
-	}
+func NewListAipWorkflowsPayload(uuid string, status *string, type_ *string, token *string) *storage.ListAipWorkflowsPayload {
+	v := &storage.ListAipWorkflowsPayload{}
 	v.UUID = uuid
+	v.Status = status
+	v.Type = type_
 	v.Token = token
 
 	return v
@@ -1286,22 +1278,6 @@ func ValidateSubmitAipRequestBody(body *SubmitAipRequestBody) (err error) {
 func ValidateMoveAipRequestBody(body *MoveAipRequestBody) (err error) {
 	if body.LocationID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
-	}
-	return
-}
-
-// ValidateListAipWorkflowsRequestBody runs the validations defined on
-// list_aip_workflows_request_body
-func ValidateListAipWorkflowsRequestBody(body *ListAipWorkflowsRequestBody) (err error) {
-	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "canceled") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "canceled"}))
-		}
-	}
-	if body.Type != nil {
-		if !(*body.Type == "unspecified" || *body.Type == "upload aip" || *body.Type == "move aip" || *body.Type == "delete aip") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
-		}
 	}
 	return
 }

@@ -2134,39 +2134,6 @@
       "title": "StorageListAipWorkflowsNotFoundResponseBody",
       "type": "object"
     },
-    "StorageListAipWorkflowsRequestBody": {
-      "example": {
-        "status": "in progress",
-        "type": "upload aip"
-      },
-      "properties": {
-        "status": {
-          "enum": [
-            "unspecified",
-            "in progress",
-            "done",
-            "error",
-            "queued",
-            "pending",
-            "canceled"
-          ],
-          "example": "in progress",
-          "type": "string"
-        },
-        "type": {
-          "enum": [
-            "unspecified",
-            "upload aip",
-            "move aip",
-            "delete aip"
-          ],
-          "example": "upload aip",
-          "type": "string"
-        }
-      },
-      "title": "StorageListAipWorkflowsRequestBody",
-      "type": "object"
-    },
     "StorageListAipWorkflowsResponseBody": {
       "description": "list_aip_workflows_response_body result type (default view)",
       "example": {
@@ -4795,6 +4762,33 @@
         "operationId": "storage#list_aip_workflows",
         "parameters": [
           {
+            "enum": [
+              "unspecified",
+              "in progress",
+              "done",
+              "error",
+              "queued",
+              "pending",
+              "canceled"
+            ],
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "enum": [
+              "unspecified",
+              "upload aip",
+              "move aip",
+              "delete aip"
+            ],
+            "in": "query",
+            "name": "type",
+            "required": false,
+            "type": "string"
+          },
+          {
             "description": "Identifier of AIP",
             "format": "uuid",
             "in": "path",
@@ -4807,14 +4801,6 @@
             "name": "Authorization",
             "required": false,
             "type": "string"
-          },
-          {
-            "in": "body",
-            "name": "list_aip_workflows_request_body",
-            "required": true,
-            "schema": {
-              "$ref": "#/definitions/StorageListAipWorkflowsRequestBody"
-            }
           }
         ],
         "responses": {

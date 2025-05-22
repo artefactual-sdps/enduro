@@ -243,6 +243,10 @@ var _ = Service("storage", func() {
 			GET("/aips/{uuid}/workflows")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
+			Params(func() {
+				Param("status")
+				Param("type")
+			})
 		})
 	})
 	Method("request_aip_deletion", func() {

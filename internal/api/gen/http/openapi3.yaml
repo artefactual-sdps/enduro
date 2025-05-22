@@ -1365,6 +1365,33 @@ paths:
             description: List workflows related to an AIP
             operationId: storage#list_aip_workflows
             parameters:
+                - name: status
+                  in: query
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    example: in progress
+                    enum:
+                        - unspecified
+                        - in progress
+                        - done
+                        - error
+                        - queued
+                        - pending
+                        - canceled
+                  example: in progress
+                - name: type
+                  in: query
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    example: upload aip
+                    enum:
+                        - unspecified
+                        - upload aip
+                        - move aip
+                        - delete aip
+                  example: upload aip
                 - name: uuid
                   in: path
                   description: Identifier of AIP
@@ -1375,15 +1402,6 @@ paths:
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
                   example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            requestBody:
-                required: true
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/ListAipWorkflowsRequestBody'
-                        example:
-                            status: in progress
-                            type: upload aip
             responses:
                 "200":
                     description: OK response.
@@ -2397,31 +2415,6 @@ components:
                 - temporary
                 - timeout
                 - fault
-        ListAipWorkflowsRequestBody:
-            type: object
-            properties:
-                status:
-                    type: string
-                    example: in progress
-                    enum:
-                        - unspecified
-                        - in progress
-                        - done
-                        - error
-                        - queued
-                        - pending
-                        - canceled
-                type:
-                    type: string
-                    example: upload aip
-                    enum:
-                        - unspecified
-                        - upload aip
-                        - move aip
-                        - delete aip
-            example:
-                status: in progress
-                type: upload aip
         Location:
             type: object
             properties:

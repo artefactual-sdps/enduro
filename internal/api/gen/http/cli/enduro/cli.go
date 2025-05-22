@@ -133,10 +133,11 @@ func ParseEndpoint(
 		storageShowAipUUIDFlag  = storageShowAipFlags.String("uuid", "REQUIRED", "Identifier of AIP")
 		storageShowAipTokenFlag = storageShowAipFlags.String("token", "", "")
 
-		storageListAipWorkflowsFlags     = flag.NewFlagSet("list-aip-workflows", flag.ExitOnError)
-		storageListAipWorkflowsBodyFlag  = storageListAipWorkflowsFlags.String("body", "REQUIRED", "")
-		storageListAipWorkflowsUUIDFlag  = storageListAipWorkflowsFlags.String("uuid", "REQUIRED", "Identifier of AIP")
-		storageListAipWorkflowsTokenFlag = storageListAipWorkflowsFlags.String("token", "", "")
+		storageListAipWorkflowsFlags      = flag.NewFlagSet("list-aip-workflows", flag.ExitOnError)
+		storageListAipWorkflowsUUIDFlag   = storageListAipWorkflowsFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageListAipWorkflowsStatusFlag = storageListAipWorkflowsFlags.String("status", "", "")
+		storageListAipWorkflowsTypeFlag   = storageListAipWorkflowsFlags.String("type", "", "")
+		storageListAipWorkflowsTokenFlag  = storageListAipWorkflowsFlags.String("token", "", "")
 
 		storageRequestAipDeletionFlags     = flag.NewFlagSet("request-aip-deletion", flag.ExitOnError)
 		storageRequestAipDeletionBodyFlag  = storageRequestAipDeletionFlags.String("body", "REQUIRED", "")
@@ -397,7 +398,7 @@ func ParseEndpoint(
 				data, err = storagec.BuildShowAipPayload(*storageShowAipUUIDFlag, *storageShowAipTokenFlag)
 			case "list-aip-workflows":
 				endpoint = c.ListAipWorkflows()
-				data, err = storagec.BuildListAipWorkflowsPayload(*storageListAipWorkflowsBodyFlag, *storageListAipWorkflowsUUIDFlag, *storageListAipWorkflowsTokenFlag)
+				data, err = storagec.BuildListAipWorkflowsPayload(*storageListAipWorkflowsUUIDFlag, *storageListAipWorkflowsStatusFlag, *storageListAipWorkflowsTypeFlag, *storageListAipWorkflowsTokenFlag)
 			case "request-aip-deletion":
 				endpoint = c.RequestAipDeletion()
 				data, err = storagec.BuildRequestAipDeletionPayload(*storageRequestAipDeletionBodyFlag, *storageRequestAipDeletionUUIDFlag, *storageRequestAipDeletionTokenFlag)
@@ -708,18 +709,16 @@ Example:
 }
 
 func storageListAipWorkflowsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list-aip-workflows -body JSON -uuid STRING -token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list-aip-workflows -uuid STRING -status STRING -type STRING -token STRING
 
 List workflows related to an AIP
-    -body JSON: 
     -uuid STRING: Identifier of AIP
+    -status STRING: 
+    -type STRING: 
     -token STRING: 
 
 Example:
-    %[1]s storage list-aip-workflows --body '{
-      "status": "in progress",
-      "type": "upload aip"
-   }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+    %[1]s storage list-aip-workflows --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --status "in progress" --type "upload aip" --token "abc123"
 `, os.Args[0])
 }
 
