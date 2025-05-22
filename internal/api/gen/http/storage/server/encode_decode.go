@@ -1031,29 +1031,34 @@ func EncodeListAipWorkflowsResponse(encoder func(context.Context, http.ResponseW
 func DecodeListAipWorkflowsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
-			body ListAipWorkflowsRequestBody
-			err  error
-		)
-		err = decoder(r).Decode(&body)
-		if err != nil {
-			if err == io.EOF {
-				return nil, goa.MissingPayloadError()
-			}
-			return nil, goa.DecodePayloadError(err.Error())
-		}
-		err = ValidateListAipWorkflowsRequestBody(&body)
-		if err != nil {
-			return nil, err
-		}
-
-		var (
-			uuid  string
-			token *string
+			uuid   string
+			status *string
+			type_  *string
+			token  *string
+			err    error
 
 			params = mux.Vars(r)
 		)
 		uuid = params["uuid"]
 		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		statusRaw := r.URL.Query().Get("status")
+		if statusRaw != "" {
+			status = &statusRaw
+		}
+		if status != nil {
+			if !(*status == "unspecified" || *status == "in progress" || *status == "done" || *status == "error" || *status == "queued" || *status == "pending" || *status == "canceled") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "canceled"}))
+			}
+		}
+		type_Raw := r.URL.Query().Get("type")
+		if type_Raw != "" {
+			type_ = &type_Raw
+		}
+		if type_ != nil {
+			if !(*type_ == "unspecified" || *type_ == "upload aip" || *type_ == "move aip" || *type_ == "delete aip") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("type", *type_, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
+			}
+		}
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
@@ -1061,7 +1066,7 @@ func DecodeListAipWorkflowsRequest(mux goahttp.Muxer, decoder func(*http.Request
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListAipWorkflowsPayload(&body, uuid, token)
+		payload := NewListAipWorkflowsPayload(uuid, status, type_, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")

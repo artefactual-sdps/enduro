@@ -339,28 +339,8 @@ func BuildShowAipPayload(storageShowAipUUID string, storageShowAipToken string) 
 
 // BuildListAipWorkflowsPayload builds the payload for the storage
 // list_aip_workflows endpoint from CLI flags.
-func BuildListAipWorkflowsPayload(storageListAipWorkflowsBody string, storageListAipWorkflowsUUID string, storageListAipWorkflowsToken string) (*storage.ListAipWorkflowsPayload, error) {
+func BuildListAipWorkflowsPayload(storageListAipWorkflowsUUID string, storageListAipWorkflowsStatus string, storageListAipWorkflowsType string, storageListAipWorkflowsToken string) (*storage.ListAipWorkflowsPayload, error) {
 	var err error
-	var body ListAipWorkflowsRequestBody
-	{
-		err = json.Unmarshal([]byte(storageListAipWorkflowsBody), &body)
-		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"status\": \"in progress\",\n      \"type\": \"upload aip\"\n   }'")
-		}
-		if body.Status != nil {
-			if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "canceled") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "canceled"}))
-			}
-		}
-		if body.Type != nil {
-			if !(*body.Type == "unspecified" || *body.Type == "upload aip" || *body.Type == "move aip" || *body.Type == "delete aip") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
-			}
-		}
-		if err != nil {
-			return nil, err
-		}
-	}
 	var uuid string
 	{
 		uuid = storageListAipWorkflowsUUID
@@ -369,17 +349,40 @@ func BuildListAipWorkflowsPayload(storageListAipWorkflowsBody string, storageLis
 			return nil, err
 		}
 	}
+	var status *string
+	{
+		if storageListAipWorkflowsStatus != "" {
+			status = &storageListAipWorkflowsStatus
+			if !(*status == "unspecified" || *status == "in progress" || *status == "done" || *status == "error" || *status == "queued" || *status == "pending" || *status == "canceled") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "canceled"}))
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	var type_ *string
+	{
+		if storageListAipWorkflowsType != "" {
+			type_ = &storageListAipWorkflowsType
+			if !(*type_ == "unspecified" || *type_ == "upload aip" || *type_ == "move aip" || *type_ == "delete aip") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("type", *type_, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
 	var token *string
 	{
 		if storageListAipWorkflowsToken != "" {
 			token = &storageListAipWorkflowsToken
 		}
 	}
-	v := &storage.ListAipWorkflowsPayload{
-		Status: body.Status,
-		Type:   body.Type,
-	}
+	v := &storage.ListAipWorkflowsPayload{}
 	v.UUID = uuid
+	v.Status = status
+	v.Type = type_
 	v.Token = token
 
 	return v, nil
