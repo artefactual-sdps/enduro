@@ -268,6 +268,55 @@ func TestUpdateSIP(t *testing.T) {
 	}
 }
 
+func TestDeleteSIP(t *testing.T) {
+	t.Parallel()
+
+	for _, tc := range []struct {
+		name    string
+		id      int
+		wantErr string
+	}{
+		{
+			name: "Deletes a SIP",
+		},
+		{
+			name:    "Fails to delete a missing SIP",
+			id:      12345,
+			wantErr: "not found error: db: sip not found: delete SIP",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			client, svc := setUpClient(t, logr.Discard())
+			ctx := context.Background()
+
+			sip := &datatypes.SIP{
+				UUID:   sipUUID,
+				Name:   "Test SIP",
+				Status: enums.SIPStatusQueued,
+			}
+
+			err := svc.CreateSIP(ctx, sip)
+			assert.NilError(t, err)
+
+			if tc.id == 0 {
+				tc.id = sip.ID
+			}
+
+			err = svc.DeleteSIP(ctx, tc.id)
+			if tc.wantErr != "" {
+				assert.Error(t, err, tc.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+
+			_, err = client.SIP.Get(ctx, tc.id)
+			assert.Error(t, err, "db: sip not found")
+		})
+	}
+}
+
 func TestListSIPs(t *testing.T) {
 	t.Parallel()
 

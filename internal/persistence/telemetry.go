@@ -58,6 +58,20 @@ func (w *wrapper) UpdateSIP(ctx context.Context, id int, updater SIPUpdater) (*d
 	return r, nil
 }
 
+func (w *wrapper) DeleteSIP(ctx context.Context, id int) error {
+	ctx, span := w.tracer.Start(ctx, "DeleteSIP")
+	defer span.End()
+	span.SetAttributes(attribute.Int("id", id))
+
+	err := w.wrapped.DeleteSIP(ctx, id)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return updateError(err, "DeleteSIP")
+	}
+
+	return nil
+}
+
 func (w *wrapper) ListSIPs(ctx context.Context, f *SIPFilter) ([]*datatypes.SIP, *Page, error) {
 	ctx, span := w.tracer.Start(ctx, "ListSIPs")
 	defer span.End()

@@ -155,6 +155,44 @@ func (c *MockServiceCreateWorkflowCall) DoAndReturn(f func(context.Context, *dat
 	return c
 }
 
+// DeleteSIP mocks base method.
+func (m *MockService) DeleteSIP(arg0 context.Context, arg1 int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteSIP", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteSIP indicates an expected call of DeleteSIP.
+func (mr *MockServiceMockRecorder) DeleteSIP(arg0, arg1 any) *MockServiceDeleteSIPCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteSIP", reflect.TypeOf((*MockService)(nil).DeleteSIP), arg0, arg1)
+	return &MockServiceDeleteSIPCall{Call: call}
+}
+
+// MockServiceDeleteSIPCall wrap *gomock.Call
+type MockServiceDeleteSIPCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceDeleteSIPCall) Return(arg0 error) *MockServiceDeleteSIPCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceDeleteSIPCall) Do(f func(context.Context, int) error) *MockServiceDeleteSIPCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceDeleteSIPCall) DoAndReturn(f func(context.Context, int) error) *MockServiceDeleteSIPCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ListSIPs mocks base method.
 func (m *MockService) ListSIPs(arg0 context.Context, arg1 *persistence.SIPFilter) ([]*datatypes.SIP, *persistence.Page, error) {
 	m.ctrl.T.Helper()

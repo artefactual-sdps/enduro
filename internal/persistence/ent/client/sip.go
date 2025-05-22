@@ -112,6 +112,15 @@ func (c *client) UpdateSIP(
 	return convertSIP(s), nil
 }
 
+// DeleteSIP deletes the persisted SIP identified by id.
+func (c *client) DeleteSIP(ctx context.Context, id int) error {
+	if err := c.ent.SIP.DeleteOneID(id).Exec(ctx); err != nil {
+		return newDBErrorWithDetails(err, "delete SIP")
+	}
+
+	return nil
+}
+
 // ListSIPs returns a slice of SIPs filtered according to f.
 func (c *client) ListSIPs(ctx context.Context, f *persistence.SIPFilter) (
 	[]*datatypes.SIP, *persistence.Page, error,
