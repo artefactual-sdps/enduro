@@ -99,7 +99,8 @@ const showAipDeletionReviewAlert = (
       <AipDeletionReviewAlert
         v-if="
           showAipDeletionReviewAlert(workflow.status) &&
-          authStore.checkAttributes(['storage:aips:deletion:review'])
+          (authStore.checkAttributes(['storage:aips:deletion:review']) ||
+            authStore.checkAttributes(['storage:aips:deletion:request']))
         "
         :note="workflow.tasks?.[0]?.note || ''"
       />

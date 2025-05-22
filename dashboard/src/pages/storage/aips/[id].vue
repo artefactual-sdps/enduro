@@ -15,13 +15,12 @@ const router = useRouter();
 const authStore = useAuthStore();
 const aipStore = useAipStore();
 
-const { execute, error } = useAsyncState(async function () {
-  aipStore.fetchCurrent(route.params.id.toString()).then(() => {
-    if (authStore.checkAttributes(["storage:aips:workflows:list"])) {
-      aipStore.fetchWorkflows(route.params.id.toString());
-    }
-  });
-}, null);
+const { execute, error } = useAsyncState(
+  aipStore.fetchCurrent(route.params.id.toString()).catch((err) => {
+    error.value = err;
+  }),
+  null,
+);
 
 const tabs = [
   {
@@ -40,14 +39,16 @@ const tabs = [
   <div class="container-xxl">
     <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
 
-    <AipPendingAlert v-if="aipStore.current" />
+    <template v-if="aipStore.current">
+      <AipPendingAlert />
 
-    <h1 class="d-flex mb-3" v-if="aipStore.current">
-      <IconAIPs class="me-3 text-dark" />{{ aipStore.current.name }}
-    </h1>
+      <h1 class="d-flex mb-3">
+        <IconAIPs class="me-3 text-dark" />{{ aipStore.current.name }}
+      </h1>
 
-    <Tabs :tabs="tabs" param="id" />
+      <Tabs :tabs="tabs" param="id" />
 
-    <router-view></router-view>
+      <router-view></router-view>
+    </template>
   </div>
 </template>
