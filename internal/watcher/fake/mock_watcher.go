@@ -14,6 +14,7 @@ import (
 	reflect "reflect"
 	time "time"
 
+	enums "github.com/artefactual-sdps/enduro/internal/enums"
 	watcher "github.com/artefactual-sdps/enduro/internal/watcher"
 	gomock "go.uber.org/mock/gomock"
 	blob "gocloud.dev/blob"
@@ -345,6 +346,44 @@ func (c *MockWatcherWatchCall) Do(f func(context.Context) (*watcher.BlobEvent, w
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockWatcherWatchCall) DoAndReturn(f func(context.Context) (*watcher.BlobEvent, watcher.Cleanup, error)) *MockWatcherWatchCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// WorkflowType mocks base method.
+func (m *MockWatcher) WorkflowType() enums.WorkflowType {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "WorkflowType")
+	ret0, _ := ret[0].(enums.WorkflowType)
+	return ret0
+}
+
+// WorkflowType indicates an expected call of WorkflowType.
+func (mr *MockWatcherMockRecorder) WorkflowType() *MockWatcherWorkflowTypeCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WorkflowType", reflect.TypeOf((*MockWatcher)(nil).WorkflowType))
+	return &MockWatcherWorkflowTypeCall{Call: call}
+}
+
+// MockWatcherWorkflowTypeCall wrap *gomock.Call
+type MockWatcherWorkflowTypeCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockWatcherWorkflowTypeCall) Return(arg0 enums.WorkflowType) *MockWatcherWorkflowTypeCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockWatcherWorkflowTypeCall) Do(f func() enums.WorkflowType) *MockWatcherWorkflowTypeCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockWatcherWorkflowTypeCall) DoAndReturn(f func() enums.WorkflowType) *MockWatcherWorkflowTypeCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
