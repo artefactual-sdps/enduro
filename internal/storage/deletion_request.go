@@ -136,8 +136,8 @@ func (s *serviceImpl) CancelAipDeletion(
 	}
 
 	// Check that the user is authorized to cancel the deletion request.
-	if claims.Sub != dr.RequesterSub || claims.ISS != dr.RequesterISS {
-		return ErrUnauthorized
+	if claims.ISS != dr.RequesterISS || claims.Sub != dr.RequesterSub {
+		return ErrForbidden
 	}
 
 	// If the check flag is set, do not cancel the deletion request.

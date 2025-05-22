@@ -66,25 +66,53 @@ export const useAipStore = defineStore("aip", {
   },
   actions: {
     async fetchCurrent(id: string) {
-      this.current = await client.storage.storageShowAip({ uuid: id });
-
-      // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
-      layoutStore.updateBreadcrumb([
-        { text: "Storage" },
-        { route: router.resolve("/storage/aips/"), text: "AIPs" },
-        { text: this.current.name },
-      ]);
+      return client.storage
+        .storageShowAip({ uuid: id })
+        .then((resp) => {
+          this.current = resp;
+          this.fetchWorkflows(id);
+
+          // Update breadcrumb. TODO: should this be done in the component?
+          layoutStore.updateBreadcrumb([
+            { text: "Storage" },
+            { route: router.resolve("/storage/aips/"), text: "AIPs" },
+            { text: this.current.name },
+          ]);
+        })
+        .catch((err) => {
+          console.error("Error fetching AIP", err);
+          this.current = null;
+          this.currentWorkflows = null;
+          layoutStore.updateBreadcrumb([
+            { text: "Storage" },
+            { route: router.resolve("/storage/aips/"), text: "AIPs" },
+          ]);
+
+          if (err instanceof ResponseError) {
+            // A 404 Not Found response means the AIP does not exist.
+            if (err.response.status === 404) {
+              throw new Error("AIP not found");
+            }
+          }
+
+          throw new Error("failed to load AIP");
+        });
     },
     async fetchWorkflows(id: string) {
-      this.currentWorkflows = await client.storage
+      return client.storage
         .storageListAipWorkflows({
           uuid: id,
-          listAipWorkflowsRequestBody: {},
         })
         .then((resp) => {
-          resp.workflows?.reverse();
-          return resp;
+          if (resp && resp.workflows) {
+            resp.workflows.reverse();
+          }
+          this.currentWorkflows = resp;
+        })
+        .catch((err) => {
+          console.error("Error fetching workflows", err);
+          this.currentWorkflows = null;
         });
     },
     async fetchAips(page: number) {
@@ -200,6 +228,57 @@ export const useAipStore = defineStore("aip", {
         }
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
+    },
+    async cancelDeletionRequest() {
+      if (!this.current) return;
+      try {
+        await client.storage.storageCancelAipDeletion({
+          uuid: this.current.uuid,
+          cancelAipDeletionRequestBody: {},
+        });
+      } catch (error) {
+        console.error("Error cancelling deletion request", error);
+        return error;
+      }
+
+      // TODO: Remove this once we have websocket in the storage service.
+      const intID = setInterval(() => {
+        if (!this.current) return;
+        this.fetchCurrent(this.current.uuid).then(() => {
+          if (this.current?.status == api.EnduroStorageAipStatusEnum.Stored) {
+            clearInterval(intID);
+            return;
+          }
+        });
+      }, 1000);
+    },
+    async canCancelDeletion(): Promise<boolean> {
+      if (!this.current) return false;
+      return client.storage
+        .storageCancelAipDeletion({
+          uuid: this.current.uuid,
+          cancelAipDeletionRequestBody: {
+            check: true,
+          },
+        })
+        .then(() => {
+          return true;
+        })
+        .catch((err) => {
+          if (err instanceof ResponseError) {
+            // A 403 Forbidden response means this user is not authorized to
+            // cancel the deletion request.
+            if (err.response.status === 403) {
+              return false;
+            }
+          }
+
+          console.error(
+            "Error checking user authorization to cancel deletion:",
+            err.message,
+          );
+          return false;
+        });
     },
   },
 });

@@ -483,7 +483,7 @@ func TestCancelAipDeletion(t *testing.T) {
 					RequesterSub: "subject-2",
 				}, nil)
 			},
-			wantErr: "Unauthorized",
+			wantErr: "Forbidden",
 		},
 		{
 			name: "Fails on signal workflow failure",
