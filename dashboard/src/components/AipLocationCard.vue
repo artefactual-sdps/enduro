@@ -61,11 +61,13 @@ const requestDeletion = async () => {
       </p>
       <div v-if="!aipStore.isDeleted" class="d-flex flex-wrap gap-2">
         <button
-          v-if="authStore.checkAttributes(['storage:aips:download'])"
+          v-if="
+            authStore.checkAttributes(['storage:aips:download']) &&
+            (aipStore.isStored || aipStore.isPending)
+          "
           type="button"
           class="btn btn-primary btn-sm"
           @click="download"
-          :disabled="!aipStore.isStored && !aipStore.isPending"
         >
           Download
         </button>
@@ -90,11 +92,13 @@ const requestDeletion = async () => {
           <template v-else>Move</template>
         </button>
         <button
-          v-if="authStore.checkAttributes(['storage:aips:deletion:request'])"
+          v-if="
+            authStore.checkAttributes(['storage:aips:deletion:request']) &&
+            aipStore.isStored
+          "
           type="button"
           class="btn btn-primary btn-sm"
           @click="requestDeletion"
-          :disabled="!aipStore.isStored"
         >
           Delete
         </button>

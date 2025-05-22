@@ -5,7 +5,10 @@ import WorkflowHelp from "../WorkflowHelp.vue";
 
 describe("WorkflowHelp.vue", () => {
   it("renders the component correctly", () => {
-    const wrapper = mount(WorkflowHelp);
+    const wrapper = mount(WorkflowHelp, {
+      props: { show: true },
+      attachTo: document.body,
+    });
     expect(wrapper.exists()).toBe(true);
   });
 

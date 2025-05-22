@@ -13,6 +13,10 @@ class UIRequest {
 
 const defaultPageSize = 20;
 
+function delay(ms: number, ...args: unknown[]): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms, args));
+}
+
 export const useAipStore = defineStore("aip", {
   state: () => ({
     // AIP currently displayed.
@@ -66,25 +70,58 @@ export const useAipStore = defineStore("aip", {
   },
   actions: {
     async fetchCurrent(id: string) {
-      this.current = await client.storage.storageShowAip({ uuid: id });
-
-      // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
-      layoutStore.updateBreadcrumb([
-        { text: "Storage" },
-        { route: router.resolve("/storage/aips/"), text: "AIPs" },
-        { text: this.current.name },
-      ]);
+      return client.storage
+        .storageShowAip({ uuid: id })
+        .then((resp) => {
+          this.current = resp;
+
+          // Update breadcrumb. TODO: should this be done in the component?
+          layoutStore.updateBreadcrumb([
+            { text: "Storage" },
+            { route: router.resolve("/storage/aips/"), text: "AIPs" },
+            { text: this.current.name },
+          ]);
+        })
+        .catch((e) => {
+          console.error("Error fetching AIP", e.message);
+          this.current = null;
+          this.currentWorkflows = null;
+          layoutStore.updateBreadcrumb([
+            { text: "Storage" },
+            { route: router.resolve("/storage/aips/"), text: "AIPs" },
+            { text: "Error" },
+          ]);
+
+          if (e instanceof ResponseError && e.response.status === 404) {
+            // The AIPDeletionReviewAlert component has special handling for
+            // 404 errors, so rethrow the error.
+            throw e;
+          }
+
+          throw new Error("Couldn't load AIP");
+        })
+        .then(() => {
+          // Fetch workflows for the current AIP.
+          if (!this.current) return;
+          return this.fetchWorkflows(this.current.uuid);
+        });
     },
     async fetchWorkflows(id: string) {
-      this.currentWorkflows = await client.storage
+      return client.storage
         .storageListAipWorkflows({
           uuid: id,
-          listAipWorkflowsRequestBody: {},
         })
         .then((resp) => {
-          resp.workflows?.reverse();
-          return resp;
+          if (resp && resp.workflows) {
+            resp.workflows.reverse();
+          }
+          this.currentWorkflows = resp;
+        })
+        .catch((e) => {
+          console.error("Error fetching workflows", e.message);
+          this.currentWorkflows = null;
+          throw new Error("Couldn't load workflows");
         });
     },
     async fetchAips(page: number) {
@@ -105,27 +142,28 @@ export const useAipStore = defineStore("aip", {
           this.aips = [];
           this.page = { limit: defaultPageSize, offset: 0, total: 0 };
 
-          if (err instanceof ResponseError) {
+          if (err instanceof ResponseError && err.response.body) {
             // An invalid status or time range returns a ResponseError with the
             // error message in the response body (JSON).
-            return err.response.text().then((body) => {
-              const modelErr = api.ModelErrorFromJSON(JSON.parse(body));
+            return err.response.text().then((text) => {
+              const body = JSON.parse(text);
               console.error(
-                "API response",
-                err.response.status,
-                modelErr.message,
+                "Error fetching AIPs",
+                "[" + err.response.status + " " + err.response.statusText + "]",
+                'message: "' + body.message + '"',
               );
-              throw new Error(modelErr.message);
+              throw new Error(body.message);
             });
           } else if (err instanceof RangeError) {
             // An invalid date parameter (e.g. earliestCreatedTime) returns a
             // RangeError with a message like "invalid date".
-            console.error("Range error", err.message);
+            console.error("Error fetching AIPs", "Range error: " + err.message);
             throw new Error(err.message);
           } else {
-            console.error("Unknown error", err.message);
-            throw new Error(err.message);
+            console.error("Error fetching AIPs", err.message);
           }
+
+          throw new Error("Couldn't load AIPs");
         });
     },
     async move(locationId: string) {
@@ -158,48 +196,115 @@ export const useAipStore = defineStore("aip", {
     },
     async requestDeletion(reason: string) {
       if (!this.current) return;
-      try {
-        await client.storage.storageRequestAipDeletion({
+      return client.storage
+        .storageRequestAipDeletion({
           uuid: this.current.uuid,
           requestAipDeletionRequestBody: { reason: reason },
+        })
+        .then(() => {
+          return this.pollFetchCurrent(
+            (aip) => aip?.status === api.EnduroStorageAipStatusEnum.Pending,
+          );
+        })
+        .catch((e) => {
+          console.error("Error requesting deletion", e.message);
+          throw new Error("Couldn't create deletion request");
         });
-      } catch (error) {
-        return error;
-      }
-
-      // TODO: Remove this once we have websocket in the storage service.
-      while (true) {
-        if (!this.current) return;
-        this.fetchCurrent(this.current.uuid);
-        if (this.current.status == api.EnduroStorageAipStatusEnum.Pending) {
-          break;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
     },
     async reviewDeletion(approved: boolean) {
       if (!this.current) return;
-      try {
-        await client.storage.storageReviewAipDeletion({
+      return client.storage
+        .storageReviewAipDeletion({
           uuid: this.current.uuid,
           reviewAipDeletionRequestBody: { approved: approved },
+        })
+        .then(() => {
+          return this.pollFetchCurrent(
+            (aip) =>
+              aip?.status === api.EnduroStorageAipStatusEnum.Deleted ||
+              aip?.status === api.EnduroStorageAipStatusEnum.Stored,
+          );
+        })
+        .catch((e) => {
+          console.error("Error reviewing deletion", e.message);
+          throw new Error("Couldn't update deletion request");
         });
-      } catch (error) {
-        return error;
-      }
+    },
+    async cancelDeletionRequest(): Promise<void> {
+      if (!this.current) return;
+      return client.storage
+        .storageCancelAipDeletion({
+          uuid: this.current.uuid,
+          cancelAipDeletionRequestBody: {},
+        })
+        .then(() => {
+          return this.pollFetchCurrent(
+            (aip) => aip?.status === api.EnduroStorageAipStatusEnum.Stored,
+          );
+        })
+        .catch((e) => {
+          console.error("Error cancelling deletion request", e.message);
+          throw new Error("Couldn't cancel deletion request");
+        });
+    },
+    async canCancelDeletion(): Promise<boolean> {
+      if (!this.current) return false;
+      return client.storage
+        .storageCancelAipDeletion({
+          uuid: this.current.uuid,
+          cancelAipDeletionRequestBody: {
+            check: true,
+          },
+        })
+        .then(() => {
+          return true;
+        })
+        .catch((e) => {
+          // A 403 Forbidden response means this user is not authorized to
+          // cancel the deletion request.
+          if (e instanceof ResponseError && e.response.status === 403) {
+            return false;
+          }
 
-      // TODO: Remove this once we have websocket in the storage service.
-      while (true) {
-        if (!this.current) return;
-        this.fetchCurrent(this.current.uuid);
-        if (
-          this.current.status == api.EnduroStorageAipStatusEnum.Deleted ||
-          this.current.status == api.EnduroStorageAipStatusEnum.Stored
-        ) {
-          break;
-        }
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-      }
+          console.error(
+            "Error checking user authorization to cancel deletion",
+            e.message,
+          );
+          return false;
+        });
+    },
+    // TODO: Remove polling once we have websocket in the storage service.
+    async pollFetchCurrent(
+      stopFn: (aip: api.EnduroStorageAip | null) => boolean,
+      interval: number = 200,
+      tries: number = 3,
+    ): Promise<void> {
+      if (tries <= 0) return;
+
+      console.debug(
+        "fetch AIP attempts left",
+        tries,
+        "interval",
+        interval + "ms",
+      );
+
+      return delay(interval)
+        .then(() => {
+          if (!this.current) return;
+          return this.fetchCurrent(this.current.uuid);
+        })
+        .then(() => {
+          if (stopFn(this.current)) {
+            return;
+          }
+          // Exponential backoff, max 1s.
+          interval = Math.min(interval * 2, 1000);
+          return this.pollFetchCurrent(stopFn, interval, --tries);
+        })
+        .catch((e) => {
+          console.error("Error polling fetch current AIP", e.message);
+          throw new Error("Couldn't load AIP");
+        });
     },
   },
 });
