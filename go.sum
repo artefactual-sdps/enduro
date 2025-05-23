@@ -444,8 +444,8 @@ github.com/apparentlymart/go-textseg/v15 v15.0.0 h1:uYvfpb3DyLSCGWnctWKGj857c6ew
 github.com/apparentlymart/go-textseg/v15 v15.0.0/go.mod h1:K8XmNZdhEBkdlyDdvbmmsvpAG721bKi0joRfFdHIWJ4=
 github.com/artefactual-labs/bagit-gython v0.2.0 h1:Zje4Lb1goZVUPoxpc/k65sWtYpNgK9Rvphvaok5cYzE=
 github.com/artefactual-labs/bagit-gython v0.2.0/go.mod h1:C+hFZQMDnji1hjGt3nrlMK3BahaBhvo/hU2uqd+Q9Z4=
-github.com/artefactual-labs/bine v0.17.0 h1:xHjbvb/pnK3whcfQActfJ5zQNB6pkq6bUq9Pglb/rTU=
-github.com/artefactual-labs/bine v0.17.0/go.mod h1:3ATwoGPsrzzNlqapnwIx3XKWW+G+7f3w/FbqJ47tAv8=
+github.com/artefactual-labs/bine v0.19.1 h1:9Ale87rq89+L2E0chYbgmHZUDXz20HgW3asSvuDqL2I=
+github.com/artefactual-labs/bine v0.19.1/go.mod h1:jJ/CDCD3T/HOVDawX41OBMbtJblYMeS3/YvWhRklapA=
 github.com/artefactual-sdps/temporal-activities v0.0.0-20250411163551-a3b6ecf735e5 h1:MleKr9TTZmk7RvapptJpm/PttwQsiFcfIhNDfbXV9Jw=
 github.com/artefactual-sdps/temporal-activities v0.0.0-20250411163551-a3b6ecf735e5/go.mod h1:azRTgEUYLwKy9cLboLf4QySx1/ihVWoT/XT15zfUau8=
 github.com/aws/aws-sdk-go v1.55.5 h1:KKUZBfBoyqy5d3swXyiC7Q76ic40rYcbqH7qjh59kzU=
