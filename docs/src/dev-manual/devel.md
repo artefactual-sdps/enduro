@@ -62,6 +62,24 @@ extensions:
 - Prettier - Code formatter
 - ESLint
 
+## Managing development binaries with bine
+
+This project uses [bine] to manage common development tools.
+
+For example, to run the `atlas` tool, you can use:
+
+```bash
+go tool bine run atlas --help
+```
+
+If you want to run tools directly from your shell, update your `PATH`:
+
+- Bash/Zsh: `source <(go tool bine env)`
+- Fish: `go tool bine env | source`
+- POSIX: `eval "$(go tool bine env)"`
+
+See [bine](https://github.com/artefactual-labs/bine) for more details.
+
 ## Set up
 
 Start a local Kubernetes cluster with a local registry. For example, with k3d:
@@ -264,3 +282,4 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [working with archivematica]: archivematica.md
 [preprocessing child workflow]: preprocessing.md
 [submit your first transfer]: devel.md#upload-to-minio
+[bine]: https://github.com/artefactual-labs/bine
