@@ -1,7 +1,6 @@
 package entclient_test
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
@@ -21,17 +20,17 @@ import (
 func addDBFixtures(t *testing.T, entc *db.Client) (*db.Workflow, *db.Workflow) {
 	t.Helper()
 
-	sip, err := createSIP(entc, "S1", enums.SIPStatusProcessing)
+	sip, err := createSIP(t, entc, "S1", enums.SIPStatusProcessing)
 	if err != nil {
 		t.Errorf("create SIP: %v", err)
 	}
 
-	w, err := createWorkflow(entc, sip.ID, enums.WorkflowStatusInProgress)
+	w, err := createWorkflow(t, entc, sip.ID, enums.WorkflowStatusInProgress)
 	if err != nil {
 		t.Errorf("create workflow: %v", err)
 	}
 
-	pa2, err := createWorkflow(entc, sip.ID, enums.WorkflowStatusDone)
+	pa2, err := createWorkflow(t, entc, sip.ID, enums.WorkflowStatusDone)
 	if err != nil {
 		t.Errorf("create workflow 2: %v", err)
 	}
@@ -114,13 +113,15 @@ func TestCreateTask(t *testing.T) {
 			t.Parallel()
 
 			entc, svc := setUpClient(t, logr.Discard())
-			ctx := context.Background()
+			ctx := t.Context()
 			sip, _ := createSIP(
+				t,
 				entc,
 				"Test SIP",
 				enums.SIPStatusIngested,
 			)
 			w, _ := createWorkflow(
+				t,
 				entc,
 				sip.ID,
 				enums.WorkflowStatusDone,
@@ -278,7 +279,7 @@ func TestUpdateTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			ctx := t.Context()
 			entc, svc := setUpClient(t, logr.Discard())
 			w, w2 := addDBFixtures(t, entc)
 

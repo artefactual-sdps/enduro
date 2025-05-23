@@ -1,7 +1,6 @@
 package entclient_test
 
 import (
-	"context"
 	"fmt"
 	"testing"
 
@@ -32,6 +31,7 @@ func setUpClient(t *testing.T, logger logr.Logger) (*db.Client, persistence.Serv
 }
 
 func createSIP(
+	t *testing.T,
 	entc *db.Client,
 	name string,
 	status enums.SIPStatus,
@@ -43,10 +43,11 @@ func createSIP(
 		SetName(name).
 		SetAipID(aipID).
 		SetStatus(status).
-		Save(context.Background())
+		Save(t.Context())
 }
 
 func createWorkflow(
+	t *testing.T,
 	entc *db.Client,
 	sipID int,
 	status enums.WorkflowStatus,
@@ -56,7 +57,7 @@ func createWorkflow(
 		SetType(enums.WorkflowTypeCreateAip).
 		SetStatus(int8(status)). // #nosec G115 -- constrained value.
 		SetSipID(sipID).
-		Save(context.Background())
+		Save(t.Context())
 }
 
 func TestNew(t *testing.T) {
@@ -67,6 +68,7 @@ func TestNew(t *testing.T) {
 
 		entc, _ := setUpClient(t, logr.Discard())
 		s, err := createSIP(
+			t,
 			entc,
 			"testing 1-2-3",
 			enums.SIPStatusProcessing,

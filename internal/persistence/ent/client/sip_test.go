@@ -1,7 +1,6 @@
 package entclient_test
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
 	"testing"
@@ -98,7 +97,7 @@ func TestCreateSIP(t *testing.T) {
 			t.Parallel()
 
 			_, svc := setUpClient(t, logr.Discard())
-			ctx := context.Background()
+			ctx := t.Context()
 			sip := *tt.args.sip // Make a local copy of sip.
 
 			err := svc.CreateSIP(ctx, &sip)
@@ -243,7 +242,7 @@ func TestUpdateSIP(t *testing.T) {
 			t.Parallel()
 
 			_, svc := setUpClient(t, logr.Discard())
-			ctx := context.Background()
+			ctx := t.Context()
 
 			var id int
 			if tt.args.sip != nil {
@@ -289,7 +288,7 @@ func TestDeleteSIP(t *testing.T) {
 			t.Parallel()
 
 			client, svc := setUpClient(t, logr.Discard())
-			ctx := context.Background()
+			ctx := t.Context()
 
 			sip := &datatypes.SIP{
 				UUID:   sipUUID,
@@ -728,7 +727,7 @@ func TestListSIPs(t *testing.T) {
 			t.Parallel()
 
 			_, svc := setUpClient(t, logr.Discard())
-			ctx := context.Background()
+			ctx := t.Context()
 
 			if len(tt.data) > 0 {
 				for _, sip := range tt.data {

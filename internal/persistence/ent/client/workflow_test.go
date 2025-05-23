@@ -1,7 +1,6 @@
 package entclient_test
 
 import (
-	"context"
 	"database/sql"
 	"testing"
 	"time"
@@ -89,8 +88,8 @@ func TestCreateWorkflow(t *testing.T) {
 			t.Parallel()
 
 			entc, svc := setUpClient(t, logr.Discard())
-			ctx := context.Background()
-			_, _ = createSIP(entc, "Test SIP", enums.SIPStatusProcessing)
+			ctx := t.Context()
+			_, _ = createSIP(t, entc, "Test SIP", enums.SIPStatusProcessing)
 
 			err := svc.CreateWorkflow(ctx, tt.args)
 			if tt.wantErr != "" {
