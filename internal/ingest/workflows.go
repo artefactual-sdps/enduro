@@ -29,6 +29,9 @@ type ProcessingWorkflowRequest struct {
 	// Unique identifier of the SIP.
 	SIPUUID uuid.UUID
 
+	// Name of the SIP.
+	SIPName string
+
 	// Type of workflow to execute.
 	Type enums.WorkflowType
 

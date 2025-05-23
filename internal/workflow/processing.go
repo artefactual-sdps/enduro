@@ -249,7 +249,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 						activityOpts,
 						activities.DeleteOriginalActivityName,
 						req.WatcherName,
-						state.sip.name,
+						req.Key,
 					).Get(activityOpts, nil)
 				}
 			} else if req.CompletedDir != "" {
@@ -259,7 +259,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 					activities.DisposeOriginalActivityName,
 					req.WatcherName,
 					req.CompletedDir,
-					state.sip.name,
+					req.Key,
 				).Get(activityOpts, nil)
 			}
 		}
@@ -269,6 +269,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		"Workflow completed successfully!",
 		"SIPUUID", state.sip.uuid,
 		"watcher", req.WatcherName,
+		"key", req.Key,
 		"name", state.sip.name,
 		"status", state.status,
 	)
@@ -327,7 +328,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		var downloadResult activities.DownloadActivityResult
 		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
 		params := &activities.DownloadActivityParams{
-			Key:         state.sip.name,
+			Key:         state.req.Key,
 			WatcherName: state.req.WatcherName,
 		}
 		if w.cfg.Preprocessing.Enabled {

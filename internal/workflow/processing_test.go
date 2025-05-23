@@ -282,6 +282,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	s.SetupWorkflowTest(cfg)
 
 	sipID := 1
+	sipName := "name.zip"
 	wID := 1
 	valPREMISTaskID := 102
 	ctx := mock.AnythingOfType("*context.valueCtx")
@@ -415,11 +416,12 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&ingest.ProcessingWorkflowRequest{
-			Key:             "transfer.zip",
+			Key:             key,
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
 			Type:            enums.WorkflowTypeCreateAndReviewAip,
 			SIPUUID:         sipUUID,
+			SIPName:         sipName,
 		},
 	)
 
@@ -438,6 +440,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.SetupWorkflowTest(cfg)
 
 	sipID := 1
+	sipName := "name.zip"
 	wID := 1
 	valBagTaskID := 101
 	moveAIPTaskID := 103
@@ -454,7 +457,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil).Once()
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
@@ -616,6 +619,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 			RetentionPeriod: &retentionPeriod,
 			Type:            enums.WorkflowTypeCreateAip,
 			SIPUUID:         sipUUID,
+			SIPName:         sipName,
 		},
 	)
 
@@ -625,6 +629,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 
 func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	sipID := 1
+	sipName := "name.zip"
 	wID := 1
 	valPREMISTaskID := 102
 	watcherName := "watcher"
@@ -653,7 +658,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(createSIPLocalActivity, ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipUUID, mock.AnythingOfType("time.Time")).
@@ -747,7 +752,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	)
 
 	s.env.OnActivity(am.StartTransferActivityName, sessionCtx,
-		&am.StartTransferActivityParams{Name: key, RelativePath: "transfer.zip", ZipPIP: true},
+		&am.StartTransferActivityParams{Name: sipName, RelativePath: "transfer.zip", ZipPIP: true},
 	).Return(
 		&am.StartTransferActivityResult{TransferID: transferID.String()}, nil,
 	)
@@ -766,7 +771,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	s.env.OnActivity(activities.CreateStorageAIPActivityName, sessionCtx,
 		&activities.CreateStorageAIPActivityParams{
-			Name:       key,
+			Name:       sipName,
 			AIPID:      aipUUID.String(),
 			ObjectKey:  aipUUID.String(),
 			Status:     "stored",
@@ -811,6 +816,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 			Type:            enums.WorkflowTypeCreateAip,
 			Key:             key,
 			SIPUUID:         sipUUID,
+			SIPName:         sipName,
 		},
 	)
 
@@ -829,6 +835,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	s.SetupWorkflowTest(cfg)
 
 	sipID := 1
+	sipName := "name.zip"
 	key := "transfer.zip"
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
@@ -912,11 +919,12 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&ingest.ProcessingWorkflowRequest{
-			Key:             "transfer.zip",
+			Key:             key,
 			WatcherName:     watcherName,
 			RetentionPeriod: &retentionPeriod,
 			Type:            enums.WorkflowTypeCreateAndReviewAip,
 			SIPUUID:         sipUUID,
+			SIPName:         sipName,
 		},
 	)
 
@@ -957,6 +965,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.SetupWorkflowTest(cfg)
 
 	sipID := 1
+	sipName := "name.zip"
 	valBagTaskID := 101
 	moveAIPTaskID := 103
 	watcherName := "watcher"
@@ -975,7 +984,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
@@ -1204,6 +1213,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 			RetentionPeriod: &retentionPeriod,
 			Type:            enums.WorkflowTypeCreateAip,
 			SIPUUID:         sipUUID,
+			SIPName:         sipName,
 		},
 	)
 
@@ -1230,6 +1240,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	s.SetupWorkflowTest(cfg)
 
 	sipID := 1
+	sipName := "name.zip"
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -1243,7 +1254,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
@@ -1296,7 +1307,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		sessionCtx,
 		&bucketupload.Params{
 			Path:       downloadDir + "/" + key,
-			Key:        fmt.Sprintf("Failed_%s", key),
+			Key:        fmt.Sprintf("Failed_%s", sipName),
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1329,6 +1340,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 			RetentionPeriod: &retentionPeriod,
 			Type:            enums.WorkflowTypeCreateAip,
 			SIPUUID:         sipUUID,
+			SIPName:         sipName,
 		},
 	)
 
@@ -1345,6 +1357,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	s.SetupWorkflowTest(cfg)
 
 	sipID := 1
+	sipName := "name.zip"
 	valBagTaskID := 101
 	watcherName := "watcher"
 	key := "transfer.zip"
@@ -1358,7 +1371,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(
@@ -1461,7 +1474,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		sessionCtx,
 		&bucketupload.Params{
 			Path:       transferPath + ".zip",
-			Key:        fmt.Sprintf("Failed_%s", key),
+			Key:        fmt.Sprintf("Failed_%s", sipName),
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1494,6 +1507,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 			RetentionPeriod: &retentionPeriod,
 			Type:            enums.WorkflowTypeCreateAip,
 			SIPUUID:         sipUUID,
+			SIPName:         sipName,
 		},
 	)
 
@@ -1510,6 +1524,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	s.SetupWorkflowTest(cfg)
 
 	sipID := 1
+	sipName := "name.zip"
 	wID := 1
 	watcherName := "watcher"
 	key := "transfer.zip"
@@ -1522,7 +1537,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		createSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: key, Status: enums.SIPStatusQueued},
+		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
 	).Return(sipID, nil)
 
 	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipUUID, mock.AnythingOfType("time.Time")).
@@ -1576,7 +1591,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		sessionCtx,
 		&bucketupload.Params{
 			Path:       extractPath + "/transfer.zip",
-			Key:        fmt.Sprintf("Failed_%s", key),
+			Key:        fmt.Sprintf("Failed_%s", sipName),
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1609,6 +1624,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 			Type:            enums.WorkflowTypeCreateAip,
 			Key:             key,
 			SIPUUID:         sipUUID,
+			SIPName:         sipName,
 		},
 	)
 

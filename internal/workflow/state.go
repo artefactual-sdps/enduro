@@ -42,7 +42,7 @@ func newWorkflowState(req *ingest.ProcessingWorkflowRequest) *workflowState {
 		status: enums.WorkflowStatusUnspecified,
 		sip: &sipInfo{
 			uuid:  req.SIPUUID,
-			name:  req.Key,
+			name:  req.SIPName,
 			isDir: req.IsDir,
 
 			// All SIPs start in queued status.

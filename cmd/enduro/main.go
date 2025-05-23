@@ -392,6 +392,7 @@ func main() {
 									IsDir:           event.IsDir,
 									Type:            event.WorkflowType,
 									SIPUUID:         uuid.New(),
+									SIPName:         event.Key,
 								}
 								if err := ingest.InitProcessingWorkflow(ctx, temporalClient, cfg.Temporal.TaskQueue, &req); err != nil {
 									logger.Error(err, "Error initializing processing workflow.")
