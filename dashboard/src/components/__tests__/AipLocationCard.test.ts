@@ -164,7 +164,8 @@ describe("AipLocationCard.vue", () => {
           <h4 class="card-title">Location</h4>
           <p class="card-text"><span>Not available yet.</span></p>
           <div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-primary btn-sm" disabled=""> Download </button>
-            <!--v-if--><button type="button" class="btn btn-primary btn-sm" disabled=""> Delete </button>
+            <!--v-if-->
+            <!--v-if-->
           </div>
         </div>
       </div>"
@@ -234,7 +235,8 @@ describe("AipLocationCard.vue", () => {
             </button>
         </div></span></p>
         <div class="d-flex flex-wrap gap-2"><button type="button" class="btn btn-primary btn-sm" disabled=""> Download </button>
-          <!--v-if--><button type="button" class="btn btn-primary btn-sm" disabled=""> Delete </button>
+          <!--v-if-->
+          <!--v-if-->
         </div>
       </div>
       </div>"

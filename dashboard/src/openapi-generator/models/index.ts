@@ -3,6 +3,7 @@
 export * from './AIPResponse';
 export * from './AIPWorkflows';
 export * from './AIPs';
+export * from './CancelAipDeletionRequestBody';
 export * from './ConfirmSipRequestBody';
 export * from './CreateAipRequestBody';
 export * from './CreateLocationRequestBody';
@@ -18,7 +19,6 @@ export * from './EnduroPreprocessing';
 export * from './EnduroStorageAip';
 export * from './EnduroStorageAipTask';
 export * from './EnduroStorageAipWorkflow';
-export * from './ListAipWorkflowsRequestBody';
 export * from './Location';
 export * from './LocationResponse';
 export * from './ModelError';

@@ -18,12 +18,12 @@ import type {
   AIPResponse,
   AIPWorkflows,
   AIPs,
+  CancelAipDeletionRequestBody,
   ConfirmSipRequestBody,
   CreateAipRequestBody,
   CreateLocationRequestBody,
   CreateLocationResult,
   EnduroStorageAip,
-  ListAipWorkflowsRequestBody,
   Location,
   LocationResponse,
   MoveStatusResult,
@@ -40,6 +40,8 @@ import {
     AIPWorkflowsToJSON,
     AIPsFromJSON,
     AIPsToJSON,
+    CancelAipDeletionRequestBodyFromJSON,
+    CancelAipDeletionRequestBodyToJSON,
     ConfirmSipRequestBodyFromJSON,
     ConfirmSipRequestBodyToJSON,
     CreateAipRequestBodyFromJSON,
@@ -50,8 +52,6 @@ import {
     CreateLocationResultToJSON,
     EnduroStorageAipFromJSON,
     EnduroStorageAipToJSON,
-    ListAipWorkflowsRequestBodyFromJSON,
-    ListAipWorkflowsRequestBodyToJSON,
     LocationFromJSON,
     LocationToJSON,
     LocationResponseFromJSON,
@@ -70,6 +70,11 @@ import {
     SubmitAipRequestBodyToJSON,
 } from '../models/index';
 
+export interface StorageCancelAipDeletionRequest {
+    uuid: string;
+    cancelAipDeletionRequestBody: CancelAipDeletionRequestBody;
+}
+
 export interface StorageCreateAipRequest {
     createAipRequestBody: CreateAipRequestBody;
 }
@@ -84,7 +89,8 @@ export interface StorageDownloadAipRequest {
 
 export interface StorageListAipWorkflowsRequest {
     uuid: string;
-    listAipWorkflowsRequestBody: ListAipWorkflowsRequestBody;
+    status?: StorageListAipWorkflowsStatusEnum;
+    type?: StorageListAipWorkflowsTypeEnum;
 }
 
 export interface StorageListAipsRequest {
@@ -148,6 +154,23 @@ export interface StorageUpdateAipRequest {
  */
 export interface StorageApiInterface {
     /**
+     * Cancel an AIP deletion request
+     * @summary cancel_aip_deletion storage
+     * @param {string} uuid Identifier of AIP
+     * @param {CancelAipDeletionRequestBody} cancelAipDeletionRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageCancelAipDeletionRaw(requestParameters: StorageCancelAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Cancel an AIP deletion request
+     * cancel_aip_deletion storage
+     */
+    storageCancelAipDeletion(requestParameters: StorageCancelAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
      * Create a new AIP
      * @summary create_aip storage
      * @param {CreateAipRequestBody} createAipRequestBody 
@@ -199,7 +222,8 @@ export interface StorageApiInterface {
      * List workflows related to an AIP
      * @summary list_aip_workflows storage
      * @param {string} uuid Identifier of AIP
-     * @param {ListAipWorkflowsRequestBody} listAipWorkflowsRequestBody 
+     * @param {'unspecified' | 'in progress' | 'done' | 'error' | 'queued' | 'pending' | 'canceled'} [status] 
+     * @param {'unspecified' | 'upload aip' | 'move aip' | 'delete aip'} [type] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -420,6 +444,52 @@ export interface StorageApiInterface {
 export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
+     * Cancel an AIP deletion request
+     * cancel_aip_deletion storage
+     */
+    async storageCancelAipDeletionRaw(requestParameters: StorageCancelAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageCancelAipDeletion.');
+        }
+
+        if (requestParameters.cancelAipDeletionRequestBody === null || requestParameters.cancelAipDeletionRequestBody === undefined) {
+            throw new runtime.RequiredError('cancelAipDeletionRequestBody','Required parameter requestParameters.cancelAipDeletionRequestBody was null or undefined when calling storageCancelAipDeletion.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/storage/aips/{uuid}/deletion-cancel`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: CancelAipDeletionRequestBodyToJSON(requestParameters.cancelAipDeletionRequestBody),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Cancel an AIP deletion request
+     * cancel_aip_deletion storage
+     */
+    async storageCancelAipDeletion(requestParameters: StorageCancelAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageCancelAipDeletionRaw(requestParameters, initOverrides);
+    }
+
+    /**
      * Create a new AIP
      * create_aip storage
      */
@@ -554,15 +624,17 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageListAipWorkflows.');
         }
 
-        if (requestParameters.listAipWorkflowsRequestBody === null || requestParameters.listAipWorkflowsRequestBody === undefined) {
-            throw new runtime.RequiredError('listAipWorkflowsRequestBody','Required parameter requestParameters.listAipWorkflowsRequestBody was null or undefined when calling storageListAipWorkflows.');
-        }
-
         const queryParameters: any = {};
 
-        const headerParameters: runtime.HTTPHeaders = {};
+        if (requestParameters.status !== undefined) {
+            queryParameters['status'] = requestParameters.status;
+        }
 
-        headerParameters['Content-Type'] = 'application/json';
+        if (requestParameters.type !== undefined) {
+            queryParameters['type'] = requestParameters.type;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
@@ -577,7 +649,6 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-            body: ListAipWorkflowsRequestBodyToJSON(requestParameters.listAipWorkflowsRequestBody),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => AIPWorkflowsFromJSON(jsonValue));
@@ -1113,6 +1184,29 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
 }
 
+/**
+ * @export
+ */
+export const StorageListAipWorkflowsStatusEnum = {
+    Unspecified: 'unspecified',
+    InProgress: 'in progress',
+    Done: 'done',
+    Error: 'error',
+    Queued: 'queued',
+    Pending: 'pending',
+    Canceled: 'canceled'
+} as const;
+export type StorageListAipWorkflowsStatusEnum = typeof StorageListAipWorkflowsStatusEnum[keyof typeof StorageListAipWorkflowsStatusEnum];
+/**
+ * @export
+ */
+export const StorageListAipWorkflowsTypeEnum = {
+    Unspecified: 'unspecified',
+    UploadAip: 'upload aip',
+    MoveAip: 'move aip',
+    DeleteAip: 'delete aip'
+} as const;
+export type StorageListAipWorkflowsTypeEnum = typeof StorageListAipWorkflowsTypeEnum[keyof typeof StorageListAipWorkflowsTypeEnum];
 /**
  * @export
  */

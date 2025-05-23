@@ -45,13 +45,6 @@ type MoveAipRequestBody struct {
 	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
 }
 
-// ListAipWorkflowsRequestBody is the type of the "storage" service
-// "list_aip_workflows" endpoint HTTP request body.
-type ListAipWorkflowsRequestBody struct {
-	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	Type   *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
-}
-
 // RequestAipDeletionRequestBody is the type of the "storage" service
 // "request_aip_deletion" endpoint HTTP request body.
 type RequestAipDeletionRequestBody struct {
@@ -660,16 +653,6 @@ func NewSubmitAipRequestBody(p *storage.SubmitAipPayload) *SubmitAipRequestBody 
 func NewMoveAipRequestBody(p *storage.MoveAipPayload) *MoveAipRequestBody {
 	body := &MoveAipRequestBody{
 		LocationID: p.LocationID,
-	}
-	return body
-}
-
-// NewListAipWorkflowsRequestBody builds the HTTP request body from the payload
-// of the "list_aip_workflows" endpoint of the "storage" service.
-func NewListAipWorkflowsRequestBody(p *storage.ListAipWorkflowsPayload) *ListAipWorkflowsRequestBody {
-	body := &ListAipWorkflowsRequestBody{
-		Status: p.Status,
-		Type:   p.Type,
 	}
 	return body
 }

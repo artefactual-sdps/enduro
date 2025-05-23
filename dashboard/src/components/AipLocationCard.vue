@@ -90,11 +90,13 @@ const requestDeletion = async () => {
           <template v-else>Move</template>
         </button>
         <button
-          v-if="authStore.checkAttributes(['storage:aips:deletion:request'])"
+          v-if="
+            authStore.checkAttributes(['storage:aips:deletion:request']) &&
+            aipStore.isStored
+          "
           type="button"
           class="btn btn-primary btn-sm"
           @click="requestDeletion"
-          :disabled="!aipStore.isStored"
         >
           Delete
         </button>
