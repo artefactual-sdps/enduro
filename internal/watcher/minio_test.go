@@ -30,19 +30,18 @@ func newWatcher(t *testing.T, updateCfg func(c *watcher.MinioConfig)) (*miniredi
 
 	// Default config.
 	config := &watcher.MinioConfig{
-		Name:             "minio-watcher",
-		RedisAddress:     fmt.Sprintf("redis://%s", m.Addr()),
-		RedisList:        "minio-events",
-		Region:           "eu-south-1",
-		Endpoint:         "endpoint",
-		PathStyle:        true,
-		Profile:          "profile",
-		Key:              "key",
-		Secret:           "secret",
-		Token:            "token",
-		Bucket:           "bucket",
-		RetentionPeriod:  &dur,
-		StripTopLevelDir: true,
+		Name:            "minio-watcher",
+		RedisAddress:    fmt.Sprintf("redis://%s", m.Addr()),
+		RedisList:       "minio-events",
+		Region:          "eu-south-1",
+		Endpoint:        "endpoint",
+		PathStyle:       true,
+		Profile:         "profile",
+		Key:             "key",
+		Secret:          "secret",
+		Token:           "token",
+		Bucket:          "bucket",
+		RetentionPeriod: &dur,
 	}
 
 	// Modify default config.

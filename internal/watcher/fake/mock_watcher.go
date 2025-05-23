@@ -272,44 +272,6 @@ func (c *MockWatcherStringCall) DoAndReturn(f func() string) *MockWatcherStringC
 	return c
 }
 
-// StripTopLevelDir mocks base method.
-func (m *MockWatcher) StripTopLevelDir() bool {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "StripTopLevelDir")
-	ret0, _ := ret[0].(bool)
-	return ret0
-}
-
-// StripTopLevelDir indicates an expected call of StripTopLevelDir.
-func (mr *MockWatcherMockRecorder) StripTopLevelDir() *MockWatcherStripTopLevelDirCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "StripTopLevelDir", reflect.TypeOf((*MockWatcher)(nil).StripTopLevelDir))
-	return &MockWatcherStripTopLevelDirCall{Call: call}
-}
-
-// MockWatcherStripTopLevelDirCall wrap *gomock.Call
-type MockWatcherStripTopLevelDirCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockWatcherStripTopLevelDirCall) Return(arg0 bool) *MockWatcherStripTopLevelDirCall {
-	c.Call = c.Call.Return(arg0)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockWatcherStripTopLevelDirCall) Do(f func() bool) *MockWatcherStripTopLevelDirCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockWatcherStripTopLevelDirCall) DoAndReturn(f func() bool) *MockWatcherStripTopLevelDirCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
 // Watch mocks base method.
 func (m *MockWatcher) Watch(arg0 context.Context) (*watcher.BlobEvent, watcher.Cleanup, error) {
 	m.ctrl.T.Helper()

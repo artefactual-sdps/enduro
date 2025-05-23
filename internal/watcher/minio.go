@@ -87,10 +87,9 @@ func NewMinioWatcher(
 		logger:       logger,
 		bucketConfig: bucketConfig,
 		commonWatcherImpl: &commonWatcherImpl{
-			name:             config.Name,
-			retentionPeriod:  config.RetentionPeriod,
-			stripTopLevelDir: config.StripTopLevelDir,
-			workflowType:     config.WorkflowType,
+			name:            config.Name,
+			retentionPeriod: config.RetentionPeriod,
+			workflowType:    config.WorkflowType,
 		},
 	}, nil
 }

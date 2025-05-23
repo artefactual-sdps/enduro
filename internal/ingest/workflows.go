@@ -43,9 +43,6 @@ type ProcessingWorkflowRequest struct {
 	// successfully.
 	CompletedDir string
 
-	// Whether the top-level directory is meant to be stripped.
-	StripTopLevelDir bool
-
 	// Key of the blob.
 	Key string
 

@@ -25,9 +25,6 @@ type BlobEvent struct {
 	// successfully.
 	CompletedDir string
 
-	// Whether the top-level directory is meant to be stripped.
-	StripTopLevelDir bool
-
 	// Key of the blob.
 	Key string
 
@@ -43,13 +40,12 @@ type BlobEvent struct {
 
 func NewBlobEvent(w Watcher, key string, isDir bool) *BlobEvent {
 	return &BlobEvent{
-		WatcherName:      w.String(),
-		RetentionPeriod:  w.RetentionPeriod(),
-		CompletedDir:     w.CompletedDir(),
-		StripTopLevelDir: w.StripTopLevelDir(),
-		WorkflowType:     w.WorkflowType(),
-		Key:              key,
-		IsDir:            isDir,
+		WatcherName:     w.String(),
+		RetentionPeriod: w.RetentionPeriod(),
+		CompletedDir:    w.CompletedDir(),
+		WorkflowType:    w.WorkflowType(),
+		Key:             key,
+		IsDir:           isDir,
 	}
 }
 

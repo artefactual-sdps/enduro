@@ -41,7 +41,6 @@ type Watcher interface {
 
 	RetentionPeriod() *time.Duration
 	CompletedDir() string
-	StripTopLevelDir() bool
 	WorkflowType() enums.WorkflowType
 
 	// Full path of the watched bucket when available, empty string otherwise.
@@ -51,11 +50,10 @@ type Watcher interface {
 }
 
 type commonWatcherImpl struct {
-	name             string
-	retentionPeriod  *time.Duration
-	completedDir     string
-	stripTopLevelDir bool
-	workflowType     enums.WorkflowType
+	name            string
+	retentionPeriod *time.Duration
+	completedDir    string
+	workflowType    enums.WorkflowType
 }
 
 func (w *commonWatcherImpl) String() string {
@@ -68,10 +66,6 @@ func (w *commonWatcherImpl) RetentionPeriod() *time.Duration {
 
 func (w *commonWatcherImpl) CompletedDir() string {
 	return w.completedDir
-}
-
-func (w *commonWatcherImpl) StripTopLevelDir() bool {
-	return w.stripTopLevelDir
 }
 
 func (w *commonWatcherImpl) WorkflowType() enums.WorkflowType {

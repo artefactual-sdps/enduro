@@ -84,8 +84,7 @@ type FilesystemConfig struct {
 	Ignore       string
 	Inotify      bool
 
-	RetentionPeriod  *time.Duration
-	StripTopLevelDir bool
+	RetentionPeriod *time.Duration
 
 	// PollInterval sets the length of time between filesystem polls (default:
 	// 200ms). If Inotify is true then PollInterval is ignored.
@@ -119,8 +118,7 @@ type MinioConfig struct {
 	Bucket          string
 	URL             string
 
-	RetentionPeriod  *time.Duration
-	StripTopLevelDir bool
+	RetentionPeriod *time.Duration
 
 	// PollInterval sets the length of time between Redis polls (default: 1s).
 	PollInterval time.Duration
