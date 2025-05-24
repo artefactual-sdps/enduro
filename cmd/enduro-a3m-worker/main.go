@@ -16,6 +16,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
 	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/bucketdownload"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
@@ -191,6 +192,14 @@ func main() {
 		}
 	}
 
+	// Set up internal bucket.
+	internalBucket, err := bucket.NewWithConfig(ctx, &cfg.InternalBucket)
+	if err != nil {
+		logger.Error(err, "Error setting up internal bucket.")
+		os.Exit(1)
+	}
+	defer internalBucket.Close()
+
 	// Set-up failed SIPs bucket.
 	failedSIPs, err := bucket.NewWithConfig(ctx, &cfg.FailedSIPs)
 	if err != nil {
@@ -232,6 +241,10 @@ func main() {
 		w.RegisterActivityWithOptions(
 			activities.NewDownloadActivity(tp.Tracer(activities.DownloadActivityName), wsvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			bucketdownload.New(internalBucket).Execute,
+			temporalsdk_activity.RegisterOptions{Name: bucketdownload.Name},
 		)
 		w.RegisterActivityWithOptions(
 			archiveextract.New(cfg.ExtractActivity).Execute,
