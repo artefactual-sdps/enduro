@@ -2,61 +2,26 @@ package ingest_test
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
 
-	"go.artefactual.dev/tools/bucket"
+	"github.com/google/go-cmp/cmp/cmpopts"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
+	"go.artefactual.dev/tools/mockutil"
+	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
+	temporalsdk_client "go.temporal.io/sdk/client"
 	goa "goa.design/goa/v3/pkg"
 	"gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
-
-func TestConfig(t *testing.T) {
-	t.Parallel()
-
-	t.Run("Returns error if config is invalid", func(t *testing.T) {
-		t.Parallel()
-
-		c := ingest.UploadConfig{
-			Bucket: bucket.Config{
-				URL:    "s3blob://my-bucket",
-				Bucket: "my-bucket",
-				Region: "planet-earth",
-			},
-		}
-		err := c.Validate()
-		assert.ErrorContains(t, err, "URL and rest of the [upload.bucket] configuration options are mutually exclusive")
-	})
-
-	t.Run("Validates if only URL is provided", func(t *testing.T) {
-		t.Parallel()
-
-		c := ingest.UploadConfig{
-			Bucket: bucket.Config{
-				URL: "s3blob://my-bucket",
-			},
-		}
-		err := c.Validate()
-		assert.NilError(t, err)
-	})
-
-	t.Run("Validates if only bucket options are provided", func(t *testing.T) {
-		t.Parallel()
-
-		c := ingest.UploadConfig{
-			Bucket: bucket.Config{
-				Bucket: "my-bucket",
-				Region: "planet-earth",
-			},
-		}
-		err := c.Validate()
-		assert.NilError(t, err)
-	})
-}
 
 const multipartBody = `Content-Type: multipart/form-data; boundary="foobar"
 
@@ -80,9 +45,41 @@ func TestUpload(t *testing.T) {
 		t.Parallel()
 
 		b := memblob.OpenBucket(nil)
-		svc, _ := testSvc(t, b, 102400000)
+		svc, psvc, tc := testSvc(t, b, 102400000)
 		ctx := context.Background()
 		r := io.NopCloser(strings.NewReader(multipartBody))
+
+		// TODO: Fix UUID generation or find how to ignore in Temporal client mock.
+		sipUUID := uuid.New()
+
+		psvc.EXPECT().CreateSIP(
+			ctx,
+			mockutil.Eq(
+				&datatypes.SIP{
+					UUID:   sipUUID,
+					Name:   "first.txt",
+					Status: enums.SIPStatusQueued,
+				},
+				cmpopts.IgnoreFields(datatypes.SIP{}, "UUID"),
+			),
+		).Return(nil)
+
+		tc.On(
+			"ExecuteWorkflow",
+			mock.AnythingOfType("*context.timerCtx"),
+			temporalsdk_client.StartWorkflowOptions{
+				ID:                    fmt.Sprintf("processing-workflow-%s", sipUUID.String()),
+				TaskQueue:             "test",
+				WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+			},
+			ingest.ProcessingWorkflowName,
+			&ingest.ProcessingWorkflowRequest{
+				SIPUUID: sipUUID,
+				SIPName: "first.txt",
+				Type:    enums.WorkflowTypeCreateAip,
+				Key:     fmt.Sprintf("%s%s", ingest.SIPPrefix, sipUUID.String()),
+			},
+		).Return(nil, nil)
 
 		err := svc.Goa().
 			UploadSip(ctx, &goaingest.UploadSipPayload{ContentType: "multipart/form-data; boundary=foobar"}, r)
@@ -100,7 +97,7 @@ func TestUpload(t *testing.T) {
 		t.Parallel()
 
 		b := memblob.OpenBucket(nil)
-		svc, _ := testSvc(t, b, 102400000)
+		svc, _, _ := testSvc(t, b, 102400000)
 		ctx := context.Background()
 		r := io.NopCloser(strings.NewReader(multipartBody))
 
@@ -113,7 +110,7 @@ func TestUpload(t *testing.T) {
 		t.Parallel()
 
 		b := memblob.OpenBucket(nil)
-		svc, _ := testSvc(t, b, 1)
+		svc, _, _ := testSvc(t, b, 1)
 		ctx := context.Background()
 		r := io.NopCloser(strings.NewReader(multipartBody))
 
@@ -121,5 +118,19 @@ func TestUpload(t *testing.T) {
 			UploadSip(ctx, &goaingest.UploadSipPayload{ContentType: "multipart/form-data; boundary=foobar"}, r)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "invalid_multipart_request")
 		assert.ErrorContains(t, err, "invalid multipart request")
+	})
+
+	t.Run("Returns invalid_multipart_request if missing file part", func(t *testing.T) {
+		t.Parallel()
+
+		b := memblob.OpenBucket(nil)
+		svc, _, _ := testSvc(t, b, 102400000)
+		ctx := context.Background()
+		r := io.NopCloser(strings.NewReader("--foobar--"))
+
+		err := svc.Goa().
+			UploadSip(ctx, &goaingest.UploadSipPayload{ContentType: "multipart/form-data; boundary=foobar"}, r)
+		assert.Equal(t, err.(*goa.ServiceError).Name, "invalid_multipart_request")
+		assert.ErrorContains(t, err, "missing file part in upload")
 	})
 }

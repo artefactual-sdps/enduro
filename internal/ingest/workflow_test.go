@@ -124,7 +124,7 @@ func TestCreateWorkflow(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ingestsvc, perSvc := testSvc(t, nil, 0)
+			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
 			if tt.mock != nil {
 				tt.mock(perSvc, tt.w)
 			}
