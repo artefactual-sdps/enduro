@@ -21,6 +21,7 @@ import type {
   SIPNotFound,
   SIPWorkflows,
   SIPs,
+  UploadSipResponseBody,
 } from '../models/index';
 import {
     ConfirmSipRequestBodyFromJSON,
@@ -35,6 +36,8 @@ import {
     SIPWorkflowsToJSON,
     SIPsFromJSON,
     SIPsToJSON,
+    UploadSipResponseBodyFromJSON,
+    UploadSipResponseBodyToJSON,
 } from '../models/index';
 
 export interface IngestConfirmSipRequest {
@@ -205,13 +208,13 @@ export interface IngestApiInterface {
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
-    ingestUploadSipRaw(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+    ingestUploadSipRaw(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UploadSipResponseBody>>;
 
     /**
      * Upload a SIP to trigger an ingest workflow
      * upload_sip ingest
      */
-    ingestUploadSip(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    ingestUploadSip(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadSipResponseBody>;
 
 }
 
@@ -515,7 +518,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * Upload a SIP to trigger an ingest workflow
      * upload_sip ingest
      */
-    async ingestUploadSipRaw(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async ingestUploadSipRaw(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UploadSipResponseBody>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -539,15 +542,16 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => UploadSipResponseBodyFromJSON(jsonValue));
     }
 
     /**
      * Upload a SIP to trigger an ingest workflow
      * upload_sip ingest
      */
-    async ingestUploadSip(requestParameters: IngestUploadSipRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.ingestUploadSipRaw(requestParameters, initOverrides);
+    async ingestUploadSip(requestParameters: IngestUploadSipRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadSipResponseBody> {
+        const response = await this.ingestUploadSipRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
 }

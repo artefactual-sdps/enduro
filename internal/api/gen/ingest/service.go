@@ -35,7 +35,7 @@ type Service interface {
 	// Signal the SIP has been reviewed and rejected
 	RejectSip(context.Context, *RejectSipPayload) (err error)
 	// Upload a SIP to trigger an ingest workflow
-	UploadSip(context.Context, *UploadSipPayload, io.ReadCloser) (err error)
+	UploadSip(context.Context, *UploadSipPayload, io.ReadCloser) (res *UploadSipResult, err error)
 }
 
 // Auther defines the authorization functions to be implemented by the service.
@@ -277,6 +277,12 @@ type UploadSipPayload struct {
 	// Content-Type header, must define value for multipart boundary.
 	ContentType string
 	Token       *string
+}
+
+// UploadSipResult is the result type of the ingest service upload_sip method.
+type UploadSipResult struct {
+	// Identifier of uploaded SIP
+	UUID string
 }
 
 // Forbidden

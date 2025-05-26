@@ -3,6 +3,7 @@ package ingest_test
 import (
 	"context"
 	"database/sql"
+	"math/rand"
 	"testing"
 	"time"
 
@@ -21,14 +22,19 @@ import (
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
 
-func testSvc(t *testing.T, b *blob.Bucket, s int64) (ingest.Service, *persistence_fake.MockService) {
+func testSvc(t *testing.T, b *blob.Bucket, s int64) (
+	ingest.Service,
+	*persistence_fake.MockService,
+	*temporalsdk_mocks.Client,
+) {
 	t.Helper()
 
 	psvc := persistence_fake.NewMockService(gomock.NewController(t))
+	tc := new(temporalsdk_mocks.Client)
 	ingestsvc := ingest.NewService(
 		logr.Discard(),
 		&sql.DB{},
-		new(temporalsdk_mocks.Client),
+		tc,
 		event.NopEventService(),
 		psvc,
 		&auth.NoopTokenVerifier{},
@@ -36,9 +42,10 @@ func testSvc(t *testing.T, b *blob.Bucket, s int64) (ingest.Service, *persistenc
 		"test",
 		b,
 		s,
+		rand.New(rand.NewSource(1)), // #nosec: G404
 	)
 
-	return ingestsvc, psvc
+	return ingestsvc, psvc, tc
 }
 
 func TestCreateSIP(t *testing.T) {
@@ -74,7 +81,7 @@ func TestCreateSIP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ingestsvc, perSvc := testSvc(t, nil, 0)
+			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
 			if tt.mock != nil {
 				tt.mock(perSvc, tt.sip)
 			}

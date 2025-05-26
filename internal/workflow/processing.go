@@ -15,6 +15,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/bucketdownload"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
@@ -162,8 +163,8 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 	// Create the initial workflow state.
 	state := newWorkflowState(req)
 
-	// Persist the SIP as early as possible.
-	{
+	// Persist the SIP as early as possible if the request comes from a watcher.
+	if state.req.WatcherName != "" {
 		activityOpts := withLocalActivityOpts(ctx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(
 			activityOpts,
@@ -325,26 +326,49 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Download.
 	{
-		var downloadResult activities.DownloadActivityResult
-		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-		params := &activities.DownloadActivityParams{
-			Key:         state.req.Key,
-			WatcherName: state.req.WatcherName,
-		}
+		var destinationPath string
 		if w.cfg.Preprocessing.Enabled {
-			params.DestinationPath = w.cfg.Preprocessing.SharedPath
+			destinationPath = w.cfg.Preprocessing.SharedPath
 		}
-		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.DownloadActivityName, params).
-			Get(activityOpts, &downloadResult)
-		if err != nil {
-			return err
+		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+
+		if state.req.WatcherName != "" {
+			// Watcher request, use watcher bucket.
+			var downloadResult activities.DownloadActivityResult
+			err := temporalsdk_workflow.ExecuteActivity(
+				activityOpts,
+				activities.DownloadActivityName,
+				&activities.DownloadActivityParams{
+					Key:             state.req.Key,
+					WatcherName:     state.req.WatcherName,
+					DestinationPath: destinationPath,
+				},
+			).Get(activityOpts, &downloadResult)
+			if err != nil {
+				return err
+			}
+			state.sip.path = downloadResult.Path
+		} else {
+			// API upload request, use internal bucket.
+			var re bucketdownload.Result
+			err := temporalsdk_workflow.ExecuteActivity(
+				activityOpts,
+				bucketdownload.Name,
+				&bucketdownload.Params{
+					DirPath: destinationPath,
+					Key:     state.req.Key,
+				},
+			).Get(activityOpts, &re)
+			if err != nil {
+				return err
+			}
+			state.sip.path = re.FilePath
 		}
-		state.sip.path = downloadResult.Path
 
 		// Delete download tmp dir when session ends.
-		state.addTempPath(filepath.Dir(downloadResult.Path))
+		state.addTempPath(filepath.Dir(state.sip.path))
 
-		state.sendToFailed.path = downloadResult.Path
+		state.sendToFailed.path = state.sip.path
 		state.sendToFailed.activityName = activities.SendToFailedSIPsName
 	}
 

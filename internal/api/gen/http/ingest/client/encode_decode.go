@@ -1026,7 +1026,20 @@ func DecodeUploadSipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 		}
 		switch resp.StatusCode {
 		case http.StatusAccepted:
-			return nil, nil
+			var (
+				body UploadSipResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "upload_sip", err)
+			}
+			err = ValidateUploadSipResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "upload_sip", err)
+			}
+			res := NewUploadSipResultAccepted(&body)
+			return res, nil
 		case http.StatusBadRequest:
 			en := resp.Header.Get("goa-error")
 			switch en {

@@ -209,13 +209,13 @@ func main() {
 		)
 	}
 
-	// Set up upload bucket.
-	uploadBucket, err := bucket.NewWithConfig(ctx, &cfg.Upload.Bucket)
+	// Set up internal bucket.
+	internalBucket, err := bucket.NewWithConfig(ctx, &cfg.InternalBucket)
 	if err != nil {
-		logger.Error(err, "Error setting up upload bucket.")
+		logger.Error(err, "Error setting up internal bucket.")
 		os.Exit(1)
 	}
-	defer uploadBucket.Close()
+	defer internalBucket.Close()
 
 	// Set up the ingest service.
 	var ingestsvc ingest.Service
@@ -229,8 +229,9 @@ func main() {
 			tokenVerifier,
 			ticketProvider,
 			cfg.Temporal.TaskQueue,
-			uploadBucket,
+			internalBucket,
 			cfg.Upload.MaxSize,
+			rand.Reader,
 		)
 	}
 
@@ -318,8 +319,9 @@ func main() {
 			&auth.NoopTokenVerifier{},
 			ticketProvider,
 			cfg.Temporal.TaskQueue,
-			uploadBucket,
+			internalBucket,
 			cfg.Upload.MaxSize,
+			rand.Reader,
 		)
 
 		iss, err := storage.NewService(

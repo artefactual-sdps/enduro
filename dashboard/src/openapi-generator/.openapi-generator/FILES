@@ -8,11 +8,11 @@ index.ts
 models/AIPResponse.ts
 models/AIPWorkflows.ts
 models/AIPs.ts
+models/CancelAipDeletionRequestBody.ts
 models/ConfirmSipRequestBody.ts
 models/CreateAipRequestBody.ts
 models/CreateLocationRequestBody.ts
 models/CreateLocationRequestBodyConfig.ts
-models/CreateLocationResult.ts
 models/EnduroAbout.ts
 models/EnduroIngestSip.ts
 models/EnduroIngestSipTask.ts
@@ -45,5 +45,6 @@ models/SIPWorkflows.ts
 models/SIPs.ts
 models/SubmitAIPResult.ts
 models/SubmitAipRequestBody.ts
+models/UploadSipResponseBody.ts
 models/index.ts
 runtime.ts

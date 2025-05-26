@@ -11,7 +11,7 @@ require (
 	entgo.io/ent v0.14.4
 	github.com/XSAM/otelsql v0.29.0
 	github.com/alicebob/miniredis/v2 v2.32.1
-	github.com/artefactual-sdps/temporal-activities v0.0.0-20250411163551-a3b6ecf735e5
+	github.com/artefactual-sdps/temporal-activities v0.0.0-20250526174303-c2ff1f222a73
 	github.com/coreos/go-oidc/v3 v3.10.0
 	github.com/cyphar/filepath-securejoin v0.2.4
 	github.com/dolmen-go/contextio v1.0.0
@@ -52,7 +52,7 @@ require (
 	go.opentelemetry.io/otel/sdk v1.29.0
 	go.opentelemetry.io/otel/trace v1.29.0
 	go.temporal.io/api v1.44.1
-	go.temporal.io/sdk v1.32.1
+	go.temporal.io/sdk v1.33.1
 	go.temporal.io/sdk/contrib/opentelemetry v0.6.0
 	go.uber.org/mock v0.4.0
 	goa.design/goa/v3 v3.15.2
@@ -142,7 +142,7 @@ require (
 	github.com/mholt/archives v0.1.1 // indirect
 	github.com/minio/minlz v1.0.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
-	github.com/nexus-rpc/sdk-go v0.1.0 // indirect
+	github.com/nexus-rpc/sdk-go v0.3.0 // indirect
 	github.com/nwaples/rardecode/v2 v2.1.0 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.1 // indirect

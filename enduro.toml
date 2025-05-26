@@ -210,16 +210,15 @@ passphrase = "" # Secret: set (if required) with env var ENDURO_AM_SFTP_PRIVATEK
 # Default: 102400000.
 maxSize = 102400000
 
-# upload.bucket section configures a bucket where the files will be placed.
-# Make sure it matches the configuration from one of the watchers to trigger
-# the processing workflow after upload.
-[upload.bucket]
+# internalBucket section configures a bucket where Enduro will place uploaded
+# SIPs. Make sure it doesn't match any of the watched buckets.
+[internalBucket]
 endpoint = "http://minio.enduro-sdps:9000"
 pathStyle = true
 accessKey = "minio"
 secretKey = "minio123"
 region = "us-west-1"
-bucket = "sips"
+bucket = "internal"
 
 [telemetry.traces]
 enabled = false

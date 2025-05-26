@@ -2,6 +2,7 @@ package workflow
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"math/rand"
 	"path/filepath"
@@ -13,6 +14,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/bucketdownload"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
@@ -113,6 +115,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	s.env.RegisterActivityWithOptions(
 		activities.NewDownloadActivity(noop.Tracer{}, wsvc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
+		bucketdownload.New(nil).Execute,
+		temporalsdk_activity.RegisterOptions{Name: bucketdownload.Name},
 	)
 	s.env.RegisterActivityWithOptions(
 		archiveextract.New(cfg.ExtractActivity).Execute,
@@ -1625,6 +1631,102 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 			Key:             key,
 			SIPUUID:         sipUUID,
 			SIPName:         sipName,
+		},
+	)
+
+	s.True(s.env.IsWorkflowCompleted())
+	s.Error(s.env.GetWorkflowResult(nil))
+}
+
+func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
+	cfg := config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+	}
+	s.SetupWorkflowTest(cfg)
+
+	sipName := "name.zip"
+	key := "transfer.zip"
+	ctx := mock.AnythingOfType("*context.valueCtx")
+	sessionCtx := mock.AnythingOfType("*context.timerCtx")
+	ingestsvc := s.workflow.ingestsvc
+
+	s.env.OnActivity(
+		setStatusInProgressLocalActivity,
+		ctx,
+		ingestsvc,
+		sipUUID,
+		startTime,
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		createWorkflowLocalActivity,
+		ctx,
+		ingestsvc,
+		&createWorkflowLocalActivityParams{
+			TemporalID: "default-test-workflow-id",
+			Type:       enums.WorkflowTypeCreateAip,
+			Status:     enums.WorkflowStatusInProgress,
+			StartedAt:  startTime,
+			SIPUUID:    sipUUID,
+		},
+	).Return(1, nil)
+
+	s.env.OnActivity(
+		bucketdownload.Name,
+		sessionCtx,
+		&bucketdownload.Params{
+			Key:     key,
+			DirPath: cfg.Preprocessing.SharedPath,
+		},
+	).Return(&bucketdownload.Result{FilePath: tempPath + "/" + key}, nil)
+
+	// Everything else should be the same as other workflows after
+	// download, so just fail the workflow on extration.
+	s.env.OnActivity(
+		archiveextract.Name,
+		sessionCtx,
+		&archiveextract.Params{SourcePath: tempPath + "/" + key},
+	).Return(nil, errors.New("extract error"))
+
+	s.env.OnActivity(
+		activities.SendToFailedSIPsName,
+		sessionCtx,
+		&bucketupload.Params{
+			Path:       tempPath + "/" + key,
+			Key:        fmt.Sprintf("Failed_%s", sipName),
+			BufferSize: 100_000_000,
+		},
+	).Return(&bucketupload.Result{}, nil)
+
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		completeWorkflowLocalActivity,
+		ctx,
+		ingestsvc,
+		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		removepaths.Name,
+		sessionCtx,
+		&removepaths.Params{Paths: []string{tempPath}},
+	).Return(&removepaths.Result{}, nil)
+
+	s.env.ExecuteWorkflow(
+		s.workflow.Execute,
+		&ingest.ProcessingWorkflowRequest{
+			Key:     key,
+			Type:    enums.WorkflowTypeCreateAip,
+			SIPUUID: sipUUID,
+			SIPName: sipName,
 		},
 	)
 

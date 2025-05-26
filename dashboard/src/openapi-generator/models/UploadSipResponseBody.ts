@@ -16,32 +16,32 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface CreateLocationResult
+ * @interface UploadSipResponseBody
  */
-export interface CreateLocationResult {
+export interface UploadSipResponseBody {
     /**
-     * 
+     * Identifier of uploaded SIP
      * @type {string}
-     * @memberof CreateLocationResult
+     * @memberof UploadSipResponseBody
      */
     uuid: string;
 }
 
 /**
- * Check if a given object implements the CreateLocationResult interface.
+ * Check if a given object implements the UploadSipResponseBody interface.
  */
-export function instanceOfCreateLocationResult(value: object): boolean {
+export function instanceOfUploadSipResponseBody(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "uuid" in value;
 
     return isInstance;
 }
 
-export function CreateLocationResultFromJSON(json: any): CreateLocationResult {
-    return CreateLocationResultFromJSONTyped(json, false);
+export function UploadSipResponseBodyFromJSON(json: any): UploadSipResponseBody {
+    return UploadSipResponseBodyFromJSONTyped(json, false);
 }
 
-export function CreateLocationResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateLocationResult {
+export function UploadSipResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): UploadSipResponseBody {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -51,7 +51,7 @@ export function CreateLocationResultFromJSONTyped(json: any, ignoreDiscriminator
     };
 }
 
-export function CreateLocationResultToJSON(value?: CreateLocationResult | null): any {
+export function UploadSipResponseBodyToJSON(value?: UploadSipResponseBody | null): any {
     if (value === undefined) {
         return undefined;
     }

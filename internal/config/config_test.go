@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/bucket"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
@@ -95,5 +96,52 @@ func TestConfig(t *testing.T) {
 		assert.Equal(t, c.Temporal.TaskQueue, temporal.GlobalTaskQueue)
 		assert.Equal(t, c.ValidatePREMIS.Enabled, false)
 		assert.Equal(t, c.ValidatePREMIS.XSDPath, "")
+	})
+}
+
+func TestConfigValidate(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Returns error if config is invalid", func(t *testing.T) {
+		t.Parallel()
+
+		c := config.Configuration{
+			InternalBucket: bucket.Config{
+				URL:    "s3blob://my-bucket",
+				Bucket: "my-bucket",
+				Region: "planet-earth",
+			},
+		}
+		err := c.Validate()
+		assert.ErrorContains(
+			t,
+			err,
+			"the [internalBucket] URL option and the other configuration options are mutually exclusive",
+		)
+	})
+
+	t.Run("Validates if only URL is provided", func(t *testing.T) {
+		t.Parallel()
+
+		c := config.Configuration{
+			InternalBucket: bucket.Config{
+				URL: "s3blob://my-bucket",
+			},
+		}
+		err := c.Validate()
+		assert.NilError(t, err)
+	})
+
+	t.Run("Validates if only bucket options are provided", func(t *testing.T) {
+		t.Parallel()
+
+		c := config.Configuration{
+			InternalBucket: bucket.Config{
+				Bucket: "my-bucket",
+				Region: "planet-earth",
+			},
+		}
+		err := c.Validate()
+		assert.NilError(t, err)
 	})
 }

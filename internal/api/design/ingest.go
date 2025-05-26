@@ -193,6 +193,11 @@ var _ = Service("ingest", func() {
 			Token("token", String)
 		})
 
+		Result(func() {
+			AttributeUUID("uuid", "Identifier of uploaded SIP")
+			Required("uuid")
+		})
+
 		Error(
 			"invalid_media_type",
 			ErrorResult,

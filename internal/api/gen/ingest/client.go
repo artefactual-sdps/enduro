@@ -152,7 +152,11 @@ func (c *Client) RejectSip(ctx context.Context, p *RejectSipPayload) (err error)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) UploadSip(ctx context.Context, p *UploadSipPayload, req io.ReadCloser) (err error) {
-	_, err = c.UploadSipEndpoint(ctx, &UploadSipRequestData{Payload: p, Body: req})
-	return
+func (c *Client) UploadSip(ctx context.Context, p *UploadSipPayload, req io.ReadCloser) (res *UploadSipResult, err error) {
+	var ires any
+	ires, err = c.UploadSipEndpoint(ctx, &UploadSipRequestData{Payload: p, Body: req})
+	if err != nil {
+		return
+	}
+	return ires.(*UploadSipResult), nil
 }

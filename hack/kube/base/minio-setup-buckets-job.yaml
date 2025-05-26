@@ -33,5 +33,6 @@ spec:
               mc mb enduro/perma-aips-2 --ignore-existing;
               mc mb enduro/failed-sips --ignore-existing;
               mc mb enduro/failed-pips --ignore-existing;
+              mc mb enduro/internal --ignore-existing;
               mc event add enduro/sips arn:minio:sqs::PRIMARY:redis --event put --ignore-existing",
             ]

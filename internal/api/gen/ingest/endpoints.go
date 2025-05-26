@@ -255,6 +255,6 @@ func NewUploadSipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 		if err != nil {
 			return nil, err
 		}
-		return nil, s.UploadSip(ctx, ep.Payload, ep.Body)
+		return s.UploadSip(ctx, ep.Payload, ep.Body)
 	}
 }

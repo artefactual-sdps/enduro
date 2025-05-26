@@ -2,61 +2,26 @@ package ingest_test
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"io"
 	"strings"
 	"testing"
 
-	"go.artefactual.dev/tools/bucket"
-	goa "goa.design/goa/v3/pkg"
+	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
+	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
+	temporalsdk_client "go.temporal.io/sdk/client"
+	temporalsdk_mocks "go.temporal.io/sdk/mocks"
 	"gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
+	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
-
-func TestConfig(t *testing.T) {
-	t.Parallel()
-
-	t.Run("Returns error if config is invalid", func(t *testing.T) {
-		t.Parallel()
-
-		c := ingest.UploadConfig{
-			Bucket: bucket.Config{
-				URL:    "s3blob://my-bucket",
-				Bucket: "my-bucket",
-				Region: "planet-earth",
-			},
-		}
-		err := c.Validate()
-		assert.ErrorContains(t, err, "URL and rest of the [upload.bucket] configuration options are mutually exclusive")
-	})
-
-	t.Run("Validates if only URL is provided", func(t *testing.T) {
-		t.Parallel()
-
-		c := ingest.UploadConfig{
-			Bucket: bucket.Config{
-				URL: "s3blob://my-bucket",
-			},
-		}
-		err := c.Validate()
-		assert.NilError(t, err)
-	})
-
-	t.Run("Validates if only bucket options are provided", func(t *testing.T) {
-		t.Parallel()
-
-		c := ingest.UploadConfig{
-			Bucket: bucket.Config{
-				Bucket: "my-bucket",
-				Region: "planet-earth",
-			},
-		}
-		err := c.Validate()
-		assert.NilError(t, err)
-	})
-}
 
 const multipartBody = `Content-Type: multipart/form-data; boundary="foobar"
 
@@ -65,61 +30,164 @@ Content-Disposition: form-data; name="field1"; filename="first.txt"
 Content-Type: text/plain
 
 first
---foobar
-Content-Disposition: form-data; name="field2"; filename="second.txt"
-Content-Type: text/plain
-
-second
 --foobar--
 `
 
 func TestUpload(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Writes only the first multipart of the request to the bucket", func(t *testing.T) {
-		t.Parallel()
+	uuid0 := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	key := fmt.Sprintf("%s%s", ingest.SIPPrefix, uuid0.String())
 
-		b := memblob.OpenBucket(nil)
-		svc, _ := testSvc(t, b, 102400000)
-		ctx := context.Background()
-		r := io.NopCloser(strings.NewReader(multipartBody))
+	for _, tt := range []struct {
+		name          string
+		mock          func(context.Context, *persistence_fake.MockService, *temporalsdk_mocks.Client)
+		multipartBody string
+		contentType   string
+		maxUploadSize int64
+		want          *goaingest.UploadSipResult
+		wantErr       string
+	}{
+		{
+			name:          "Returns invalid_media_type if media type cannot be parsed",
+			multipartBody: multipartBody,
+			contentType:   "invalid type",
+			maxUploadSize: 102400000,
+			wantErr:       "invalid media type",
+		},
+		{
+			name:          "Returns invalid_multipart_request if request size is bigger than maximum size",
+			multipartBody: multipartBody,
+			contentType:   "multipart/form-data; boundary=foobar",
+			maxUploadSize: 0,
+			wantErr:       "invalid multipart request",
+		},
+		{
+			name:          "Returns invalid_multipart_request if missing file part",
+			multipartBody: "--foobar--",
+			contentType:   "multipart/form-data; boundary=foobar",
+			maxUploadSize: 102400000,
+			wantErr:       "missing file part in upload",
+		},
+		{
+			name: "Returns persistence error",
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().CreateSIP(
+					ctx,
+					&datatypes.SIP{
+						UUID:   uuid0,
+						Name:   "first.txt",
+						Status: enums.SIPStatusQueued,
+					},
+				).Return(errors.New("persistence error"))
+			},
+			multipartBody: multipartBody,
+			contentType:   "multipart/form-data; boundary=foobar",
+			maxUploadSize: 102400000,
+			wantErr:       "persistence error",
+		},
+		{
+			name: "Returns Temporal error",
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().CreateSIP(
+					ctx,
+					&datatypes.SIP{
+						UUID:   uuid0,
+						Name:   "first.txt",
+						Status: enums.SIPStatusQueued,
+					},
+				).DoAndReturn(func(ctx context.Context, s *datatypes.SIP) error {
+					s.ID = 1
+					return nil
+				})
 
-		err := svc.Goa().
-			UploadSip(ctx, &goaingest.UploadSipPayload{ContentType: "multipart/form-data; boundary=foobar"}, r)
-		assert.NilError(t, err)
+				tc.On(
+					"ExecuteWorkflow",
+					mock.AnythingOfType("*context.timerCtx"),
+					temporalsdk_client.StartWorkflowOptions{
+						ID:                    fmt.Sprintf("processing-workflow-%s", uuid0.String()),
+						TaskQueue:             "test",
+						WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+					},
+					ingest.ProcessingWorkflowName,
+					&ingest.ProcessingWorkflowRequest{
+						SIPUUID: uuid0,
+						SIPName: "first.txt",
+						Type:    enums.WorkflowTypeCreateAip,
+						Key:     key,
+					},
+				).Return(nil, errors.New("temporal error"))
 
-		data, err := b.ReadAll(ctx, "first.txt")
-		assert.NilError(t, err)
-		assert.Equal(t, string(data), "first")
+				psvc.EXPECT().DeleteSIP(ctx, 1)
+			},
+			multipartBody: multipartBody,
+			contentType:   "multipart/form-data; boundary=foobar",
+			maxUploadSize: 102400000,
+			wantErr:       "temporal error",
+		},
+		{
+			name: "Uploads a SIP",
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().CreateSIP(
+					ctx,
+					&datatypes.SIP{
+						UUID:   uuid0,
+						Name:   "first.txt",
+						Status: enums.SIPStatusQueued,
+					},
+				).Return(nil)
 
-		_, err = b.ReadAll(ctx, "second.txt")
-		assert.ErrorContains(t, err, `blob (key "second.txt") (code=NotFound): blob not found`)
-	})
+				tc.On(
+					"ExecuteWorkflow",
+					mock.AnythingOfType("*context.timerCtx"),
+					temporalsdk_client.StartWorkflowOptions{
+						ID:                    fmt.Sprintf("processing-workflow-%s", uuid0.String()),
+						TaskQueue:             "test",
+						WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+					},
+					ingest.ProcessingWorkflowName,
+					&ingest.ProcessingWorkflowRequest{
+						SIPUUID: uuid0,
+						SIPName: "first.txt",
+						Type:    enums.WorkflowTypeCreateAip,
+						Key:     key,
+					},
+				).Return(nil, nil)
+			},
+			multipartBody: multipartBody,
+			contentType:   "multipart/form-data; boundary=foobar",
+			maxUploadSize: 102400000,
+			want:          &goaingest.UploadSipResult{UUID: uuid0.String()},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	t.Run("Returns invalid_media_type if media type cannot be parsed", func(t *testing.T) {
-		t.Parallel()
+			b := memblob.OpenBucket(nil)
+			r := io.NopCloser(strings.NewReader(tt.multipartBody))
+			svc, psvc, tc := testSvc(t, b, tt.maxUploadSize)
+			ctx := t.Context()
+			if tt.mock != nil {
+				tt.mock(ctx, psvc, tc)
+			}
 
-		b := memblob.OpenBucket(nil)
-		svc, _ := testSvc(t, b, 102400000)
-		ctx := context.Background()
-		r := io.NopCloser(strings.NewReader(multipartBody))
+			re, err := svc.Goa().UploadSip(ctx, &goaingest.UploadSipPayload{ContentType: tt.contentType}, r)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
 
-		err := svc.Goa().UploadSip(ctx, &goaingest.UploadSipPayload{ContentType: "invalid type"}, r)
-		assert.Equal(t, err.(*goa.ServiceError).Name, "invalid_media_type")
-		assert.ErrorContains(t, err, "invalid media type")
-	})
+				// On any error, the blob should not exist.
+				_, err = b.ReadAll(ctx, key)
+				assert.ErrorContains(t, err, fmt.Sprintf("blob (key %q) (code=NotFound): blob not found", key))
 
-	t.Run("Returns invalid_multipart_request if request size is bigger than maximum size", func(t *testing.T) {
-		t.Parallel()
+				return
+			}
+			assert.NilError(t, err)
+			assert.DeepEqual(t, re, tt.want)
 
-		b := memblob.OpenBucket(nil)
-		svc, _ := testSvc(t, b, 1)
-		ctx := context.Background()
-		r := io.NopCloser(strings.NewReader(multipartBody))
-
-		err := svc.Goa().
-			UploadSip(ctx, &goaingest.UploadSipPayload{ContentType: "multipart/form-data; boundary=foobar"}, r)
-		assert.Equal(t, err.(*goa.ServiceError).Name, "invalid_multipart_request")
-		assert.ErrorContains(t, err, "invalid multipart request")
-	})
+			// Make sure the blob has been uploaded.
+			data, err := b.ReadAll(ctx, key)
+			assert.NilError(t, err)
+			assert.Equal(t, string(data), "first")
+		})
+	}
 }

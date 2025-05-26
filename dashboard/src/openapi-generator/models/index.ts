@@ -3,11 +3,11 @@
 export * from './AIPResponse';
 export * from './AIPWorkflows';
 export * from './AIPs';
+export * from './CancelAipDeletionRequestBody';
 export * from './ConfirmSipRequestBody';
 export * from './CreateAipRequestBody';
 export * from './CreateLocationRequestBody';
 export * from './CreateLocationRequestBodyConfig';
-export * from './CreateLocationResult';
 export * from './EnduroAbout';
 export * from './EnduroIngestSip';
 export * from './EnduroIngestSipTask';
@@ -40,3 +40,4 @@ export * from './SIPWorkflows';
 export * from './SIPs';
 export * from './SubmitAIPResult';
 export * from './SubmitAipRequestBody';
+export * from './UploadSipResponseBody';

@@ -541,6 +541,12 @@ paths:
             responses:
                 "202":
                     description: Accepted response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/UploadSipResponseBody'
+                            example:
+                                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 "400":
                     description: 'invalid_multipart_request: Error returned when the request body is not a valid multipart content.'
                     content:
@@ -1494,7 +1500,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/CreateLocationResult'
+                                $ref: '#/components/schemas/UploadSipResponseBody'
                             example:
                                 uuid: abc123
                 "400":
@@ -1931,16 +1937,6 @@ components:
                 - name
                 - source
                 - purpose
-        CreateLocationResult:
-            type: object
-            properties:
-                uuid:
-                    type: string
-                    example: abc123
-            example:
-                uuid: abc123
-            required:
-                - uuid
         EnduroAbout:
             type: object
             properties:
@@ -2959,6 +2955,18 @@ components:
                 name: abc123
             required:
                 - name
+        UploadSipResponseBody:
+            type: object
+            properties:
+                uuid:
+                    type: string
+                    description: Identifier of uploaded SIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+            example:
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
     securitySchemes:
         jwt_header_Authorization:
             type: http

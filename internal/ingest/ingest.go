@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -20,6 +21,9 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
+
+// Prefix used to store the SIP in the internal bucket after upload.
+const SIPPrefix = "SIP_"
 
 var ErrInvalid = errors.New("invalid")
 
@@ -63,8 +67,9 @@ type ingestImpl struct {
 	tokenVerifier  auth.TokenVerifier
 	ticketProvider *auth.TicketProvider
 	taskQueue      string
-	uploadBucket   *blob.Bucket
+	internalBucket *blob.Bucket
 	uploadMaxSize  int64
+	rander         io.Reader
 }
 
 var _ Service = (*ingestImpl)(nil)
@@ -78,8 +83,9 @@ func NewService(
 	tokenVerifier auth.TokenVerifier,
 	ticketProvider *auth.TicketProvider,
 	taskQueue string,
-	uploadBucket *blob.Bucket,
+	internalBucket *blob.Bucket,
 	uploadMaxSize int64,
+	rander io.Reader,
 ) *ingestImpl {
 	return &ingestImpl{
 		logger:         logger,
@@ -90,8 +96,9 @@ func NewService(
 		tokenVerifier:  tokenVerifier,
 		ticketProvider: ticketProvider,
 		taskQueue:      taskQueue,
-		uploadBucket:   uploadBucket,
+		internalBucket: internalBucket,
 		uploadMaxSize:  uploadMaxSize,
+		rander:         rander,
 	}
 }
 

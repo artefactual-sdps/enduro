@@ -75,6 +75,13 @@ type ListSipWorkflowsResponseBody struct {
 	Workflows SIPWorkflowResponseBodyCollection `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
 }
 
+// UploadSipResponseBody is the type of the "ingest" service "upload_sip"
+// endpoint HTTP response body.
+type UploadSipResponseBody struct {
+	// Identifier of uploaded SIP
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
 // MonitorRequestNotAvailableResponseBody is the type of the "ingest" service
 // "monitor_request" endpoint HTTP response body for the "not_available" error.
 type MonitorRequestNotAvailableResponseBody struct {
@@ -462,6 +469,15 @@ func NewListSipWorkflowsResponseBody(res *ingestviews.SIPWorkflowsView) *ListSip
 		for i, val := range res.Workflows {
 			body.Workflows[i] = marshalIngestviewsSIPWorkflowViewToSIPWorkflowResponseBody(val)
 		}
+	}
+	return body
+}
+
+// NewUploadSipResponseBody builds the HTTP response body from the result of
+// the "upload_sip" endpoint of the "ingest" service.
+func NewUploadSipResponseBody(res *ingest.UploadSipResult) *UploadSipResponseBody {
+	body := &UploadSipResponseBody{
+		UUID: res.UUID,
 	}
 	return body
 }

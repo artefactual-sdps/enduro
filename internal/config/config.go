@@ -70,6 +70,7 @@ type Configuration struct {
 	Storage         storage.Config
 	Temporal        temporal.Config
 	Upload          ingest.UploadConfig
+	InternalBucket  bucket.Config
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
 	ValidatePREMIS  premis.Config
@@ -79,13 +80,17 @@ type Configuration struct {
 }
 
 func (c *Configuration) Validate() error {
-	// TODO: should this validate all the fields in Configuration?
+	var err error
+	if c.InternalBucket.URL != "" && (c.InternalBucket.Bucket != "" || c.InternalBucket.Region != "") {
+		err = errors.New("the [internalBucket] URL option and the other configuration options are mutually exclusive")
+	}
+
 	return errors.Join(
+		err,
 		c.A3m.Validate(),
 		c.API.Auth.Validate(),
 		c.BagIt.Validate(),
 		c.Preprocessing.Validate(),
-		c.Upload.Validate(),
 		c.ValidatePREMIS.Validate(),
 		c.Watcher.Validate(),
 	)
