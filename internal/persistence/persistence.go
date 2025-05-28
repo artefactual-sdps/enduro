@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/google/uuid"
+
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 )
 
@@ -28,7 +30,7 @@ type Service interface {
 	// the SIP from the data store, adding auto-generated data
 	// (e.g. ID, CreatedAt).
 	CreateSIP(context.Context, *datatypes.SIP) error
-	UpdateSIP(context.Context, int, SIPUpdater) (*datatypes.SIP, error)
+	UpdateSIP(context.Context, uuid.UUID, SIPUpdater) (*datatypes.SIP, error)
 	DeleteSIP(context.Context, int) error
 	ListSIPs(context.Context, *SIPFilter) ([]*datatypes.SIP, *Page, error)
 

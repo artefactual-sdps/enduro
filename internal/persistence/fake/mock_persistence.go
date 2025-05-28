@@ -15,6 +15,7 @@ import (
 
 	datatypes "github.com/artefactual-sdps/enduro/internal/datatypes"
 	persistence "github.com/artefactual-sdps/enduro/internal/persistence"
+	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -234,7 +235,7 @@ func (c *MockServiceListSIPsCall) DoAndReturn(f func(context.Context, *persisten
 }
 
 // UpdateSIP mocks base method.
-func (m *MockService) UpdateSIP(arg0 context.Context, arg1 int, arg2 persistence.SIPUpdater) (*datatypes.SIP, error) {
+func (m *MockService) UpdateSIP(arg0 context.Context, arg1 uuid.UUID, arg2 persistence.SIPUpdater) (*datatypes.SIP, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateSIP", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*datatypes.SIP)
@@ -261,13 +262,13 @@ func (c *MockServiceUpdateSIPCall) Return(arg0 *datatypes.SIP, arg1 error) *Mock
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceUpdateSIPCall) Do(f func(context.Context, int, persistence.SIPUpdater) (*datatypes.SIP, error)) *MockServiceUpdateSIPCall {
+func (c *MockServiceUpdateSIPCall) Do(f func(context.Context, uuid.UUID, persistence.SIPUpdater) (*datatypes.SIP, error)) *MockServiceUpdateSIPCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceUpdateSIPCall) DoAndReturn(f func(context.Context, int, persistence.SIPUpdater) (*datatypes.SIP, error)) *MockServiceUpdateSIPCall {
+func (c *MockServiceUpdateSIPCall) DoAndReturn(f func(context.Context, uuid.UUID, persistence.SIPUpdater) (*datatypes.SIP, error)) *MockServiceUpdateSIPCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

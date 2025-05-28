@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/trace"
 
@@ -44,10 +45,10 @@ func (w *wrapper) CreateSIP(ctx context.Context, p *datatypes.SIP) error {
 	return nil
 }
 
-func (w *wrapper) UpdateSIP(ctx context.Context, id int, updater SIPUpdater) (*datatypes.SIP, error) {
+func (w *wrapper) UpdateSIP(ctx context.Context, id uuid.UUID, updater SIPUpdater) (*datatypes.SIP, error) {
 	ctx, span := w.tracer.Start(ctx, "UpdateSIP")
 	defer span.End()
-	span.SetAttributes(attribute.Int("id", id))
+	span.SetAttributes(attribute.String("id", id.String()))
 
 	r, err := w.wrapped.UpdateSIP(ctx, id, updater)
 	if err != nil {

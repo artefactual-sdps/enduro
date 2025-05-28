@@ -142,6 +142,7 @@ func TestUpdateSIP(t *testing.T) {
 	completed2 := sql.NullTime{Time: started2.Time.Add(time.Second), Valid: true}
 
 	type params struct {
+		sipUUID uuid.UUID
 		sip     *datatypes.SIP
 		updater persistence.SIPUpdater
 	}
@@ -154,6 +155,7 @@ func TestUpdateSIP(t *testing.T) {
 		{
 			name: "Updates all SIP columns",
 			args: params{
+				sipUUID: sipUUID,
 				sip: &datatypes.SIP{
 					UUID:        sipUUID,
 					Name:        "Test SIP",
@@ -162,16 +164,16 @@ func TestUpdateSIP(t *testing.T) {
 					StartedAt:   started,
 					CompletedAt: completed,
 				},
-				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
-					p.ID = 100        // No-op, can't update ID.
-					p.UUID = sipUUID2 // No-op, can't update UUID.
-					p.Name = "Updated SIP"
-					p.AIPID = aipID2
-					p.Status = enums.SIPStatusIngested
-					p.CreatedAt = started2.Time // No-op, can't update CreatedAt.
-					p.StartedAt = started2
-					p.CompletedAt = completed2
-					return p, nil
+				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
+					s.ID = 100        // No-op, can't update ID.
+					s.UUID = sipUUID2 // No-op, can't update UUID.
+					s.Name = "Updated SIP"
+					s.AIPID = aipID2
+					s.Status = enums.SIPStatusIngested
+					s.CreatedAt = started2.Time // No-op, can't update CreatedAt.
+					s.StartedAt = started2
+					s.CompletedAt = completed2
+					return s, nil
 				},
 			},
 			want: &datatypes.SIP{
@@ -188,6 +190,7 @@ func TestUpdateSIP(t *testing.T) {
 		{
 			name: "Only updates selected columns",
 			args: params{
+				sipUUID: sipUUID,
 				sip: &datatypes.SIP{
 					UUID:      sipUUID,
 					Name:      "Test SIP",
@@ -195,10 +198,15 @@ func TestUpdateSIP(t *testing.T) {
 					Status:    enums.SIPStatusProcessing,
 					StartedAt: started,
 				},
-				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
-					p.Status = enums.SIPStatusIngested
-					p.CompletedAt = completed
-					return p, nil
+				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
+					// Immutable.
+					s.ID = 1234
+
+					// Mutable.
+					s.Status = enums.SIPStatusIngested
+					s.CompletedAt = completed
+
+					return s, nil
 				},
 			},
 			want: &datatypes.SIP{
@@ -213,24 +221,51 @@ func TestUpdateSIP(t *testing.T) {
 			},
 		},
 		{
-			name: "Errors when SIP to update is not found",
+			name: "Ignores invalid fields",
 			args: params{
-				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
-					return nil, fmt.Errorf("Bad input")
+				sipUUID: sipUUID,
+				sip: &datatypes.SIP{
+					UUID:   sipUUID,
+					Name:   "Test SIP",
+					AIPID:  aipID,
+					Status: enums.SIPStatusQueued,
+				},
+				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
+					// Invalid.
+					s.Status = ""
+
+					// Valid.
+					s.StartedAt = started
+
+					return s, nil
 				},
 			},
+			want: &datatypes.SIP{
+				ID:        1,
+				UUID:      sipUUID,
+				Name:      "Test SIP",
+				AIPID:     aipID,
+				Status:    enums.SIPStatusQueued,
+				CreatedAt: time.Now(),
+				StartedAt: started,
+			},
+		},
+		{
+			name:    "Errors when SIP to update is not found",
+			args:    params{sipUUID: sipUUID},
 			wantErr: "not found error: db: sip not found",
 		},
 		{
 			name: "Errors when the updater errors",
 			args: params{
+				sipUUID: sipUUID,
 				sip: &datatypes.SIP{
 					UUID:   sipUUID,
 					Name:   "Test SIP",
 					AIPID:  aipID,
 					Status: enums.SIPStatusProcessing,
 				},
-				updater: func(p *datatypes.SIP) (*datatypes.SIP, error) {
+				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
 					return nil, fmt.Errorf("Bad input")
 				},
 			},
@@ -244,16 +279,13 @@ func TestUpdateSIP(t *testing.T) {
 			_, svc := setUpClient(t, logr.Discard())
 			ctx := t.Context()
 
-			var id int
 			if tt.args.sip != nil {
 				sip := *tt.args.sip // Make a local copy of sip.
 				err := svc.CreateSIP(ctx, &sip)
 				assert.NilError(t, err)
-
-				id = sip.ID
 			}
 
-			sip, err := svc.UpdateSIP(ctx, id, tt.args.updater)
+			sip, err := svc.UpdateSIP(ctx, tt.args.sipUUID, tt.args.updater)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

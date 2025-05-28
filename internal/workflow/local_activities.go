@@ -3,6 +3,7 @@ package workflow
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"io"
 	"time"
 
@@ -52,16 +53,34 @@ func updateSIPLocalActivity(
 	ingestsvc ingest.Service,
 	params *updateSIPLocalActivityParams,
 ) (*updateSIPLocalActivityResult, error) {
-	err := ingestsvc.UpdateSIP(
+	_, err := ingestsvc.UpdateSIP(
 		ctx,
 		params.UUID,
-		params.Name,
-		params.AIPUUID,
-		params.Status,
-		params.CompletedAt,
+		func(s *datatypes.SIP) (*datatypes.SIP, error) {
+			s.Name = params.Name
+			s.Status = params.Status
+
+			if !params.Status.IsValid() {
+				return nil, fmt.Errorf("invalid status: %s", params.Status)
+			}
+
+			if params.AIPUUID != "" {
+				aipUUID, err := uuid.Parse(params.AIPUUID)
+				if err != nil {
+					return nil, fmt.Errorf("invalid AIP UUID: %s", params.AIPUUID)
+				}
+				s.AIPID = uuid.NullUUID{Valid: true, UUID: aipUUID}
+			}
+
+			if !params.CompletedAt.IsZero() {
+				s.CompletedAt = sql.NullTime{Valid: true, Time: params.CompletedAt}
+			}
+
+			return s, nil
+		},
 	)
 	if err != nil {
-		return &updateSIPLocalActivityResult{}, err
+		return nil, err
 	}
 
 	return &updateSIPLocalActivityResult{}, nil

@@ -37,13 +37,7 @@ type Service interface {
 	// Goa returns an implementation of the goaingest Service.
 	Goa() goaingest.Service
 	CreateSIP(context.Context, *datatypes.SIP) error
-	UpdateSIP(
-		ctx context.Context,
-		id uuid.UUID,
-		name, aipID string,
-		status enums.SIPStatus,
-		completedAt time.Time,
-	) error
+	UpdateSIP(context.Context, uuid.UUID, persistence.SIPUpdater) (*datatypes.SIP, error)
 	SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error
 	SetStatusInProgress(ctx context.Context, id uuid.UUID, startedAt time.Time) error
 	CreateWorkflow(ctx context.Context, w *datatypes.Workflow) error
@@ -130,38 +124,17 @@ func (svc *ingestImpl) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 func (svc *ingestImpl) UpdateSIP(
 	ctx context.Context,
 	id uuid.UUID,
-	name, aipID string,
-	status enums.SIPStatus,
-	completedAt time.Time,
-) error {
-	// Ensure that completedAt is reset during retries.
-	compAt := &completedAt
-	if status == enums.SIPStatusProcessing {
-		compAt = nil
-	}
-	if compAt != nil && compAt.IsZero() {
-		compAt = nil
+	upd persistence.SIPUpdater,
+) (*datatypes.SIP, error) {
+	s, err := svc.perSvc.UpdateSIP(ctx, id, upd)
+	if err != nil {
+		return nil, fmt.Errorf("ingest: update SIP: %v", err)
 	}
 
-	query := `UPDATE sip SET name = ?, aip_id = ?, status = ?, completed_at = ? WHERE uuid = ?`
-	args := []any{
-		name,
-		aipID,
-		status,
-		compAt,
-		id.String(),
-	}
+	ev := &goaingest.SIPUpdatedEvent{UUID: id, Item: s.Goa()}
+	event.PublishEvent(ctx, svc.evsvc, ev)
 
-	if err := svc.updateRow(ctx, query, args); err != nil {
-		return err
-	}
-
-	if s, err := svc.Goa().ShowSip(ctx, &goaingest.ShowSipPayload{UUID: id.String()}); err == nil {
-		ev := &goaingest.SIPUpdatedEvent{UUID: id, Item: s}
-		event.PublishEvent(ctx, svc.evsvc, ev)
-	}
-
-	return nil
+	return s, nil
 }
 
 func (svc *ingestImpl) SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error {

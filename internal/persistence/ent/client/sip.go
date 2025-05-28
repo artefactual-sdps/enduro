@@ -66,7 +66,7 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 // method.
 func (c *client) UpdateSIP(
 	ctx context.Context,
-	id int,
+	id uuid.UUID,
 	updater persistence.SIPUpdater,
 ) (*datatypes.SIP, error) {
 	tx, err := c.ent.BeginTx(ctx, nil)
@@ -74,10 +74,13 @@ func (c *client) UpdateSIP(
 		return nil, newDBError(err)
 	}
 
-	s, err := tx.SIP.Get(ctx, id)
+	s, err := tx.SIP.Query().Where(sip.UUID(id)).Only(ctx)
 	if err != nil {
 		return nil, rollback(tx, newDBError(err))
 	}
+
+	// Keep database ID in case it's changed by the updater.
+	dbID := s.ID
 
 	up, err := updater(convertSIP(s))
 	if err != nil {
@@ -85,9 +88,12 @@ func (c *client) UpdateSIP(
 	}
 
 	// Set required column values.
-	q := tx.SIP.UpdateOneID(id).
-		SetName(up.Name).
-		SetStatus(up.Status)
+	q := tx.SIP.UpdateOneID(dbID).SetName(up.Name)
+
+	// Validate columns.
+	if up.Status.IsValid() {
+		q.SetStatus(up.Status)
+	}
 
 	// Set nullable column values.
 	if up.AIPID.Valid {
