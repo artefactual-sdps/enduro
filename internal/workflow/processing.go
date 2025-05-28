@@ -120,9 +120,9 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 
 func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, state *workflowState) {
 	if state.status != enums.WorkflowStatusDone {
-		if err := w.sendToFailedBucket(ctx, state.sendToFailed, state.sip.name); err != nil {
+		if err := w.sendFailedToInternalBucket(ctx, state); err != nil {
 			w.logger.Error(
-				"session cleanup: error sending package to failed bucket",
+				"session cleanup: error sending failed SIP/PIP to internal bucket",
 				"error", err.Error(),
 			)
 		}
@@ -233,8 +233,6 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		if sessErr != nil {
 			return sessErr
 		}
-
-		state.status = enums.WorkflowStatusDone
 	}
 
 	// Schedule deletion of the original in the watched data source.
@@ -369,7 +367,8 @@ func (w *ProcessingWorkflow) SessionHandler(
 		state.addTempPath(filepath.Dir(state.sip.path))
 
 		state.sendToFailed.path = state.sip.path
-		state.sendToFailed.activityName = activities.SendToFailedSIPsName
+		state.sendToFailed.failedAs = enums.SIPFailedAsSIP
+		state.sendToFailed.needsZipping = state.sip.isDir
 	}
 
 	// Unarchive the transfer if it's not a directory and it's not part of the preprocessing child workflow.
@@ -470,7 +469,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 			// Fail the workflow with an error for now. In the future we may
 			// want to stop the workflow without returning an error, but this
 			// will require some changes to clean up appropriately (e.g. move
-			// the failed SIP to "failed" bucket).
+			// the failed SIP/PIP to the internal bucket).
 			state.status = enums.WorkflowStatusFailed
 			err = errors.New(result.Error)
 		}
@@ -516,6 +515,9 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Stop here for the Archivematica workflow.
 	if w.cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
+		// Set status to done so it's considered in the session cleanup.
+		state.status = enums.WorkflowStatusDone
+
 		return nil
 	}
 
@@ -751,6 +753,9 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
+	// Set status to done so it's considered in the session cleanup.
+	state.status = enums.WorkflowStatusDone
+
 	return nil
 }
 
@@ -790,7 +795,7 @@ func (w *ProcessingWorkflow) transferA3m(
 		state.pip.pipType = enums.SIPTypeArchivematicaStandardTransfer
 
 		state.sendToFailed.path = state.pip.path
-		state.sendToFailed.activityName = activities.SendToFailedPIPsName
+		state.sendToFailed.failedAs = enums.SIPFailedAsPIP
 		state.sendToFailed.needsZipping = true
 
 		// Delete bundled transfer when session ends.
@@ -871,7 +876,7 @@ func (w *ProcessingWorkflow) transferAM(
 
 	// Send the PIP to the "failed PIP" bucket if preservation fails.
 	state.sendToFailed.path = state.pip.path
-	state.sendToFailed.activityName = activities.SendToFailedPIPsName
+	state.sendToFailed.failedAs = enums.SIPFailedAsPIP
 
 	// Zip PIP, if necessary.
 	if w.cfg.AM.ZipPIP {
@@ -1177,37 +1182,48 @@ func (w *ProcessingWorkflow) completeTask(
 	return nil
 }
 
-func (w *ProcessingWorkflow) sendToFailedBucket(
+func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 	sessCtx temporalsdk_workflow.Context,
-	stf sendToFailed,
-	key string,
+	state *workflowState,
 ) error {
-	if stf.path == "" || stf.activityName == "" {
+	// Missing details.
+	if state.sendToFailed.path == "" || !state.sendToFailed.failedAs.IsValid() {
+		return errors.New("missing failed SIP/PIP path or failed as type")
+	}
+
+	// Failed SIP already in the internal bucket.
+	if state.req.WatcherName == "" && state.sendToFailed.failedAs == enums.SIPFailedAsSIP {
 		return nil
 	}
 
-	if stf.needsZipping {
+	if state.sendToFailed.needsZipping {
 		var zipResult archivezip.Result
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			archivezip.Name,
-			&archivezip.Params{SourceDir: stf.path},
+			&archivezip.Params{SourceDir: state.sendToFailed.path},
 		).Get(activityOpts, &zipResult)
 		if err != nil {
 			return err
 		}
-		stf.path = zipResult.Path
+		state.sendToFailed.path = zipResult.Path
 	}
+
+	prefix := ingest.SIPPrefix
+	if state.sendToFailed.failedAs == enums.SIPFailedAsPIP {
+		prefix = ingest.PIPPrefix
+	}
+	key := fmt.Sprintf("%s%s", prefix, state.sip.uuid.String())
 
 	var sendToFailedResult bucketupload.Result
 	activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
 	err := temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
-		stf.activityName,
+		bucketupload.Name,
 		&bucketupload.Params{
-			Path:       stf.path,
-			Key:        fmt.Sprintf("Failed_%s", key),
+			Path:       state.sendToFailed.path,
+			Key:        key,
 			BufferSize: 100_000_000,
 		},
 	).Get(activityOpts, &sendToFailedResult)
