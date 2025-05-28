@@ -43,6 +43,8 @@ type updateSIPLocalActivityParams struct {
 	AIPUUID     string
 	CompletedAt time.Time
 	Status      enums.SIPStatus
+	FailedAs    enums.SIPFailedAs
+	FailedKey   string
 }
 
 type updateSIPLocalActivityResult struct{}
@@ -52,16 +54,32 @@ func updateSIPLocalActivity(
 	ingestsvc ingest.Service,
 	params *updateSIPLocalActivityParams,
 ) (*updateSIPLocalActivityResult, error) {
-	err := ingestsvc.UpdateSIP(
+	_, err := ingestsvc.UpdateSIP(
 		ctx,
 		params.UUID,
-		params.Name,
-		params.AIPUUID,
-		params.Status,
-		params.CompletedAt,
+		func(s *datatypes.SIP) (*datatypes.SIP, error) {
+			s.Name = params.Name
+			s.Status = params.Status
+			s.FailedAs = params.FailedAs
+			s.FailedKey = params.FailedKey
+
+			if params.AIPUUID != "" {
+				aipUUID, err := uuid.Parse(params.AIPUUID)
+				if err != nil {
+					return nil, err
+				}
+				s.AIPID = uuid.NullUUID{Valid: true, UUID: aipUUID}
+			}
+
+			if !params.CompletedAt.IsZero() {
+				s.CompletedAt = sql.NullTime{Valid: true, Time: params.CompletedAt}
+			}
+
+			return s, nil
+		},
 	)
 	if err != nil {
-		return &updateSIPLocalActivityResult{}, err
+		return nil, err
 	}
 
 	return &updateSIPLocalActivityResult{}, nil

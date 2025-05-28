@@ -87,6 +87,11 @@ func CompletedAt(v time.Time) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldCompletedAt, v))
 }
 
+// FailedKey applies equality check predicate on the "failed_key" field. It's identical to FailedKeyEQ.
+func FailedKey(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldFailedKey, v))
+}
+
 // UUIDEQ applies the EQ predicate on the "uuid" field.
 func UUIDEQ(v uuid.UUID) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldUUID, v))
@@ -410,6 +415,121 @@ func CompletedAtIsNil() predicate.SIP {
 // CompletedAtNotNil applies the NotNil predicate on the "completed_at" field.
 func CompletedAtNotNil() predicate.SIP {
 	return predicate.SIP(sql.FieldNotNull(FieldCompletedAt))
+}
+
+// FailedAsEQ applies the EQ predicate on the "failed_as" field.
+func FailedAsEQ(v enums.SIPFailedAs) predicate.SIP {
+	vc := v
+	return predicate.SIP(sql.FieldEQ(FieldFailedAs, vc))
+}
+
+// FailedAsNEQ applies the NEQ predicate on the "failed_as" field.
+func FailedAsNEQ(v enums.SIPFailedAs) predicate.SIP {
+	vc := v
+	return predicate.SIP(sql.FieldNEQ(FieldFailedAs, vc))
+}
+
+// FailedAsIn applies the In predicate on the "failed_as" field.
+func FailedAsIn(vs ...enums.SIPFailedAs) predicate.SIP {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.SIP(sql.FieldIn(FieldFailedAs, v...))
+}
+
+// FailedAsNotIn applies the NotIn predicate on the "failed_as" field.
+func FailedAsNotIn(vs ...enums.SIPFailedAs) predicate.SIP {
+	v := make([]any, len(vs))
+	for i := range v {
+		v[i] = vs[i]
+	}
+	return predicate.SIP(sql.FieldNotIn(FieldFailedAs, v...))
+}
+
+// FailedAsIsNil applies the IsNil predicate on the "failed_as" field.
+func FailedAsIsNil() predicate.SIP {
+	return predicate.SIP(sql.FieldIsNull(FieldFailedAs))
+}
+
+// FailedAsNotNil applies the NotNil predicate on the "failed_as" field.
+func FailedAsNotNil() predicate.SIP {
+	return predicate.SIP(sql.FieldNotNull(FieldFailedAs))
+}
+
+// FailedKeyEQ applies the EQ predicate on the "failed_key" field.
+func FailedKeyEQ(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldFailedKey, v))
+}
+
+// FailedKeyNEQ applies the NEQ predicate on the "failed_key" field.
+func FailedKeyNEQ(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldNEQ(FieldFailedKey, v))
+}
+
+// FailedKeyIn applies the In predicate on the "failed_key" field.
+func FailedKeyIn(vs ...string) predicate.SIP {
+	return predicate.SIP(sql.FieldIn(FieldFailedKey, vs...))
+}
+
+// FailedKeyNotIn applies the NotIn predicate on the "failed_key" field.
+func FailedKeyNotIn(vs ...string) predicate.SIP {
+	return predicate.SIP(sql.FieldNotIn(FieldFailedKey, vs...))
+}
+
+// FailedKeyGT applies the GT predicate on the "failed_key" field.
+func FailedKeyGT(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldGT(FieldFailedKey, v))
+}
+
+// FailedKeyGTE applies the GTE predicate on the "failed_key" field.
+func FailedKeyGTE(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldGTE(FieldFailedKey, v))
+}
+
+// FailedKeyLT applies the LT predicate on the "failed_key" field.
+func FailedKeyLT(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldLT(FieldFailedKey, v))
+}
+
+// FailedKeyLTE applies the LTE predicate on the "failed_key" field.
+func FailedKeyLTE(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldLTE(FieldFailedKey, v))
+}
+
+// FailedKeyContains applies the Contains predicate on the "failed_key" field.
+func FailedKeyContains(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldContains(FieldFailedKey, v))
+}
+
+// FailedKeyHasPrefix applies the HasPrefix predicate on the "failed_key" field.
+func FailedKeyHasPrefix(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldHasPrefix(FieldFailedKey, v))
+}
+
+// FailedKeyHasSuffix applies the HasSuffix predicate on the "failed_key" field.
+func FailedKeyHasSuffix(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldHasSuffix(FieldFailedKey, v))
+}
+
+// FailedKeyIsNil applies the IsNil predicate on the "failed_key" field.
+func FailedKeyIsNil() predicate.SIP {
+	return predicate.SIP(sql.FieldIsNull(FieldFailedKey))
+}
+
+// FailedKeyNotNil applies the NotNil predicate on the "failed_key" field.
+func FailedKeyNotNil() predicate.SIP {
+	return predicate.SIP(sql.FieldNotNull(FieldFailedKey))
+}
+
+// FailedKeyEqualFold applies the EqualFold predicate on the "failed_key" field.
+func FailedKeyEqualFold(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldEqualFold(FieldFailedKey, v))
+}
+
+// FailedKeyContainsFold applies the ContainsFold predicate on the "failed_key" field.
+func FailedKeyContainsFold(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldContainsFold(FieldFailedKey, v))
 }
 
 // HasWorkflows applies the HasEdge predicate on the "workflows" edge.
