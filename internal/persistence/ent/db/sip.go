@@ -33,6 +33,10 @@ type SIP struct {
 	StartedAt time.Time `json:"started_at,omitempty"`
 	// CompletedAt holds the value of the "completed_at" field.
 	CompletedAt time.Time `json:"completed_at,omitempty"`
+	// FailedAs holds the value of the "failed_as" field.
+	FailedAs enums.SIPFailedAs `json:"failed_as,omitempty"`
+	// FailedKey holds the value of the "failed_key" field.
+	FailedKey string `json:"failed_key,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SIPQuery when eager-loading is set.
 	Edges        SIPEdges `json:"edges"`
@@ -64,7 +68,7 @@ func (*SIP) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case sip.FieldID:
 			values[i] = new(sql.NullInt64)
-		case sip.FieldName, sip.FieldStatus:
+		case sip.FieldName, sip.FieldStatus, sip.FieldFailedAs, sip.FieldFailedKey:
 			values[i] = new(sql.NullString)
 		case sip.FieldCreatedAt, sip.FieldStartedAt, sip.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
@@ -133,6 +137,18 @@ func (s *SIP) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.CompletedAt = value.Time
 			}
+		case sip.FieldFailedAs:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field failed_as", values[i])
+			} else if value.Valid {
+				s.FailedAs = enums.SIPFailedAs(value.String)
+			}
+		case sip.FieldFailedKey:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field failed_key", values[i])
+			} else if value.Valid {
+				s.FailedKey = value.String
+			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
 		}
@@ -194,6 +210,12 @@ func (s *SIP) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("completed_at=")
 	builder.WriteString(s.CompletedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("failed_as=")
+	builder.WriteString(fmt.Sprintf("%v", s.FailedAs))
+	builder.WriteString(", ")
+	builder.WriteString("failed_key=")
+	builder.WriteString(s.FailedKey)
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -171,6 +171,8 @@ func TestUpdateSIP(t *testing.T) {
 					p.CreatedAt = started2.Time // No-op, can't update CreatedAt.
 					p.StartedAt = started2
 					p.CompletedAt = completed2
+					p.FailedAs = enums.SIPFailedAsSIP
+					p.FailedKey = "failed-key"
 					return p, nil
 				},
 			},
@@ -183,6 +185,8 @@ func TestUpdateSIP(t *testing.T) {
 				CreatedAt:   time.Now(),
 				StartedAt:   started2,
 				CompletedAt: completed2,
+				FailedAs:    enums.SIPFailedAsSIP,
+				FailedKey:   "failed-key",
 			},
 		},
 		{
@@ -244,16 +248,13 @@ func TestUpdateSIP(t *testing.T) {
 			_, svc := setUpClient(t, logr.Discard())
 			ctx := t.Context()
 
-			var id int
 			if tt.args.sip != nil {
 				sip := *tt.args.sip // Make a local copy of sip.
 				err := svc.CreateSIP(ctx, &sip)
 				assert.NilError(t, err)
-
-				id = sip.ID
 			}
 
-			sip, err := svc.UpdateSIP(ctx, id, tt.args.updater)
+			sip, err := svc.UpdateSIP(ctx, tt.args.sip.UUID, tt.args.updater)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

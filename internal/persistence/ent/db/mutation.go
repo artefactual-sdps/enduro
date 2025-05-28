@@ -46,6 +46,8 @@ type SIPMutation struct {
 	created_at       *time.Time
 	started_at       *time.Time
 	completed_at     *time.Time
+	failed_as        *enums.SIPFailedAs
+	failed_key       *string
 	clearedFields    map[string]struct{}
 	workflows        map[int]struct{}
 	removedworkflows map[int]struct{}
@@ -444,6 +446,104 @@ func (m *SIPMutation) ResetCompletedAt() {
 	delete(m.clearedFields, sip.FieldCompletedAt)
 }
 
+// SetFailedAs sets the "failed_as" field.
+func (m *SIPMutation) SetFailedAs(efa enums.SIPFailedAs) {
+	m.failed_as = &efa
+}
+
+// FailedAs returns the value of the "failed_as" field in the mutation.
+func (m *SIPMutation) FailedAs() (r enums.SIPFailedAs, exists bool) {
+	v := m.failed_as
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFailedAs returns the old "failed_as" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldFailedAs(ctx context.Context) (v enums.SIPFailedAs, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFailedAs is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFailedAs requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFailedAs: %w", err)
+	}
+	return oldValue.FailedAs, nil
+}
+
+// ClearFailedAs clears the value of the "failed_as" field.
+func (m *SIPMutation) ClearFailedAs() {
+	m.failed_as = nil
+	m.clearedFields[sip.FieldFailedAs] = struct{}{}
+}
+
+// FailedAsCleared returns if the "failed_as" field was cleared in this mutation.
+func (m *SIPMutation) FailedAsCleared() bool {
+	_, ok := m.clearedFields[sip.FieldFailedAs]
+	return ok
+}
+
+// ResetFailedAs resets all changes to the "failed_as" field.
+func (m *SIPMutation) ResetFailedAs() {
+	m.failed_as = nil
+	delete(m.clearedFields, sip.FieldFailedAs)
+}
+
+// SetFailedKey sets the "failed_key" field.
+func (m *SIPMutation) SetFailedKey(s string) {
+	m.failed_key = &s
+}
+
+// FailedKey returns the value of the "failed_key" field in the mutation.
+func (m *SIPMutation) FailedKey() (r string, exists bool) {
+	v := m.failed_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFailedKey returns the old "failed_key" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldFailedKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFailedKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFailedKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFailedKey: %w", err)
+	}
+	return oldValue.FailedKey, nil
+}
+
+// ClearFailedKey clears the value of the "failed_key" field.
+func (m *SIPMutation) ClearFailedKey() {
+	m.failed_key = nil
+	m.clearedFields[sip.FieldFailedKey] = struct{}{}
+}
+
+// FailedKeyCleared returns if the "failed_key" field was cleared in this mutation.
+func (m *SIPMutation) FailedKeyCleared() bool {
+	_, ok := m.clearedFields[sip.FieldFailedKey]
+	return ok
+}
+
+// ResetFailedKey resets all changes to the "failed_key" field.
+func (m *SIPMutation) ResetFailedKey() {
+	m.failed_key = nil
+	delete(m.clearedFields, sip.FieldFailedKey)
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by ids.
 func (m *SIPMutation) AddWorkflowIDs(ids ...int) {
 	if m.workflows == nil {
@@ -532,7 +632,7 @@ func (m *SIPMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SIPMutation) Fields() []string {
-	fields := make([]string, 0, 7)
+	fields := make([]string, 0, 9)
 	if m.uuid != nil {
 		fields = append(fields, sip.FieldUUID)
 	}
@@ -553,6 +653,12 @@ func (m *SIPMutation) Fields() []string {
 	}
 	if m.completed_at != nil {
 		fields = append(fields, sip.FieldCompletedAt)
+	}
+	if m.failed_as != nil {
+		fields = append(fields, sip.FieldFailedAs)
+	}
+	if m.failed_key != nil {
+		fields = append(fields, sip.FieldFailedKey)
 	}
 	return fields
 }
@@ -576,6 +682,10 @@ func (m *SIPMutation) Field(name string) (ent.Value, bool) {
 		return m.StartedAt()
 	case sip.FieldCompletedAt:
 		return m.CompletedAt()
+	case sip.FieldFailedAs:
+		return m.FailedAs()
+	case sip.FieldFailedKey:
+		return m.FailedKey()
 	}
 	return nil, false
 }
@@ -599,6 +709,10 @@ func (m *SIPMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldStartedAt(ctx)
 	case sip.FieldCompletedAt:
 		return m.OldCompletedAt(ctx)
+	case sip.FieldFailedAs:
+		return m.OldFailedAs(ctx)
+	case sip.FieldFailedKey:
+		return m.OldFailedKey(ctx)
 	}
 	return nil, fmt.Errorf("unknown SIP field %s", name)
 }
@@ -657,6 +771,20 @@ func (m *SIPMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetCompletedAt(v)
 		return nil
+	case sip.FieldFailedAs:
+		v, ok := value.(enums.SIPFailedAs)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFailedAs(v)
+		return nil
+	case sip.FieldFailedKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFailedKey(v)
+		return nil
 	}
 	return fmt.Errorf("unknown SIP field %s", name)
 }
@@ -696,6 +824,12 @@ func (m *SIPMutation) ClearedFields() []string {
 	if m.FieldCleared(sip.FieldCompletedAt) {
 		fields = append(fields, sip.FieldCompletedAt)
 	}
+	if m.FieldCleared(sip.FieldFailedAs) {
+		fields = append(fields, sip.FieldFailedAs)
+	}
+	if m.FieldCleared(sip.FieldFailedKey) {
+		fields = append(fields, sip.FieldFailedKey)
+	}
 	return fields
 }
 
@@ -718,6 +852,12 @@ func (m *SIPMutation) ClearField(name string) error {
 		return nil
 	case sip.FieldCompletedAt:
 		m.ClearCompletedAt()
+		return nil
+	case sip.FieldFailedAs:
+		m.ClearFailedAs()
+		return nil
+	case sip.FieldFailedKey:
+		m.ClearFailedKey()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP nullable field %s", name)
@@ -747,6 +887,12 @@ func (m *SIPMutation) ResetField(name string) error {
 		return nil
 	case sip.FieldCompletedAt:
 		m.ResetCompletedAt()
+		return nil
+	case sip.FieldFailedAs:
+		m.ResetFailedAs()
+		return nil
+	case sip.FieldFailedKey:
+		m.ResetFailedKey()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP field %s", name)

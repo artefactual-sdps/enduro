@@ -30,6 +30,10 @@ const (
 	FieldStartedAt = "started_at"
 	// FieldCompletedAt holds the string denoting the completed_at field in the database.
 	FieldCompletedAt = "completed_at"
+	// FieldFailedAs holds the string denoting the failed_as field in the database.
+	FieldFailedAs = "failed_as"
+	// FieldFailedKey holds the string denoting the failed_key field in the database.
+	FieldFailedKey = "failed_key"
 	// EdgeWorkflows holds the string denoting the workflows edge name in mutations.
 	EdgeWorkflows = "workflows"
 	// Table holds the table name of the sip in the database.
@@ -53,6 +57,8 @@ var Columns = []string{
 	FieldCreatedAt,
 	FieldStartedAt,
 	FieldCompletedAt,
+	FieldFailedAs,
+	FieldFailedKey,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -77,6 +83,16 @@ func StatusValidator(s enums.SIPStatus) error {
 		return nil
 	default:
 		return fmt.Errorf("sip: invalid enum value for status field: %q", s)
+	}
+}
+
+// FailedAsValidator is a validator for the "failed_as" field enum values. It is called by the builders before save.
+func FailedAsValidator(fa enums.SIPFailedAs) error {
+	switch fa.String() {
+	case "SIP", "PIP":
+		return nil
+	default:
+		return fmt.Errorf("sip: invalid enum value for failed_as field: %q", fa)
 	}
 }
 
@@ -121,6 +137,16 @@ func ByStartedAt(opts ...sql.OrderTermOption) OrderOption {
 // ByCompletedAt orders the results by the completed_at field.
 func ByCompletedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCompletedAt, opts...).ToFunc()
+}
+
+// ByFailedAs orders the results by the failed_as field.
+func ByFailedAs(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFailedAs, opts...).ToFunc()
+}
+
+// ByFailedKey orders the results by the failed_key field.
+func ByFailedKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFailedKey, opts...).ToFunc()
 }
 
 // ByWorkflowsCount orders the results by workflows count.

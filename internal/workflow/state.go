@@ -83,6 +83,12 @@ type sipInfo struct {
 	// status is the ingest status of the SIP (e.g. "in progress", "done",
 	// "error").
 	status enums.SIPStatus
+
+	// failed_as represents the package type (SIP or PIP) if there is a failure.
+	failed_as enums.SIPFailedAs
+
+	// failed_key is the object key of the failed SIP/PIP in the internal bucket.
+	failed_key string
 }
 
 // pipInfo represents the PIP.

@@ -1191,6 +1191,10 @@ func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 		return errors.New("missing failed SIP/PIP path or failed as type")
 	}
 
+	// Update state SIP to reflect the failure in the persistence layer.
+	state.sip.failed_as = state.sendToFailed.failedAs
+	state.sip.failed_key = state.req.Key
+
 	// Failed SIP already in the internal bucket.
 	if state.req.WatcherName == "" && state.sendToFailed.failedAs == enums.SIPFailedAsSIP {
 		return nil
@@ -1214,7 +1218,8 @@ func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 	if state.sendToFailed.failedAs == enums.SIPFailedAsPIP {
 		prefix = ingest.PIPPrefix
 	}
-	key := fmt.Sprintf("%s%s", prefix, state.sip.uuid.String())
+
+	state.sip.failed_key = fmt.Sprintf("%s%s", prefix, state.sip.uuid.String())
 
 	var sendToFailedResult bucketupload.Result
 	activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
@@ -1223,7 +1228,7 @@ func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 		bucketupload.Name,
 		&bucketupload.Params{
 			Path:       state.sendToFailed.path,
-			Key:        key,
+			Key:        state.sip.failed_key,
 			BufferSize: 100_000_000,
 		},
 	).Get(activityOpts, &sendToFailedResult)

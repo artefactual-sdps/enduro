@@ -17,6 +17,7 @@ import (
 	ingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	datatypes "github.com/artefactual-sdps/enduro/internal/datatypes"
 	enums "github.com/artefactual-sdps/enduro/internal/enums"
+	persistence "github.com/artefactual-sdps/enduro/internal/persistence"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -387,17 +388,18 @@ func (c *MockServiceSetWorkflowStatusCall) DoAndReturn(f func(context.Context, i
 }
 
 // UpdateSIP mocks base method.
-func (m *MockService) UpdateSIP(arg0 context.Context, arg1 uuid.UUID, arg2, arg3 string, arg4 enums.SIPStatus, arg5 time.Time) error {
+func (m *MockService) UpdateSIP(arg0 context.Context, arg1 uuid.UUID, arg2 persistence.SIPUpdater) (*datatypes.SIP, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateSIP", arg0, arg1, arg2, arg3, arg4, arg5)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret := m.ctrl.Call(m, "UpdateSIP", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*datatypes.SIP)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // UpdateSIP indicates an expected call of UpdateSIP.
-func (mr *MockServiceMockRecorder) UpdateSIP(arg0, arg1, arg2, arg3, arg4, arg5 any) *MockServiceUpdateSIPCall {
+func (mr *MockServiceMockRecorder) UpdateSIP(arg0, arg1, arg2 any) *MockServiceUpdateSIPCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSIP", reflect.TypeOf((*MockService)(nil).UpdateSIP), arg0, arg1, arg2, arg3, arg4, arg5)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateSIP", reflect.TypeOf((*MockService)(nil).UpdateSIP), arg0, arg1, arg2)
 	return &MockServiceUpdateSIPCall{Call: call}
 }
 
@@ -407,19 +409,19 @@ type MockServiceUpdateSIPCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceUpdateSIPCall) Return(arg0 error) *MockServiceUpdateSIPCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockServiceUpdateSIPCall) Return(arg0 *datatypes.SIP, arg1 error) *MockServiceUpdateSIPCall {
+	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceUpdateSIPCall) Do(f func(context.Context, uuid.UUID, string, string, enums.SIPStatus, time.Time) error) *MockServiceUpdateSIPCall {
+func (c *MockServiceUpdateSIPCall) Do(f func(context.Context, uuid.UUID, persistence.SIPUpdater) (*datatypes.SIP, error)) *MockServiceUpdateSIPCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceUpdateSIPCall) DoAndReturn(f func(context.Context, uuid.UUID, string, string, enums.SIPStatus, time.Time) error) *MockServiceUpdateSIPCall {
+func (c *MockServiceUpdateSIPCall) DoAndReturn(f func(context.Context, uuid.UUID, persistence.SIPUpdater) (*datatypes.SIP, error)) *MockServiceUpdateSIPCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
