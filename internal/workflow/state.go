@@ -131,10 +131,9 @@ type sendToFailed struct {
 	// path to the SIP or PIP.
 	path string
 
-	// activityName is the name of the activity that will send the package to
-	// the correct "failed" location. The value can be "send-to-failed-sips" or
-	// "send-to-failed-pips".
-	activityName string
+	// failedAs is the type of package that will be uploaded to the internal
+	// bucket, either SIP or PIP.
+	failedAs enums.SIPFailedAs
 
 	// needsZipping indicates whether the package needs to be zipped before
 	// uploading it to the "failed" location.
