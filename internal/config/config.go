@@ -112,7 +112,7 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.SetDefault("preservation.taskqueue", temporal.A3mWorkerTaskQueue)
 	v.SetDefault("storage.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("temporal.taskqueue", temporal.GlobalTaskQueue)
-	v.SetDefault("upload.maxSize", 102400000)
+	v.SetDefault("upload.maxSize", 4294967296)
 	v.SetEnvPrefix("enduro")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()

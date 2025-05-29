@@ -18,7 +18,7 @@ const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
 
 const GiB = 1024 ** 3; // 1 GiB in bytes
-const maxFileSize = 500 * GiB;
+const maxFileSize = 4 * GiB;
 
 layoutStore.updateBreadcrumb([{ text: "Ingest" }, { text: "Upload SIPs" }]);
 

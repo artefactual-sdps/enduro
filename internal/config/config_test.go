@@ -96,6 +96,7 @@ func TestConfig(t *testing.T) {
 		assert.Equal(t, c.Temporal.TaskQueue, temporal.GlobalTaskQueue)
 		assert.Equal(t, c.ValidatePREMIS.Enabled, false)
 		assert.Equal(t, c.ValidatePREMIS.XSDPath, "")
+		assert.Equal(t, c.Upload.MaxSize, int64(4294967296))
 	})
 }
 

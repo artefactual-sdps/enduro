@@ -30,6 +30,7 @@ server {
     listen 80;
     root /usr/share/nginx/html;
     absolute_redirect off;
+    client_max_body_size 4096M
     location /api/ingest/monitor {
         proxy_pass http://backend/ingest/monitor;
         proxy_http_version 1.1;

@@ -207,8 +207,8 @@ passphrase = "" # Secret: set (if required) with env var ENDURO_AM_SFTP_PRIVATEK
 
 [upload]
 # maxSize is the maximum upload size allowed by the server in bytes.
-# Default: 102400000.
-maxSize = 102400000
+# Default: 4294967296 (4 GiB).
+maxSize = 4294967296
 
 # internalBucket section configures a bucket where Enduro will place uploaded
 # SIPs. Make sure it doesn't match any of the watched buckets.
