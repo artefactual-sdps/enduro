@@ -7,8 +7,10 @@ import (
 	"io"
 	"mime"
 	"mime/multipart"
+	"strings"
 
 	"github.com/google/uuid"
+	"github.com/mholt/archiver/v4"
 	"gocloud.dev/blob"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
@@ -44,14 +46,24 @@ func (w *goaWrapper) UploadSip(
 		return nil, goaingest.MakeInvalidMultipartRequest(errors.New("invalid multipart request"))
 	}
 
+	// Identify file format to add extension in the object key.
+	// TODO: Use github.com/mholt/archives. We still use the archived github.com/mholt/archiver/v4
+	// in some activities, and using both causes a panic registering the same compressors.
+	format, stream, err := archiver.Identify(part.FileName(), part)
+	if err != nil {
+		return nil, goaingest.MakeInvalidMultipartRequest(errors.New("unable to identify format"))
+	}
+
+	// Remove format extension from filename if included.
+	name := strings.TrimSuffix(part.FileName(), format.Name())
 	sipUUID := uuid.Must(uuid.NewRandomFromReader(w.rander))
-	objectKey := fmt.Sprintf("%s%s", SIPPrefix, sipUUID.String())
+	objectKey := fmt.Sprintf("%s%s-%s%s", SIPPrefix, name, sipUUID.String(), format.Name())
 	wr, err := w.internalBucket.NewWriter(ctx, objectKey, &blob.WriterOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	_, copyErr := io.Copy(wr, part)
+	_, copyErr := io.Copy(wr, stream)
 	closeErr := wr.Close()
 
 	if copyErr != nil {

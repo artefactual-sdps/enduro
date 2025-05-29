@@ -23,7 +23,7 @@ import (
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
 
-const multipartBody = `Content-Type: multipart/form-data; boundary="foobar"
+const txtMultipartBody = `Content-Type: multipart/form-data; boundary="foobar"
 
 --foobar
 Content-Disposition: form-data; name="field1"; filename="first.txt"
@@ -33,11 +33,21 @@ first
 --foobar--
 `
 
+const zipMmultipartBody = `Content-Type: multipart/form-data; boundary="foobar"
+
+--foobar
+Content-Disposition: form-data; name="field1"; filename="first.zip"
+Content-Type: application/zip
+
+<binary zip data>
+--foobar--
+`
+
 func TestUpload(t *testing.T) {
 	t.Parallel()
 
 	uuid0 := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
-	key := fmt.Sprintf("%s%s", ingest.SIPPrefix, uuid0.String())
+	key := fmt.Sprintf("%sfirst-%s.zip", ingest.SIPPrefix, uuid0.String())
 
 	for _, tt := range []struct {
 		name          string
@@ -50,14 +60,14 @@ func TestUpload(t *testing.T) {
 	}{
 		{
 			name:          "Returns invalid_media_type if media type cannot be parsed",
-			multipartBody: multipartBody,
+			multipartBody: zipMmultipartBody,
 			contentType:   "invalid type",
 			maxUploadSize: 102400000,
 			wantErr:       "invalid media type",
 		},
 		{
 			name:          "Returns invalid_multipart_request if request size is bigger than maximum size",
-			multipartBody: multipartBody,
+			multipartBody: zipMmultipartBody,
 			contentType:   "multipart/form-data; boundary=foobar",
 			maxUploadSize: 0,
 			wantErr:       "invalid multipart request",
@@ -70,18 +80,25 @@ func TestUpload(t *testing.T) {
 			wantErr:       "missing file part in upload",
 		},
 		{
+			name:          "Returns invalid_multipart_request if unable to identify format",
+			multipartBody: txtMultipartBody,
+			contentType:   "multipart/form-data; boundary=foobar",
+			maxUploadSize: 102400000,
+			wantErr:       "unable to identify format",
+		},
+		{
 			name: "Returns persistence error",
 			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
 				psvc.EXPECT().CreateSIP(
 					ctx,
 					&datatypes.SIP{
 						UUID:   uuid0,
-						Name:   "first.txt",
+						Name:   "first.zip",
 						Status: enums.SIPStatusQueued,
 					},
 				).Return(errors.New("persistence error"))
 			},
-			multipartBody: multipartBody,
+			multipartBody: zipMmultipartBody,
 			contentType:   "multipart/form-data; boundary=foobar",
 			maxUploadSize: 102400000,
 			wantErr:       "persistence error",
@@ -93,7 +110,7 @@ func TestUpload(t *testing.T) {
 					ctx,
 					&datatypes.SIP{
 						UUID:   uuid0,
-						Name:   "first.txt",
+						Name:   "first.zip",
 						Status: enums.SIPStatusQueued,
 					},
 				).DoAndReturn(func(ctx context.Context, s *datatypes.SIP) error {
@@ -112,7 +129,7 @@ func TestUpload(t *testing.T) {
 					ingest.ProcessingWorkflowName,
 					&ingest.ProcessingWorkflowRequest{
 						SIPUUID: uuid0,
-						SIPName: "first.txt",
+						SIPName: "first.zip",
 						Type:    enums.WorkflowTypeCreateAip,
 						Key:     key,
 					},
@@ -120,7 +137,7 @@ func TestUpload(t *testing.T) {
 
 				psvc.EXPECT().DeleteSIP(ctx, 1)
 			},
-			multipartBody: multipartBody,
+			multipartBody: zipMmultipartBody,
 			contentType:   "multipart/form-data; boundary=foobar",
 			maxUploadSize: 102400000,
 			wantErr:       "temporal error",
@@ -132,7 +149,7 @@ func TestUpload(t *testing.T) {
 					ctx,
 					&datatypes.SIP{
 						UUID:   uuid0,
-						Name:   "first.txt",
+						Name:   "first.zip",
 						Status: enums.SIPStatusQueued,
 					},
 				).Return(nil)
@@ -148,13 +165,13 @@ func TestUpload(t *testing.T) {
 					ingest.ProcessingWorkflowName,
 					&ingest.ProcessingWorkflowRequest{
 						SIPUUID: uuid0,
-						SIPName: "first.txt",
+						SIPName: "first.zip",
 						Type:    enums.WorkflowTypeCreateAip,
 						Key:     key,
 					},
 				).Return(nil, nil)
 			},
-			multipartBody: multipartBody,
+			multipartBody: zipMmultipartBody,
 			contentType:   "multipart/form-data; boundary=foobar",
 			maxUploadSize: 102400000,
 			want:          &goaingest.UploadSipResult{UUID: uuid0.String()},
@@ -187,7 +204,7 @@ func TestUpload(t *testing.T) {
 			// Make sure the blob has been uploaded.
 			data, err := b.ReadAll(ctx, key)
 			assert.NilError(t, err)
-			assert.Equal(t, string(data), "first")
+			assert.Equal(t, string(data), "<binary zip data>")
 		})
 	}
 }
