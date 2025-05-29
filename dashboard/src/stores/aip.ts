@@ -78,10 +78,7 @@ export const useAipStore = defineStore("aip", {
     },
     async fetchWorkflows(id: string) {
       this.currentWorkflows = await client.storage
-        .storageListAipWorkflows({
-          uuid: id,
-          listAipWorkflowsRequestBody: {},
-        })
+        .storageListAipWorkflows({ uuid: id })
         .then((resp) => {
           resp.workflows?.reverse();
           return resp;
