@@ -55,6 +55,7 @@ type EnduroAbout struct {
 	PreservationSystem string
 	Preprocessing      *EnduroPreprocessing
 	Poststorage        EnduroPoststorageCollection
+	UploadMaxSize      int64
 }
 
 type EnduroPoststorage struct {
@@ -204,11 +205,17 @@ func newEnduroAbout(vres *aboutviews.EnduroAboutView) *EnduroAbout {
 	if vres.PreservationSystem != nil {
 		res.PreservationSystem = *vres.PreservationSystem
 	}
-	if vres.Preprocessing != nil {
-		res.Preprocessing = newEnduroPreprocessing(vres.Preprocessing)
+	if vres.UploadMaxSize != nil {
+		res.UploadMaxSize = *vres.UploadMaxSize
 	}
 	if vres.Poststorage != nil {
-		res.Poststorage = newEnduroPoststorageCollection(vres.Poststorage)
+		res.Poststorage = make([]*EnduroPoststorage, len(vres.Poststorage))
+		for i, val := range vres.Poststorage {
+			res.Poststorage[i] = transformAboutviewsEnduroPoststorageViewToEnduroPoststorage(val)
+		}
+	}
+	if vres.Preprocessing != nil {
+		res.Preprocessing = newEnduroPreprocessing(vres.Preprocessing)
 	}
 	return res
 }
@@ -219,12 +226,16 @@ func newEnduroAboutView(res *EnduroAbout) *aboutviews.EnduroAboutView {
 	vres := &aboutviews.EnduroAboutView{
 		Version:            &res.Version,
 		PreservationSystem: &res.PreservationSystem,
+		UploadMaxSize:      &res.UploadMaxSize,
+	}
+	if res.Poststorage != nil {
+		vres.Poststorage = make([]*aboutviews.EnduroPoststorageView, len(res.Poststorage))
+		for i, val := range res.Poststorage {
+			vres.Poststorage[i] = transformEnduroPoststorageToAboutviewsEnduroPoststorageView(val)
+		}
 	}
 	if res.Preprocessing != nil {
 		vres.Preprocessing = newEnduroPreprocessingView(res.Preprocessing)
-	}
-	if res.Poststorage != nil {
-		vres.Poststorage = newEnduroPoststorageCollectionView(res.Poststorage)
 	}
 	return vres
 }
@@ -298,4 +309,34 @@ func newEnduroPoststorageView(res *EnduroPoststorage) *aboutviews.EnduroPoststor
 		TaskQueue:    &res.TaskQueue,
 	}
 	return vres
+}
+
+// transformAboutviewsEnduroPoststorageViewToEnduroPoststorage builds a value
+// of type *EnduroPoststorage from a value of type
+// *aboutviews.EnduroPoststorageView.
+func transformAboutviewsEnduroPoststorageViewToEnduroPoststorage(v *aboutviews.EnduroPoststorageView) *EnduroPoststorage {
+	if v == nil {
+		return nil
+	}
+	res := &EnduroPoststorage{
+		WorkflowName: *v.WorkflowName,
+		TaskQueue:    *v.TaskQueue,
+	}
+
+	return res
+}
+
+// transformEnduroPoststorageToAboutviewsEnduroPoststorageView builds a value
+// of type *aboutviews.EnduroPoststorageView from a value of type
+// *EnduroPoststorage.
+func transformEnduroPoststorageToAboutviewsEnduroPoststorageView(v *EnduroPoststorage) *aboutviews.EnduroPoststorageView {
+	if v == nil {
+		return nil
+	}
+	res := &aboutviews.EnduroPoststorageView{
+		WorkflowName: &v.WorkflowName,
+		TaskQueue:    &v.TaskQueue,
+	}
+
+	return res
 }

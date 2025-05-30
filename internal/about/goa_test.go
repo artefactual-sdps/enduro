@@ -17,6 +17,7 @@ import (
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaabout "github.com/artefactual-sdps/enduro/internal/api/gen/about"
 	"github.com/artefactual-sdps/enduro/internal/config"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/poststorage"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
@@ -82,6 +83,7 @@ func TestJWTAuth(t *testing.T) {
 				"",
 				preprocessing.Config{},
 				[]poststorage.Config{},
+				ingest.UploadConfig{},
 				tvMock,
 			)
 
@@ -119,7 +121,8 @@ func TestAbout(t *testing.T) {
 					WorkflowName: "",
 					TaskQueue:    "",
 				},
-				Poststorage: goaabout.EnduroPoststorageCollection{},
+				Poststorage:   goaabout.EnduroPoststorageCollection{},
+				UploadMaxSize: 0,
 			},
 		},
 		{
@@ -176,6 +179,9 @@ func TestAbout(t *testing.T) {
 						WorkflowName: "poststorage_2",
 					},
 				},
+				Upload: ingest.UploadConfig{
+					MaxSize: 12345678,
+				},
 			},
 			want: &goaabout.EnduroAbout{
 				Version:            "",
@@ -195,6 +201,7 @@ func TestAbout(t *testing.T) {
 						WorkflowName: "poststorage_2",
 					},
 				},
+				UploadMaxSize: 12345678,
 			},
 		},
 	} {
@@ -206,6 +213,7 @@ func TestAbout(t *testing.T) {
 				tt.config.Preservation.TaskQueue,
 				tt.config.Preprocessing,
 				tt.config.Poststorage,
+				tt.config.Upload,
 				&auth.NoopTokenVerifier{},
 			)
 			res, err := srv.About(context.Background(), &goaabout.AboutPayload{})

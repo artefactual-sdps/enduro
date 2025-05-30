@@ -21,6 +21,7 @@ type AboutResponseBody struct {
 	PreservationSystem *string                                 `form:"preservation_system,omitempty" json:"preservation_system,omitempty" xml:"preservation_system,omitempty"`
 	Preprocessing      *EnduroPreprocessingResponseBody        `form:"preprocessing,omitempty" json:"preprocessing,omitempty" xml:"preprocessing,omitempty"`
 	Poststorage        EnduroPoststorageCollectionResponseBody `form:"poststorage,omitempty" json:"poststorage,omitempty" xml:"poststorage,omitempty"`
+	UploadMaxSize      *int64                                  `form:"upload_max_size,omitempty" json:"upload_max_size,omitempty" xml:"upload_max_size,omitempty"`
 }
 
 // EnduroPreprocessingResponseBody is used to define fields on response body
@@ -48,6 +49,7 @@ func NewAboutEnduroAboutOK(body *AboutResponseBody) *aboutviews.EnduroAboutView 
 	v := &aboutviews.EnduroAboutView{
 		Version:            body.Version,
 		PreservationSystem: body.PreservationSystem,
+		UploadMaxSize:      body.UploadMaxSize,
 	}
 	v.Preprocessing = unmarshalEnduroPreprocessingResponseBodyToAboutviewsEnduroPreprocessingView(body.Preprocessing)
 	if body.Poststorage != nil {

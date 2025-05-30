@@ -274,6 +274,7 @@ func main() {
 		cfg.Preservation.TaskQueue,
 		cfg.Preprocessing,
 		cfg.Poststorage,
+		cfg.Upload,
 		tokenVerifier,
 	)
 
@@ -342,6 +343,7 @@ func main() {
 			cfg.Preservation.TaskQueue,
 			cfg.Preprocessing,
 			cfg.Poststorage,
+			cfg.Upload,
 			&auth.NoopTokenVerifier{},
 		)
 
