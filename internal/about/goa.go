@@ -9,6 +9,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaabout "github.com/artefactual-sdps/enduro/internal/api/gen/about"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/poststorage"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
@@ -20,6 +21,7 @@ type Service struct {
 	presTaskQueue string
 	ppConfig      preprocessing.Config
 	psConfig      []poststorage.Config
+	uploadConfig  ingest.UploadConfig
 	tokenVerifier auth.TokenVerifier
 }
 
@@ -32,6 +34,7 @@ func NewService(
 	presTaskQueue string,
 	ppConfig preprocessing.Config,
 	psConfig []poststorage.Config,
+	uploadConfig ingest.UploadConfig,
 	tokenVerifier auth.TokenVerifier,
 ) *Service {
 	return &Service{
@@ -39,6 +42,7 @@ func NewService(
 		presTaskQueue: presTaskQueue,
 		ppConfig:      ppConfig,
 		psConfig:      psConfig,
+		uploadConfig:  uploadConfig,
 		tokenVerifier: tokenVerifier,
 	}
 }
@@ -65,6 +69,7 @@ func (s *Service) About(context.Context, *goaabout.AboutPayload) (*goaabout.Endu
 			WorkflowName: s.ppConfig.Temporal.WorkflowName,
 			TaskQueue:    s.ppConfig.Temporal.TaskQueue,
 		},
+		UploadMaxSize: s.uploadConfig.MaxSize,
 	}
 
 	res.PreservationSystem = "Unknown"

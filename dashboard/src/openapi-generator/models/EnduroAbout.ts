@@ -52,6 +52,12 @@ export interface EnduroAbout {
     preservationSystem: string;
     /**
      * 
+     * @type {number}
+     * @memberof EnduroAbout
+     */
+    uploadMaxSize: number;
+    /**
+     * 
      * @type {string}
      * @memberof EnduroAbout
      */
@@ -65,6 +71,7 @@ export function instanceOfEnduroAbout(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "preprocessing" in value;
     isInstance = isInstance && "preservationSystem" in value;
+    isInstance = isInstance && "uploadMaxSize" in value;
     isInstance = isInstance && "version" in value;
 
     return isInstance;
@@ -83,6 +90,7 @@ export function EnduroAboutFromJSONTyped(json: any, ignoreDiscriminator: boolean
         'poststorage': !exists(json, 'poststorage') ? undefined : ((json['poststorage'] as Array<any>).map(EnduroPoststorageFromJSON)),
         'preprocessing': EnduroPreprocessingFromJSON(json['preprocessing']),
         'preservationSystem': json['preservation_system'],
+        'uploadMaxSize': json['upload_max_size'],
         'version': json['version'],
     };
 }
@@ -99,6 +107,7 @@ export function EnduroAboutToJSON(value?: EnduroAbout | null): any {
         'poststorage': value.poststorage === undefined ? undefined : ((value.poststorage as Array<any>).map(EnduroPoststorageToJSON)),
         'preprocessing': EnduroPreprocessingToJSON(value.preprocessing),
         'preservation_system': value.preservationSystem,
+        'upload_max_size': value.uploadMaxSize,
         'version': value.version,
     };
 }

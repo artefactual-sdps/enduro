@@ -28,6 +28,7 @@ paths:
                                     task_queue: abc123
                                     workflow_name: abc123
                                 preservation_system: abc123
+                                upload_max_size: 1
                                 version: abc123
                 "401":
                     description: 'unauthorized: Unauthorized response.'
@@ -1965,6 +1966,10 @@ components:
                 preservation_system:
                     type: string
                     example: abc123
+                upload_max_size:
+                    type: integer
+                    example: 1
+                    format: int64
                 version:
                     type: string
                     example: abc123
@@ -1977,11 +1982,13 @@ components:
                     task_queue: abc123
                     workflow_name: abc123
                 preservation_system: abc123
+                upload_max_size: 1
                 version: abc123
             required:
                 - version
                 - preservation_system
                 - preprocessing
+                - upload_max_size
         EnduroIngestSip:
             type: object
             properties:
