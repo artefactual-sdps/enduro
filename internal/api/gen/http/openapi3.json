@@ -367,6 +367,7 @@
             "workflow_name": "abc123"
           },
           "preservation_system": "abc123",
+          "upload_max_size": 1,
           "version": "abc123"
         },
         "properties": {
@@ -380,6 +381,11 @@
             "example": "abc123",
             "type": "string"
           },
+          "upload_max_size": {
+            "example": 1,
+            "format": "int64",
+            "type": "integer"
+          },
           "version": {
             "example": "abc123",
             "type": "string"
@@ -388,7 +394,8 @@
         "required": [
           "version",
           "preservation_system",
-          "preprocessing"
+          "preprocessing",
+          "upload_max_size"
         ],
         "type": "object"
       },
@@ -1688,6 +1695,7 @@
                     "workflow_name": "abc123"
                   },
                   "preservation_system": "abc123",
+                  "upload_max_size": 1,
                   "version": "abc123"
                 },
                 "schema": {

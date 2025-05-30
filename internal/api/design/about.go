@@ -41,5 +41,6 @@ var About = ResultType("application/vnd.enduro.about", func() {
 	Attribute("preservation_system", String)
 	Attribute("preprocessing", Preprocessing)
 	Attribute("poststorage", CollectionOf(Poststorage))
-	Required("version", "preservation_system", "preprocessing")
+	Attribute("upload_max_size", Int64)
+	Required("version", "preservation_system", "preprocessing", "upload_max_size")
 })

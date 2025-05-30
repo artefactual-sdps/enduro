@@ -26,6 +26,7 @@ type EnduroAboutView struct {
 	PreservationSystem *string
 	Preprocessing      *EnduroPreprocessingView
 	Poststorage        EnduroPoststorageCollectionView
+	UploadMaxSize      *int64
 }
 
 // EnduroPreprocessingView is a type that runs validations on a projected type.
@@ -54,6 +55,7 @@ var (
 			"preservation_system",
 			"preprocessing",
 			"poststorage",
+			"upload_max_size",
 		},
 	}
 	// EnduroPreprocessingMap is a map indexing the attribute names of
@@ -103,6 +105,9 @@ func ValidateEnduroAboutView(result *EnduroAboutView) (err error) {
 	}
 	if result.PreservationSystem == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("preservation_system", "result"))
+	}
+	if result.UploadMaxSize == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("upload_max_size", "result"))
 	}
 	if result.Preprocessing != nil {
 		if err2 := ValidateEnduroPreprocessingView(result.Preprocessing); err2 != nil {
