@@ -3,23 +3,23 @@ import Modal from "bootstrap/js/dist/modal";
 import { onMounted, ref } from "vue";
 import { closeDialog } from "vue3-promise-dialog";
 
-import { api, client } from "@/client";
 import useEventListener from "@/composables/useEventListener";
+import { useAboutStore } from "@/stores/about";
 import IconDocumentation from "~icons/lucide/book-text";
 import IconLicense from "~icons/lucide/file-text";
 import IconContributing from "~icons/lucide/git-merge";
 
+const aboutStore = useAboutStore();
+
 const el = ref<HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
-const about = ref<api.EnduroAbout | null>(null);
 
 onMounted(() => {
-  client.about.aboutAbout().then((resp) => {
-    about.value = resp;
-    if (!el.value) return;
-    modal.value = new Modal(el.value);
-    modal.value.show();
-  });
+  if (!el.value) return;
+  modal.value = new Modal(el.value);
+  modal.value.show();
+
+  aboutStore.load();
 });
 
 useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
@@ -41,7 +41,7 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
           ></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3" v-if="about">
+          <div class="mb-3">
             <div class="row">
               <div
                 class="col-12 col-sm-6 text-primary fw-bold text-sm-end text-truncate"
@@ -49,7 +49,7 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
                 Application version:
               </div>
               <div class="col-12 col-sm-6 text-truncate">
-                v{{ about.version }}
+                {{ aboutStore.formattedVersion }}
               </div>
             </div>
             <div class="row">
@@ -59,22 +59,22 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
                 Preservation system:
               </div>
               <div class="col-12 col-sm-6 text-truncate">
-                {{ about.preservationSystem }}
+                {{ aboutStore.preservationSystem }}
               </div>
             </div>
-            <div class="row" v-if="about.preprocessing.enabled">
+            <div class="row" v-if="aboutStore.preprocessing.enabled">
               <div
                 class="col-12 col-sm-6 text-primary fw-bold text-sm-end text-truncate"
               >
                 Preprocessing workflow:
               </div>
               <div class="col-12 col-sm-6 text-truncate">
-                {{ about.preprocessing.workflowName }}
+                {{ aboutStore.preprocessing.workflowName }}
               </div>
             </div>
             <div
               class="row"
-              v-if="about.poststorage && about.poststorage.length > 0"
+              v-if="aboutStore.poststorage && aboutStore.poststorage.length > 0"
             >
               <div
                 class="col-12 col-sm-6 text-primary fw-bold text-sm-end text-truncate"
@@ -83,7 +83,7 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
               </div>
               <div class="col-12 col-sm-6 d-flex flex-column text-truncate">
                 <span
-                  v-for="ps in about.poststorage"
+                  v-for="ps in aboutStore.poststorage"
                   :key="ps.taskQueue + '-' + ps.workflowName"
                   >{{ ps.workflowName }}</span
                 >
