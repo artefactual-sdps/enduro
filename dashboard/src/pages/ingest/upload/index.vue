@@ -2,9 +2,11 @@
 import Uppy from "@uppy/core";
 import { Dashboard } from "@uppy/vue";
 import XHR from "@uppy/xhr-upload";
+import { onMounted } from "vue";
 import { useRouter } from "vue-router/auto";
 
 import { getPath } from "@/client";
+import { useAboutStore } from "@/stores/about";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import IconUpload from "~icons/clarity/plus-circle-line";
@@ -16,13 +18,26 @@ import "@uppy/progress-bar/dist/style.css";
 const router = useRouter();
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
+const aboutStore = useAboutStore();
 
 const GiB = 1024 ** 3; // 1 GiB in bytes
-const maxFileSize = 4 * GiB;
+const uploadMaxDefault = 4 * GiB;
 
 layoutStore.updateBreadcrumb([{ text: "Ingest" }, { text: "Upload SIPs" }]);
 
-const uppy = new Uppy({ restrictions: { maxFileSize: maxFileSize } }).use(XHR, {
+aboutStore.$subscribe((_, state) => {
+  uppy.setOptions({
+    restrictions: { maxFileSize: state.uploadMaxSize },
+  });
+});
+
+onMounted(() => {
+  aboutStore.load();
+});
+
+const uppy = new Uppy({
+  restrictions: { maxFileSize: uploadMaxDefault },
+}).use(XHR, {
   endpoint: getPath() + "/ingest/sips/upload",
   allowedMetaFields: false,
   // Called again for every retry too.
@@ -65,7 +80,7 @@ const uppy = new Uppy({ restrictions: { maxFileSize: maxFileSize } }).use(XHR, {
 
     <div class="text-muted mb-3">
       SIPs <strong>must</strong> be zipped. No SIPs larger than
-      {{ maxFileSize / GiB }} GiB. Ingest will start automatically.
+      {{ aboutStore.formattedUploadMaxSize }}. Ingest will start automatically.
     </div>
     <Dashboard :uppy="uppy" />
   </div>
