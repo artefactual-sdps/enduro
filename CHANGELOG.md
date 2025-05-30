@@ -8,6 +8,30 @@ requests.
 
 ## [Unreleased]
 
+## [0.14.0] - 2025-05-30
+
+### Fixed
+
+- Workflows/tasks status legend ([#1160])
+- Return "202 Accepted" from SIP upload endpoint ([#1186])
+
+### Changed
+
+- Use UUIDs as SIP identifiers ([#1209])
+- Increase default SIP upload max size to 4 GiB ([#1237])
+
+### Added
+
+- Upload SIPs page to dashboard ([#1186])
+- Status and type filter to list AIP workflows endpoint ([#1174])
+- Allow users to cancel their deletion requests ([#1174])
+- Processing workflow type configuration to watchers ([#1218])
+- Return SIP UUID from SIP upload endpoint ([#1210])
+
+### Removed
+
+- Configuration option `stripTopLevelDir` from watchers ([#1218])
+
 ## [0.13.0] - 2025-05-01
 
 ### Fixed
@@ -145,7 +169,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.13.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/artefactual-sdps/enduro/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/artefactual-sdps/enduro/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/artefactual-sdps/enduro/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/artefactual-sdps/enduro/compare/v0.10.0...v0.11.0
@@ -159,8 +184,14 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1237]: https://github.com/artefactual-sdps/enduro/issues/1237
+[#1218]: https://github.com/artefactual-sdps/enduro/issues/1218
+[#1210]: https://github.com/artefactual-sdps/enduro/issues/1210
+[#1209]: https://github.com/artefactual-sdps/enduro/issues/1209
 [#1189]: https://github.com/artefactual-sdps/enduro/issues/1189
+[#1186]: https://github.com/artefactual-sdps/enduro/issues/1186
 [#1176]: https://github.com/artefactual-sdps/enduro/issues/1176
+[#1174]: https://github.com/artefactual-sdps/enduro/issues/1174
 [#1168]: https://github.com/artefactual-sdps/enduro/issues/1168
 [#1161]: https://github.com/artefactual-sdps/enduro/issues/1161
 [#1160]: https://github.com/artefactual-sdps/enduro/issues/1160
