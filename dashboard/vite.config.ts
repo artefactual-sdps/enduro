@@ -17,6 +17,7 @@ export default defineConfig({
     Icons({ compiler: "vue3" }),
   ],
   server: {
+    host: "127.0.0.1",
     port: 80,
     strictPort: true,
     proxy: {
