@@ -17,9 +17,10 @@ A local Kubernetes cluster:
 - [Minikube] _(tested)_
 - [Kind] _(tested)_
 
-It can run with other solutions like Microk8s or Docker for Desktop/Mac and
-even against remote clusters, check Tilt's [Choosing a Local Dev Cluster] and
-[Install] documentation for more information to install these requirements.
+It can run with other solutions like Microk8s, Docker for Desktop/Mac, or
+Lima/Colima (tested on macOS including Apple Silicon), and even against remote
+clusters. Check Tilt's [Choosing a Local Dev Cluster] and [Install]
+documentation for more information to install these requirements.
 
 Additionally, follow the [Manage Docker as a non-root user] post-install guide
 so that you don’t have to run Tilt with `sudo`. _Note that managing Docker as a
