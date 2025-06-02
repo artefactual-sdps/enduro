@@ -107,10 +107,12 @@ func TestConfigValidate(t *testing.T) {
 		t.Parallel()
 
 		c := config.Configuration{
-			InternalBucket: bucket.Config{
-				URL:    "s3blob://my-bucket",
-				Bucket: "my-bucket",
-				Region: "planet-earth",
+			InternalStorage: config.InternalStorageConfig{
+				Bucket: bucket.Config{
+					URL:    "s3blob://my-bucket",
+					Bucket: "my-bucket",
+					Region: "planet-earth",
+				},
 			},
 		}
 		err := c.Validate()
@@ -121,12 +123,53 @@ func TestConfigValidate(t *testing.T) {
 		)
 	})
 
+	t.Run("Returns error if azure credentials are missing", func(t *testing.T) {
+		t.Parallel()
+
+		c := config.Configuration{
+			InternalStorage: config.InternalStorageConfig{
+				Bucket: bucket.Config{
+					URL: "azblob://my-bucket",
+				},
+			},
+		}
+		err := c.Validate()
+		assert.ErrorContains(
+			t,
+			err,
+			"the [internalBucket] Azure credentials are undefined",
+		)
+	})
+
+	t.Run("Returns error if azure URL is incorrect", func(t *testing.T) {
+		t.Parallel()
+
+		c := config.Configuration{
+			InternalStorage: config.InternalStorageConfig{
+				Bucket: bucket.Config{
+					URL: "azureblob://my-bucket",
+				},
+				Azure: config.Azure{
+					StorageAccount: "endurodev",
+					StorageKey:     "storage-key",
+				},
+			},
+		}
+		err := c.Validate()
+		assert.ErrorContains(
+			t,
+			err,
+			"the [internalBucket] URL Azure option is invalid, should be in the form azblob://my-bucket")
+	})
+
 	t.Run("Validates if only URL is provided", func(t *testing.T) {
 		t.Parallel()
 
 		c := config.Configuration{
-			InternalBucket: bucket.Config{
-				URL: "s3blob://my-bucket",
+			InternalStorage: config.InternalStorageConfig{
+				Bucket: bucket.Config{
+					URL: "s3blob://my-bucket",
+				},
 			},
 		}
 		err := c.Validate()
@@ -137,9 +180,11 @@ func TestConfigValidate(t *testing.T) {
 		t.Parallel()
 
 		c := config.Configuration{
-			InternalBucket: bucket.Config{
-				Bucket: "my-bucket",
-				Region: "planet-earth",
+			InternalStorage: config.InternalStorageConfig{
+				Bucket: bucket.Config{
+					Bucket: "my-bucket",
+					Region: "planet-earth",
+				},
 			},
 		}
 		err := c.Validate()

@@ -212,13 +212,18 @@ maxSize = 4294967296
 
 # internalBucket section configures a bucket where Enduro will place uploaded
 # SIPs. Make sure it doesn't match any of the watched buckets.
-[internalBucket]
-endpoint = "http://minio.enduro-sdps:9000"
-pathStyle = true
-accessKey = "minio"
-secretKey = "minio123"
-region = "us-west-1"
-bucket = "internal"
+[internalStorage.bucket]
+URL = "azblob://sips" # Example for an Azure URL connection where the bucket/container is called sips
+# endpoint = "http://minio.enduro-sdps:9000"
+# pathStyle = true
+# accessKey = "minio"
+# secretKey = "minio123"
+# region = "us-west-1"
+# bucket = "internal"
+
+[internalStorage.azure]
+storageAccount = "endurodev"
+storageKey = ""
 
 [telemetry.traces]
 enabled = false

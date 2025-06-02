@@ -1,6 +1,7 @@
 package config
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -9,12 +10,15 @@ import (
 	"strings"
 	"time"
 
+	"github.com/Azure/azure-sdk-for-go/sdk/storage/azblob/container"
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"go.artefactual.dev/tools/bucket"
+	"gocloud.dev/blob"
+	"gocloud.dev/blob/azureblob"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
@@ -69,17 +73,74 @@ type Configuration struct {
 	Preservation    pres.Config
 	Storage         storage.Config
 	Temporal        temporal.Config
+	InternalStorage InternalStorageConfig
 	Upload          ingest.UploadConfig
-	InternalBucket  bucket.Config
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
 	ValidatePREMIS  premis.Config
 }
 
+type InternalStorageConfig struct {
+	Bucket bucket.Config
+	Azure  Azure
+}
+
+type Azure struct {
+	StorageAccount string
+	StorageKey     string
+}
+
+func (u *InternalStorageConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
+	if u.Azure.StorageAccount != "" && strings.HasPrefix(u.Bucket.URL, "azblob") {
+		makeClient := func(svcURL azureblob.ServiceURL, containerName azureblob.ContainerName) (*container.Client, error) {
+			sharedKeyCredential, err := container.NewSharedKeyCredential(u.Azure.StorageAccount, u.Azure.StorageKey)
+			if err != nil {
+				return nil, err
+			}
+
+			containerURL := fmt.Sprintf("%s/%s", svcURL, containerName)
+			sharedKeyCredentialClient, err := container.NewClientWithSharedKeyCredential(
+				containerURL,
+				sharedKeyCredential,
+				nil,
+			)
+			if err != nil {
+				return nil, err
+			}
+
+			return sharedKeyCredentialClient, nil
+		}
+
+		urlOpener := azureblob.URLOpener{
+			MakeClient: makeClient,
+			ServiceURLOptions: azureblob.ServiceURLOptions{
+				AccountName: u.Azure.StorageAccount,
+			},
+		}
+
+		urlMux := new(blob.URLMux)
+		urlMux.RegisterBucket(azureblob.Scheme, &urlOpener)
+		return urlMux.OpenBucket(ctx, u.Bucket.URL)
+	}
+
+	b, err := bucket.NewWithConfig(ctx, &u.Bucket)
+	if err != nil {
+		return nil, err
+	}
+	return b, nil
+}
+
 func (c *Configuration) Validate() error {
 	var err error
-	if c.InternalBucket.URL != "" && (c.InternalBucket.Bucket != "" || c.InternalBucket.Region != "") {
+	if c.InternalStorage.Bucket.URL != "" &&
+		(c.InternalStorage.Bucket.Bucket != "" || c.InternalStorage.Bucket.Region != "") {
 		err = errors.New("the [internalBucket] URL option and the other configuration options are mutually exclusive")
+	} else if strings.HasPrefix(c.InternalStorage.Bucket.URL, "azblob") {
+		if c.InternalStorage.Azure.StorageAccount == "" || c.InternalStorage.Azure.StorageKey == "" {
+			err = errors.New("the [internalBucket] Azure credentials are undefined")
+		}
+	} else if c.InternalStorage.Azure.StorageAccount != "" && !strings.HasPrefix(c.InternalStorage.Bucket.URL, "azblob://") {
+		err = errors.New("the [internalBucket] URL Azure option is invalid, should be in the form azblob://my-bucket")
 	}
 
 	return errors.Join(

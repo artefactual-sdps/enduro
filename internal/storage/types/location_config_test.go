@@ -194,7 +194,7 @@ func TestLocationConfigDecoding(t *testing.T) {
 			},
 			extra: func(c types.LocationConfig) {
 				_, err := c.Value.OpenBucket(context.Background())
-				assert.Error(t, err, `open bucket by URL: open blob.Bucket: no driver registered for "foo" for URL "foo://test-bucket"; available schemes: mem, s3, sftp`)
+				assert.Error(t, err, `open bucket by URL: open blob.Bucket: no driver registered for "foo" for URL "foo://test-bucket"; available schemes: azblob, mem, s3, sftp`)
 			},
 		},
 		"Rejects unknown config": {
