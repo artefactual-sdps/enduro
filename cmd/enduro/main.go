@@ -18,7 +18,6 @@ import (
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
-	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/log"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/otel/codes"
@@ -209,8 +208,8 @@ func main() {
 		)
 	}
 
-	// Set up internal bucket.
-	internalBucket, err := bucket.NewWithConfig(ctx, &cfg.InternalBucket)
+	// Set up upload bucket.
+	internalBucket, err := cfg.InternalStorage.OpenBucket(ctx)
 	if err != nil {
 		logger.Error(err, "Error setting up internal bucket.")
 		os.Exit(1)

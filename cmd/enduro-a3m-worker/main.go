@@ -157,12 +157,12 @@ func main() {
 	}
 
 	// Set up internal bucket.
-	internalBucket, err := bucket.NewWithConfig(ctx, &cfg.InternalBucket)
+	internalStorage, err := cfg.InternalStorage.OpenBucket(ctx)
 	if err != nil {
 		logger.Error(err, "Error setting up internal bucket.")
 		os.Exit(1)
 	}
-	defer internalBucket.Close()
+	defer internalStorage.Close()
 
 	// Set up the ingest service.
 	var ingestsvc ingest.Service
@@ -176,7 +176,7 @@ func main() {
 			&auth.NoopTokenVerifier{},
 			nil,
 			cfg.Temporal.TaskQueue,
-			internalBucket,
+			internalStorage,
 			0,
 			rand.Reader,
 		)
@@ -245,7 +245,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			bucketdownload.New(internalBucket).Execute,
+			bucketdownload.New(internalStorage).Execute,
 			temporalsdk_activity.RegisterOptions{Name: bucketdownload.Name},
 		)
 		w.RegisterActivityWithOptions(

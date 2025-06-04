@@ -59,17 +59,17 @@ type Service interface {
 }
 
 type ingestImpl struct {
-	logger         logr.Logger
-	db             *sqlx.DB
-	tc             temporalsdk_client.Client
-	evsvc          event.EventService
-	perSvc         persistence.Service
-	tokenVerifier  auth.TokenVerifier
-	ticketProvider *auth.TicketProvider
-	taskQueue      string
-	internalBucket *blob.Bucket
-	uploadMaxSize  int64
-	rander         io.Reader
+	logger          logr.Logger
+	db              *sqlx.DB
+	tc              temporalsdk_client.Client
+	evsvc           event.EventService
+	perSvc          persistence.Service
+	tokenVerifier   auth.TokenVerifier
+	ticketProvider  *auth.TicketProvider
+	taskQueue       string
+	internalStorage *blob.Bucket
+	uploadMaxSize   int64
+	rander          io.Reader
 }
 
 var _ Service = (*ingestImpl)(nil)
@@ -88,17 +88,17 @@ func NewService(
 	rander io.Reader,
 ) *ingestImpl {
 	return &ingestImpl{
-		logger:         logger,
-		db:             sqlx.NewDb(db, "mysql"),
-		tc:             tc,
-		evsvc:          evsvc,
-		perSvc:         psvc,
-		tokenVerifier:  tokenVerifier,
-		ticketProvider: ticketProvider,
-		taskQueue:      taskQueue,
-		internalBucket: internalBucket,
-		uploadMaxSize:  uploadMaxSize,
-		rander:         rander,
+		logger:          logger,
+		db:              sqlx.NewDb(db, "mysql"),
+		tc:              tc,
+		evsvc:           evsvc,
+		perSvc:          psvc,
+		tokenVerifier:   tokenVerifier,
+		ticketProvider:  ticketProvider,
+		taskQueue:       taskQueue,
+		internalStorage: internalBucket,
+		uploadMaxSize:   uploadMaxSize,
+		rander:          rander,
 	}
 }
 

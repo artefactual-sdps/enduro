@@ -58,7 +58,7 @@ func (w *goaWrapper) UploadSip(
 	name := strings.TrimSuffix(part.FileName(), format.Name())
 	sipUUID := uuid.Must(uuid.NewRandomFromReader(w.rander))
 	objectKey := fmt.Sprintf("%s%s-%s%s", SIPPrefix, name, sipUUID.String(), format.Name())
-	wr, err := w.internalBucket.NewWriter(ctx, objectKey, &blob.WriterOptions{})
+	wr, err := w.internalStorage.NewWriter(ctx, objectKey, &blob.WriterOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -75,7 +75,7 @@ func (w *goaWrapper) UploadSip(
 
 	if err := w.initSIP(ctx, sipUUID, part.FileName(), objectKey, enums.WorkflowTypeCreateAip); err != nil {
 		// Delete SIP from internal bucket.
-		err := errors.Join(err, w.internalBucket.Delete(ctx, objectKey))
+		err := errors.Join(err, w.internalStorage.Delete(ctx, objectKey))
 		w.logger.Error(err, "Error initializing SIP ingest workflow after upload.")
 		return nil, err
 	}
