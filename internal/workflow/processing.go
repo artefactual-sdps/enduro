@@ -363,12 +363,10 @@ func (w *ProcessingWorkflow) SessionHandler(
 			state.sip.path = re.FilePath
 		}
 
+		state.initialPath = state.sip.path
+
 		// Delete download tmp dir when session ends.
 		state.addTempPath(filepath.Dir(state.sip.path))
-
-		state.sendToFailed.path = state.sip.path
-		state.sendToFailed.failedAs = enums.SIPFailedAsSIP
-		state.sendToFailed.needsZipping = state.sip.isDir
 	}
 
 	// Unarchive the transfer if it's not a directory and it's not part of the preprocessing child workflow.
@@ -398,33 +396,29 @@ func (w *ProcessingWorkflow) SessionHandler(
 		return err
 	}
 
-	// After this point we treat the package as a PIP, as preprocessing may have
-	// modified it.
-
-	// Classify the PIP.
+	// Classify the SIP.
 	{
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
 		var result activities.ClassifySIPActivityResult
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			activities.ClassifySIPActivityName,
-			activities.ClassifySIPActivityParams{Path: state.pip.path},
+			activities.ClassifySIPActivityParams{Path: state.sip.path},
 		).Get(activityOpts, &result)
 		if err != nil {
-			return fmt.Errorf("classify PIP: %v", err)
+			return fmt.Errorf("classify SIP: %v", err)
 		}
 
-		state.pip.pipType = result.Type
+		state.sip.sipType = result.Type
 	}
 
-	// Stop the workflow if preprocessing returned a PIP path that is not a
-	// valid bag.
-	if state.pip.pipType != enums.SIPTypeBagIt && w.cfg.Preprocessing.Enabled {
+	// Stop the workflow if preprocessing returned a SIP path that is not a valid bag.
+	if state.sip.sipType != enums.SIPTypeBagIt && w.cfg.Preprocessing.Enabled {
 		return errors.New("preprocessing returned a path that is not a valid bag")
 	}
 
-	// If the PIP is a BagIt Bag, validate it.
-	if state.pip.isDir && state.pip.pipType == enums.SIPTypeBagIt {
+	// If the SIP is a BagIt Bag, validate it.
+	if state.sip.sipType == enums.SIPTypeBagIt {
 		id, err := w.createTask(
 			sessCtx,
 			datatypes.Task{
@@ -450,7 +444,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 		err = temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			bagvalidate.Name,
-			&bagvalidate.Params{Path: state.pip.path},
+			&bagvalidate.Params{Path: state.sip.path},
 		).Get(activityOpts, &result)
 		if err != nil {
 			task.SystemError(
@@ -774,7 +768,7 @@ func (w *ProcessingWorkflow) transferA3m(
 	sessCtx temporalsdk_workflow.Context,
 	state *workflowState,
 ) error {
-	// Bundle PIP as an Archivematica standard transfer.
+	// Bundle SIP as an Archivematica standard transfer.
 	{
 		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
 		var bundleResult activities.BundleActivityResult
@@ -782,21 +776,19 @@ func (w *ProcessingWorkflow) transferA3m(
 			activityOpts,
 			activities.BundleActivityName,
 			&activities.BundleActivityParams{
-				SourcePath:  state.pip.path,
+				SourcePath:  state.sip.path,
 				TransferDir: w.cfg.A3m.ShareDir,
-				IsDir:       state.pip.isDir,
+				IsDir:       state.sip.isDir,
 			},
 		).Get(activityOpts, &bundleResult)
 		if err != nil {
 			return err
 		}
 
-		state.pip.path = bundleResult.FullPath
-		state.pip.pipType = enums.SIPTypeArchivematicaStandardTransfer
-
-		state.sendToFailed.path = state.pip.path
-		state.sendToFailed.failedAs = enums.SIPFailedAsPIP
-		state.sendToFailed.needsZipping = true
+		state.sip.path = bundleResult.FullPath
+		state.sip.isDir = true
+		state.sip.sipType = enums.SIPTypeArchivematicaStandardTransfer
+		state.sip.transformed = true
 
 		// Delete bundled transfer when session ends.
 		state.addTempPath(bundleResult.FullPath)
@@ -804,7 +796,7 @@ func (w *ProcessingWorkflow) transferA3m(
 
 	err := w.validatePREMIS(
 		sessCtx,
-		filepath.Join(state.pip.path, "metadata", "premis.xml"),
+		filepath.Join(state.sip.path, "metadata", "premis.xml"),
 		state.workflowID,
 	)
 	if err != nil {
@@ -823,7 +815,7 @@ func (w *ProcessingWorkflow) transferA3m(
 
 		params := &a3m.CreateAIPActivityParams{
 			Name:       state.sip.name,
-			Path:       state.pip.path,
+			Path:       state.sip.path,
 			WorkflowID: state.workflowID,
 		}
 
@@ -850,33 +842,31 @@ func (w *ProcessingWorkflow) transferAM(
 ) error {
 	var err error
 
-	// Bag the PIP if it's not already a bag.
-	if state.pip.pipType != enums.SIPTypeBagIt {
+	// Bag the SIP if it's not already a bag.
+	if state.sip.sipType != enums.SIPTypeBagIt {
 		lctx := withActivityOptsForLocalAction(ctx)
 		var result bagcreate.Result
 		err = temporalsdk_workflow.ExecuteActivity(
 			lctx,
 			bagcreate.Name,
-			&bagcreate.Params{SourcePath: state.pip.path},
+			&bagcreate.Params{SourcePath: state.sip.path},
 		).Get(lctx, &result)
 		if err != nil {
 			return err
 		}
-		state.pip.pipType = enums.SIPTypeBagIt
+		state.sip.isDir = true
+		state.sip.sipType = enums.SIPTypeBagIt
+		state.sip.transformed = true
 	}
 
 	err = w.validatePREMIS(
 		ctx,
-		filepath.Join(state.pip.path, "data", "metadata", "premis.xml"),
+		filepath.Join(state.sip.path, "data", "metadata", "premis.xml"),
 		state.workflowID,
 	)
 	if err != nil {
 		return err
 	}
-
-	// Send the PIP to the "failed PIP" bucket if preservation fails.
-	state.sendToFailed.path = state.pip.path
-	state.sendToFailed.failedAs = enums.SIPFailedAsPIP
 
 	// Zip PIP, if necessary.
 	if w.cfg.AM.ZipPIP {
@@ -885,17 +875,14 @@ func (w *ProcessingWorkflow) transferAM(
 		err = temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			archivezip.Name,
-			&archivezip.Params{SourceDir: state.pip.path},
+			&archivezip.Params{SourceDir: state.sip.path},
 		).Get(activityOpts, &zipResult)
 		if err != nil {
 			return err
 		}
 
-		state.pip.path = zipResult.Path
-		state.pip.isDir = false
-
-		state.sendToFailed.path = zipResult.Path
-		state.sendToFailed.needsZipping = false
+		state.sip.path = zipResult.Path
+		state.sip.isDir = false
 
 		// Delete the zipped PIP when the workflow completes.
 		state.addTempPath(zipResult.Path)
@@ -920,7 +907,7 @@ func (w *ProcessingWorkflow) transferAM(
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		am.UploadTransferActivityName,
-		&am.UploadTransferActivityParams{SourcePath: state.pip.path},
+		&am.UploadTransferActivityParams{SourcePath: state.sip.path},
 	).Get(activityOpts, &uploadResult)
 	if err != nil {
 		return err
@@ -970,8 +957,8 @@ func (w *ProcessingWorkflow) transferAM(
 		return err
 	}
 
-	// Set PIP id to Archivematica SIP ID.
-	state.pip.id = pollTransferResult.SIPID
+	// Set AIP id to Archivematica SIP ID.
+	state.aip.id = pollTransferResult.SIPID
 
 	// Poll ingest status.
 	var pollIngestResult am.PollIngestActivityResult
@@ -980,18 +967,15 @@ func (w *ProcessingWorkflow) transferAM(
 		am.PollIngestActivityName,
 		am.PollIngestActivityParams{
 			WorkflowID: state.workflowID,
-			SIPID:      state.pip.id,
+			SIPID:      state.aip.id,
 		},
 	).Get(pollOpts, &pollIngestResult)
 	if err != nil {
 		return err
 	}
 
-	// Set AIP data.
-	state.aip = &aipInfo{
-		id:       state.pip.id,
-		storedAt: temporalsdk_workflow.Now(ctx).UTC(),
-	}
+	// Set AIP storedAt.
+	state.aip.storedAt = temporalsdk_workflow.Now(ctx).UTC()
 
 	// Create storage AIP record and set location to AMSS location.
 	{
@@ -1031,10 +1015,6 @@ func (w *ProcessingWorkflow) transferAM(
 
 func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, state *workflowState) error {
 	if !w.cfg.Preprocessing.Enabled {
-		// Alias the PIP info to the SIP to have consistent calls going forward.
-		state.pip.path = state.sip.path
-		state.pip.isDir = state.sip.isDir
-
 		return nil
 	}
 
@@ -1060,9 +1040,12 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 		return err
 	}
 
-	// Set PIP info from preprocessing result.
-	state.pip.path = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(ppResult.RelativePath))
-	state.pip.isDir = true
+	// Set SIP info from preprocessing result on success.
+	if ppResult.Outcome == preprocessing.OutcomeSuccess {
+		state.sip.path = filepath.Join(w.cfg.Preprocessing.SharedPath, filepath.Clean(ppResult.RelativePath))
+		state.sip.isDir = true
+		state.sip.transformed = true
+	}
 
 	// Save preprocessing task data.
 	if len(ppResult.PreservationTasks) > 0 {
@@ -1186,35 +1169,35 @@ func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 	sessCtx temporalsdk_workflow.Context,
 	state *workflowState,
 ) error {
-	// Missing details.
-	if state.sendToFailed.path == "" || !state.sendToFailed.failedAs.IsValid() {
-		return errors.New("missing failed SIP/PIP path or failed as type")
-	}
-
 	// Failed SIP already in the internal bucket.
-	if state.req.WatcherName == "" && state.sendToFailed.failedAs == enums.SIPFailedAsSIP {
+	if state.req.WatcherName == "" && !state.sip.transformed {
 		return nil
 	}
 
-	if state.sendToFailed.needsZipping {
+	// Use initial details if the SIP has not been transformed.
+	// Otherwise, use current values and consider it a PIP.
+	path := state.initialPath
+	isDir := state.req.IsDir
+	prefix := ingest.SIPPrefix
+	if state.sip.transformed {
+		path = state.sip.path
+		isDir = state.sip.isDir
+		prefix = ingest.PIPPrefix
+	}
+
+	if isDir {
 		var zipResult archivezip.Result
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			archivezip.Name,
-			&archivezip.Params{SourceDir: state.sendToFailed.path},
+			&archivezip.Params{SourceDir: path},
 		).Get(activityOpts, &zipResult)
 		if err != nil {
 			return err
 		}
-		state.sendToFailed.path = zipResult.Path
+		path = zipResult.Path
 	}
-
-	prefix := ingest.SIPPrefix
-	if state.sendToFailed.failedAs == enums.SIPFailedAsPIP {
-		prefix = ingest.PIPPrefix
-	}
-	key := fmt.Sprintf("%s%s", prefix, state.sip.uuid.String())
 
 	var sendToFailedResult bucketupload.Result
 	activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
@@ -1222,8 +1205,8 @@ func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 		activityOpts,
 		bucketupload.Name,
 		&bucketupload.Params{
-			Path:       state.sendToFailed.path,
-			Key:        key,
+			Path:       path,
+			Key:        fmt.Sprintf("%s%s", prefix, state.sip.uuid.String()),
 			BufferSize: 100_000_000,
 		},
 	).Get(activityOpts, &sendToFailedResult)
