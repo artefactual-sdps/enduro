@@ -158,11 +158,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	)
 	s.env.RegisterActivityWithOptions(
 		bucketupload.New(memblob.OpenBucket(nil)).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedSIPsName},
-	)
-	s.env.RegisterActivityWithOptions(
-		bucketupload.New(memblob.OpenBucket(nil)).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedPIPsName},
+		temporalsdk_activity.RegisterOptions{Name: bucketupload.Name},
 	)
 
 	s.env.RegisterWorkflowWithOptions(
@@ -1309,11 +1305,11 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	)
 
 	s.env.OnActivity(
-		activities.SendToFailedSIPsName,
+		bucketupload.Name,
 		sessionCtx,
 		&bucketupload.Params{
 			Path:       downloadDir + "/" + key,
-			Key:        fmt.Sprintf("Failed_%s", sipName),
+			Key:        fmt.Sprintf("%s%s", ingest.SIPPrefix, sipUUID.String()),
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1476,11 +1472,11 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		Return(&archivezip.Result{Path: transferPath + ".zip"}, nil)
 
 	s.env.OnActivity(
-		activities.SendToFailedPIPsName,
+		bucketupload.Name,
 		sessionCtx,
 		&bucketupload.Params{
 			Path:       transferPath + ".zip",
-			Key:        fmt.Sprintf("Failed_%s", sipName),
+			Key:        fmt.Sprintf("%s%s", ingest.PIPPrefix, sipUUID.String()),
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1593,11 +1589,11 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	).Return(nil, fmt.Errorf("AM error"))
 
 	s.env.OnActivity(
-		activities.SendToFailedPIPsName,
+		bucketupload.Name,
 		sessionCtx,
 		&bucketupload.Params{
 			Path:       extractPath + "/transfer.zip",
-			Key:        fmt.Sprintf("Failed_%s", sipName),
+			Key:        fmt.Sprintf("%s%s", ingest.PIPPrefix, sipUUID.String()),
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1689,16 +1685,6 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		sessionCtx,
 		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(nil, errors.New("extract error"))
-
-	s.env.OnActivity(
-		activities.SendToFailedSIPsName,
-		sessionCtx,
-		&bucketupload.Params{
-			Path:       tempPath + "/" + key,
-			Key:        fmt.Sprintf("Failed_%s", sipName),
-			BufferSize: 100_000_000,
-		},
-	).Return(&bucketupload.Result{}, nil)
 
 	s.env.OnActivity(
 		updateSIPLocalActivity,
