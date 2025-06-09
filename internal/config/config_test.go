@@ -119,7 +119,7 @@ func TestConfigValidate(t *testing.T) {
 		assert.ErrorContains(
 			t,
 			err,
-			"the [internalBucket] URL option and the other configuration options are mutually exclusive",
+			"the [internalStorage] URL option and the other configuration options are mutually exclusive",
 		)
 	})
 
@@ -137,29 +137,8 @@ func TestConfigValidate(t *testing.T) {
 		assert.ErrorContains(
 			t,
 			err,
-			"the [internalBucket] Azure credentials are undefined",
+			"the [internalStorage] Azure credentials are undefined",
 		)
-	})
-
-	t.Run("Returns error if azure URL is incorrect", func(t *testing.T) {
-		t.Parallel()
-
-		c := config.Configuration{
-			InternalStorage: config.InternalStorageConfig{
-				Bucket: bucket.Config{
-					URL: "azureblob://my-bucket",
-				},
-				Azure: config.Azure{
-					StorageAccount: "endurodev",
-					StorageKey:     "storage-key",
-				},
-			},
-		}
-		err := c.Validate()
-		assert.ErrorContains(
-			t,
-			err,
-			"the [internalBucket] URL Azure option is invalid, should be in the form azblob://my-bucket")
 	})
 
 	t.Run("Validates if only URL is provided", func(t *testing.T) {

@@ -157,7 +157,7 @@ func main() {
 		)
 	}
 
-	// Set up internal bucket.
+	// Set up internal storage.
 	internalStorage, err := cfg.InternalStorage.OpenBucket(ctx)
 	if err != nil {
 		logger.Error(err, "Error setting up internal bucket.")
