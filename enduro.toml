@@ -224,7 +224,7 @@ region = "us-west-1"
 bucket = "internal"
 
 [internalStorage.azure]
-storageAccount = "endurodev"
+storageAccount = ""
 storageKey = ""
 
 [telemetry.traces]
