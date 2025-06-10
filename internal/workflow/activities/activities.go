@@ -12,6 +12,5 @@ const (
 	PollMoveToPermanentStorageActivityName = "poll-move-to-permanent-storage-activity"
 	RejectSIPActivityName                  = "reject-sip-activity"
 	UploadActivityName                     = "upload-activity"
-	SendToFailedSIPsName                   = "send-to-failed-sips"
-	SendToFailedPIPsName                   = "send-to-failed-pips"
+	SendToFailedName                       = "send-to-failed"
 )

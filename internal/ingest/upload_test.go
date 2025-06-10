@@ -128,10 +128,11 @@ func TestUpload(t *testing.T) {
 					},
 					ingest.ProcessingWorkflowName,
 					&ingest.ProcessingWorkflowRequest{
-						SIPUUID: uuid0,
-						SIPName: "first.zip",
-						Type:    enums.WorkflowTypeCreateAip,
-						Key:     key,
+						SIPUUID:   uuid0,
+						SIPName:   "first.zip",
+						Type:      enums.WorkflowTypeCreateAip,
+						Key:       key,
+						Extension: ".zip",
 					},
 				).Return(nil, errors.New("temporal error"))
 
@@ -164,10 +165,11 @@ func TestUpload(t *testing.T) {
 					},
 					ingest.ProcessingWorkflowName,
 					&ingest.ProcessingWorkflowRequest{
-						SIPUUID: uuid0,
-						SIPName: "first.zip",
-						Type:    enums.WorkflowTypeCreateAip,
-						Key:     key,
+						SIPUUID:   uuid0,
+						SIPName:   "first.zip",
+						Type:      enums.WorkflowTypeCreateAip,
+						Key:       key,
+						Extension: ".zip",
 					},
 				).Return(nil, nil)
 			},

@@ -18,6 +18,8 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/bucketcopy"
+	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/artefactual-sdps/temporal-activities/bucketdownload"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
@@ -198,22 +200,6 @@ func main() {
 		)
 	}
 
-	// Set-up failed SIPs bucket.
-	failedSIPs, err := bucket.NewWithConfig(ctx, &cfg.FailedSIPs)
-	if err != nil {
-		logger.Error(err, "Error setting up failed SIPs bucket.")
-		os.Exit(1)
-	}
-	defer failedSIPs.Close()
-
-	// Set-up failed PIPs bucket.
-	failedPIPs, err := bucket.NewWithConfig(ctx, &cfg.FailedPIPs)
-	if err != nil {
-		logger.Error(err, "Error setting up failed PIPs bucket.")
-		os.Exit(1)
-	}
-	defer failedPIPs.Close()
-
 	var g run.Group
 
 	// Activity worker.
@@ -322,12 +308,16 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
 		)
 		w.RegisterActivityWithOptions(
-			bucketupload.New(failedSIPs).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedSIPsName},
+			bucketcopy.New(internalBucket).Execute,
+			temporalsdk_activity.RegisterOptions{Name: bucketcopy.Name},
 		)
 		w.RegisterActivityWithOptions(
-			bucketupload.New(failedPIPs).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedPIPsName},
+			bucketdelete.New(internalBucket).Execute,
+			temporalsdk_activity.RegisterOptions{Name: bucketdelete.Name},
+		)
+		w.RegisterActivityWithOptions(
+			bucketupload.New(internalBucket).Execute,
+			temporalsdk_activity.RegisterOptions{Name: bucketupload.Name},
 		)
 		w.RegisterActivityWithOptions(
 			xmlvalidate.New(xmlvalidate.NewXMLLintValidator()).Execute,

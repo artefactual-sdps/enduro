@@ -74,9 +74,6 @@ type Configuration struct {
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
 	ValidatePREMIS  premis.Config
-
-	FailedSIPs bucket.Config
-	FailedPIPs bucket.Config
 }
 
 func (c *Configuration) Validate() error {

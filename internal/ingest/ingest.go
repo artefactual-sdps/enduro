@@ -22,8 +22,14 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
-// Prefix used to store the SIP in the internal bucket after upload.
-const SIPPrefix = "SIP_"
+const (
+	// Prefix used to store the SIP in the internal bucket after upload.
+	SIPPrefix = "SIP_"
+	// Prefix used to store the SIP in the internal bucket after failure.
+	FailedSIPPrefix = "Failed_SIP_"
+	// Prefix used to store the PIP in the internal bucket after failure.
+	FailedPIPPrefix = "Failed_PIP_"
+)
 
 var ErrInvalid = errors.New("invalid")
 

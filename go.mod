@@ -11,7 +11,7 @@ require (
 	entgo.io/ent v0.14.4
 	github.com/XSAM/otelsql v0.29.0
 	github.com/alicebob/miniredis/v2 v2.32.1
-	github.com/artefactual-sdps/temporal-activities v0.0.0-20250526174303-c2ff1f222a73
+	github.com/artefactual-sdps/temporal-activities v0.0.0-20250609161607-98135eaabe3f
 	github.com/coreos/go-oidc/v3 v3.10.0
 	github.com/cyphar/filepath-securejoin v0.2.4
 	github.com/dolmen-go/contextio v1.0.0

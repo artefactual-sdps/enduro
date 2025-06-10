@@ -248,19 +248,3 @@ workflowName = "preprocessing"
 # namespace = "default"
 # taskQueue = "poststorage"
 # workflowName = "poststorage"
-
-[failedSips]
-endpoint = "http://minio.enduro-sdps:9000"
-pathStyle = true
-accessKey = "minio"
-secretKey = "minio123"
-region = "us-west-1"
-bucket = "failed-sips"
-
-[failedPips]
-endpoint = "http://minio.enduro-sdps:9000"
-pathStyle = true
-accessKey = "minio"
-secretKey = "minio123"
-region = "us-west-1"
-bucket = "failed-pips"

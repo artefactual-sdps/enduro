@@ -14,6 +14,8 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/archivezip"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
+	"github.com/artefactual-sdps/temporal-activities/bucketcopy"
+	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/artefactual-sdps/temporal-activities/bucketdownload"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
@@ -121,6 +123,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_activity.RegisterOptions{Name: bucketdownload.Name},
 	)
 	s.env.RegisterActivityWithOptions(
+		activities.NewGetSIPExtensionActivity().Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.GetSIPExtensionActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
 		archiveextract.New(cfg.ExtractActivity).Execute,
 		temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
 	)
@@ -157,12 +163,16 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
 	)
 	s.env.RegisterActivityWithOptions(
-		bucketupload.New(memblob.OpenBucket(nil)).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedSIPsName},
+		bucketcopy.New(memblob.OpenBucket(nil)).Execute,
+		temporalsdk_activity.RegisterOptions{Name: bucketcopy.Name},
+	)
+	s.env.RegisterActivityWithOptions(
+		bucketdelete.New(memblob.OpenBucket(nil)).Execute,
+		temporalsdk_activity.RegisterOptions{Name: bucketdelete.Name},
 	)
 	s.env.RegisterActivityWithOptions(
 		bucketupload.New(memblob.OpenBucket(nil)).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.SendToFailedPIPsName},
+		temporalsdk_activity.RegisterOptions{Name: bucketupload.Name},
 	)
 
 	s.env.RegisterWorkflowWithOptions(
@@ -333,6 +343,12 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
 
+	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
+		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
+	).Return(
+		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
+	)
+
 	s.env.OnActivity(archiveextract.Name, sessionCtx,
 		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(
@@ -490,6 +506,12 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
 	).Return(
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
+	)
+
+	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
+		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
+	).Return(
+		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
 	)
 
 	s.env.OnActivity(archiveextract.Name, sessionCtx,
@@ -678,6 +700,12 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
 	).Return(
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
+	)
+
+	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
+		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
+	).Return(
+		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
 	)
 
 	s.env.OnActivity(archiveextract.Name, sessionCtx,
@@ -872,6 +900,12 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
 
+	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
+		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
+	).Return(
+		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
+	)
+
 	s.env.OnActivity(archiveextract.Name, sessionCtx,
 		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(
@@ -1022,6 +1056,12 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		},
 	).Return(
 		&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil,
+	)
+
+	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
+		&activities.GetSIPExtensionActivityParams{Path: downloadDir + "/" + key},
+	).Return(
+		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
 	)
 
 	s.env.OnWorkflow(
@@ -1294,6 +1334,12 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		},
 	).Return(&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil)
 
+	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
+		&activities.GetSIPExtensionActivityParams{Path: downloadDir + "/" + key},
+	).Return(
+		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
+	)
+
 	s.env.OnWorkflow(
 		preprocessingChildWorkflow,
 		mock.AnythingOfType("*internal.valueCtx"),
@@ -1309,11 +1355,17 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	)
 
 	s.env.OnActivity(
-		activities.SendToFailedSIPsName,
+		bucketupload.Name,
 		sessionCtx,
 		&bucketupload.Params{
-			Path:       downloadDir + "/" + key,
-			Key:        fmt.Sprintf("Failed_%s", sipName),
+			Path: downloadDir + "/" + key,
+			Key: fmt.Sprintf(
+				"%s%s-%s%s",
+				ingest.FailedSIPPrefix,
+				strings.TrimSuffix(sipName, ".zip"),
+				sipUUID.String(),
+				".zip",
+			),
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1411,6 +1463,12 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		},
 	).Return(&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil)
 
+	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
+		&activities.GetSIPExtensionActivityParams{Path: downloadDir + "/" + key},
+	).Return(
+		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
+	)
+
 	s.env.OnActivity(
 		archiveextract.Name,
 		sessionCtx,
@@ -1476,11 +1534,17 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		Return(&archivezip.Result{Path: transferPath + ".zip"}, nil)
 
 	s.env.OnActivity(
-		activities.SendToFailedPIPsName,
+		bucketupload.Name,
 		sessionCtx,
 		&bucketupload.Params{
-			Path:       transferPath + ".zip",
-			Key:        fmt.Sprintf("Failed_%s", sipName),
+			Path: transferPath + ".zip",
+			Key: fmt.Sprintf(
+				"%s%s-%s%s",
+				ingest.FailedPIPPrefix,
+				strings.TrimSuffix(sipName, ".zip"),
+				sipUUID.String(),
+				".zip",
+			),
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1568,6 +1632,12 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
 	).Return(&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil)
 
+	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
+		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
+	).Return(
+		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
+	)
+
 	s.env.OnActivity(
 		archiveextract.Name,
 		sessionCtx,
@@ -1593,11 +1663,17 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	).Return(nil, fmt.Errorf("AM error"))
 
 	s.env.OnActivity(
-		activities.SendToFailedPIPsName,
+		bucketupload.Name,
 		sessionCtx,
 		&bucketupload.Params{
-			Path:       extractPath + "/transfer.zip",
-			Key:        fmt.Sprintf("Failed_%s", sipName),
+			Path: extractPath + "/transfer.zip",
+			Key: fmt.Sprintf(
+				"%s%s-%s%s",
+				ingest.FailedPIPPrefix,
+				strings.TrimSuffix(sipName, ".zip"),
+				sipUUID.String(),
+				".zip",
+			),
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1682,23 +1758,34 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		},
 	).Return(&bucketdownload.Result{FilePath: tempPath + "/" + key}, nil)
 
-	// Everything else should be the same as other workflows after
-	// download, so just fail the workflow on extration.
+	// Fail the workflow on extraction.
 	s.env.OnActivity(
 		archiveextract.Name,
 		sessionCtx,
 		&archiveextract.Params{SourcePath: tempPath + "/" + key},
 	).Return(nil, errors.New("extract error"))
 
+	// Check failed SIP rename within internal bucket (copy/delete).
 	s.env.OnActivity(
-		activities.SendToFailedSIPsName,
+		bucketcopy.Name,
 		sessionCtx,
-		&bucketupload.Params{
-			Path:       tempPath + "/" + key,
-			Key:        fmt.Sprintf("Failed_%s", sipName),
-			BufferSize: 100_000_000,
+		&bucketcopy.Params{
+			SourceKey: key,
+			DestKey: fmt.Sprintf(
+				"%s%s-%s%s",
+				ingest.FailedSIPPrefix,
+				strings.TrimSuffix(sipName, ".zip"),
+				sipUUID.String(),
+				".zip",
+			),
 		},
-	).Return(&bucketupload.Result{}, nil)
+	).Return(&bucketcopy.Result{}, nil)
+
+	s.env.OnActivity(
+		bucketdelete.Name,
+		sessionCtx,
+		&bucketdelete.Params{Key: key},
+	).Return(&bucketdelete.Result{}, nil)
 
 	s.env.OnActivity(
 		updateSIPLocalActivity,
@@ -1723,10 +1810,11 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
 		&ingest.ProcessingWorkflowRequest{
-			Key:     key,
-			Type:    enums.WorkflowTypeCreateAip,
-			SIPUUID: sipUUID,
-			SIPName: sipName,
+			Key:       key,
+			Type:      enums.WorkflowTypeCreateAip,
+			SIPUUID:   sipUUID,
+			SIPName:   sipName,
+			Extension: ".zip",
 		},
 	)
 

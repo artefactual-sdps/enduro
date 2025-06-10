@@ -54,10 +54,11 @@ func (w *goaWrapper) UploadSip(
 		return nil, goaingest.MakeInvalidMultipartRequest(errors.New("unable to identify format"))
 	}
 
-	// Remove format extension from filename if included.
-	name := strings.TrimSuffix(part.FileName(), format.Name())
+	// Remove the format extension from the filename if it is included.
+	ext := format.Name()
+	name := strings.TrimSuffix(part.FileName(), ext)
 	sipUUID := uuid.Must(uuid.NewRandomFromReader(w.rander))
-	objectKey := fmt.Sprintf("%s%s-%s%s", SIPPrefix, name, sipUUID.String(), format.Name())
+	objectKey := fmt.Sprintf("%s%s-%s%s", SIPPrefix, name, sipUUID.String(), ext)
 	wr, err := w.internalBucket.NewWriter(ctx, objectKey, &blob.WriterOptions{})
 	if err != nil {
 		return nil, err
@@ -73,7 +74,7 @@ func (w *goaWrapper) UploadSip(
 		return nil, closeErr
 	}
 
-	if err := w.initSIP(ctx, sipUUID, part.FileName(), objectKey, enums.WorkflowTypeCreateAip); err != nil {
+	if err := w.initSIP(ctx, sipUUID, part.FileName(), objectKey, ext, enums.WorkflowTypeCreateAip); err != nil {
 		// Delete SIP from internal bucket.
 		err := errors.Join(err, w.internalBucket.Delete(ctx, objectKey))
 		w.logger.Error(err, "Error initializing SIP ingest workflow after upload.")
@@ -83,7 +84,14 @@ func (w *goaWrapper) UploadSip(
 	return &goaingest.UploadSipResult{UUID: sipUUID.String()}, nil
 }
 
-func (w *goaWrapper) initSIP(ctx context.Context, id uuid.UUID, name, key string, wType enums.WorkflowType) error {
+func (w *goaWrapper) initSIP(
+	ctx context.Context,
+	id uuid.UUID,
+	name string,
+	key string,
+	extension string,
+	wType enums.WorkflowType,
+) error {
 	s := &datatypes.SIP{
 		UUID:   id,
 		Name:   name,
@@ -94,10 +102,11 @@ func (w *goaWrapper) initSIP(ctx context.Context, id uuid.UUID, name, key string
 	}
 
 	req := ProcessingWorkflowRequest{
-		SIPUUID: id,
-		SIPName: name,
-		Type:    wType,
-		Key:     key,
+		SIPUUID:   id,
+		SIPName:   name,
+		Type:      wType,
+		Key:       key,
+		Extension: extension,
 	}
 	if err := InitProcessingWorkflow(ctx, w.tc, w.taskQueue, &req); err != nil {
 		// Delete SIP from persistence.

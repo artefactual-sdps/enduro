@@ -15,6 +15,9 @@ type workflowState struct {
 	// req is populated by the workflow request.
 	req *ingest.ProcessingWorkflowRequest
 
+	// initialPath is the location of the SIP after download.
+	initialPath string
+
 	// status of the ingest workflow.
 	status enums.WorkflowStatus
 
@@ -27,13 +30,9 @@ type workflowState struct {
 	// It is populated by createWorkflowLocalActivity.
 	workflowID int
 
-	// sip, pip and aip track the state of the respective packages.
+	// sip and aip track the state of the respective packages.
 	sip *sipInfo
-	pip *pipInfo
 	aip *aipInfo
-
-	// Send to failed information.
-	sendToFailed sendToFailed
 }
 
 func newWorkflowState(req *ingest.ProcessingWorkflowRequest) *workflowState {
@@ -41,17 +40,16 @@ func newWorkflowState(req *ingest.ProcessingWorkflowRequest) *workflowState {
 		req:    req,
 		status: enums.WorkflowStatusUnspecified,
 		sip: &sipInfo{
-			uuid:  req.SIPUUID,
-			name:  req.SIPName,
-			isDir: req.IsDir,
+			uuid:      req.SIPUUID,
+			name:      req.SIPName,
+			isDir:     req.IsDir,
+			extension: req.Extension,
 
 			// All SIPs start in queued status.
 			status: enums.SIPStatusQueued,
 		},
 
-		// Initialize the PIP and AIP to empty structs to avoid nil pointer
-		// dereference errors.
-		pip: &pipInfo{},
+		// Initialize the AIP to empty struct to avoid nil pointer errors.
 		aip: &aipInfo{},
 	}
 }
@@ -80,26 +78,19 @@ type sipInfo struct {
 	// isDir indicates whether the working copy of the SIP is a directory.
 	isDir bool
 
+	// extension is the original SIP file extension if it was not a directory.
+	// Used to generate the failed SIP/PIP object key.
+	extension string
+
 	// status is the ingest status of the SIP (e.g. "in progress", "done",
 	// "error").
 	status enums.SIPStatus
-}
 
-// pipInfo represents the PIP.
-type pipInfo struct {
-	// id is the UUID of the PIP. It is populated by the
-	// am.PollTransferActivity.
-	id string
+	// sipType is the type of the SIP.
+	sipType enums.SIPType
 
-	// path is the path to the PIP. It is populated by the BundleActivity.
-	path string
-
-	// isDir indicates whether the current working copy of the SIP is a
-	// filesystem directory.
-	isDir bool
-
-	// pipType is the type of the PIP.
-	pipType enums.SIPType
+	// transformed indicates if the SIP should be considered a PIP.
+	transformed bool
 }
 
 // aipInfo represents the AIP.
@@ -123,20 +114,4 @@ type aipInfo struct {
 	// storedAt is set when the preservation system reports the AIP has been
 	// created and stored successfully.
 	storedAt time.Time
-}
-
-// sendToFailed tracks the SIP or PIP data required to send the package to
-// the "failed" package location if processing fails.
-type sendToFailed struct {
-	// path to the SIP or PIP.
-	path string
-
-	// activityName is the name of the activity that will send the package to
-	// the correct "failed" location. The value can be "send-to-failed-sips" or
-	// "send-to-failed-pips".
-	activityName string
-
-	// needsZipping indicates whether the package needs to be zipped before
-	// uploading it to the "failed" location.
-	needsZipping bool
 }

@@ -13,10 +13,10 @@ import (
 )
 
 const (
-	// Name of the SIP processing workflow.
+	// The name of the SIP processing workflow.
 	ProcessingWorkflowName = "processing-workflow"
 
-	// Name of the signal for reviewing a SIP/AIP.
+	// The name of the signal for reviewing a SIP/AIP.
 	ReviewPerformedSignalName = "review-performed-signal"
 )
 
@@ -26,31 +26,35 @@ type ReviewPerformedSignal struct {
 }
 
 type ProcessingWorkflowRequest struct {
-	// Unique identifier of the SIP.
+	// The unique identifier of the SIP.
 	SIPUUID uuid.UUID
 
-	// Name of the SIP.
+	// The name of the SIP.
 	SIPName string
 
-	// Type of workflow to execute.
+	// The type of workflow to execute.
 	Type enums.WorkflowType
 
-	// Name of the watcher that received this blob.
+	// The name of the watcher that received this blob.
 	WatcherName string
 
-	// Period of time to schedule the deletion of the original blob from the
-	// watched data source. nil means no deletion.
+	// The period of time to schedule the deletion of the original blob from the
+	// watched data source, nil means no deletion.
 	RetentionPeriod *time.Duration
 
-	// Directory where the transfer is moved to once processing has completed
+	// The directory where the transfer is moved to once processing has completed
 	// successfully.
 	CompletedDir string
 
-	// Key of the blob.
+	// The key of the blob.
 	Key string
 
-	// Whether the blob is a directory (fs watcher)
+	// Indicates whether the blob is a directory (used by the filesystem watcher).
 	IsDir bool
+
+	// The file extension of the original SIP. If it's missing and the SIP is not a
+	// directory, the workflow will try to obtain the value after download.
+	Extension string
 }
 
 func InitProcessingWorkflow(
