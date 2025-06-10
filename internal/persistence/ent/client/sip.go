@@ -11,6 +11,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 )
 
 // CreateSIP creates and persists a new SIP using the values from s
@@ -28,10 +29,16 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 		return newRequiredFieldError("Name")
 	}
 
-	q := c.ent.SIP.Create().
+	tx, err := c.ent.BeginTx(ctx, nil)
+	if err != nil {
+		return newDBErrorWithDetails(err, "create SIP")
+	}
+
+	q := tx.SIP.Create().
 		SetUUID(s.UUID).
 		SetName(s.Name).
-		SetStatus(s.Status)
+		SetStatus(s.Status).
+		SetCreatedAt(time.Now())
 
 	// Add optional fields.
 	if s.AIPID.Valid {
@@ -44,17 +51,33 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 		q.SetCompletedAt(s.CompletedAt.Time)
 	}
 
-	// Set CreatedAt to the current time
-	q.SetCreatedAt(time.Now())
+	var uploaderUUID *uuid.UUID
+	if s.UploaderID != nil {
+		u, err := tx.User.Query().Where(user.UUID(*s.UploaderID)).Only(ctx)
+		if err != nil {
+			return rollback(tx, newDBErrorWithDetails(err, "create SIP"))
+		}
+		q.SetUser(u)
+		uploaderUUID = &u.UUID
+	}
 
 	// Save the SIP.
 	dbs, err := q.Save(ctx)
 	if err != nil {
-		return newDBErrorWithDetails(err, "create SIP")
+		return rollback(tx, newDBErrorWithDetails(err, "create SIP"))
+	}
+	if err = tx.Commit(); err != nil {
+		return rollback(tx, newDBError(err))
 	}
 
 	// Update SIP with DB data, to get generated values (e.g. ID).
 	*s = *convertSIP(dbs)
+
+	// Manually set the UploaderID because the dbs result doesn't include the
+	// user edge, so we can't directly get the user UUID from it.
+	if uploaderUUID != nil {
+		s.UploaderID = uploaderUUID
+	}
 
 	return nil
 }
@@ -62,8 +85,8 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 // UpdateSIP updates the persisted SIP identified by id using the
 // updater function, then returns the updated SIP.
 //
-// The SIP "ID" and "CreatedAt" field values can not be updated with this
-// method.
+// The SIP "ID", "UUID", "CreatedAt", and "UploaderID" values can not be updated
+// with this method.
 func (c *client) UpdateSIP(
 	ctx context.Context,
 	id uuid.UUID,
@@ -74,20 +97,33 @@ func (c *client) UpdateSIP(
 		return nil, newDBError(err)
 	}
 
-	s, err := tx.SIP.Query().Where(sip.UUID(id)).Only(ctx)
+	// Get the current SIP data from the database.
+	dbs, err := tx.SIP.Query().
+		Where(sip.UUID(id)).
+		WithUser(func(q *db.UserQuery) {
+			q.Select(user.FieldUUID)
+		}).
+		Only(ctx)
 	if err != nil {
 		return nil, rollback(tx, newDBError(err))
 	}
 
 	// Keep database ID in case it's changed by the updater.
-	dbID := s.ID
+	dbID := dbs.ID
 
-	up, err := updater(convertSIP(s))
+	// Get the uploader UUID so we can set it on the returned SIP later.
+	var uploaderID uuid.UUID
+	if dbs.Edges.User != nil {
+		uploaderID = dbs.Edges.User.UUID
+	}
+
+	// Get an updated datatypes.SIP from the updater function.
+	up, err := updater(convertSIP(dbs))
 	if err != nil {
 		return nil, rollback(tx, newUpdaterError(err))
 	}
 
-	// Set required column values.
+	// Save the updated SIP data to the database.
 	q := tx.SIP.UpdateOneID(dbID).SetName(up.Name)
 
 	// Validate columns.
@@ -95,7 +131,7 @@ func (c *client) UpdateSIP(
 		q.SetStatus(up.Status)
 	}
 
-	// Set nullable column values.
+	// Set optional column values.
 	if up.AIPID.Valid {
 		q.SetAipID(up.AIPID.UUID)
 	}
@@ -113,7 +149,7 @@ func (c *client) UpdateSIP(
 	}
 
 	// Save changes.
-	s, err = q.Save(ctx)
+	dbs, err = q.Save(ctx)
 	if err != nil {
 		return nil, rollback(tx, newDBError(err))
 	}
@@ -121,7 +157,14 @@ func (c *client) UpdateSIP(
 		return nil, rollback(tx, newDBError(err))
 	}
 
-	return convertSIP(s), nil
+	s := convertSIP(dbs)
+
+	// Set the UploaderID of the returned SIP.
+	if uploaderID != uuid.Nil {
+		s.UploaderID = &uploaderID
+	}
+
+	return s, nil
 }
 
 // DeleteSIP deletes the persisted SIP identified by id.
@@ -135,7 +178,12 @@ func (c *client) DeleteSIP(ctx context.Context, id int) error {
 
 // ReadSIP returns the SIP identified by id.
 func (c *client) ReadSIP(ctx context.Context, id uuid.UUID) (*datatypes.SIP, error) {
-	s, err := c.ent.SIP.Query().Where(sip.UUID(id)).Only(ctx)
+	s, err := c.ent.SIP.Query().
+		Where(sip.UUID(id)).
+		WithUser(func(q *db.UserQuery) {
+			q.Select(user.FieldUUID)
+		}).
+		Only(ctx)
 	if err != nil {
 		return nil, newDBError(err)
 	}
@@ -153,7 +201,12 @@ func (c *client) ListSIPs(ctx context.Context, f *persistence.SIPFilter) (
 		f = &persistence.SIPFilter{}
 	}
 
-	page, whole := filterSIPs(c.ent.SIP.Query(), f)
+	page, whole := filterSIPs(
+		c.ent.SIP.Query().WithUser(func(q *db.UserQuery) {
+			q.Select(user.FieldUUID)
+		}),
+		f,
+	)
 
 	r, err := page.All(ctx)
 	if err != nil {

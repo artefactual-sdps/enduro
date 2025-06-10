@@ -10,16 +10,20 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
+	"go.artefactual.dev/tools/mockutil"
+	"go.artefactual.dev/tools/ref"
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
 	"gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
 
@@ -47,10 +51,12 @@ func TestUpload(t *testing.T) {
 	t.Parallel()
 
 	uuid0 := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	uuid1 := uuid.MustParse("d3b4f8c0-1e2f-4c5a-8b6d-7e8f9a0b1c2d")
 	key := fmt.Sprintf("%sfirst-%s.zip", ingest.SIPPrefix, uuid0.String())
 
 	for _, tt := range []struct {
 		name          string
+		claims        *auth.Claims
 		mock          func(context.Context, *persistence_fake.MockService, *temporalsdk_mocks.Client)
 		multipartBody string
 		contentType   string
@@ -145,13 +151,89 @@ func TestUpload(t *testing.T) {
 		},
 		{
 			name: "Uploads a SIP",
+			claims: &auth.Claims{
+				ISS: "http://keycloak:7470/realms/artefactual",
+				Sub: "1234567890",
+			},
 			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadOIDCUser(
+					mockutil.Context(),
+					"http://keycloak:7470/realms/artefactual",
+					"1234567890",
+				).Return(&datatypes.User{
+					UUID:    uuid1,
+					Name:    "Test User",
+					Email:   "nobody@example.com",
+					OIDCIss: "http://keycloak:7470/realms/artefactual",
+					OIDCSub: "1234567890",
+				}, nil)
+
 				psvc.EXPECT().CreateSIP(
-					ctx,
+					mockutil.Context(),
 					&datatypes.SIP{
-						UUID:   uuid0,
-						Name:   "first.zip",
-						Status: enums.SIPStatusQueued,
+						UUID:       uuid0,
+						Name:       "first.zip",
+						Status:     enums.SIPStatusQueued,
+						UploaderID: &uuid1,
+					},
+				).Return(nil)
+
+				tc.On(
+					"ExecuteWorkflow",
+					mock.AnythingOfType("*context.timerCtx"),
+					temporalsdk_client.StartWorkflowOptions{
+						ID:                    fmt.Sprintf("processing-workflow-%s", uuid0.String()),
+						TaskQueue:             "test",
+						WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+					},
+					ingest.ProcessingWorkflowName,
+					&ingest.ProcessingWorkflowRequest{
+						SIPUUID:   uuid0,
+						SIPName:   "first.zip",
+						Type:      enums.WorkflowTypeCreateAip,
+						Key:       key,
+						Extension: ".zip",
+					},
+				).Return(nil, nil)
+			},
+			multipartBody: zipMmultipartBody,
+			contentType:   "multipart/form-data; boundary=foobar",
+			maxUploadSize: 102400000,
+			want:          &goaingest.UploadSipResult{UUID: uuid0.String()},
+		},
+		{
+			name: "Uploads a SIP and creates a user",
+			claims: &auth.Claims{
+				Email: "nobody@example.com",
+				Name:  "Test User",
+				ISS:   "http://keycloak:7470/realms/artefactual",
+				Sub:   "1234567890",
+			},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadOIDCUser(
+					mockutil.Context(),
+					"http://keycloak:7470/realms/artefactual",
+					"1234567890",
+				).Return(nil, persistence.ErrNotFound)
+
+				psvc.EXPECT().CreateUser(
+					mockutil.Context(),
+					&datatypes.User{
+						UUID:    uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649"),
+						Name:    "Test User",
+						Email:   "nobody@example.com",
+						OIDCIss: "http://keycloak:7470/realms/artefactual",
+						OIDCSub: "1234567890",
+					},
+				).Return(nil)
+
+				psvc.EXPECT().CreateSIP(
+					mockutil.Context(),
+					&datatypes.SIP{
+						UUID:       uuid0,
+						Name:       "first.zip",
+						Status:     enums.SIPStatusQueued,
+						UploaderID: ref.New(uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")),
 					},
 				).Return(nil)
 
@@ -188,6 +270,10 @@ func TestUpload(t *testing.T) {
 			ctx := t.Context()
 			if tt.mock != nil {
 				tt.mock(ctx, psvc, tc)
+			}
+
+			if tt.claims != nil {
+				ctx = auth.WithUserClaims(ctx, tt.claims)
 			}
 
 			re, err := svc.Goa().UploadSip(ctx, &goaingest.UploadSipPayload{ContentType: tt.contentType}, r)

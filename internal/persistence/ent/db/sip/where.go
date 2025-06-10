@@ -92,6 +92,11 @@ func FailedKey(v string) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldFailedKey, v))
 }
 
+// UploaderID applies equality check predicate on the "uploader_id" field. It's identical to UploaderIDEQ.
+func UploaderID(v int) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldUploaderID, v))
+}
+
 // UUIDEQ applies the EQ predicate on the "uuid" field.
 func UUIDEQ(v uuid.UUID) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldUUID, v))
@@ -532,6 +537,36 @@ func FailedKeyContainsFold(v string) predicate.SIP {
 	return predicate.SIP(sql.FieldContainsFold(FieldFailedKey, v))
 }
 
+// UploaderIDEQ applies the EQ predicate on the "uploader_id" field.
+func UploaderIDEQ(v int) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldUploaderID, v))
+}
+
+// UploaderIDNEQ applies the NEQ predicate on the "uploader_id" field.
+func UploaderIDNEQ(v int) predicate.SIP {
+	return predicate.SIP(sql.FieldNEQ(FieldUploaderID, v))
+}
+
+// UploaderIDIn applies the In predicate on the "uploader_id" field.
+func UploaderIDIn(vs ...int) predicate.SIP {
+	return predicate.SIP(sql.FieldIn(FieldUploaderID, vs...))
+}
+
+// UploaderIDNotIn applies the NotIn predicate on the "uploader_id" field.
+func UploaderIDNotIn(vs ...int) predicate.SIP {
+	return predicate.SIP(sql.FieldNotIn(FieldUploaderID, vs...))
+}
+
+// UploaderIDIsNil applies the IsNil predicate on the "uploader_id" field.
+func UploaderIDIsNil() predicate.SIP {
+	return predicate.SIP(sql.FieldIsNull(FieldUploaderID))
+}
+
+// UploaderIDNotNil applies the NotNil predicate on the "uploader_id" field.
+func UploaderIDNotNil() predicate.SIP {
+	return predicate.SIP(sql.FieldNotNull(FieldUploaderID))
+}
+
 // HasWorkflows applies the HasEdge predicate on the "workflows" edge.
 func HasWorkflows() predicate.SIP {
 	return predicate.SIP(func(s *sql.Selector) {
@@ -547,6 +582,29 @@ func HasWorkflows() predicate.SIP {
 func HasWorkflowsWith(preds ...predicate.Workflow) predicate.SIP {
 	return predicate.SIP(func(s *sql.Selector) {
 		step := newWorkflowsStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasUser applies the HasEdge predicate on the "user" edge.
+func HasUser() predicate.SIP {
+	return predicate.SIP(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
+func HasUserWith(preds ...predicate.User) predicate.SIP {
+	return predicate.SIP(func(s *sql.Selector) {
+		step := newUserStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)
