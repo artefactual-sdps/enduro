@@ -55,6 +55,9 @@ func (SIP) Fields() []ent.Field {
 				Size: 1024,
 			}).
 			Optional(),
+		field.Int("uploader_id").
+			Optional().
+			Positive(),
 	}
 }
 
@@ -63,6 +66,10 @@ func (SIP) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("workflows", Workflow.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
+		edge.From("user", User.Type).
+			Field("uploader_id").
+			Ref("uploaded_sips").
+			Unique(),
 	}
 }
 
@@ -80,5 +87,7 @@ func (SIP) Indexes() []ent.Index {
 			StorageKey("sip_created_at_idx"),
 		index.Fields("started_at").
 			StorageKey("sip_started_at_idx"),
+		index.Fields("uploader_id").
+			StorageKey("sip_uploader_id_idx"),
 	}
 }

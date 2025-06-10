@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 )
 
@@ -25,6 +26,7 @@ type SIPQuery struct {
 	inters        []Interceptor
 	predicates    []predicate.SIP
 	withWorkflows *WorkflowQuery
+	withUser      *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -76,6 +78,28 @@ func (sq *SIPQuery) QueryWorkflows() *WorkflowQuery {
 			sqlgraph.From(sip.Table, sip.FieldID, selector),
 			sqlgraph.To(workflow.Table, workflow.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, sip.WorkflowsTable, sip.WorkflowsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryUser chains the current query on the "user" edge.
+func (sq *SIPQuery) QueryUser() *UserQuery {
+	query := (&UserClient{config: sq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := sq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := sq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(sip.Table, sip.FieldID, selector),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, sip.UserTable, sip.UserColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -276,6 +300,7 @@ func (sq *SIPQuery) Clone() *SIPQuery {
 		inters:        append([]Interceptor{}, sq.inters...),
 		predicates:    append([]predicate.SIP{}, sq.predicates...),
 		withWorkflows: sq.withWorkflows.Clone(),
+		withUser:      sq.withUser.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
@@ -290,6 +315,17 @@ func (sq *SIPQuery) WithWorkflows(opts ...func(*WorkflowQuery)) *SIPQuery {
 		opt(query)
 	}
 	sq.withWorkflows = query
+	return sq
+}
+
+// WithUser tells the query-builder to eager-load the nodes that are connected to
+// the "user" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SIPQuery) WithUser(opts ...func(*UserQuery)) *SIPQuery {
+	query := (&UserClient{config: sq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	sq.withUser = query
 	return sq
 }
 
@@ -371,8 +407,9 @@ func (sq *SIPQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SIP, err
 	var (
 		nodes       = []*SIP{}
 		_spec       = sq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			sq.withWorkflows != nil,
+			sq.withUser != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -397,6 +434,12 @@ func (sq *SIPQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SIP, err
 		if err := sq.loadWorkflows(ctx, query, nodes,
 			func(n *SIP) { n.Edges.Workflows = []*Workflow{} },
 			func(n *SIP, e *Workflow) { n.Edges.Workflows = append(n.Edges.Workflows, e) }); err != nil {
+			return nil, err
+		}
+	}
+	if query := sq.withUser; query != nil {
+		if err := sq.loadUser(ctx, query, nodes, nil,
+			func(n *SIP, e *User) { n.Edges.User = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -433,6 +476,35 @@ func (sq *SIPQuery) loadWorkflows(ctx context.Context, query *WorkflowQuery, nod
 	}
 	return nil
 }
+func (sq *SIPQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*SIP, init func(*SIP), assign func(*SIP, *User)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*SIP)
+	for i := range nodes {
+		fk := nodes[i].UploaderID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(user.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "uploader_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 
 func (sq *SIPQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := sq.querySpec()
@@ -458,6 +530,9 @@ func (sq *SIPQuery) querySpec() *sqlgraph.QuerySpec {
 			if fields[i] != sip.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
+		}
+		if sq.withUser != nil {
+			_spec.Node.AddColumnOnce(sip.FieldUploaderID)
 		}
 	}
 	if ps := sq.predicates; len(ps) > 0 {

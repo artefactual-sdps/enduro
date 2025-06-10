@@ -27,27 +27,23 @@ func TestCreateSIP(t *testing.T) {
 	aipID := uuid.NullUUID{UUID: uuid.New(), Valid: true}
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
+	uploaderID := uuid.New()
 
-	type params struct {
-		sip *datatypes.SIP
-	}
 	tests := []struct {
 		name    string
-		args    params
+		sip     *datatypes.SIP
 		want    *datatypes.SIP
 		wantErr string
 	}{
 		{
 			name: "Saves a new SIP in the DB",
-			args: params{
-				sip: &datatypes.SIP{
-					UUID:        sipUUID,
-					Name:        "Test SIP 1",
-					AIPID:       aipID,
-					Status:      enums.SIPStatusProcessing,
-					StartedAt:   started,
-					CompletedAt: completed,
-				},
+			sip: &datatypes.SIP{
+				UUID:        sipUUID,
+				Name:        "Test SIP 1",
+				AIPID:       aipID,
+				Status:      enums.SIPStatusProcessing,
+				StartedAt:   started,
+				CompletedAt: completed,
 			},
 			want: &datatypes.SIP{
 				ID:          1,
@@ -62,12 +58,10 @@ func TestCreateSIP(t *testing.T) {
 		},
 		{
 			name: "Saves a SIP with missing optional fields",
-			args: params{
-				sip: &datatypes.SIP{
-					UUID:   sipUUID,
-					Name:   "Test SIP 2",
-					Status: enums.SIPStatusProcessing,
-				},
+			sip: &datatypes.SIP{
+				UUID:   sipUUID,
+				Name:   "Test SIP 2",
+				Status: enums.SIPStatusProcessing,
 			},
 			want: &datatypes.SIP{
 				ID:        1,
@@ -78,17 +72,30 @@ func TestCreateSIP(t *testing.T) {
 			},
 		},
 		{
-			name: "Required field error for missing UUID",
-			args: params{
-				sip: &datatypes.SIP{},
+			name: "Saves a SIP with an uploader",
+			sip: &datatypes.SIP{
+				UUID:       sipUUID,
+				Name:       "Test SIP 3",
+				Status:     enums.SIPStatusProcessing,
+				UploaderID: &uploaderID,
 			},
+			want: &datatypes.SIP{
+				ID:         1,
+				UUID:       sipUUID,
+				Name:       "Test SIP 3",
+				Status:     enums.SIPStatusProcessing,
+				CreatedAt:  time.Now(),
+				UploaderID: &uploaderID,
+			},
+		},
+		{
+			name:    "Required field error for missing UUID",
+			sip:     &datatypes.SIP{},
 			wantErr: "invalid data error: field \"UUID\" is required",
 		},
 		{
-			name: "Required field error for missing Name",
-			args: params{
-				sip: &datatypes.SIP{UUID: sipUUID},
-			},
+			name:    "Required field error for missing Name",
+			sip:     &datatypes.SIP{UUID: sipUUID},
 			wantErr: "invalid data error: field \"Name\" is required",
 		},
 	}
@@ -96,11 +103,14 @@ func TestCreateSIP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, svc := setUpClient(t, logr.Discard())
+			c, svc := setUpClient(t, logr.Discard())
 			ctx := t.Context()
-			sip := *tt.args.sip // Make a local copy of sip.
+			sip := *tt.sip // Make a local copy of sip.
 
-			err := svc.CreateSIP(ctx, &sip)
+			_, err := createUser(t, c, uploaderID)
+			assert.NilError(t, err)
+
+			err = svc.CreateSIP(ctx, &sip)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
@@ -128,6 +138,7 @@ func TestUpdateSIP(t *testing.T) {
 		UUID:  uuid.MustParse("7d085541-af56-4444-9ce2-d6401ff4c97b"),
 		Valid: true,
 	}
+	userUUID := uuid.New()
 
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	started2 := sql.NullTime{
@@ -163,6 +174,7 @@ func TestUpdateSIP(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started,
 					CompletedAt: completed,
+					UploaderID:  &userUUID,
 				},
 				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
 					s.ID = 100        // No-op, can't update ID.
@@ -175,6 +187,7 @@ func TestUpdateSIP(t *testing.T) {
 					s.CompletedAt = completed2
 					s.FailedAs = enums.SIPFailedAsSIP
 					s.FailedKey = "failed-key"
+					s.UploaderID = ref.New(uuid.New()) // No-op, can't update UploaderID.
 					return s, nil
 				},
 			},
@@ -189,6 +202,7 @@ func TestUpdateSIP(t *testing.T) {
 				CompletedAt: completed2,
 				FailedAs:    enums.SIPFailedAsSIP,
 				FailedKey:   "failed-key",
+				UploaderID:  &userUUID,
 			},
 		},
 		{
@@ -281,12 +295,16 @@ func TestUpdateSIP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, svc := setUpClient(t, logr.Discard())
+			c, svc := setUpClient(t, logr.Discard())
 			ctx := t.Context()
 
 			if tt.args.sip != nil {
 				sip := *tt.args.sip // Make a local copy of sip.
-				err := svc.CreateSIP(ctx, &sip)
+
+				_, err := createUser(t, c, userUUID)
+				assert.NilError(t, err)
+
+				err = svc.CreateSIP(ctx, &sip)
 				assert.NilError(t, err)
 			}
 
@@ -295,6 +313,7 @@ func TestUpdateSIP(t *testing.T) {
 				assert.Error(t, err, tt.wantErr)
 				return
 			}
+			assert.NilError(t, err)
 
 			assert.DeepEqual(t, sip, tt.want,
 				cmpopts.EquateApproxTime(time.Millisecond*100),
@@ -356,6 +375,8 @@ func TestDeleteSIP(t *testing.T) {
 func TestReadSIP(t *testing.T) {
 	t.Parallel()
 
+	userUUID := uuid.New()
+
 	for _, tt := range []struct {
 		name    string
 		sipUUID uuid.UUID
@@ -376,6 +397,7 @@ func TestReadSIP(t *testing.T) {
 				CompletedAt: sql.NullTime{Time: time.Now().Add(time.Minute), Valid: true},
 				FailedAs:    enums.SIPFailedAsPIP,
 				FailedKey:   "failed-key",
+				UploaderID:  &userUUID,
 			},
 		},
 		{
@@ -391,7 +413,10 @@ func TestReadSIP(t *testing.T) {
 			ctx := t.Context()
 
 			if tt.want != nil {
-				_, err := entc.SIP.Create().
+				user, err := createUser(t, entc, userUUID)
+				assert.NilError(t, err)
+
+				_, err = entc.SIP.Create().
 					SetUUID(tt.want.UUID).
 					SetName(tt.want.Name).
 					SetStatus(tt.want.Status).
@@ -401,6 +426,7 @@ func TestReadSIP(t *testing.T) {
 					SetCompletedAt(tt.want.CompletedAt.Time).
 					SetFailedAs(tt.want.FailedAs).
 					SetFailedKey(tt.want.FailedKey).
+					SetUser(user).
 					Save(ctx)
 				assert.NilError(t, err)
 			}
@@ -430,6 +456,7 @@ func TestListSIPs(t *testing.T) {
 		UUID:  uuid.MustParse("7d085541-af56-4444-9ce2-d6401ff4c97b"),
 		Valid: true,
 	}
+	userUUID := uuid.New()
 
 	started := sql.NullTime{
 		Time: func() time.Time {
@@ -478,6 +505,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
+					UploaderID:  &userUUID,
 				},
 				{
 					UUID:        sipUUID3,
@@ -510,6 +538,7 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
+						UploaderID:  &userUUID,
 					},
 					{
 						ID:          3,
@@ -589,6 +618,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
+					UploaderID:  &userUUID,
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
@@ -605,6 +635,7 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
+						UploaderID:  &userUUID,
 					},
 				},
 				page: &persistence.Page{
@@ -859,6 +890,7 @@ func TestListSIPs(t *testing.T) {
 						SetCreatedAt(time.Now()).
 						SetStartedAt(sip.StartedAt.Time).
 						SetCompletedAt(sip.CompletedAt.Time)
+
 					if sip.AIPID.Valid {
 						q.SetAipID(sip.AIPID.UUID)
 					}
@@ -868,6 +900,12 @@ func TestListSIPs(t *testing.T) {
 					if sip.FailedKey != "" {
 						q.SetFailedKey(sip.FailedKey)
 					}
+					if sip.UploaderID != nil {
+						user, err := createUser(t, entc, userUUID)
+						assert.NilError(t, err)
+						q.SetUser(user)
+					}
+
 					_, err := q.Save(ctx)
 					assert.NilError(t, err)
 				}

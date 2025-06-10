@@ -21,12 +21,21 @@ var (
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "failed_as", Type: field.TypeEnum, Nullable: true, Enums: []string{"SIP", "PIP"}},
 		{Name: "failed_key", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "uploader_id", Type: field.TypeInt, Nullable: true},
 	}
 	// SipTable holds the schema information for the "sip" table.
 	SipTable = &schema.Table{
 		Name:       "sip",
 		Columns:    SipColumns,
 		PrimaryKey: []*schema.Column{SipColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "sip_user_uploaded_sips",
+				Columns:    []*schema.Column{SipColumns[10]},
+				RefColumns: []*schema.Column{UserColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
 		Indexes: []*schema.Index{
 			{
 				Name:    "sip_name_idx",
@@ -56,6 +65,11 @@ var (
 				Unique:  false,
 				Columns: []*schema.Column{SipColumns[6]},
 			},
+			{
+				Name:    "sip_uploader_id_idx",
+				Unique:  false,
+				Columns: []*schema.Column{SipColumns[10]},
+			},
 		},
 	}
 	// TaskColumns holds the columns for the "task" table.
@@ -80,6 +94,40 @@ var (
 				Columns:    []*schema.Column{TaskColumns[7]},
 				RefColumns: []*schema.Column{WorkflowColumns[0]},
 				OnDelete:   schema.Cascade,
+			},
+		},
+	}
+	// UserColumns holds the columns for the "user" table.
+	UserColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
+		{Name: "email", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "name", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "oidc_iss", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "oidc_sub", Type: field.TypeString, Nullable: true, Size: 1024},
+	}
+	// UserTable holds the schema information for the "user" table.
+	UserTable = &schema.Table{
+		Name:       "user",
+		Columns:    UserColumns,
+		PrimaryKey: []*schema.Column{UserColumns[0]},
+		Indexes: []*schema.Index{
+			{
+				Name:    "user_oidc_iss_idx",
+				Unique:  false,
+				Columns: []*schema.Column{UserColumns[5]},
+				Annotation: &entsql.IndexAnnotation{
+					Prefix: 50,
+				},
+			},
+			{
+				Name:    "user_oidc_sub_idx",
+				Unique:  false,
+				Columns: []*schema.Column{UserColumns[6]},
+				Annotation: &entsql.IndexAnnotation{
+					Prefix: 50,
+				},
 			},
 		},
 	}
@@ -111,17 +159,22 @@ var (
 	Tables = []*schema.Table{
 		SipTable,
 		TaskTable,
+		UserTable,
 		WorkflowTable,
 	}
 )
 
 func init() {
+	SipTable.ForeignKeys[0].RefTable = UserTable
 	SipTable.Annotation = &entsql.Annotation{
 		Table: "sip",
 	}
 	TaskTable.ForeignKeys[0].RefTable = WorkflowTable
 	TaskTable.Annotation = &entsql.Annotation{
 		Table: "task",
+	}
+	UserTable.Annotation = &entsql.Annotation{
+		Table: "user",
 	}
 	WorkflowTable.ForeignKeys[0].RefTable = SipTable
 	WorkflowTable.Annotation = &entsql.Annotation{

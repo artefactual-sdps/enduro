@@ -34,8 +34,12 @@ const (
 	FieldFailedAs = "failed_as"
 	// FieldFailedKey holds the string denoting the failed_key field in the database.
 	FieldFailedKey = "failed_key"
+	// FieldUploaderID holds the string denoting the uploader_id field in the database.
+	FieldUploaderID = "uploader_id"
 	// EdgeWorkflows holds the string denoting the workflows edge name in mutations.
 	EdgeWorkflows = "workflows"
+	// EdgeUser holds the string denoting the user edge name in mutations.
+	EdgeUser = "user"
 	// Table holds the table name of the sip in the database.
 	Table = "sip"
 	// WorkflowsTable is the table that holds the workflows relation/edge.
@@ -45,6 +49,13 @@ const (
 	WorkflowsInverseTable = "workflow"
 	// WorkflowsColumn is the table column denoting the workflows relation/edge.
 	WorkflowsColumn = "sip_id"
+	// UserTable is the table that holds the user relation/edge.
+	UserTable = "sip"
+	// UserInverseTable is the table name for the User entity.
+	// It exists in this package in order to avoid circular dependency with the "user" package.
+	UserInverseTable = "user"
+	// UserColumn is the table column denoting the user relation/edge.
+	UserColumn = "uploader_id"
 )
 
 // Columns holds all SQL columns for sip fields.
@@ -59,6 +70,7 @@ var Columns = []string{
 	FieldCompletedAt,
 	FieldFailedAs,
 	FieldFailedKey,
+	FieldUploaderID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -74,6 +86,8 @@ func ValidColumn(column string) bool {
 var (
 	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
 	DefaultCreatedAt func() time.Time
+	// UploaderIDValidator is a validator for the "uploader_id" field. It is called by the builders before save.
+	UploaderIDValidator func(int) error
 )
 
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
@@ -149,6 +163,11 @@ func ByFailedKey(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFailedKey, opts...).ToFunc()
 }
 
+// ByUploaderID orders the results by the uploader_id field.
+func ByUploaderID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUploaderID, opts...).ToFunc()
+}
+
 // ByWorkflowsCount orders the results by workflows count.
 func ByWorkflowsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -162,10 +181,24 @@ func ByWorkflows(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newWorkflowsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByUserField orders the results by user field.
+func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newWorkflowsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(WorkflowsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, WorkflowsTable, WorkflowsColumn),
+	)
+}
+func newUserStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UserInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
 	)
 }

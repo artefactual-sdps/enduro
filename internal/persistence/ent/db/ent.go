@@ -14,6 +14,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 )
 
@@ -77,6 +78,7 @@ func checkColumn(table, column string) error {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			sip.Table:      sip.ValidColumn,
 			task.Table:     task.ValidColumn,
+			user.Table:     user.ValidColumn,
 			workflow.Table: workflow.ValidColumn,
 		})
 	})

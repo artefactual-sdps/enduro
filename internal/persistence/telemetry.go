@@ -143,3 +143,43 @@ func (w *wrapper) UpdateTask(
 
 	return r, nil
 }
+
+func (w *wrapper) CreateUser(ctx context.Context, user *datatypes.User) error {
+	ctx, span := w.tracer.Start(ctx, "CreateUser")
+	defer span.End()
+
+	err := w.wrapped.CreateUser(ctx, user)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return updateError(err, "CreateUser")
+	}
+
+	return nil
+}
+
+func (w *wrapper) ReadUser(ctx context.Context, id uuid.UUID) (*datatypes.User, error) {
+	ctx, span := w.tracer.Start(ctx, "ReadUser")
+	defer span.End()
+	span.SetAttributes(attribute.String("id", id.String()))
+
+	u, err := w.wrapped.ReadUser(ctx, id)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ReadUser")
+	}
+
+	return u, nil
+}
+
+func (w *wrapper) ReadOIDCUser(ctx context.Context, iss, sub string) (*datatypes.User, error) {
+	ctx, span := w.tracer.Start(ctx, "ReadOIDCUser")
+	defer span.End()
+
+	u, err := w.wrapped.ReadOIDCUser(ctx, iss, sub)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ReadOIDCUser")
+	}
+
+	return u, nil
+}

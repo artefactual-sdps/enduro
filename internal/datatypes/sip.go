@@ -12,28 +12,31 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
-// SIP represents a SIP in the sip table.
+// SIP represents a SIP.
 type SIP struct {
-	ID     int             `db:"id"`
-	UUID   uuid.UUID       `db:"uuid"`
-	Name   string          `db:"name"`
-	AIPID  uuid.NullUUID   `db:"aip_id"` // Nullable.
-	Status enums.SIPStatus `db:"status"`
+	ID     int
+	UUID   uuid.UUID
+	Name   string
+	AIPID  uuid.NullUUID // Nullable.
+	Status enums.SIPStatus
 
 	// It defaults to CURRENT_TIMESTAMP(6) so populated as soon as possible.
-	CreatedAt time.Time `db:"created_at"`
+	CreatedAt time.Time
 
 	// Nullable, populated as soon as processing starts.
-	StartedAt sql.NullTime `db:"started_at"`
+	StartedAt sql.NullTime
 
 	// Nullable, populated as soon as ingest completes.
-	CompletedAt sql.NullTime `db:"completed_at"`
+	CompletedAt sql.NullTime
 
 	// Set if there is a failure in workflow, it can be empty.
-	FailedAs enums.SIPFailedAs `db:"failed_as"`
+	FailedAs enums.SIPFailedAs
 
 	// Object key from the failed SIP/PIP in the internal bucket.
-	FailedKey string `db:"failed_key"`
+	FailedKey string
+
+	// UploaderID is the ID of the user that uploaded the SIP.
+	UploaderID *uuid.UUID
 }
 
 // Goa returns the API representation of the SIP.
