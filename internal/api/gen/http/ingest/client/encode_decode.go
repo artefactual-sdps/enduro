@@ -1140,6 +1140,8 @@ func unmarshalSIPResponseBodyToIngestviewsSIPView(v *SIPResponseBody) *ingestvie
 		CreatedAt:   v.CreatedAt,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
+		FailedAs:    v.FailedAs,
+		FailedKey:   v.FailedKey,
 	}
 
 	return res

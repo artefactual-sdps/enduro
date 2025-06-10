@@ -128,6 +128,7 @@ func nullUUID(s string) uuid.NullUUID {
 var (
 	sipUUID1 = uuid.New()
 	sipUUID2 = uuid.New()
+	sipUUID3 = uuid.New()
 	testSIPs = []*datatypes.SIP{
 		{
 			ID:        1,
@@ -161,6 +162,23 @@ var (
 				Valid: true,
 			},
 		},
+		{
+			ID:        3,
+			UUID:      sipUUID3,
+			Name:      "Test SIP 3",
+			Status:    enums.SIPStatusError,
+			CreatedAt: time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
+			StartedAt: sql.NullTime{
+				Time:  time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
+				Valid: true,
+			},
+			CompletedAt: sql.NullTime{
+				Time:  time.Date(2024, 10, 1, 17, 13, 28, 0, time.UTC),
+				Valid: true,
+			},
+			FailedAs:  enums.SIPFailedAsSIP,
+			FailedKey: "failed-key",
+		},
 	}
 )
 
@@ -185,7 +203,7 @@ func TestList(t *testing.T) {
 					},
 				).Return(
 					testSIPs,
-					&persistence.Page{Limit: 20, Total: 2},
+					&persistence.Page{Limit: 20, Total: 3},
 					nil,
 				)
 			},
@@ -209,10 +227,20 @@ func TestList(t *testing.T) {
 						StartedAt:   ref.New("2024-10-01T17:13:27Z"),
 						CompletedAt: ref.New("2024-10-01T17:13:28Z"),
 					},
+					{
+						UUID:        sipUUID3,
+						Name:        ref.New("Test SIP 3"),
+						Status:      enums.SIPStatusError.String(),
+						CreatedAt:   "2024-10-01T17:13:26Z",
+						StartedAt:   ref.New("2024-10-01T17:13:27Z"),
+						CompletedAt: ref.New("2024-10-01T17:13:28Z"),
+						FailedAs:    ref.New(enums.SIPFailedAsSIP.String()),
+						FailedKey:   ref.New("failed-key"),
+					},
 				},
 				Page: &goaingest.EnduroPage{
 					Limit: 20,
-					Total: 2,
+					Total: 3,
 				},
 			},
 		},
@@ -328,7 +356,7 @@ func TestList(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			ctx := t.Context()
 			ctrl := gomock.NewController(t)
 			svc := persistence_fake.NewMockService(ctrl)
 

@@ -62,6 +62,10 @@ type SIPView struct {
 	StartedAt *string
 	// Completion datetime
 	CompletedAt *string
+	// Package type in case of failure (SIP or PIP)
+	FailedAs *string
+	// Object key of the failed package in the internal bucket
+	FailedKey *string
 }
 
 // EnduroPageView is a type that runs validations on a projected type.
@@ -129,6 +133,8 @@ var (
 			"created_at",
 			"started_at",
 			"completed_at",
+			"failed_as",
+			"failed_key",
 		},
 	}
 	// SIPWorkflowsMap is a map indexing the attribute names of SIPWorkflows by
@@ -149,6 +155,8 @@ var (
 			"created_at",
 			"started_at",
 			"completed_at",
+			"failed_as",
+			"failed_key",
 		},
 	}
 	// EnduroPageMap is a map indexing the attribute names of EnduroPage by view
@@ -325,6 +333,11 @@ func ValidateSIPView(result *SIPView) (err error) {
 	}
 	if result.CompletedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
+	}
+	if result.FailedAs != nil {
+		if !(*result.FailedAs == "SIP" || *result.FailedAs == "PIP") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.failed_as", *result.FailedAs, []any{"SIP", "PIP"}))
+		}
 	}
 	return
 }

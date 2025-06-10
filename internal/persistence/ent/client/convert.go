@@ -35,6 +35,8 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 		CreatedAt:   sip.CreatedAt,
 		StartedAt:   started,
 		CompletedAt: completed,
+		FailedAs:    sip.FailedAs,
+		FailedKey:   sip.FailedKey,
 	}
 }
 

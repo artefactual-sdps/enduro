@@ -67,6 +67,10 @@ type ShowSipResponseBody struct {
 	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	// Completion datetime
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	// Package type in case of failure (SIP or PIP)
+	FailedAs *string `form:"failed_as,omitempty" json:"failed_as,omitempty" xml:"failed_as,omitempty"`
+	// Object key of the failed package in the internal bucket
+	FailedKey *string `form:"failed_key,omitempty" json:"failed_key,omitempty" xml:"failed_key,omitempty"`
 }
 
 // ListSipWorkflowsResponseBody is the type of the "ingest" service
@@ -336,6 +340,10 @@ type SIPResponseBody struct {
 	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	// Completion datetime
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	// Package type in case of failure (SIP or PIP)
+	FailedAs *string `form:"failed_as,omitempty" json:"failed_as,omitempty" xml:"failed_as,omitempty"`
+	// Object key of the failed package in the internal bucket
+	FailedKey *string `form:"failed_key,omitempty" json:"failed_key,omitempty" xml:"failed_key,omitempty"`
 }
 
 // EnduroPageResponseBody is used to define fields on response body types.
@@ -456,6 +464,8 @@ func NewShowSipResponseBody(res *ingestviews.SIPView) *ShowSipResponseBody {
 		CreatedAt:   *res.CreatedAt,
 		StartedAt:   res.StartedAt,
 		CompletedAt: res.CompletedAt,
+		FailedAs:    res.FailedAs,
+		FailedKey:   res.FailedKey,
 	}
 	return body
 }

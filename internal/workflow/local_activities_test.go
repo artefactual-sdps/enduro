@@ -135,6 +135,7 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 	aipUUID := uuid.New()
 	name := "Test SIP"
 	completedAt := time.Now()
+	failedKey := "failed-key"
 
 	for _, tt := range []struct {
 		name      string
@@ -150,6 +151,8 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 				Status:      enums.SIPStatusIngested,
 				CompletedAt: completedAt,
 				AIPUUID:     aipUUID.String(),
+				FailedAs:    enums.SIPFailedAsSIP,
+				FailedKey:   failedKey,
 			},
 			mockCalls: func(ctx context.Context, svc *ingest_fake.MockService) {
 				svc.EXPECT().
@@ -165,6 +168,8 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 								assert.DeepEqual(t, s.Status, enums.SIPStatusIngested)
 								assert.DeepEqual(t, s.CompletedAt, sql.NullTime{Valid: true, Time: completedAt})
 								assert.DeepEqual(t, s.AIPID, uuid.NullUUID{Valid: true, UUID: aipUUID})
+								assert.DeepEqual(t, s.FailedAs, enums.SIPFailedAsSIP)
+								assert.DeepEqual(t, s.FailedKey, failedKey)
 								return nil
 							},
 						),
@@ -198,6 +203,34 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 					Return(nil, errors.New("invalid status: "))
 			},
 			wantErr: "invalid status: ",
+		},
+		{
+			name: "Fails to update a SIP (invalid failed as)",
+			params: &updateSIPLocalActivityParams{
+				UUID:        sipUUID,
+				Name:        name,
+				Status:      enums.SIPStatusIngested,
+				CompletedAt: completedAt,
+				AIPUUID:     aipUUID.String(),
+				FailedAs:    "invalid",
+			},
+			mockCalls: func(ctx context.Context, svc *ingest_fake.MockService) {
+				svc.EXPECT().
+					UpdateSIP(
+						ctx,
+						sipUUID,
+						mockutil.Func(
+							"should fail to update sip",
+							func(updater persistence.SIPUpdater) error {
+								_, err := updater(&datatypes.SIP{})
+								assert.ErrorContains(t, err, "invalid failed as: invalid")
+								return nil
+							},
+						),
+					).
+					Return(nil, errors.New("invalid failed as: invalid"))
+			},
+			wantErr: "invalid failed as: invalid",
 		},
 		{
 			name: "Fails to update a SIP (invalid AIP UUID)",

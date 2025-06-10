@@ -85,6 +85,15 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 		state.sip.status = enums.SIPStatusError
 	}
 
+	// Determine if it failed as a SIP or as a PIP
+	var failedAs enums.SIPFailedAs
+	if state.sip.failed_key != "" {
+		failedAs = enums.SIPFailedAsSIP
+		if state.sip.transformed {
+			failedAs = enums.SIPFailedAsPIP
+		}
+	}
+
 	// Use a disconnected context so it also runs after cancellation.
 	dctx, _ := temporalsdk_workflow.NewDisconnectedContext(ctx)
 	activityOpts := withLocalActivityOpts(dctx)
@@ -99,6 +108,8 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 			AIPUUID:     state.aip.id,
 			CompletedAt: temporalsdk_workflow.Now(dctx).UTC(),
 			Status:      state.sip.status,
+			FailedAs:    failedAs,
+			FailedKey:   state.sip.failed_key,
 		},
 	).Get(activityOpts, nil)
 	if err != nil {
@@ -1199,8 +1210,14 @@ func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 		ext = ".zip"
 		prefix = ingest.FailedPIPPrefix
 	}
-	name := strings.TrimSuffix(state.sip.name, ext)
-	key := fmt.Sprintf("%s%s-%s%s", prefix, name, state.sip.uuid.String(), ext)
+
+	state.sip.failed_key = fmt.Sprintf(
+		"%s%s-%s%s",
+		prefix,
+		strings.TrimSuffix(state.sip.name, ext),
+		state.sip.uuid.String(),
+		ext,
+	)
 
 	// The SIP is already in the internal bucket.
 	if state.req.WatcherName == "" && !state.sip.transformed {
@@ -1211,7 +1228,7 @@ func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 			bucketcopy.Name,
 			&bucketcopy.Params{
 				SourceKey: state.req.Key,
-				DestKey:   key,
+				DestKey:   state.sip.failed_key,
 			},
 		).Get(activityOpts, nil)
 		if err != nil {
@@ -1252,7 +1269,7 @@ func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 		bucketupload.Name,
 		&bucketupload.Params{
 			Path:       path,
-			Key:        key,
+			Key:        state.sip.failed_key,
 			BufferSize: 100_000_000,
 		},
 	).Get(activityOpts, nil)

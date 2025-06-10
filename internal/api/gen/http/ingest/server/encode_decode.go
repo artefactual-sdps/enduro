@@ -890,6 +890,8 @@ func marshalIngestviewsSIPViewToSIPResponseBody(v *ingestviews.SIPView) *SIPResp
 		CreatedAt:   *v.CreatedAt,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
+		FailedAs:    v.FailedAs,
+		FailedKey:   v.FailedKey,
 	}
 
 	return res

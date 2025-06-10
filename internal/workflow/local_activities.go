@@ -44,6 +44,8 @@ type updateSIPLocalActivityParams struct {
 	AIPUUID     string
 	CompletedAt time.Time
 	Status      enums.SIPStatus
+	FailedAs    enums.SIPFailedAs
+	FailedKey   string
 }
 
 type updateSIPLocalActivityResult struct{}
@@ -59,9 +61,15 @@ func updateSIPLocalActivity(
 		func(s *datatypes.SIP) (*datatypes.SIP, error) {
 			s.Name = params.Name
 			s.Status = params.Status
+			s.FailedAs = params.FailedAs
+			s.FailedKey = params.FailedKey
 
 			if !params.Status.IsValid() {
 				return nil, fmt.Errorf("invalid status: %s", params.Status)
+			}
+
+			if params.FailedAs != "" && !params.FailedAs.IsValid() {
+				return nil, fmt.Errorf("invalid failed as: %s", params.FailedAs)
 			}
 
 			if params.AIPUUID != "" {

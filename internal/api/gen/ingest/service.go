@@ -170,6 +170,10 @@ type SIP struct {
 	StartedAt *string
 	// Completion datetime
 	CompletedAt *string
+	// Package type in case of failure (SIP or PIP)
+	FailedAs *string
+	// Object key of the failed package in the internal bucket
+	FailedKey *string
 }
 
 type SIPCollection []*SIP
@@ -464,6 +468,8 @@ func newSIP(vres *ingestviews.SIPView) *SIP {
 		AipID:       vres.AipID,
 		StartedAt:   vres.StartedAt,
 		CompletedAt: vres.CompletedAt,
+		FailedAs:    vres.FailedAs,
+		FailedKey:   vres.FailedKey,
 	}
 	if vres.UUID != nil {
 		res.UUID = *vres.UUID
@@ -488,6 +494,8 @@ func newSIPView(res *SIP) *ingestviews.SIPView {
 		CreatedAt:   &res.CreatedAt,
 		StartedAt:   res.StartedAt,
 		CompletedAt: res.CompletedAt,
+		FailedAs:    res.FailedAs,
+		FailedKey:   res.FailedKey,
 	}
 	return vres
 }

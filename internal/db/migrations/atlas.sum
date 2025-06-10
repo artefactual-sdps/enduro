@@ -1,4 +1,4 @@
-h1:5+ImJWovscl2gKZmnPcxYDZ9XRSpCmkaQ41OZYXvmMI=
+h1:InQx0l4FUJC4qGP5vF6Q2CSLsQeFK9EQC3/6spvhamc=
 1570659451_init.up.sql h1:zyiKKl39RqMxuEhop5jeeiPTxPiSSq00Tn6u06gyNmk=
 1710442322_nullable_aip_id.up.sql h1:vL4eG5YELXr3k4ymhHuRD/R7KpNt3/DNRhH26t83x3A=
 20250207193001_rename_package_table.up.sql h1:d2RjfIturPoFYMMtFocrMvvjEXEqDXDdxQRttcknX/0=
@@ -11,3 +11,4 @@ h1:5+ImJWovscl2gKZmnPcxYDZ9XRSpCmkaQ41OZYXvmMI=
 20250509030046_restore_sip_status_index.up.sql h1:8iKBW+nC9mgEs6PqQJ4Frq1IGJOjedAyhm3dO27yVZw=
 20250509030521_add_sip_uuid_column.up.sql h1:rtcC2HuAOJZI+/7ZkWrlrTn+wkrZ34BRqLK5bJRo3h8=
 20250519181224_update_workflow_types.up.sql h1:E17yEe45fUHXiQpU/cKINtqUZbEkN3jYNJd+SwcysC0=
+20250528183140_add_failed_columns_to_sip_table.up.sql h1:ggwXsUY9uWeE8B26fPClG/Ll1fj2UTZyT8RBV7AmUz0=

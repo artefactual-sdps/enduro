@@ -90,6 +90,9 @@ type sipInfo struct {
 
 	// transformed indicates if the SIP should be considered a PIP.
 	transformed bool
+
+	// failed_key is the object key of the failed SIP/PIP in the internal bucket.
+	failed_key string
 }
 
 // aipInfo represents the AIP.

@@ -233,6 +233,10 @@ var EnumSIPStatus = func() {
 	Enum(enums.SIPStatusInterfaces()...)
 }
 
+var EnumSIPFailedAs = func() {
+	Enum(enums.SIPFailedAsInterfaces()...)
+}
+
 var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 	Description("SIP describes an ingest SIP type.")
 	TypeName("SIP")
@@ -252,6 +256,10 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 		Attribute("completed_at", String, "Completion datetime", func() {
 			Format(FormatDateTime)
 		})
+		Attribute("failed_as", String, "Package type in case of failure (SIP or PIP)", func() {
+			EnumSIPFailedAs()
+		})
+		Attribute("failed_key", String, "Object key of the failed package in the internal bucket")
 	})
 	View("default", func() {
 		Attribute("uuid")
@@ -261,6 +269,8 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 		Attribute("created_at")
 		Attribute("started_at")
 		Attribute("completed_at")
+		Attribute("failed_as")
+		Attribute("failed_key")
 	})
 	Required("uuid", "status", "created_at")
 })

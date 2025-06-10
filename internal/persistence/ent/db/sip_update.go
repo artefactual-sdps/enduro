@@ -119,6 +119,46 @@ func (su *SIPUpdate) ClearCompletedAt() *SIPUpdate {
 	return su
 }
 
+// SetFailedAs sets the "failed_as" field.
+func (su *SIPUpdate) SetFailedAs(efa enums.SIPFailedAs) *SIPUpdate {
+	su.mutation.SetFailedAs(efa)
+	return su
+}
+
+// SetNillableFailedAs sets the "failed_as" field if the given value is not nil.
+func (su *SIPUpdate) SetNillableFailedAs(efa *enums.SIPFailedAs) *SIPUpdate {
+	if efa != nil {
+		su.SetFailedAs(*efa)
+	}
+	return su
+}
+
+// ClearFailedAs clears the value of the "failed_as" field.
+func (su *SIPUpdate) ClearFailedAs() *SIPUpdate {
+	su.mutation.ClearFailedAs()
+	return su
+}
+
+// SetFailedKey sets the "failed_key" field.
+func (su *SIPUpdate) SetFailedKey(s string) *SIPUpdate {
+	su.mutation.SetFailedKey(s)
+	return su
+}
+
+// SetNillableFailedKey sets the "failed_key" field if the given value is not nil.
+func (su *SIPUpdate) SetNillableFailedKey(s *string) *SIPUpdate {
+	if s != nil {
+		su.SetFailedKey(*s)
+	}
+	return su
+}
+
+// ClearFailedKey clears the value of the "failed_key" field.
+func (su *SIPUpdate) ClearFailedKey() *SIPUpdate {
+	su.mutation.ClearFailedKey()
+	return su
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (su *SIPUpdate) AddWorkflowIDs(ids ...int) *SIPUpdate {
 	su.mutation.AddWorkflowIDs(ids...)
@@ -194,6 +234,11 @@ func (su *SIPUpdate) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "SIP.status": %w`, err)}
 		}
 	}
+	if v, ok := su.mutation.FailedAs(); ok {
+		if err := sip.FailedAsValidator(v); err != nil {
+			return &ValidationError{Name: "failed_as", err: fmt.Errorf(`db: validator failed for field "SIP.failed_as": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -232,6 +277,18 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if su.mutation.CompletedAtCleared() {
 		_spec.ClearField(sip.FieldCompletedAt, field.TypeTime)
+	}
+	if value, ok := su.mutation.FailedAs(); ok {
+		_spec.SetField(sip.FieldFailedAs, field.TypeEnum, value)
+	}
+	if su.mutation.FailedAsCleared() {
+		_spec.ClearField(sip.FieldFailedAs, field.TypeEnum)
+	}
+	if value, ok := su.mutation.FailedKey(); ok {
+		_spec.SetField(sip.FieldFailedKey, field.TypeString, value)
+	}
+	if su.mutation.FailedKeyCleared() {
+		_spec.ClearField(sip.FieldFailedKey, field.TypeString)
 	}
 	if su.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -386,6 +443,46 @@ func (suo *SIPUpdateOne) ClearCompletedAt() *SIPUpdateOne {
 	return suo
 }
 
+// SetFailedAs sets the "failed_as" field.
+func (suo *SIPUpdateOne) SetFailedAs(efa enums.SIPFailedAs) *SIPUpdateOne {
+	suo.mutation.SetFailedAs(efa)
+	return suo
+}
+
+// SetNillableFailedAs sets the "failed_as" field if the given value is not nil.
+func (suo *SIPUpdateOne) SetNillableFailedAs(efa *enums.SIPFailedAs) *SIPUpdateOne {
+	if efa != nil {
+		suo.SetFailedAs(*efa)
+	}
+	return suo
+}
+
+// ClearFailedAs clears the value of the "failed_as" field.
+func (suo *SIPUpdateOne) ClearFailedAs() *SIPUpdateOne {
+	suo.mutation.ClearFailedAs()
+	return suo
+}
+
+// SetFailedKey sets the "failed_key" field.
+func (suo *SIPUpdateOne) SetFailedKey(s string) *SIPUpdateOne {
+	suo.mutation.SetFailedKey(s)
+	return suo
+}
+
+// SetNillableFailedKey sets the "failed_key" field if the given value is not nil.
+func (suo *SIPUpdateOne) SetNillableFailedKey(s *string) *SIPUpdateOne {
+	if s != nil {
+		suo.SetFailedKey(*s)
+	}
+	return suo
+}
+
+// ClearFailedKey clears the value of the "failed_key" field.
+func (suo *SIPUpdateOne) ClearFailedKey() *SIPUpdateOne {
+	suo.mutation.ClearFailedKey()
+	return suo
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (suo *SIPUpdateOne) AddWorkflowIDs(ids ...int) *SIPUpdateOne {
 	suo.mutation.AddWorkflowIDs(ids...)
@@ -474,6 +571,11 @@ func (suo *SIPUpdateOne) check() error {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "SIP.status": %w`, err)}
 		}
 	}
+	if v, ok := suo.mutation.FailedAs(); ok {
+		if err := sip.FailedAsValidator(v); err != nil {
+			return &ValidationError{Name: "failed_as", err: fmt.Errorf(`db: validator failed for field "SIP.failed_as": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -529,6 +631,18 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 	}
 	if suo.mutation.CompletedAtCleared() {
 		_spec.ClearField(sip.FieldCompletedAt, field.TypeTime)
+	}
+	if value, ok := suo.mutation.FailedAs(); ok {
+		_spec.SetField(sip.FieldFailedAs, field.TypeEnum, value)
+	}
+	if suo.mutation.FailedAsCleared() {
+		_spec.ClearField(sip.FieldFailedAs, field.TypeEnum)
+	}
+	if value, ok := suo.mutation.FailedKey(); ok {
+		_spec.SetField(sip.FieldFailedKey, field.TypeString, value)
+	}
+	if suo.mutation.FailedKeyCleared() {
+		_spec.ClearField(sip.FieldFailedKey, field.TypeString)
 	}
 	if suo.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{

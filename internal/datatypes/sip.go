@@ -28,6 +28,12 @@ type SIP struct {
 
 	// Nullable, populated as soon as ingest completes.
 	CompletedAt sql.NullTime `db:"completed_at"`
+
+	// Set if there is a failure in workflow, it can be empty.
+	FailedAs enums.SIPFailedAs `db:"failed_as"`
+
+	// Object key from the failed SIP/PIP in the internal bucket.
+	FailedKey string `db:"failed_key"`
 }
 
 // Goa returns the API representation of the SIP.
@@ -46,6 +52,12 @@ func (s *SIP) Goa() *goaingest.SIP {
 	}
 	if s.AIPID.Valid {
 		col.AipID = ref.New(s.AIPID.UUID.String())
+	}
+	if s.FailedAs != "" {
+		col.FailedAs = ref.New(s.FailedAs.String())
+	}
+	if s.FailedKey != "" {
+		col.FailedKey = ref.New(s.FailedKey)
 	}
 
 	return &col

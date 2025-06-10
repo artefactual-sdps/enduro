@@ -105,6 +105,12 @@ func (c *client) UpdateSIP(
 	if up.CompletedAt.Valid {
 		q.SetCompletedAt(up.CompletedAt.Time)
 	}
+	if up.FailedAs.IsValid() {
+		q.SetFailedAs(up.FailedAs)
+	}
+	if up.FailedKey != "" {
+		q.SetFailedKey(up.FailedKey)
+	}
 
 	// Save changes.
 	s, err = q.Save(ctx)

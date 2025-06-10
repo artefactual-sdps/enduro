@@ -19,6 +19,8 @@ var (
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "started_at", Type: field.TypeTime, Nullable: true},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "failed_as", Type: field.TypeEnum, Nullable: true, Enums: []string{"SIP", "PIP"}},
+		{Name: "failed_key", Type: field.TypeString, Nullable: true, Size: 1024},
 	}
 	// SipTable holds the schema information for the "sip" table.
 	SipTable = &schema.Table{

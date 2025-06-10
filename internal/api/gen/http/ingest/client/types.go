@@ -67,6 +67,10 @@ type ShowSipResponseBody struct {
 	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	// Completion datetime
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	// Package type in case of failure (SIP or PIP)
+	FailedAs *string `form:"failed_as,omitempty" json:"failed_as,omitempty" xml:"failed_as,omitempty"`
+	// Object key of the failed package in the internal bucket
+	FailedKey *string `form:"failed_key,omitempty" json:"failed_key,omitempty" xml:"failed_key,omitempty"`
 }
 
 // ListSipWorkflowsResponseBody is the type of the "ingest" service
@@ -336,6 +340,10 @@ type SIPResponseBody struct {
 	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	// Completion datetime
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	// Package type in case of failure (SIP or PIP)
+	FailedAs *string `form:"failed_as,omitempty" json:"failed_as,omitempty" xml:"failed_as,omitempty"`
+	// Object key of the failed package in the internal bucket
+	FailedKey *string `form:"failed_key,omitempty" json:"failed_key,omitempty" xml:"failed_key,omitempty"`
 }
 
 // EnduroPageResponseBody is used to define fields on response body types.
@@ -559,6 +567,8 @@ func NewShowSipSIPOK(body *ShowSipResponseBody) *ingestviews.SIPView {
 		CreatedAt:   body.CreatedAt,
 		StartedAt:   body.StartedAt,
 		CompletedAt: body.CompletedAt,
+		FailedAs:    body.FailedAs,
+		FailedKey:   body.FailedKey,
 	}
 
 	return v
@@ -1226,6 +1236,11 @@ func ValidateSIPResponseBody(body *SIPResponseBody) (err error) {
 	}
 	if body.CompletedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
+	}
+	if body.FailedAs != nil {
+		if !(*body.FailedAs == "SIP" || *body.FailedAs == "PIP") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.failed_as", *body.FailedAs, []any{"SIP", "PIP"}))
+		}
 	}
 	return
 }

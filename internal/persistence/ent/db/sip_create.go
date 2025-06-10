@@ -97,6 +97,34 @@ func (sc *SIPCreate) SetNillableCompletedAt(t *time.Time) *SIPCreate {
 	return sc
 }
 
+// SetFailedAs sets the "failed_as" field.
+func (sc *SIPCreate) SetFailedAs(efa enums.SIPFailedAs) *SIPCreate {
+	sc.mutation.SetFailedAs(efa)
+	return sc
+}
+
+// SetNillableFailedAs sets the "failed_as" field if the given value is not nil.
+func (sc *SIPCreate) SetNillableFailedAs(efa *enums.SIPFailedAs) *SIPCreate {
+	if efa != nil {
+		sc.SetFailedAs(*efa)
+	}
+	return sc
+}
+
+// SetFailedKey sets the "failed_key" field.
+func (sc *SIPCreate) SetFailedKey(s string) *SIPCreate {
+	sc.mutation.SetFailedKey(s)
+	return sc
+}
+
+// SetNillableFailedKey sets the "failed_key" field if the given value is not nil.
+func (sc *SIPCreate) SetNillableFailedKey(s *string) *SIPCreate {
+	if s != nil {
+		sc.SetFailedKey(*s)
+	}
+	return sc
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (sc *SIPCreate) AddWorkflowIDs(ids ...int) *SIPCreate {
 	sc.mutation.AddWorkflowIDs(ids...)
@@ -172,6 +200,11 @@ func (sc *SIPCreate) check() error {
 	if _, ok := sc.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`db: missing required field "SIP.created_at"`)}
 	}
+	if v, ok := sc.mutation.FailedAs(); ok {
+		if err := sip.FailedAsValidator(v); err != nil {
+			return &ValidationError{Name: "failed_as", err: fmt.Errorf(`db: validator failed for field "SIP.failed_as": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -225,6 +258,14 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 	if value, ok := sc.mutation.CompletedAt(); ok {
 		_spec.SetField(sip.FieldCompletedAt, field.TypeTime, value)
 		_node.CompletedAt = value
+	}
+	if value, ok := sc.mutation.FailedAs(); ok {
+		_spec.SetField(sip.FieldFailedAs, field.TypeEnum, value)
+		_node.FailedAs = value
+	}
+	if value, ok := sc.mutation.FailedKey(); ok {
+		_spec.SetField(sip.FieldFailedKey, field.TypeString, value)
+		_node.FailedKey = value
 	}
 	if nodes := sc.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

@@ -47,6 +47,14 @@ func (SIP) Fields() []ent.Field {
 			Optional(),
 		field.Time("completed_at").
 			Optional(),
+		field.Enum("failed_as").
+			GoType(enums.SIPFailedAsSIP).
+			Optional(),
+		field.String("failed_key").
+			Annotations(entsql.Annotation{
+				Size: 1024,
+			}).
+			Optional(),
 	}
 }
 

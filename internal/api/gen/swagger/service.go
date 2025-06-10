@@ -52,6 +52,10 @@ type SIP struct {
 	StartedAt *string
 	// Completion datetime
 	CompletedAt *string
+	// Package type in case of failure (SIP or PIP)
+	FailedAs *string
+	// Object key of the failed package in the internal bucket
+	FailedKey *string
 }
 
 type SIPCreatedEvent struct {

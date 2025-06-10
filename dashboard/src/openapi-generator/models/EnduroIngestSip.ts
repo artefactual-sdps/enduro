@@ -38,6 +38,18 @@ export interface EnduroIngestSip {
      */
     createdAt: Date;
     /**
+     * Package type in case of failure (SIP or PIP)
+     * @type {string}
+     * @memberof EnduroIngestSip
+     */
+    failedAs?: EnduroIngestSipFailedAsEnum;
+    /**
+     * Object key of the failed package in the internal bucket
+     * @type {string}
+     * @memberof EnduroIngestSip
+     */
+    failedKey?: string;
+    /**
      * Name of the SIP
      * @type {string}
      * @memberof EnduroIngestSip
@@ -63,6 +75,15 @@ export interface EnduroIngestSip {
     uuid: string;
 }
 
+
+/**
+ * @export
+ */
+export const EnduroIngestSipFailedAsEnum = {
+    Sip: 'SIP',
+    Pip: 'PIP'
+} as const;
+export type EnduroIngestSipFailedAsEnum = typeof EnduroIngestSipFailedAsEnum[keyof typeof EnduroIngestSipFailedAsEnum];
 
 /**
  * @export
@@ -103,6 +124,8 @@ export function EnduroIngestSipFromJSONTyped(json: any, ignoreDiscriminator: boo
         'aipId': !exists(json, 'aip_id') ? undefined : json['aip_id'],
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'createdAt': (new Date(json['created_at'])),
+        'failedAs': !exists(json, 'failed_as') ? undefined : json['failed_as'],
+        'failedKey': !exists(json, 'failed_key') ? undefined : json['failed_key'],
         'name': !exists(json, 'name') ? undefined : json['name'],
         'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
@@ -122,6 +145,8 @@ export function EnduroIngestSipToJSON(value?: EnduroIngestSip | null): any {
         'aip_id': value.aipId,
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'created_at': (value.createdAt.toISOString()),
+        'failed_as': value.failedAs,
+        'failed_key': value.failedKey,
         'name': value.name,
         'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),
         'status': value.status,

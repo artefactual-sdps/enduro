@@ -173,6 +173,8 @@ func TestUpdateSIP(t *testing.T) {
 					s.CreatedAt = started2.Time // No-op, can't update CreatedAt.
 					s.StartedAt = started2
 					s.CompletedAt = completed2
+					s.FailedAs = enums.SIPFailedAsSIP
+					s.FailedKey = "failed-key"
 					return s, nil
 				},
 			},
@@ -185,6 +187,8 @@ func TestUpdateSIP(t *testing.T) {
 				CreatedAt:   time.Now(),
 				StartedAt:   started2,
 				CompletedAt: completed2,
+				FailedAs:    enums.SIPFailedAsSIP,
+				FailedKey:   "failed-key",
 			},
 		},
 		{
@@ -233,6 +237,7 @@ func TestUpdateSIP(t *testing.T) {
 				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
 					// Invalid.
 					s.Status = ""
+					s.FailedAs = ""
 
 					// Valid.
 					s.StartedAt = started
@@ -369,6 +374,8 @@ func TestReadSIP(t *testing.T) {
 				CreatedAt:   time.Now(),
 				StartedAt:   sql.NullTime{Time: time.Now().Add(time.Second), Valid: true},
 				CompletedAt: sql.NullTime{Time: time.Now().Add(time.Minute), Valid: true},
+				FailedAs:    enums.SIPFailedAsPIP,
+				FailedKey:   "failed-key",
 			},
 		},
 		{
@@ -392,6 +399,8 @@ func TestReadSIP(t *testing.T) {
 					SetCreatedAt(tt.want.CreatedAt).
 					SetStartedAt(tt.want.StartedAt.Time).
 					SetCompletedAt(tt.want.CompletedAt.Time).
+					SetFailedAs(tt.want.FailedAs).
+					SetFailedKey(tt.want.FailedKey).
 					Save(ctx)
 				assert.NilError(t, err)
 			}
@@ -412,6 +421,7 @@ func TestListSIPs(t *testing.T) {
 
 	sipUUID := uuid.New()
 	sipUUID2 := uuid.New()
+	sipUUID3 := uuid.New()
 	aipID := uuid.NullUUID{
 		UUID:  uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 		Valid: true,
@@ -469,6 +479,15 @@ func TestListSIPs(t *testing.T) {
 					StartedAt:   started2,
 					CompletedAt: completed2,
 				},
+				{
+					UUID:        sipUUID3,
+					Name:        "Test SIP 3",
+					Status:      enums.SIPStatusError,
+					StartedAt:   started2,
+					CompletedAt: completed2,
+					FailedAs:    enums.SIPFailedAsPIP,
+					FailedKey:   "failed-key",
+				},
 			},
 			want: results{
 				data: []*datatypes.SIP{
@@ -492,10 +511,21 @@ func TestListSIPs(t *testing.T) {
 						StartedAt:   started2,
 						CompletedAt: completed2,
 					},
+					{
+						ID:          3,
+						UUID:        sipUUID3,
+						Name:        "Test SIP 3",
+						Status:      enums.SIPStatusError,
+						CreatedAt:   time.Now(),
+						StartedAt:   started2,
+						CompletedAt: completed2,
+						FailedAs:    enums.SIPFailedAsPIP,
+						FailedKey:   "failed-key",
+					},
 				},
 				page: &persistence.Page{
 					Limit: entfilter.DefaultPageSize,
-					Total: 2,
+					Total: 3,
 				},
 			},
 		},
@@ -817,12 +847,28 @@ func TestListSIPs(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, svc := setUpClient(t, logr.Discard())
+			entc, svc := setUpClient(t, logr.Discard())
 			ctx := t.Context()
 
 			if len(tt.data) > 0 {
 				for _, sip := range tt.data {
-					err := svc.CreateSIP(ctx, sip)
+					q := entc.SIP.Create().
+						SetUUID(sip.UUID).
+						SetName(sip.Name).
+						SetStatus(sip.Status).
+						SetCreatedAt(time.Now()).
+						SetStartedAt(sip.StartedAt.Time).
+						SetCompletedAt(sip.CompletedAt.Time)
+					if sip.AIPID.Valid {
+						q.SetAipID(sip.AIPID.UUID)
+					}
+					if sip.FailedAs.IsValid() {
+						q.SetFailedAs(sip.FailedAs)
+					}
+					if sip.FailedKey != "" {
+						q.SetFailedKey(sip.FailedKey)
+					}
+					_, err := q.Save(ctx)
 					assert.NilError(t, err)
 				}
 			}

@@ -1895,6 +1895,8 @@ definitions:
                 - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   completed_at: "1970-01-01T00:00:01Z"
                   created_at: "1970-01-01T00:00:01Z"
+                  failed_as: PIP
+                  failed_key: abc123
                   name: abc123
                   started_at: "1970-01-01T00:00:01Z"
                   status: failed
@@ -2024,17 +2026,17 @@ definitions:
                     Value:
                         type: string
                         description: JSON encoded union value
-                        example: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                        example: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                 example:
                     Type: sip_created_event
-                    Value: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                    Value: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                 required:
                     - Type
                     - Value
         example:
             event:
                 Type: sip_created_event
-                Value: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                Value: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
     IngestRejectSipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2223,6 +2225,17 @@ definitions:
                 description: Creation datetime
                 example: "1970-01-01T00:00:01Z"
                 format: date-time
+            failed_as:
+                type: string
+                description: Package type in case of failure (SIP or PIP)
+                example: PIP
+                enum:
+                    - SIP
+                    - PIP
+            failed_key:
+                type: string
+                description: Object key of the failed package in the internal bucket
+                example: abc123
             name:
                 type: string
                 description: Name of the SIP
@@ -2252,6 +2265,8 @@ definitions:
             aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             completed_at: "1970-01-01T00:00:01Z"
             created_at: "1970-01-01T00:00:01Z"
+            failed_as: PIP
+            failed_key: abc123
             name: abc123
             started_at: "1970-01-01T00:00:01Z"
             status: failed
@@ -2473,6 +2488,17 @@ definitions:
                 description: Creation datetime
                 example: "1970-01-01T00:00:01Z"
                 format: date-time
+            failed_as:
+                type: string
+                description: Package type in case of failure (SIP or PIP)
+                example: PIP
+                enum:
+                    - SIP
+                    - PIP
+            failed_key:
+                type: string
+                description: Object key of the failed package in the internal bucket
+                example: abc123
             name:
                 type: string
                 description: Name of the SIP
@@ -2502,6 +2528,8 @@ definitions:
             aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             completed_at: "1970-01-01T00:00:01Z"
             created_at: "1970-01-01T00:00:01Z"
+            failed_as: PIP
+            failed_key: abc123
             name: abc123
             started_at: "1970-01-01T00:00:01Z"
             status: failed
@@ -2520,6 +2548,8 @@ definitions:
             - aip_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               completed_at: "1970-01-01T00:00:01Z"
               created_at: "1970-01-01T00:00:01Z"
+              failed_as: PIP
+              failed_key: abc123
               name: abc123
               started_at: "1970-01-01T00:00:01Z"
               status: failed

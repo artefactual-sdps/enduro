@@ -452,6 +452,8 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 				params.Name == sipName &&
 				params.AIPUUID == aipUUID.String() &&
 				params.Status == enums.SIPStatusIngested &&
+				params.FailedAs == "" &&
+				params.FailedKey == "" &&
 				!params.CompletedAt.IsZero()
 		}),
 	).Return(nil, nil).Once()
@@ -672,6 +674,8 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 				params.Name == sipName &&
 				params.AIPUUID == aipUUID.String() &&
 				params.Status == enums.SIPStatusIngested &&
+				params.FailedAs == "" &&
+				params.FailedKey == "" &&
 				!params.CompletedAt.IsZero()
 		}),
 	).Return(nil, nil).Once()
@@ -888,6 +892,8 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 				params.Name == sipName &&
 				params.AIPUUID == aipUUID.String() &&
 				params.Status == enums.SIPStatusIngested &&
+				params.FailedAs == "" &&
+				params.FailedKey == "" &&
 				!params.CompletedAt.IsZero()
 		}),
 	).Return(nil, nil).Once()
@@ -1045,6 +1051,8 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 				params.Name == sipName &&
 				params.AIPUUID == aipUUID.String() &&
 				params.Status == enums.SIPStatusIngested &&
+				params.FailedAs == "" &&
+				params.FailedKey == "" &&
 				!params.CompletedAt.IsZero()
 		}),
 	).Return(nil, nil).Once()
@@ -1336,6 +1344,8 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				params.Name == sipName &&
 				params.AIPUUID == aipUUID &&
 				params.Status == enums.SIPStatusIngested &&
+				params.FailedAs == "" &&
+				params.FailedKey == "" &&
 				!params.CompletedAt.IsZero()
 		}),
 	).Return(nil, nil).Once()
@@ -1497,6 +1507,8 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 				params.Name == sipName &&
 				params.AIPUUID == "" &&
 				params.Status == enums.SIPStatusFailed &&
+				params.FailedAs == enums.SIPFailedAsSIP &&
+				params.FailedKey == failedKey &&
 				!params.CompletedAt.IsZero()
 		}),
 	).Return(nil, nil)
@@ -1683,6 +1695,8 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 				params.Name == sipName &&
 				params.AIPUUID == "" &&
 				params.Status == enums.SIPStatusError &&
+				params.FailedAs == enums.SIPFailedAsPIP &&
+				params.FailedKey == failedKey &&
 				!params.CompletedAt.IsZero()
 		}),
 	).Return(nil, nil)
@@ -1819,6 +1833,8 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 				params.Name == sipName &&
 				params.AIPUUID == "" &&
 				params.Status == enums.SIPStatusError &&
+				params.FailedAs == enums.SIPFailedAsPIP &&
+				params.FailedKey == failedKey &&
 				!params.CompletedAt.IsZero()
 		}),
 	).Return(nil, nil)
@@ -1935,6 +1951,8 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 				params.Name == sipName &&
 				params.AIPUUID == "" &&
 				params.Status == enums.SIPStatusError &&
+				params.FailedAs == enums.SIPFailedAsSIP &&
+				params.FailedKey == failedKey &&
 				!params.CompletedAt.IsZero()
 		}),
 	).Return(nil, nil)
