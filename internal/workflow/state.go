@@ -2,7 +2,6 @@ package workflow
 
 import (
 	"slices"
-	"time"
 
 	"github.com/google/uuid"
 
@@ -108,10 +107,4 @@ type aipInfo struct {
 	// path is left blank when using AM as the preservation system because
 	// storage of the AIP is handled by AM and the AMSS.
 	path string
-
-	// storedAt is the time when the AIP is stored.
-	//
-	// storedAt is set when the preservation system reports the AIP has been
-	// created and stored successfully.
-	storedAt time.Time
 }

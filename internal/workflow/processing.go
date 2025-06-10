@@ -97,7 +97,7 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 			UUID:        state.sip.uuid,
 			Name:        state.sip.name,
 			AIPUUID:     state.aip.id,
-			CompletedAt: state.aip.storedAt,
+			CompletedAt: temporalsdk_workflow.Now(dctx).UTC(),
 			Status:      state.sip.status,
 		},
 	).Get(activityOpts, nil)
@@ -517,15 +517,14 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
-	// Persist AIP UUID and storedAt time.
+	// Persist the SIP adding the AIP UUID.
 	{
 		activityOpts := withLocalActivityOpts(sessCtx)
 		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updateSIPLocalActivity, w.ingestsvc, &updateSIPLocalActivityParams{
-			UUID:        state.sip.uuid,
-			Name:        state.sip.name,
-			AIPUUID:     state.aip.id,
-			CompletedAt: state.aip.storedAt,
-			Status:      enums.SIPStatusProcessing,
+			UUID:    state.sip.uuid,
+			Name:    state.sip.name,
+			AIPUUID: state.aip.id,
+			Status:  enums.SIPStatusProcessing,
 		}).
 			Get(activityOpts, nil)
 	}
@@ -850,9 +849,8 @@ func (w *ProcessingWorkflow) transferA3m(
 		}
 
 		state.aip = &aipInfo{
-			id:       result.UUID,
-			path:     result.Path,
-			storedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
+			id:   result.UUID,
+			path: result.Path,
 		}
 	}
 
@@ -996,9 +994,6 @@ func (w *ProcessingWorkflow) transferAM(
 	if err != nil {
 		return err
 	}
-
-	// Set AIP storedAt.
-	state.aip.storedAt = temporalsdk_workflow.Now(ctx).UTC()
 
 	// Create storage AIP record and set location to AMSS location.
 	{

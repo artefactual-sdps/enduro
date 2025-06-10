@@ -407,9 +407,21 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		},
 	).Return(&completeTaskLocalActivityResult{}, nil)
 
-	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
-	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
+	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).
+		Return(&a3m.CreateAIPActivityResult{UUID: aipUUID.String()}, nil)
+
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		&updateSIPLocalActivityParams{
+			UUID:    sipUUID,
+			Name:    sipName,
+			AIPUUID: aipUUID.String(),
+			Status:  enums.SIPStatusProcessing,
+		},
+	).Return(nil, nil).Once()
+
 	s.env.OnActivity(createTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(0, nil)
 	s.env.OnActivity(activities.UploadActivityName, mock.Anything, mock.Anything).Return(nil, nil)
@@ -430,8 +442,20 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		&removepaths.Params{Paths: []string{tempPath, transferPath}},
 	).Return(&removepaths.Result{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
-	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
+
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
+			return params.UUID == sipUUID &&
+				params.Name == sipName &&
+				params.AIPUUID == aipUUID.String() &&
+				params.Status == enums.SIPStatusIngested &&
+				!params.CompletedAt.IsZero()
+		}),
+	).Return(nil, nil).Once()
+
 	s.env.OnActivity(completeWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 
@@ -579,11 +603,20 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	)
 
 	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
-		Return(nil, nil).
+		Return(&a3m.CreateAIPActivityResult{UUID: aipUUID.String()}, nil).
 		Once()
-	s.env.OnActivity(updateSIPLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.updateSIPLocalActivityParams")).
-		Return(nil, nil).
-		Times(2)
+
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		&updateSIPLocalActivityParams{
+			UUID:    sipUUID,
+			Name:    sipName,
+			AIPUUID: aipUUID.String(),
+			Status:  enums.SIPStatusProcessing,
+		},
+	).Return(nil, nil).Once()
 
 	s.env.OnActivity(
 		createTaskLocalActivity,
@@ -629,14 +662,30 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.PollMoveToPermanentStorageActivityParams")).
 		Return(nil, nil).
 		Once()
+
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
+			return params.UUID == sipUUID &&
+				params.Name == sipName &&
+				params.AIPUUID == aipUUID.String() &&
+				params.Status == enums.SIPStatusIngested &&
+				!params.CompletedAt.IsZero()
+		}),
+	).Return(nil, nil).Once()
+
 	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
 		Return(nil, nil).
 		Once()
+
 	s.env.OnActivity(
 		removepaths.Name,
 		sessionCtx,
 		&removepaths.Params{Paths: []string{tempPath, transferPath}},
 	).Return(&removepaths.Result{}, nil)
+
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
 
 	s.env.ExecuteWorkflow(
@@ -822,19 +871,40 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		updateSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
-	).Return(nil, nil)
+		&updateSIPLocalActivityParams{
+			UUID:    sipUUID,
+			Name:    sipName,
+			AIPUUID: aipUUID.String(),
+			Status:  enums.SIPStatusProcessing,
+		},
+	).Return(nil, nil).Once()
+
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
+			return params.UUID == sipUUID &&
+				params.Name == sipName &&
+				params.AIPUUID == aipUUID.String() &&
+				params.Status == enums.SIPStatusIngested &&
+				!params.CompletedAt.IsZero()
+		}),
+	).Return(nil, nil).Once()
+
 	s.env.OnActivity(
 		completeWorkflowLocalActivity,
 		ctx,
 		ingestsvc,
 		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
 	).Return(nil, nil)
+
 	s.env.OnActivity(
 		removepaths.Name,
 		sessionCtx,
 		&removepaths.Params{Paths: []string{tempPath, extractPath + "/transfer.zip"}},
 	).Return(&removepaths.Result{}, nil)
+
 	s.env.OnActivity(
 		activities.DeleteOriginalActivityName,
 		sessionCtx,
@@ -873,7 +943,9 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	key := "transfer.zip"
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
+	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
+	ingestsvc := s.workflow.ingestsvc
 
 	// Signal handler that mimics SIP/AIP rejection
 	s.env.RegisterDelayedCallback(
@@ -931,9 +1003,21 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 		nil,
 	)
 
-	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).Return(nil, nil)
-	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
+	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).
+		Return(&a3m.CreateAIPActivityResult{UUID: aipUUID.String()}, nil)
+
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		&updateSIPLocalActivityParams{
+			UUID:    sipUUID,
+			Name:    sipName,
+			AIPUUID: aipUUID.String(),
+			Status:  enums.SIPStatusProcessing,
+		},
+	).Return(nil, nil).Once()
+
 	s.env.OnActivity(completeTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 	s.env.OnActivity(activities.UploadActivityName, mock.Anything, mock.Anything).Return(nil, nil)
@@ -951,8 +1035,20 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 		&removepaths.Params{Paths: []string{tempPath, transferPath}},
 	).Return(&removepaths.Result{}, nil)
 	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
-	s.env.OnActivity(updateSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
+
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
+			return params.UUID == sipUUID &&
+				params.Name == sipName &&
+				params.AIPUUID == aipUUID.String() &&
+				params.Status == enums.SIPStatusIngested &&
+				!params.CompletedAt.IsZero()
+		}),
+	).Return(nil, nil).Once()
+
 	s.env.OnActivity(completeWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything).
 		Return(nil, nil)
 
@@ -1170,9 +1266,17 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
 		Return(&a3m.CreateAIPActivityResult{UUID: aipUUID}, nil)
 
-	s.env.OnActivity(updateSIPLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.updateSIPLocalActivityParams")).
-		Return(nil, nil).
-		Times(2)
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		&updateSIPLocalActivityParams{
+			UUID:    sipUUID,
+			Name:    sipName,
+			AIPUUID: aipUUID,
+			Status:  enums.SIPStatusProcessing,
+		},
+	).Return(nil, nil).Once()
 
 	s.env.OnActivity(
 		createTaskLocalActivity,
@@ -1222,6 +1326,19 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.PollMoveToPermanentStorageActivityParams")).
 		Return(nil, nil).
 		Once()
+
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
+			return params.UUID == sipUUID &&
+				params.Name == sipName &&
+				params.AIPUUID == aipUUID &&
+				params.Status == enums.SIPStatusIngested &&
+				!params.CompletedAt.IsZero()
+		}),
+	).Return(nil, nil).Once()
 
 	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
 		Return(nil, nil).
@@ -1289,6 +1406,13 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	sipName := "name.zip"
 	watcherName := "watcher"
 	key := "transfer.zip"
+	failedKey := fmt.Sprintf(
+		"%s%s-%s%s",
+		ingest.FailedSIPPrefix,
+		strings.TrimSuffix(sipName, ".zip"),
+		sipUUID.String(),
+		".zip",
+	)
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
@@ -1358,14 +1482,8 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		bucketupload.Name,
 		sessionCtx,
 		&bucketupload.Params{
-			Path: downloadDir + "/" + key,
-			Key: fmt.Sprintf(
-				"%s%s-%s%s",
-				ingest.FailedSIPPrefix,
-				strings.TrimSuffix(sipName, ".zip"),
-				sipUUID.String(),
-				".zip",
-			),
+			Path:       downloadDir + "/" + key,
+			Key:        failedKey,
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1374,7 +1492,13 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		updateSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
+		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
+			return params.UUID == sipUUID &&
+				params.Name == sipName &&
+				params.AIPUUID == "" &&
+				params.Status == enums.SIPStatusFailed &&
+				!params.CompletedAt.IsZero()
+		}),
 	).Return(nil, nil)
 
 	s.env.OnActivity(
@@ -1419,6 +1543,13 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	valBagTaskID := 101
 	watcherName := "watcher"
 	key := "transfer.zip"
+	failedKey := fmt.Sprintf(
+		"%s%s-%s%s",
+		ingest.FailedPIPPrefix,
+		strings.TrimSuffix(sipName, ".zip"),
+		sipUUID.String(),
+		".zip",
+	)
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
@@ -1537,14 +1668,8 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		bucketupload.Name,
 		sessionCtx,
 		&bucketupload.Params{
-			Path: transferPath + ".zip",
-			Key: fmt.Sprintf(
-				"%s%s-%s%s",
-				ingest.FailedPIPPrefix,
-				strings.TrimSuffix(sipName, ".zip"),
-				sipUUID.String(),
-				".zip",
-			),
+			Path:       transferPath + ".zip",
+			Key:        failedKey,
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1553,7 +1678,13 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		updateSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
+		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
+			return params.UUID == sipUUID &&
+				params.Name == sipName &&
+				params.AIPUUID == "" &&
+				params.Status == enums.SIPStatusError &&
+				!params.CompletedAt.IsZero()
+		}),
 	).Return(nil, nil)
 
 	s.env.OnActivity(
@@ -1598,6 +1729,13 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	wID := 1
 	watcherName := "watcher"
 	key := "transfer.zip"
+	failedKey := fmt.Sprintf(
+		"%s%s-%s%s",
+		ingest.FailedPIPPrefix,
+		strings.TrimSuffix(sipName, ".zip"),
+		sipUUID.String(),
+		".zip",
+	)
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
@@ -1666,14 +1804,8 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		bucketupload.Name,
 		sessionCtx,
 		&bucketupload.Params{
-			Path: extractPath + "/transfer.zip",
-			Key: fmt.Sprintf(
-				"%s%s-%s%s",
-				ingest.FailedPIPPrefix,
-				strings.TrimSuffix(sipName, ".zip"),
-				sipUUID.String(),
-				".zip",
-			),
+			Path:       extractPath + "/transfer.zip",
+			Key:        failedKey,
 			BufferSize: 100_000_000,
 		},
 	).Return(&bucketupload.Result{}, nil)
@@ -1682,7 +1814,13 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		updateSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
+		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
+			return params.UUID == sipUUID &&
+				params.Name == sipName &&
+				params.AIPUUID == "" &&
+				params.Status == enums.SIPStatusError &&
+				!params.CompletedAt.IsZero()
+		}),
 	).Return(nil, nil)
 
 	s.env.OnActivity(
@@ -1724,6 +1862,13 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 
 	sipName := "name.zip"
 	key := "transfer.zip"
+	failedKey := fmt.Sprintf(
+		"%s%s-%s%s",
+		ingest.FailedSIPPrefix,
+		strings.TrimSuffix(sipName, ".zip"),
+		sipUUID.String(),
+		".zip",
+	)
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	ingestsvc := s.workflow.ingestsvc
@@ -1771,13 +1916,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		sessionCtx,
 		&bucketcopy.Params{
 			SourceKey: key,
-			DestKey: fmt.Sprintf(
-				"%s%s-%s%s",
-				ingest.FailedSIPPrefix,
-				strings.TrimSuffix(sipName, ".zip"),
-				sipUUID.String(),
-				".zip",
-			),
+			DestKey:   failedKey,
 		},
 	).Return(&bucketcopy.Result{}, nil)
 
@@ -1791,7 +1930,13 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		updateSIPLocalActivity,
 		ctx,
 		ingestsvc,
-		mock.AnythingOfType("*workflow.updateSIPLocalActivityParams"),
+		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
+			return params.UUID == sipUUID &&
+				params.Name == sipName &&
+				params.AIPUUID == "" &&
+				params.Status == enums.SIPStatusError &&
+				!params.CompletedAt.IsZero()
+		}),
 	).Return(nil, nil)
 
 	s.env.OnActivity(
