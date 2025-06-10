@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 	"github.com/google/uuid"
 )
@@ -125,6 +126,20 @@ func (sc *SIPCreate) SetNillableFailedKey(s *string) *SIPCreate {
 	return sc
 }
 
+// SetUploaderID sets the "uploader_id" field.
+func (sc *SIPCreate) SetUploaderID(i int) *SIPCreate {
+	sc.mutation.SetUploaderID(i)
+	return sc
+}
+
+// SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
+func (sc *SIPCreate) SetNillableUploaderID(i *int) *SIPCreate {
+	if i != nil {
+		sc.SetUploaderID(*i)
+	}
+	return sc
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (sc *SIPCreate) AddWorkflowIDs(ids ...int) *SIPCreate {
 	sc.mutation.AddWorkflowIDs(ids...)
@@ -138,6 +153,25 @@ func (sc *SIPCreate) AddWorkflows(w ...*Workflow) *SIPCreate {
 		ids[i] = w[i].ID
 	}
 	return sc.AddWorkflowIDs(ids...)
+}
+
+// SetUserID sets the "user" edge to the User entity by ID.
+func (sc *SIPCreate) SetUserID(id int) *SIPCreate {
+	sc.mutation.SetUserID(id)
+	return sc
+}
+
+// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
+func (sc *SIPCreate) SetNillableUserID(id *int) *SIPCreate {
+	if id != nil {
+		sc = sc.SetUserID(*id)
+	}
+	return sc
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (sc *SIPCreate) SetUser(u *User) *SIPCreate {
+	return sc.SetUserID(u.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -203,6 +237,11 @@ func (sc *SIPCreate) check() error {
 	if v, ok := sc.mutation.FailedAs(); ok {
 		if err := sip.FailedAsValidator(v); err != nil {
 			return &ValidationError{Name: "failed_as", err: fmt.Errorf(`db: validator failed for field "SIP.failed_as": %w`, err)}
+		}
+	}
+	if v, ok := sc.mutation.UploaderID(); ok {
+		if err := sip.UploaderIDValidator(v); err != nil {
+			return &ValidationError{Name: "uploader_id", err: fmt.Errorf(`db: validator failed for field "SIP.uploader_id": %w`, err)}
 		}
 	}
 	return nil
@@ -281,6 +320,23 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := sc.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   sip.UserTable,
+			Columns: []string{sip.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.UploaderID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

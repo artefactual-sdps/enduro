@@ -21,6 +21,10 @@ func init() {
 	sipDescCreatedAt := sipFields[4].Descriptor()
 	// sip.DefaultCreatedAt holds the default value on creation for the created_at field.
 	sip.DefaultCreatedAt = sipDescCreatedAt.Default.(func() time.Time)
+	// sipDescUploaderID is the schema descriptor for uploader_id field.
+	sipDescUploaderID := sipFields[9].Descriptor()
+	// sip.UploaderIDValidator is a validator for the "uploader_id" field. It is called by the builders before save.
+	sip.UploaderIDValidator = sipDescUploaderID.Validators[0].(func(int) error)
 	taskFields := schema.Task{}.Fields()
 	_ = taskFields
 	// taskDescWorkflowID is the schema descriptor for workflow_id field.

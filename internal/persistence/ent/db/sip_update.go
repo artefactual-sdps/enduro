@@ -14,6 +14,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 	"github.com/google/uuid"
 )
@@ -159,6 +160,26 @@ func (su *SIPUpdate) ClearFailedKey() *SIPUpdate {
 	return su
 }
 
+// SetUploaderID sets the "uploader_id" field.
+func (su *SIPUpdate) SetUploaderID(i int) *SIPUpdate {
+	su.mutation.SetUploaderID(i)
+	return su
+}
+
+// SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
+func (su *SIPUpdate) SetNillableUploaderID(i *int) *SIPUpdate {
+	if i != nil {
+		su.SetUploaderID(*i)
+	}
+	return su
+}
+
+// ClearUploaderID clears the value of the "uploader_id" field.
+func (su *SIPUpdate) ClearUploaderID() *SIPUpdate {
+	su.mutation.ClearUploaderID()
+	return su
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (su *SIPUpdate) AddWorkflowIDs(ids ...int) *SIPUpdate {
 	su.mutation.AddWorkflowIDs(ids...)
@@ -172,6 +193,25 @@ func (su *SIPUpdate) AddWorkflows(w ...*Workflow) *SIPUpdate {
 		ids[i] = w[i].ID
 	}
 	return su.AddWorkflowIDs(ids...)
+}
+
+// SetUserID sets the "user" edge to the User entity by ID.
+func (su *SIPUpdate) SetUserID(id int) *SIPUpdate {
+	su.mutation.SetUserID(id)
+	return su
+}
+
+// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
+func (su *SIPUpdate) SetNillableUserID(id *int) *SIPUpdate {
+	if id != nil {
+		su = su.SetUserID(*id)
+	}
+	return su
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (su *SIPUpdate) SetUser(u *User) *SIPUpdate {
+	return su.SetUserID(u.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -198,6 +238,12 @@ func (su *SIPUpdate) RemoveWorkflows(w ...*Workflow) *SIPUpdate {
 		ids[i] = w[i].ID
 	}
 	return su.RemoveWorkflowIDs(ids...)
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (su *SIPUpdate) ClearUser() *SIPUpdate {
+	su.mutation.ClearUser()
+	return su
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -237,6 +283,11 @@ func (su *SIPUpdate) check() error {
 	if v, ok := su.mutation.FailedAs(); ok {
 		if err := sip.FailedAsValidator(v); err != nil {
 			return &ValidationError{Name: "failed_as", err: fmt.Errorf(`db: validator failed for field "SIP.failed_as": %w`, err)}
+		}
+	}
+	if v, ok := su.mutation.UploaderID(); ok {
+		if err := sip.UploaderIDValidator(v); err != nil {
+			return &ValidationError{Name: "uploader_id", err: fmt.Errorf(`db: validator failed for field "SIP.uploader_id": %w`, err)}
 		}
 	}
 	return nil
@@ -328,6 +379,35 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if su.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   sip.UserTable,
+			Columns: []string{sip.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := su.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   sip.UserTable,
+			Columns: []string{sip.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -483,6 +563,26 @@ func (suo *SIPUpdateOne) ClearFailedKey() *SIPUpdateOne {
 	return suo
 }
 
+// SetUploaderID sets the "uploader_id" field.
+func (suo *SIPUpdateOne) SetUploaderID(i int) *SIPUpdateOne {
+	suo.mutation.SetUploaderID(i)
+	return suo
+}
+
+// SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
+func (suo *SIPUpdateOne) SetNillableUploaderID(i *int) *SIPUpdateOne {
+	if i != nil {
+		suo.SetUploaderID(*i)
+	}
+	return suo
+}
+
+// ClearUploaderID clears the value of the "uploader_id" field.
+func (suo *SIPUpdateOne) ClearUploaderID() *SIPUpdateOne {
+	suo.mutation.ClearUploaderID()
+	return suo
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (suo *SIPUpdateOne) AddWorkflowIDs(ids ...int) *SIPUpdateOne {
 	suo.mutation.AddWorkflowIDs(ids...)
@@ -496,6 +596,25 @@ func (suo *SIPUpdateOne) AddWorkflows(w ...*Workflow) *SIPUpdateOne {
 		ids[i] = w[i].ID
 	}
 	return suo.AddWorkflowIDs(ids...)
+}
+
+// SetUserID sets the "user" edge to the User entity by ID.
+func (suo *SIPUpdateOne) SetUserID(id int) *SIPUpdateOne {
+	suo.mutation.SetUserID(id)
+	return suo
+}
+
+// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
+func (suo *SIPUpdateOne) SetNillableUserID(id *int) *SIPUpdateOne {
+	if id != nil {
+		suo = suo.SetUserID(*id)
+	}
+	return suo
+}
+
+// SetUser sets the "user" edge to the User entity.
+func (suo *SIPUpdateOne) SetUser(u *User) *SIPUpdateOne {
+	return suo.SetUserID(u.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -522,6 +641,12 @@ func (suo *SIPUpdateOne) RemoveWorkflows(w ...*Workflow) *SIPUpdateOne {
 		ids[i] = w[i].ID
 	}
 	return suo.RemoveWorkflowIDs(ids...)
+}
+
+// ClearUser clears the "user" edge to the User entity.
+func (suo *SIPUpdateOne) ClearUser() *SIPUpdateOne {
+	suo.mutation.ClearUser()
+	return suo
 }
 
 // Where appends a list predicates to the SIPUpdate builder.
@@ -574,6 +699,11 @@ func (suo *SIPUpdateOne) check() error {
 	if v, ok := suo.mutation.FailedAs(); ok {
 		if err := sip.FailedAsValidator(v); err != nil {
 			return &ValidationError{Name: "failed_as", err: fmt.Errorf(`db: validator failed for field "SIP.failed_as": %w`, err)}
+		}
+	}
+	if v, ok := suo.mutation.UploaderID(); ok {
+		if err := sip.UploaderIDValidator(v); err != nil {
+			return &ValidationError{Name: "uploader_id", err: fmt.Errorf(`db: validator failed for field "SIP.uploader_id": %w`, err)}
 		}
 	}
 	return nil
@@ -682,6 +812,35 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if suo.mutation.UserCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   sip.UserTable,
+			Columns: []string{sip.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := suo.mutation.UserIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   sip.UserTable,
+			Columns: []string{sip.UserColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
