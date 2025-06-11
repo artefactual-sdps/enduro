@@ -127,6 +127,16 @@ func (c *client) DeleteSIP(ctx context.Context, id int) error {
 	return nil
 }
 
+// ReadSIP returns the SIP identified by id.
+func (c *client) ReadSIP(ctx context.Context, id uuid.UUID) (*datatypes.SIP, error) {
+	s, err := c.ent.SIP.Query().Where(sip.UUID(id)).Only(ctx)
+	if err != nil {
+		return nil, newDBError(err)
+	}
+
+	return convertSIP(s), nil
+}
+
 // ListSIPs returns a slice of SIPs filtered according to f.
 func (c *client) ListSIPs(ctx context.Context, f *persistence.SIPFilter) (
 	[]*datatypes.SIP, *persistence.Page, error,

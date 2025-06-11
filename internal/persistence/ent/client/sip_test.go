@@ -348,6 +348,65 @@ func TestDeleteSIP(t *testing.T) {
 	}
 }
 
+func TestReadSIP(t *testing.T) {
+	t.Parallel()
+
+	for _, tt := range []struct {
+		name    string
+		sipUUID uuid.UUID
+		want    *datatypes.SIP
+		wantErr string
+	}{
+		{
+			name:    "Reads a SIP",
+			sipUUID: sipUUID,
+			want: &datatypes.SIP{
+				ID:          1,
+				UUID:        sipUUID,
+				Name:        "Test SIP",
+				Status:      enums.SIPStatusError,
+				AIPID:       uuid.NullUUID{UUID: uuid.New(), Valid: true},
+				CreatedAt:   time.Now(),
+				StartedAt:   sql.NullTime{Time: time.Now().Add(time.Second), Valid: true},
+				CompletedAt: sql.NullTime{Time: time.Now().Add(time.Minute), Valid: true},
+			},
+		},
+		{
+			name:    "Fails to read a missing SIP",
+			sipUUID: sipUUID,
+			wantErr: "not found error: db: sip not found",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			entc, svc := setUpClient(t, logr.Discard())
+			ctx := t.Context()
+
+			if tt.want != nil {
+				_, err := entc.SIP.Create().
+					SetUUID(tt.want.UUID).
+					SetName(tt.want.Name).
+					SetStatus(tt.want.Status).
+					SetAipID(tt.want.AIPID.UUID).
+					SetCreatedAt(tt.want.CreatedAt).
+					SetStartedAt(tt.want.StartedAt.Time).
+					SetCompletedAt(tt.want.CompletedAt.Time).
+					Save(ctx)
+				assert.NilError(t, err)
+			}
+
+			s, err := svc.ReadSIP(ctx, tt.sipUUID)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+			assert.DeepEqual(t, s, tt.want)
+		})
+	}
+}
+
 func TestListSIPs(t *testing.T) {
 	t.Parallel()
 

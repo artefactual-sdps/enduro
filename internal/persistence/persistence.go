@@ -32,6 +32,7 @@ type Service interface {
 	CreateSIP(context.Context, *datatypes.SIP) error
 	UpdateSIP(context.Context, uuid.UUID, SIPUpdater) (*datatypes.SIP, error)
 	DeleteSIP(context.Context, int) error
+	ReadSIP(context.Context, uuid.UUID) (*datatypes.SIP, error)
 	ListSIPs(context.Context, *SIPFilter) ([]*datatypes.SIP, *Page, error)
 
 	CreateWorkflow(context.Context, *datatypes.Workflow) error

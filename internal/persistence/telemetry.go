@@ -73,6 +73,20 @@ func (w *wrapper) DeleteSIP(ctx context.Context, id int) error {
 	return nil
 }
 
+func (w *wrapper) ReadSIP(ctx context.Context, id uuid.UUID) (*datatypes.SIP, error) {
+	ctx, span := w.tracer.Start(ctx, "ReadSIP")
+	defer span.End()
+	span.SetAttributes(attribute.String("id", id.String()))
+
+	r, err := w.wrapped.ReadSIP(ctx, id)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ReadSIP")
+	}
+
+	return r, nil
+}
+
 func (w *wrapper) ListSIPs(ctx context.Context, f *SIPFilter) ([]*datatypes.SIP, *Page, error) {
 	ctx, span := w.tracer.Start(ctx, "ListSIPs")
 	defer span.End()

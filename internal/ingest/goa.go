@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 	"goa.design/goa/v3/security"
 
@@ -160,7 +161,12 @@ func (w *goaWrapper) ShowSip(
 	ctx context.Context,
 	payload *goaingest.ShowSipPayload,
 ) (*goaingest.SIP, error) {
-	s, err := w.read(ctx, payload.UUID)
+	sipUUID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(errors.New("invalid UUID"))
+	}
+
+	s, err := w.perSvc.ReadSIP(ctx, sipUUID)
 	if err == sql.ErrNoRows {
 		return nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP not found"}
 	} else if err != nil {
@@ -174,7 +180,12 @@ func (w *goaWrapper) ListSipWorkflows(
 	ctx context.Context,
 	payload *goaingest.ListSipWorkflowsPayload,
 ) (*goaingest.SIPWorkflows, error) {
-	s, err := w.read(ctx, payload.UUID)
+	sipUUID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(errors.New("invalid UUID"))
+	}
+
+	s, err := w.perSvc.ReadSIP(ctx, sipUUID)
 	if err == sql.ErrNoRows {
 		return nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP not found"}
 	} else if err != nil {

@@ -234,6 +234,45 @@ func (c *MockServiceListSIPsCall) DoAndReturn(f func(context.Context, *persisten
 	return c
 }
 
+// ReadSIP mocks base method.
+func (m *MockService) ReadSIP(arg0 context.Context, arg1 uuid.UUID) (*datatypes.SIP, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadSIP", arg0, arg1)
+	ret0, _ := ret[0].(*datatypes.SIP)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadSIP indicates an expected call of ReadSIP.
+func (mr *MockServiceMockRecorder) ReadSIP(arg0, arg1 any) *MockServiceReadSIPCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadSIP", reflect.TypeOf((*MockService)(nil).ReadSIP), arg0, arg1)
+	return &MockServiceReadSIPCall{Call: call}
+}
+
+// MockServiceReadSIPCall wrap *gomock.Call
+type MockServiceReadSIPCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceReadSIPCall) Return(arg0 *datatypes.SIP, arg1 error) *MockServiceReadSIPCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceReadSIPCall) Do(f func(context.Context, uuid.UUID) (*datatypes.SIP, error)) *MockServiceReadSIPCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceReadSIPCall) DoAndReturn(f func(context.Context, uuid.UUID) (*datatypes.SIP, error)) *MockServiceReadSIPCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // UpdateSIP mocks base method.
 func (m *MockService) UpdateSIP(arg0 context.Context, arg1 uuid.UUID, arg2 persistence.SIPUpdater) (*datatypes.SIP, error) {
 	m.ctrl.T.Helper()

@@ -186,15 +186,3 @@ func (svc *ingestImpl) updateRow(ctx context.Context, query string, args []any) 
 
 	return nil
 }
-
-func (svc *ingestImpl) read(ctx context.Context, id string) (*datatypes.SIP, error) {
-	query := "SELECT id, uuid, name, aip_id, status, CONVERT_TZ(created_at, @@session.time_zone, '+00:00') AS created_at, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM sip WHERE uuid = ?"
-	args := []any{id}
-	c := datatypes.SIP{}
-
-	if err := svc.db.GetContext(ctx, &c, query, args...); err != nil {
-		return nil, err
-	}
-
-	return &c, nil
-}
