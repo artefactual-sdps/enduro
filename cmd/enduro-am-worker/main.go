@@ -307,15 +307,15 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
 		)
 		w.RegisterActivityWithOptions(
-			bucketcopy.New(internalBucket).Execute,
+			bucketcopy.New(internalStorage).Execute,
 			temporalsdk_activity.RegisterOptions{Name: bucketcopy.Name},
 		)
 		w.RegisterActivityWithOptions(
-			bucketdelete.New(internalBucket).Execute,
+			bucketdelete.New(internalStorage).Execute,
 			temporalsdk_activity.RegisterOptions{Name: bucketdelete.Name},
 		)
 		w.RegisterActivityWithOptions(
-			bucketupload.New(internalBucket).Execute,
+			bucketupload.New(internalStorage).Execute,
 			temporalsdk_activity.RegisterOptions{Name: bucketupload.Name},
 		)
 		w.RegisterActivityWithOptions(
