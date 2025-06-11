@@ -210,15 +210,22 @@ passphrase = "" # Secret: set (if required) with env var ENDURO_AM_SFTP_PRIVATEK
 # Default: 4294967296 (4 GiB).
 maxSize = 4294967296
 
-# internalBucket section configures a bucket where Enduro will place uploaded
+# internalStorage section configures a bucket where Enduro will place uploaded
 # SIPs. Make sure it doesn't match any of the watched buckets.
-[internalBucket]
+[internalStorage.bucket]
+# Example for an Azure URL connection where the bucket/container is called "sips".
+# See [internalStorage.azure] below to set credentials.
+# URL = "azblob://sips"
 endpoint = "http://minio.enduro-sdps:9000"
 pathStyle = true
 accessKey = "minio"
 secretKey = "minio123"
 region = "us-west-1"
 bucket = "internal"
+
+[internalStorage.azure]
+storageAccount = ""
+storageKey = ""
 
 [telemetry.traces]
 enabled = false

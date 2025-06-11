@@ -30,7 +30,6 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	"go.artefactual.dev/amclient"
-	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/log"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
@@ -174,13 +173,13 @@ func main() {
 		)
 	}
 
-	// Set up internal bucket.
-	internalBucket, err := bucket.NewWithConfig(ctx, &cfg.InternalBucket)
+	// Set up internal storage.
+	internalStorage, err := cfg.InternalStorage.OpenBucket(ctx)
 	if err != nil {
 		logger.Error(err, "Error setting up internal bucket.")
 		os.Exit(1)
 	}
-	defer internalBucket.Close()
+	defer internalStorage.Close()
 
 	// Set up the ingest service.
 	var ingestsvc ingest.Service
@@ -194,7 +193,7 @@ func main() {
 			&auth.NoopTokenVerifier{},
 			nil,
 			cfg.Temporal.TaskQueue,
-			internalBucket,
+			internalStorage,
 			0,
 			rand.Reader,
 		)
@@ -238,7 +237,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			bucketdownload.New(internalBucket).Execute,
+			bucketdownload.New(internalStorage).Execute,
 			temporalsdk_activity.RegisterOptions{Name: bucketdownload.Name},
 		)
 		w.RegisterActivityWithOptions(
@@ -308,15 +307,15 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
 		)
 		w.RegisterActivityWithOptions(
-			bucketcopy.New(internalBucket).Execute,
+			bucketcopy.New(internalStorage).Execute,
 			temporalsdk_activity.RegisterOptions{Name: bucketcopy.Name},
 		)
 		w.RegisterActivityWithOptions(
-			bucketdelete.New(internalBucket).Execute,
+			bucketdelete.New(internalStorage).Execute,
 			temporalsdk_activity.RegisterOptions{Name: bucketdelete.Name},
 		)
 		w.RegisterActivityWithOptions(
-			bucketupload.New(internalBucket).Execute,
+			bucketupload.New(internalStorage).Execute,
 			temporalsdk_activity.RegisterOptions{Name: bucketupload.Name},
 		)
 		w.RegisterActivityWithOptions(

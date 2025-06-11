@@ -14,7 +14,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
-	"go.artefactual.dev/tools/bucket"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
@@ -69,21 +68,16 @@ type Configuration struct {
 	Preservation    pres.Config
 	Storage         storage.Config
 	Temporal        temporal.Config
+	InternalStorage InternalStorageConfig
 	Upload          ingest.UploadConfig
-	InternalBucket  bucket.Config
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
 	ValidatePREMIS  premis.Config
 }
 
 func (c *Configuration) Validate() error {
-	var err error
-	if c.InternalBucket.URL != "" && (c.InternalBucket.Bucket != "" || c.InternalBucket.Region != "") {
-		err = errors.New("the [internalBucket] URL option and the other configuration options are mutually exclusive")
-	}
-
 	return errors.Join(
-		err,
+		c.InternalStorage.Validate(),
 		c.A3m.Validate(),
 		c.API.Auth.Validate(),
 		c.BagIt.Validate(),

@@ -18,7 +18,6 @@ import (
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
-	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/log"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/otel/codes"
@@ -209,13 +208,13 @@ func main() {
 		)
 	}
 
-	// Set up internal bucket.
-	internalBucket, err := bucket.NewWithConfig(ctx, &cfg.InternalBucket)
+	// Set up internal storage bucket.
+	internalStorage, err := cfg.InternalStorage.OpenBucket(ctx)
 	if err != nil {
-		logger.Error(err, "Error setting up internal bucket.")
+		logger.Error(err, "Error setting up internal storage.")
 		os.Exit(1)
 	}
-	defer internalBucket.Close()
+	defer internalStorage.Close()
 
 	// Set up the ingest service.
 	var ingestsvc ingest.Service
@@ -229,7 +228,7 @@ func main() {
 			tokenVerifier,
 			ticketProvider,
 			cfg.Temporal.TaskQueue,
-			internalBucket,
+			internalStorage,
 			cfg.Upload.MaxSize,
 			rand.Reader,
 		)
@@ -320,7 +319,7 @@ func main() {
 			&auth.NoopTokenVerifier{},
 			ticketProvider,
 			cfg.Temporal.TaskQueue,
-			internalBucket,
+			internalStorage,
 			cfg.Upload.MaxSize,
 			rand.Reader,
 		)
