@@ -5,16 +5,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Install Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
         with:
           go-version-file: hack/pulumi/go.mod
       - name: Download Go dependencies
         run: go mod download
         working-directory: hack/pulumi
       - name: Refresh and update Pulumi stack
-        uses: pulumi/actions@v4.4.0
+        uses: pulumi/actions@a3f382e1242b69ab33854c253c3b580f1226348e # v4.5.1
         with:
           command: up
           refresh: true
@@ -24,7 +24,7 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
           DOCKER_BUILDKIT: 1
       - name: Configure kubectl
-        uses: azure/k8s-set-context@v3.1
+        uses: azure/k8s-set-context@38d6bc72e5877b8eb640e995218d42b8fedf1a47 # v3
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.DO_DEV_KUBECONFIG }}
