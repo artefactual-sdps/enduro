@@ -1,6 +1,8 @@
 package schema
 
 import (
+	"time"
+
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/entsql"
 	"entgo.io/ent/schema"
@@ -28,6 +30,7 @@ func (User) Fields() []ent.Field {
 			Immutable(),
 		field.Time("created_at").
 			Immutable().
+			Default(time.Now).
 			Annotations(entsql.Default("CURRENT_TIMESTAMP")),
 		field.String("email").
 			Annotations(entsql.Annotation{

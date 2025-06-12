@@ -69,3 +69,28 @@ func convertTask(task *db.Task) *datatypes.Task {
 		WorkflowID:  task.WorkflowID,
 	}
 }
+
+// convertUser converts an entgo `db.User` representation to a
+// `datatypes.User` representation.
+func convertUser(dbu *db.User) *datatypes.User {
+	u := datatypes.User{
+		UUID:      dbu.UUID,
+		CreatedAt: &dbu.CreatedAt, // CreatedAt is never null in the database.
+	}
+
+	// Set optional fields if they are not empty.
+	if dbu.Email != "" {
+		u.Email = &dbu.Email
+	}
+	if dbu.Name != "" {
+		u.Name = &dbu.Name
+	}
+	if dbu.JwtIss != "" {
+		u.JWTIss = &dbu.JwtIss
+	}
+	if dbu.JwtSub != "" {
+		u.JWTSub = &dbu.JwtSub
+	}
+
+	return &u
+}

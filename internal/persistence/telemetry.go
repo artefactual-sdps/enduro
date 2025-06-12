@@ -143,3 +143,16 @@ func (w *wrapper) UpdateTask(
 
 	return r, nil
 }
+
+func (w *wrapper) CreateUser(ctx context.Context, user *datatypes.User) error {
+	ctx, span := w.tracer.Start(ctx, "CreateUser")
+	defer span.End()
+
+	err := w.wrapped.CreateUser(ctx, user)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return updateError(err, "CreateUser")
+	}
+
+	return nil
+}

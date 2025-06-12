@@ -7,6 +7,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/schema"
 )
@@ -31,6 +32,12 @@ func init() {
 	taskDescWorkflowID := taskFields[6].Descriptor()
 	// task.WorkflowIDValidator is a validator for the "workflow_id" field. It is called by the builders before save.
 	task.WorkflowIDValidator = taskDescWorkflowID.Validators[0].(func(int) error)
+	userFields := schema.User{}.Fields()
+	_ = userFields
+	// userDescCreatedAt is the schema descriptor for created_at field.
+	userDescCreatedAt := userFields[1].Descriptor()
+	// user.DefaultCreatedAt holds the default value on creation for the created_at field.
+	user.DefaultCreatedAt = userDescCreatedAt.Default.(func() time.Time)
 	workflowFields := schema.Workflow{}.Fields()
 	_ = workflowFields
 	// workflowDescSipID is the schema descriptor for sip_id field.

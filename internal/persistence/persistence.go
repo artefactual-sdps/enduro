@@ -39,4 +39,8 @@ type Service interface {
 
 	CreateTask(context.Context, *datatypes.Task) error
 	UpdateTask(ctx context.Context, id int, updater TaskUpdater) (*datatypes.Task, error)
+
+	// CreateUser persists a new user to the data store then updates the user
+	// to add auto-generated data (e.g. ID, CreatedAt).
+	CreateUser(context.Context, *datatypes.User) error
 }
