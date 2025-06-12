@@ -34,8 +34,8 @@ func TestCreateUser(t *testing.T) {
 				user: &datatypes.User{
 					UUID:      uid,
 					CreatedAt: createdAt,
-					Name:      ref.New("Test User"),
 					Email:     ref.New("nobody@example.com"),
+					Name:      ref.New("Test User"),
 					JWTIss:    ref.New("https://oidc.example.com"),
 					JWTSub:    ref.New("1234567890"),
 				},
@@ -43,8 +43,8 @@ func TestCreateUser(t *testing.T) {
 			want: &datatypes.User{
 				UUID:      uid,
 				CreatedAt: createdAt,
-				Name:      ref.New("Test User"),
 				Email:     ref.New("nobody@example.com"),
+				Name:      ref.New("Test User"),
 				JWTIss:    ref.New("https://oidc.example.com"),
 				JWTSub:    ref.New("1234567890"),
 			},
@@ -73,7 +73,7 @@ func TestCreateUser(t *testing.T) {
 
 			_, svc := setUpClient(t, logr.Discard())
 			ctx := t.Context()
-			user := *tt.args.user // Make a local copy of sip.
+			user := *tt.args.user // Make a local copy of user.
 
 			err := svc.CreateUser(ctx, &user)
 			if tt.wantErr != "" {
@@ -84,6 +84,74 @@ func TestCreateUser(t *testing.T) {
 
 			assert.DeepEqual(t, &user, tt.want,
 				cmpopts.EquateApproxTime(time.Millisecond*100),
+				cmpopts.IgnoreUnexported(db.User{}, db.UserEdges{}),
+			)
+		})
+	}
+}
+
+func TestReadUser(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	createdAt := ref.New(time.Now().Truncate(time.Second))
+
+	type params struct {
+		id uuid.UUID
+	}
+	tests := []struct {
+		name    string
+		args    params
+		want    *datatypes.User
+		wantErr string
+	}{
+		{
+			name: "Reads a user with all values",
+			args: params{id: userID},
+			want: &datatypes.User{
+				UUID:      userID,
+				CreatedAt: createdAt,
+				Email:     ref.New("nobody@example.com"),
+				Name:      ref.New("Test User"),
+				JWTIss:    ref.New("https://oidc.example.com"),
+				JWTSub:    ref.New("1234567890"),
+			},
+		},
+		{
+			name:    "Errors when id is nil",
+			args:    params{},
+			wantErr: "invalid data error: field \"id\" is required",
+		},
+		{
+			name:    "Errors when user is not found",
+			args:    params{id: uuid.New()},
+			wantErr: "not found error: db: user not found",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			c, svc := setUpClient(t, logr.Discard())
+			ctx := t.Context()
+
+			c.User.Create().
+				SetUUID(userID).
+				SetNillableCreatedAt(createdAt).
+				SetEmail("nobody@example.com").
+				SetName("Test User").
+				SetJwtIss("https://oidc.example.com").
+				SetJwtSub("1234567890").
+				SaveX(ctx)
+
+			got, err := svc.ReadUser(ctx, tt.args.id)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+
+			assert.DeepEqual(t, got, tt.want,
 				cmpopts.IgnoreUnexported(db.User{}, db.UserEdges{}),
 			)
 		})

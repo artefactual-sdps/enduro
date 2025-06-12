@@ -156,3 +156,17 @@ func (w *wrapper) CreateUser(ctx context.Context, user *datatypes.User) error {
 
 	return nil
 }
+
+func (w *wrapper) ReadUser(ctx context.Context, id uuid.UUID) (*datatypes.User, error) {
+	ctx, span := w.tracer.Start(ctx, "ReadUser")
+	defer span.End()
+	span.SetAttributes(attribute.String("id", id.String()))
+
+	u, err := w.wrapped.ReadUser(ctx, id)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ReadUser")
+	}
+
+	return u, nil
+}
