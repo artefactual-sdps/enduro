@@ -24,7 +24,7 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
           DOCKER_BUILDKIT: 1
       - name: Configure kubectl
-        uses: azure/k8s-set-context@212a19233d93f03eceaac31ae5a1d1acf650b6ef # v3
+        uses: azure/k8s-set-context@212a19233d93f03eceaac31ae5a1d1acf650b6ef # v4.0.1
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.DO_DEV_KUBECONFIG }}
