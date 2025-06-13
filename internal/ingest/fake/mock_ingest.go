@@ -11,6 +11,7 @@ package fake
 
 import (
 	context "context"
+	http0 "net/http"
 	reflect "reflect"
 	time "time"
 
@@ -20,6 +21,7 @@ import (
 	persistence "github.com/artefactual-sdps/enduro/internal/persistence"
 	uuid "github.com/google/uuid"
 	gomock "go.uber.org/mock/gomock"
+	http "goa.design/goa/v3/http"
 )
 
 // MockService is a mock of Service interface.
@@ -231,6 +233,44 @@ func (c *MockServiceCreateWorkflowCall) Do(f func(context.Context, *datatypes.Wo
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockServiceCreateWorkflowCall) DoAndReturn(f func(context.Context, *datatypes.Workflow) error) *MockServiceCreateWorkflowCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// DownloadSIP mocks base method.
+func (m *MockService) DownloadSIP(arg0 http.Muxer, arg1 func(*http0.Request) http.Decoder) http0.HandlerFunc {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DownloadSIP", arg0, arg1)
+	ret0, _ := ret[0].(http0.HandlerFunc)
+	return ret0
+}
+
+// DownloadSIP indicates an expected call of DownloadSIP.
+func (mr *MockServiceMockRecorder) DownloadSIP(arg0, arg1 any) *MockServiceDownloadSIPCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadSIP", reflect.TypeOf((*MockService)(nil).DownloadSIP), arg0, arg1)
+	return &MockServiceDownloadSIPCall{Call: call}
+}
+
+// MockServiceDownloadSIPCall wrap *gomock.Call
+type MockServiceDownloadSIPCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceDownloadSIPCall) Return(arg0 http0.HandlerFunc) *MockServiceDownloadSIPCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceDownloadSIPCall) Do(f func(http.Muxer, func(*http0.Request) http.Decoder) http0.HandlerFunc) *MockServiceDownloadSIPCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceDownloadSIPCall) DoAndReturn(f func(http.Muxer, func(*http0.Request) http.Decoder) http0.HandlerFunc) *MockServiceDownloadSIPCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

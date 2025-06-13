@@ -25,10 +25,11 @@ type Client struct {
 	ConfirmSipEndpoint       goa.Endpoint
 	RejectSipEndpoint        goa.Endpoint
 	UploadSipEndpoint        goa.Endpoint
+	DownloadSipEndpoint      goa.Endpoint
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip, downloadSip goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:   monitorRequest,
 		MonitorEndpoint:          monitor,
@@ -38,6 +39,7 @@ func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, con
 		ConfirmSipEndpoint:       confirmSip,
 		RejectSipEndpoint:        rejectSip,
 		UploadSipEndpoint:        uploadSip,
+		DownloadSipEndpoint:      downloadSip,
 	}
 }
 
@@ -159,4 +161,21 @@ func (c *Client) UploadSip(ctx context.Context, p *UploadSipPayload, req io.Read
 		return
 	}
 	return ires.(*UploadSipResult), nil
+}
+
+// DownloadSip calls the "download_sip" endpoint of the "ingest" service.
+// DownloadSip may return the following errors:
+//   - "not_found" (type *SIPNotFound): SIP not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) DownloadSip(ctx context.Context, p *DownloadSipPayload) (res []byte, err error) {
+	var ires any
+	ires, err = c.DownloadSipEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.([]byte), nil
 }

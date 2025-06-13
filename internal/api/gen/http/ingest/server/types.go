@@ -321,6 +321,51 @@ type UploadSipInternalErrorResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// DownloadSipNotValidResponseBody is the type of the "ingest" service
+// "download_sip" endpoint HTTP response body for the "not_valid" error.
+type DownloadSipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DownloadSipInternalErrorResponseBody is the type of the "ingest" service
+// "download_sip" endpoint HTTP response body for the "internal_error" error.
+type DownloadSipInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DownloadSipNotFoundResponseBody is the type of the "ingest" service
+// "download_sip" endpoint HTTP response body for the "not_found" error.
+type DownloadSipNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing SIP
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
 // SIPResponseBodyCollection is used to define fields on response body types.
 type SIPResponseBodyCollection []*SIPResponseBody
 
@@ -686,6 +731,44 @@ func NewUploadSipInternalErrorResponseBody(res *goa.ServiceError) *UploadSipInte
 	return body
 }
 
+// NewDownloadSipNotValidResponseBody builds the HTTP response body from the
+// result of the "download_sip" endpoint of the "ingest" service.
+func NewDownloadSipNotValidResponseBody(res *goa.ServiceError) *DownloadSipNotValidResponseBody {
+	body := &DownloadSipNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDownloadSipInternalErrorResponseBody builds the HTTP response body from
+// the result of the "download_sip" endpoint of the "ingest" service.
+func NewDownloadSipInternalErrorResponseBody(res *goa.ServiceError) *DownloadSipInternalErrorResponseBody {
+	body := &DownloadSipInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDownloadSipNotFoundResponseBody builds the HTTP response body from the
+// result of the "download_sip" endpoint of the "ingest" service.
+func NewDownloadSipNotFoundResponseBody(res *ingest.SIPNotFound) *DownloadSipNotFoundResponseBody {
+	body := &DownloadSipNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
 // NewMonitorRequestPayload builds a ingest service monitor_request endpoint
 // payload.
 func NewMonitorRequestPayload(token *string) *ingest.MonitorRequestPayload {
@@ -761,6 +844,15 @@ func NewRejectSipPayload(uuid string, token *string) *ingest.RejectSipPayload {
 func NewUploadSipPayload(contentType string, token *string) *ingest.UploadSipPayload {
 	v := &ingest.UploadSipPayload{}
 	v.ContentType = contentType
+	v.Token = token
+
+	return v
+}
+
+// NewDownloadSipPayload builds a ingest service download_sip endpoint payload.
+func NewDownloadSipPayload(uuid string, token *string) *ingest.DownloadSipPayload {
+	v := &ingest.DownloadSipPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v

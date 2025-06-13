@@ -277,3 +277,28 @@ func BuildUploadSipPayload(ingestUploadSipContentType string, ingestUploadSipTok
 
 	return v, nil
 }
+
+// BuildDownloadSipPayload builds the payload for the ingest download_sip
+// endpoint from CLI flags.
+func BuildDownloadSipPayload(ingestDownloadSipUUID string, ingestDownloadSipToken string) (*ingest.DownloadSipPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = ingestDownloadSipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if ingestDownloadSipToken != "" {
+			token = &ingestDownloadSipToken
+		}
+	}
+	v := &ingest.DownloadSipPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
