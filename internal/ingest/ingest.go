@@ -6,12 +6,14 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/jmoiron/sqlx"
 	temporalsdk_client "go.temporal.io/sdk/client"
+	goahttp "goa.design/goa/v3/http"
 	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
@@ -36,6 +38,7 @@ var ErrInvalid = errors.New("invalid")
 type Service interface {
 	// Goa returns an implementation of the goaingest Service.
 	Goa() goaingest.Service
+	DownloadSIP(goahttp.Muxer, func(*http.Request) goahttp.Decoder) http.HandlerFunc
 	CreateSIP(context.Context, *datatypes.SIP) error
 	UpdateSIP(context.Context, uuid.UUID, persistence.SIPUpdater) (*datatypes.SIP, error)
 	SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error

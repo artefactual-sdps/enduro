@@ -52,6 +52,10 @@ type Client struct {
 	// endpoint.
 	UploadSipDoer goahttp.Doer
 
+	// DownloadSip Doer is the HTTP client used to make requests to the
+	// download_sip endpoint.
+	DownloadSipDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -90,6 +94,7 @@ func NewClient(
 		ConfirmSipDoer:       doer,
 		RejectSipDoer:        doer,
 		UploadSipDoer:        doer,
+		DownloadSipDoer:      doer,
 		CORSDoer:             doer,
 		RestoreResponseBody:  restoreBody,
 		scheme:               scheme,
@@ -306,6 +311,30 @@ func (c *Client) UploadSip() goa.Endpoint {
 		resp, err := c.UploadSipDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("ingest", "upload_sip", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// DownloadSip returns an endpoint that makes HTTP requests to the ingest
+// service download_sip server.
+func (c *Client) DownloadSip() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeDownloadSipRequest(c.encoder)
+		decodeResponse = DecodeDownloadSipResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildDownloadSipRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.DownloadSipDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("ingest", "download_sip", err)
 		}
 		return decodeResponse(resp)
 	}

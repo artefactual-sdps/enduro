@@ -45,6 +45,10 @@ export interface IngestConfirmSipRequest {
     confirmSipRequestBody: ConfirmSipRequestBody;
 }
 
+export interface IngestDownloadSipRequest {
+    uuid: string;
+}
+
 export interface IngestListSipWorkflowsRequest {
     uuid: string;
 }
@@ -98,6 +102,22 @@ export interface IngestApiInterface {
      * confirm_sip ingest
      */
     ingestConfirmSip(requestParameters: IngestConfirmSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP\'s `failed_as` value.
+     * @summary download_sip ingest
+     * @param {string} uuid Identifier of the SIP to download
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestDownloadSipRaw(requestParameters: IngestDownloadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>>;
+
+    /**
+     * Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP\'s `failed_as` value.
+     * download_sip ingest
+     */
+    ingestDownloadSip(requestParameters: IngestDownloadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
     /**
      * List all workflows for a SIP
@@ -267,6 +287,46 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      */
     async ingestConfirmSip(requestParameters: IngestConfirmSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.ingestConfirmSipRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP\'s `failed_as` value.
+     * download_sip ingest
+     */
+    async ingestDownloadSipRaw(requestParameters: IngestDownloadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestDownloadSip.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/ingest/sips/{uuid}/download`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.BlobApiResponse(response);
+    }
+
+    /**
+     * Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP\'s `failed_as` value.
+     * download_sip ingest
+     */
+    async ingestDownloadSip(requestParameters: IngestDownloadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
+        const response = await this.ingestDownloadSipRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**

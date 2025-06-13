@@ -51,3 +51,8 @@ func RejectSipIngestPath(uuid string) string {
 func UploadSipIngestPath() string {
 	return "/ingest/sips/upload"
 }
+
+// DownloadSipIngestPath returns the URL path to the ingest service download_sip HTTP endpoint.
+func DownloadSipIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/sips/%v/download", uuid)
+}

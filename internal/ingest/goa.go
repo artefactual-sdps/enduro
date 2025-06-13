@@ -279,3 +279,9 @@ func (w *goaWrapper) RejectSip(ctx context.Context, payload *goaingest.RejectSip
 
 	return nil
 }
+
+func (w *goaWrapper) DownloadSip(ctx context.Context, payload *goaingest.DownloadSipPayload) ([]byte, error) {
+	// This service method is unused, see the DownloadSIP function instead which
+	// makes use of http.ResponseWriter.
+	return []byte{}, nil
+}

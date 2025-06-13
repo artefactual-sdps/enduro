@@ -19,6 +19,7 @@ var _ = Service("ingest", func() {
 		Description("Request access to the /monitor WebSocket")
 		// For now, the monitor websocket requires all the scopes from this service.
 		Security(JWTAuth, func() {
+			Scope("ingest:sips:download")
 			Scope("ingest:sips:list")
 			Scope("ingest:sips:read")
 			Scope("ingest:sips:review")
@@ -224,6 +225,32 @@ var _ = Service("ingest", func() {
 			// Define error HTTP statuses.
 			Response("invalid_media_type", StatusBadRequest)
 			Response("invalid_multipart_request", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+		})
+	})
+	Method("download_sip", func() {
+		Description(
+			"Download the failed package related to a SIP. " +
+				"It will be the original SIP or the transformed PIP, " +
+				"based on the SIP's `failed_as` value.",
+		)
+		Security(JWTAuth, func() {
+			Scope("ingest:sips:download")
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of the SIP to download")
+			Token("token", String)
+			Required("uuid")
+		})
+		Result(Bytes)
+		Error("not_found", SIPNotFound, "SIP not found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			GET("/sips/{uuid}/download")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
 			Response("internal_error", StatusInternalServerError)
 		})
 	})
