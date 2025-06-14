@@ -26,6 +26,11 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 		aipID = uuid.NullUUID{UUID: sip.AipID, Valid: true}
 	}
 
+	var uploaderID *uuid.UUID
+	if sip.UploaderID != 0 && sip.Edges.User != nil {
+		uploaderID = &sip.Edges.User.UUID
+	}
+
 	return &datatypes.SIP{
 		ID:          sip.ID,
 		UUID:        sip.UUID,
@@ -37,6 +42,7 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 		CompletedAt: completed,
 		FailedAs:    sip.FailedAs,
 		FailedKey:   sip.FailedKey,
+		UploaderID:  uploaderID,
 	}
 }
 

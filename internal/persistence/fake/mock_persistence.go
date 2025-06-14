@@ -350,6 +350,45 @@ func (c *MockServiceReadUserCall) DoAndReturn(f func(context.Context, uuid.UUID)
 	return c
 }
 
+// ReadUserJWT mocks base method.
+func (m *MockService) ReadUserJWT(arg0 context.Context, arg1, arg2 string) (*datatypes.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadUserJWT", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*datatypes.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadUserJWT indicates an expected call of ReadUserJWT.
+func (mr *MockServiceMockRecorder) ReadUserJWT(arg0, arg1, arg2 any) *MockServiceReadUserJWTCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadUserJWT", reflect.TypeOf((*MockService)(nil).ReadUserJWT), arg0, arg1, arg2)
+	return &MockServiceReadUserJWTCall{Call: call}
+}
+
+// MockServiceReadUserJWTCall wrap *gomock.Call
+type MockServiceReadUserJWTCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceReadUserJWTCall) Return(arg0 *datatypes.User, arg1 error) *MockServiceReadUserJWTCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceReadUserJWTCall) Do(f func(context.Context, string, string) (*datatypes.User, error)) *MockServiceReadUserJWTCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceReadUserJWTCall) DoAndReturn(f func(context.Context, string, string) (*datatypes.User, error)) *MockServiceReadUserJWTCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // UpdateSIP mocks base method.
 func (m *MockService) UpdateSIP(arg0 context.Context, arg1 uuid.UUID, arg2 persistence.SIPUpdater) (*datatypes.SIP, error) {
 	m.ctrl.T.Helper()

@@ -46,4 +46,7 @@ type Service interface {
 
 	// ReadUser retrieves a user by UUID.
 	ReadUser(context.Context, uuid.UUID) (*datatypes.User, error)
+
+	// ReadUserJWT retrieves a user by JWT issuer and subject.
+	ReadUserJWT(ctx context.Context, iss, sub string) (*datatypes.User, error)
 }

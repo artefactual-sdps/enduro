@@ -5,15 +5,16 @@ import (
 	"testing"
 	"time"
 
-	"github.com/artefactual-sdps/enduro/internal/datatypes"
-	"github.com/artefactual-sdps/enduro/internal/persistence"
-	"github.com/artefactual-sdps/enduro/internal/persistence/fake"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
 	"go.artefactual.dev/tools/ref"
 	"go.opentelemetry.io/otel/trace/noop"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
+
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
+	"github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
 
 func TestCreateUser(t *testing.T) {
@@ -148,6 +149,88 @@ func TestReadUser(t *testing.T) {
 			w := persistence.WithTelemetry(svc, tracer)
 
 			got, err := w.ReadUser(t.Context(), tt.params)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
+		})
+	}
+}
+
+func TestReadUserJWT(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	createdAt := ref.New(time.Now().Truncate(time.Second))
+
+	type params struct {
+		iss string
+		sub string
+	}
+
+	type test struct {
+		name    string
+		mock    func(*fake.MockService)
+		args    params
+		want    *datatypes.User
+		wantErr string
+	}
+	for _, tt := range []test{
+		{
+			name: "Reads a user using JWT data",
+			mock: func(svc *fake.MockService) {
+				svc.EXPECT().
+					ReadUserJWT(
+						mockutil.Context(),
+						"https://oidc.example.com",
+						"1234567890",
+					).
+					Return(
+						&datatypes.User{
+							UUID:      userID,
+							CreatedAt: createdAt,
+							Name:      ref.New("Test User"),
+							JWTIss:    ref.New("https://oidc.example.com"),
+							JWTSub:    ref.New("1234567890"),
+						},
+						nil,
+					)
+			},
+			args: params{iss: "https://oidc.example.com", sub: "1234567890"},
+			want: &datatypes.User{
+				UUID:      userID,
+				CreatedAt: createdAt,
+				Name:      ref.New("Test User"),
+				JWTIss:    ref.New("https://oidc.example.com"),
+				JWTSub:    ref.New("1234567890"),
+			},
+		},
+		{
+			name: "Errors when reading a user using JWT data",
+			mock: func(svc *fake.MockService) {
+				svc.EXPECT().
+					ReadUserJWT(mockutil.Context(), "", "").
+					Return(nil, errors.New("not found error: db: user not found"))
+			},
+			args:    params{iss: "", sub: ""},
+			wantErr: "ReadUserJWT: not found error: db: user not found",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc := fake.NewMockService(gomock.NewController(t))
+			if tt.mock != nil {
+				tt.mock(svc)
+			}
+
+			tracer := noop.NewTracerProvider().Tracer("test")
+			w := persistence.WithTelemetry(svc, tracer)
+
+			got, err := w.ReadUserJWT(t.Context(), tt.args.iss, tt.args.sub)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

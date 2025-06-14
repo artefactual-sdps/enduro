@@ -170,3 +170,16 @@ func (w *wrapper) ReadUser(ctx context.Context, id uuid.UUID) (*datatypes.User, 
 
 	return u, nil
 }
+
+func (w *wrapper) ReadUserJWT(ctx context.Context, iss, sub string) (*datatypes.User, error) {
+	ctx, span := w.tracer.Start(ctx, "ReadUserJWT")
+	defer span.End()
+
+	u, err := w.wrapped.ReadUserJWT(ctx, iss, sub)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ReadUserJWT")
+	}
+
+	return u, nil
+}
