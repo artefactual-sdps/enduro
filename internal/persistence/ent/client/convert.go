@@ -26,6 +26,11 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 		aipID = uuid.NullUUID{UUID: sip.AipID, Valid: true}
 	}
 
+	var uploaderID *uuid.UUID
+	if sip.UploaderID != 0 && sip.Edges.User != nil {
+		uploaderID = &sip.Edges.User.UUID
+	}
+
 	return &datatypes.SIP{
 		ID:          sip.ID,
 		UUID:        sip.UUID,
@@ -37,6 +42,7 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 		CompletedAt: completed,
 		FailedAs:    sip.FailedAs,
 		FailedKey:   sip.FailedKey,
+		UploaderID:  uploaderID,
 	}
 }
 
@@ -68,4 +74,29 @@ func convertTask(task *db.Task) *datatypes.Task {
 		Note:        task.Note,
 		WorkflowID:  task.WorkflowID,
 	}
+}
+
+// convertUser converts an entgo `db.User` representation to a
+// `datatypes.User` representation.
+func convertUser(dbu *db.User) *datatypes.User {
+	u := datatypes.User{
+		UUID:      dbu.UUID,
+		CreatedAt: &dbu.CreatedAt, // CreatedAt is never null in the database.
+	}
+
+	// Set optional fields if they are not empty.
+	if dbu.Email != "" {
+		u.Email = &dbu.Email
+	}
+	if dbu.Name != "" {
+		u.Name = &dbu.Name
+	}
+	if dbu.JwtIss != "" {
+		u.JWTIss = &dbu.JwtIss
+	}
+	if dbu.JwtSub != "" {
+		u.JWTSub = &dbu.JwtSub
+	}
+
+	return &u
 }

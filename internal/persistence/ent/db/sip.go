@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 	"github.com/google/uuid"
 )
 
@@ -37,6 +38,8 @@ type SIP struct {
 	FailedAs enums.SIPFailedAs `json:"failed_as,omitempty"`
 	// FailedKey holds the value of the "failed_key" field.
 	FailedKey string `json:"failed_key,omitempty"`
+	// UploaderID holds the value of the "uploader_id" field.
+	UploaderID int `json:"uploader_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SIPQuery when eager-loading is set.
 	Edges        SIPEdges `json:"edges"`
@@ -47,9 +50,11 @@ type SIP struct {
 type SIPEdges struct {
 	// Workflows holds the value of the workflows edge.
 	Workflows []*Workflow `json:"workflows,omitempty"`
+	// User holds the value of the user edge.
+	User *User `json:"user,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // WorkflowsOrErr returns the Workflows value or an error if the edge
@@ -61,12 +66,23 @@ func (e SIPEdges) WorkflowsOrErr() ([]*Workflow, error) {
 	return nil, &NotLoadedError{edge: "workflows"}
 }
 
+// UserOrErr returns the User value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e SIPEdges) UserOrErr() (*User, error) {
+	if e.User != nil {
+		return e.User, nil
+	} else if e.loadedTypes[1] {
+		return nil, &NotFoundError{label: user.Label}
+	}
+	return nil, &NotLoadedError{edge: "user"}
+}
+
 // scanValues returns the types for scanning values from sql.Rows.
 func (*SIP) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case sip.FieldID:
+		case sip.FieldID, sip.FieldUploaderID:
 			values[i] = new(sql.NullInt64)
 		case sip.FieldName, sip.FieldStatus, sip.FieldFailedAs, sip.FieldFailedKey:
 			values[i] = new(sql.NullString)
@@ -149,6 +165,12 @@ func (s *SIP) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				s.FailedKey = value.String
 			}
+		case sip.FieldUploaderID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field uploader_id", values[i])
+			} else if value.Valid {
+				s.UploaderID = int(value.Int64)
+			}
 		default:
 			s.selectValues.Set(columns[i], values[i])
 		}
@@ -165,6 +187,11 @@ func (s *SIP) Value(name string) (ent.Value, error) {
 // QueryWorkflows queries the "workflows" edge of the SIP entity.
 func (s *SIP) QueryWorkflows() *WorkflowQuery {
 	return NewSIPClient(s.config).QueryWorkflows(s)
+}
+
+// QueryUser queries the "user" edge of the SIP entity.
+func (s *SIP) QueryUser() *UserQuery {
+	return NewSIPClient(s.config).QueryUser(s)
 }
 
 // Update returns a builder for updating this SIP.
@@ -216,6 +243,9 @@ func (s *SIP) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("failed_key=")
 	builder.WriteString(s.FailedKey)
+	builder.WriteString(", ")
+	builder.WriteString("uploader_id=")
+	builder.WriteString(fmt.Sprintf("%v", s.UploaderID))
 	builder.WriteByte(')')
 	return builder.String()
 }

@@ -46,6 +46,16 @@ func createSIP(
 		Save(t.Context())
 }
 
+func createUser(
+	t *testing.T,
+	entc *db.Client,
+	uuid uuid.UUID,
+) (*db.User, error) {
+	return entc.User.Create().
+		SetUUID(uuid).
+		Save(t.Context())
+}
+
 func createWorkflow(
 	t *testing.T,
 	entc *db.Client,
