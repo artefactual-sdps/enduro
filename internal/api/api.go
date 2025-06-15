@@ -10,7 +10,6 @@ package api
 
 import (
 	"context"
-	"embed"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -29,16 +28,12 @@ import (
 	aaboutsvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/about/server"
 	ingestsvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/ingest/server"
 	storagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
-	swaggersvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/swagger/server"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	intingest "github.com/artefactual-sdps/enduro/internal/ingest"
 	intstorage "github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/version"
 )
-
-//go:embed gen/http/openapi.json
-var openAPIJSON embed.FS
 
 func HTTPServer(
 	logger logr.Logger,
@@ -75,10 +70,6 @@ func HTTPServer(
 	aboutErrorHandler := errorHandler(logger, "About error.")
 	aboutServer := aaboutsvr.New(aboutEndpoints, mux, dec, enc, aboutErrorHandler, nil)
 	aaboutsvr.Mount(mux, aboutServer)
-
-	// Swagger service.
-	swaggerService := swaggersvr.New(nil, nil, nil, nil, nil, nil, http.FS(openAPIJSON))
-	swaggersvr.Mount(mux, swaggerService)
 
 	// Global middlewares.
 	var handler http.Handler = mux

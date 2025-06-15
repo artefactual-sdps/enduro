@@ -1680,18 +1680,6 @@ paths:
             security:
                 - jwt_header_Authorization:
                     - storage:locations:aips:list
-    /swagger/swagger.json:
-        get:
-            tags:
-                - swagger
-            summary: Download gen/http/openapi.json
-            description: JSON document containing the API swagger definition.
-            operationId: swagger#/swagger/swagger.json
-            responses:
-                "200":
-                    description: File downloaded
-            security:
-                - jwt_header_: []
 components:
     schemas:
         AIPCollection:
@@ -3004,7 +2992,5 @@ tags:
       description: The ingest service manages ingested SIPs.
     - name: storage
       description: The storage service manages locations and AIPs.
-    - name: swagger
-      description: The swagger service serves the API swagger definition.
 security:
     - jwt_header_: []

@@ -2,6 +2,7 @@
 
 This is the developer manual for Enduro SDPS.
 
+- [API](api.md)
 - [Database migrations](db-migrations.md)
 - [Documentation](docs.md)
 - [Dependency management](deps.md)

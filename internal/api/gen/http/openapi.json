@@ -5135,27 +5135,6 @@
           "storage"
         ]
       }
-    },
-    "/swagger/swagger.json": {
-      "get": {
-        "description": "JSON document containing the API swagger definition.",
-        "operationId": "swagger#/swagger/swagger.json",
-        "responses": {
-          "200": {
-            "description": "File downloaded",
-            "schema": {
-              "type": "file"
-            }
-          }
-        },
-        "schemes": [
-          "http"
-        ],
-        "summary": "Download gen/http/openapi.json",
-        "tags": [
-          "swagger"
-        ]
-      }
     }
   },
   "produces": [

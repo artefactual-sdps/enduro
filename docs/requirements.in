@@ -1,4 +1,5 @@
 mkdocs
 mkdocs-autorefs
 mkdocs-literate-nav
+mkdocs-swagger-ui-tag
 pre-commit
