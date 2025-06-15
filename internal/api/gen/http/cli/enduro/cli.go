@@ -14,6 +14,7 @@ import (
 	"net/http"
 	"os"
 
+	aboutc "github.com/artefactual-sdps/enduro/internal/api/gen/http/about/client"
 	ingestc "github.com/artefactual-sdps/enduro/internal/api/gen/http/ingest/client"
 	storagec "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
 	goahttp "goa.design/goa/v3/http"
@@ -24,14 +25,16 @@ import (
 //
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
-	return `ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip)
+	return `about about
+ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip)
 storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` ingest monitor-request --token "abc123"` + "\n" +
+	return os.Args[0] + ` about about --token "abc123"` + "\n" +
+		os.Args[0] + ` ingest monitor-request --token "abc123"` + "\n" +
 		os.Args[0] + ` storage list-aips --name "abc123" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "stored" --limit 1 --offset 1 --token "abc123"` + "\n" +
 		""
 }
@@ -48,6 +51,11 @@ func ParseEndpoint(
 	ingestConfigurer *ingestc.ConnConfigurer,
 ) (goa.Endpoint, any, error) {
 	var (
+		aboutFlags = flag.NewFlagSet("about", flag.ContinueOnError)
+
+		aboutAboutFlags     = flag.NewFlagSet("about", flag.ExitOnError)
+		aboutAboutTokenFlag = aboutAboutFlags.String("token", "", "")
+
 		ingestFlags = flag.NewFlagSet("ingest", flag.ContinueOnError)
 
 		ingestMonitorRequestFlags     = flag.NewFlagSet("monitor-request", flag.ExitOnError)
@@ -169,6 +177,9 @@ func ParseEndpoint(
 		storageListLocationAipsUUIDFlag  = storageListLocationAipsFlags.String("uuid", "REQUIRED", "Identifier of location")
 		storageListLocationAipsTokenFlag = storageListLocationAipsFlags.String("token", "", "")
 	)
+	aboutFlags.Usage = aboutUsage
+	aboutAboutFlags.Usage = aboutAboutUsage
+
 	ingestFlags.Usage = ingestUsage
 	ingestMonitorRequestFlags.Usage = ingestMonitorRequestUsage
 	ingestMonitorFlags.Usage = ingestMonitorUsage
@@ -213,6 +224,8 @@ func ParseEndpoint(
 	{
 		svcn = flag.Arg(0)
 		switch svcn {
+		case "about":
+			svcf = aboutFlags
 		case "ingest":
 			svcf = ingestFlags
 		case "storage":
@@ -232,6 +245,13 @@ func ParseEndpoint(
 	{
 		epn = svcf.Arg(0)
 		switch svcn {
+		case "about":
+			switch epn {
+			case "about":
+				epf = aboutAboutFlags
+
+			}
+
 		case "ingest":
 			switch epn {
 			case "monitor-request":
@@ -335,6 +355,13 @@ func ParseEndpoint(
 	)
 	{
 		switch svcn {
+		case "about":
+			c := aboutc.NewClient(scheme, host, doer, enc, dec, restore)
+			switch epn {
+			case "about":
+				endpoint = c.About()
+				data, err = aboutc.BuildAboutPayload(*aboutAboutTokenFlag)
+			}
 		case "ingest":
 			c := ingestc.NewClient(scheme, host, doer, enc, dec, restore, dialer, ingestConfigurer)
 			switch epn {
@@ -428,6 +455,30 @@ func ParseEndpoint(
 	}
 
 	return endpoint, data, nil
+}
+
+// aboutUsage displays the usage of the about command and its subcommands.
+func aboutUsage() {
+	fmt.Fprintf(os.Stderr, `The about service provides information about the system.
+Usage:
+    %[1]s [globalflags] about COMMAND [flags]
+
+COMMAND:
+    about: Get information about the system
+
+Additional help:
+    %[1]s about COMMAND --help
+`, os.Args[0])
+}
+func aboutAboutUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] about about -token STRING
+
+Get information about the system
+    -token STRING: 
+
+Example:
+    %[1]s about about --token "abc123"
+`, os.Args[0])
 }
 
 // ingestUsage displays the usage of the ingest command and its subcommands.

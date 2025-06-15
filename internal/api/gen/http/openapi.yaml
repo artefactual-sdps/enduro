@@ -1305,20 +1305,6 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
-    /swagger/swagger.json:
-        get:
-            tags:
-                - swagger
-            summary: Download gen/http/openapi.json
-            description: JSON document containing the API swagger definition.
-            operationId: swagger#/swagger/swagger.json
-            responses:
-                "200":
-                    description: File downloaded
-                    schema:
-                        type: file
-            schemes:
-                - http
 definitions:
     AIPResponse:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip; view=default'

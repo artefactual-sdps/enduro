@@ -24,6 +24,7 @@ plugins:
   - autorefs
   - literate-nav:
       nav_file: README.md
+  - swagger-ui-tag
 
 theme:
   name: readthedocs
