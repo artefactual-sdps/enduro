@@ -12,6 +12,12 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
+type Uploader struct {
+	UUID  uuid.UUID
+	Email string
+	Name  string
+}
+
 // SIP represents a SIP.
 type SIP struct {
 	ID     int
@@ -35,8 +41,8 @@ type SIP struct {
 	// Object key from the failed SIP/PIP in the internal bucket.
 	FailedKey string
 
-	// UploaderID is the ID of the user that uploaded the SIP.
-	UploaderID *uuid.UUID
+	// Uploader is the user that uploaded the SIP.
+	Uploader *Uploader
 }
 
 // Goa returns the API representation of the SIP.

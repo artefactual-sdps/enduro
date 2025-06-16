@@ -66,6 +66,12 @@ type SIPView struct {
 	FailedAs *string
 	// Object key of the failed package in the internal bucket
 	FailedKey *string
+	// UUID of the user who uploaded the SIP
+	UploaderUUID *uuid.UUID
+	// Email of the user who uploaded the SIP
+	UploaderEmail *string
+	// Name of the user who uploaded the SIP
+	UploaderName *string
 }
 
 // EnduroPageView is a type that runs validations on a projected type.
@@ -135,6 +141,9 @@ var (
 			"completed_at",
 			"failed_as",
 			"failed_key",
+			"uploader_uuid",
+			"uploader_email",
+			"uploader_name",
 		},
 	}
 	// SIPWorkflowsMap is a map indexing the attribute names of SIPWorkflows by
@@ -157,6 +166,9 @@ var (
 			"completed_at",
 			"failed_as",
 			"failed_key",
+			"uploader_uuid",
+			"uploader_email",
+			"uploader_name",
 		},
 	}
 	// EnduroPageMap is a map indexing the attribute names of EnduroPage by view

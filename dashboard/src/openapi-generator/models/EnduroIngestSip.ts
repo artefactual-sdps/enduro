@@ -68,6 +68,24 @@ export interface EnduroIngestSip {
      */
     status: EnduroIngestSipStatusEnum;
     /**
+     * Email of the user who uploaded the SIP
+     * @type {string}
+     * @memberof EnduroIngestSip
+     */
+    uploaderEmail?: string;
+    /**
+     * Name of the user who uploaded the SIP
+     * @type {string}
+     * @memberof EnduroIngestSip
+     */
+    uploaderName?: string;
+    /**
+     * UUID of the user who uploaded the SIP
+     * @type {string}
+     * @memberof EnduroIngestSip
+     */
+    uploaderUuid?: string;
+    /**
      * Identifier of SIP
      * @type {string}
      * @memberof EnduroIngestSip
@@ -129,6 +147,9 @@ export function EnduroIngestSipFromJSONTyped(json: any, ignoreDiscriminator: boo
         'name': !exists(json, 'name') ? undefined : json['name'],
         'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
+        'uploaderEmail': !exists(json, 'uploader_email') ? undefined : json['uploader_email'],
+        'uploaderName': !exists(json, 'uploader_name') ? undefined : json['uploader_name'],
+        'uploaderUuid': !exists(json, 'uploader_uuid') ? undefined : json['uploader_uuid'],
         'uuid': json['uuid'],
     };
 }
@@ -150,6 +171,9 @@ export function EnduroIngestSipToJSON(value?: EnduroIngestSip | null): any {
         'name': value.name,
         'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),
         'status': value.status,
+        'uploader_email': value.uploaderEmail,
+        'uploader_name': value.uploaderName,
+        'uploader_uuid': value.uploaderUuid,
         'uuid': value.uuid,
     };
 }

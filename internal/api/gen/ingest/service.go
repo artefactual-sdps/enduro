@@ -174,6 +174,12 @@ type SIP struct {
 	FailedAs *string
 	// Object key of the failed package in the internal bucket
 	FailedKey *string
+	// UUID of the user who uploaded the SIP
+	UploaderUUID *uuid.UUID
+	// Email of the user who uploaded the SIP
+	UploaderEmail *string
+	// Name of the user who uploaded the SIP
+	UploaderName *string
 }
 
 type SIPCollection []*SIP
@@ -464,12 +470,15 @@ func newSIPCollectionView(res SIPCollection) ingestviews.SIPCollectionView {
 // newSIP converts projected type SIP to service type SIP.
 func newSIP(vres *ingestviews.SIPView) *SIP {
 	res := &SIP{
-		Name:        vres.Name,
-		AipID:       vres.AipID,
-		StartedAt:   vres.StartedAt,
-		CompletedAt: vres.CompletedAt,
-		FailedAs:    vres.FailedAs,
-		FailedKey:   vres.FailedKey,
+		Name:          vres.Name,
+		AipID:         vres.AipID,
+		StartedAt:     vres.StartedAt,
+		CompletedAt:   vres.CompletedAt,
+		FailedAs:      vres.FailedAs,
+		FailedKey:     vres.FailedKey,
+		UploaderUUID:  vres.UploaderUUID,
+		UploaderEmail: vres.UploaderEmail,
+		UploaderName:  vres.UploaderName,
 	}
 	if vres.UUID != nil {
 		res.UUID = *vres.UUID
@@ -487,15 +496,18 @@ func newSIP(vres *ingestviews.SIPView) *SIP {
 // "default" view.
 func newSIPView(res *SIP) *ingestviews.SIPView {
 	vres := &ingestviews.SIPView{
-		UUID:        &res.UUID,
-		Name:        res.Name,
-		Status:      &res.Status,
-		AipID:       res.AipID,
-		CreatedAt:   &res.CreatedAt,
-		StartedAt:   res.StartedAt,
-		CompletedAt: res.CompletedAt,
-		FailedAs:    res.FailedAs,
-		FailedKey:   res.FailedKey,
+		UUID:          &res.UUID,
+		Name:          res.Name,
+		Status:        &res.Status,
+		AipID:         res.AipID,
+		CreatedAt:     &res.CreatedAt,
+		StartedAt:     res.StartedAt,
+		CompletedAt:   res.CompletedAt,
+		FailedAs:      res.FailedAs,
+		FailedKey:     res.FailedKey,
+		UploaderUUID:  res.UploaderUUID,
+		UploaderEmail: res.UploaderEmail,
+		UploaderName:  res.UploaderName,
 	}
 	return vres
 }
