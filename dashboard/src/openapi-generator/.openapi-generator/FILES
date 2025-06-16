@@ -2,7 +2,6 @@
 apis/AboutApi.ts
 apis/IngestApi.ts
 apis/StorageApi.ts
-apis/SwaggerApi.ts
 apis/index.ts
 index.ts
 models/AIPResponse.ts

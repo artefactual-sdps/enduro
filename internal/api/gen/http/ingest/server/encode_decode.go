@@ -883,15 +883,18 @@ func EncodeUploadSipError(encoder func(context.Context, http.ResponseWriter) goa
 // *SIPResponseBody from a value of type *ingestviews.SIPView.
 func marshalIngestviewsSIPViewToSIPResponseBody(v *ingestviews.SIPView) *SIPResponseBody {
 	res := &SIPResponseBody{
-		UUID:        *v.UUID,
-		Name:        v.Name,
-		Status:      *v.Status,
-		AipID:       v.AipID,
-		CreatedAt:   *v.CreatedAt,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
-		FailedAs:    v.FailedAs,
-		FailedKey:   v.FailedKey,
+		UUID:          *v.UUID,
+		Name:          v.Name,
+		Status:        *v.Status,
+		AipID:         v.AipID,
+		CreatedAt:     *v.CreatedAt,
+		StartedAt:     v.StartedAt,
+		CompletedAt:   v.CompletedAt,
+		FailedAs:      v.FailedAs,
+		FailedKey:     v.FailedKey,
+		UploaderUUID:  v.UploaderUUID,
+		UploaderEmail: v.UploaderEmail,
+		UploaderName:  v.UploaderName,
 	}
 
 	return res

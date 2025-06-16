@@ -14,6 +14,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 // GoaWrapper returns a ingestImpl wrapper that implements
@@ -167,7 +168,7 @@ func (w *goaWrapper) ShowSip(
 	}
 
 	s, err := w.perSvc.ReadSIP(ctx, sipUUID)
-	if err == sql.ErrNoRows {
+	if err == persistence.ErrNotFound {
 		return nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP not found"}
 	} else if err != nil {
 		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))

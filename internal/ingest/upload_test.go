@@ -11,7 +11,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"go.artefactual.dev/tools/mockutil"
-	"go.artefactual.dev/tools/ref"
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
@@ -171,10 +170,14 @@ func TestUpload(t *testing.T) {
 				psvc.EXPECT().CreateSIP(
 					mockutil.Context(),
 					&datatypes.SIP{
-						UUID:       uuid0,
-						Name:       "first.zip",
-						Status:     enums.SIPStatusQueued,
-						UploaderID: &uuid1,
+						UUID:   uuid0,
+						Name:   "first.zip",
+						Status: enums.SIPStatusQueued,
+						Uploader: &datatypes.Uploader{
+							UUID:  uuid1,
+							Email: "nobody@example.com",
+							Name:  "Test User",
+						},
 					},
 				).Return(nil)
 
@@ -230,10 +233,14 @@ func TestUpload(t *testing.T) {
 				psvc.EXPECT().CreateSIP(
 					mockutil.Context(),
 					&datatypes.SIP{
-						UUID:       uuid0,
-						Name:       "first.zip",
-						Status:     enums.SIPStatusQueued,
-						UploaderID: ref.New(uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")),
+						UUID:   uuid0,
+						Name:   "first.zip",
+						Status: enums.SIPStatusQueued,
+						Uploader: &datatypes.Uploader{
+							UUID:  uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649"),
+							Email: "nobody@example.com",
+							Name:  "Test User",
+						},
 					},
 				).Return(nil)
 

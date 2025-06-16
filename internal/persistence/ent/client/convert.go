@@ -13,37 +13,36 @@ import (
 // convertSIP converts an entgo `db.SIP` representation to a
 // `datatypes.SIP` representation.
 func convertSIP(sip *db.SIP) *datatypes.SIP {
-	var started, completed sql.NullTime
+	// Convert required fields.
+	s := datatypes.SIP{
+		ID:        sip.ID,
+		UUID:      sip.UUID,
+		Name:      sip.Name,
+		Status:    sip.Status,
+		CreatedAt: sip.CreatedAt,
+		FailedAs:  sip.FailedAs,
+		FailedKey: sip.FailedKey,
+	}
+
+	// Convert optional fields.
 	if !sip.StartedAt.IsZero() {
-		started = sql.NullTime{Time: sip.StartedAt, Valid: true}
+		s.StartedAt = sql.NullTime{Time: sip.StartedAt, Valid: true}
 	}
 	if !sip.CompletedAt.IsZero() {
-		completed = sql.NullTime{Time: sip.CompletedAt, Valid: true}
+		s.CompletedAt = sql.NullTime{Time: sip.CompletedAt, Valid: true}
 	}
-
-	var aipID uuid.NullUUID
 	if sip.AipID != uuid.Nil {
-		aipID = uuid.NullUUID{UUID: sip.AipID, Valid: true}
+		s.AIPID = uuid.NullUUID{UUID: sip.AipID, Valid: true}
 	}
-
-	var uploaderID *uuid.UUID
 	if sip.UploaderID != 0 && sip.Edges.User != nil {
-		uploaderID = &sip.Edges.User.UUID
+		s.Uploader = &datatypes.Uploader{
+			UUID:  sip.Edges.User.UUID,
+			Email: sip.Edges.User.Email,
+			Name:  sip.Edges.User.Name,
+		}
 	}
 
-	return &datatypes.SIP{
-		ID:          sip.ID,
-		UUID:        sip.UUID,
-		Name:        sip.Name,
-		AIPID:       aipID,
-		Status:      sip.Status,
-		CreatedAt:   sip.CreatedAt,
-		StartedAt:   started,
-		CompletedAt: completed,
-		FailedAs:    sip.FailedAs,
-		FailedKey:   sip.FailedKey,
-		UploaderID:  uploaderID,
-	}
+	return &s
 }
 
 // convertTask converts an entgo `db.Task` representation

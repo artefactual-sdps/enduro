@@ -71,6 +71,12 @@ type ShowSipResponseBody struct {
 	FailedAs *string `form:"failed_as,omitempty" json:"failed_as,omitempty" xml:"failed_as,omitempty"`
 	// Object key of the failed package in the internal bucket
 	FailedKey *string `form:"failed_key,omitempty" json:"failed_key,omitempty" xml:"failed_key,omitempty"`
+	// UUID of the user who uploaded the SIP
+	UploaderUUID *uuid.UUID `form:"uploader_uuid,omitempty" json:"uploader_uuid,omitempty" xml:"uploader_uuid,omitempty"`
+	// Email of the user who uploaded the SIP
+	UploaderEmail *string `form:"uploader_email,omitempty" json:"uploader_email,omitempty" xml:"uploader_email,omitempty"`
+	// Name of the user who uploaded the SIP
+	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
 }
 
 // ListSipWorkflowsResponseBody is the type of the "ingest" service
@@ -344,6 +350,12 @@ type SIPResponseBody struct {
 	FailedAs *string `form:"failed_as,omitempty" json:"failed_as,omitempty" xml:"failed_as,omitempty"`
 	// Object key of the failed package in the internal bucket
 	FailedKey *string `form:"failed_key,omitempty" json:"failed_key,omitempty" xml:"failed_key,omitempty"`
+	// UUID of the user who uploaded the SIP
+	UploaderUUID *uuid.UUID `form:"uploader_uuid,omitempty" json:"uploader_uuid,omitempty" xml:"uploader_uuid,omitempty"`
+	// Email of the user who uploaded the SIP
+	UploaderEmail *string `form:"uploader_email,omitempty" json:"uploader_email,omitempty" xml:"uploader_email,omitempty"`
+	// Name of the user who uploaded the SIP
+	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
 }
 
 // EnduroPageResponseBody is used to define fields on response body types.
@@ -560,15 +572,18 @@ func NewListSipsUnauthorized(body string) ingest.Unauthorized {
 // HTTP "OK" response.
 func NewShowSipSIPOK(body *ShowSipResponseBody) *ingestviews.SIPView {
 	v := &ingestviews.SIPView{
-		UUID:        body.UUID,
-		Name:        body.Name,
-		Status:      body.Status,
-		AipID:       body.AipID,
-		CreatedAt:   body.CreatedAt,
-		StartedAt:   body.StartedAt,
-		CompletedAt: body.CompletedAt,
-		FailedAs:    body.FailedAs,
-		FailedKey:   body.FailedKey,
+		UUID:          body.UUID,
+		Name:          body.Name,
+		Status:        body.Status,
+		AipID:         body.AipID,
+		CreatedAt:     body.CreatedAt,
+		StartedAt:     body.StartedAt,
+		CompletedAt:   body.CompletedAt,
+		FailedAs:      body.FailedAs,
+		FailedKey:     body.FailedKey,
+		UploaderUUID:  body.UploaderUUID,
+		UploaderEmail: body.UploaderEmail,
+		UploaderName:  body.UploaderName,
 	}
 
 	return v

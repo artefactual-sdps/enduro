@@ -114,7 +114,11 @@ func (w *goaWrapper) initSIP(
 
 	// If user is nil, it means authentication is not enabled.
 	if user != nil {
-		s.UploaderID = &user.UUID
+		s.Uploader = &datatypes.Uploader{
+			UUID:  user.UUID,
+			Email: user.Email,
+			Name:  user.Name,
+		}
 	}
 
 	if err := w.perSvc.CreateSIP(ctx, s); err != nil {

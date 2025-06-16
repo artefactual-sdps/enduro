@@ -95,6 +95,12 @@ type SIP struct {
 	FailedAs *string
 	// Object key of the failed package in the internal bucket
 	FailedKey *string
+	// UUID of the user who uploaded the SIP
+	UploaderUUID *uuid.UUID
+	// Email of the user who uploaded the SIP
+	UploaderEmail *string
+	// Name of the user who uploaded the SIP
+	UploaderName *string
 }
 
 type SIPCreatedEvent struct {

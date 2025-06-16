@@ -1886,6 +1886,9 @@ definitions:
                   name: abc123
                   started_at: "1970-01-01T00:00:01Z"
                   status: failed
+                  uploader_email: abc123
+                  uploader_name: abc123
+                  uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             page:
                 limit: 1
@@ -2012,17 +2015,17 @@ definitions:
                     Value:
                         type: string
                         description: JSON encoded union value
-                        example: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                        example: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                 example:
                     Type: sip_created_event
-                    Value: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                    Value: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                 required:
                     - Type
                     - Value
         example:
             event:
                 Type: sip_created_event
-                Value: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                Value: '{"item":{"aip_id":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
     IngestRejectSipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2242,6 +2245,18 @@ definitions:
                     - processing
                     - pending
                     - ingested
+            uploader_email:
+                type: string
+                description: Email of the user who uploaded the SIP
+                example: abc123
+            uploader_name:
+                type: string
+                description: Name of the user who uploaded the SIP
+                example: abc123
+            uploader_uuid:
+                type: string
+                description: UUID of the user who uploaded the SIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             uuid:
                 type: string
                 description: Identifier of SIP
@@ -2256,6 +2271,9 @@ definitions:
             name: abc123
             started_at: "1970-01-01T00:00:01Z"
             status: failed
+            uploader_email: abc123
+            uploader_name: abc123
+            uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
             - uuid
@@ -2505,6 +2523,18 @@ definitions:
                     - processing
                     - pending
                     - ingested
+            uploader_email:
+                type: string
+                description: Email of the user who uploaded the SIP
+                example: abc123
+            uploader_name:
+                type: string
+                description: Name of the user who uploaded the SIP
+                example: abc123
+            uploader_uuid:
+                type: string
+                description: UUID of the user who uploaded the SIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             uuid:
                 type: string
                 description: Identifier of SIP
@@ -2519,6 +2549,9 @@ definitions:
             name: abc123
             started_at: "1970-01-01T00:00:01Z"
             status: failed
+            uploader_email: abc123
+            uploader_name: abc123
+            uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
             - uuid
@@ -2539,6 +2572,9 @@ definitions:
               name: abc123
               started_at: "1970-01-01T00:00:01Z"
               status: failed
+              uploader_email: abc123
+              uploader_name: abc123
+              uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     SIPTaskResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.task; view=default'

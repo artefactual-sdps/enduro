@@ -53,6 +53,8 @@ func createUser(
 ) (*db.User, error) {
 	return entc.User.Create().
 		SetUUID(uuid).
+		SetEmail("nobody@example.com").
+		SetName("Test User").
 		Save(t.Context())
 }
 
