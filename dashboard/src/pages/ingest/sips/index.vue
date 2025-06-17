@@ -13,7 +13,6 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import StatusLegend from "@/components/StatusLegend.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
-import UUID from "@/components/UUID.vue";
 import type { IngestListSipsStatusEnum } from "@/openapi-generator";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
@@ -257,6 +256,10 @@ const { execute, error } = useAsyncState(() => {
   );
 }, null);
 
+const uploader = (sip: api.EnduroIngestSip) => {
+  return sip.uploaderName || sip.uploaderEmail || sip.uploaderUuid || "Unknown";
+};
+
 watch(
   () => route.query,
   () => {
@@ -346,7 +349,7 @@ onMounted(() => {
         <thead>
           <tr>
             <th scope="col">Name</th>
-            <th scope="col">UUID</th>
+            <th scope="col">Uploaded by</th>
             <th scope="col">Started</th>
             <th scope="col">
               <span class="d-flex gap-2">
@@ -376,7 +379,7 @@ onMounted(() => {
               >
               <span v-else>{{ sip.name }}</span>
             </td>
-            <td><UUID :id="sip.uuid" /></td>
+            <td>{{ uploader(sip) }}</td>
             <td>{{ $filters.formatDateTime(sip.startedAt) }}</td>
             <td><StatusBadge :status="sip.status" type="package" /></td>
           </tr>

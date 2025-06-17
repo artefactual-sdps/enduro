@@ -68,6 +68,15 @@ func (s *SIP) Goa() *goaingest.SIP {
 	if s.FailedKey != "" {
 		col.FailedKey = ref.New(s.FailedKey)
 	}
+	if s.Uploader != nil {
+		col.UploaderUUID = ref.New(s.Uploader.UUID)
+		if s.Uploader.Email != "" {
+			col.UploaderEmail = &s.Uploader.Email
+		}
+		if s.Uploader.Name != "" {
+			col.UploaderName = &s.Uploader.Name
+		}
+	}
 
 	return &col
 }
