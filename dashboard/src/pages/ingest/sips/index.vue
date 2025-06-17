@@ -267,7 +267,6 @@ watch(
 
 onMounted(() => {
   if (el.value) tooltip = new Tooltip(el.value);
-  execute();
 });
 </script>
 
