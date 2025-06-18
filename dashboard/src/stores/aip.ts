@@ -13,6 +13,16 @@ class UIRequest {
 
 const defaultPageSize = 20;
 
+function logError(e: Error, msg: string) {
+  if (e instanceof ResponseError) {
+    msg = msg + ":";
+    console.error(msg, e.response.status, e.response.statusText);
+  } else {
+    // Unknown error type.
+    console.error(msg, e.message);
+  }
+}
+
 function delay(ms: number, ...args: unknown[]): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms, args));
 }
@@ -71,27 +81,19 @@ export const useAipStore = defineStore("aip", {
   actions: {
     async fetchCurrent(id: string) {
       const layoutStore = useLayoutStore();
+      let breadcrumb = "";
       return client.storage
         .storageShowAip({ uuid: id })
         .then((resp) => {
           this.current = resp;
-
-          // Update breadcrumb. TODO: should this be done in the component?
-          layoutStore.updateBreadcrumb([
-            { text: "Storage" },
-            { route: router.resolve("/storage/aips/"), text: "AIPs" },
-            { text: this.current.name },
-          ]);
+          breadcrumb = resp.name;
         })
         .catch((e) => {
-          console.error("Error fetching AIP", e.message);
           this.current = null;
           this.currentWorkflows = null;
-          layoutStore.updateBreadcrumb([
-            { text: "Storage" },
-            { route: router.resolve("/storage/aips/"), text: "AIPs" },
-            { text: "Error" },
-          ]);
+          breadcrumb = "Error";
+
+          logError(e, "Error fetching AIP");
 
           if (e instanceof ResponseError && e.response.status === 404) {
             // The AIPDeletionReviewAlert component has special handling for
@@ -105,6 +107,14 @@ export const useAipStore = defineStore("aip", {
           // Fetch workflows for the current AIP.
           if (!this.current) return;
           return this.fetchWorkflows(this.current.uuid);
+        })
+        .finally(() => {
+          // Update breadcrumb. TODO: should this be done in the component?
+          layoutStore.updateBreadcrumb([
+            { text: "Storage" },
+            { route: router.resolve("/storage/aips/"), text: "AIPs" },
+            { text: breadcrumb },
+          ]);
         });
     },
     async fetchWorkflows(id: string) {
@@ -119,8 +129,15 @@ export const useAipStore = defineStore("aip", {
           this.currentWorkflows = resp;
         })
         .catch((e) => {
-          console.error("Error fetching workflows", e.message);
           this.currentWorkflows = null;
+
+          logError(e, "Error fetching workflows");
+
+          // Don't show an error if we don't have permission to view workflows.
+          if (e instanceof ResponseError && e.response.status === 403) {
+            return;
+          }
+
           throw new Error("Couldn't load workflows");
         });
     },
@@ -142,25 +159,13 @@ export const useAipStore = defineStore("aip", {
           this.aips = [];
           this.page = { limit: defaultPageSize, offset: 0, total: 0 };
 
-          if (err instanceof ResponseError && err.response.body) {
-            // An invalid status or time range returns a ResponseError with the
-            // error message in the response body (JSON).
-            return err.response.text().then((text) => {
-              const body = JSON.parse(text);
-              console.error(
-                "Error fetching AIPs",
-                "[" + err.response.status + " " + err.response.statusText + "]",
-                'message: "' + body.message + '"',
-              );
-              throw new Error(body.message);
-            });
-          } else if (err instanceof RangeError) {
+          if (err instanceof RangeError) {
             // An invalid date parameter (e.g. earliestCreatedTime) returns a
             // RangeError with a message like "invalid date".
             console.error("Error fetching AIPs", "Range error: " + err.message);
             throw new Error(err.message);
           } else {
-            console.error("Error fetching AIPs", err.message);
+            logError(err, "Error fetching AIPs");
           }
 
           throw new Error("Couldn't load AIPs");
@@ -243,7 +248,7 @@ export const useAipStore = defineStore("aip", {
           );
         })
         .catch((e) => {
-          console.error("Error cancelling deletion request", e.message);
+          logError(e, "Error cancelling deletion request");
           throw new Error("Couldn't cancel deletion request");
         });
     },
@@ -266,10 +271,8 @@ export const useAipStore = defineStore("aip", {
             return false;
           }
 
-          console.error(
-            "Error checking user authorization to cancel deletion",
-            e.message,
-          );
+          logError(e, "Error checking user authorization to cancel deletion");
+
           return false;
         });
     },
