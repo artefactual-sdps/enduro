@@ -2,6 +2,7 @@ import { createPinia, setActivePinia } from "pinia";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { api, client } from "@/client";
+import { ResponseError } from "@/openapi-generator";
 import { useLayoutStore } from "@/stores/layout";
 import { useSipStore } from "@/stores/sip";
 
@@ -158,13 +159,51 @@ describe("useSipStore", () => {
     expect(sipStore.getTaskById(2, 5)).toBeUndefined();
   });
 
-  it("fetches current", async () => {
+  it("fetches current SIP", async () => {
+    const layoutStore = useLayoutStore();
+    const store = useSipStore();
     const mockSip: api.EnduroIngestSip = {
       uuid: "a499e8fc-7309-4e26-b39d-d8ab68466c27",
       name: "SIP 1",
       createdAt: new Date("2025-01-01T00:00:00Z"),
       status: api.EnduroIngestSipStatusEnum.Ingested,
     };
+
+    client.ingest.ingestShowSip = vi.fn().mockResolvedValue(mockSip);
+
+    await store.fetchCurrent("1");
+
+    expect(store.current).toEqual(mockSip);
+    expect(layoutStore.breadcrumb).toEqual([
+      { text: "Ingest" },
+      { route: expect.any(Object), text: "SIPs" },
+      { text: mockSip.name },
+    ]);
+  });
+
+  it("throws an error when fetching current SIP fails", async () => {
+    const layoutStore = useLayoutStore();
+    const store = useSipStore();
+    client.ingest.ingestShowSip = vi.fn().mockRejectedValue(
+      new ResponseError(
+        new Response("Not Found", {
+          status: 404,
+          statusText: "Not Found",
+        }),
+        "Response returned an error code",
+      ),
+    );
+
+    await expect(store.fetchCurrent("1")).rejects.toThrow("Couldn't load SIP");
+    expect(store.current).toBeNull();
+    expect(layoutStore.breadcrumb).toEqual([
+      { text: "Ingest" },
+      { route: expect.any(Object), text: "SIPs" },
+      { text: "Error" },
+    ]);
+  });
+
+  it("fetches current workflows", async () => {
     const mockWorkflows: api.SIPWorkflows = {
       workflows: [
         {
@@ -178,23 +217,48 @@ describe("useSipStore", () => {
       ],
     };
 
-    client.ingest.ingestShowSip = vi.fn().mockResolvedValue(mockSip);
     client.ingest.ingestListSipWorkflows = vi
       .fn()
       .mockResolvedValue(mockWorkflows);
 
     const store = useSipStore();
-    await store.fetchCurrent("1");
+    await store.fetchCurrentWorkflows("1");
 
-    expect(store.current).toEqual(mockSip);
     expect(store.currentWorkflows).toEqual(mockWorkflows);
+  });
 
-    const layoutStore = useLayoutStore();
-    expect(layoutStore.breadcrumb).toEqual([
-      { text: "Ingest" },
-      { route: expect.any(Object), text: "SIPs" },
-      { text: mockSip.name },
-    ]);
+  it("throws an error when fetching workflows fails", async () => {
+    const store = useSipStore();
+    client.ingest.ingestListSipWorkflows = vi.fn().mockRejectedValue(
+      new ResponseError(
+        new Response("Not Found", {
+          status: 404,
+          statusText: "Not Found",
+        }),
+        "Response returned an error code",
+      ),
+    );
+    await expect(store.fetchCurrentWorkflows("1")).rejects.toThrow(
+      "Couldn't load workflows",
+    );
+    expect(store.currentWorkflows).toBeNull();
+  });
+
+  it("suppresses a 403 Forbidden response when fetching workflows", async () => {
+    const store = useSipStore();
+
+    client.ingest.ingestListSipWorkflows = vi.fn().mockRejectedValue(
+      new ResponseError(
+        new Response("Forbidden", {
+          status: 403,
+          statusText: "Forbidden",
+        }),
+        "Response returned an error code",
+      ),
+    );
+
+    await expect(store.fetchCurrentWorkflows("1")).resolves.toBeUndefined();
+    expect(store.currentWorkflows).toBeNull();
   });
 
   it("fetches SIPs", async () => {
