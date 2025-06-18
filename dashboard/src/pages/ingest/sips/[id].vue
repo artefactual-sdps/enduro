@@ -16,7 +16,14 @@ const authStore = useAuthStore();
 const sipStore = useSipStore();
 
 const { execute, error } = useAsyncState(
-  sipStore.fetchCurrent(route.params.id.toString()),
+  sipStore.fetchCurrent(route.params.id.toString()).then(() => {
+    if (
+      sipStore.current?.uuid &&
+      authStore.checkAttributes(["ingest:sips:workflows:list"])
+    ) {
+      return sipStore.fetchCurrentWorkflows(sipStore.current.uuid);
+    }
+  }),
   null,
 );
 

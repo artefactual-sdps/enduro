@@ -7,6 +7,16 @@ import { useLayoutStore } from "@/stores/layout";
 
 const defaultPageSize = 20;
 
+function logError(e: Error, msg: string) {
+  if (e instanceof ResponseError) {
+    msg = msg + ":";
+    console.error(msg, e.response.status, e.response.statusText);
+  } else {
+    // Unknown error type.
+    console.error(msg, e.message);
+  }
+}
+
 export const useSipStore = defineStore("sip", {
   state: () => ({
     // SIP currently displayed.
@@ -57,18 +67,47 @@ export const useSipStore = defineStore("sip", {
   },
   actions: {
     async fetchCurrent(id: string) {
-      this.current = await client.ingest.ingestShowSip({ uuid: id });
-      this.currentWorkflows = await client.ingest.ingestListSipWorkflows({
-        uuid: id,
-      });
-
-      // Update breadcrumb. TODO: should this be done in the component?
       const layoutStore = useLayoutStore();
-      layoutStore.updateBreadcrumb([
-        { text: "Ingest" },
-        { route: router.resolve("/ingest/sips/"), text: "SIPs" },
-        { text: this.current.name },
-      ]);
+      let breadcrumb = "";
+      return client.ingest
+        .ingestShowSip({ uuid: id })
+        .then((sip) => {
+          this.current = sip;
+          breadcrumb = this.current.name || "Unnamed";
+        })
+        .catch((e) => {
+          this.current = null;
+          breadcrumb = "Error";
+
+          logError(e, "Error fetching SIP");
+          throw new Error("Couldn't load SIP");
+        })
+        .finally(() => {
+          // Update breadcrumb. TODO: should this be done in the component?
+          layoutStore.updateBreadcrumb([
+            { text: "Ingest" },
+            { route: router.resolve("/ingest/sips/"), text: "SIPs" },
+            { text: breadcrumb },
+          ]);
+        });
+    },
+    async fetchCurrentWorkflows(id: string) {
+      return client.ingest
+        .ingestListSipWorkflows({ uuid: id })
+        .then((workflows) => {
+          this.currentWorkflows = workflows;
+        })
+        .catch((e) => {
+          this.currentWorkflows = null;
+          logError(e, "Error fetching workflows");
+
+          // Don't show an error if we get a 403 Forbidden response.
+          if (e.response.status === 403) {
+            return;
+          }
+
+          throw new Error("Couldn't load workflows");
+        });
     },
     async fetchSips(page: number) {
       return client.ingest
