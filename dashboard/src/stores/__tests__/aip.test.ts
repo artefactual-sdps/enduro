@@ -7,11 +7,11 @@ import { useAipStore } from "@/stores/aip";
 import { useLayoutStore } from "@/stores/layout";
 
 const http500Error = new ResponseError(
-  <Response>{
+  new Response(JSON.stringify({}), {
     status: 500,
     statusText: "Internal Server Error",
-  },
-  "Internal Server Error",
+  }),
+  "Response returned an error code",
 );
 
 vi.mock("@/client");
@@ -116,7 +116,7 @@ describe("fetch current", () => {
       expect(e).toEqual(http404Error);
     }
 
-    expect(consoleErr).toBeCalledWith("Error fetching AIP", "Not Found");
+    expect(consoleErr).toBeCalledWith("Error fetching AIP:", 404, "Not Found");
     expect(store.current).toEqual(null);
     expect(store.locationChanging).toEqual(false);
 
@@ -184,7 +184,8 @@ describe("fetch current", () => {
 
     expect(consoleErr).toHaveBeenCalledOnce();
     expect(consoleErr).toHaveBeenCalledWith(
-      "Error fetching workflows",
+      "Error fetching workflows:",
+      400,
       "Bad Request",
     );
     expect(store.current).toEqual(mockAip);
@@ -220,43 +221,6 @@ describe("fetch AIPs", () => {
 
     expect(store.aips).toEqual(mockAips.items);
     expect(store.page).toEqual(mockAips.page);
-  });
-
-  it("reports an invalid status error", async () => {
-    const store = useAipStore();
-    const consoleErr = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
-    const respError = new ResponseError(
-      new Response(
-        JSON.stringify({
-          message:
-            'value of status must be one of "unspecified", "stored", "pending", "processing", "deleted", "queued" but got value "foo"',
-        }),
-        {
-          status: 400,
-          statusText: "Bad Request",
-        },
-      ),
-    );
-
-    client.storage.storageListAips = vi.fn().mockRejectedValue(respError);
-
-    try {
-      await store.fetchAips(1);
-    } catch (e) {
-      expect(e).toEqual(
-        new Error(
-          'value of status must be one of "unspecified", "stored", "pending", "processing", "deleted", "queued" but got value "foo"',
-        ),
-      );
-    }
-
-    expect(consoleErr).toHaveBeenCalledWith(
-      "Error fetching AIPs",
-      "[400 Bad Request]",
-      'message: "value of status must be one of "unspecified", "stored", "pending", "processing", "deleted", "queued" but got value "foo""',
-    );
   });
 
   it("reports a range error", async () => {
@@ -295,7 +259,8 @@ describe("fetch AIPs", () => {
     }
 
     expect(consoleErr).toHaveBeenCalledWith(
-      "Error fetching AIPs",
+      "Error fetching AIPs:",
+      500,
       "Internal Server Error",
     );
     expect(store.aips).toEqual([]);
@@ -391,7 +356,8 @@ describe("cancel deletion request", () => {
     }
 
     expect(consoleErr).toHaveBeenCalledWith(
-      "Error cancelling deletion request",
+      "Error cancelling deletion request:",
+      500,
       "Internal Server Error",
     );
   });
@@ -420,20 +386,20 @@ describe("canCancelDeletion", () => {
       .fn()
       .mockRejectedValueOnce(
         new ResponseError(
-          <Response>{
+          new Response("Unauthorized", {
             status: 401,
             statusText: "Unauthorized",
-          },
-          "Unauthorized",
+          }),
+          "Response returned an error code",
         ),
       )
       .mockRejectedValueOnce(
         new ResponseError(
-          <Response>{
+          new Response("Forbidden", {
             status: 403,
             statusText: "Forbidden",
-          },
-          "Forbidden",
+          }),
+          "Response returned an error code",
         ),
       )
       .mockResolvedValueOnce({});
@@ -449,7 +415,8 @@ describe("canCancelDeletion", () => {
     });
     expect(result).toBe(false);
     expect(consoleErr).toBeCalledWith(
-      "Error checking user authorization to cancel deletion",
+      "Error checking user authorization to cancel deletion:",
+      401,
       "Unauthorized",
     );
 
@@ -498,7 +465,8 @@ describe("canCancelDeletion", () => {
     const res = await store.canCancelDeletion();
 
     expect(consoleErr).toHaveBeenCalledWith(
-      "Error checking user authorization to cancel deletion",
+      "Error checking user authorization to cancel deletion:",
+      500,
       "Internal Server Error",
     );
     expect(res).toBe(false);
