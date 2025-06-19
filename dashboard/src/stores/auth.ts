@@ -49,11 +49,7 @@ export const useAuthStore = defineStore("auth", {
       return !this.config.enabled || (this.user != null && !this.user.expired);
     },
     getUserDisplayName(): string | undefined {
-      return (
-        this.user?.profile.preferred_username ||
-        this.user?.profile.name ||
-        this.user?.profile.email
-      );
+      return this.user?.profile.name || this.user?.profile.email;
     },
     getUserAccessToken(): string {
       return this.user ? this.user.access_token : "";
