@@ -6,6 +6,7 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import WorkflowCollapse from "@/components/WorkflowCollapse.vue";
 import WorkflowHelp from "@/components/WorkflowHelp.vue";
+import uploader from "@/composables/sipUploader";
 import { useAuthStore } from "@/stores/auth";
 import { useSipStore } from "@/stores/sip";
 import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
@@ -44,6 +45,10 @@ onMounted(() => {
           <dt>Status</dt>
           <dd>
             <StatusBadge :status="sipStore.current.status" type="package" />
+          </dd>
+          <dt>Uploaded by</dt>
+          <dd>
+            {{ uploader(sipStore.current) }}
           </dd>
           <dt>Started</dt>
           <dd>{{ $filters.formatDateTime(createAipWorkflow?.startedAt) }}</dd>

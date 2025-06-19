@@ -13,6 +13,7 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import StatusLegend from "@/components/StatusLegend.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
+import uploader from "@/composables/sipUploader";
 import type { IngestListSipsStatusEnum } from "@/openapi-generator";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
@@ -255,10 +256,6 @@ const { execute, error } = useAsyncState(() => {
     route.query.page ? parseInt(<string>route.query.page) : 1,
   );
 }, null);
-
-const uploader = (sip: api.EnduroIngestSip) => {
-  return sip.uploaderName || sip.uploaderEmail || sip.uploaderUuid || "Unknown";
-};
 
 watch(
   () => route.query,
