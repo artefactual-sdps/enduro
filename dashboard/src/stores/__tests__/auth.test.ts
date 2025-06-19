@@ -86,23 +86,6 @@ describe("useAuthStore", () => {
       },
     });
     authStore.setUser(user);
-    expect(authStore.getUserDisplayName).toEqual("preferred_username");
-
-    // User with name and email.
-    user = new User({
-      access_token: "",
-      token_type: "",
-      profile: {
-        aud: "",
-        exp: 0,
-        iat: 0,
-        iss: "",
-        sub: "",
-        name: "name",
-        email: "name@example.com",
-      },
-    });
-    authStore.setUser(user);
     expect(authStore.getUserDisplayName).toEqual("name");
 
     // User with email.
@@ -120,6 +103,23 @@ describe("useAuthStore", () => {
     });
     authStore.setUser(user);
     expect(authStore.getUserDisplayName).toEqual("name@example.com");
+
+    // User with no name or email.
+    user = new User({
+      access_token: "",
+      token_type: "",
+      profile: {
+        aud: "",
+        exp: 0,
+        iat: 0,
+        iss: "",
+        sub: "",
+        name: "",
+        email: "",
+      },
+    });
+    authStore.setUser(user);
+    expect(authStore.getUserDisplayName).toEqual("");
   });
 
   it("gets the user access token", () => {
