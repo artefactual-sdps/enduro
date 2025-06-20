@@ -1,6 +1,6 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 
-import { api, client } from "@/client";
+import { api, client, getPath } from "@/client";
 import { IngestListSipsStatusEnum, ResponseError } from "@/openapi-generator";
 import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
@@ -37,6 +37,7 @@ export const useSipStore = defineStore("sip", {
       earliestCreatedTime: undefined as Date | undefined,
       latestCreatedTime: undefined as Date | undefined,
     },
+    downloadError: null as string | null,
   }),
   getters: {
     isPending(): boolean {
@@ -130,8 +131,8 @@ export const useSipStore = defineStore("sip", {
           if (err instanceof ResponseError) {
             // An invalid status or time range returns a ResponseError with the
             // error message in the response body (JSON).
-            return err.response.text().then((body) => {
-              const modelErr = api.ModelErrorFromJSON(JSON.parse(body));
+            return err.response.json().then((body) => {
+              const modelErr = api.ModelErrorFromJSON(body);
               console.error(
                 "API response",
                 err.response.status,
@@ -171,6 +172,31 @@ export const useSipStore = defineStore("sip", {
         if (!this.current) return;
         this.current.status = api.EnduroIngestSipStatusEnum.Processing;
       });
+    },
+    async download() {
+      if (!this.current) return;
+      try {
+        await client.ingest.ingestDownloadSipRequest({
+          uuid: this.current.uuid,
+        });
+        window.open(
+          getPath() + "/ingest/sips/" + this.current.uuid + "/download",
+          "_blank",
+        );
+      } catch (err) {
+        // Try to parse the error and save it for 5 seconds. It will
+        // replace the download button with an alert including the
+        // error message in the SipRelatedPackages component.
+        let errorMsg = "Unexpected error downloading package";
+        if (err instanceof ResponseError) {
+          const body = await err.response.json();
+          if (body.message) {
+            errorMsg = body.message;
+          }
+        }
+        this.downloadError = errorMsg;
+        setTimeout(() => (this.downloadError = null), 5000);
+      }
     },
   },
   debounce: {

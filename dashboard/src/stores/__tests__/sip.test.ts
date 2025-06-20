@@ -1,5 +1,5 @@
 import { createPinia, setActivePinia } from "pinia";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { api, client } from "@/client";
 import { ResponseError } from "@/openapi-generator";
@@ -286,5 +286,75 @@ describe("useSipStore", () => {
 
     expect(store.sips).toEqual(mockSips.items);
     expect(store.page).toEqual(mockSips.page);
+  });
+
+  describe("download", () => {
+    let originalOpen: typeof window.open;
+
+    beforeEach(() => {
+      originalOpen = window.open;
+      window.open = vi.fn();
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      window.open = originalOpen;
+      vi.useRealTimers();
+      vi.clearAllMocks();
+    });
+
+    it("downloads in a new window", async () => {
+      const store = useSipStore();
+      store.$patch({ current: { uuid: "sip-uuid" } });
+      client.ingest.ingestDownloadSipRequest = vi.fn().mockResolvedValue({});
+
+      await store.download();
+      expect(window.open).toHaveBeenCalledWith(
+        expect.stringContaining("/ingest/sips/sip-uuid/download"),
+        "_blank",
+      );
+      expect(store.downloadError).toBeNull();
+    });
+
+    it("does nothing if current is null", async () => {
+      const store = useSipStore();
+      store.$patch({ current: null });
+      await store.download();
+      expect(window.open).not.toHaveBeenCalled();
+    });
+
+    it("sets downloadError if the request fail", async () => {
+      const store = useSipStore();
+      store.$patch({ current: { uuid: "sip-uuid" } });
+      const errorMsg = "Download not allowed";
+      client.ingest.ingestDownloadSipRequest = vi
+        .fn()
+        .mockRejectedValue(
+          new ResponseError(
+            new Response(JSON.stringify({ message: errorMsg })),
+            "API error",
+          ),
+        );
+
+      await store.download();
+      expect(store.downloadError).toBe(errorMsg);
+
+      vi.advanceTimersByTime(5000);
+      expect(store.downloadError).toBeNull();
+    });
+
+    it("sets downloadError if there is an unexpected error", async () => {
+      const store = useSipStore();
+      store.$patch({ current: { uuid: "sip-uuid" } });
+      client.ingest.ingestDownloadSipRequest = vi
+        .fn()
+        .mockRejectedValue(new Error("unexpected error"));
+
+      await store.download();
+      expect(store.downloadError).toBe("Unexpected error downloading package");
+
+      vi.advanceTimersByTime(5000);
+      expect(store.downloadError).toBeNull();
+    });
   });
 });
