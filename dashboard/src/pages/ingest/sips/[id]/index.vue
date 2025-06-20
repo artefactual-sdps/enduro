@@ -2,6 +2,7 @@
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { computed, onMounted, ref } from "vue";
 
+import SipRelatedPackages from "@/components/SipRelatedPackages.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import WorkflowCollapse from "@/components/WorkflowCollapse.vue";
@@ -67,29 +68,8 @@ onMounted(() => {
           </dd>
         </dl>
       </div>
-      <div
-        class="col-md-6"
-        v-if="
-          sipStore.current?.aipId &&
-          authStore.checkAttributes(['storage:aips:read'])
-        "
-      >
-        <div class="card mb-3">
-          <div class="card-body">
-            <h4 class="card-title">Related AIP</h4>
-            <p class="card-text">
-              <UUID :id="sipStore.current.aipId" />
-            </p>
-            <router-link
-              class="btn btn-primary btn-sm"
-              :to="{
-                name: '/storage/aips/[id]/',
-                params: { id: sipStore.current.aipId },
-              }"
-              >View</router-link
-            >
-          </div>
-        </div>
+      <div class="col-md-6">
+        <SipRelatedPackages />
       </div>
     </div>
 

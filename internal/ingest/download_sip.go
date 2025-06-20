@@ -44,9 +44,22 @@ func (w *goaWrapper) DownloadSipRequest(
 	payload *goaingest.DownloadSipRequestPayload,
 ) (*goaingest.DownloadSipRequestResult, error) {
 	// Check the SIP status.
-	_, err := w.checkSIP(ctx, payload.UUID)
+	sip, err := w.checkSIP(ctx, payload.UUID)
 	if err != nil {
 		return nil, err
+	}
+
+	// Check if the failed SIP/PIP exists in the internal bucket.
+	exists, err := w.internalStorage.Exists(ctx, sip.FailedKey)
+	if err != nil {
+		return nil, goaingest.MakeInternalError(errors.New("error checking SIP/PIP file"))
+	}
+
+	if !exists {
+		return nil, &goaingest.SIPNotFound{
+			UUID:    payload.UUID,
+			Message: "Failed SIP/PIP file not found in the internal storage",
+		}
 	}
 
 	// Request a ticket.
@@ -83,7 +96,10 @@ func (w *goaWrapper) DownloadSip(
 	reader, err := w.internalStorage.NewReader(ctx, sip.FailedKey, nil)
 	if err != nil {
 		if gcerrors.Code(err) == gcerrors.NotFound {
-			return nil, nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP file not found"}
+			return nil, nil, &goaingest.SIPNotFound{
+				UUID:    payload.UUID,
+				Message: "Failed SIP/PIP file not found in the internal storage",
+			}
 		} else {
 			return nil, nil, goaingest.MakeInternalError(errors.New("error reading SIP file"))
 		}

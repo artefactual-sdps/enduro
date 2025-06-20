@@ -27,10 +27,37 @@ import (
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
 
+const (
+	key         = "failed.zip"
+	contentType = "application/zip"
+)
+
+var (
+	sipUUID = uuid.New()
+	content = []byte("zipcontent")
+)
+
+func setupBucket(t *testing.T) *blob.Bucket {
+	bucket := memblob.OpenBucket(nil)
+	t.Cleanup(func() {
+		if err := bucket.Close(); err != nil {
+			t.Fatalf("close bucket: %v", err)
+		}
+	})
+
+	w, err := bucket.NewWriter(t.Context(), key, &blob.WriterOptions{ContentType: contentType})
+	assert.NilError(t, err)
+	_, err = w.Write(content)
+	assert.NilError(t, err)
+	assert.NilError(t, w.Close())
+
+	return bucket
+}
+
 func TestDownloadSipRequest(t *testing.T) {
 	t.Parallel()
 
-	sipUUID := uuid.New()
+	bucket := setupBucket(t)
 
 	for _, tt := range []struct {
 		name    string
@@ -69,13 +96,26 @@ func TestDownloadSipRequest(t *testing.T) {
 			wantErr: "SIP has no failed values",
 		},
 		{
+			name:    "Fails to request a SIP download (SIP file not found)",
+			payload: &goaingest.DownloadSipRequestPayload{UUID: sipUUID.String()},
+			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
+				psvc.EXPECT().
+					ReadSIP(ctx, sipUUID).
+					Return(
+						&datatypes.SIP{UUID: sipUUID, FailedAs: enums.SIPFailedAsSIP, FailedKey: "missing"},
+						nil,
+					)
+			},
+			wantErr: "SIP not found.",
+		},
+		{
 			name:    "Fails to request a SIP download (fails to create ticket)",
 			payload: &goaingest.DownloadSipRequestPayload{UUID: sipUUID.String()},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
 				psvc.EXPECT().
 					ReadSIP(ctx, sipUUID).
 					Return(
-						&datatypes.SIP{UUID: sipUUID, FailedAs: enums.SIPFailedAsSIP, FailedKey: "key"},
+						&datatypes.SIP{UUID: sipUUID, FailedAs: enums.SIPFailedAsSIP, FailedKey: key},
 						nil,
 					)
 				ts.EXPECT().
@@ -91,7 +131,7 @@ func TestDownloadSipRequest(t *testing.T) {
 				psvc.EXPECT().
 					ReadSIP(ctx, sipUUID).
 					Return(
-						&datatypes.SIP{UUID: sipUUID, FailedAs: enums.SIPFailedAsSIP, FailedKey: "key"},
+						&datatypes.SIP{UUID: sipUUID, FailedAs: enums.SIPFailedAsSIP, FailedKey: key},
 						nil,
 					)
 				ts.EXPECT().SetEx(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", time.Second*5).Return(nil)
@@ -113,7 +153,7 @@ func TestDownloadSipRequest(t *testing.T) {
 
 			rander := rand.New(rand.NewSource(1)) // #nosec
 			ticketProvider := auth.NewTicketProvider(ctx, ticketStoreMock, rander)
-			svc := ingest.NewService(logr.Discard(), nil, nil, nil, psvcMock, nil, ticketProvider, "", nil, 0, nil)
+			svc := ingest.NewService(logr.Discard(), nil, nil, nil, psvcMock, nil, ticketProvider, "", bucket, 0, nil)
 
 			res, err := svc.Goa().DownloadSipRequest(ctx, tt.payload)
 			if tt.wantErr != "" {
@@ -130,23 +170,7 @@ func TestDownloadSipRequest(t *testing.T) {
 func TestDownloadSip(t *testing.T) {
 	t.Parallel()
 
-	sipUUID := uuid.New()
-	key := "failed.zip"
-	content := []byte("zipcontent")
-	contentType := "application/zip"
-
-	bucket := memblob.OpenBucket(nil)
-	t.Cleanup(func() {
-		if err := bucket.Close(); err != nil {
-			t.Fatalf("close bucket: %v", err)
-		}
-	})
-
-	w, err := bucket.NewWriter(t.Context(), key, &blob.WriterOptions{ContentType: contentType})
-	assert.NilError(t, err)
-	_, err = w.Write(content)
-	assert.NilError(t, err)
-	assert.NilError(t, w.Close())
+	bucket := setupBucket(t)
 
 	for _, tt := range []struct {
 		name     string
