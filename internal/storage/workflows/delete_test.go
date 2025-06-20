@@ -120,7 +120,7 @@ func (s *StorageDeleteWorkflowTestSuite) createDeletionRequest() {
 		s.storagesvc,
 		&storage.CreateDeletionRequestLocalActivityParams{
 			Requester:    s.req.UserEmail,
-			RequesterISS: s.req.UserISS,
+			RequesterIss: s.req.UserIss,
 			RequesterSub: s.req.UserSub,
 			Reason:       s.req.Reason,
 			WorkflowDBID: workflowDBID,
@@ -160,14 +160,14 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 			Reason:    "Reason",
 			UserEmail: "requester@example.com",
 			UserSub:   "subject",
-			UserISS:   "issuer",
+			UserIss:   "issuer",
 			TaskQueue: "global",
 		}
 
 		signal := storage.DeletionDecisionSignal{
 			Status:    enums.DeletionRequestStatusApproved,
 			UserEmail: "reviewer@example.com",
-			UserISS:   "issuer",
+			UserIss:   "issuer",
 			UserSub:   "subject-2",
 		}
 
@@ -308,14 +308,14 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 			Reason:    "Reason",
 			UserEmail: "requester@example.com",
 			UserSub:   "subject",
-			UserISS:   "issuer",
+			UserIss:   "issuer",
 			TaskQueue: "global",
 		}
 
 		signal := storage.DeletionDecisionSignal{
 			Status:    enums.DeletionRequestStatusCanceled,
 			UserEmail: "requester@example.com",
-			UserISS:   "issuer",
+			UserIss:   "issuer",
 			UserSub:   "subject",
 		}
 

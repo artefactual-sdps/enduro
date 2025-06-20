@@ -216,7 +216,7 @@ func (w *StorageDeleteWorkflow) review(
 		w.storagesvc,
 		&storage.CreateDeletionRequestLocalActivityParams{
 			Requester:    req.UserEmail,
-			RequesterISS: req.UserISS,
+			RequesterIss: req.UserIss,
 			RequesterSub: req.UserSub,
 			Reason:       req.Reason,
 			WorkflowDBID: workflowDBID,

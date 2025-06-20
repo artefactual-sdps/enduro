@@ -2208,7 +2208,7 @@ func TestUpdateDeletionRequest(t *testing.T) {
 			RequestedAt: time.Now(),
 			ReviewedAt:  time.Now(),
 			Reviewer:    "reviewer@example.com",
-			ReviewerISS: "issuer",
+			ReviewerIss: "issuer",
 			ReviewerSub: "subject",
 		}
 		updater := func(dr *types.DeletionRequest) (*types.DeletionRequest, error) { return dr, nil }

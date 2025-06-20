@@ -152,7 +152,7 @@ func TestUpload(t *testing.T) {
 		{
 			name: "Uploads a SIP",
 			claims: &auth.Claims{
-				ISS: "http://keycloak:7470/realms/artefactual",
+				Iss: "http://keycloak:7470/realms/artefactual",
 				Sub: "1234567890",
 			},
 			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
@@ -206,7 +206,7 @@ func TestUpload(t *testing.T) {
 			claims: &auth.Claims{
 				Email: "nobody@example.com",
 				Name:  "Test User",
-				ISS:   "http://keycloak:7470/realms/artefactual",
+				Iss:   "http://keycloak:7470/realms/artefactual",
 				Sub:   "1234567890",
 			},
 			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {

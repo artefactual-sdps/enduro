@@ -28,7 +28,7 @@ func (c *Client) CreateDeletionRequest(ctx context.Context, dr *types.DeletionRe
 	q := tx.DeletionRequest.Create().
 		SetUUID(dr.UUID).
 		SetRequester(dr.Requester).
-		SetRequesterIss(dr.RequesterISS).
+		SetRequesterIss(dr.RequesterIss).
 		SetRequesterSub(dr.RequesterSub).
 		SetReason(dr.Reason).
 		SetAipID(aipDBID).
@@ -74,7 +74,7 @@ func (c *Client) UpdateDeletionRequest(
 	q := tx.DeletionRequest.UpdateOneID(id).
 		SetUUID(up.UUID).
 		SetReviewer(up.Reviewer).
-		SetReviewerIss(up.ReviewerISS).
+		SetReviewerIss(up.ReviewerIss).
 		SetReviewerSub(up.ReviewerSub).
 		SetStatus(up.Status)
 
@@ -113,10 +113,10 @@ func convertDeletionRequest(dbdr *db.DeletionRequest) *types.DeletionRequest {
 		DBID:         dbdr.ID,
 		UUID:         dbdr.UUID,
 		Requester:    dbdr.Requester,
-		RequesterISS: dbdr.RequesterIss,
+		RequesterIss: dbdr.RequesterIss,
 		RequesterSub: dbdr.RequesterSub,
 		Reviewer:     dbdr.Reviewer,
-		ReviewerISS:  dbdr.ReviewerIss,
+		ReviewerIss:  dbdr.ReviewerIss,
 		ReviewerSub:  dbdr.ReviewerSub,
 		Reason:       dbdr.Reason,
 		Status:       dbdr.Status,

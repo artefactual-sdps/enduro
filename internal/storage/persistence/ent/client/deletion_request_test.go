@@ -43,7 +43,7 @@ func TestCreateDeletionRequest(t *testing.T) {
 				AIPUUID:      aipID,
 				Reason:       "Reason",
 				Requester:    "requester@example.com",
-				RequesterISS: "issuer",
+				RequesterIss: "issuer",
 				RequesterSub: "sub",
 				RequestedAt:  requestedAt,
 				WorkflowDBID: 1,
@@ -120,7 +120,7 @@ func TestUpdateDeletionRequest(t *testing.T) {
 			name: "Updates a Deletion Request",
 			updater: func(dr *types.DeletionRequest) (*types.DeletionRequest, error) {
 				dr.Reviewer = "reviewer@example.com"
-				dr.ReviewerISS = "issuer"
+				dr.ReviewerIss = "issuer"
 				dr.ReviewerSub = "sub2"
 				dr.ReviewedAt = reviewedAt
 				dr.Status = enums.DeletionRequestStatusApproved
@@ -131,11 +131,11 @@ func TestUpdateDeletionRequest(t *testing.T) {
 				UUID:         drUUID,
 				Reason:       "Reason",
 				Requester:    "requester@example.com",
-				RequesterISS: "issuer",
+				RequesterIss: "issuer",
 				RequesterSub: "sub",
 				RequestedAt:  requestedAt,
 				Reviewer:     "reviewer@example.com",
-				ReviewerISS:  "issuer",
+				ReviewerIss:  "issuer",
 				ReviewerSub:  "sub2",
 				ReviewedAt:   reviewedAt,
 				Status:       enums.DeletionRequestStatusApproved,
@@ -147,7 +147,7 @@ func TestUpdateDeletionRequest(t *testing.T) {
 			updater: func(dr *types.DeletionRequest) (*types.DeletionRequest, error) {
 				dr.Reason = "Updated reason"
 				dr.Requester = "updated-requester@example.com"
-				dr.RequesterISS = "updated-issuer"
+				dr.RequesterIss = "updated-issuer"
 				dr.RequesterSub = "updated-sub"
 				dr.RequestedAt = requestedAt.Add(time.Minute)
 				return dr, nil
@@ -157,7 +157,7 @@ func TestUpdateDeletionRequest(t *testing.T) {
 				UUID:         drUUID,
 				Reason:       "Reason",
 				Requester:    "requester@example.com",
-				RequesterISS: "issuer",
+				RequesterIss: "issuer",
 				RequesterSub: "sub",
 				RequestedAt:  requestedAt,
 				Status:       enums.DeletionRequestStatusPending,
@@ -247,7 +247,7 @@ func TestReadAipPendingDeletionRequest(t *testing.T) {
 				UUID:         drUUID,
 				Reason:       "Reason",
 				Requester:    "requester@example.com",
-				RequesterISS: "issuer",
+				RequesterIss: "issuer",
 				RequesterSub: "sub",
 				RequestedAt:  requestedAt,
 				Status:       enums.DeletionRequestStatusPending,
