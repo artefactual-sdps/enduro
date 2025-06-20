@@ -21,7 +21,7 @@ func checkClaims(claims *auth.Claims) error {
 	if claims.Sub == "" {
 		return goastorage.MakeNotValid(errors.New("sub claim is required"))
 	}
-	if claims.ISS == "" {
+	if claims.Iss == "" {
 		return goastorage.MakeNotValid(errors.New("iss claim is required"))
 	}
 
@@ -57,7 +57,7 @@ func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorag
 		TaskQueue: s.config.TaskQueue,
 		UserEmail: claims.Email,
 		UserSub:   claims.Sub,
-		UserISS:   claims.ISS,
+		UserIss:   claims.Iss,
 	})
 	if err != nil {
 		s.logger.Error(err, "error initializing delete workflow")
@@ -92,7 +92,7 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	if dr.RequesterISS == claims.ISS && dr.RequesterSub == claims.Sub {
+	if dr.RequesterIss == claims.Iss && dr.RequesterSub == claims.Sub {
 		return goastorage.MakeNotValid(errors.New("requester cannot review their own request"))
 	}
 
@@ -105,7 +105,7 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 		Status:    status,
 		UserEmail: claims.Email,
 		UserSub:   claims.Sub,
-		UserISS:   claims.ISS,
+		UserIss:   claims.Iss,
 	}
 	err = s.tc.SignalWorkflow(ctx, StorageDeleteWorkflowID(aipID), "", DeletionDecisionSignalName, signal)
 	if err != nil {
@@ -136,7 +136,7 @@ func (s *serviceImpl) CancelAipDeletion(
 	}
 
 	// Check that the user is authorized to cancel the deletion request.
-	if claims.ISS != dr.RequesterISS || claims.Sub != dr.RequesterSub {
+	if claims.Iss != dr.RequesterIss || claims.Sub != dr.RequesterSub {
 		return ErrForbidden
 	}
 
@@ -154,7 +154,7 @@ func (s *serviceImpl) CancelAipDeletion(
 			Status:    enums.DeletionRequestStatusCanceled,
 			UserEmail: claims.Email,
 			UserSub:   claims.Sub,
-			UserISS:   claims.ISS,
+			UserIss:   claims.Iss,
 		},
 	)
 	if err != nil {

@@ -10,7 +10,7 @@ type Claims struct {
 	Email         string   `json:"email,omitempty"`
 	EmailVerified bool     `json:"email_verified,omitempty"`
 	Name          string   `json:"name,omitempty"`
-	ISS           string   `json:"iss,omitempty"`
+	Iss           string   `json:"iss,omitempty"`
 	Sub           string   `json:"sub,omitempty"`
 	Attributes    []string `json:"-"`
 }

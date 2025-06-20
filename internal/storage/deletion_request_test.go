@@ -61,7 +61,7 @@ func TestRequestAipDeletion(t *testing.T) {
 			name: "Fails to request AIP deletion (invalid UUID)",
 			claims: &auth.Claims{
 				Email: "requester@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.RequestAipDeletionPayload{
@@ -73,7 +73,7 @@ func TestRequestAipDeletion(t *testing.T) {
 			name: "Fails to request AIP deletion (invalid reason)",
 			claims: &auth.Claims{
 				Email: "requester@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.RequestAipDeletionPayload{
@@ -85,7 +85,7 @@ func TestRequestAipDeletion(t *testing.T) {
 			name: "Fails to request AIP deletion (AIP not found)",
 			claims: &auth.Claims{
 				Email: "requester@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.RequestAipDeletionPayload{
@@ -101,7 +101,7 @@ func TestRequestAipDeletion(t *testing.T) {
 			name: "Fails to request AIP deletion (AIP not stored)",
 			claims: &auth.Claims{
 				Email: "requester@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.RequestAipDeletionPayload{
@@ -117,7 +117,7 @@ func TestRequestAipDeletion(t *testing.T) {
 			name: "Fails to request AIP deletion (init workflow failure)",
 			claims: &auth.Claims{
 				Email: "requester@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.RequestAipDeletionPayload{
@@ -139,7 +139,7 @@ func TestRequestAipDeletion(t *testing.T) {
 						AIPID:     aipID,
 						Reason:    "Reason",
 						UserEmail: "requester@example.com",
-						UserISS:   "issuer",
+						UserIss:   "issuer",
 						UserSub:   "subject",
 						TaskQueue: "global",
 					},
@@ -151,7 +151,7 @@ func TestRequestAipDeletion(t *testing.T) {
 			name: "Requests AIP deletion",
 			claims: &auth.Claims{
 				Email: "requester@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.RequestAipDeletionPayload{
@@ -173,7 +173,7 @@ func TestRequestAipDeletion(t *testing.T) {
 						AIPID:     aipID,
 						Reason:    "Reason",
 						UserEmail: "requester@example.com",
-						UserISS:   "issuer",
+						UserIss:   "issuer",
 						UserSub:   "subject",
 						TaskQueue: "global",
 					},
@@ -242,7 +242,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			name: "Fails to review AIP deletion (invalid UUID)",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject-2",
 			},
 			payload: &goastorage.ReviewAipDeletionPayload{
@@ -254,7 +254,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			name: "Fails to review AIP deletion (AIP not found)",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject-2",
 			},
 			payload: &goastorage.ReviewAipDeletionPayload{
@@ -270,7 +270,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			name: "Fails to review AIP deletion (AIP not pending)",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject-2",
 			},
 			payload: &goastorage.ReviewAipDeletionPayload{
@@ -286,7 +286,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			name: "Fails to review AIP deletion (deletion request read error)",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject-2",
 			},
 			payload: &goastorage.ReviewAipDeletionPayload{
@@ -303,7 +303,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			name: "Fails to review AIP deletion (reviewer matches requester)",
 			claims: &auth.Claims{
 				Email: "requester@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.ReviewAipDeletionPayload{
@@ -313,7 +313,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
 				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterISS: "issuer",
+					RequesterIss: "issuer",
 					RequesterSub: "subject",
 				}, nil)
 			},
@@ -323,7 +323,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			name: "Fails to review AIP deletion (signal workflow failure)",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject-2",
 			},
 			payload: &goastorage.ReviewAipDeletionPayload{
@@ -333,7 +333,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
 				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterISS: "issuer",
+					RequesterIss: "issuer",
 					RequesterSub: "subject",
 				}, nil)
 				tc.On(
@@ -345,7 +345,7 @@ func TestReviewAipDeletion(t *testing.T) {
 					storage.DeletionDecisionSignal{
 						Status:    enums.DeletionRequestStatusRejected,
 						UserEmail: "reviewer@example.com",
-						UserISS:   "issuer",
+						UserIss:   "issuer",
 						UserSub:   "subject-2",
 					},
 				).Return(errors.New("temporal error"))
@@ -356,7 +356,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			name: "Reviews AIP deletion",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject-2",
 			},
 			payload: &goastorage.ReviewAipDeletionPayload{
@@ -366,7 +366,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
 				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterISS: "issuer",
+					RequesterIss: "issuer",
 					RequesterSub: "subject",
 				}, nil)
 				tc.On(
@@ -378,7 +378,7 @@ func TestReviewAipDeletion(t *testing.T) {
 					storage.DeletionDecisionSignal{
 						Status:    enums.DeletionRequestStatusApproved,
 						UserEmail: "reviewer@example.com",
-						UserISS:   "issuer",
+						UserIss:   "issuer",
 						UserSub:   "subject-2",
 					},
 				).Return(nil)
@@ -429,7 +429,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			name: "Fails on invalid AIP UUID",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject-2",
 			},
 			payload: &goastorage.CancelAipDeletionPayload{
@@ -441,7 +441,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			name: "Fails when deletion request is not found",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject-2",
 			},
 			payload: &goastorage.CancelAipDeletionPayload{
@@ -456,7 +456,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			name: "Fails on deletion request read error",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject-2",
 			},
 			payload: &goastorage.CancelAipDeletionPayload{
@@ -471,7 +471,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			name: "Fails if auth user is not the requester",
 			claims: &auth.Claims{
 				Email: "requester@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.CancelAipDeletionPayload{
@@ -479,7 +479,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterISS: "issuer",
+					RequesterIss: "issuer",
 					RequesterSub: "subject-2",
 				}, nil)
 			},
@@ -489,7 +489,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			name: "Fails on signal workflow failure",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.CancelAipDeletionPayload{
@@ -498,7 +498,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(
 					&types.DeletionRequest{
-						RequesterISS: "issuer",
+						RequesterIss: "issuer",
 						RequesterSub: "subject",
 					}, nil,
 				)
@@ -511,7 +511,7 @@ func TestCancelAipDeletion(t *testing.T) {
 					storage.DeletionDecisionSignal{
 						Status:    enums.DeletionRequestStatusCanceled,
 						UserEmail: "reviewer@example.com",
-						UserISS:   "issuer",
+						UserIss:   "issuer",
 						UserSub:   "subject",
 					},
 				).Return(errors.New("temporal error"))
@@ -522,7 +522,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			name: "Cancels AIP deletion request",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.CancelAipDeletionPayload{
@@ -530,7 +530,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterISS: "issuer",
+					RequesterIss: "issuer",
 					RequesterSub: "subject",
 				}, nil)
 				tc.On(
@@ -542,7 +542,7 @@ func TestCancelAipDeletion(t *testing.T) {
 					storage.DeletionDecisionSignal{
 						Status:    enums.DeletionRequestStatusCanceled,
 						UserEmail: "reviewer@example.com",
-						UserISS:   "issuer",
+						UserIss:   "issuer",
 						UserSub:   "subject",
 					},
 				).Return(nil)
@@ -552,7 +552,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			name: "Doesn't cancel deletion request when test flag is set",
 			claims: &auth.Claims{
 				Email: "reviewer@example.com",
-				ISS:   "issuer",
+				Iss:   "issuer",
 				Sub:   "subject",
 			},
 			payload: &goastorage.CancelAipDeletionPayload{
@@ -561,7 +561,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterISS: "issuer",
+					RequesterIss: "issuer",
 					RequesterSub: "subject",
 				}, nil)
 			},

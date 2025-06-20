@@ -146,14 +146,14 @@ func (w *goaWrapper) findOrCreateUser(
 	if claims == nil {
 		return nil, nil
 	}
-	if claims.ISS == "" {
-		return nil, fmt.Errorf("invalid user claims: missing ISS")
+	if claims.Iss == "" {
+		return nil, fmt.Errorf("invalid user claims: missing Iss")
 	}
 	if claims.Sub == "" {
 		return nil, fmt.Errorf("invalid user claims: missing Sub")
 	}
 
-	user, err := perSvc.ReadOIDCUser(ctx, claims.ISS, claims.Sub)
+	user, err := perSvc.ReadOIDCUser(ctx, claims.Iss, claims.Sub)
 	if err != nil {
 		if errors.Is(err, persistence.ErrNotFound) {
 			// User does not exist, create a new one.
@@ -179,7 +179,7 @@ func (w *goaWrapper) createUser(
 		UUID:    uuid.Must(uuid.NewRandomFromReader(w.rander)),
 		Email:   claims.Email,
 		Name:    claims.Name,
-		OIDCIss: claims.ISS,
+		OIDCIss: claims.Iss,
 		OIDCSub: claims.Sub,
 	}
 

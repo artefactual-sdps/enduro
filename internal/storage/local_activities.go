@@ -199,7 +199,7 @@ func CompleteTaskLocalActivity(
 
 type CreateDeletionRequestLocalActivityParams struct {
 	Requester    string
-	RequesterISS string
+	RequesterIss string
 	RequesterSub string
 	Reason       string
 	AIPUUID      uuid.UUID
@@ -214,7 +214,7 @@ func CreateDeletionRequestLocalActivity(
 	dr := &types.DeletionRequest{
 		UUID:         uuid.New(),
 		Requester:    params.Requester,
-		RequesterISS: params.RequesterISS,
+		RequesterIss: params.RequesterIss,
 		RequesterSub: params.RequesterSub,
 		RequestedAt:  time.Now(),
 		Reason:       params.Reason,
@@ -241,7 +241,7 @@ func UpdateDeletionRequestLocalActivity(
 		dbID,
 		func(dr *types.DeletionRequest) (*types.DeletionRequest, error) {
 			dr.Reviewer = review.UserEmail
-			dr.ReviewerISS = review.UserISS
+			dr.ReviewerIss = review.UserIss
 			dr.ReviewerSub = review.UserSub
 			dr.ReviewedAt = time.Now()
 			dr.Status = review.Status

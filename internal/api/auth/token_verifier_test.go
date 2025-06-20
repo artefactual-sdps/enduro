@@ -68,7 +68,7 @@ func TestOIDCTokenVerifier(t *testing.T) {
 		assert.DeepEqual(t, claims, &auth.Claims{
 			Email:         "info@artefactual.com",
 			EmailVerified: true,
-			ISS:           iss,
+			Iss:           iss,
 			Sub:           subject,
 		})
 	})
@@ -91,7 +91,7 @@ func TestOIDCTokenVerifier(t *testing.T) {
 		assert.NilError(t, err)
 		assert.DeepEqual(t, claims, &auth.Claims{
 			Email: "info@artefactual.com",
-			ISS:   iss,
+			Iss:   iss,
 			Sub:   subject,
 		})
 	})
@@ -189,7 +189,7 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
-				ISS:           iss,
+				Iss:           iss,
 				Sub:           subject,
 				Attributes:    []string{"*"},
 			},
@@ -211,7 +211,7 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
-				ISS:           iss,
+				Iss:           iss,
 				Sub:           subject,
 				Attributes:    nil,
 			},
@@ -234,7 +234,7 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
-				ISS:           iss,
+				Iss:           iss,
 				Sub:           subject,
 				Attributes:    []string{},
 			},
@@ -258,7 +258,7 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
-				ISS:           iss,
+				Iss:           iss,
 				Sub:           subject,
 				Attributes:    []string{"*"},
 			},
@@ -282,7 +282,7 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
-				ISS:           iss,
+				Iss:           iss,
 				Sub:           subject,
 				Attributes:    []string{"*"},
 			},
@@ -311,7 +311,7 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
-				ISS:           iss,
+				Iss:           iss,
 				Sub:           subject,
 				Attributes:    []string{"*", "ingest:sips:list", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"},
 			},
@@ -336,7 +336,7 @@ func TestParseAttributes(t *testing.T) {
 			wantClaims: &auth.Claims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
-				ISS:           iss,
+				Iss:           iss,
 				Sub:           subject,
 				Attributes:    []string{},
 			},

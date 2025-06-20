@@ -258,7 +258,7 @@ func TestCreateDeletionRequestLocalActivity(t *testing.T) {
 	dbID := 1
 	dr := &types.DeletionRequest{
 		Requester:    "requester@example.com",
-		RequesterISS: "issuer",
+		RequesterIss: "issuer",
 		RequesterSub: "subject",
 		RequestedAt:  time.Now(),
 		Reason:       "Reason",
@@ -278,7 +278,7 @@ func TestCreateDeletionRequestLocalActivity(t *testing.T) {
 
 	re, err := storage.CreateDeletionRequestLocalActivity(ctx, svc, &storage.CreateDeletionRequestLocalActivityParams{
 		Requester:    dr.Requester,
-		RequesterISS: dr.RequesterISS,
+		RequesterIss: dr.RequesterIss,
 		RequesterSub: dr.RequesterSub,
 		Reason:       dr.Reason,
 		AIPUUID:      dr.AIPUUID,
@@ -297,7 +297,7 @@ func TestReviewDeletionRequestLocalActivity(t *testing.T) {
 	drs := storage.DeletionDecisionSignal{
 		Status:    enums.DeletionRequestStatusApproved,
 		UserEmail: "reviewer@example.com",
-		UserISS:   "issuer",
+		UserIss:   "issuer",
 		UserSub:   "subject-2",
 	}
 	svc.EXPECT().
@@ -310,7 +310,7 @@ func TestReviewDeletionRequestLocalActivity(t *testing.T) {
 					dr, err := updater(&types.DeletionRequest{})
 					assert.NilError(t, err)
 					assert.DeepEqual(t, dr.Reviewer, drs.UserEmail)
-					assert.DeepEqual(t, dr.ReviewerISS, drs.UserISS)
+					assert.DeepEqual(t, dr.ReviewerIss, drs.UserIss)
 					assert.DeepEqual(t, dr.ReviewerSub, drs.UserSub)
 					assert.DeepEqual(t, dr.ReviewedAt, time.Now(), mockutil.EquateNearlySameTime())
 					assert.DeepEqual(t, dr.Status, enums.DeletionRequestStatusApproved)

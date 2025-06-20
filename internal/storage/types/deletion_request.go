@@ -12,10 +12,10 @@ type DeletionRequest struct {
 	DBID         int
 	UUID         uuid.UUID
 	Requester    string
-	RequesterISS string
+	RequesterIss string
 	RequesterSub string
 	Reviewer     string
-	ReviewerISS  string
+	ReviewerIss  string
 	ReviewerSub  string
 	Reason       string
 	Status       enums.DeletionRequestStatus

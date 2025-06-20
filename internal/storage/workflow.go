@@ -27,7 +27,7 @@ type StorageDeleteWorkflowRequest struct {
 	Reason    string
 	UserEmail string
 	UserSub   string
-	UserISS   string
+	UserIss   string
 	TaskQueue string
 }
 
@@ -35,7 +35,7 @@ type DeletionDecisionSignal struct {
 	Status    enums.DeletionRequestStatus
 	UserEmail string
 	UserSub   string
-	UserISS   string
+	UserIss   string
 }
 
 type StorageUploadWorkflowRequest struct {
