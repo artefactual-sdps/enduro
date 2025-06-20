@@ -26,7 +26,7 @@ import (
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `about about
-ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip)
+ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip|download-sip-request|download-sip)
 storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)
 `
 }
@@ -95,6 +95,14 @@ func ParseEndpoint(
 		ingestUploadSipContentTypeFlag = ingestUploadSipFlags.String("content-type", "multipart/form-data; boundary=goa", "")
 		ingestUploadSipTokenFlag       = ingestUploadSipFlags.String("token", "", "")
 		ingestUploadSipStreamFlag      = ingestUploadSipFlags.String("stream", "REQUIRED", "path to file containing the streamed request body")
+
+		ingestDownloadSipRequestFlags     = flag.NewFlagSet("download-sip-request", flag.ExitOnError)
+		ingestDownloadSipRequestUUIDFlag  = ingestDownloadSipRequestFlags.String("uuid", "REQUIRED", "Identifier of the SIP to download")
+		ingestDownloadSipRequestTokenFlag = ingestDownloadSipRequestFlags.String("token", "", "")
+
+		ingestDownloadSipFlags      = flag.NewFlagSet("download-sip", flag.ExitOnError)
+		ingestDownloadSipUUIDFlag   = ingestDownloadSipFlags.String("uuid", "REQUIRED", "Identifier of the SIP to download")
+		ingestDownloadSipTicketFlag = ingestDownloadSipFlags.String("ticket", "", "")
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
@@ -189,6 +197,8 @@ func ParseEndpoint(
 	ingestConfirmSipFlags.Usage = ingestConfirmSipUsage
 	ingestRejectSipFlags.Usage = ingestRejectSipUsage
 	ingestUploadSipFlags.Usage = ingestUploadSipUsage
+	ingestDownloadSipRequestFlags.Usage = ingestDownloadSipRequestUsage
+	ingestDownloadSipFlags.Usage = ingestDownloadSipUsage
 
 	storageFlags.Usage = storageUsage
 	storageListAipsFlags.Usage = storageListAipsUsage
@@ -277,6 +287,12 @@ func ParseEndpoint(
 
 			case "upload-sip":
 				epf = ingestUploadSipFlags
+
+			case "download-sip-request":
+				epf = ingestDownloadSipRequestFlags
+
+			case "download-sip":
+				epf = ingestDownloadSipFlags
 
 			}
 
@@ -392,6 +408,12 @@ func ParseEndpoint(
 				if err == nil {
 					data, err = ingestc.BuildUploadSipStreamPayload(data, *ingestUploadSipStreamFlag)
 				}
+			case "download-sip-request":
+				endpoint = c.DownloadSipRequest()
+				data, err = ingestc.BuildDownloadSipRequestPayload(*ingestDownloadSipRequestUUIDFlag, *ingestDownloadSipRequestTokenFlag)
+			case "download-sip":
+				endpoint = c.DownloadSip()
+				data, err = ingestc.BuildDownloadSipPayload(*ingestDownloadSipUUIDFlag, *ingestDownloadSipTicketFlag)
 			}
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
@@ -496,6 +518,8 @@ COMMAND:
     confirm-sip: Signal the SIP has been reviewed and accepted
     reject-sip: Signal the SIP has been reviewed and rejected
     upload-sip: Upload a SIP to trigger an ingest workflow
+    download-sip-request: Request access to SIP download
+    download-sip: Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP's `+"`"+`failed_as`+"`"+` value.
 
 Additional help:
     %[1]s ingest COMMAND --help
@@ -602,6 +626,30 @@ Upload a SIP to trigger an ingest workflow
 
 Example:
     %[1]s ingest upload-sip --content-type "multipart/form-data; boundary=goa" --token "abc123" --stream "goa.png"
+`, os.Args[0])
+}
+
+func ingestDownloadSipRequestUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest download-sip-request -uuid STRING -token STRING
+
+Request access to SIP download
+    -uuid STRING: Identifier of the SIP to download
+    -token STRING: 
+
+Example:
+    %[1]s ingest download-sip-request --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+`, os.Args[0])
+}
+
+func ingestDownloadSipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest download-sip -uuid STRING -ticket STRING
+
+Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP's `+"`"+`failed_as`+"`"+` value.
+    -uuid STRING: Identifier of the SIP to download
+    -ticket STRING: 
+
+Example:
+    %[1]s ingest download-sip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --ticket "abc123"
 `, os.Args[0])
 }
 

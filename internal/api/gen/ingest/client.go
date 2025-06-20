@@ -17,27 +17,31 @@ import (
 
 // Client is the "ingest" service client.
 type Client struct {
-	MonitorRequestEndpoint   goa.Endpoint
-	MonitorEndpoint          goa.Endpoint
-	ListSipsEndpoint         goa.Endpoint
-	ShowSipEndpoint          goa.Endpoint
-	ListSipWorkflowsEndpoint goa.Endpoint
-	ConfirmSipEndpoint       goa.Endpoint
-	RejectSipEndpoint        goa.Endpoint
-	UploadSipEndpoint        goa.Endpoint
+	MonitorRequestEndpoint     goa.Endpoint
+	MonitorEndpoint            goa.Endpoint
+	ListSipsEndpoint           goa.Endpoint
+	ShowSipEndpoint            goa.Endpoint
+	ListSipWorkflowsEndpoint   goa.Endpoint
+	ConfirmSipEndpoint         goa.Endpoint
+	RejectSipEndpoint          goa.Endpoint
+	UploadSipEndpoint          goa.Endpoint
+	DownloadSipRequestEndpoint goa.Endpoint
+	DownloadSipEndpoint        goa.Endpoint
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip, downloadSipRequest, downloadSip goa.Endpoint) *Client {
 	return &Client{
-		MonitorRequestEndpoint:   monitorRequest,
-		MonitorEndpoint:          monitor,
-		ListSipsEndpoint:         listSips,
-		ShowSipEndpoint:          showSip,
-		ListSipWorkflowsEndpoint: listSipWorkflows,
-		ConfirmSipEndpoint:       confirmSip,
-		RejectSipEndpoint:        rejectSip,
-		UploadSipEndpoint:        uploadSip,
+		MonitorRequestEndpoint:     monitorRequest,
+		MonitorEndpoint:            monitor,
+		ListSipsEndpoint:           listSips,
+		ShowSipEndpoint:            showSip,
+		ListSipWorkflowsEndpoint:   listSipWorkflows,
+		ConfirmSipEndpoint:         confirmSip,
+		RejectSipEndpoint:          rejectSip,
+		UploadSipEndpoint:          uploadSip,
+		DownloadSipRequestEndpoint: downloadSipRequest,
+		DownloadSipEndpoint:        downloadSip,
 	}
 }
 
@@ -159,4 +163,40 @@ func (c *Client) UploadSip(ctx context.Context, p *UploadSipPayload, req io.Read
 		return
 	}
 	return ires.(*UploadSipResult), nil
+}
+
+// DownloadSipRequest calls the "download_sip_request" endpoint of the "ingest"
+// service.
+// DownloadSipRequest may return the following errors:
+//   - "not_found" (type *SIPNotFound): SIP not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) DownloadSipRequest(ctx context.Context, p *DownloadSipRequestPayload) (res *DownloadSipRequestResult, err error) {
+	var ires any
+	ires, err = c.DownloadSipRequestEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*DownloadSipRequestResult), nil
+}
+
+// DownloadSip calls the "download_sip" endpoint of the "ingest" service.
+// DownloadSip may return the following errors:
+//   - "not_found" (type *SIPNotFound): SIP not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) DownloadSip(ctx context.Context, p *DownloadSipPayload) (res *DownloadSipResult, resp io.ReadCloser, err error) {
+	var ires any
+	ires, err = c.DownloadSipEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	o := ires.(*DownloadSipResponseData)
+	return o.Result, o.Body, nil
 }

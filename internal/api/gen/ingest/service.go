@@ -36,6 +36,11 @@ type Service interface {
 	RejectSip(context.Context, *RejectSipPayload) (err error)
 	// Upload a SIP to trigger an ingest workflow
 	UploadSip(context.Context, *UploadSipPayload, io.ReadCloser) (res *UploadSipResult, err error)
+	// Request access to SIP download
+	DownloadSipRequest(context.Context, *DownloadSipRequestPayload) (res *DownloadSipRequestResult, err error)
+	// Download the failed package related to a SIP. It will be the original SIP or
+	// the transformed PIP, based on the SIP's `failed_as` value.
+	DownloadSip(context.Context, *DownloadSipPayload) (res *DownloadSipResult, body io.ReadCloser, err error)
 }
 
 // Auther defines the authorization functions to be implemented by the service.
@@ -58,7 +63,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [8]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "upload_sip"}
+var MethodNames = [10]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "upload_sip", "download_sip_request", "download_sip"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -84,6 +89,36 @@ type ConfirmSipPayload struct {
 	// Identifier of storage location
 	LocationID uuid.UUID
 	Token      *string
+}
+
+// DownloadSipPayload is the payload type of the ingest service download_sip
+// method.
+type DownloadSipPayload struct {
+	// Identifier of the SIP to download
+	UUID   string
+	Ticket *string
+}
+
+// DownloadSipRequestPayload is the payload type of the ingest service
+// download_sip_request method.
+type DownloadSipRequestPayload struct {
+	// Identifier of the SIP to download
+	UUID  string
+	Token *string
+}
+
+// DownloadSipRequestResult is the result type of the ingest service
+// download_sip_request method.
+type DownloadSipRequestResult struct {
+	Ticket *string
+}
+
+// DownloadSipResult is the result type of the ingest service download_sip
+// method.
+type DownloadSipResult struct {
+	ContentType        string
+	ContentLength      int64
+	ContentDisposition string
 }
 
 // Page represents a subset of search results.

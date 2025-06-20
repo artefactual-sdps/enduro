@@ -1,2 +1,3 @@
 dashboard/src/openapi-generator/** linguist-generated
+docs/src/dev-manual/api/openapi3.json linguist-generated
 internal/api/gen/** linguist-generated

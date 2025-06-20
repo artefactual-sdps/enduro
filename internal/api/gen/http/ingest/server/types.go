@@ -327,6 +327,97 @@ type UploadSipInternalErrorResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// DownloadSipRequestNotValidResponseBody is the type of the "ingest" service
+// "download_sip_request" endpoint HTTP response body for the "not_valid" error.
+type DownloadSipRequestNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DownloadSipRequestInternalErrorResponseBody is the type of the "ingest"
+// service "download_sip_request" endpoint HTTP response body for the
+// "internal_error" error.
+type DownloadSipRequestInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DownloadSipRequestNotFoundResponseBody is the type of the "ingest" service
+// "download_sip_request" endpoint HTTP response body for the "not_found" error.
+type DownloadSipRequestNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing SIP
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// DownloadSipNotValidResponseBody is the type of the "ingest" service
+// "download_sip" endpoint HTTP response body for the "not_valid" error.
+type DownloadSipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DownloadSipInternalErrorResponseBody is the type of the "ingest" service
+// "download_sip" endpoint HTTP response body for the "internal_error" error.
+type DownloadSipInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DownloadSipNotFoundResponseBody is the type of the "ingest" service
+// "download_sip" endpoint HTTP response body for the "not_found" error.
+type DownloadSipNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing SIP
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
 // SIPResponseBodyCollection is used to define fields on response body types.
 type SIPResponseBodyCollection []*SIPResponseBody
 
@@ -701,6 +792,83 @@ func NewUploadSipInternalErrorResponseBody(res *goa.ServiceError) *UploadSipInte
 	return body
 }
 
+// NewDownloadSipRequestNotValidResponseBody builds the HTTP response body from
+// the result of the "download_sip_request" endpoint of the "ingest" service.
+func NewDownloadSipRequestNotValidResponseBody(res *goa.ServiceError) *DownloadSipRequestNotValidResponseBody {
+	body := &DownloadSipRequestNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDownloadSipRequestInternalErrorResponseBody builds the HTTP response body
+// from the result of the "download_sip_request" endpoint of the "ingest"
+// service.
+func NewDownloadSipRequestInternalErrorResponseBody(res *goa.ServiceError) *DownloadSipRequestInternalErrorResponseBody {
+	body := &DownloadSipRequestInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDownloadSipRequestNotFoundResponseBody builds the HTTP response body from
+// the result of the "download_sip_request" endpoint of the "ingest" service.
+func NewDownloadSipRequestNotFoundResponseBody(res *ingest.SIPNotFound) *DownloadSipRequestNotFoundResponseBody {
+	body := &DownloadSipRequestNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
+// NewDownloadSipNotValidResponseBody builds the HTTP response body from the
+// result of the "download_sip" endpoint of the "ingest" service.
+func NewDownloadSipNotValidResponseBody(res *goa.ServiceError) *DownloadSipNotValidResponseBody {
+	body := &DownloadSipNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDownloadSipInternalErrorResponseBody builds the HTTP response body from
+// the result of the "download_sip" endpoint of the "ingest" service.
+func NewDownloadSipInternalErrorResponseBody(res *goa.ServiceError) *DownloadSipInternalErrorResponseBody {
+	body := &DownloadSipInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDownloadSipNotFoundResponseBody builds the HTTP response body from the
+// result of the "download_sip" endpoint of the "ingest" service.
+func NewDownloadSipNotFoundResponseBody(res *ingest.SIPNotFound) *DownloadSipNotFoundResponseBody {
+	body := &DownloadSipNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
 // NewMonitorRequestPayload builds a ingest service monitor_request endpoint
 // payload.
 func NewMonitorRequestPayload(token *string) *ingest.MonitorRequestPayload {
@@ -777,6 +945,25 @@ func NewUploadSipPayload(contentType string, token *string) *ingest.UploadSipPay
 	v := &ingest.UploadSipPayload{}
 	v.ContentType = contentType
 	v.Token = token
+
+	return v
+}
+
+// NewDownloadSipRequestPayload builds a ingest service download_sip_request
+// endpoint payload.
+func NewDownloadSipRequestPayload(uuid string, token *string) *ingest.DownloadSipRequestPayload {
+	v := &ingest.DownloadSipRequestPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v
+}
+
+// NewDownloadSipPayload builds a ingest service download_sip endpoint payload.
+func NewDownloadSipPayload(uuid string, ticket *string) *ingest.DownloadSipPayload {
+	v := &ingest.DownloadSipPayload{}
+	v.UUID = uuid
+	v.Ticket = ticket
 
 	return v
 }

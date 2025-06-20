@@ -19,6 +19,7 @@ var _ = Service("ingest", func() {
 		Description("Request access to the /monitor WebSocket")
 		// For now, the monitor websocket requires all the scopes from this service.
 		Security(JWTAuth, func() {
+			Scope("ingest:sips:download")
 			Scope("ingest:sips:list")
 			Scope("ingest:sips:read")
 			Scope("ingest:sips:review")
@@ -224,6 +225,72 @@ var _ = Service("ingest", func() {
 			// Define error HTTP statuses.
 			Response("invalid_media_type", StatusBadRequest)
 			Response("invalid_multipart_request", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+		})
+	})
+	Method("download_sip_request", func() {
+		Description("Request access to SIP download")
+		Security(JWTAuth, func() {
+			Scope("ingest:sips:download")
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of the SIP to download")
+			Token("token", String)
+			Required("uuid")
+		})
+		Result(func() {
+			Attribute("ticket", String)
+		})
+		Error("not_found", SIPNotFound, "SIP not found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			POST("/sips/{uuid}/download")
+			Response(StatusOK, func() {
+				Cookie("ticket:enduro-sip-download-ticket")
+				CookieMaxAge(5)
+				CookieSecure()
+				CookieHTTPOnly()
+			})
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+		})
+	})
+	Method("download_sip", func() {
+		Description(
+			"Download the failed package related to a SIP. " +
+				"It will be the original SIP or the transformed PIP, " +
+				"based on the SIP's `failed_as` value.",
+		)
+		// Disable JWTAuth security (it validates the previous method cookie).
+		NoSecurity()
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of the SIP to download")
+			Attribute("ticket", String)
+			Required("uuid")
+		})
+		Result(Bytes)
+		Result(func() {
+			Attribute("content_type", String)
+			Attribute("content_length", Int64)
+			Attribute("content_disposition", String)
+			Required("content_type", "content_length", "content_disposition")
+		})
+		Error("not_found", SIPNotFound, "SIP not found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			GET("/sips/{uuid}/download")
+			Cookie("ticket:enduro-sip-download-ticket")
+			SkipResponseBodyEncodeDecode()
+			Response(func() {
+				Header("content_type:Content-Type")
+				Header("content_length:Content-Length")
+				Header("content_disposition:Content-Disposition")
+			})
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
 			Response("internal_error", StatusInternalServerError)
 		})
 	})
