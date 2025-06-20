@@ -115,6 +115,7 @@ data:
           ],
           "attributes": {
             "enduro": [
+              "ingest:sips:download",
               "ingest:sips:list",
               "ingest:sips:read",
               "ingest:sips:upload",

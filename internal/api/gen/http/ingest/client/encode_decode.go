@@ -16,11 +16,13 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 
 	ingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	ingestviews "github.com/artefactual-sdps/enduro/internal/api/gen/ingest/views"
 	goahttp "goa.design/goa/v3/http"
+	goa "goa.design/goa/v3/pkg"
 )
 
 // BuildMonitorRequestRequest instantiates a HTTP request object with method
@@ -1127,6 +1129,333 @@ func BuildUploadSipStreamPayload(payload any, fpath string) (*ingest.UploadSipRe
 		Payload: payload.(*ingest.UploadSipPayload),
 		Body:    f,
 	}, nil
+}
+
+// BuildDownloadSipRequestRequest instantiates a HTTP request object with
+// method and path set to call the "ingest" service "download_sip_request"
+// endpoint
+func (c *Client) BuildDownloadSipRequestRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*ingest.DownloadSipRequestPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("ingest", "download_sip_request", "*ingest.DownloadSipRequestPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DownloadSipRequestIngestPath(uuid)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "download_sip_request", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeDownloadSipRequestRequest returns an encoder for requests sent to the
+// ingest download_sip_request server.
+func EncodeDownloadSipRequestRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.DownloadSipRequestPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "download_sip_request", "*ingest.DownloadSipRequestPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeDownloadSipRequestResponse returns a decoder for responses returned by
+// the ingest download_sip_request endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeDownloadSipRequestResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeDownloadSipRequestResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				ticket    *string
+				ticketRaw string
+
+				cookies = resp.Cookies()
+			)
+			for _, c := range cookies {
+				switch c.Name {
+				case "enduro-sip-download-ticket":
+					ticketRaw = c.Value
+				}
+			}
+			if ticketRaw != "" {
+				ticket = &ticketRaw
+			}
+			res := NewDownloadSipRequestResultOK(ticket)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body DownloadSipRequestNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "download_sip_request", err)
+			}
+			err = ValidateDownloadSipRequestNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "download_sip_request", err)
+			}
+			return nil, NewDownloadSipRequestNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body DownloadSipRequestInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "download_sip_request", err)
+			}
+			err = ValidateDownloadSipRequestInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "download_sip_request", err)
+			}
+			return nil, NewDownloadSipRequestInternalError(&body)
+		case http.StatusNotFound:
+			var (
+				body DownloadSipRequestNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "download_sip_request", err)
+			}
+			err = ValidateDownloadSipRequestNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "download_sip_request", err)
+			}
+			return nil, NewDownloadSipRequestNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "download_sip_request", err)
+			}
+			return nil, NewDownloadSipRequestForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "download_sip_request", err)
+			}
+			return nil, NewDownloadSipRequestUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "download_sip_request", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildDownloadSipRequest instantiates a HTTP request object with method and
+// path set to call the "ingest" service "download_sip" endpoint
+func (c *Client) BuildDownloadSipRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*ingest.DownloadSipPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("ingest", "download_sip", "*ingest.DownloadSipPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DownloadSipIngestPath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "download_sip", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeDownloadSipRequest returns an encoder for requests sent to the ingest
+// download_sip server.
+func EncodeDownloadSipRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.DownloadSipPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "download_sip", "*ingest.DownloadSipPayload", v)
+		}
+		if p.Ticket != nil {
+			v := *p.Ticket
+			req.AddCookie(&http.Cookie{
+				Name:  "enduro-sip-download-ticket",
+				Value: v,
+			})
+		}
+		return nil
+	}
+}
+
+// DecodeDownloadSipResponse returns a decoder for responses returned by the
+// ingest download_sip endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeDownloadSipResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeDownloadSipResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				contentType        string
+				contentLength      int64
+				contentDisposition string
+				err                error
+			)
+			contentTypeRaw := resp.Header.Get("Content-Type")
+			if contentTypeRaw == "" {
+				err = goa.MergeErrors(err, goa.MissingFieldError("content_type", "header"))
+			}
+			contentType = contentTypeRaw
+			{
+				contentLengthRaw := resp.Header.Get("Content-Length")
+				if contentLengthRaw == "" {
+					return nil, goahttp.ErrValidationError("ingest", "download_sip", goa.MissingFieldError("content_length", "header"))
+				}
+				v, err2 := strconv.ParseInt(contentLengthRaw, 10, 64)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("content_length", contentLengthRaw, "integer"))
+				}
+				contentLength = v
+			}
+			contentDispositionRaw := resp.Header.Get("Content-Disposition")
+			if contentDispositionRaw == "" {
+				err = goa.MergeErrors(err, goa.MissingFieldError("content_disposition", "header"))
+			}
+			contentDisposition = contentDispositionRaw
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "download_sip", err)
+			}
+			res := NewDownloadSipResultOK(contentType, contentLength, contentDisposition)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body DownloadSipNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "download_sip", err)
+			}
+			err = ValidateDownloadSipNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "download_sip", err)
+			}
+			return nil, NewDownloadSipNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body DownloadSipInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "download_sip", err)
+			}
+			err = ValidateDownloadSipInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "download_sip", err)
+			}
+			return nil, NewDownloadSipInternalError(&body)
+		case http.StatusNotFound:
+			var (
+				body DownloadSipNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "download_sip", err)
+			}
+			err = ValidateDownloadSipNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "download_sip", err)
+			}
+			return nil, NewDownloadSipNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "download_sip", err)
+			}
+			return nil, NewDownloadSipForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "download_sip", err)
+			}
+			return nil, NewDownloadSipUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "download_sip", resp.StatusCode, string(body))
+		}
+	}
 }
 
 // unmarshalSIPResponseBodyToIngestviewsSIPView builds a value of type
