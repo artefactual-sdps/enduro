@@ -9,7 +9,9 @@
 package server
 
 import (
+	"bufio"
 	"context"
+	"io"
 	"net/http"
 	"os"
 
@@ -22,16 +24,18 @@ import (
 
 // Server lists the ingest service endpoint HTTP handlers.
 type Server struct {
-	Mounts           []*MountPoint
-	MonitorRequest   http.Handler
-	Monitor          http.Handler
-	ListSips         http.Handler
-	ShowSip          http.Handler
-	ListSipWorkflows http.Handler
-	ConfirmSip       http.Handler
-	RejectSip        http.Handler
-	UploadSip        http.Handler
-	CORS             http.Handler
+	Mounts             []*MountPoint
+	MonitorRequest     http.Handler
+	Monitor            http.Handler
+	ListSips           http.Handler
+	ShowSip            http.Handler
+	ListSipWorkflows   http.Handler
+	ConfirmSip         http.Handler
+	RejectSip          http.Handler
+	UploadSip          http.Handler
+	DownloadSipRequest http.Handler
+	DownloadSip        http.Handler
+	CORS               http.Handler
 }
 
 // MountPoint holds information about the mounted endpoints.
@@ -74,6 +78,8 @@ func New(
 			{"ConfirmSip", "POST", "/ingest/sips/{uuid}/confirm"},
 			{"RejectSip", "POST", "/ingest/sips/{uuid}/reject"},
 			{"UploadSip", "POST", "/ingest/sips/upload"},
+			{"DownloadSipRequest", "POST", "/ingest/sips/{uuid}/download"},
+			{"DownloadSip", "GET", "/ingest/sips/{uuid}/download"},
 			{"CORS", "OPTIONS", "/ingest/monitor"},
 			{"CORS", "OPTIONS", "/ingest/sips"},
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}"},
@@ -81,16 +87,19 @@ func New(
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/confirm"},
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/reject"},
 			{"CORS", "OPTIONS", "/ingest/sips/upload"},
+			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/download"},
 		},
-		MonitorRequest:   NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
-		Monitor:          NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
-		ListSips:         NewListSipsHandler(e.ListSips, mux, decoder, encoder, errhandler, formatter),
-		ShowSip:          NewShowSipHandler(e.ShowSip, mux, decoder, encoder, errhandler, formatter),
-		ListSipWorkflows: NewListSipWorkflowsHandler(e.ListSipWorkflows, mux, decoder, encoder, errhandler, formatter),
-		ConfirmSip:       NewConfirmSipHandler(e.ConfirmSip, mux, decoder, encoder, errhandler, formatter),
-		RejectSip:        NewRejectSipHandler(e.RejectSip, mux, decoder, encoder, errhandler, formatter),
-		UploadSip:        NewUploadSipHandler(e.UploadSip, mux, decoder, encoder, errhandler, formatter),
-		CORS:             NewCORSHandler(),
+		MonitorRequest:     NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
+		Monitor:            NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
+		ListSips:           NewListSipsHandler(e.ListSips, mux, decoder, encoder, errhandler, formatter),
+		ShowSip:            NewShowSipHandler(e.ShowSip, mux, decoder, encoder, errhandler, formatter),
+		ListSipWorkflows:   NewListSipWorkflowsHandler(e.ListSipWorkflows, mux, decoder, encoder, errhandler, formatter),
+		ConfirmSip:         NewConfirmSipHandler(e.ConfirmSip, mux, decoder, encoder, errhandler, formatter),
+		RejectSip:          NewRejectSipHandler(e.RejectSip, mux, decoder, encoder, errhandler, formatter),
+		UploadSip:          NewUploadSipHandler(e.UploadSip, mux, decoder, encoder, errhandler, formatter),
+		DownloadSipRequest: NewDownloadSipRequestHandler(e.DownloadSipRequest, mux, decoder, encoder, errhandler, formatter),
+		DownloadSip:        NewDownloadSipHandler(e.DownloadSip, mux, decoder, encoder, errhandler, formatter),
+		CORS:               NewCORSHandler(),
 	}
 }
 
@@ -107,6 +116,8 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.ConfirmSip = m(s.ConfirmSip)
 	s.RejectSip = m(s.RejectSip)
 	s.UploadSip = m(s.UploadSip)
+	s.DownloadSipRequest = m(s.DownloadSipRequest)
+	s.DownloadSip = m(s.DownloadSip)
 	s.CORS = m(s.CORS)
 }
 
@@ -123,6 +134,8 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountConfirmSipHandler(mux, h.ConfirmSip)
 	MountRejectSipHandler(mux, h.RejectSip)
 	MountUploadSipHandler(mux, h.UploadSip)
+	MountDownloadSipRequestHandler(mux, h.DownloadSipRequest)
+	MountDownloadSipHandler(mux, h.DownloadSip)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -555,6 +568,125 @@ func NewUploadSipHandler(
 	})
 }
 
+// MountDownloadSipRequestHandler configures the mux to serve the "ingest"
+// service "download_sip_request" endpoint.
+func MountDownloadSipRequestHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/ingest/sips/{uuid}/download", otelhttp.WithRouteTag("/ingest/sips/{uuid}/download", f).ServeHTTP)
+}
+
+// NewDownloadSipRequestHandler creates a HTTP handler which loads the HTTP
+// request and calls the "ingest" service "download_sip_request" endpoint.
+func NewDownloadSipRequestHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeDownloadSipRequestRequest(mux, decoder)
+		encodeResponse = EncodeDownloadSipRequestResponse(encoder)
+		encodeError    = EncodeDownloadSipRequestError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "download_sip_request")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountDownloadSipHandler configures the mux to serve the "ingest" service
+// "download_sip" endpoint.
+func MountDownloadSipHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/ingest/sips/{uuid}/download", otelhttp.WithRouteTag("/ingest/sips/{uuid}/download", f).ServeHTTP)
+}
+
+// NewDownloadSipHandler creates a HTTP handler which loads the HTTP request
+// and calls the "ingest" service "download_sip" endpoint.
+func NewDownloadSipHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeDownloadSipRequest(mux, decoder)
+		encodeResponse = EncodeDownloadSipResponse(encoder)
+		encodeError    = EncodeDownloadSipError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "download_sip")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		o := res.(*ingest.DownloadSipResponseData)
+		defer o.Body.Close()
+		// handle immediate read error like a returned error
+		buf := bufio.NewReader(o.Body)
+		if _, err := buf.Peek(1); err != nil && err != io.EOF {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, o.Result); err != nil {
+			errhandler(ctx, w, err)
+			return
+		}
+		if _, err := io.Copy(w, buf); err != nil {
+			if f, ok := w.(http.Flusher); ok {
+				f.Flush()
+			}
+			panic(http.ErrAbortHandler) // too late to write an error
+		}
+	})
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service ingest.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
@@ -566,6 +698,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/confirm", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/reject", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/upload", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/download", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 204 response.

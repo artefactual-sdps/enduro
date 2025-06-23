@@ -64,7 +64,9 @@ func (w *goaWrapper) MonitorRequest(
 		w.logger.Error(err, "failed to request ticket")
 		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
-	// Do not set cookie unless a ticket is provided.
+
+	// A ticket is not provided when authentication is disabled.
+	// Do not set the ticket cookie in that case.
 	if ticket != "" {
 		res.Ticket = &ticket
 	}

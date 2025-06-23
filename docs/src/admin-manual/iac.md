@@ -153,21 +153,32 @@ rm -rf $TMP_DIR
 ## Required attributes
 
 The following table shows the attributes required for each API endpoint. The
-attributes allow a wildcard hierarchical declaration. For example, `ingest:sips:*`
-will give access to endpoints requiring `ingest:sips:list`, `ingest:sips:read`, etc.
-The `*` attribute will provide full access to the API.
+attributes allow a wildcard hierarchical declaration. For example,
+`ingest:sips:*` will give access to endpoints requiring `ingest:sips:list`,
+`ingest:sips:read`, etc. The `*` attribute will provide full access to the API.
+
+In order to stablish a Websocket connection from the browser, the
+`GET /ingest/monitor` endpoint requires a cookie obtained from the
+`POST /ingest/monitor` endpoint. Similarly, to be able to stream a SIP download
+from the browser, the `GET /ingest/sips/{id}/download` endpoint requires a
+cookie obtained from the `POST /ingest/sips/{id}/download` endpoint.
 
 | Method | Endpoint                              | Attributes                      |
 | ------ | ------------------------------------- | ------------------------------- |
+| POST   | /ingest/monitor                       | `All ingest attributes`         |
+| GET    | /ingest/monitor                       | `-`                             |
 | GET    | /ingest/sips                          | `ingest:sips:list`              |
 | GET    | /ingest/sips/{id}                     | `ingest:sips:read`              |
 | POST   | /ingest/sips/{id}/confirm             | `ingest:sips:review`            |
+| POST   | /ingest/sips/{id}/download            | `ingest:sips:download`          |
+| GET    | /ingest/sips/{id}/download            | `-`                             |
 | POST   | /ingest/sips/{id}/reject              | `ingest:sips:review`            |
 | GET    | /ingest/sips/{id}/workflows           | `ingest:sips:workflows:list`    |
 | POST   | /ingest/sips/upload                   | `ingest:sips:upload`            |
 | GET    | /storage/aips                         | `storage:aips:list`             |
 | POST   | /storage/aips                         | `storage:aips:create`           |
 | GET    | /storage/aips/{uuid}                  | `storage:aips:read`             |
+| POST   | /storage/aips/{uuid}/deletion-cancel  | `storage:aips:deletion:request` |
 | POST   | /storage/aips/{uuid}/deletion-request | `storage:aips:deletion:request` |
 | POST   | /storage/aips/{uuid}/deletion-review  | `storage:aips:deletion:review`  |
 | GET    | /storage/aips/{uuid}/download         | `storage:aips:download`         |

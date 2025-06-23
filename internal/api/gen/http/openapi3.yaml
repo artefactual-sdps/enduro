@@ -127,6 +127,7 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
+                    - ingest:sips:download
                     - ingest:sips:list
                     - ingest:sips:read
                     - ingest:sips:review
@@ -398,6 +399,159 @@ paths:
             security:
                 - jwt_header_Authorization:
                     - ingest:sips:review
+    /ingest/sips/{uuid}/download:
+        get:
+            tags:
+                - ingest
+            summary: download_sip ingest
+            description: Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP's `failed_as` value.
+            operationId: ingest#download_sip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of the SIP to download
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of the SIP to download
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                - name: enduro-sip-download-ticket
+                  in: cookie
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    example: abc123
+                  example: abc123
+            responses:
+                "200":
+                    description: OK response.
+                    headers:
+                        Content-Disposition:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                        Content-Length:
+                            schema:
+                                type: integer
+                                example: 1
+                                format: int64
+                            example: 1
+                        Content-Type:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                format: binary
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: SIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        post:
+            tags:
+                - ingest
+            summary: download_sip_request ingest
+            description: Request access to SIP download
+            operationId: ingest#download_sip_request
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of the SIP to download
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of the SIP to download
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "200":
+                    description: OK response.
+                    headers:
+                        Set-Cookie:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: SIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - ingest:sips:download
     /ingest/sips/{uuid}/reject:
         post:
             tags:

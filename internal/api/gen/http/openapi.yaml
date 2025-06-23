@@ -69,6 +69,7 @@ paths:
                 Request access to the /monitor WebSocket
 
                 **Required security scopes for jwt**:
+                  * `ingest:sips:download`
                   * `ingest:sips:list`
                   * `ingest:sips:read`
                   * `ingest:sips:review`
@@ -282,6 +283,106 @@ paths:
                     description: Conflict response.
                     schema:
                         $ref: '#/definitions/IngestConfirmSipNotAvailableResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /ingest/sips/{uuid}/download:
+        get:
+            tags:
+                - ingest
+            summary: download_sip ingest
+            description: Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP's `failed_as` value.
+            operationId: ingest#download_sip
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of the SIP to download
+                  required: true
+                  type: string
+                  format: uuid
+            responses:
+                "200":
+                    description: OK response.
+                    headers:
+                        Content-Disposition:
+                            type: string
+                        Content-Length:
+                            type: int64
+                        Content-Type:
+                            type: string
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/IngestDownloadSipNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/IngestDownloadSipNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/IngestDownloadSipInternalErrorResponseBody'
+            schemes:
+                - http
+        post:
+            tags:
+                - ingest
+            summary: download_sip_request ingest
+            description: |-
+                Request access to SIP download
+
+                **Required security scopes for jwt**:
+                  * `ingest:sips:download`
+            operationId: ingest#download_sip_request
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of the SIP to download
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/IngestDownloadSipRequestNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/IngestDownloadSipRequestNotFoundResponseBody'
+                        required:
+                            - message
+                            - uuid
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/IngestDownloadSipRequestInternalErrorResponseBody'
             schemes:
                 - http
             security:
@@ -1779,6 +1880,218 @@ definitions:
             location_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
             - location_id
+    IngestDownloadSipInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: download_sip_internal_error_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestDownloadSipNotFoundResponseBody:
+        title: IngestDownloadSipNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing SIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+        description: SIP not found
+        example:
+            message: abc123
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - message
+            - uuid
+    IngestDownloadSipNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: download_sip_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestDownloadSipRequestInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: download_sip_request_internal_error_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestDownloadSipRequestNotFoundResponseBody:
+        title: IngestDownloadSipRequestNotFoundResponseBody
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing SIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+        description: SIP not found
+        example:
+            message: abc123
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - message
+            - uuid
+    IngestDownloadSipRequestNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: download_sip_request_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
     IngestListSipWorkflowsNotFoundResponseBody:
         title: IngestListSipWorkflowsNotFoundResponseBody
         type: object
@@ -3968,6 +4281,7 @@ securityDefinitions:
             Secures endpoint by requiring a valid JWT token.
 
             **Security Scopes**:
+              * `ingest:sips:download`: no description
               * `ingest:sips:list`: no description
               * `ingest:sips:read`: no description
               * `ingest:sips:review`: no description

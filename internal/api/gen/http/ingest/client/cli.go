@@ -277,3 +277,53 @@ func BuildUploadSipPayload(ingestUploadSipContentType string, ingestUploadSipTok
 
 	return v, nil
 }
+
+// BuildDownloadSipRequestPayload builds the payload for the ingest
+// download_sip_request endpoint from CLI flags.
+func BuildDownloadSipRequestPayload(ingestDownloadSipRequestUUID string, ingestDownloadSipRequestToken string) (*ingest.DownloadSipRequestPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = ingestDownloadSipRequestUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if ingestDownloadSipRequestToken != "" {
+			token = &ingestDownloadSipRequestToken
+		}
+	}
+	v := &ingest.DownloadSipRequestPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildDownloadSipPayload builds the payload for the ingest download_sip
+// endpoint from CLI flags.
+func BuildDownloadSipPayload(ingestDownloadSipUUID string, ingestDownloadSipTicket string) (*ingest.DownloadSipPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = ingestDownloadSipUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var ticket *string
+	{
+		if ingestDownloadSipTicket != "" {
+			ticket = &ingestDownloadSipTicket
+		}
+	}
+	v := &ingest.DownloadSipPayload{}
+	v.UUID = uuid
+	v.Ticket = ticket
+
+	return v, nil
+}
