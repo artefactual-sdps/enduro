@@ -33,42 +33,46 @@ const sipStore = useSipStore();
           >View</router-link
         >
       </template>
-      <p class="card-text">
-        <strong
-          v-if="
-            sipStore.current.failedAs == api.EnduroIngestSipFailedAsEnum.Sip
-          "
-          >Failed SIP</strong
-        >
-        <strong
-          v-if="
-            sipStore.current.failedAs == api.EnduroIngestSipFailedAsEnum.Pip
-          "
-          >Failed PIP</strong
-        >
-        <br />
-        {{ sipStore.current.failedKey }}
-      </p>
-      <Transition
-        mode="out-in"
-        v-if="authStore.checkAttributes(['ingest:sips:download'])"
+      <template
+        v-else-if="sipStore.current?.failedAs && sipStore.current?.failedKey"
       >
-        <div
-          v-if="sipStore.downloadError"
-          class="alert alert-danger text-center mb-0"
-          role="alert"
+        <p class="card-text">
+          <strong
+            v-if="
+              sipStore.current.failedAs == api.EnduroIngestSipFailedAsEnum.Sip
+            "
+            >Failed SIP</strong
+          >
+          <strong
+            v-if="
+              sipStore.current.failedAs == api.EnduroIngestSipFailedAsEnum.Pip
+            "
+            >Failed PIP</strong
+          >
+          <br />
+          {{ sipStore.current.failedKey }}
+        </p>
+        <Transition
+          mode="out-in"
+          v-if="authStore.checkAttributes(['ingest:sips:download'])"
         >
-          {{ sipStore.downloadError }}
-        </div>
-        <button
-          v-else
-          type="button"
-          class="btn btn-primary btn-sm"
-          @click="sipStore.download()"
-        >
-          Download
-        </button>
-      </Transition>
+          <div
+            v-if="sipStore.downloadError"
+            class="alert alert-danger text-center mb-0"
+            role="alert"
+          >
+            {{ sipStore.downloadError }}
+          </div>
+          <button
+            v-else
+            type="button"
+            class="btn btn-primary btn-sm"
+            @click="sipStore.download()"
+          >
+            Download
+          </button>
+        </Transition>
+      </template>
     </div>
   </div>
 </template>

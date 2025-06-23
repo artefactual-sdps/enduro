@@ -216,4 +216,42 @@ describe("SipRelatedPackages.vue", () => {
     getByText("Download failed");
     expect(queryByRole("button", { name: "Download" })).toBeNull();
   });
+
+  it("shows AIP and view button over failed SIP and download button", () => {
+    const { getByText, getByRole, queryByText, queryByRole } = render(
+      SipRelatedPackages,
+      {
+        global: {
+          plugins: [
+            createTestingPinia({
+              createSpy: vi.fn,
+              initialState: {
+                sip: {
+                  current: {
+                    aipId: "aip-uuid",
+                    failedAs: api.EnduroIngestSipFailedAsEnum.Sip,
+                    failedKey: "failed-sip.zip",
+                  },
+                },
+                auth: {
+                  config: { enabled: true, abac: { enabled: true } },
+                  attributes: ["storage:aips:read", "ingest:sips:download"],
+                },
+              },
+            }),
+            router,
+          ],
+        },
+      },
+    );
+
+    getByText("Related Packages");
+    getByText("AIP");
+    getByText("aip-uuid");
+    getByRole("link", { name: "View" });
+    expect(queryByText("Failed SIP")).toBeNull();
+    expect(queryByText("failed-sip.zip")).toBeNull();
+    expect(queryByText("Failed SIP")).toBeNull();
+    expect(queryByRole("button", { name: "Download" })).toBeNull();
+  });
 });
