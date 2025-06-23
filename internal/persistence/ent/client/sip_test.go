@@ -473,6 +473,7 @@ func TestListSIPs(t *testing.T) {
 		Valid: true,
 	}
 	uploaderID := uuid.New()
+	uploaderID2 := uuid.New()
 
 	started := sql.NullTime{
 		Time: func() time.Time {
@@ -521,7 +522,11 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
-					Uploader:    &datatypes.Uploader{UUID: uploaderID},
+					Uploader: &datatypes.Uploader{
+						UUID:  uploaderID,
+						Email: "nobody@example.com",
+						Name:  "Test User",
+					},
 				},
 				{
 					UUID:        sipUUID3,
@@ -638,7 +643,11 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
-					Uploader:    &datatypes.Uploader{UUID: uploaderID},
+					Uploader: &datatypes.Uploader{
+						UUID:  uploaderID,
+						Email: "nobody@example.com",
+						Name:  "Test User",
+					},
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
@@ -896,6 +905,63 @@ func TestListSIPs(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "Returns SIPs filtered by UploaderID",
+			data: []*datatypes.SIP{
+				{
+					UUID:        sipUUID,
+					Name:        "Test SIP 1",
+					AIPID:       aipID,
+					Status:      enums.SIPStatusIngested,
+					StartedAt:   started,
+					CompletedAt: completed,
+					Uploader: &datatypes.Uploader{
+						UUID:  uploaderID,
+						Email: "nobody@example.com",
+						Name:  "Nobody Here",
+					},
+				},
+				{
+					UUID:        sipUUID2,
+					Name:        "Test SIP 2",
+					AIPID:       aipID2,
+					Status:      enums.SIPStatusProcessing,
+					StartedAt:   started2,
+					CompletedAt: completed2,
+					Uploader: &datatypes.Uploader{
+						UUID:  uploaderID2,
+						Email: "test@example.com",
+						Name:  "Test Example",
+					},
+				},
+			},
+			sipFilter: &persistence.SIPFilter{
+				UploaderID: ref.New(uploaderID2),
+			},
+			want: results{
+				data: []*datatypes.SIP{
+					{
+						ID:          2,
+						UUID:        sipUUID2,
+						Name:        "Test SIP 2",
+						AIPID:       aipID2,
+						Status:      enums.SIPStatusProcessing,
+						CreatedAt:   time.Now(),
+						StartedAt:   started2,
+						CompletedAt: completed2,
+						Uploader: &datatypes.Uploader{
+							UUID:  uploaderID2,
+							Email: "test@example.com",
+							Name:  "Test Example",
+						},
+					},
+				},
+				page: &persistence.Page{
+					Limit: entfilter.DefaultPageSize,
+					Total: 1,
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -925,7 +991,11 @@ func TestListSIPs(t *testing.T) {
 						q.SetFailedKey(sip.FailedKey)
 					}
 					if sip.Uploader != nil {
-						user, err := createUser(t, entc, uploaderID)
+						user, err := entc.User.Create().
+							SetUUID(sip.Uploader.UUID).
+							SetEmail(sip.Uploader.Email).
+							SetName(sip.Uploader.Name).
+							Save(t.Context())
 						assert.NilError(t, err)
 						q.SetUser(user)
 					}

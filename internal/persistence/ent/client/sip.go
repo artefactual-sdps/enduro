@@ -215,14 +215,17 @@ func (c *client) ListSIPs(ctx context.Context, f *persistence.SIPFilter) (
 		f = &persistence.SIPFilter{}
 	}
 
-	page, whole := filterSIPs(
-		c.ent.SIP.Query().WithUser(func(q *db.UserQuery) {
-			q.Select(user.FieldUUID)
-			q.Select(user.FieldEmail)
-			q.Select(user.FieldName)
-		}),
-		f,
-	)
+	q := c.ent.SIP.Query().WithUser(func(q *db.UserQuery) {
+		q.Select(user.FieldUUID)
+		q.Select(user.FieldEmail)
+		q.Select(user.FieldName)
+	})
+
+	if f.UploaderID != nil {
+		q.Where(sip.HasUserWith(user.UUID(*f.UploaderID)))
+	}
+
+	page, whole := filterSIPs(q, f)
 
 	r, err := page.All(ctx)
 	if err != nil {
