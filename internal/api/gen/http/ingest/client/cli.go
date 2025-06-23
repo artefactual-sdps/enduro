@@ -338,3 +338,59 @@ func BuildDownloadSipPayload(ingestDownloadSipUUID string, ingestDownloadSipTick
 
 	return v, nil
 }
+
+// BuildListUsersPayload builds the payload for the ingest list_users endpoint
+// from CLI flags.
+func BuildListUsersPayload(ingestListUsersEmail string, ingestListUsersName string, ingestListUsersLimit string, ingestListUsersOffset string, ingestListUsersToken string) (*ingest.ListUsersPayload, error) {
+	var err error
+	var email *string
+	{
+		if ingestListUsersEmail != "" {
+			email = &ingestListUsersEmail
+		}
+	}
+	var name *string
+	{
+		if ingestListUsersName != "" {
+			name = &ingestListUsersName
+		}
+	}
+	var limit *int
+	{
+		if ingestListUsersLimit != "" {
+			var v int64
+			v, err = strconv.ParseInt(ingestListUsersLimit, 10, strconv.IntSize)
+			val := int(v)
+			limit = &val
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for limit, must be INT")
+			}
+		}
+	}
+	var offset *int
+	{
+		if ingestListUsersOffset != "" {
+			var v int64
+			v, err = strconv.ParseInt(ingestListUsersOffset, 10, strconv.IntSize)
+			val := int(v)
+			offset = &val
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for offset, must be INT")
+			}
+		}
+	}
+	var token *string
+	{
+		if ingestListUsersToken != "" {
+			token = &ingestListUsersToken
+		}
+	}
+	v := &ingest.ListUsersPayload{}
+	v.Email = email
+	v.Name = name
+	v.Limit = limit
+	v.Offset = offset
+	v.Token = token
+
+	return v, nil
+}

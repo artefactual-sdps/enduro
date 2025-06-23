@@ -1030,6 +1030,91 @@
       "title": "Mediatype identifier: application/vnd.enduro.ingest.sips; view=default",
       "type": "object"
     },
+    "IngestListUsersNotValidResponseBody": {
+      "description": "list_users_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListUsersResponseBody": {
+      "description": "list_users_response_body result type (default view)",
+      "example": {
+        "items": [
+          {
+            "created_at": "1970-01-01T00:00:01Z",
+            "email": "nobody@example.com",
+            "name": "Jane Doe",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          }
+        ],
+        "page": {
+          "limit": 1,
+          "offset": 1,
+          "total": 1
+        }
+      },
+      "properties": {
+        "items": {
+          "$ref": "#/definitions/UserResponseBodyCollection"
+        },
+        "page": {
+          "$ref": "#/definitions/EnduroPageResponseBody"
+        }
+      },
+      "required": [
+        "items",
+        "page"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.users; view=default",
+      "type": "object"
+    },
     "IngestMonitorNotAvailableResponseBody": {
       "description": "monitor_not_available_response_body result type (default view)",
       "example": {
@@ -3620,6 +3705,62 @@
       ],
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
+    },
+    "UserResponseBody": {
+      "description": "User describes an Enduro user. (default view)",
+      "example": {
+        "created_at": "1970-01-01T00:00:01Z",
+        "email": "nobody@example.com",
+        "name": "Jane Doe",
+        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation date & time of the user",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "email": {
+          "description": "Email of the user",
+          "example": "nobody@example.com",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the user",
+          "example": "Jane Doe",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of the user",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid",
+        "email",
+        "name",
+        "created_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.user; view=default",
+      "type": "object"
+    },
+    "UserResponseBodyCollection": {
+      "description": "UserCollectionResponseBody is the result type for an array of UserResponseBody (default view)",
+      "example": [
+        {
+          "created_at": "1970-01-01T00:00:01Z",
+          "email": "nobody@example.com",
+          "name": "Jane Doe",
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/UserResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.user; type=collection; view=default",
+      "type": "array"
     }
   },
   "host": "localhost:9000",
@@ -3707,7 +3848,7 @@
         ]
       },
       "post": {
-        "description": "Request access to the /monitor WebSocket\n\n**Required security scopes for jwt**:\n  * `ingest:sips:download`\n  * `ingest:sips:list`\n  * `ingest:sips:read`\n  * `ingest:sips:review`\n  * `ingest:sips:upload`\n  * `ingest:sips:workflows:list`",
+        "description": "Request access to the /monitor WebSocket\n\n**Required security scopes for jwt**:\n  * `ingest:sips:download`\n  * `ingest:sips:list`\n  * `ingest:sips:read`\n  * `ingest:sips:review`\n  * `ingest:sips:upload`\n  * `ingest:sips:workflows:list`\n  * `ingest:users:list`",
         "operationId": "ingest#monitor_request",
         "parameters": [
           {
@@ -4370,6 +4511,86 @@
           }
         ],
         "summary": "list_sip_workflows ingest",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/ingest/users": {
+      "get": {
+        "description": "List all users\n\n**Required security scopes for jwt**:\n  * `ingest:users:list`",
+        "operationId": "ingest#list_users",
+        "parameters": [
+          {
+            "description": "Email of the user",
+            "in": "query",
+            "name": "email",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Name of the user",
+            "in": "query",
+            "name": "name",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Limit number of results to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "Offset from the beginning of the found set",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListUsersResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListUsersNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "list_users ingest",
         "tags": [
           "ingest"
         ]
@@ -5602,7 +5823,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

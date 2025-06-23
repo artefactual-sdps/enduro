@@ -27,10 +27,11 @@ type Client struct {
 	UploadSipEndpoint          goa.Endpoint
 	DownloadSipRequestEndpoint goa.Endpoint
 	DownloadSipEndpoint        goa.Endpoint
+	ListUsersEndpoint          goa.Endpoint
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip, downloadSipRequest, downloadSip goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip, downloadSipRequest, downloadSip, listUsers goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:     monitorRequest,
 		MonitorEndpoint:            monitor,
@@ -42,6 +43,7 @@ func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, con
 		UploadSipEndpoint:          uploadSip,
 		DownloadSipRequestEndpoint: downloadSipRequest,
 		DownloadSipEndpoint:        downloadSip,
+		ListUsersEndpoint:          listUsers,
 	}
 }
 
@@ -199,4 +201,19 @@ func (c *Client) DownloadSip(ctx context.Context, p *DownloadSipPayload) (res *D
 	}
 	o := ires.(*DownloadSipResponseData)
 	return o.Result, o.Body, nil
+}
+
+// ListUsers calls the "list_users" endpoint of the "ingest" service.
+// ListUsers may return the following errors:
+//   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) ListUsers(ctx context.Context, p *ListUsersPayload) (res *Users, err error) {
+	var ires any
+	ires, err = c.ListUsersEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*Users), nil
 }

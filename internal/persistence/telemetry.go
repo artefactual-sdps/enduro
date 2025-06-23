@@ -183,3 +183,16 @@ func (w *wrapper) ReadOIDCUser(ctx context.Context, iss, sub string) (*datatypes
 
 	return u, nil
 }
+
+func (w *wrapper) ListUsers(ctx context.Context, f *UserFilter) ([]*datatypes.User, *Page, error) {
+	ctx, span := w.tracer.Start(ctx, "ListUsers")
+	defer span.End()
+
+	r, p, err := w.wrapped.ListUsers(ctx, f)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, nil, updateError(err, "ListUsers")
+	}
+
+	return r, p, nil
+}

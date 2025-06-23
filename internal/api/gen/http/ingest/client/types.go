@@ -92,6 +92,13 @@ type UploadSipResponseBody struct {
 	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
+// ListUsersResponseBody is the type of the "ingest" service "list_users"
+// endpoint HTTP response body.
+type ListUsersResponseBody struct {
+	Items UserCollectionResponseBody `form:"items,omitempty" json:"items,omitempty" xml:"items,omitempty"`
+	Page  *EnduroPageResponseBody    `form:"page,omitempty" json:"page,omitempty" xml:"page,omitempty"`
+}
+
 // MonitorRequestNotAvailableResponseBody is the type of the "ingest" service
 // "monitor_request" endpoint HTTP response body for the "not_available" error.
 type MonitorRequestNotAvailableResponseBody struct {
@@ -418,6 +425,24 @@ type DownloadSipNotFoundResponseBody struct {
 	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
+// ListUsersNotValidResponseBody is the type of the "ingest" service
+// "list_users" endpoint HTTP response body for the "not_valid" error.
+type ListUsersNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // SIPCollectionResponseBody is used to define fields on response body types.
 type SIPCollectionResponseBody []*SIPResponseBody
 
@@ -490,6 +515,21 @@ type SIPTaskResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 	Note        *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
 	WorkflowID  *uint   `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+}
+
+// UserCollectionResponseBody is used to define fields on response body types.
+type UserCollectionResponseBody []*UserResponseBody
+
+// UserResponseBody is used to define fields on response body types.
+type UserResponseBody struct {
+	// Identifier of the user
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	// Email of the user
+	Email *string `form:"email,omitempty" json:"email,omitempty" xml:"email,omitempty"`
+	// Name of the user
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// Creation date & time of the user
+	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
 }
 
 // NewConfirmSipRequestBody builds the HTTP request body from the payload of
@@ -1081,6 +1121,50 @@ func NewDownloadSipUnauthorized(body string) ingest.Unauthorized {
 	return v
 }
 
+// NewListUsersUsersOK builds a "ingest" service "list_users" endpoint result
+// from a HTTP "OK" response.
+func NewListUsersUsersOK(body *ListUsersResponseBody) *ingestviews.UsersView {
+	v := &ingestviews.UsersView{}
+	v.Items = make([]*ingestviews.UserView, len(body.Items))
+	for i, val := range body.Items {
+		v.Items[i] = unmarshalUserResponseBodyToIngestviewsUserView(val)
+	}
+	v.Page = unmarshalEnduroPageResponseBodyToIngestviewsEnduroPageView(body.Page)
+
+	return v
+}
+
+// NewListUsersNotValid builds a ingest service list_users endpoint not_valid
+// error.
+func NewListUsersNotValid(body *ListUsersNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListUsersForbidden builds a ingest service list_users endpoint forbidden
+// error.
+func NewListUsersForbidden(body string) ingest.Forbidden {
+	v := ingest.Forbidden(body)
+
+	return v
+}
+
+// NewListUsersUnauthorized builds a ingest service list_users endpoint
+// unauthorized error.
+func NewListUsersUnauthorized(body string) ingest.Unauthorized {
+	v := ingest.Unauthorized(body)
+
+	return v
+}
+
 // ValidateMonitorResponseBody runs the validations defined on
 // MonitorResponseBody
 func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
@@ -1562,6 +1646,30 @@ func ValidateDownloadSipNotFoundResponseBody(body *DownloadSipNotFoundResponseBo
 	return
 }
 
+// ValidateListUsersNotValidResponseBody runs the validations defined on
+// list_users_not_valid_response_body
+func ValidateListUsersNotValidResponseBody(body *ListUsersNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
 // ValidateSIPCollectionResponseBody runs the validations defined on
 // SIPCollectionResponseBody
 func ValidateSIPCollectionResponseBody(body SIPCollectionResponseBody) (err error) {
@@ -1725,6 +1833,39 @@ func ValidateSIPTaskResponseBody(body *SIPTaskResponseBody) (err error) {
 	}
 	if body.CompletedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateUserCollectionResponseBody runs the validations defined on
+// UserCollectionResponseBody
+func ValidateUserCollectionResponseBody(body UserCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateUserResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateUserResponseBody runs the validations defined on UserResponseBody
+func ValidateUserResponseBody(body *UserResponseBody) (err error) {
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.Email == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("email", "body"))
+	}
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.CreatedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
+	}
+	if body.CreatedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.created_at", *body.CreatedAt, goa.FormatDateTime))
 	}
 	return
 }

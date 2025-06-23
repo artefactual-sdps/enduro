@@ -49,4 +49,7 @@ type Service interface {
 
 	// ReadOIDCUser retrieves a user by OIDC issuer and subject.
 	ReadOIDCUser(ctx context.Context, iss, sub string) (*datatypes.User, error)
+
+	// ListUsers retrieves a list of users based on the provided filter.
+	ListUsers(context.Context, *UserFilter) ([]*datatypes.User, *Page, error)
 }

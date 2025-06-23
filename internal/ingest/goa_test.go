@@ -187,7 +187,7 @@ var (
 	}
 )
 
-func TestList(t *testing.T) {
+func TestListSIPs(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
@@ -392,6 +392,180 @@ func TestList(t *testing.T) {
 			}
 
 			got, err := wrapper.ListSips(ctx, tt.payload)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
+		})
+	}
+}
+
+func TestListUsers(t *testing.T) {
+	t.Parallel()
+
+	userID1 := uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")
+	userID2 := uuid.MustParse("a4400d29-6ba9-4843-aeb9-1039d68a3a5f")
+
+	longStr := "XzesALZdoIEVAHleapPGvSMeAmTYrzUVoKDSavobUoegYMhpFGJPadSSjjujSSfasXVAmqhzcCRzHJTbmFxnkeCJbSfLfudPlTKndTVdnYCJpuAahELOuRzISmpVJRAZYTcaeRvlXmTwnPkyvCYOqYkFUyaEcmHbzaUkcOnSxJsxDTmeiCrGsJWMvUoxbbNpbgzrTkbauzDamhQivGbcFoKCaZruMiPXCwnWJxLLyMNHIIjhEHXMgQLwFCKnQViN"
+
+	testUsers := []*datatypes.User{
+		{
+			UUID:      userID1,
+			Email:     "user1@example.com",
+			Name:      "User One",
+			CreatedAt: time.Date(2025, 6, 22, 11, 33, 44, 0, time.UTC),
+		},
+		{
+			UUID:      userID2,
+			Email:     "user2@example.com",
+			Name:      "User Two",
+			CreatedAt: time.Date(2025, 6, 24, 12, 36, 48, 0, time.UTC),
+		},
+	}
+
+	type test struct {
+		name         string
+		payload      *goaingest.ListUsersPayload
+		mockRecorder func(mr *persistence_fake.MockServiceMockRecorder)
+		want         *goaingest.Users
+		wantErr      string
+	}
+	for _, tt := range []test{
+		{
+			name: "Returns all users",
+			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
+				mr.ListUsers(
+					mockutil.Context(),
+					&persistence.UserFilter{},
+				).Return(
+					testUsers,
+					&persistence.Page{Limit: 20, Total: 2},
+					nil,
+				)
+			},
+			want: &goaingest.Users{
+				Items: goaingest.UserCollection{
+					{
+						UUID:      userID1,
+						Email:     "user1@example.com",
+						Name:      "User One",
+						CreatedAt: "2025-06-22T11:33:44Z",
+					},
+					{
+						UUID:      userID2,
+						Email:     "user2@example.com",
+						Name:      "User Two",
+						CreatedAt: "2025-06-24T12:36:48Z",
+					},
+				},
+				Page: &goaingest.EnduroPage{
+					Limit: 20,
+					Total: 2,
+				},
+			},
+		},
+		{
+			name: "Filters users",
+			payload: &goaingest.ListUsersPayload{
+				Email:  ref.New("user1@example.com"),
+				Name:   ref.New("User One"),
+				Limit:  ref.New(10),
+				Offset: ref.New(0),
+			},
+			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
+				mr.ListUsers(
+					mockutil.Context(),
+					&persistence.UserFilter{
+						Email: ref.New("user1@example.com"),
+						Name:  ref.New("User One"),
+						Page: persistence.Page{
+							Limit:  10,
+							Offset: 0,
+						},
+					},
+				).Return(
+					testUsers[0:1],
+					&persistence.Page{Limit: 10, Total: 1},
+					nil,
+				)
+			},
+			want: &goaingest.Users{
+				Items: goaingest.UserCollection{
+					{
+						UUID:      userID1,
+						Email:     "user1@example.com",
+						Name:      "User One",
+						CreatedAt: "2025-06-22T11:33:44Z",
+					},
+				},
+				Page: &goaingest.EnduroPage{
+					Limit: 10,
+					Total: 1,
+				},
+			},
+		},
+		{
+			name: "Returns error on email validation error",
+			payload: &goaingest.ListUsersPayload{
+				Email: ref.New(longStr),
+			},
+			wantErr: "email: exceeds maximum length of 255",
+		},
+		{
+			name: "Returns error on name validation error",
+			payload: &goaingest.ListUsersPayload{
+				Name: ref.New(longStr),
+			},
+			wantErr: "name: exceeds maximum length of 255",
+		},
+		{
+			name: "Returns error on internal service error",
+			payload: &goaingest.ListUsersPayload{
+				Email: ref.New("user1@example.com"),
+			},
+			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
+				mr.ListUsers(
+					mockutil.Context(),
+					&persistence.UserFilter{
+						Email: ref.New("user1@example.com"),
+					},
+				).Return(
+					nil,
+					nil,
+					persistence.ErrInternal,
+				)
+			},
+			want: &goaingest.Users{
+				Items: goaingest.UserCollection{},
+				Page: &goaingest.EnduroPage{
+					Limit: 20,
+					Total: 1,
+				},
+			},
+			wantErr: "internal error",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := t.Context()
+			ctrl := gomock.NewController(t)
+			svc := persistence_fake.NewMockService(ctrl)
+
+			if tt.mockRecorder != nil {
+				tt.mockRecorder(svc.EXPECT())
+			}
+
+			wrapper := goaWrapper{
+				ingestImpl: &ingestImpl{
+					logger: logr.Discard(),
+					perSvc: svc,
+				},
+			}
+
+			got, err := wrapper.ListUsers(ctx, tt.payload)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

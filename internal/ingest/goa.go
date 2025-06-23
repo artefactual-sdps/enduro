@@ -282,3 +282,32 @@ func (w *goaWrapper) RejectSip(ctx context.Context, payload *goaingest.RejectSip
 
 	return nil
 }
+
+// List all SIPs. It implements goaingest.Service.
+func (w *goaWrapper) ListUsers(ctx context.Context, payload *goaingest.ListUsersPayload) (*goaingest.Users, error) {
+	if payload == nil {
+		payload = &goaingest.ListUsersPayload{}
+	}
+
+	pf, err := listUsersPayloadToUserFilter(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	r, pg, err := w.perSvc.ListUsers(ctx, pf)
+	if err != nil {
+		return nil, goaingest.MakeInternalError(err)
+	}
+
+	items := make([]*goaingest.User, len(r))
+	for i, user := range r {
+		items[i] = user.Goa()
+	}
+
+	res := &goaingest.Users{
+		Items: items,
+		Page:  pg.Goa(),
+	}
+
+	return res, nil
+}
