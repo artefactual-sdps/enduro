@@ -272,6 +272,46 @@ func (c *MockServiceListSIPsCall) DoAndReturn(f func(context.Context, *persisten
 	return c
 }
 
+// ListUsers mocks base method.
+func (m *MockService) ListUsers(arg0 context.Context, arg1 *persistence.UserFilter) ([]*datatypes.User, *persistence.Page, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListUsers", arg0, arg1)
+	ret0, _ := ret[0].([]*datatypes.User)
+	ret1, _ := ret[1].(*persistence.Page)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// ListUsers indicates an expected call of ListUsers.
+func (mr *MockServiceMockRecorder) ListUsers(arg0, arg1 any) *MockServiceListUsersCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUsers", reflect.TypeOf((*MockService)(nil).ListUsers), arg0, arg1)
+	return &MockServiceListUsersCall{Call: call}
+}
+
+// MockServiceListUsersCall wrap *gomock.Call
+type MockServiceListUsersCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceListUsersCall) Return(arg0 []*datatypes.User, arg1 *persistence.Page, arg2 error) *MockServiceListUsersCall {
+	c.Call = c.Call.Return(arg0, arg1, arg2)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceListUsersCall) Do(f func(context.Context, *persistence.UserFilter) ([]*datatypes.User, *persistence.Page, error)) *MockServiceListUsersCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceListUsersCall) DoAndReturn(f func(context.Context, *persistence.UserFilter) ([]*datatypes.User, *persistence.Page, error)) *MockServiceListUsersCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ReadOIDCUser mocks base method.
 func (m *MockService) ReadOIDCUser(arg0 context.Context, arg1, arg2 string) (*datatypes.User, error) {
 	m.ctrl.T.Helper()

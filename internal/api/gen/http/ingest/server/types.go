@@ -92,6 +92,13 @@ type UploadSipResponseBody struct {
 	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
+// ListUsersResponseBody is the type of the "ingest" service "list_users"
+// endpoint HTTP response body.
+type ListUsersResponseBody struct {
+	Items UserResponseBodyCollection `form:"items" json:"items" xml:"items"`
+	Page  *EnduroPageResponseBody    `form:"page" json:"page" xml:"page"`
+}
+
 // MonitorRequestNotAvailableResponseBody is the type of the "ingest" service
 // "monitor_request" endpoint HTTP response body for the "not_available" error.
 type MonitorRequestNotAvailableResponseBody struct {
@@ -418,6 +425,24 @@ type DownloadSipNotFoundResponseBody struct {
 	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
+// ListUsersNotValidResponseBody is the type of the "ingest" service
+// "list_users" endpoint HTTP response body for the "not_valid" error.
+type ListUsersNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // SIPResponseBodyCollection is used to define fields on response body types.
 type SIPResponseBodyCollection []*SIPResponseBody
 
@@ -490,6 +515,21 @@ type SIPTaskResponseBody struct {
 	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 	Note        *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
 	WorkflowID  *uint   `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+}
+
+// UserResponseBodyCollection is used to define fields on response body types.
+type UserResponseBodyCollection []*UserResponseBody
+
+// UserResponseBody is used to define fields on response body types.
+type UserResponseBody struct {
+	// Identifier of the user
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	// Email of the user
+	Email string `form:"email" json:"email" xml:"email"`
+	// Name of the user
+	Name string `form:"name" json:"name" xml:"name"`
+	// Creation date & time of the user
+	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
 // NewMonitorResponseBody builds the HTTP response body from the result of the
@@ -594,6 +634,24 @@ func NewListSipWorkflowsResponseBody(res *ingestviews.SIPWorkflowsView) *ListSip
 func NewUploadSipResponseBody(res *ingest.UploadSipResult) *UploadSipResponseBody {
 	body := &UploadSipResponseBody{
 		UUID: res.UUID,
+	}
+	return body
+}
+
+// NewListUsersResponseBody builds the HTTP response body from the result of
+// the "list_users" endpoint of the "ingest" service.
+func NewListUsersResponseBody(res *ingestviews.UsersView) *ListUsersResponseBody {
+	body := &ListUsersResponseBody{}
+	if res.Items != nil {
+		body.Items = make([]*UserResponseBody, len(res.Items))
+		for i, val := range res.Items {
+			body.Items[i] = marshalIngestviewsUserViewToUserResponseBody(val)
+		}
+	} else {
+		body.Items = []*UserResponseBody{}
+	}
+	if res.Page != nil {
+		body.Page = marshalIngestviewsEnduroPageViewToEnduroPageResponseBody(res.Page)
 	}
 	return body
 }
@@ -869,6 +927,20 @@ func NewDownloadSipNotFoundResponseBody(res *ingest.SIPNotFound) *DownloadSipNot
 	return body
 }
 
+// NewListUsersNotValidResponseBody builds the HTTP response body from the
+// result of the "list_users" endpoint of the "ingest" service.
+func NewListUsersNotValidResponseBody(res *goa.ServiceError) *ListUsersNotValidResponseBody {
+	body := &ListUsersNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewMonitorRequestPayload builds a ingest service monitor_request endpoint
 // payload.
 func NewMonitorRequestPayload(token *string) *ingest.MonitorRequestPayload {
@@ -965,6 +1037,18 @@ func NewDownloadSipPayload(uuid string, ticket *string) *ingest.DownloadSipPaylo
 	v := &ingest.DownloadSipPayload{}
 	v.UUID = uuid
 	v.Ticket = ticket
+
+	return v
+}
+
+// NewListUsersPayload builds a ingest service list_users endpoint payload.
+func NewListUsersPayload(email *string, name *string, limit *int, offset *int, token *string) *ingest.ListUsersPayload {
+	v := &ingest.ListUsersPayload{}
+	v.Email = email
+	v.Name = name
+	v.Limit = limit
+	v.Offset = offset
+	v.Token = token
 
 	return v
 }

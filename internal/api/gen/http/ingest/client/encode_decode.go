@@ -1461,6 +1461,136 @@ func DecodeDownloadSipResponse(decoder func(*http.Response) goahttp.Decoder, res
 	}
 }
 
+// BuildListUsersRequest instantiates a HTTP request object with method and
+// path set to call the "ingest" service "list_users" endpoint
+func (c *Client) BuildListUsersRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListUsersIngestPath()}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "list_users", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeListUsersRequest returns an encoder for requests sent to the ingest
+// list_users server.
+func EncodeListUsersRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.ListUsersPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "list_users", "*ingest.ListUsersPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		values := req.URL.Query()
+		if p.Email != nil {
+			values.Add("email", *p.Email)
+		}
+		if p.Name != nil {
+			values.Add("name", *p.Name)
+		}
+		if p.Limit != nil {
+			values.Add("limit", fmt.Sprintf("%v", *p.Limit))
+		}
+		if p.Offset != nil {
+			values.Add("offset", fmt.Sprintf("%v", *p.Offset))
+		}
+		req.URL.RawQuery = values.Encode()
+		return nil
+	}
+}
+
+// DecodeListUsersResponse returns a decoder for responses returned by the
+// ingest list_users endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeListUsersResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeListUsersResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ListUsersResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_users", err)
+			}
+			p := NewListUsersUsersOK(&body)
+			view := "default"
+			vres := &ingestviews.Users{Projected: p, View: view}
+			if err = ingestviews.ValidateUsers(vres); err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_users", err)
+			}
+			res := ingest.NewUsers(vres)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body ListUsersNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_users", err)
+			}
+			err = ValidateListUsersNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_users", err)
+			}
+			return nil, NewListUsersNotValid(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_users", err)
+			}
+			return nil, NewListUsersForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_users", err)
+			}
+			return nil, NewListUsersUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "list_users", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalSIPResponseBodyToIngestviewsSIPView builds a value of type
 // *ingestviews.SIPView from a value of type *SIPResponseBody.
 func unmarshalSIPResponseBodyToIngestviewsSIPView(v *SIPResponseBody) *ingestviews.SIPView {
@@ -1536,6 +1666,19 @@ func unmarshalSIPTaskResponseBodyToIngestviewsSIPTaskView(v *SIPTaskResponseBody
 		CompletedAt: v.CompletedAt,
 		Note:        v.Note,
 		WorkflowID:  v.WorkflowID,
+	}
+
+	return res
+}
+
+// unmarshalUserResponseBodyToIngestviewsUserView builds a value of type
+// *ingestviews.UserView from a value of type *UserResponseBody.
+func unmarshalUserResponseBodyToIngestviewsUserView(v *UserResponseBody) *ingestviews.UserView {
+	res := &ingestviews.UserView{
+		UUID:      v.UUID,
+		Email:     v.Email,
+		Name:      v.Name,
+		CreatedAt: v.CreatedAt,
 	}
 
 	return res

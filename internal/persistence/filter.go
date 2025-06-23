@@ -46,3 +46,12 @@ type SIPFilter struct {
 	entfilter.Sort
 	Page
 }
+
+type UserFilter struct {
+	CreatedAt *timerange.Range
+	Email     *string
+	Name      *string
+
+	entfilter.Sort
+	Page
+}

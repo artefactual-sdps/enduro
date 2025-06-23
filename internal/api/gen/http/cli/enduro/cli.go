@@ -26,7 +26,7 @@ import (
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `about about
-ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip|download-sip-request|download-sip)
+ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip|download-sip-request|download-sip|list-users)
 storage (list-aips|create-aip|submit-aip|update-aip|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)
 `
 }
@@ -104,6 +104,13 @@ func ParseEndpoint(
 		ingestDownloadSipFlags      = flag.NewFlagSet("download-sip", flag.ExitOnError)
 		ingestDownloadSipUUIDFlag   = ingestDownloadSipFlags.String("uuid", "REQUIRED", "Identifier of the SIP to download")
 		ingestDownloadSipTicketFlag = ingestDownloadSipFlags.String("ticket", "", "")
+
+		ingestListUsersFlags      = flag.NewFlagSet("list-users", flag.ExitOnError)
+		ingestListUsersEmailFlag  = ingestListUsersFlags.String("email", "", "")
+		ingestListUsersNameFlag   = ingestListUsersFlags.String("name", "", "")
+		ingestListUsersLimitFlag  = ingestListUsersFlags.String("limit", "", "")
+		ingestListUsersOffsetFlag = ingestListUsersFlags.String("offset", "", "")
+		ingestListUsersTokenFlag  = ingestListUsersFlags.String("token", "", "")
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
@@ -200,6 +207,7 @@ func ParseEndpoint(
 	ingestUploadSipFlags.Usage = ingestUploadSipUsage
 	ingestDownloadSipRequestFlags.Usage = ingestDownloadSipRequestUsage
 	ingestDownloadSipFlags.Usage = ingestDownloadSipUsage
+	ingestListUsersFlags.Usage = ingestListUsersUsage
 
 	storageFlags.Usage = storageUsage
 	storageListAipsFlags.Usage = storageListAipsUsage
@@ -294,6 +302,9 @@ func ParseEndpoint(
 
 			case "download-sip":
 				epf = ingestDownloadSipFlags
+
+			case "list-users":
+				epf = ingestListUsersFlags
 
 			}
 
@@ -415,6 +426,9 @@ func ParseEndpoint(
 			case "download-sip":
 				endpoint = c.DownloadSip()
 				data, err = ingestc.BuildDownloadSipPayload(*ingestDownloadSipUUIDFlag, *ingestDownloadSipTicketFlag)
+			case "list-users":
+				endpoint = c.ListUsers()
+				data, err = ingestc.BuildListUsersPayload(*ingestListUsersEmailFlag, *ingestListUsersNameFlag, *ingestListUsersLimitFlag, *ingestListUsersOffsetFlag, *ingestListUsersTokenFlag)
 			}
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
@@ -521,6 +535,7 @@ COMMAND:
     upload-sip: Upload a SIP to trigger an ingest workflow
     download-sip-request: Request access to SIP download
     download-sip: Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP's `+"`"+`failed_as`+"`"+` value.
+    list-users: List all users
 
 Additional help:
     %[1]s ingest COMMAND --help
@@ -652,6 +667,21 @@ Download the failed package related to a SIP. It will be the original SIP or the
 
 Example:
     %[1]s ingest download-sip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --ticket "abc123"
+`, os.Args[0])
+}
+
+func ingestListUsersUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-users -email STRING -name STRING -limit INT -offset INT -token STRING
+
+List all users
+    -email STRING: 
+    -name STRING: 
+    -limit INT: 
+    -offset INT: 
+    -token STRING: 
+
+Example:
+    %[1]s ingest list-users --email "nobody@example.com" --name "Jane Doe" --limit 1 --offset 1 --token "abc123"
 `, os.Args[0])
 }
 

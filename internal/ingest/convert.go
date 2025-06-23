@@ -121,6 +121,33 @@ func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistenc
 	return &pf, nil
 }
 
+func listUsersPayloadToUserFilter(payload *goaingest.ListUsersPayload) (*persistence.UserFilter, error) {
+	if payload == nil {
+		return nil, nil
+	}
+
+	email, err := validateStringPtr(payload.Email, 255)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(fmt.Errorf("email: %w", err))
+	}
+
+	name, err := validateStringPtr(payload.Name, 255)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(fmt.Errorf("name: %w", err))
+	}
+
+	f := persistence.UserFilter{
+		Email: email,
+		Name:  name,
+		Page: persistence.Page{
+			Limit:  ref.DerefZero(payload.Limit),
+			Offset: ref.DerefZero(payload.Offset),
+		},
+	}
+
+	return &f, nil
+}
+
 func stringToUUIDPtr(s *string) (*uuid.UUID, error) {
 	if s == nil {
 		return nil, nil
@@ -132,4 +159,16 @@ func stringToUUIDPtr(s *string) (*uuid.UUID, error) {
 	}
 
 	return &u, nil
+}
+
+func validateStringPtr(s *string, maxLength int) (*string, error) {
+	if s == nil {
+		return nil, nil
+	}
+
+	if len(*s) > maxLength {
+		return nil, fmt.Errorf("exceeds maximum length of %d", maxLength)
+	}
+
+	return s, nil
 }

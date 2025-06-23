@@ -2,6 +2,7 @@ package persistence_test
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -237,6 +238,95 @@ func TestReadOIDCUser(t *testing.T) {
 
 			assert.NilError(t, err)
 			assert.DeepEqual(t, got, tt.want)
+		})
+	}
+}
+
+func TestListUsers(t *testing.T) {
+	t.Parallel()
+
+	userID := uuid.New()
+	createdAt := time.Now().Truncate(time.Second)
+
+	type test struct {
+		name    string
+		mock    func(*fake.MockService)
+		filter  *persistence.UserFilter
+		want    []*datatypes.User
+		wantPg  *persistence.Page
+		wantErr string
+	}
+	for _, tt := range []test{
+		{
+			name: "Lists all users",
+			mock: func(svc *fake.MockService) {
+				svc.EXPECT().
+					ListUsers(mockutil.Context(), nil).
+					Return(
+						[]*datatypes.User{
+							{
+								UUID:      userID,
+								CreatedAt: createdAt,
+								Email:     "nobody@example.com",
+								Name:      "Nobody Example",
+								OIDCIss:   "https://oidc.example.com",
+								OIDCSub:   "1234567890",
+							},
+						},
+						&persistence.Page{
+							Limit:  20,
+							Offset: 0,
+							Total:  1,
+						},
+						nil,
+					)
+			},
+			want: []*datatypes.User{
+				{
+					UUID:      userID,
+					CreatedAt: createdAt,
+					Email:     "nobody@example.com",
+					Name:      "Nobody Example",
+					OIDCIss:   "https://oidc.example.com",
+					OIDCSub:   "1234567890",
+				},
+			},
+			wantPg: &persistence.Page{
+				Limit:  20,
+				Offset: 0,
+				Total:  1,
+			},
+		},
+		{
+			name: "Errors when listing users",
+			mock: func(svc *fake.MockService) {
+				svc.EXPECT().
+					ListUsers(mockutil.Context(), nil).
+					Return(nil, nil, persistence.ErrNotValid)
+			},
+			wantErr: fmt.Sprintf("ListUsers: %v", persistence.ErrNotValid),
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc := fake.NewMockService(gomock.NewController(t))
+			if tt.mock != nil {
+				tt.mock(svc)
+			}
+
+			tracer := noop.NewTracerProvider().Tracer("test")
+			w := persistence.WithTelemetry(svc, tracer)
+
+			got, pg, err := w.ListUsers(t.Context(), tt.filter)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
+			assert.DeepEqual(t, pg, tt.wantPg)
 		})
 	}
 }

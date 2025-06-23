@@ -6,6 +6,10 @@ import (
 	"github.com/google/uuid"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 )
 
@@ -76,4 +80,64 @@ func (c *client) ReadOIDCUser(ctx context.Context, iss, sub string) (*datatypes.
 	}
 
 	return convertUser(dbu), nil
+}
+
+func (c *client) ListUsers(ctx context.Context, f *persistence.UserFilter) (
+	[]*datatypes.User, *persistence.Page, error,
+) {
+	if f == nil {
+		f = &persistence.UserFilter{}
+	}
+
+	page, whole := filterUsers(c.ent.User.Query(), f)
+	r, err := page.All(ctx)
+	if err != nil {
+		return nil, nil, newDBError(err)
+	}
+
+	// Convert to datatypes.User slice.
+	users := make([]*datatypes.User, len(r))
+	for i, dbu := range r {
+		users[i] = convertUser(dbu)
+	}
+
+	total, err := whole.Count(ctx)
+	if err != nil {
+		return nil, nil, newDBError(err)
+	}
+
+	pp := &persistence.Page{
+		Limit:  f.Limit,
+		Offset: f.Offset,
+		Total:  total,
+	}
+
+	return users, pp, nil
+}
+
+func sortableFields() entfilter.SortableFields {
+	return entfilter.SortableFields{
+		user.FieldID:        {Name: "ID", Default: true},
+		user.FieldEmail:     {Name: "Email"},
+		user.FieldName:      {Name: "Name"},
+		user.FieldCreatedAt: {Name: "CreatedAt"},
+	}
+}
+
+// filterUsers applies the User filter f to query q and return a paginated amd
+// unpaginated query.
+func filterUsers(q *db.UserQuery, f *persistence.UserFilter) (page, whole *db.UserQuery) {
+	qf := entfilter.NewFilter(q, sortableFields())
+
+	qf.AddDateRange(sip.FieldCreatedAt, f.CreatedAt)
+	qf.Contains(user.FieldName, f.Name)
+	qf.Contains(user.FieldEmail, f.Email)
+
+	// Update the pager values with the actual values set on the query.
+	// E.g. calling `qf.Page(0,0)` will set the query limit equal to the default
+	// page size.
+	f.Limit = qf.Limit
+	f.Offset = qf.Offset
+
+	return qf.Apply()
 }

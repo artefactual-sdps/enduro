@@ -37,6 +37,14 @@ type SIPWorkflows struct {
 	View string
 }
 
+// Users is the viewed result type that is projected based on a view.
+type Users struct {
+	// Type to project
+	Projected *UsersView
+	// View to render
+	View string
+}
+
 // SIPsView is a type that runs validations on a projected type.
 type SIPsView struct {
 	Items SIPCollectionView
@@ -121,6 +129,27 @@ type SIPTaskView struct {
 	WorkflowID  *uint
 }
 
+// UsersView is a type that runs validations on a projected type.
+type UsersView struct {
+	Items UserCollectionView
+	Page  *EnduroPageView
+}
+
+// UserCollectionView is a type that runs validations on a projected type.
+type UserCollectionView []*UserView
+
+// UserView is a type that runs validations on a projected type.
+type UserView struct {
+	// Identifier of the user
+	UUID *uuid.UUID
+	// Email of the user
+	Email *string
+	// Name of the user
+	Name *string
+	// Creation date & time of the user
+	CreatedAt *string
+}
+
 var (
 	// SIPsMap is a map indexing the attribute names of SIPs by view name.
 	SIPsMap = map[string][]string{
@@ -151,6 +180,13 @@ var (
 	SIPWorkflowsMap = map[string][]string{
 		"default": {
 			"workflows",
+		},
+	}
+	// UsersMap is a map indexing the attribute names of Users by view name.
+	UsersMap = map[string][]string{
+		"default": {
+			"items",
+			"page",
 		},
 	}
 	// SIPCollectionMap is a map indexing the attribute names of SIPCollection by
@@ -253,6 +289,25 @@ var (
 			"workflow_id",
 		},
 	}
+	// UserCollectionMap is a map indexing the attribute names of UserCollection by
+	// view name.
+	UserCollectionMap = map[string][]string{
+		"default": {
+			"uuid",
+			"email",
+			"name",
+			"created_at",
+		},
+	}
+	// UserMap is a map indexing the attribute names of User by view name.
+	UserMap = map[string][]string{
+		"default": {
+			"uuid",
+			"email",
+			"name",
+			"created_at",
+		},
+	}
 )
 
 // ValidateSIPs runs the validations defined on the viewed result type SIPs.
@@ -283,6 +338,17 @@ func ValidateSIPWorkflows(result *SIPWorkflows) (err error) {
 	switch result.View {
 	case "default", "":
 		err = ValidateSIPWorkflowsView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
+
+// ValidateUsers runs the validations defined on the viewed result type Users.
+func ValidateUsers(result *Users) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateUsersView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
@@ -527,6 +593,55 @@ func ValidateSIPTaskView(result *SIPTaskView) (err error) {
 	}
 	if result.CompletedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateUsersView runs the validations defined on UsersView using the
+// "default" view.
+func ValidateUsersView(result *UsersView) (err error) {
+
+	if result.Items != nil {
+		if err2 := ValidateUserCollectionView(result.Items); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if result.Page != nil {
+		if err2 := ValidateEnduroPageView(result.Page); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateUserCollectionView runs the validations defined on
+// UserCollectionView using the "default" view.
+func ValidateUserCollectionView(result UserCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateUserView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateUserView runs the validations defined on UserView using the
+// "default" view.
+func ValidateUserView(result *UserView) (err error) {
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
+	}
+	if result.Email == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("email", "result"))
+	}
+	if result.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
+	}
+	if result.CreatedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
+	}
+	if result.CreatedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.created_at", *result.CreatedAt, goa.FormatDateTime))
 	}
 	return
 }

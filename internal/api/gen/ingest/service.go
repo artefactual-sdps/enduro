@@ -41,6 +41,8 @@ type Service interface {
 	// Download the failed package related to a SIP. It will be the original SIP or
 	// the transformed PIP, based on the SIP's `failed_as` value.
 	DownloadSip(context.Context, *DownloadSipPayload) (res *DownloadSipResult, body io.ReadCloser, err error)
+	// List all users
+	ListUsers(context.Context, *ListUsersPayload) (res *Users, err error)
 }
 
 // Auther defines the authorization functions to be implemented by the service.
@@ -63,7 +65,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [10]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "upload_sip", "download_sip_request", "download_sip"}
+var MethodNames = [11]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "upload_sip", "download_sip_request", "download_sip", "list_users"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -149,6 +151,19 @@ type ListSipsPayload struct {
 	Status              *string
 	// UUID of the SIP uploader
 	UploaderID *string
+	// Limit number of results to return
+	Limit *int
+	// Offset from the beginning of the found set
+	Offset *int
+	Token  *string
+}
+
+// ListUsersPayload is the payload type of the ingest service list_users method.
+type ListUsersPayload struct {
+	// Email of the user
+	Email *string
+	// Name of the user
+	Name *string
 	// Limit number of results to return
 	Limit *int
 	// Offset from the beginning of the found set
@@ -332,6 +347,26 @@ type UploadSipResult struct {
 	UUID string
 }
 
+// User describes an Enduro user.
+type User struct {
+	// Identifier of the user
+	UUID uuid.UUID
+	// Email of the user
+	Email string
+	// Name of the user
+	Name string
+	// Creation date & time of the user
+	CreatedAt string
+}
+
+type UserCollection []*User
+
+// Users is the result type of the ingest service list_users method.
+type Users struct {
+	Items UserCollection
+	Page  *EnduroPage
+}
+
 // Forbidden
 type Forbidden string
 
@@ -457,6 +492,18 @@ func NewSIPWorkflows(vres *ingestviews.SIPWorkflows) *SIPWorkflows {
 func NewViewedSIPWorkflows(res *SIPWorkflows, view string) *ingestviews.SIPWorkflows {
 	p := newSIPWorkflowsView(res)
 	return &ingestviews.SIPWorkflows{Projected: p, View: "default"}
+}
+
+// NewUsers initializes result type Users from viewed result type Users.
+func NewUsers(vres *ingestviews.Users) *Users {
+	return newUsers(vres.Projected)
+}
+
+// NewViewedUsers initializes viewed result type Users from result type Users
+// using the given view.
+func NewViewedUsers(res *Users, view string) *ingestviews.Users {
+	p := newUsersView(res)
+	return &ingestviews.Users{Projected: p, View: "default"}
 }
 
 // newSIPs converts projected type SIPs to service type SIPs.
@@ -786,6 +833,81 @@ func newSIPTaskView(res *SIPTask) *ingestviews.SIPTaskView {
 		CompletedAt: res.CompletedAt,
 		Note:        res.Note,
 		WorkflowID:  res.WorkflowID,
+	}
+	return vres
+}
+
+// newUsers converts projected type Users to service type Users.
+func newUsers(vres *ingestviews.UsersView) *Users {
+	res := &Users{}
+	if vres.Items != nil {
+		res.Items = newUserCollection(vres.Items)
+	}
+	if vres.Page != nil {
+		res.Page = newEnduroPage(vres.Page)
+	}
+	return res
+}
+
+// newUsersView projects result type Users to projected type UsersView using
+// the "default" view.
+func newUsersView(res *Users) *ingestviews.UsersView {
+	vres := &ingestviews.UsersView{}
+	if res.Items != nil {
+		vres.Items = newUserCollectionView(res.Items)
+	}
+	if res.Page != nil {
+		vres.Page = newEnduroPageView(res.Page)
+	}
+	return vres
+}
+
+// newUserCollection converts projected type UserCollection to service type
+// UserCollection.
+func newUserCollection(vres ingestviews.UserCollectionView) UserCollection {
+	res := make(UserCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newUser(n)
+	}
+	return res
+}
+
+// newUserCollectionView projects result type UserCollection to projected type
+// UserCollectionView using the "default" view.
+func newUserCollectionView(res UserCollection) ingestviews.UserCollectionView {
+	vres := make(ingestviews.UserCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newUserView(n)
+	}
+	return vres
+}
+
+// newUser converts projected type User to service type User.
+func newUser(vres *ingestviews.UserView) *User {
+	res := &User{}
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
+	}
+	if vres.Email != nil {
+		res.Email = *vres.Email
+	}
+	if vres.Name != nil {
+		res.Name = *vres.Name
+	}
+	if vres.CreatedAt != nil {
+		res.CreatedAt = *vres.CreatedAt
+	}
+	return res
+}
+
+// newUserView projects result type User to projected type UserView using the
+// "default" view.
+func newUserView(res *User) *ingestviews.UserView {
+	vres := &ingestviews.UserView{
+		UUID:      &res.UUID,
+		Email:     &res.Email,
+		Name:      &res.Name,
+		CreatedAt: &res.CreatedAt,
 	}
 	return vres
 }

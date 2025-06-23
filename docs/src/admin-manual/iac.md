@@ -175,6 +175,7 @@ cookie obtained from the `POST /ingest/sips/{id}/download` endpoint.
 | POST   | /ingest/sips/{id}/reject              | `ingest:sips:review`            |
 | GET    | /ingest/sips/{id}/workflows           | `ingest:sips:workflows:list`    |
 | POST   | /ingest/sips/upload                   | `ingest:sips:upload`            |
+| GET    | /ingest/users                         | `ingest:users:list`             |
 | GET    | /storage/aips                         | `storage:aips:list`             |
 | POST   | /storage/aips                         | `storage:aips:create`           |
 | GET    | /storage/aips/{uuid}                  | `storage:aips:read`             |

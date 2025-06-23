@@ -22,6 +22,7 @@ import type {
   SIPWorkflows,
   SIPs,
   UploadSipResponseBody,
+  Users,
 } from '../models/index';
 import {
     ConfirmSipRequestBodyFromJSON,
@@ -38,6 +39,8 @@ import {
     SIPsToJSON,
     UploadSipResponseBodyFromJSON,
     UploadSipResponseBodyToJSON,
+    UsersFromJSON,
+    UsersToJSON,
 } from '../models/index';
 
 export interface IngestConfirmSipRequest {
@@ -65,6 +68,13 @@ export interface IngestListSipsRequest {
     latestCreatedTime?: Date;
     status?: IngestListSipsStatusEnum;
     uploaderId?: string;
+    limit?: number;
+    offset?: number;
+}
+
+export interface IngestListUsersRequest {
+    email?: string;
+    name?: string;
     limit?: number;
     offset?: number;
 }
@@ -180,6 +190,25 @@ export interface IngestApiInterface {
      * list_sips ingest
      */
     ingestListSips(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPs>;
+
+    /**
+     * List all users
+     * @summary list_users ingest
+     * @param {string} [email] Email of the user
+     * @param {string} [name] Name of the user
+     * @param {number} [limit] Limit number of results to return
+     * @param {number} [offset] Offset from the beginning of the found set
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestListUsersRaw(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Users>>;
+
+    /**
+     * List all users
+     * list_users ingest
+     */
+    ingestListUsers(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Users>;
 
     /**
      * Obtain access to the /monitor WebSocket
@@ -489,6 +518,58 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      */
     async ingestListSips(requestParameters: IngestListSipsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPs> {
         const response = await this.ingestListSipsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * List all users
+     * list_users ingest
+     */
+    async ingestListUsersRaw(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Users>> {
+        const queryParameters: any = {};
+
+        if (requestParameters.email !== undefined) {
+            queryParameters['email'] = requestParameters.email;
+        }
+
+        if (requestParameters.name !== undefined) {
+            queryParameters['name'] = requestParameters.name;
+        }
+
+        if (requestParameters.limit !== undefined) {
+            queryParameters['limit'] = requestParameters.limit;
+        }
+
+        if (requestParameters.offset !== undefined) {
+            queryParameters['offset'] = requestParameters.offset;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/ingest/users`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => UsersFromJSON(jsonValue));
+    }
+
+    /**
+     * List all users
+     * list_users ingest
+     */
+    async ingestListUsers(requestParameters: IngestListUsersRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Users> {
+        const response = await this.ingestListUsersRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

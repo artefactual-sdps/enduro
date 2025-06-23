@@ -4,6 +4,8 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+
+	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 )
 
 type User struct {
@@ -26,4 +28,17 @@ type User struct {
 	// users that are not authenticated via OIDC (e.g. system users).
 	OIDCIss string
 	OIDCSub string
+}
+
+func (u *User) Goa() *goaingest.User {
+	if u == nil {
+		return nil
+	}
+
+	return &goaingest.User{
+		UUID:      u.UUID,
+		CreatedAt: u.CreatedAt.Format(time.RFC3339),
+		Email:     u.Email,
+		Name:      u.Name,
+	}
 }

@@ -25,6 +25,7 @@ var _ = Service("ingest", func() {
 			Scope("ingest:sips:review")
 			Scope("ingest:sips:upload")
 			Scope("ingest:sips:workflows:list")
+			Scope("ingest:users:list")
 		})
 		Payload(func() {
 			Token("token", String)
@@ -296,6 +297,41 @@ var _ = Service("ingest", func() {
 			Response("internal_error", StatusInternalServerError)
 		})
 	})
+	Method("list_users", func() {
+		Description("List all users")
+		Security(JWTAuth, func() {
+			Scope("ingest:users:list")
+		})
+		Payload(func() {
+			Attribute("email", String, "Email of the user", func() {
+				Example("nobody@example.com")
+			})
+			Attribute("name", String, "Name of the user", func() {
+				Example("Jane")
+			})
+			Attribute("limit", Int, "Limit number of results to return")
+			Attribute("offset", Int, "Offset from the beginning of the found set")
+
+			Token("token", String)
+		})
+		Result(Users)
+		Error("not_valid")
+		HTTP(func() {
+			GET("/users")
+			Response(StatusOK)
+			Response("not_valid", StatusBadRequest)
+			Params(func() {
+				Param("email", func() {
+					Example("nobody@example.com")
+				})
+				Param("name", func() {
+					Example("Jane Doe")
+				})
+				Param("limit")
+				Param("offset")
+			})
+		})
+	})
 })
 
 var EnumSIPStatus = func() {
@@ -373,6 +409,41 @@ var SIPWorkflows = ResultType("application/vnd.enduro.ingest.sip.workflows", fun
 	Attributes(func() {
 		Attribute("workflows", CollectionOf(SIPWorkflow))
 	})
+})
+
+var User = ResultType("application/vnd.enduro.ingest.user", func() {
+	Description("User describes an Enduro user.")
+	TypeName("User")
+	Attributes(func() {
+		TypedAttributeUUID("uuid", "Identifier of the user")
+		Attribute("email", String, "Email of the user", func() {
+			Example("nobody@example.com")
+		})
+		Attribute("name", String, "Name of the user", func() {
+			Example("Jane Doe")
+		})
+		Attribute("created_at", String, "Creation date & time of the user", func() {
+			Format(FormatDateTime)
+		})
+	})
+	View("default", func() {
+		Attribute("uuid")
+		Attribute("email", func() {
+			Example("nobody@example.com")
+		})
+		Attribute("name", func() {
+			Example("Jane Doe")
+		})
+		Attribute("created_at")
+	})
+	Required("uuid", "email", "name", "created_at")
+})
+
+var Users = ResultType("application/vnd.enduro.ingest.users", func() {
+	TypeName("Users")
+	Attribute("items", CollectionOf(User))
+	Attribute("page", Page)
+	Required("items", "page")
 })
 
 var EnumWorkflowType = func() {
