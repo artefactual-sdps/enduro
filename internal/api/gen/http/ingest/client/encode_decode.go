@@ -309,6 +309,9 @@ func EncodeListSipsRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 		if p.Status != nil {
 			values.Add("status", *p.Status)
 		}
+		if p.UploaderID != nil {
+			values.Add("uploader_id", *p.UploaderID)
+		}
 		if p.Limit != nil {
 			values.Add("limit", fmt.Sprintf("%v", *p.Limit))
 		}

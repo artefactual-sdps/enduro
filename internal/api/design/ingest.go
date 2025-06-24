@@ -77,6 +77,7 @@ var _ = Service("ingest", func() {
 			Attribute("status", String, func() {
 				EnumSIPStatus()
 			})
+			AttributeUUID("uploader_id", "UUID of the SIP uploader")
 			Attribute("limit", Int, "Limit number of results to return")
 			Attribute("offset", Int, "Offset from the beginning of the found set")
 
@@ -94,6 +95,7 @@ var _ = Service("ingest", func() {
 				Param("earliest_created_time")
 				Param("latest_created_time")
 				Param("status")
+				Param("uploader_id")
 				Param("limit")
 				Param("offset")
 			})

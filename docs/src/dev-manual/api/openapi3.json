@@ -1995,6 +1995,19 @@
           },
           {
             "allowEmptyValue": true,
+            "description": "UUID of the SIP uploader",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "in": "query",
+            "name": "uploader_id",
+            "schema": {
+              "description": "UUID of the SIP uploader",
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
             "description": "Limit number of results to return",
             "example": 1,
             "in": "query",

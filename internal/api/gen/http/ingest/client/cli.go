@@ -49,7 +49,7 @@ func BuildMonitorPayload(ingestMonitorTicket string) (*ingest.MonitorPayload, er
 
 // BuildListSipsPayload builds the payload for the ingest list_sips endpoint
 // from CLI flags.
-func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string, ingestListSipsEarliestCreatedTime string, ingestListSipsLatestCreatedTime string, ingestListSipsStatus string, ingestListSipsLimit string, ingestListSipsOffset string, ingestListSipsToken string) (*ingest.ListSipsPayload, error) {
+func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string, ingestListSipsEarliestCreatedTime string, ingestListSipsLatestCreatedTime string, ingestListSipsStatus string, ingestListSipsUploaderID string, ingestListSipsLimit string, ingestListSipsOffset string, ingestListSipsToken string) (*ingest.ListSipsPayload, error) {
 	var err error
 	var name *string
 	{
@@ -99,6 +99,16 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string,
 			}
 		}
 	}
+	var uploaderID *string
+	{
+		if ingestListSipsUploaderID != "" {
+			uploaderID = &ingestListSipsUploaderID
+			err = goa.MergeErrors(err, goa.ValidateFormat("uploader_id", *uploaderID, goa.FormatUUID))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
 	var limit *int
 	{
 		if ingestListSipsLimit != "" {
@@ -135,6 +145,7 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string,
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
 	v.Status = status
+	v.UploaderID = uploaderID
 	v.Limit = limit
 	v.Offset = offset
 	v.Token = token

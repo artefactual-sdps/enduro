@@ -200,6 +200,7 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 			earliestCreatedTime *string
 			latestCreatedTime   *string
 			status              *string
+			uploaderID          *string
 			limit               *int
 			offset              *int
 			token               *string
@@ -239,6 +240,13 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
 			}
 		}
+		uploaderIDRaw := r.URL.Query().Get("uploader_id")
+		if uploaderIDRaw != "" {
+			uploaderID = &uploaderIDRaw
+		}
+		if uploaderID != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("uploader_id", *uploaderID, goa.FormatUUID))
+		}
 		{
 			limitRaw := r.URL.Query().Get("limit")
 			if limitRaw != "" {
@@ -268,7 +276,7 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListSipsPayload(name, aipID, earliestCreatedTime, latestCreatedTime, status, limit, offset, token)
+		payload := NewListSipsPayload(name, aipID, earliestCreatedTime, latestCreatedTime, status, uploaderID, limit, offset, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")

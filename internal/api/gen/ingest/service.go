@@ -147,6 +147,8 @@ type ListSipsPayload struct {
 	EarliestCreatedTime *string
 	LatestCreatedTime   *string
 	Status              *string
+	// UUID of the SIP uploader
+	UploaderID *string
 	// Limit number of results to return
 	Limit *int
 	// Offset from the beginning of the found set

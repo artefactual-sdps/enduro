@@ -3802,6 +3802,14 @@
             "type": "string"
           },
           {
+            "description": "UUID of the SIP uploader",
+            "format": "uuid",
+            "in": "query",
+            "name": "uploader_id",
+            "required": false,
+            "type": "string"
+          },
+          {
             "description": "Limit number of results to return",
             "in": "query",
             "name": "limit",

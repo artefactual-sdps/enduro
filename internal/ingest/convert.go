@@ -96,12 +96,22 @@ func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistenc
 		return nil, goaingest.MakeNotValid(fmt.Errorf("created at: %v", err))
 	}
 
+	var uploaderID *uuid.UUID
+	if payload.UploaderID != nil {
+		id, err := uuid.Parse(*payload.UploaderID)
+		if err != nil {
+			return nil, goaingest.MakeNotValid(errors.New("uploader_id: invalid UUID"))
+		}
+		uploaderID = &id
+	}
+
 	pf := persistence.SIPFilter{
-		AIPID:     aipID,
-		Name:      payload.Name,
-		Status:    status,
-		CreatedAt: createdAt,
-		Sort:      entfilter.NewSort().AddCol("id", true),
+		AIPID:      aipID,
+		Name:       payload.Name,
+		Status:     status,
+		CreatedAt:  createdAt,
+		UploaderID: uploaderID,
+		Sort:       entfilter.NewSort().AddCol("id", true),
 		Page: persistence.Page{
 			Limit:  ref.DerefZero(payload.Limit),
 			Offset: ref.DerefZero(payload.Offset),

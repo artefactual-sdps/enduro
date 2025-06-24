@@ -145,6 +145,11 @@ var (
 				Time:  time.Date(2024, 9, 25, 9, 31, 12, 0, time.UTC),
 				Valid: true,
 			},
+			Uploader: &datatypes.Uploader{
+				UUID:  uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9"),
+				Email: "uploader@example.com",
+				Name:  "Test Uploader",
+			},
 		},
 		{
 			ID:        2,
@@ -210,13 +215,16 @@ func TestList(t *testing.T) {
 			want: &goaingest.SIPs{
 				Items: goaingest.SIPCollection{
 					{
-						UUID:        sipUUID1,
-						Name:        ref.New("Test SIP 1"),
-						Status:      enums.SIPStatusIngested.String(),
-						AipID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
-						CreatedAt:   "2024-09-25T09:31:10Z",
-						StartedAt:   ref.New("2024-09-25T09:31:11Z"),
-						CompletedAt: ref.New("2024-09-25T09:31:12Z"),
+						UUID:          sipUUID1,
+						Name:          ref.New("Test SIP 1"),
+						Status:        enums.SIPStatusIngested.String(),
+						AipID:         ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+						CreatedAt:     "2024-09-25T09:31:10Z",
+						StartedAt:     ref.New("2024-09-25T09:31:11Z"),
+						CompletedAt:   ref.New("2024-09-25T09:31:12Z"),
+						UploaderUUID:  ref.New(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
+						UploaderEmail: ref.New("uploader@example.com"),
+						UploaderName:  ref.New("Test Uploader"),
 					},
 					{
 						UUID:        sipUUID2,
@@ -252,6 +260,7 @@ func TestList(t *testing.T) {
 				EarliestCreatedTime: ref.New("2024-09-25T09:30:00Z"),
 				LatestCreatedTime:   ref.New("2024-09-25T09:40:00Z"),
 				Status:              ref.New(enums.SIPStatusIngested.String()),
+				UploaderID:          ref.New("0b075937-458c-43d9-b46c-222a072d62a9"),
 				Limit:               ref.New(10),
 				Offset:              ref.New(1),
 			},
@@ -265,8 +274,9 @@ func TestList(t *testing.T) {
 							Start: time.Date(2024, 9, 25, 9, 30, 0, 0, time.UTC),
 							End:   time.Date(2024, 9, 25, 9, 40, 0, 0, time.UTC),
 						},
-						Status: ref.New(enums.SIPStatusIngested),
-						Sort:   entfilter.NewSort().AddCol("id", true),
+						Status:     ref.New(enums.SIPStatusIngested),
+						UploaderID: ref.New(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
+						Sort:       entfilter.NewSort().AddCol("id", true),
 						Page: persistence.Page{
 							Limit:  10,
 							Offset: 1,
@@ -281,13 +291,16 @@ func TestList(t *testing.T) {
 			want: &goaingest.SIPs{
 				Items: goaingest.SIPCollection{
 					{
-						UUID:        sipUUID1,
-						Name:        ref.New("Test SIP 1"),
-						Status:      enums.SIPStatusIngested.String(),
-						AipID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
-						CreatedAt:   "2024-09-25T09:31:10Z",
-						StartedAt:   ref.New("2024-09-25T09:31:11Z"),
-						CompletedAt: ref.New("2024-09-25T09:31:12Z"),
+						UUID:          sipUUID1,
+						Name:          ref.New("Test SIP 1"),
+						Status:        enums.SIPStatusIngested.String(),
+						AipID:         ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+						CreatedAt:     "2024-09-25T09:31:10Z",
+						StartedAt:     ref.New("2024-09-25T09:31:11Z"),
+						CompletedAt:   ref.New("2024-09-25T09:31:12Z"),
+						UploaderUUID:  ref.New(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
+						UploaderEmail: ref.New("uploader@example.com"),
+						UploaderName:  ref.New("Test Uploader"),
 					},
 				},
 				Page: &goaingest.EnduroPage{
@@ -351,6 +364,13 @@ func TestList(t *testing.T) {
 				LatestCreatedTime:   ref.New("2023-10-01T17:43:52Z"),
 			},
 			wantErr: "created at: time range: end cannot be before start",
+		},
+		{
+			name: "Errors on a bad uploader_id",
+			payload: &goaingest.ListSipsPayload{
+				UploaderID: ref.New("invalid"),
+			},
+			wantErr: "uploader_id: invalid UUID",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
