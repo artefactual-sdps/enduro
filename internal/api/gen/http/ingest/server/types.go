@@ -887,13 +887,14 @@ func NewMonitorPayload(ticket *string) *ingest.MonitorPayload {
 }
 
 // NewListSipsPayload builds a ingest service list_sips endpoint payload.
-func NewListSipsPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, limit *int, offset *int, token *string) *ingest.ListSipsPayload {
+func NewListSipsPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, uploaderID *string, limit *int, offset *int, token *string) *ingest.ListSipsPayload {
 	v := &ingest.ListSipsPayload{}
 	v.Name = name
 	v.AipID = aipID
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
 	v.Status = status
+	v.UploaderID = uploaderID
 	v.Limit = limit
 	v.Offset = offset
 	v.Token = token

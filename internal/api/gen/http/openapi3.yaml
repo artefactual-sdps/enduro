@@ -188,6 +188,16 @@ paths:
                         - pending
                         - ingested
                   example: failed
+                - name: uploader_id
+                  in: query
+                  description: UUID of the SIP uploader
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    description: UUID of the SIP uploader
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 - name: limit
                   in: query
                   description: Limit number of results to return

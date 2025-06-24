@@ -64,6 +64,7 @@ export interface IngestListSipsRequest {
     earliestCreatedTime?: Date;
     latestCreatedTime?: Date;
     status?: IngestListSipsStatusEnum;
+    uploaderId?: string;
     limit?: number;
     offset?: number;
 }
@@ -165,6 +166,7 @@ export interface IngestApiInterface {
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
      * @param {'error' | 'failed' | 'queued' | 'processing' | 'pending' | 'ingested'} [status] 
+     * @param {string} [uploaderId] UUID of the SIP uploader
      * @param {number} [limit] Limit number of results to return
      * @param {number} [offset] Offset from the beginning of the found set
      * @param {*} [options] Override http request option.
@@ -447,6 +449,10 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (requestParameters.status !== undefined) {
             queryParameters['status'] = requestParameters.status;
+        }
+
+        if (requestParameters.uploaderId !== undefined) {
+            queryParameters['uploader_id'] = requestParameters.uploaderId;
         }
 
         if (requestParameters.limit !== undefined) {

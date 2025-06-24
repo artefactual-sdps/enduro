@@ -143,6 +143,12 @@ paths:
                     - processing
                     - pending
                     - ingested
+                - name: uploader_id
+                  in: query
+                  description: UUID of the SIP uploader
+                  required: false
+                  type: string
+                  format: uuid
                 - name: limit
                   in: query
                   description: Limit number of results to return
