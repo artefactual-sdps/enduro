@@ -2,6 +2,7 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import { ref } from "vue";
 
 import { api, client } from "@/client";
+import { logError } from "@/helpers/logs";
 import { ResponseError, StorageListAipsStatusEnum } from "@/openapi-generator";
 import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
@@ -12,16 +13,6 @@ class UIRequest {
 }
 
 const defaultPageSize = 20;
-
-function logError(e: Error, msg: string) {
-  if (e instanceof ResponseError) {
-    msg = msg + ":";
-    console.error(msg, e.response.status, e.response.statusText);
-  } else {
-    // Unknown error type.
-    console.error(msg, e.message);
-  }
-}
 
 function delay(ms: number, ...args: unknown[]): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms, args));

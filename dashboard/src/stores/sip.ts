@@ -1,21 +1,12 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 
 import { api, client, getPath } from "@/client";
+import { logError } from "@/helpers/logs";
 import { IngestListSipsStatusEnum, ResponseError } from "@/openapi-generator";
 import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
 
 const defaultPageSize = 20;
-
-function logError(e: Error, msg: string) {
-  if (e instanceof ResponseError) {
-    msg = msg + ":";
-    console.error(msg, e.response.status, e.response.statusText);
-  } else {
-    // Unknown error type.
-    console.error(msg, e.message);
-  }
-}
 
 export const useSipStore = defineStore("sip", {
   state: () => ({
@@ -36,6 +27,7 @@ export const useSipStore = defineStore("sip", {
       status: "" as IngestListSipsStatusEnum | undefined,
       earliestCreatedTime: undefined as Date | undefined,
       latestCreatedTime: undefined as Date | undefined,
+      uploaderId: "" as string,
     },
     downloadError: null as string | null,
   }),
@@ -119,6 +111,10 @@ export const useSipStore = defineStore("sip", {
           status: this.filters.status,
           earliestCreatedTime: this.filters.earliestCreatedTime,
           latestCreatedTime: this.filters.latestCreatedTime,
+          uploaderId:
+            this.filters.uploaderId !== ""
+              ? this.filters.uploaderId
+              : undefined,
         })
         .then((resp) => {
           this.sips = resp.items;
