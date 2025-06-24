@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAsyncState } from "@vueuse/core";
+import Dropdown from "bootstrap/js/dist/dropdown";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router/auto";
@@ -18,6 +19,7 @@ import type { IngestListSipsStatusEnum } from "@/openapi-generator";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useSipStore } from "@/stores/sip";
+import { useUserStore } from "@/stores/user";
 import IconInfo from "~icons/akar-icons/info-fill";
 import IconAll from "~icons/clarity/blocks-group-line?raw&font-size=20px";
 import IconClose from "~icons/clarity/close-line";
@@ -33,6 +35,11 @@ import IconSIPs from "~icons/octicon/package-dependencies-24";
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
 const sipStore = useSipStore();
+const userStore = useUserStore();
+
+const uploaderEl = ref<HTMLElement | null>(null);
+const uploaderDD = ref<Dropdown | null>(null);
+const uploaderDDLabel = ref("Uploaded by");
 
 const route = useRoute();
 const router = useRouter();
@@ -223,6 +230,25 @@ const updateDateFilter = (
   });
 };
 
+const updateUploaderFilter = () => {
+  let q = { ...route.query };
+
+  if (sipStore.filters.uploaderId) {
+    q.uploaderId = sipStore.filters.uploaderId as LocationQueryValue;
+  } else {
+    delete q.uploaderId;
+  }
+
+  // Reset the page number because the found results may reduce the total number
+  // of pages.
+  delete q.page;
+
+  router.push({
+    name: "/ingest/sips/",
+    query: q,
+  });
+};
+
 const { execute, error } = useAsyncState(() => {
   if (route.query.name) {
     sipStore.filters.name = <string>route.query.name;
@@ -252,6 +278,10 @@ const { execute, error } = useAsyncState(() => {
     delete sipStore.filters.latestCreatedTime;
   }
 
+  if (route.query.uploaderId) {
+    sipStore.filters.uploaderId = <string>route.query.uploaderId;
+  }
+
   return sipStore.fetchSips(
     route.query.page ? parseInt(<string>route.query.page) : 1,
   );
@@ -267,6 +297,15 @@ watch(
 
 onMounted(() => {
   if (el.value) tooltip = new Tooltip(el.value);
+  if (uploaderEl.value) uploaderDD.value = new Dropdown(uploaderEl.value);
+
+  // Fetch the users for the uploader dropdown.
+  if (authStore.checkAttributes(["ingest:users:list"])) {
+    userStore.fetchUsers().catch((err) => {
+      console.error("fetch users:", err);
+      error.value = "Failed to fetch users";
+    });
+  }
 });
 </script>
 
@@ -316,6 +355,56 @@ onMounted(() => {
             </button>
           </div>
         </form>
+      </div>
+      <div
+        v-if="
+          authStore.checkAttributes(['ingest:users:list']) && userStore.hasUsers
+        "
+      >
+        <div class="dropdown" ref="uploaderEl">
+          <button
+            id="dd-uploader-button"
+            class="btn btn-primary dropdown-toggle"
+            type="button"
+            data-bs-toggle="dropdown"
+            aria-label="Toggle 'Uploaded by' filter dropdown"
+            aria-expanded="false"
+          >
+            {{ uploaderDDLabel }}
+          </button>
+          <button
+            id="dd-uploader-reset"
+            @click="
+              sipStore.filters.uploaderId = '';
+              uploaderDDLabel = 'Uploaded by';
+              updateUploaderFilter();
+            "
+            class="btn btn-secondary"
+            type="reset"
+            aria-label="Reset 'Uploaded by' filter"
+            v-show="sipStore.filters.uploaderId !== ''"
+          >
+            <IconClose />
+          </button>
+          <ul class="dropdown-menu">
+            <li
+              v-for="user in userStore.users"
+              :key="user.uuid"
+              :value="user.uuid"
+            >
+              <a
+                class="dropdown-item"
+                @click.prevent="
+                  sipStore.filters.uploaderId = user.uuid;
+                  uploaderDDLabel = userStore.getHandle(user);
+                  updateUploaderFilter();
+                "
+                href="#"
+                >{{ userStore.getHandle(user) }}</a
+              >
+            </li>
+          </ul>
+        </div>
       </div>
       <div>
         <TimeDropdown
