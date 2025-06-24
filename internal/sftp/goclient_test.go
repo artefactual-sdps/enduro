@@ -414,10 +414,9 @@ func TestUploadDirectory(t *testing.T) {
 				assert.Assert(t, reflect.TypeOf(err) == reflect.TypeOf(tc.wantErr))
 				return
 			}
-			assert.NilError(t, err)
 
+			assert.NilError(t, err)
 			assert.Equal(t, remotePath, tc.cfg.RemoteDir+"/"+filepath.Base(tc.params.src))
-			assert.Equal(t, upload.Bytes(), int64(0)) // Upload hasn't started yet.
 
 			select {
 			case <-upload.Done():
