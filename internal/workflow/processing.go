@@ -360,7 +360,14 @@ func (w *ProcessingWorkflow) SessionHandler(
 			}
 			state.sip.path = downloadResult.Path
 		} else {
-			// API upload request, use internal bucket.
+			// API upload request, use internal bucket. If the destination path
+			// is set, the bucketdownload activity will download directly there.
+			// We will create an extra directory with the SIP UUID to avoid
+			// collisions and normalize the deletion of the original SIP from
+			// the parent directory.
+			if destinationPath != "" {
+				destinationPath = filepath.Join(destinationPath, state.sip.uuid.String())
+			}
 			var re bucketdownload.Result
 			err := temporalsdk_workflow.ExecuteActivity(
 				activityOpts,

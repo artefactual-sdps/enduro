@@ -1870,14 +1870,16 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 
 func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 	cfg := config.Configuration{
-		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
-		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		A3m:           a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation:  pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:       storage.Config{DefaultPermanentLocationID: locationID},
+		Preprocessing: preprocessing.Config{Enabled: true, SharedPath: "/shared/path"},
 	}
 	s.SetupWorkflowTest(cfg)
 
 	sipName := "name.zip"
 	key := "transfer.zip"
+	downloadDir := filepath.Join(cfg.Preprocessing.SharedPath, sipUUID.String())
 	failedKey := fmt.Sprintf(
 		"%s%s-%s%s",
 		ingest.FailedSIPPrefix,
@@ -1915,15 +1917,15 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		sessionCtx,
 		&bucketdownload.Params{
 			Key:     key,
-			DirPath: cfg.Preprocessing.SharedPath,
+			DirPath: downloadDir,
 		},
-	).Return(&bucketdownload.Result{FilePath: tempPath + "/" + key}, nil)
+	).Return(&bucketdownload.Result{FilePath: downloadDir + "/" + key}, nil)
 
 	// Fail the workflow on extraction.
 	s.env.OnActivity(
 		archiveextract.Name,
 		sessionCtx,
-		&archiveextract.Params{SourcePath: tempPath + "/" + key},
+		&archiveextract.Params{SourcePath: downloadDir + "/" + key},
 	).Return(nil, errors.New("extract error"))
 
 	// Check failed SIP rename within internal bucket (copy/delete).
@@ -1967,7 +1969,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 	s.env.OnActivity(
 		removepaths.Name,
 		sessionCtx,
-		&removepaths.Params{Paths: []string{tempPath}},
+		&removepaths.Params{Paths: []string{downloadDir}},
 	).Return(&removepaths.Result{}, nil)
 
 	s.env.ExecuteWorkflow(
