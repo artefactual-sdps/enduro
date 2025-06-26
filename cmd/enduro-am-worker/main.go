@@ -241,6 +241,10 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: bucketdownload.Name},
 		)
 		w.RegisterActivityWithOptions(
+			activities.NewGetSIPExtensionActivity().Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.GetSIPExtensionActivityName},
+		)
+		w.RegisterActivityWithOptions(
 			archiveextract.New(cfg.ExtractActivity).Execute,
 			temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
 		)
