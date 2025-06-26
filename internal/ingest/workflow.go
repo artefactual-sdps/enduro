@@ -97,7 +97,6 @@ func (svc *ingestImpl) readWorkflow(
 			workflow.status,
 			CONVERT_TZ(workflow.started_at, @@session.time_zone, '+00:00') AS started_at,
 			CONVERT_TZ(workflow.completed_at, @@session.time_zone, '+00:00') AS completed_at,
-			workflow.sip_id,
 			sip.uuid as sip_uuid
 		FROM workflow
 		LEFT JOIN sip ON (workflow.sip_id = sip.id)
