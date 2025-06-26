@@ -1255,36 +1255,52 @@ paths:
             parameters:
                 - name: uuid
                   in: path
-                  description: Identifier of AIP
+                  description: Identifier of the AIP to download
                   required: true
                   schema:
                     type: string
-                    description: Identifier of AIP
+                    description: Identifier of the AIP to download
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
                   example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                - name: enduro-aip-download-ticket
+                  in: cookie
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    example: abc123
+                  example: abc123
             responses:
                 "200":
                     description: OK response.
+                    headers:
+                        Content-Disposition:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                        Content-Length:
+                            schema:
+                                type: integer
+                                example: 1
+                                format: int64
+                            example: 1
+                        Content-Type:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
                     content:
                         application/json:
                             schema:
                                 type: string
-                                example:
-                                    - 97
-                                    - 98
-                                    - 99
-                                    - 49
-                                    - 50
-                                    - 51
                                 format: binary
-                            example:
-                                - 97
-                                - 98
-                                - 99
-                                - 49
-                                - 50
-                                - 51
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
@@ -1310,6 +1326,75 @@ paths:
                             example:
                                 message: abc123
                                 uuid: abc123
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+        post:
+            tags:
+                - storage
+            summary: download_aip_request storage
+            description: Request access to AIP download
+            operationId: storage#download_aip_request
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of the AIP to download
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of the AIP to download
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "200":
+                    description: OK response.
+                    headers:
+                        Set-Cookie:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
                     - storage:aips:download

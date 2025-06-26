@@ -203,9 +203,34 @@ func BuildUpdateAipPayload(storageUpdateAipUUID string, storageUpdateAipToken st
 	return v, nil
 }
 
+// BuildDownloadAipRequestPayload builds the payload for the storage
+// download_aip_request endpoint from CLI flags.
+func BuildDownloadAipRequestPayload(storageDownloadAipRequestUUID string, storageDownloadAipRequestToken string) (*storage.DownloadAipRequestPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = storageDownloadAipRequestUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageDownloadAipRequestToken != "" {
+			token = &storageDownloadAipRequestToken
+		}
+	}
+	v := &storage.DownloadAipRequestPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
 // BuildDownloadAipPayload builds the payload for the storage download_aip
 // endpoint from CLI flags.
-func BuildDownloadAipPayload(storageDownloadAipUUID string, storageDownloadAipToken string) (*storage.DownloadAipPayload, error) {
+func BuildDownloadAipPayload(storageDownloadAipUUID string, storageDownloadAipTicket string) (*storage.DownloadAipPayload, error) {
 	var err error
 	var uuid string
 	{
@@ -215,15 +240,15 @@ func BuildDownloadAipPayload(storageDownloadAipUUID string, storageDownloadAipTo
 			return nil, err
 		}
 	}
-	var token *string
+	var ticket *string
 	{
-		if storageDownloadAipToken != "" {
-			token = &storageDownloadAipToken
+		if storageDownloadAipTicket != "" {
+			ticket = &storageDownloadAipTicket
 		}
 	}
 	v := &storage.DownloadAipPayload{}
 	v.UUID = uuid
-	v.Token = token
+	v.Ticket = ticket
 
 	return v, nil
 }

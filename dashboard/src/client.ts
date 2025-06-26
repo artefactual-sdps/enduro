@@ -24,16 +24,6 @@ function getPath(): string {
   return path.replace(/\/$/, "");
 }
 
-function storageServiceDownloadURL(aipId: string): string {
-  return (
-    getPath() +
-    `/storage/aips/{aip_id}/download`.replace(
-      `{${"aip_id"}}`,
-      encodeURIComponent(aipId),
-    )
-  );
-}
-
 function getWebSocketURL(): string {
   let url = getPath();
 
@@ -86,4 +76,4 @@ function createClient(): Client {
 
 const client = createClient();
 
-export { api, client, getPath, runtime, storageServiceDownloadURL };
+export { api, client, getPath, runtime };

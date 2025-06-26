@@ -16,11 +16,13 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strconv"
 	"strings"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
 	goahttp "goa.design/goa/v3/http"
+	goa "goa.design/goa/v3/pkg"
 )
 
 // BuildListAipsRequest instantiates a HTTP request object with method and path
@@ -563,6 +565,164 @@ func DecodeUpdateAipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 	}
 }
 
+// BuildDownloadAipRequestRequest instantiates a HTTP request object with
+// method and path set to call the "storage" service "download_aip_request"
+// endpoint
+func (c *Client) BuildDownloadAipRequestRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*storage.DownloadAipRequestPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "download_aip_request", "*storage.DownloadAipRequestPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DownloadAipRequestStoragePath(uuid)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "download_aip_request", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeDownloadAipRequestRequest returns an encoder for requests sent to the
+// storage download_aip_request server.
+func EncodeDownloadAipRequestRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.DownloadAipRequestPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "download_aip_request", "*storage.DownloadAipRequestPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeDownloadAipRequestResponse returns a decoder for responses returned by
+// the storage download_aip_request endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeDownloadAipRequestResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeDownloadAipRequestResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				ticket    *string
+				ticketRaw string
+
+				cookies = resp.Cookies()
+			)
+			for _, c := range cookies {
+				switch c.Name {
+				case "enduro-aip-download-ticket":
+					ticketRaw = c.Value
+				}
+			}
+			if ticketRaw != "" {
+				ticket = &ticketRaw
+			}
+			res := NewDownloadAipRequestResultOK(ticket)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body DownloadAipRequestNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_aip_request", err)
+			}
+			err = ValidateDownloadAipRequestNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_aip_request", err)
+			}
+			return nil, NewDownloadAipRequestNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body DownloadAipRequestInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_aip_request", err)
+			}
+			err = ValidateDownloadAipRequestInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_aip_request", err)
+			}
+			return nil, NewDownloadAipRequestInternalError(&body)
+		case http.StatusNotFound:
+			var (
+				body DownloadAipRequestNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_aip_request", err)
+			}
+			err = ValidateDownloadAipRequestNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_aip_request", err)
+			}
+			return nil, NewDownloadAipRequestNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_aip_request", err)
+			}
+			return nil, NewDownloadAipRequestForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_aip_request", err)
+			}
+			return nil, NewDownloadAipRequestUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "download_aip_request", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildDownloadAipRequest instantiates a HTTP request object with method and
 // path set to call the "storage" service "download_aip" endpoint
 func (c *Client) BuildDownloadAipRequest(ctx context.Context, v any) (*http.Request, error) {
@@ -596,13 +756,12 @@ func EncodeDownloadAipRequest(encoder func(*http.Request) goahttp.Encoder) func(
 		if !ok {
 			return goahttp.ErrInvalidType("storage", "download_aip", "*storage.DownloadAipPayload", v)
 		}
-		if p.Token != nil {
-			head := *p.Token
-			if !strings.Contains(head, " ") {
-				req.Header.Set("Authorization", "Bearer "+head)
-			} else {
-				req.Header.Set("Authorization", head)
-			}
+		if p.Ticket != nil {
+			v := *p.Ticket
+			req.AddCookie(&http.Cookie{
+				Name:  "enduro-aip-download-ticket",
+				Value: v,
+			})
 		}
 		return nil
 	}
@@ -612,6 +771,8 @@ func EncodeDownloadAipRequest(encoder func(*http.Request) goahttp.Encoder) func(
 // storage download_aip endpoint. restoreBody controls whether the response
 // body should be restored after having been read.
 // DecodeDownloadAipResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
@@ -627,20 +788,69 @@ func DecodeDownloadAipResponse(decoder func(*http.Response) goahttp.Decoder, res
 			defer func() {
 				resp.Body = io.NopCloser(bytes.NewBuffer(b))
 			}()
-		} else {
-			defer resp.Body.Close()
 		}
 		switch resp.StatusCode {
 		case http.StatusOK:
 			var (
-				body []byte
+				contentType        string
+				contentLength      int64
+				contentDisposition string
+				err                error
+			)
+			contentTypeRaw := resp.Header.Get("Content-Type")
+			if contentTypeRaw == "" {
+				err = goa.MergeErrors(err, goa.MissingFieldError("content_type", "header"))
+			}
+			contentType = contentTypeRaw
+			{
+				contentLengthRaw := resp.Header.Get("Content-Length")
+				if contentLengthRaw == "" {
+					return nil, goahttp.ErrValidationError("storage", "download_aip", goa.MissingFieldError("content_length", "header"))
+				}
+				v, err2 := strconv.ParseInt(contentLengthRaw, 10, 64)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("content_length", contentLengthRaw, "integer"))
+				}
+				contentLength = v
+			}
+			contentDispositionRaw := resp.Header.Get("Content-Disposition")
+			if contentDispositionRaw == "" {
+				err = goa.MergeErrors(err, goa.MissingFieldError("content_disposition", "header"))
+			}
+			contentDisposition = contentDispositionRaw
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_aip", err)
+			}
+			res := NewDownloadAipResultOK(contentType, contentLength, contentDisposition)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body DownloadAipNotValidResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("storage", "download_aip", err)
 			}
-			return body, nil
+			err = ValidateDownloadAipNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_aip", err)
+			}
+			return nil, NewDownloadAipNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body DownloadAipInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_aip", err)
+			}
+			err = ValidateDownloadAipInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_aip", err)
+			}
+			return nil, NewDownloadAipInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body DownloadAipNotFoundResponseBody

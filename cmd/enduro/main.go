@@ -171,7 +171,7 @@ func main() {
 		}
 	}
 
-	// Set up the WebSocket ticket provider.
+	// Set up the WebSocket/downloads ticket provider.
 	var ticketProvider *auth.TicketProvider
 	{
 		var store auth.TicketStore
@@ -260,6 +260,7 @@ func main() {
 			storagePersistence,
 			temporalClient,
 			tokenVerifier,
+			ticketProvider,
 			rand.Reader,
 		)
 		if err != nil {
@@ -330,6 +331,7 @@ func main() {
 			storagePersistence,
 			temporalClient,
 			&auth.NoopTokenVerifier{},
+			ticketProvider,
 			rand.Reader,
 		)
 		if err != nil {

@@ -10,6 +10,7 @@ package storage
 
 import (
 	"context"
+	"io"
 
 	goa "goa.design/goa/v3/pkg"
 )
@@ -20,6 +21,7 @@ type Client struct {
 	CreateAipEndpoint          goa.Endpoint
 	SubmitAipEndpoint          goa.Endpoint
 	UpdateAipEndpoint          goa.Endpoint
+	DownloadAipRequestEndpoint goa.Endpoint
 	DownloadAipEndpoint        goa.Endpoint
 	MoveAipEndpoint            goa.Endpoint
 	MoveAipStatusEndpoint      goa.Endpoint
@@ -36,12 +38,13 @@ type Client struct {
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(listAips, createAip, submitAip, updateAip, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(listAips, createAip, submitAip, updateAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
 		ListAipsEndpoint:           listAips,
 		CreateAipEndpoint:          createAip,
 		SubmitAipEndpoint:          submitAip,
 		UpdateAipEndpoint:          updateAip,
+		DownloadAipRequestEndpoint: downloadAipRequest,
 		DownloadAipEndpoint:        downloadAip,
 		MoveAipEndpoint:            moveAip,
 		MoveAipStatusEndpoint:      moveAipStatus,
@@ -119,19 +122,40 @@ func (c *Client) UpdateAip(ctx context.Context, p *UpdateAipPayload) (err error)
 	return
 }
 
-// DownloadAip calls the "download_aip" endpoint of the "storage" service.
-// DownloadAip may return the following errors:
+// DownloadAipRequest calls the "download_aip_request" endpoint of the
+// "storage" service.
+// DownloadAipRequest may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) DownloadAip(ctx context.Context, p *DownloadAipPayload) (res []byte, err error) {
+func (c *Client) DownloadAipRequest(ctx context.Context, p *DownloadAipRequestPayload) (res *DownloadAipRequestResult, err error) {
+	var ires any
+	ires, err = c.DownloadAipRequestEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*DownloadAipRequestResult), nil
+}
+
+// DownloadAip calls the "download_aip" endpoint of the "storage" service.
+// DownloadAip may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) DownloadAip(ctx context.Context, p *DownloadAipPayload) (res *DownloadAipResult, resp io.ReadCloser, err error) {
 	var ires any
 	ires, err = c.DownloadAipEndpoint(ctx, p)
 	if err != nil {
 		return
 	}
-	return ires.([]byte), nil
+	o := ires.(*DownloadAipResponseData)
+	return o.Result, o.Body, nil
 }
 
 // MoveAip calls the "move_aip" endpoint of the "storage" service.

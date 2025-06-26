@@ -122,22 +122,66 @@ var _ = Service("storage", func() {
 			Response("not_valid", StatusBadRequest)
 		})
 	})
-	Method("download_aip", func() {
-		Description("Download AIP by AIPID")
+	Method("download_aip_request", func() {
+		Description("Request access to AIP download")
 		Security(JWTAuth, func() {
 			Scope("storage:aips:download")
 		})
 		Payload(func() {
-			AttributeUUID("uuid", "Identifier of AIP")
+			AttributeUUID("uuid", "Identifier of the AIP to download")
 			Token("token", String)
 			Required("uuid")
 		})
-		Result(Bytes)
+		Result(func() {
+			Attribute("ticket", String)
+		})
 		Error("not_found", AIPNotFound, "AIP not found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			POST("/aips/{uuid}/download")
+			Response(StatusOK, func() {
+				Cookie("ticket:enduro-aip-download-ticket")
+				CookieMaxAge(5)
+				CookieSecure()
+				CookieHTTPOnly()
+			})
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+		})
+	})
+	Method("download_aip", func() {
+		Description("Download AIP by AIPID")
+		// Disable JWTAuth security (it validates the previous method cookie).
+		NoSecurity()
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of the AIP to download")
+			Attribute("ticket", String)
+			Required("uuid")
+		})
+		Result(Bytes)
+		Result(func() {
+			Attribute("content_type", String)
+			Attribute("content_length", Int64)
+			Attribute("content_disposition", String)
+			Required("content_type", "content_length", "content_disposition")
+		})
+		Error("not_found", AIPNotFound, "AIP not found")
+		Error("not_valid")
+		Error("internal_error")
 		HTTP(func() {
 			GET("/aips/{uuid}/download")
-			Response(StatusOK)
+			Cookie("ticket:enduro-aip-download-ticket")
+			SkipResponseBodyEncodeDecode()
+			Response(func() {
+				Header("content_type:Content-Type")
+				Header("content_length:Content-Length")
+				Header("content_disposition:Content-Disposition")
+			})
 			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("move_aip", func() {

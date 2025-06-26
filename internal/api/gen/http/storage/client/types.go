@@ -303,6 +303,88 @@ type UpdateAipNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// DownloadAipRequestNotValidResponseBody is the type of the "storage" service
+// "download_aip_request" endpoint HTTP response body for the "not_valid" error.
+type DownloadAipRequestNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// DownloadAipRequestInternalErrorResponseBody is the type of the "storage"
+// service "download_aip_request" endpoint HTTP response body for the
+// "internal_error" error.
+type DownloadAipRequestInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// DownloadAipRequestNotFoundResponseBody is the type of the "storage" service
+// "download_aip_request" endpoint HTTP response body for the "not_found" error.
+type DownloadAipRequestNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing AIP
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
+// DownloadAipNotValidResponseBody is the type of the "storage" service
+// "download_aip" endpoint HTTP response body for the "not_valid" error.
+type DownloadAipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// DownloadAipInternalErrorResponseBody is the type of the "storage" service
+// "download_aip" endpoint HTTP response body for the "internal_error" error.
+type DownloadAipInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // DownloadAipNotFoundResponseBody is the type of the "storage" service
 // "download_aip" endpoint HTTP response body for the "not_found" error.
 type DownloadAipNotFoundResponseBody struct {
@@ -926,6 +1008,113 @@ func NewUpdateAipForbidden(body string) storage.Forbidden {
 // unauthorized error.
 func NewUpdateAipUnauthorized(body string) storage.Unauthorized {
 	v := storage.Unauthorized(body)
+
+	return v
+}
+
+// NewDownloadAipRequestResultOK builds a "storage" service
+// "download_aip_request" endpoint result from a HTTP "OK" response.
+func NewDownloadAipRequestResultOK(ticket *string) *storage.DownloadAipRequestResult {
+	v := &storage.DownloadAipRequestResult{}
+	v.Ticket = ticket
+
+	return v
+}
+
+// NewDownloadAipRequestNotValid builds a storage service download_aip_request
+// endpoint not_valid error.
+func NewDownloadAipRequestNotValid(body *DownloadAipRequestNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewDownloadAipRequestInternalError builds a storage service
+// download_aip_request endpoint internal_error error.
+func NewDownloadAipRequestInternalError(body *DownloadAipRequestInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewDownloadAipRequestNotFound builds a storage service download_aip_request
+// endpoint not_found error.
+func NewDownloadAipRequestNotFound(body *DownloadAipRequestNotFoundResponseBody) *storage.AIPNotFound {
+	v := &storage.AIPNotFound{
+		Message: *body.Message,
+		UUID:    *body.UUID,
+	}
+
+	return v
+}
+
+// NewDownloadAipRequestForbidden builds a storage service download_aip_request
+// endpoint forbidden error.
+func NewDownloadAipRequestForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewDownloadAipRequestUnauthorized builds a storage service
+// download_aip_request endpoint unauthorized error.
+func NewDownloadAipRequestUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
+// NewDownloadAipResultOK builds a "storage" service "download_aip" endpoint
+// result from a HTTP "OK" response.
+func NewDownloadAipResultOK(contentType string, contentLength int64, contentDisposition string) *storage.DownloadAipResult {
+	v := &storage.DownloadAipResult{}
+	v.ContentType = contentType
+	v.ContentLength = contentLength
+	v.ContentDisposition = contentDisposition
+
+	return v
+}
+
+// NewDownloadAipNotValid builds a storage service download_aip endpoint
+// not_valid error.
+func NewDownloadAipNotValid(body *DownloadAipNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewDownloadAipInternalError builds a storage service download_aip endpoint
+// internal_error error.
+func NewDownloadAipInternalError(body *DownloadAipInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
 
 	return v
 }
@@ -1644,6 +1833,114 @@ func ValidateUpdateAipNotAvailableResponseBody(body *UpdateAipNotAvailableRespon
 // ValidateUpdateAipNotValidResponseBody runs the validations defined on
 // update_aip_not_valid_response_body
 func ValidateUpdateAipNotValidResponseBody(body *UpdateAipNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateDownloadAipRequestNotValidResponseBody runs the validations defined
+// on download_aip_request_not_valid_response_body
+func ValidateDownloadAipRequestNotValidResponseBody(body *DownloadAipRequestNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateDownloadAipRequestInternalErrorResponseBody runs the validations
+// defined on download_aip_request_internal_error_response_body
+func ValidateDownloadAipRequestInternalErrorResponseBody(body *DownloadAipRequestInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateDownloadAipRequestNotFoundResponseBody runs the validations defined
+// on download_aip_request_not_found_response_body
+func ValidateDownloadAipRequestNotFoundResponseBody(body *DownloadAipRequestNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
+// ValidateDownloadAipNotValidResponseBody runs the validations defined on
+// download_aip_not_valid_response_body
+func ValidateDownloadAipNotValidResponseBody(body *DownloadAipNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateDownloadAipInternalErrorResponseBody runs the validations defined on
+// download_aip_internal_error_response_body
+func ValidateDownloadAipInternalErrorResponseBody(body *DownloadAipInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

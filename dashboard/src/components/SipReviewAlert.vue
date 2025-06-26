@@ -16,6 +16,10 @@ const emit = defineEmits<{
 const aipStore = useAipStore();
 const sipStore = useSipStore();
 
+if (sipStore.current?.aipId) {
+  aipStore.fetchCurrent(sipStore.current.aipId);
+}
+
 const confirm = async () => {
   const locationId = await openDialog(LocationDialog);
   if (!locationId) return;
@@ -42,7 +46,7 @@ const confirm = async () => {
       </li>
       <li>View a summary of the preservation metadata created</li>
       <li>
-        <a href="#" @click.prevent="aipStore.ui.download.request">Download</a>
+        <a href="#" @click.prevent="aipStore.download">Download</a>
         a local copy of the AIP for inspection
       </li>
     </ul>

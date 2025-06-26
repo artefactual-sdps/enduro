@@ -10,6 +10,7 @@ package storage
 
 import (
 	"context"
+	"io"
 
 	storageviews "github.com/artefactual-sdps/enduro/internal/api/gen/storage/views"
 	"github.com/google/uuid"
@@ -27,8 +28,10 @@ type Service interface {
 	SubmitAip(context.Context, *SubmitAipPayload) (res *SubmitAIPResult, err error)
 	// Signal that an AIP submission is complete
 	UpdateAip(context.Context, *UpdateAipPayload) (err error)
+	// Request access to AIP download
+	DownloadAipRequest(context.Context, *DownloadAipRequestPayload) (res *DownloadAipRequestResult, err error)
 	// Download AIP by AIPID
-	DownloadAip(context.Context, *DownloadAipPayload) (res []byte, err error)
+	DownloadAip(context.Context, *DownloadAipPayload) (res *DownloadAipResult, body io.ReadCloser, err error)
 	// Move an AIP to a permanent storage location
 	MoveAip(context.Context, *MoveAipPayload) (err error)
 	// Retrieve the status of a permanent storage location move of the AIP
@@ -75,7 +78,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [17]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [18]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // AIP is the result type of the storage service create_aip method.
 type AIP struct {
@@ -194,9 +197,31 @@ type CreateLocationResult struct {
 // DownloadAipPayload is the payload type of the storage service download_aip
 // method.
 type DownloadAipPayload struct {
-	// Identifier of AIP
+	// Identifier of the AIP to download
+	UUID   string
+	Ticket *string
+}
+
+// DownloadAipRequestPayload is the payload type of the storage service
+// download_aip_request method.
+type DownloadAipRequestPayload struct {
+	// Identifier of the AIP to download
 	UUID  string
 	Token *string
+}
+
+// DownloadAipRequestResult is the result type of the storage service
+// download_aip_request method.
+type DownloadAipRequestResult struct {
+	Ticket *string
+}
+
+// DownloadAipResult is the result type of the storage service download_aip
+// method.
+type DownloadAipResult struct {
+	ContentType        string
+	ContentLength      int64
+	ContentDisposition string
 }
 
 // Page represents a subset of search results.
@@ -570,6 +595,11 @@ func MakeNotAvailable(err error) *goa.ServiceError {
 // MakeNotValid builds a goa.ServiceError from an error.
 func MakeNotValid(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_valid", false, false, false)
+}
+
+// MakeInternalError builds a goa.ServiceError from an error.
+func MakeInternalError(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "internal_error", false, false, false)
 }
 
 // MakeFailedDependency builds a goa.ServiceError from an error.

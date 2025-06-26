@@ -1,16 +1,10 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
-import { ref } from "vue";
 
-import { api, client } from "@/client";
+import { api, client, getPath } from "@/client";
 import { logError } from "@/helpers/logs";
 import { ResponseError, StorageListAipsStatusEnum } from "@/openapi-generator";
 import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
-
-class UIRequest {
-  inner = ref(0);
-  request = () => this.inner.value++;
-}
 
 const defaultPageSize = 20;
 
@@ -43,11 +37,7 @@ export const useAipStore = defineStore("aip", {
       earliestCreatedTime: undefined as Date | undefined,
       latestCreatedTime: undefined as Date | undefined,
     },
-
-    // User-interface interactions between components.
-    ui: {
-      download: new UIRequest(),
-    },
+    downloadError: null as string | null,
   }),
   getters: {
     isDeleted(): boolean {
@@ -266,6 +256,31 @@ export const useAipStore = defineStore("aip", {
 
           return false;
         });
+    },
+    async download() {
+      if (!this.current) return;
+      try {
+        await client.storage.storageDownloadAipRequest({
+          uuid: this.current.uuid,
+        });
+        window.open(
+          getPath() + "/storage/aips/" + this.current.uuid + "/download",
+          "_blank",
+        );
+      } catch (err) {
+        // Try to parse the error and save it for 5 seconds. It will
+        // replace the download button with an alert including the
+        // error message in the AipLocationCard component.
+        let errorMsg = "Unexpected error downloading AIP";
+        if (err instanceof ResponseError) {
+          const body = await err.response.json();
+          if (body.message) {
+            errorMsg = body.message;
+          }
+        }
+        this.downloadError = errorMsg;
+        setTimeout(() => (this.downloadError = null), 5000);
+      }
     },
     // TODO: Remove polling once we have websocket in the storage service.
     async pollFetchCurrent(

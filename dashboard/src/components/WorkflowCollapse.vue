@@ -30,19 +30,21 @@ const { workflow, index } = toRefs(props);
 let expandCounter = ref<number>(0);
 
 const showSipReviewAlert = (
-  status:
-    | api.EnduroIngestSipWorkflowStatusEnum
-    | api.EnduroStorageAipWorkflowStatusEnum,
+  workflow: api.EnduroIngestSipWorkflow | api.EnduroStorageAipWorkflow,
 ) => {
-  return status == api.EnduroIngestSipWorkflowStatusEnum.Pending;
+  return (
+    workflow.type == api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip &&
+    workflow.status == api.EnduroIngestSipWorkflowStatusEnum.Pending
+  );
 };
 
 const showAipDeletionReviewAlert = (
-  status:
-    | api.EnduroIngestSipWorkflowStatusEnum
-    | api.EnduroStorageAipWorkflowStatusEnum,
+  workflow: api.EnduroIngestSipWorkflow | api.EnduroStorageAipWorkflow,
 ) => {
-  return status == api.EnduroStorageAipWorkflowStatusEnum.Pending;
+  return (
+    workflow.type == api.EnduroStorageAipWorkflowTypeEnum.DeleteAip &&
+    workflow.status == api.EnduroStorageAipWorkflowStatusEnum.Pending
+  );
 };
 </script>
 
@@ -92,13 +94,13 @@ const showAipDeletionReviewAlert = (
       <SipReviewAlert
         v-model:expandCounter="expandCounter"
         v-if="
-          showSipReviewAlert(workflow.status) &&
+          showSipReviewAlert(workflow) &&
           authStore.checkAttributes(['ingest:sips:review'])
         "
       />
       <AipDeletionReviewAlert
         v-if="
-          showAipDeletionReviewAlert(workflow.status) &&
+          showAipDeletionReviewAlert(workflow) &&
           (authStore.checkAttributes(['storage:aips:deletion:review']) ||
             authStore.checkAttributes(['storage:aips:deletion:request']))
         "

@@ -9,7 +9,9 @@
 package server
 
 import (
+	"bufio"
 	"context"
+	"io"
 	"net/http"
 	"os"
 
@@ -27,6 +29,7 @@ type Server struct {
 	CreateAip          http.Handler
 	SubmitAip          http.Handler
 	UpdateAip          http.Handler
+	DownloadAipRequest http.Handler
 	DownloadAip        http.Handler
 	MoveAip            http.Handler
 	MoveAipStatus      http.Handler
@@ -74,6 +77,7 @@ func New(
 			{"CreateAip", "POST", "/storage/aips"},
 			{"SubmitAip", "POST", "/storage/aips/{uuid}/submit"},
 			{"UpdateAip", "POST", "/storage/aips/{uuid}/update"},
+			{"DownloadAipRequest", "POST", "/storage/aips/{uuid}/download"},
 			{"DownloadAip", "GET", "/storage/aips/{uuid}/download"},
 			{"MoveAip", "POST", "/storage/aips/{uuid}/store"},
 			{"MoveAipStatus", "GET", "/storage/aips/{uuid}/store"},
@@ -106,6 +110,7 @@ func New(
 		CreateAip:          NewCreateAipHandler(e.CreateAip, mux, decoder, encoder, errhandler, formatter),
 		SubmitAip:          NewSubmitAipHandler(e.SubmitAip, mux, decoder, encoder, errhandler, formatter),
 		UpdateAip:          NewUpdateAipHandler(e.UpdateAip, mux, decoder, encoder, errhandler, formatter),
+		DownloadAipRequest: NewDownloadAipRequestHandler(e.DownloadAipRequest, mux, decoder, encoder, errhandler, formatter),
 		DownloadAip:        NewDownloadAipHandler(e.DownloadAip, mux, decoder, encoder, errhandler, formatter),
 		MoveAip:            NewMoveAipHandler(e.MoveAip, mux, decoder, encoder, errhandler, formatter),
 		MoveAipStatus:      NewMoveAipStatusHandler(e.MoveAipStatus, mux, decoder, encoder, errhandler, formatter),
@@ -132,6 +137,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.CreateAip = m(s.CreateAip)
 	s.SubmitAip = m(s.SubmitAip)
 	s.UpdateAip = m(s.UpdateAip)
+	s.DownloadAipRequest = m(s.DownloadAipRequest)
 	s.DownloadAip = m(s.DownloadAip)
 	s.MoveAip = m(s.MoveAip)
 	s.MoveAipStatus = m(s.MoveAipStatus)
@@ -157,6 +163,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountCreateAipHandler(mux, h.CreateAip)
 	MountSubmitAipHandler(mux, h.SubmitAip)
 	MountUpdateAipHandler(mux, h.UpdateAip)
+	MountDownloadAipRequestHandler(mux, h.DownloadAipRequest)
 	MountDownloadAipHandler(mux, h.DownloadAip)
 	MountMoveAipHandler(mux, h.MoveAip)
 	MountMoveAipStatusHandler(mux, h.MoveAipStatus)
@@ -382,6 +389,57 @@ func NewUpdateAipHandler(
 	})
 }
 
+// MountDownloadAipRequestHandler configures the mux to serve the "storage"
+// service "download_aip_request" endpoint.
+func MountDownloadAipRequestHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/storage/aips/{uuid}/download", otelhttp.WithRouteTag("/storage/aips/{uuid}/download", f).ServeHTTP)
+}
+
+// NewDownloadAipRequestHandler creates a HTTP handler which loads the HTTP
+// request and calls the "storage" service "download_aip_request" endpoint.
+func NewDownloadAipRequestHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeDownloadAipRequestRequest(mux, decoder)
+		encodeResponse = EncodeDownloadAipRequestResponse(encoder)
+		encodeError    = EncodeDownloadAipRequestError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "download_aip_request")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
 // MountDownloadAipHandler configures the mux to serve the "storage" service
 // "download_aip" endpoint.
 func MountDownloadAipHandler(mux goahttp.Muxer, h http.Handler) {
@@ -427,8 +485,25 @@ func NewDownloadAipHandler(
 			}
 			return
 		}
-		if err := encodeResponse(ctx, w, res); err != nil {
+		o := res.(*storage.DownloadAipResponseData)
+		defer o.Body.Close()
+		// handle immediate read error like a returned error
+		buf := bufio.NewReader(o.Body)
+		if _, err := buf.Peek(1); err != nil && err != io.EOF {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, o.Result); err != nil {
 			errhandler(ctx, w, err)
+			return
+		}
+		if _, err := io.Copy(w, buf); err != nil {
+			if f, ok := w.(http.Flusher); ok {
+				f.Flush()
+			}
+			panic(http.ErrAbortHandler) // too late to write an error
 		}
 	})
 }

@@ -64,6 +64,9 @@ type serviceImpl struct {
 	// Token verifier.
 	tokenVerifier auth.TokenVerifier
 
+	// Ticket provider.
+	ticketProvider *auth.TicketProvider
+
 	// Random number generator
 	rander io.Reader
 }
@@ -81,6 +84,7 @@ func NewService(
 	storagePersistence persistence.Storage,
 	tc temporalsdk_client.Client,
 	tokenVerifier auth.TokenVerifier,
+	ticketProvider *auth.TicketProvider,
 	rander io.Reader,
 ) (s *serviceImpl, err error) {
 	s = &serviceImpl{
@@ -89,6 +93,7 @@ func NewService(
 		config:             config,
 		storagePersistence: storagePersistence,
 		tokenVerifier:      tokenVerifier,
+		ticketProvider:     ticketProvider,
 		rander:             rander,
 	}
 
@@ -234,12 +239,6 @@ func (s *serviceImpl) UpdateAip(ctx context.Context, payload *goastorage.UpdateA
 	return nil
 }
 
-func (s *serviceImpl) DownloadAip(ctx context.Context, payload *goastorage.DownloadAipPayload) ([]byte, error) {
-	// This service method is unused, see the Download function instead which
-	// makes use of http.ResponseWriter.
-	return []byte{}, nil
-}
-
 func (s *serviceImpl) ListLocations(
 	ctx context.Context,
 	payload *goastorage.ListLocationsPayload,
@@ -345,17 +344,17 @@ func (s *serviceImpl) UpdateAipLocationID(ctx context.Context, aipID, locationID
 }
 
 // aipLocation returns the bucket and the key of the given AIP.
-func (s *serviceImpl) aipLocation(ctx context.Context, p *goastorage.AIP) (Location, string, error) {
+func (s *serviceImpl) aipLocation(ctx context.Context, a *goastorage.AIP) (Location, string, error) {
 	// AIP is still in the internal processing bucket.
-	if p.LocationID == nil || *p.LocationID == uuid.Nil {
-		return s.internal, p.ObjectKey.String(), nil
+	if a.LocationID == nil || *a.LocationID == uuid.Nil {
+		return s.internal, a.ObjectKey.String(), nil
 	}
 
-	location, err := s.Location(ctx, *p.LocationID)
+	location, err := s.Location(ctx, *a.LocationID)
 	if err != nil {
 		return nil, "", err
 	}
-	return location, p.UUID.String(), nil
+	return location, a.UUID.String(), nil
 }
 
 func (s *serviceImpl) DeleteAip(ctx context.Context, aipID uuid.UUID) error {

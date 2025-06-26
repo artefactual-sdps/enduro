@@ -63,7 +63,7 @@ func HTTPServer(
 	storageEndpoints := storage.NewEndpoints(storagesvc)
 	storageErrorHandler := errorHandler(logger, "Storage error.")
 	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
-	storageServer.DownloadAip = writeTimeout(intstorage.Download(storagesvc, mux, dec), 0)
+	storageServer.DownloadAip = writeTimeout(storageServer.DownloadAip, 0)
 	storagesvr.Mount(mux, storageServer)
 
 	// About service.

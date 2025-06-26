@@ -85,6 +85,11 @@ export interface StorageCreateLocationRequest {
 
 export interface StorageDownloadAipRequest {
     uuid: string;
+    enduroAipDownloadTicket?: string;
+}
+
+export interface StorageDownloadAipRequestRequest {
+    uuid: string;
 }
 
 export interface StorageListAipWorkflowsRequest {
@@ -205,7 +210,8 @@ export interface StorageApiInterface {
     /**
      * Download AIP by AIPID
      * @summary download_aip storage
-     * @param {string} uuid Identifier of AIP
+     * @param {string} uuid Identifier of the AIP to download
+     * @param {string} [enduroAipDownloadTicket] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -217,6 +223,22 @@ export interface StorageApiInterface {
      * download_aip storage
      */
     storageDownloadAip(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
+
+    /**
+     * Request access to AIP download
+     * @summary download_aip_request storage
+     * @param {string} uuid Identifier of the AIP to download
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageDownloadAipRequestRaw(requestParameters: StorageDownloadAipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Request access to AIP download
+     * download_aip_request storage
+     */
+    storageDownloadAipRequest(requestParameters: StorageDownloadAipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * List workflows related to an AIP
@@ -588,14 +610,6 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
         const response = await this.request({
             path: `/storage/aips/{uuid}/download`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'GET',
@@ -613,6 +627,45 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     async storageDownloadAip(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
         const response = await this.storageDownloadAipRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Request access to AIP download
+     * download_aip_request storage
+     */
+    async storageDownloadAipRequestRaw(requestParameters: StorageDownloadAipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageDownloadAipRequest.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/storage/aips/{uuid}/download`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Request access to AIP download
+     * download_aip_request storage
+     */
+    async storageDownloadAipRequest(requestParameters: StorageDownloadAipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageDownloadAipRequestRaw(requestParameters, initOverrides);
     }
 
     /**

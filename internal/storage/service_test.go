@@ -51,6 +51,7 @@ type setUpAttrs struct {
 	persistenceMock    *fake.MockStorage
 	temporalClientMock *temporalsdk_mocks.Client
 	tokenVerifier      auth.TokenVerifier
+	ticketProvider     *auth.TicketProvider
 }
 
 func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
@@ -93,6 +94,9 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 	if attrs.tokenVerifier != nil {
 		params.tokenVerifier = attrs.tokenVerifier
 	}
+	if attrs.ticketProvider != nil {
+		params.ticketProvider = attrs.ticketProvider
+	}
 
 	*attrs = params
 
@@ -102,6 +106,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		*params.persistence,
 		*params.temporalClient,
 		params.tokenVerifier,
+		params.ticketProvider,
 		rand.New(rand.NewSource(1)), // #nosec: G404
 	)
 	assert.NilError(t, err)
@@ -132,6 +137,7 @@ func TestNewService(t *testing.T) {
 			nil,
 			nil,
 			&auth.OIDCTokenVerifier{},
+			nil,
 			nil,
 		)
 
@@ -500,16 +506,6 @@ func TestServiceLocation(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestServiceDownload(t *testing.T) {
-	t.Parallel()
-
-	svc := setUpService(t, &setUpAttrs{})
-
-	blob, err := svc.DownloadAip(context.Background(), &goastorage.DownloadAipPayload{})
-	assert.NilError(t, err)
-	assert.DeepEqual(t, blob, []byte{}) // Not implemented.
 }
 
 func TestServiceList(t *testing.T) {

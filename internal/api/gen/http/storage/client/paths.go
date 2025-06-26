@@ -32,6 +32,11 @@ func UpdateAipStoragePath(uuid string) string {
 	return fmt.Sprintf("/storage/aips/%v/update", uuid)
 }
 
+// DownloadAipRequestStoragePath returns the URL path to the storage service download_aip_request HTTP endpoint.
+func DownloadAipRequestStoragePath(uuid string) string {
+	return fmt.Sprintf("/storage/aips/%v/download", uuid)
+}
+
 // DownloadAipStoragePath returns the URL path to the storage service download_aip HTTP endpoint.
 func DownloadAipStoragePath(uuid string) string {
 	return fmt.Sprintf("/storage/aips/%v/download", uuid)

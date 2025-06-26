@@ -10,6 +10,7 @@ package storage
 
 import (
 	"context"
+	"io"
 
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
@@ -21,6 +22,7 @@ type Endpoints struct {
 	CreateAip          goa.Endpoint
 	SubmitAip          goa.Endpoint
 	UpdateAip          goa.Endpoint
+	DownloadAipRequest goa.Endpoint
 	DownloadAip        goa.Endpoint
 	MoveAip            goa.Endpoint
 	MoveAipStatus      goa.Endpoint
@@ -36,6 +38,15 @@ type Endpoints struct {
 	ListLocationAips   goa.Endpoint
 }
 
+// DownloadAipResponseData holds both the result and the HTTP response body
+// reader of the "download_aip" method.
+type DownloadAipResponseData struct {
+	// Result is the method result.
+	Result *DownloadAipResult
+	// Body streams the HTTP response body.
+	Body io.ReadCloser
+}
+
 // NewEndpoints wraps the methods of the "storage" service with endpoints.
 func NewEndpoints(s Service) *Endpoints {
 	// Casting service to Auther interface
@@ -45,7 +56,8 @@ func NewEndpoints(s Service) *Endpoints {
 		CreateAip:          NewCreateAipEndpoint(s, a.JWTAuth),
 		SubmitAip:          NewSubmitAipEndpoint(s, a.JWTAuth),
 		UpdateAip:          NewUpdateAipEndpoint(s, a.JWTAuth),
-		DownloadAip:        NewDownloadAipEndpoint(s, a.JWTAuth),
+		DownloadAipRequest: NewDownloadAipRequestEndpoint(s, a.JWTAuth),
+		DownloadAip:        NewDownloadAipEndpoint(s),
 		MoveAip:            NewMoveAipEndpoint(s, a.JWTAuth),
 		MoveAipStatus:      NewMoveAipStatusEndpoint(s, a.JWTAuth),
 		RejectAip:          NewRejectAipEndpoint(s, a.JWTAuth),
@@ -67,6 +79,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.CreateAip = m(e.CreateAip)
 	e.SubmitAip = m(e.SubmitAip)
 	e.UpdateAip = m(e.UpdateAip)
+	e.DownloadAipRequest = m(e.DownloadAipRequest)
 	e.DownloadAip = m(e.DownloadAip)
 	e.MoveAip = m(e.MoveAip)
 	e.MoveAipStatus = m(e.MoveAipStatus)
@@ -184,11 +197,11 @@ func NewUpdateAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 	}
 }
 
-// NewDownloadAipEndpoint returns an endpoint function that calls the method
-// "download_aip" of service "storage".
-func NewDownloadAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+// NewDownloadAipRequestEndpoint returns an endpoint function that calls the
+// method "download_aip_request" of service "storage".
+func NewDownloadAipRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*DownloadAipPayload)
+		p := req.(*DownloadAipRequestPayload)
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
@@ -203,7 +216,20 @@ func NewDownloadAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpo
 		if err != nil {
 			return nil, err
 		}
-		return s.DownloadAip(ctx, p)
+		return s.DownloadAipRequest(ctx, p)
+	}
+}
+
+// NewDownloadAipEndpoint returns an endpoint function that calls the method
+// "download_aip" of service "storage".
+func NewDownloadAipEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		p := req.(*DownloadAipPayload)
+		res, body, err := s.DownloadAip(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		return &DownloadAipResponseData{Result: res, Body: body}, nil
 	}
 }
 

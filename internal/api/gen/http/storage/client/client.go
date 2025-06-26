@@ -12,6 +12,7 @@ import (
 	"context"
 	"net/http"
 
+	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
@@ -33,6 +34,10 @@ type Client struct {
 	// UpdateAip Doer is the HTTP client used to make requests to the update_aip
 	// endpoint.
 	UpdateAipDoer goahttp.Doer
+
+	// DownloadAipRequest Doer is the HTTP client used to make requests to the
+	// download_aip_request endpoint.
+	DownloadAipRequestDoer goahttp.Doer
 
 	// DownloadAip Doer is the HTTP client used to make requests to the
 	// download_aip endpoint.
@@ -113,6 +118,7 @@ func NewClient(
 		CreateAipDoer:          doer,
 		SubmitAipDoer:          doer,
 		UpdateAipDoer:          doer,
+		DownloadAipRequestDoer: doer,
 		DownloadAipDoer:        doer,
 		MoveAipDoer:            doer,
 		MoveAipStatusDoer:      doer,
@@ -231,6 +237,30 @@ func (c *Client) UpdateAip() goa.Endpoint {
 	}
 }
 
+// DownloadAipRequest returns an endpoint that makes HTTP requests to the
+// storage service download_aip_request server.
+func (c *Client) DownloadAipRequest() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeDownloadAipRequestRequest(c.encoder)
+		decodeResponse = DecodeDownloadAipRequestResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildDownloadAipRequestRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.DownloadAipRequestDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "download_aip_request", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
 // DownloadAip returns an endpoint that makes HTTP requests to the storage
 // service download_aip server.
 func (c *Client) DownloadAip() goa.Endpoint {
@@ -251,7 +281,12 @@ func (c *Client) DownloadAip() goa.Endpoint {
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "download_aip", err)
 		}
-		return decodeResponse(resp)
+		res, err := decodeResponse(resp)
+		if err != nil {
+			resp.Body.Close()
+			return nil, err
+		}
+		return &storage.DownloadAipResponseData{Result: res.(*storage.DownloadAipResult), Body: resp.Body}, nil
 	}
 }
 

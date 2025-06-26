@@ -11,6 +11,7 @@ package fake
 
 import (
 	context "context"
+	io "io"
 	reflect "reflect"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -354,12 +355,13 @@ func (c *MockServiceDeleteAipCall) DoAndReturn(f func(context.Context, uuid.UUID
 }
 
 // DownloadAip mocks base method.
-func (m *MockService) DownloadAip(arg0 context.Context, arg1 *storage.DownloadAipPayload) ([]byte, error) {
+func (m *MockService) DownloadAip(arg0 context.Context, arg1 *storage.DownloadAipPayload) (*storage.DownloadAipResult, io.ReadCloser, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DownloadAip", arg0, arg1)
-	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(*storage.DownloadAipResult)
+	ret1, _ := ret[1].(io.ReadCloser)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // DownloadAip indicates an expected call of DownloadAip.
@@ -375,19 +377,58 @@ type MockServiceDownloadAipCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceDownloadAipCall) Return(arg0 []byte, arg1 error) *MockServiceDownloadAipCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceDownloadAipCall) Return(arg0 *storage.DownloadAipResult, arg1 io.ReadCloser, arg2 error) *MockServiceDownloadAipCall {
+	c.Call = c.Call.Return(arg0, arg1, arg2)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceDownloadAipCall) Do(f func(context.Context, *storage.DownloadAipPayload) ([]byte, error)) *MockServiceDownloadAipCall {
+func (c *MockServiceDownloadAipCall) Do(f func(context.Context, *storage.DownloadAipPayload) (*storage.DownloadAipResult, io.ReadCloser, error)) *MockServiceDownloadAipCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceDownloadAipCall) DoAndReturn(f func(context.Context, *storage.DownloadAipPayload) ([]byte, error)) *MockServiceDownloadAipCall {
+func (c *MockServiceDownloadAipCall) DoAndReturn(f func(context.Context, *storage.DownloadAipPayload) (*storage.DownloadAipResult, io.ReadCloser, error)) *MockServiceDownloadAipCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// DownloadAipRequest mocks base method.
+func (m *MockService) DownloadAipRequest(arg0 context.Context, arg1 *storage.DownloadAipRequestPayload) (*storage.DownloadAipRequestResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DownloadAipRequest", arg0, arg1)
+	ret0, _ := ret[0].(*storage.DownloadAipRequestResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DownloadAipRequest indicates an expected call of DownloadAipRequest.
+func (mr *MockServiceMockRecorder) DownloadAipRequest(arg0, arg1 any) *MockServiceDownloadAipRequestCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadAipRequest", reflect.TypeOf((*MockService)(nil).DownloadAipRequest), arg0, arg1)
+	return &MockServiceDownloadAipRequestCall{Call: call}
+}
+
+// MockServiceDownloadAipRequestCall wrap *gomock.Call
+type MockServiceDownloadAipRequestCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceDownloadAipRequestCall) Return(arg0 *storage.DownloadAipRequestResult, arg1 error) *MockServiceDownloadAipRequestCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceDownloadAipRequestCall) Do(f func(context.Context, *storage.DownloadAipRequestPayload) (*storage.DownloadAipRequestResult, error)) *MockServiceDownloadAipRequestCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceDownloadAipRequestCall) DoAndReturn(f func(context.Context, *storage.DownloadAipRequestPayload) (*storage.DownloadAipRequestResult, error)) *MockServiceDownloadAipRequestCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

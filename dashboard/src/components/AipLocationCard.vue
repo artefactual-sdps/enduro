@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { openDialog } from "vue3-promise-dialog";
 
-import { storageServiceDownloadURL } from "@/client";
 import AipDeletionRequestDialog from "@/components/AipDeletionRequestDialog.vue";
 import LocationDialog from "@/components/LocationDialog.vue";
 import UUID from "@/components/UUID.vue";
@@ -24,14 +23,6 @@ const choose = async () => {
     failed.value = true;
   }
 };
-
-const download = () => {
-  if (!aipStore.current?.uuid) return;
-  const url = storageServiceDownloadURL(aipStore.current?.uuid);
-  window.open(url, "_blank");
-};
-
-watch(aipStore.ui.download, () => download());
 
 const requestDeletion = async () => {
   if (!aipStore.current) return;
@@ -59,50 +50,76 @@ const requestDeletion = async () => {
         >
         <span v-else><UUID :id="aipStore.current.locationId" /></span>
       </p>
-      <div v-if="!aipStore.isDeleted" class="d-flex flex-wrap gap-2">
-        <button
-          v-if="
-            authStore.checkAttributes(['storage:aips:download']) &&
-            (aipStore.isStored || aipStore.isPending)
-          "
-          type="button"
-          class="btn btn-primary btn-sm"
-          @click="download"
-        >
-          Download
-        </button>
-        <button
-          v-if="
-            false && // TODO: Enable this also based on location type and available locations.
-            authStore.checkAttributes(['storage:aips:move'])
-          "
-          type="button"
-          class="btn btn-primary btn-sm"
-          @click="choose"
-          :disabled="!aipStore.isMovable"
-        >
-          <template v-if="aipStore.isMoving">
-            <span
-              class="spinner-grow spinner-grow-sm me-2"
-              role="status"
-              aria-hidden="true"
-            ></span>
-            Moving...
-          </template>
-          <template v-else>Move</template>
-        </button>
-        <button
-          v-if="
-            authStore.checkAttributes(['storage:aips:deletion:request']) &&
-            aipStore.isStored
-          "
-          type="button"
-          class="btn btn-primary btn-sm"
-          @click="requestDeletion"
-        >
-          Delete
-        </button>
+      <div v-if="!aipStore.isDeleted">
+        <Transition mode="out-in">
+          <div
+            v-if="aipStore.downloadError"
+            class="alert alert-danger text-center mb-0"
+            role="alert"
+          >
+            {{ aipStore.downloadError }}
+          </div>
+          <div v-else class="d-flex flex-wrap gap-2">
+            <button
+              v-if="
+                authStore.checkAttributes(['storage:aips:download']) &&
+                (aipStore.isStored || aipStore.isPending)
+              "
+              type="button"
+              class="btn btn-primary btn-sm"
+              @click="aipStore.download()"
+            >
+              Download
+            </button>
+            <button
+              v-if="
+                false && // TODO: Enable this also based on location type and available locations.
+                authStore.checkAttributes(['storage:aips:move'])
+              "
+              type="button"
+              class="btn btn-primary btn-sm"
+              @click="choose"
+              :disabled="!aipStore.isMovable"
+            >
+              <template v-if="aipStore.isMoving">
+                <span
+                  class="spinner-grow spinner-grow-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                Moving...
+              </template>
+              <template v-else>Move</template>
+            </button>
+            <button
+              v-if="
+                authStore.checkAttributes(['storage:aips:deletion:request']) &&
+                aipStore.isStored
+              "
+              type="button"
+              class="btn btn-primary btn-sm"
+              @click="requestDeletion"
+            >
+              Delete
+            </button>
+          </div>
+        </Transition>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.3s;
+}
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
+}
+.v-enter-to,
+.v-leave-from {
+  opacity: 1;
+}
+</style>

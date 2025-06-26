@@ -288,6 +288,7 @@ func main() {
 			storageHttpClient.CreateAip(),
 			storageHttpClient.SubmitAip(),
 			storageHttpClient.UpdateAip(),
+			storageHttpClient.DownloadAipRequest(),
 			storageHttpClient.DownloadAip(),
 			storageHttpClient.MoveAip(),
 			storageHttpClient.MoveAipStatus(),

@@ -293,6 +293,88 @@ type UpdateAipNotValidResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// DownloadAipRequestNotValidResponseBody is the type of the "storage" service
+// "download_aip_request" endpoint HTTP response body for the "not_valid" error.
+type DownloadAipRequestNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DownloadAipRequestInternalErrorResponseBody is the type of the "storage"
+// service "download_aip_request" endpoint HTTP response body for the
+// "internal_error" error.
+type DownloadAipRequestInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DownloadAipRequestNotFoundResponseBody is the type of the "storage" service
+// "download_aip_request" endpoint HTTP response body for the "not_found" error.
+type DownloadAipRequestNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// DownloadAipNotValidResponseBody is the type of the "storage" service
+// "download_aip" endpoint HTTP response body for the "not_valid" error.
+type DownloadAipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// DownloadAipInternalErrorResponseBody is the type of the "storage" service
+// "download_aip" endpoint HTTP response body for the "internal_error" error.
+type DownloadAipInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // DownloadAipNotFoundResponseBody is the type of the "storage" service
 // "download_aip" endpoint HTTP response body for the "not_found" error.
 type DownloadAipNotFoundResponseBody struct {
@@ -818,6 +900,73 @@ func NewUpdateAipNotValidResponseBody(res *goa.ServiceError) *UpdateAipNotValidR
 	return body
 }
 
+// NewDownloadAipRequestNotValidResponseBody builds the HTTP response body from
+// the result of the "download_aip_request" endpoint of the "storage" service.
+func NewDownloadAipRequestNotValidResponseBody(res *goa.ServiceError) *DownloadAipRequestNotValidResponseBody {
+	body := &DownloadAipRequestNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDownloadAipRequestInternalErrorResponseBody builds the HTTP response body
+// from the result of the "download_aip_request" endpoint of the "storage"
+// service.
+func NewDownloadAipRequestInternalErrorResponseBody(res *goa.ServiceError) *DownloadAipRequestInternalErrorResponseBody {
+	body := &DownloadAipRequestInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDownloadAipRequestNotFoundResponseBody builds the HTTP response body from
+// the result of the "download_aip_request" endpoint of the "storage" service.
+func NewDownloadAipRequestNotFoundResponseBody(res *storage.AIPNotFound) *DownloadAipRequestNotFoundResponseBody {
+	body := &DownloadAipRequestNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
+// NewDownloadAipNotValidResponseBody builds the HTTP response body from the
+// result of the "download_aip" endpoint of the "storage" service.
+func NewDownloadAipNotValidResponseBody(res *goa.ServiceError) *DownloadAipNotValidResponseBody {
+	body := &DownloadAipNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewDownloadAipInternalErrorResponseBody builds the HTTP response body from
+// the result of the "download_aip" endpoint of the "storage" service.
+func NewDownloadAipInternalErrorResponseBody(res *goa.ServiceError) *DownloadAipInternalErrorResponseBody {
+	body := &DownloadAipInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewDownloadAipNotFoundResponseBody builds the HTTP response body from the
 // result of the "download_aip" endpoint of the "storage" service.
 func NewDownloadAipNotFoundResponseBody(res *storage.AIPNotFound) *DownloadAipNotFoundResponseBody {
@@ -1079,11 +1228,21 @@ func NewUpdateAipPayload(uuid string, token *string) *storage.UpdateAipPayload {
 	return v
 }
 
-// NewDownloadAipPayload builds a storage service download_aip endpoint payload.
-func NewDownloadAipPayload(uuid string, token *string) *storage.DownloadAipPayload {
-	v := &storage.DownloadAipPayload{}
+// NewDownloadAipRequestPayload builds a storage service download_aip_request
+// endpoint payload.
+func NewDownloadAipRequestPayload(uuid string, token *string) *storage.DownloadAipRequestPayload {
+	v := &storage.DownloadAipRequestPayload{}
 	v.UUID = uuid
 	v.Token = token
+
+	return v
+}
+
+// NewDownloadAipPayload builds a storage service download_aip endpoint payload.
+func NewDownloadAipPayload(uuid string, ticket *string) *storage.DownloadAipPayload {
+	v := &storage.DownloadAipPayload{}
+	v.UUID = uuid
+	v.Ticket = ticket
 
 	return v
 }

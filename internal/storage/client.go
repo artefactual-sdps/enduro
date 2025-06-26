@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"io"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
@@ -11,7 +12,11 @@ type Client interface {
 	SubmitAip(context.Context, *goastorage.SubmitAipPayload) (*goastorage.SubmitAIPResult, error)
 	CreateAip(context.Context, *goastorage.CreateAipPayload) (*goastorage.AIP, error)
 	UpdateAip(context.Context, *goastorage.UpdateAipPayload) error
-	DownloadAip(context.Context, *goastorage.DownloadAipPayload) ([]byte, error)
+	DownloadAipRequest(
+		context.Context,
+		*goastorage.DownloadAipRequestPayload,
+	) (*goastorage.DownloadAipRequestResult, error)
+	DownloadAip(context.Context, *goastorage.DownloadAipPayload) (*goastorage.DownloadAipResult, io.ReadCloser, error)
 	ListLocations(context.Context, *goastorage.ListLocationsPayload) (goastorage.LocationCollection, error)
 	CreateLocation(context.Context, *goastorage.CreateLocationPayload) (*goastorage.CreateLocationResult, error)
 	MoveAip(context.Context, *goastorage.MoveAipPayload) error
