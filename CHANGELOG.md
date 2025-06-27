@@ -8,6 +8,28 @@ requests.
 
 ## [Unreleased]
 
+## [0.15.0] - 2025-06-27
+
+### Fixed
+
+- Set uploader max filesize from configuration ([#1237])
+- Check auth in dashboard before loading SIP workflows ([#1238])
+- Don't show AIP workflow auth error ([#1189])
+- SIP download from internal bucket in ingest workflow ([#1276])
+- AIP download authn/authz checks ([#1265])
+
+### Changed
+
+- Move failed SIP/PIP to internal bucket ([#1202])
+
+### Added
+
+- Support for Azure containers for internal storage ([#1231])
+- Record and show the user that uploads a SIP ([#1246])
+- Failed SIP/PIP download to dashboard and API ([#1202])
+- API endpoint to list ingest users ([#1262])
+- Uploaded by filter to the SIPs page ([#1262])
+
 ## [0.14.0] - 2025-05-30
 
 ### Fixed
@@ -169,7 +191,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.14.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.15.0...HEAD
+[0.15.0]: https://github.com/artefactual-sdps/enduro/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/artefactual-sdps/enduro/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/artefactual-sdps/enduro/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/artefactual-sdps/enduro/compare/v0.11.0...v0.12.0
@@ -184,10 +207,17 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1276]: https://github.com/artefactual-sdps/enduro/issues/1276
+[#1265]: https://github.com/artefactual-sdps/enduro/issues/1265
+[#1262]: https://github.com/artefactual-sdps/enduro/issues/1262
+[#1246]: https://github.com/artefactual-sdps/enduro/issues/1246
+[#1238]: https://github.com/artefactual-sdps/enduro/issues/1238
 [#1237]: https://github.com/artefactual-sdps/enduro/issues/1237
+[#1231]: https://github.com/artefactual-sdps/enduro/issues/1231
 [#1218]: https://github.com/artefactual-sdps/enduro/issues/1218
 [#1210]: https://github.com/artefactual-sdps/enduro/issues/1210
 [#1209]: https://github.com/artefactual-sdps/enduro/issues/1209
+[#1202]: https://github.com/artefactual-sdps/enduro/issues/1202
 [#1189]: https://github.com/artefactual-sdps/enduro/issues/1189
 [#1186]: https://github.com/artefactual-sdps/enduro/issues/1186
 [#1176]: https://github.com/artefactual-sdps/enduro/issues/1176
