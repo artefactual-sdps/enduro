@@ -102,7 +102,7 @@ bucket = "sips"
 # Available workflow types are "create aip" and "create and review aip",
 # the later only works properly when the preservation system is "a3m".
 # Default: "create aip".
-workflowType = "create and review aip"
+workflowType = "create aip"
 
 [storage]
 enduroAddress = "enduro.enduro-sdps:9002"
