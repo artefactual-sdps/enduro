@@ -57,6 +57,8 @@ func HTTPServer(
 	ingestErrorHandler := errorHandler(logger, "Ingest error.")
 	ingestServer := ingestsvr.New(ingestEndpoints, mux, dec, enc, ingestErrorHandler, nil, websocketUpgrader, nil)
 	ingestServer.DownloadSip = writeTimeout(ingestServer.DownloadSip, 0)
+	ingestServer.UploadSip = writeTimeout(ingestServer.UploadSip, 0)
+	ingestServer.UploadSip = readTimeout(ingestServer.UploadSip, 0)
 	ingestsvr.Mount(mux, ingestServer)
 
 	// Storage service.

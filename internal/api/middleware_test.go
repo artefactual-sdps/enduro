@@ -82,3 +82,50 @@ func TestWriteTimeout(t *testing.T) {
 		assert.Equal(t, string(blob), "Hi there!")
 	})
 }
+
+func TestReadTimeout(t *testing.T) {
+	t.Parallel()
+
+	h := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		_, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusRequestTimeout)
+		}
+	})
+
+	for _, tt := range []struct {
+		name     string
+		timeout  time.Duration
+		respCode int
+	}{
+		{
+			name:     "Sets a read timeout",
+			timeout:  time.Millisecond * 10,
+			respCode: http.StatusRequestTimeout,
+		},
+		{
+			name:     "Sets an unlimited read timeout",
+			timeout:  0,
+			respCode: http.StatusOK,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ts := httptest.NewServer(readTimeout(h, tt.timeout))
+			defer ts.Close()
+
+			pr, pw := io.Pipe()
+			defer pr.Close()
+			go func() {
+				time.Sleep(time.Millisecond * 100)
+				pw.Write([]byte("body"))
+				pw.Close()
+			}()
+
+			resp, err := ts.Client().Post(ts.URL, "application/octet-stream", pr)
+			assert.NilError(t, err)
+			assert.Equal(t, resp.StatusCode, tt.respCode)
+		})
+	}
+}

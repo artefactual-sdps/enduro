@@ -80,3 +80,17 @@ func writeTimeout(h http.Handler, timeout time.Duration) http.Handler {
 		h.ServeHTTP(w, r)
 	})
 }
+
+// readTimeout sets the read deadline for reading the request. A zero value
+// means no timeout.
+func readTimeout(h http.Handler, timeout time.Duration) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		rc := http.NewResponseController(w)
+		var deadline time.Time
+		if timeout != 0 {
+			deadline = time.Now().Add(timeout)
+		}
+		_ = rc.SetReadDeadline(deadline)
+		h.ServeHTTP(w, r)
+	})
+}

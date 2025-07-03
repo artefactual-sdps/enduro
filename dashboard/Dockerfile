@@ -30,13 +30,19 @@ server {
     listen 80;
     root /usr/share/nginx/html;
     absolute_redirect off;
-    client_max_body_size 4096M;
     location /api/ingest/monitor {
         proxy_pass http://backend/ingest/monitor;
         proxy_http_version 1.1;
         proxy_set_header Connection "Upgrade";
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Host \$http_host;
+    }
+    location /api/ingest/sips/upload {
+        client_max_body_size 4096M;
+        proxy_pass http://backend/ingest/sips/upload;
+        proxy_request_buffering off;
+        proxy_read_timeout 24h;
+        proxy_send_timeout 24h;
     }
     location /api/ {
         proxy_pass http://backend/;
