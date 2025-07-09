@@ -12,8 +12,8 @@ const (
 	Label = "task"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldTaskID holds the string denoting the task_id field in the database.
-	FieldTaskID = "task_id"
+	// FieldUUID holds the string denoting the uuid field in the database.
+	FieldUUID = "uuid"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
 	// FieldStatus holds the string denoting the status field in the database.
@@ -42,7 +42,7 @@ const (
 // Columns holds all SQL columns for task fields.
 var Columns = []string{
 	FieldID,
-	FieldTaskID,
+	FieldUUID,
 	FieldName,
 	FieldStatus,
 	FieldStartedAt,
@@ -74,9 +74,9 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByTaskID orders the results by the task_id field.
-func ByTaskID(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTaskID, opts...).ToFunc()
+// ByUUID orders the results by the uuid field.
+func ByUUID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUUID, opts...).ToFunc()
 }
 
 // ByName orders the results by the name field.

@@ -12,12 +12,11 @@ describe("Task.vue", () => {
       props: {
         index: 1,
         task: {
-          id: 1,
+          uuid: "task-uuid",
           name: "Task 1",
           startedAt: new Date("2020-02-25T17:21:03Z"),
           completedAt: new Date("2020-02-25T17:22:38Z"),
           status: "done",
-          taskId: "9614f71f-c21e-4da9-a07e-1661bd010d1f",
           note: "This is a note\nwith multiple lines",
         },
       },
@@ -44,11 +43,10 @@ describe("Task.vue", () => {
       props: {
         index: 1,
         task: {
-          id: 1,
+          uuid: "task-uuid",
           name: "Task 1",
           startedAt: new Date("2020-02-25T17:21:03Z"),
           status: "in progress",
-          taskId: "9614f71f-c21e-4da9-a07e-1661bd010d1f",
         },
       },
     });
@@ -84,12 +82,11 @@ describe("Task.vue", () => {
       props: {
         index: 1,
         task: {
-          id: 1,
+          uuid: "task-uuid",
           name: "Task 1",
           startedAt: new Date("2020-02-25T17:21:03Z"),
           completedAt: new Date("2020-02-25T17:22:38Z"),
           status: "done",
-          taskId: "9614f71f-c21e-4da9-a07e-1661bd010d1f",
           note: "This note is only one line",
         },
       },

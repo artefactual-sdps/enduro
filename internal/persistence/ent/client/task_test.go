@@ -17,7 +17,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 )
 
-func addDBFixtures(t *testing.T, entc *db.Client) (*db.Workflow, *db.Workflow) {
+func addDBFixtures(t *testing.T, entc *db.Client) {
 	t.Helper()
 
 	sip, err := createSIP(t, entc, "S1", enums.SIPStatusProcessing)
@@ -25,87 +25,67 @@ func addDBFixtures(t *testing.T, entc *db.Client) (*db.Workflow, *db.Workflow) {
 		t.Errorf("create SIP: %v", err)
 	}
 
-	w, err := createWorkflow(t, entc, sip.ID, enums.WorkflowStatusInProgress)
+	_, err = createWorkflow(t, entc, sip.ID, enums.WorkflowStatusInProgress)
 	if err != nil {
 		t.Errorf("create workflow: %v", err)
 	}
-
-	pa2, err := createWorkflow(t, entc, sip.ID, enums.WorkflowStatusDone)
-	if err != nil {
-		t.Errorf("create workflow 2: %v", err)
-	}
-
-	return w, pa2
 }
 
 func TestCreateTask(t *testing.T) {
 	t.Parallel()
 
-	taskID := "ef0193bf-a622-4a8b-b860-cda605a426b5"
+	taskUUID := uuid.New()
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
 
-	type params struct {
-		task           *datatypes.Task
-		zeroWorkflowID bool
-	}
 	tests := []struct {
 		name    string
-		args    params
+		task    *datatypes.Task
 		want    *datatypes.Task
 		wantErr string
 	}{
 		{
 			name: "Saves a new task in the DB",
-			args: params{
-				task: &datatypes.Task{
-					TaskID:      taskID,
-					Name:        "PT1",
-					Status:      enums.TaskStatusInProgress,
-					StartedAt:   started,
-					CompletedAt: completed,
-					Note:        "PT1 Note",
-				},
+			task: &datatypes.Task{
+				UUID:         taskUUID,
+				Name:         "PT1",
+				Status:       enums.TaskStatusInProgress,
+				StartedAt:    started,
+				CompletedAt:  completed,
+				Note:         "PT1 Note",
+				WorkflowUUID: wUUID,
 			},
 			want: &datatypes.Task{
-				ID:          1,
-				TaskID:      taskID,
-				Name:        "PT1",
-				Status:      enums.TaskStatusInProgress,
-				StartedAt:   started,
-				CompletedAt: completed,
-				Note:        "PT1 Note",
+				ID:           1,
+				UUID:         taskUUID,
+				Name:         "PT1",
+				Status:       enums.TaskStatusInProgress,
+				StartedAt:    started,
+				CompletedAt:  completed,
+				Note:         "PT1 Note",
+				WorkflowUUID: wUUID,
 			},
 		},
 		{
-			name: "Errors on invalid TaskID",
-			args: params{
-				task: &datatypes.Task{
-					TaskID: "123456",
-				},
-			},
-			wantErr: "invalid data error: parse error: field \"TaskID\": invalid UUID length: 6",
+			name:    "Errors on invalid UUID",
+			task:    &datatypes.Task{},
+			wantErr: "invalid data error: field \"UUID\" is required",
 		},
 		{
 			name: "Required field error for missing Name",
-			args: params{
-				task: &datatypes.Task{
-					TaskID: "ef0193bf-a622-4a8b-b860-cda605a426b5",
-				},
+			task: &datatypes.Task{
+				UUID: taskUUID,
 			},
 			wantErr: "invalid data error: field \"Name\" is required",
 		},
 		{
-			name: "Required field error for missing WorkflowID",
-			args: params{
-				task: &datatypes.Task{
-					TaskID: taskID,
-					Name:   "PT1",
-					Status: enums.TaskStatusInProgress,
-				},
-				zeroWorkflowID: true,
+			name: "Required field error for missing WorkflowUUID",
+			task: &datatypes.Task{
+				UUID:   taskUUID,
+				Name:   "PT1",
+				Status: enums.TaskStatusInProgress,
 			},
-			wantErr: "invalid data error: field \"WorkflowID\" is required",
+			wantErr: "invalid data error: field \"WorkflowUUID\" is required",
 		},
 	}
 	for _, tt := range tests {
@@ -120,20 +100,16 @@ func TestCreateTask(t *testing.T) {
 				"Test SIP",
 				enums.SIPStatusIngested,
 			)
-			w, _ := createWorkflow(
+			_, _ = createWorkflow(
 				t,
 				entc,
 				sip.ID,
 				enums.WorkflowStatusDone,
 			)
 
-			task := *tt.args.task // Make a local copy of pt.
+			task := tt.task // Make a local copy of pt.
 
-			if !tt.args.zeroWorkflowID {
-				task.WorkflowID = w.ID
-			}
-
-			err := svc.CreateTask(ctx, &task)
+			err := svc.CreateTask(ctx, task)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
@@ -141,13 +117,13 @@ func TestCreateTask(t *testing.T) {
 			assert.NilError(t, err)
 
 			assert.Equal(t, task.ID, tt.want.ID)
-			assert.Equal(t, task.TaskID, tt.want.TaskID)
+			assert.Equal(t, task.UUID, tt.want.UUID)
 			assert.Equal(t, task.Name, tt.want.Name)
 			assert.Equal(t, task.Status, tt.want.Status)
 			assert.Equal(t, task.StartedAt, tt.want.StartedAt)
 			assert.Equal(t, task.CompletedAt, tt.want.CompletedAt)
 			assert.Equal(t, task.Note, tt.want.Note)
-			assert.Equal(t, task.WorkflowID, w.ID)
+			assert.Equal(t, task.WorkflowUUID, tt.want.WorkflowUUID)
 		})
 	}
 }
@@ -184,41 +160,45 @@ func TestUpdateTask(t *testing.T) {
 			name: "Updates all task columns",
 			args: params{
 				task: &datatypes.Task{
-					TaskID:      taskID.String(),
-					Name:        "Task 1",
-					Status:      enums.TaskStatusInProgress,
-					StartedAt:   started,
-					CompletedAt: completed,
-					Note:        "Task1 Note",
+					UUID:         taskID,
+					Name:         "Task 1",
+					Status:       enums.TaskStatusInProgress,
+					StartedAt:    started,
+					CompletedAt:  completed,
+					Note:         "Task1 Note",
+					WorkflowUUID: wUUID,
 				},
 				updater: func(p *datatypes.Task) (*datatypes.Task, error) {
 					p.ID = 100 // No-op, can't update ID.
 					p.Name = "Task1 Update"
-					p.TaskID = taskID2.String()
+					p.UUID = taskID2 // No-op, can't update UUID.
 					p.Status = enums.TaskStatusDone
 					p.StartedAt = started2
 					p.CompletedAt = completed2
 					p.Note = "Task1 Note updated"
+					p.WorkflowUUID = uuid.New() // No-op, can't update WorkflowUUID.
 					return p, nil
 				},
 			},
 			want: &datatypes.Task{
-				TaskID:      taskID2.String(),
-				Name:        "Task1 Update",
-				Status:      enums.TaskStatusDone,
-				StartedAt:   started2,
-				CompletedAt: completed2,
-				Note:        "Task1 Note updated",
+				UUID:         taskID,
+				Name:         "Task1 Update",
+				Status:       enums.TaskStatusDone,
+				StartedAt:    started2,
+				CompletedAt:  completed2,
+				Note:         "Task1 Note updated",
+				WorkflowUUID: wUUID,
 			},
 		},
 		{
 			name: "Updates selected task columns",
 			args: params{
 				task: &datatypes.Task{
-					Name:      "Task 1",
-					TaskID:    taskID.String(),
-					Status:    enums.TaskStatusInProgress,
-					StartedAt: started,
+					Name:         "Task 1",
+					UUID:         taskID,
+					Status:       enums.TaskStatusInProgress,
+					StartedAt:    started,
+					WorkflowUUID: wUUID,
 				},
 				updater: func(p *datatypes.Task) (*datatypes.Task, error) {
 					p.Status = enums.TaskStatusDone
@@ -228,12 +208,13 @@ func TestUpdateTask(t *testing.T) {
 				},
 			},
 			want: &datatypes.Task{
-				TaskID:      taskID.String(),
-				Name:        "Task 1",
-				Status:      enums.TaskStatusDone,
-				StartedAt:   started,
-				CompletedAt: completed,
-				Note:        "Task1 Note updated",
+				UUID:         taskID,
+				Name:         "Task 1",
+				Status:       enums.TaskStatusDone,
+				StartedAt:    started,
+				CompletedAt:  completed,
+				Note:         "Task1 Note updated",
+				WorkflowUUID: wUUID,
 			},
 		},
 		{
@@ -249,30 +230,16 @@ func TestUpdateTask(t *testing.T) {
 			name: "Errors when the updater fails",
 			args: params{
 				task: &datatypes.Task{
-					Name:   "Task 1",
-					TaskID: taskID.String(),
-					Status: enums.TaskStatusInProgress,
+					Name:         "Task 1",
+					UUID:         taskID,
+					Status:       enums.TaskStatusInProgress,
+					WorkflowUUID: wUUID,
 				},
 				updater: func(p *datatypes.Task) (*datatypes.Task, error) {
 					return nil, fmt.Errorf("Bad input")
 				},
 			},
 			wantErr: "invalid data error: updater error: Bad input",
-		},
-		{
-			name: "Errors on an invalid TaskID",
-			args: params{
-				task: &datatypes.Task{
-					Name:   "Task 1",
-					TaskID: taskID.String(),
-					Status: enums.TaskStatusInProgress,
-				},
-				updater: func(p *datatypes.Task) (*datatypes.Task, error) {
-					p.TaskID = "123456"
-					return p, nil
-				},
-			},
-			wantErr: "invalid data error: parse error: field \"TaskID\": invalid UUID length: 6",
 		},
 	}
 	for _, tt := range tests {
@@ -281,13 +248,12 @@ func TestUpdateTask(t *testing.T) {
 
 			ctx := t.Context()
 			entc, svc := setUpClient(t, logr.Discard())
-			w, w2 := addDBFixtures(t, entc)
+			addDBFixtures(t, entc)
 
 			updater := tt.args.updater
 			var id int
 			if tt.args.task != nil {
 				task := *tt.args.task // Make a local copy of pt.
-				task.WorkflowID = w.ID
 
 				// Create task to be updated.
 				err := svc.CreateTask(ctx, &task)
@@ -295,17 +261,6 @@ func TestUpdateTask(t *testing.T) {
 					t.Errorf("create task: %v", err)
 				}
 				id = task.ID
-
-				// Update WorkflowID to w2.ID.
-				updater = func(task *datatypes.Task) (*datatypes.Task, error) {
-					task, err := tt.args.updater(task)
-					if err != nil {
-						return nil, err
-					}
-					task.WorkflowID = w2.ID
-
-					return task, nil
-				}
 			}
 
 			task, err := svc.UpdateTask(ctx, id, updater)
@@ -315,7 +270,6 @@ func TestUpdateTask(t *testing.T) {
 			}
 
 			tt.want.ID = id
-			tt.want.WorkflowID = w2.ID
 			assert.DeepEqual(t, task, tt.want)
 		})
 	}

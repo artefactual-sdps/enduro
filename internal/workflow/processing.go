@@ -317,12 +317,15 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Persist the workflow for the ingest workflow.
 	{
+		// TODO: Create deterministic UUIDs and make activities idempotent.
+		state.workflowUUID = uuid.Must(uuid.NewRandomFromReader(w.rng))
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(
 			ctx,
 			createWorkflowLocalActivity,
 			w.ingestsvc,
 			&createWorkflowLocalActivityParams{
+				UUID:       state.workflowUUID,
 				TemporalID: temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
 				Type:       state.req.Type,
 				Status:     enums.WorkflowStatusInProgress,
@@ -462,10 +465,10 @@ func (w *ProcessingWorkflow) SessionHandler(
 	if state.sip.sipType == enums.SIPTypeBagIt {
 		id, err := w.createTask(
 			sessCtx,
-			datatypes.Task{
-				Name:       "Validate Bag",
-				Status:     enums.TaskStatusInProgress,
-				WorkflowID: state.workflowID,
+			&datatypes.Task{
+				Name:         "Validate Bag",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: state.workflowUUID,
 			},
 		)
 		if err != nil {
@@ -562,11 +565,11 @@ func (w *ProcessingWorkflow) SessionHandler(
 	if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
 		id, err := w.createTask(
 			sessCtx,
-			datatypes.Task{
-				Name:       "Move AIP",
-				Status:     enums.TaskStatusInProgress,
-				Note:       "Moving to review bucket",
-				WorkflowID: state.workflowID,
+			&datatypes.Task{
+				Name:         "Move AIP",
+				Status:       enums.TaskStatusInProgress,
+				Note:         "Moving to review bucket",
+				WorkflowUUID: state.workflowUUID,
 			},
 		)
 		if err != nil {
@@ -644,12 +647,11 @@ func (w *ProcessingWorkflow) SessionHandler(
 		{
 			id, err := w.createTask(
 				sessCtx,
-				datatypes.Task{
-					TaskID:     uuid.NewString(),
-					Name:       "Review AIP",
-					Status:     enums.TaskStatusPending,
-					Note:       "Awaiting user decision",
-					WorkflowID: state.workflowID,
+				&datatypes.Task{
+					Name:         "Review AIP",
+					Status:       enums.TaskStatusPending,
+					Note:         "Awaiting user decision",
+					WorkflowUUID: state.workflowUUID,
 				},
 			)
 			if err != nil {
@@ -704,11 +706,11 @@ func (w *ProcessingWorkflow) SessionHandler(
 		{
 			id, err := w.createTask(
 				sessCtx,
-				datatypes.Task{
-					Name:       "Move AIP",
-					Status:     enums.TaskStatusInProgress,
-					Note:       "Moving to permanent storage",
-					WorkflowID: state.workflowID,
+				&datatypes.Task{
+					Name:         "Move AIP",
+					Status:       enums.TaskStatusInProgress,
+					Note:         "Moving to permanent storage",
+					WorkflowUUID: state.workflowUUID,
 				},
 			)
 			if err != nil {
@@ -837,7 +839,7 @@ func (w *ProcessingWorkflow) transferA3m(
 	err := w.validatePREMIS(
 		sessCtx,
 		filepath.Join(state.sip.path, "metadata", "premis.xml"),
-		state.workflowID,
+		state.workflowUUID,
 	)
 	if err != nil {
 		return err
@@ -854,9 +856,9 @@ func (w *ProcessingWorkflow) transferA3m(
 		})
 
 		params := &a3m.CreateAIPActivityParams{
-			Name:       state.sip.name,
-			Path:       state.sip.path,
-			WorkflowID: state.workflowID,
+			Name:         state.sip.name,
+			Path:         state.sip.path,
+			WorkflowUUID: state.workflowUUID,
 		}
 
 		result := a3m.CreateAIPActivityResult{}
@@ -901,7 +903,7 @@ func (w *ProcessingWorkflow) transferAM(
 	err = w.validatePREMIS(
 		ctx,
 		filepath.Join(state.sip.path, "data", "metadata", "premis.xml"),
-		state.workflowID,
+		state.workflowUUID,
 	)
 	if err != nil {
 		return err
@@ -988,8 +990,8 @@ func (w *ProcessingWorkflow) transferAM(
 		pollOpts,
 		am.PollTransferActivityName,
 		am.PollTransferActivityParams{
-			WorkflowID: state.workflowID,
-			TransferID: transferResult.TransferID,
+			WorkflowUUID: state.workflowUUID,
+			TransferID:   transferResult.TransferID,
 		},
 	).Get(pollOpts, &pollTransferResult)
 	if err != nil {
@@ -1005,8 +1007,8 @@ func (w *ProcessingWorkflow) transferAM(
 		pollOpts,
 		am.PollIngestActivityName,
 		am.PollIngestActivityParams{
-			WorkflowID: state.workflowID,
-			SIPID:      state.aip.id,
+			WorkflowUUID: state.workflowUUID,
+			SIPID:        state.aip.id,
 		},
 	).Get(pollOpts, &pollIngestResult)
 	if err != nil {
@@ -1091,10 +1093,10 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 			opts,
 			localact.SavePreprocessingTasksActivity,
 			localact.SavePreprocessingTasksActivityParams{
-				Ingestsvc:  w.ingestsvc,
-				RNG:        w.rng,
-				WorkflowID: state.workflowID,
-				Tasks:      ppResult.PreservationTasks,
+				Ingestsvc:    w.ingestsvc,
+				RNG:          w.rng,
+				WorkflowUUID: state.workflowUUID,
+				Tasks:        ppResult.PreservationTasks,
 			},
 		).Get(opts, &savePPTasksResult)
 		if err != nil {
@@ -1149,8 +1151,15 @@ func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, aipUU
 
 func (w *ProcessingWorkflow) createTask(
 	ctx temporalsdk_workflow.Context,
-	task datatypes.Task,
+	task *datatypes.Task,
 ) (int, error) {
+	// TODO: Create deterministic UUIDs and make activities idempotent.
+	task.UUID = uuid.Must(uuid.NewRandomFromReader(w.rng))
+	task.StartedAt = sql.NullTime{
+		Time:  temporalsdk_workflow.Now(ctx).UTC(),
+		Valid: true,
+	}
+
 	var id int
 	ctx = withLocalActivityOpts(ctx)
 	err := temporalsdk_workflow.ExecuteLocalActivity(
@@ -1158,17 +1167,7 @@ func (w *ProcessingWorkflow) createTask(
 		createTaskLocalActivity,
 		&createTaskLocalActivityParams{
 			Ingestsvc: w.ingestsvc,
-			RNG:       w.rng,
-			Task: datatypes.Task{
-				Name:   task.Name,
-				Status: task.Status,
-				StartedAt: sql.NullTime{
-					Time:  temporalsdk_workflow.Now(ctx).UTC(),
-					Valid: true,
-				},
-				Note:       task.Note,
-				WorkflowID: task.WorkflowID,
-			},
+			Task:      task,
 		},
 	).Get(ctx, &id)
 	if err != nil {
@@ -1290,7 +1289,7 @@ func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 func (w *ProcessingWorkflow) validatePREMIS(
 	ctx temporalsdk_workflow.Context,
 	xmlPath string,
-	wID int,
+	wUUID uuid.UUID,
 ) error {
 	if !w.cfg.ValidatePREMIS.Enabled {
 		return nil
@@ -1299,10 +1298,10 @@ func (w *ProcessingWorkflow) validatePREMIS(
 	// Create task for PREMIS validation.
 	id, err := w.createTask(
 		ctx,
-		datatypes.Task{
-			Name:       "Validate PREMIS",
-			Status:     enums.TaskStatusInProgress,
-			WorkflowID: wID,
+		&datatypes.Task{
+			Name:         "Validate PREMIS",
+			Status:       enums.TaskStatusInProgress,
+			WorkflowUUID: wUUID,
 		},
 	)
 	if err != nil {

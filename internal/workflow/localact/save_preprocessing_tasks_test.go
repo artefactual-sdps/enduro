@@ -7,6 +7,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
@@ -22,6 +23,8 @@ import (
 func TestSavePreprocessingTasksActivity(t *testing.T) {
 	t.Parallel()
 
+	wUUID := uuid.New()
+	taskUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
 	startedAt := time.Date(2024, 6, 13, 17, 50, 13, 0, time.UTC)
 	completedAt := time.Date(2024, 6, 13, 17, 50, 14, 0, time.UTC)
 
@@ -36,7 +39,7 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 		{
 			name: "Saves a preprocessing task",
 			params: localact.SavePreprocessingTasksActivityParams{
-				WorkflowID: 101,
+				WorkflowUUID: wUUID,
 				Tasks: []preprocessing.Task{
 					{
 						Name:        "Validate SIP structure",
@@ -49,13 +52,13 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateTask(mockutil.Context(), &datatypes.Task{
-					TaskID:      "52fdfc07-2182-454f-963f-5f0f9a621d72",
-					Name:        "Validate SIP structure",
-					Status:      enums.TaskStatusDone,
-					StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
-					CompletedAt: sql.NullTime{Time: completedAt, Valid: true},
-					Note:        "SIP structure matches validation criteria",
-					WorkflowID:  101,
+					UUID:         taskUUID,
+					Name:         "Validate SIP structure",
+					Status:       enums.TaskStatusDone,
+					StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
+					CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+					Note:         "SIP structure matches validation criteria",
+					WorkflowUUID: wUUID,
 				}).Return(nil)
 			},
 			want: &localact.SavePreprocessingTasksActivityResult{
@@ -65,7 +68,7 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 		{
 			name: "Errors when a required value is missing",
 			params: localact.SavePreprocessingTasksActivityParams{
-				WorkflowID: 101,
+				WorkflowUUID: wUUID,
 				Tasks: []preprocessing.Task{
 					{
 						Message:     "SIP structure matches validation criteria",
@@ -77,12 +80,12 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateTask(mockutil.Context(), &datatypes.Task{
-					TaskID:      "52fdfc07-2182-454f-963f-5f0f9a621d72",
-					Status:      enums.TaskStatusDone,
-					StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
-					CompletedAt: sql.NullTime{Time: completedAt, Valid: true},
-					Note:        "SIP structure matches validation criteria",
-					WorkflowID:  101,
+					UUID:         taskUUID,
+					Status:       enums.TaskStatusDone,
+					StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
+					CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+					Note:         "SIP structure matches validation criteria",
+					WorkflowUUID: wUUID,
 				}).Return(errors.New(
 					"task: create: invalid data error: field Name is required",
 				))

@@ -6,6 +6,7 @@ import (
 	"time"
 
 	transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
+	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
 	"go.opentelemetry.io/otel/trace/noop"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -25,6 +26,7 @@ import (
 func TestCreateAIPActivity(t *testing.T) {
 	t.Parallel()
 
+	taskUUID := uuid.New()
 	ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 	env := ts.NewTestActivityEnvironment()
 	ctrl := gomock.NewController(t)
@@ -53,7 +55,7 @@ func TestCreateAIPActivity(t *testing.T) {
 			&transferservice.ReadResponse{
 				Jobs: []*transferservice.Job{
 					{
-						Id:        "721f6e04-ce12-42b6-a53c-482dc1571d5a",
+						Id:        taskUUID.String(),
 						Status:    transferservice.Job_STATUS_COMPLETE,
 						StartTime: timestamppb.New(time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC)),
 					},
@@ -64,7 +66,7 @@ func TestCreateAIPActivity(t *testing.T) {
 
 	ingestsvc := ingest_fake.NewMockService(ctrl)
 	ingestsvc.EXPECT().CreateTask(mockutil.Context(), &datatypes.Task{
-		TaskID: "721f6e04-ce12-42b6-a53c-482dc1571d5a",
+		UUID:   taskUUID,
 		Status: enums.TaskStatusDone,
 		StartedAt: sql.NullTime{
 			Time:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),

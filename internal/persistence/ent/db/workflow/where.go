@@ -9,6 +9,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
+	"github.com/google/uuid"
 )
 
 // ID filters vertices based on their ID field.
@@ -56,6 +57,11 @@ func IDLTE(id int) predicate.Workflow {
 	return predicate.Workflow(sql.FieldLTE(FieldID, id))
 }
 
+// UUID applies equality check predicate on the "uuid" field. It's identical to UUIDEQ.
+func UUID(v uuid.UUID) predicate.Workflow {
+	return predicate.Workflow(sql.FieldEQ(FieldUUID, v))
+}
+
 // TemporalID applies equality check predicate on the "temporal_id" field. It's identical to TemporalIDEQ.
 func TemporalID(v string) predicate.Workflow {
 	return predicate.Workflow(sql.FieldEQ(FieldTemporalID, v))
@@ -79,6 +85,46 @@ func CompletedAt(v time.Time) predicate.Workflow {
 // SipID applies equality check predicate on the "sip_id" field. It's identical to SipIDEQ.
 func SipID(v int) predicate.Workflow {
 	return predicate.Workflow(sql.FieldEQ(FieldSipID, v))
+}
+
+// UUIDEQ applies the EQ predicate on the "uuid" field.
+func UUIDEQ(v uuid.UUID) predicate.Workflow {
+	return predicate.Workflow(sql.FieldEQ(FieldUUID, v))
+}
+
+// UUIDNEQ applies the NEQ predicate on the "uuid" field.
+func UUIDNEQ(v uuid.UUID) predicate.Workflow {
+	return predicate.Workflow(sql.FieldNEQ(FieldUUID, v))
+}
+
+// UUIDIn applies the In predicate on the "uuid" field.
+func UUIDIn(vs ...uuid.UUID) predicate.Workflow {
+	return predicate.Workflow(sql.FieldIn(FieldUUID, vs...))
+}
+
+// UUIDNotIn applies the NotIn predicate on the "uuid" field.
+func UUIDNotIn(vs ...uuid.UUID) predicate.Workflow {
+	return predicate.Workflow(sql.FieldNotIn(FieldUUID, vs...))
+}
+
+// UUIDGT applies the GT predicate on the "uuid" field.
+func UUIDGT(v uuid.UUID) predicate.Workflow {
+	return predicate.Workflow(sql.FieldGT(FieldUUID, v))
+}
+
+// UUIDGTE applies the GTE predicate on the "uuid" field.
+func UUIDGTE(v uuid.UUID) predicate.Workflow {
+	return predicate.Workflow(sql.FieldGTE(FieldUUID, v))
+}
+
+// UUIDLT applies the LT predicate on the "uuid" field.
+func UUIDLT(v uuid.UUID) predicate.Workflow {
+	return predicate.Workflow(sql.FieldLT(FieldUUID, v))
+}
+
+// UUIDLTE applies the LTE predicate on the "uuid" field.
+func UUIDLTE(v uuid.UUID) predicate.Workflow {
+	return predicate.Workflow(sql.FieldLTE(FieldUUID, v))
 }
 
 // TemporalIDEQ applies the EQ predicate on the "temporal_id" field.

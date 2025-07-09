@@ -258,27 +258,28 @@ type SIPStatusUpdatedEvent struct {
 
 // SIPTask describes a SIP workflow task.
 type SIPTask struct {
-	ID          uint
-	TaskID      string
+	// Identifier of the task
+	UUID        uuid.UUID
 	Name        string
 	Status      string
 	StartedAt   string
 	CompletedAt *string
 	Note        *string
-	WorkflowID  *uint
+	// Identifier of related workflow
+	WorkflowUUID uuid.UUID
 }
 
 type SIPTaskCollection []*SIPTask
 
 type SIPTaskCreatedEvent struct {
 	// Identifier of task
-	ID   uint
+	UUID uuid.UUID
 	Item *SIPTask
 }
 
 type SIPTaskUpdatedEvent struct {
 	// Identifier of task
-	ID   uint
+	UUID uuid.UUID
 	Item *SIPTask
 }
 
@@ -290,7 +291,8 @@ type SIPUpdatedEvent struct {
 
 // SIPWorkflow describes a workflow of a SIP.
 type SIPWorkflow struct {
-	ID          uint
+	// Identifier of the workflow
+	UUID        uuid.UUID
 	TemporalID  string
 	Type        string
 	Status      string
@@ -305,13 +307,13 @@ type SIPWorkflowCollection []*SIPWorkflow
 
 type SIPWorkflowCreatedEvent struct {
 	// Identifier of workflow
-	ID   uint
+	UUID uuid.UUID
 	Item *SIPWorkflow
 }
 
 type SIPWorkflowUpdatedEvent struct {
 	// Identifier of workflow
-	ID   uint
+	UUID uuid.UUID
 	Item *SIPWorkflow
 }
 
@@ -689,8 +691,8 @@ func newSIPWorkflowSimple(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 	res := &SIPWorkflow{
 		CompletedAt: vres.CompletedAt,
 	}
-	if vres.ID != nil {
-		res.ID = *vres.ID
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
 	}
 	if vres.TemporalID != nil {
 		res.TemporalID = *vres.TemporalID
@@ -719,8 +721,8 @@ func newSIPWorkflow(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 	res := &SIPWorkflow{
 		CompletedAt: vres.CompletedAt,
 	}
-	if vres.ID != nil {
-		res.ID = *vres.ID
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
 	}
 	if vres.TemporalID != nil {
 		res.TemporalID = *vres.TemporalID
@@ -747,7 +749,7 @@ func newSIPWorkflow(vres *ingestviews.SIPWorkflowView) *SIPWorkflow {
 // SIPWorkflowView using the "simple" view.
 func newSIPWorkflowViewSimple(res *SIPWorkflow) *ingestviews.SIPWorkflowView {
 	vres := &ingestviews.SIPWorkflowView{
-		ID:          &res.ID,
+		UUID:        &res.UUID,
 		TemporalID:  &res.TemporalID,
 		Type:        &res.Type,
 		Status:      &res.Status,
@@ -762,7 +764,7 @@ func newSIPWorkflowViewSimple(res *SIPWorkflow) *ingestviews.SIPWorkflowView {
 // SIPWorkflowView using the "default" view.
 func newSIPWorkflowView(res *SIPWorkflow) *ingestviews.SIPWorkflowView {
 	vres := &ingestviews.SIPWorkflowView{
-		ID:          &res.ID,
+		UUID:        &res.UUID,
 		TemporalID:  &res.TemporalID,
 		Type:        &res.Type,
 		Status:      &res.Status,
@@ -801,13 +803,9 @@ func newSIPTask(vres *ingestviews.SIPTaskView) *SIPTask {
 	res := &SIPTask{
 		CompletedAt: vres.CompletedAt,
 		Note:        vres.Note,
-		WorkflowID:  vres.WorkflowID,
 	}
-	if vres.ID != nil {
-		res.ID = *vres.ID
-	}
-	if vres.TaskID != nil {
-		res.TaskID = *vres.TaskID
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
 	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
@@ -818,6 +816,9 @@ func newSIPTask(vres *ingestviews.SIPTaskView) *SIPTask {
 	if vres.StartedAt != nil {
 		res.StartedAt = *vres.StartedAt
 	}
+	if vres.WorkflowUUID != nil {
+		res.WorkflowUUID = *vres.WorkflowUUID
+	}
 	return res
 }
 
@@ -825,14 +826,13 @@ func newSIPTask(vres *ingestviews.SIPTaskView) *SIPTask {
 // using the "default" view.
 func newSIPTaskView(res *SIPTask) *ingestviews.SIPTaskView {
 	vres := &ingestviews.SIPTaskView{
-		ID:          &res.ID,
-		TaskID:      &res.TaskID,
-		Name:        &res.Name,
-		Status:      &res.Status,
-		StartedAt:   &res.StartedAt,
-		CompletedAt: res.CompletedAt,
-		Note:        res.Note,
-		WorkflowID:  res.WorkflowID,
+		UUID:         &res.UUID,
+		Name:         &res.Name,
+		Status:       &res.Status,
+		StartedAt:    &res.StartedAt,
+		CompletedAt:  res.CompletedAt,
+		Note:         res.Note,
+		WorkflowUUID: &res.WorkflowUUID,
 	}
 	return vres
 }

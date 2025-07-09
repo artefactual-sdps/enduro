@@ -14,6 +14,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
+	"github.com/google/uuid"
 )
 
 // WorkflowCreate is the builder for creating a Workflow entity.
@@ -21,6 +22,12 @@ type WorkflowCreate struct {
 	config
 	mutation *WorkflowMutation
 	hooks    []Hook
+}
+
+// SetUUID sets the "uuid" field.
+func (wc *WorkflowCreate) SetUUID(u uuid.UUID) *WorkflowCreate {
+	wc.mutation.SetUUID(u)
+	return wc
 }
 
 // SetTemporalID sets the "temporal_id" field.
@@ -129,6 +136,9 @@ func (wc *WorkflowCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (wc *WorkflowCreate) check() error {
+	if _, ok := wc.mutation.UUID(); !ok {
+		return &ValidationError{Name: "uuid", err: errors.New(`db: missing required field "Workflow.uuid"`)}
+	}
 	if _, ok := wc.mutation.TemporalID(); !ok {
 		return &ValidationError{Name: "temporal_id", err: errors.New(`db: missing required field "Workflow.temporal_id"`)}
 	}
@@ -180,6 +190,10 @@ func (wc *WorkflowCreate) createSpec() (*Workflow, *sqlgraph.CreateSpec) {
 		_node = &Workflow{config: wc.config}
 		_spec = sqlgraph.NewCreateSpec(workflow.Table, sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt))
 	)
+	if value, ok := wc.mutation.UUID(); ok {
+		_spec.SetField(workflow.FieldUUID, field.TypeUUID, value)
+		_node.UUID = value
+	}
 	if value, ok := wc.mutation.TemporalID(); ok {
 		_spec.SetField(workflow.FieldTemporalID, field.TypeString, value)
 		_node.TemporalID = value

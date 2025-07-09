@@ -36,14 +36,14 @@ describe("useSipStore", () => {
       currentWorkflows: {
         workflows: [
           {
-            id: 1,
+            uuid: "workflow-uuid-1",
             type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
             startedAt: now,
             status: api.EnduroIngestSipWorkflowStatusEnum.Done,
             temporalId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
           },
           {
-            id: 2,
+            uuid: "workflow-uuid-2",
             type: api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip,
             startedAt: now,
             status: api.EnduroIngestSipWorkflowStatusEnum.Done,
@@ -53,21 +53,21 @@ describe("useSipStore", () => {
       },
     });
 
-    expect(sipStore.getWorkflowById(1)).toEqual({
-      id: 1,
+    expect(sipStore.getWorkflowById("workflow-uuid-1")).toEqual({
+      uuid: "workflow-uuid-1",
       type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
       startedAt: now,
       status: api.EnduroIngestSipWorkflowStatusEnum.Done,
       temporalId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
     });
-    expect(sipStore.getWorkflowById(2)).toEqual({
-      id: 2,
+    expect(sipStore.getWorkflowById("workflow-uuid-2")).toEqual({
+      uuid: "workflow-uuid-2",
       type: api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip,
       startedAt: now,
       status: api.EnduroIngestSipWorkflowStatusEnum.Done,
       temporalId: "051cf998-6f87-4461-8091-8561ebf479c4",
     });
-    expect(sipStore.getWorkflowById(3)).toBeUndefined();
+    expect(sipStore.getWorkflowById("workflow-uuid-3")).toBeUndefined();
   });
 
   it("getTaskById finds tasks", () => {
@@ -77,48 +77,44 @@ describe("useSipStore", () => {
       currentWorkflows: {
         workflows: [
           {
-            id: 1,
+            uuid: "workflow-uuid-1",
             type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
             startedAt: now,
             status: api.EnduroIngestSipWorkflowStatusEnum.Done,
             temporalId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
             tasks: [
               {
-                id: 1,
+                uuid: "task-uuid-1",
                 name: "Task 1",
                 startedAt: now,
                 status: api.EnduroIngestSipTaskStatusEnum.Done,
-                taskId: "1",
               },
               {
-                id: 2,
+                uuid: "task-uuid-2",
                 name: "Task 2",
                 startedAt: now,
                 status: api.EnduroIngestSipTaskStatusEnum.Done,
-                taskId: "2",
               },
             ],
           },
           {
-            id: 2,
+            uuid: "workflow-uuid-2",
             type: api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip,
             startedAt: now,
             status: api.EnduroIngestSipWorkflowStatusEnum.Done,
             temporalId: "051cf998-6f87-4461-8091-8561ebf479c4",
             tasks: [
               {
-                id: 3,
+                uuid: "task-uuid-3",
                 name: "Task 3",
                 startedAt: now,
                 status: api.EnduroIngestSipTaskStatusEnum.Done,
-                taskId: "3",
               },
               {
-                id: 4,
+                uuid: "task-uuid-4",
                 name: "Task 4",
                 startedAt: now,
                 status: api.EnduroIngestSipTaskStatusEnum.Done,
-                taskId: "4",
               },
             ],
           },
@@ -126,37 +122,37 @@ describe("useSipStore", () => {
       },
     });
 
-    expect(sipStore.getTaskById(1, 1)).toEqual({
-      id: 1,
+    expect(sipStore.getTaskById("workflow-uuid-1", "task-uuid-1")).toEqual({
+      uuid: "task-uuid-1",
       name: "Task 1",
       startedAt: now,
       status: api.EnduroIngestSipTaskStatusEnum.Done,
-      taskId: "1",
     });
-    expect(sipStore.getTaskById(1, 2)).toEqual({
-      id: 2,
+    expect(sipStore.getTaskById("workflow-uuid-1", "task-uuid-2")).toEqual({
+      uuid: "task-uuid-2",
       name: "Task 2",
       startedAt: now,
       status: api.EnduroIngestSipTaskStatusEnum.Done,
-      taskId: "2",
     });
-    expect(sipStore.getTaskById(1, 3)).toBeUndefined();
+    expect(
+      sipStore.getTaskById("workflow-uuid-1", "task-uuid-3"),
+    ).toBeUndefined();
 
-    expect(sipStore.getTaskById(2, 3)).toEqual({
-      id: 3,
+    expect(sipStore.getTaskById("workflow-uuid-2", "task-uuid-3")).toEqual({
+      uuid: "task-uuid-3",
       name: "Task 3",
       startedAt: now,
       status: api.EnduroIngestSipTaskStatusEnum.Done,
-      taskId: "3",
     });
-    expect(sipStore.getTaskById(2, 4)).toEqual({
-      id: 4,
+    expect(sipStore.getTaskById("workflow-uuid-2", "task-uuid-4")).toEqual({
+      uuid: "task-uuid-4",
       name: "Task 4",
       startedAt: now,
       status: api.EnduroIngestSipTaskStatusEnum.Done,
-      taskId: "4",
     });
-    expect(sipStore.getTaskById(2, 5)).toBeUndefined();
+    expect(
+      sipStore.getTaskById("workflow-uuid-2", "task-uuid-5"),
+    ).toBeUndefined();
   });
 
   it("fetches current SIP", async () => {
@@ -207,7 +203,7 @@ describe("useSipStore", () => {
     const mockWorkflows: api.SIPWorkflows = {
       workflows: [
         {
-          id: 1,
+          uuid: "workflow-uuid-1",
           startedAt: new Date("2025-01-01T00:00:00Z"),
           status: api.EnduroIngestSipWorkflowStatusEnum.Done,
           type: api.EnduroIngestSipWorkflowTypeEnum.CreateAip,
@@ -222,7 +218,7 @@ describe("useSipStore", () => {
       .mockResolvedValue(mockWorkflows);
 
     const store = useSipStore();
-    await store.fetchCurrentWorkflows("1");
+    await store.fetchCurrentWorkflows("sip-uuid");
 
     expect(store.currentWorkflows).toEqual(mockWorkflows);
   });
@@ -238,7 +234,7 @@ describe("useSipStore", () => {
         "Response returned an error code",
       ),
     );
-    await expect(store.fetchCurrentWorkflows("1")).rejects.toThrow(
+    await expect(store.fetchCurrentWorkflows("sip-uuid")).rejects.toThrow(
       "Couldn't load workflows",
     );
     expect(store.currentWorkflows).toBeNull();
@@ -257,7 +253,9 @@ describe("useSipStore", () => {
       ),
     );
 
-    await expect(store.fetchCurrentWorkflows("1")).resolves.toBeUndefined();
+    await expect(
+      store.fetchCurrentWorkflows("sip-uuid"),
+    ).resolves.toBeUndefined();
     expect(store.currentWorkflows).toBeNull();
   });
 
