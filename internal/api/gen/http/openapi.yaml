@@ -69,13 +69,9 @@ paths:
                 Request access to the /monitor WebSocket
 
                 **Required security scopes for jwt**:
-                  * `ingest:sips:download`
                   * `ingest:sips:list`
                   * `ingest:sips:read`
-                  * `ingest:sips:review`
-                  * `ingest:sips:upload`
                   * `ingest:sips:workflows:list`
-                  * `ingest:users:list`
             operationId: ingest#monitor_request
             parameters:
                 - name: Authorization

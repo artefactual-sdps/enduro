@@ -4085,7 +4085,7 @@
         ]
       },
       "post": {
-        "description": "Request access to the /monitor WebSocket\n\n**Required security scopes for jwt**:\n  * `ingest:sips:download`\n  * `ingest:sips:list`\n  * `ingest:sips:read`\n  * `ingest:sips:review`\n  * `ingest:sips:upload`\n  * `ingest:sips:workflows:list`\n  * `ingest:users:list`",
+        "description": "Request access to the /monitor WebSocket\n\n**Required security scopes for jwt**:\n  * `ingest:sips:list`\n  * `ingest:sips:read`\n  * `ingest:sips:workflows:list`",
         "operationId": "ingest#monitor_request",
         "parameters": [
           {

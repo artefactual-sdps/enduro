@@ -1993,13 +1993,9 @@
         "security": [
           {
             "jwt_header_Authorization": [
-              "ingest:sips:download",
               "ingest:sips:list",
               "ingest:sips:read",
-              "ingest:sips:review",
-              "ingest:sips:upload",
-              "ingest:sips:workflows:list",
-              "ingest:users:list"
+              "ingest:sips:workflows:list"
             ]
           }
         ],

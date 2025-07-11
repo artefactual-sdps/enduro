@@ -17,15 +17,10 @@ var _ = Service("ingest", func() {
 	})
 	Method("monitor_request", func() {
 		Description("Request access to the /monitor WebSocket")
-		// For now, the monitor websocket requires all the scopes from this service.
 		Security(JWTAuth, func() {
-			Scope("ingest:sips:download")
 			Scope("ingest:sips:list")
 			Scope("ingest:sips:read")
-			Scope("ingest:sips:review")
-			Scope("ingest:sips:upload")
 			Scope("ingest:sips:workflows:list")
-			Scope("ingest:users:list")
 		})
 		Payload(func() {
 			Token("token", String)
