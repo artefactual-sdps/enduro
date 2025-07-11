@@ -3,7 +3,9 @@ package am
 import (
 	context "context"
 	"database/sql"
+	"fmt"
 
+	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
 
@@ -72,9 +74,9 @@ type JobTracker struct {
 	jobSvc    amclient.JobsService
 	ingestsvc ingest.Service
 
-	// workflowID is the workflow ID that will be the parent ID for
+	// workflowUUID is the workflow UUID that will be the parent for
 	// all saved tasks.
-	workflowID int
+	workflowUUID uuid.UUID
 
 	// savedIDs caches the ID of jobs that have already been saved so we don't
 	// create duplicates.
@@ -85,15 +87,15 @@ func NewJobTracker(
 	clock clockwork.Clock,
 	jobSvc amclient.JobsService,
 	ingestsvc ingest.Service,
-	workflowID int,
+	workflowUUID uuid.UUID,
 ) *JobTracker {
 	return &JobTracker{
 		clock:     clock,
 		jobSvc:    jobSvc,
 		ingestsvc: ingestsvc,
 
-		workflowID: workflowID,
-		savedIDs:   make(map[string]struct{}),
+		workflowUUID: workflowUUID,
+		savedIDs:     make(map[string]struct{}),
 	}
 }
 
@@ -136,10 +138,13 @@ func (jt *JobTracker) saveTasks(ctx context.Context, jobs []amclient.Job) (int, 
 			continue
 		}
 
-		task := ConvertJobToTask(job)
-		task.WorkflowID = jt.workflowID
+		task, err := ConvertJobToTask(job)
+		if err != nil {
+			return 0, err
+		}
+		task.WorkflowUUID = jt.workflowUUID
 
-		err := jt.ingestsvc.CreateTask(ctx, &task)
+		err = jt.ingestsvc.CreateTask(ctx, task)
 		if err != nil {
 			return 0, err
 		}
@@ -167,15 +172,19 @@ func (jt *JobTracker) filterJobs(jobs []amclient.Job) []amclient.Job {
 }
 
 // ConvertJobToTask converts an amclient.Job to a datatypes.Task.
-func ConvertJobToTask(job amclient.Job) datatypes.Task {
+func ConvertJobToTask(job amclient.Job) (*datatypes.Task, error) {
+	taskUUID, err := uuid.Parse(job.ID)
+	if err != nil {
+		return nil, fmt.Errorf("unable to parse task UUID from job ID: %q", job.ID)
+	}
 	st, co := jobTimeRange(job)
-	return datatypes.Task{
-		TaskID:      job.ID,
+	return &datatypes.Task{
+		UUID:        taskUUID,
 		Name:        job.Name,
 		Status:      jobStatusToTaskStatus[job.Status],
 		StartedAt:   st,
 		CompletedAt: co,
-	}
+	}, nil
 }
 
 // jobTimeRange calculates the overall start and end times for a job.

@@ -2235,21 +2235,20 @@ definitions:
         example:
             workflows:
                 - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
                   sip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
                   tasks:
                     - completed_at: "1970-01-01T00:00:01Z"
-                      id: 1
                       name: abc123
                       note: abc123
                       started_at: "1970-01-01T00:00:01Z"
                       status: in progress
-                      task_id: abc123
-                      workflow_id: 1
+                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   temporal_id: abc123
                   type: create and review aip
+                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     IngestListSipsNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -3075,10 +3074,6 @@ definitions:
                 type: string
                 example: "1970-01-01T00:00:01Z"
                 format: date-time
-            id:
-                type: integer
-                example: 1
-                format: int64
             name:
                 type: string
                 example: abc123
@@ -3100,29 +3095,29 @@ definitions:
                     - queued
                     - pending
                     - failed
-            task_id:
+            uuid:
                 type: string
-                example: abc123
-            workflow_id:
-                type: integer
-                example: 1
-                format: int64
+                description: Identifier of the task
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            workflow_uuid:
+                type: string
+                description: Identifier of related workflow
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         description: SIPTask describes a SIP workflow task. (default view)
         example:
             completed_at: "1970-01-01T00:00:01Z"
-            id: 1
             name: abc123
             note: abc123
             started_at: "1970-01-01T00:00:01Z"
             status: in progress
-            task_id: abc123
-            workflow_id: 1
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
-            - id
-            - task_id
+            - uuid
             - name
             - status
             - started_at
+            - workflow_uuid
     SIPTaskResponseBodyCollection:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.task; type=collection; view=default'
         type: array
@@ -3131,13 +3126,12 @@ definitions:
         description: SIPTaskCollectionResponseBody is the result type for an array of SIPTaskResponseBody (default view)
         example:
             - completed_at: "1970-01-01T00:00:01Z"
-              id: 1
               name: abc123
               note: abc123
               started_at: "1970-01-01T00:00:01Z"
               status: in progress
-              task_id: abc123
-              workflow_id: 1
+              uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+              workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     SIPWorkflowResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.workflow; view=default'
         type: object
@@ -3146,10 +3140,6 @@ definitions:
                 type: string
                 example: "1970-01-01T00:00:01Z"
                 format: date-time
-            id:
-                type: integer
-                example: 1
-                format: int64
             sip_uuid:
                 type: string
                 description: Identifier of related SIP
@@ -3180,26 +3170,29 @@ definitions:
                 enum:
                     - create aip
                     - create and review aip
+            uuid:
+                type: string
+                description: Identifier of the workflow
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         description: SIPWorkflow describes a workflow of a SIP. (default view)
         example:
             completed_at: "1970-01-01T00:00:01Z"
-            id: 1
             sip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             started_at: "1970-01-01T00:00:01Z"
             status: in progress
             tasks:
                 - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
                   name: abc123
                   note: abc123
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
-                  task_id: abc123
-                  workflow_id: 1
+                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             temporal_id: abc123
             type: create and review aip
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
-            - id
+            - uuid
             - temporal_id
             - type
             - status
@@ -3213,21 +3206,20 @@ definitions:
         description: SIPWorkflowCollectionResponseBody is the result type for an array of SIPWorkflowResponseBody (default view)
         example:
             - completed_at: "1970-01-01T00:00:01Z"
-              id: 1
               sip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               started_at: "1970-01-01T00:00:01Z"
               status: in progress
               tasks:
                 - completed_at: "1970-01-01T00:00:01Z"
-                  id: 1
                   name: abc123
                   note: abc123
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
-                  task_id: abc123
-                  workflow_id: 1
+                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               temporal_id: abc123
               type: create and review aip
+              uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     StorageAIPResponseCollection:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip; type=collection; view=default'
         type: array

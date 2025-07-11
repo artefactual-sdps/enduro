@@ -26,7 +26,7 @@ func TestPollIngestActivity(t *testing.T) {
 
 	clock := clockwork.NewFakeClock()
 	path := "/var/archivematica/fake/sip"
-	workflowID := 2
+	wUUID := uuid.New()
 	sipID := uuid.New().String()
 
 	httpError := func(m *amclienttest.MockIngestServiceMockRecorder, statusCode int) {
@@ -155,10 +155,10 @@ func TestPollIngestActivity(t *testing.T) {
 			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
 				tasks := make([]*datatypes.Task, len(jobs))
 				for i, job := range jobs {
-					task := am.ConvertJobToTask(job)
-					task.WorkflowID = workflowID
+					task, _ := am.ConvertJobToTask(job)
+					task.WorkflowUUID = wUUID
 
-					tasks[i] = &task
+					tasks[i] = task
 				}
 
 				// Poll 2: save first job.
@@ -276,8 +276,8 @@ func TestPollIngestActivity(t *testing.T) {
 			enc, err := env.ExecuteActivity(
 				am.PollIngestActivityName,
 				am.PollIngestActivityParams{
-					WorkflowID: workflowID,
-					SIPID:      sipID,
+					WorkflowUUID: wUUID,
+					SIPID:        sipID,
 				},
 			)
 			if tt.wantErr != "" {

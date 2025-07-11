@@ -12,6 +12,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
+	"github.com/google/uuid"
 )
 
 // Workflow is the model entity for the Workflow schema.
@@ -19,6 +20,8 @@ type Workflow struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
+	// UUID holds the value of the "uuid" field.
+	UUID uuid.UUID `json:"uuid,omitempty"`
 	// TemporalID holds the value of the "temporal_id" field.
 	TemporalID string `json:"temporal_id,omitempty"`
 	// Type holds the value of the "type" field.
@@ -79,6 +82,8 @@ func (*Workflow) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case workflow.FieldStartedAt, workflow.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
+		case workflow.FieldUUID:
+			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
 		}
@@ -100,6 +105,12 @@ func (w *Workflow) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			w.ID = int(value.Int64)
+		case workflow.FieldUUID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field uuid", values[i])
+			} else if value != nil {
+				w.UUID = *value
+			}
 		case workflow.FieldTemporalID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field temporal_id", values[i])
@@ -182,6 +193,9 @@ func (w *Workflow) String() string {
 	var builder strings.Builder
 	builder.WriteString("Workflow(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", w.ID))
+	builder.WriteString("uuid=")
+	builder.WriteString(fmt.Sprintf("%v", w.UUID))
+	builder.WriteString(", ")
 	builder.WriteString("temporal_id=")
 	builder.WriteString(w.TemporalID)
 	builder.WriteString(", ")

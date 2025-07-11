@@ -103,7 +103,8 @@ type SIPWorkflowCollectionView []*SIPWorkflowView
 
 // SIPWorkflowView is a type that runs validations on a projected type.
 type SIPWorkflowView struct {
-	ID          *uint
+	// Identifier of the workflow
+	UUID        *uuid.UUID
 	TemporalID  *string
 	Type        *string
 	Status      *string
@@ -119,14 +120,15 @@ type SIPTaskCollectionView []*SIPTaskView
 
 // SIPTaskView is a type that runs validations on a projected type.
 type SIPTaskView struct {
-	ID          *uint
-	TaskID      *string
+	// Identifier of the task
+	UUID        *uuid.UUID
 	Name        *string
 	Status      *string
 	StartedAt   *string
 	CompletedAt *string
 	Note        *string
-	WorkflowID  *uint
+	// Identifier of related workflow
+	WorkflowUUID *uuid.UUID
 }
 
 // UsersView is a type that runs validations on a projected type.
@@ -220,7 +222,7 @@ var (
 	// SIPWorkflowCollection by view name.
 	SIPWorkflowCollectionMap = map[string][]string{
 		"simple": {
-			"id",
+			"uuid",
 			"temporal_id",
 			"type",
 			"status",
@@ -229,7 +231,7 @@ var (
 			"sip_uuid",
 		},
 		"default": {
-			"id",
+			"uuid",
 			"temporal_id",
 			"type",
 			"status",
@@ -243,7 +245,7 @@ var (
 	// name.
 	SIPWorkflowMap = map[string][]string{
 		"simple": {
-			"id",
+			"uuid",
 			"temporal_id",
 			"type",
 			"status",
@@ -252,7 +254,7 @@ var (
 			"sip_uuid",
 		},
 		"default": {
-			"id",
+			"uuid",
 			"temporal_id",
 			"type",
 			"status",
@@ -266,27 +268,25 @@ var (
 	// SIPTaskCollection by view name.
 	SIPTaskCollectionMap = map[string][]string{
 		"default": {
-			"id",
-			"task_id",
+			"uuid",
 			"name",
 			"status",
 			"started_at",
 			"completed_at",
 			"note",
-			"workflow_id",
+			"workflow_uuid",
 		},
 	}
 	// SIPTaskMap is a map indexing the attribute names of SIPTask by view name.
 	SIPTaskMap = map[string][]string{
 		"default": {
-			"id",
-			"task_id",
+			"uuid",
 			"name",
 			"status",
 			"started_at",
 			"completed_at",
 			"note",
-			"workflow_id",
+			"workflow_uuid",
 		},
 	}
 	// UserCollectionMap is a map indexing the attribute names of UserCollection by
@@ -472,8 +472,8 @@ func ValidateSIPWorkflowCollectionView(result SIPWorkflowCollectionView) (err er
 // ValidateSIPWorkflowViewSimple runs the validations defined on
 // SIPWorkflowView using the "simple" view.
 func ValidateSIPWorkflowViewSimple(result *SIPWorkflowView) (err error) {
-	if result.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
 	}
 	if result.TemporalID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("temporal_id", "result"))
@@ -512,8 +512,8 @@ func ValidateSIPWorkflowViewSimple(result *SIPWorkflowView) (err error) {
 // ValidateSIPWorkflowView runs the validations defined on SIPWorkflowView
 // using the "default" view.
 func ValidateSIPWorkflowView(result *SIPWorkflowView) (err error) {
-	if result.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
 	}
 	if result.TemporalID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("temporal_id", "result"))
@@ -568,11 +568,8 @@ func ValidateSIPTaskCollectionView(result SIPTaskCollectionView) (err error) {
 // ValidateSIPTaskView runs the validations defined on SIPTaskView using the
 // "default" view.
 func ValidateSIPTaskView(result *SIPTaskView) (err error) {
-	if result.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "result"))
-	}
-	if result.TaskID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("task_id", "result"))
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
 	}
 	if result.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "result"))
@@ -582,6 +579,9 @@ func ValidateSIPTaskView(result *SIPTaskView) (err error) {
 	}
 	if result.StartedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
+	}
+	if result.WorkflowUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_uuid", "result"))
 	}
 	if result.Status != nil {
 		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending" || *result.Status == "failed") {

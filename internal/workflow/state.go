@@ -29,6 +29,9 @@ type workflowState struct {
 	// It is populated by createWorkflowLocalActivity.
 	workflowID int
 
+	// UUID of the persisted workflow.
+	workflowUUID uuid.UUID
+
 	// sip and aip track the state of the respective packages.
 	sip *sipInfo
 	aip *aipInfo

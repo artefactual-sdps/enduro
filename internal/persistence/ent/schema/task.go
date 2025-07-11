@@ -24,7 +24,9 @@ func (Task) Annotations() []schema.Annotation {
 // Fields of the Task.
 func (Task) Fields() []ent.Field {
 	return []ent.Field{
-		field.UUID("task_id", uuid.New()),
+		field.UUID("uuid", uuid.UUID{}).
+			Unique().
+			Immutable(),
 		field.String("name").
 			Annotations(entsql.Annotation{
 				Size: 2048,

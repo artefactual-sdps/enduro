@@ -63,15 +63,20 @@ func convertTask(task *db.Task) *datatypes.Task {
 		status = uint(task.Status) // #nosec G115 -- range validated.
 	}
 
+	var wUUID uuid.UUID
+	if task.Edges.Workflow != nil {
+		wUUID = task.Edges.Workflow.UUID
+	}
+
 	return &datatypes.Task{
-		ID:          task.ID,
-		TaskID:      task.TaskID.String(),
-		Name:        task.Name,
-		Status:      enums.TaskStatus(status),
-		StartedAt:   started,
-		CompletedAt: completed,
-		Note:        task.Note,
-		WorkflowID:  task.WorkflowID,
+		ID:           task.ID,
+		UUID:         task.UUID,
+		Name:         task.Name,
+		Status:       enums.TaskStatus(status),
+		StartedAt:    started,
+		CompletedAt:  completed,
+		Note:         task.Note,
+		WorkflowUUID: wUUID,
 	}
 }
 

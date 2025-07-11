@@ -9,6 +9,7 @@ import (
 
 	"buf.build/gen/go/artefactual/a3m/grpc/go/a3m/api/transferservice/v1beta1/transferservicev1beta1grpc"
 	transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
+	"github.com/google/uuid"
 	"github.com/oklog/run"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/otel/trace"
@@ -31,9 +32,9 @@ type CreateAIPActivity struct {
 }
 
 type CreateAIPActivityParams struct {
-	Name       string
-	Path       string
-	WorkflowID int
+	Name         string
+	Path         string
+	WorkflowUUID uuid.UUID
 }
 
 type CreateAIPActivityResult struct {
@@ -134,7 +135,7 @@ func (a *CreateAIPActivity) Execute(
 						continue
 					}
 
-					err = saveTasks(ctx, a.tracer, readResp.Jobs, a.ingestsvc, opts.WorkflowID)
+					err = saveTasks(ctx, a.tracer, readResp.Jobs, a.ingestsvc, opts.WorkflowUUID)
 					if err != nil {
 						return err
 					}
@@ -169,7 +170,7 @@ func saveTasks(
 	tracer trace.Tracer,
 	jobs []*transferservice.Job,
 	ingestsvc ingest.Service,
-	wID int,
+	wUUID uuid.UUID,
 ) error {
 	ctx, span := tracer.Start(ctx, "saveTasks")
 	defer span.End()
@@ -182,17 +183,23 @@ func saveTasks(
 	}
 
 	for _, job := range jobs {
+		taskUUID, err := uuid.Parse(job.Id)
+		if err != nil {
+			err = fmt.Errorf("unable to parse task UUID from job ID: %q", job.Id)
+			telemetry.RecordError(span, err)
+			return err
+		}
 		task := datatypes.Task{
-			TaskID: job.Id,
+			UUID:   taskUUID,
 			Name:   job.Name,
 			Status: jobStatusToTaskStatus[job.Status],
 			StartedAt: sql.NullTime{
 				Time:  job.StartTime.AsTime(),
 				Valid: true,
 			},
-			WorkflowID: wID,
+			WorkflowUUID: wUUID,
 		}
-		err := ingestsvc.CreateTask(ctx, &task)
+		err = ingestsvc.CreateTask(ctx, &task)
 		if err != nil {
 			telemetry.RecordError(span, err)
 			return err

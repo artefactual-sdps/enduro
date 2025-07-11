@@ -10,6 +10,7 @@ import (
 
 type Workflow struct {
 	ID          int                  `db:"id"`
+	UUID        uuid.UUID            `db:"uuid"`
 	TemporalID  string               `db:"temporal_id"`
 	Type        enums.WorkflowType   `db:"type"`
 	Status      enums.WorkflowStatus `db:"status"`

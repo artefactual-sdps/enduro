@@ -75,7 +75,7 @@ function handleWorkflowUpdated(data: unknown) {
   if (store.current?.uuid != event.item.sipUuid) return;
 
   // Find and update the workflow.
-  const workflow = store.getWorkflowById(event.id);
+  const workflow = store.getWorkflowById(event.uuid);
   if (!workflow) return;
 
   // Keep existing tasks, this event doesn't include them.
@@ -89,10 +89,10 @@ function handleTaskCreated(data: unknown) {
   const store = useSipStore();
 
   // Find and update the workflow.
-  if (!event.item.workflowId) return;
-  const workflow = store.getWorkflowById(event.item.workflowId);
+  if (!event.item.workflowUuid) return;
+  const workflow = store.getWorkflowById(event.item.workflowUuid);
   if (!workflow) return;
-  if (workflow.id === event.item.workflowId) {
+  if (workflow.uuid === event.item.workflowUuid) {
     if (!workflow.tasks) workflow.tasks = [];
     workflow.tasks.push(event.item);
   }
@@ -102,8 +102,8 @@ function handleTaskUpdated(data: unknown) {
   const event = api.SIPTaskUpdatedEventFromJSON(data);
   const store = useSipStore();
 
-  if (!event.item.workflowId) return;
-  const task = store.getTaskById(event.item.workflowId, event.id);
+  if (!event.item.workflowUuid) return;
+  const task = store.getTaskById(event.item.workflowUuid, event.uuid);
   if (!task) return;
   Object.assign(task, event.item);
 }

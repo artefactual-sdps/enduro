@@ -490,7 +490,8 @@ type SIPWorkflowCollectionResponseBody []*SIPWorkflowResponseBody
 
 // SIPWorkflowResponseBody is used to define fields on response body types.
 type SIPWorkflowResponseBody struct {
-	ID          *uint                         `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Identifier of the workflow
+	UUID        *uuid.UUID                    `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 	TemporalID  *string                       `form:"temporal_id,omitempty" json:"temporal_id,omitempty" xml:"temporal_id,omitempty"`
 	Type        *string                       `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
 	Status      *string                       `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
@@ -507,14 +508,15 @@ type SIPTaskCollectionResponseBody []*SIPTaskResponseBody
 
 // SIPTaskResponseBody is used to define fields on response body types.
 type SIPTaskResponseBody struct {
-	ID          *uint   `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	TaskID      *string `form:"task_id,omitempty" json:"task_id,omitempty" xml:"task_id,omitempty"`
-	Name        *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	Status      *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	StartedAt   *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
-	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
-	Note        *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
-	WorkflowID  *uint   `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	// Identifier of the task
+	UUID        *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	Name        *string    `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Status      *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	StartedAt   *string    `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string    `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Note        *string    `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
+	// Identifier of related workflow
+	WorkflowUUID *uuid.UUID `form:"workflow_uuid,omitempty" json:"workflow_uuid,omitempty" xml:"workflow_uuid,omitempty"`
 }
 
 // UserCollectionResponseBody is used to define fields on response body types.
@@ -1750,8 +1752,8 @@ func ValidateSIPWorkflowCollectionResponseBody(body SIPWorkflowCollectionRespons
 // ValidateSIPWorkflowResponseBody runs the validations defined on
 // SIPWorkflowResponseBody
 func ValidateSIPWorkflowResponseBody(body *SIPWorkflowResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
 	}
 	if body.TemporalID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("temporal_id", "body"))
@@ -1808,11 +1810,8 @@ func ValidateSIPTaskCollectionResponseBody(body SIPTaskCollectionResponseBody) (
 // ValidateSIPTaskResponseBody runs the validations defined on
 // SIPTaskResponseBody
 func ValidateSIPTaskResponseBody(body *SIPTaskResponseBody) (err error) {
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.TaskID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("task_id", "body"))
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
 	}
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
@@ -1822,6 +1821,9 @@ func ValidateSIPTaskResponseBody(body *SIPTaskResponseBody) (err error) {
 	}
 	if body.StartedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
+	}
+	if body.WorkflowUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_uuid", "body"))
 	}
 	if body.Status != nil {
 		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "failed") {

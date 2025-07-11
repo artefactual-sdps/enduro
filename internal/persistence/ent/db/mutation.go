@@ -1125,7 +1125,7 @@ type TaskMutation struct {
 	op              Op
 	typ             string
 	id              *int
-	task_id         *uuid.UUID
+	uuid            *uuid.UUID
 	name            *string
 	status          *int8
 	addstatus       *int8
@@ -1238,40 +1238,40 @@ func (m *TaskMutation) IDs(ctx context.Context) ([]int, error) {
 	}
 }
 
-// SetTaskID sets the "task_id" field.
-func (m *TaskMutation) SetTaskID(u uuid.UUID) {
-	m.task_id = &u
+// SetUUID sets the "uuid" field.
+func (m *TaskMutation) SetUUID(u uuid.UUID) {
+	m.uuid = &u
 }
 
-// TaskID returns the value of the "task_id" field in the mutation.
-func (m *TaskMutation) TaskID() (r uuid.UUID, exists bool) {
-	v := m.task_id
+// UUID returns the value of the "uuid" field in the mutation.
+func (m *TaskMutation) UUID() (r uuid.UUID, exists bool) {
+	v := m.uuid
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldTaskID returns the old "task_id" field's value of the Task entity.
+// OldUUID returns the old "uuid" field's value of the Task entity.
 // If the Task object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *TaskMutation) OldTaskID(ctx context.Context) (v uuid.UUID, err error) {
+func (m *TaskMutation) OldUUID(ctx context.Context) (v uuid.UUID, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldTaskID is only allowed on UpdateOne operations")
+		return v, errors.New("OldUUID is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldTaskID requires an ID field in the mutation")
+		return v, errors.New("OldUUID requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldTaskID: %w", err)
+		return v, fmt.Errorf("querying old value for OldUUID: %w", err)
 	}
-	return oldValue.TaskID, nil
+	return oldValue.UUID, nil
 }
 
-// ResetTaskID resets all changes to the "task_id" field.
-func (m *TaskMutation) ResetTaskID() {
-	m.task_id = nil
+// ResetUUID resets all changes to the "uuid" field.
+func (m *TaskMutation) ResetUUID() {
+	m.uuid = nil
 }
 
 // SetName sets the "name" field.
@@ -1598,8 +1598,8 @@ func (m *TaskMutation) Type() string {
 // AddedFields().
 func (m *TaskMutation) Fields() []string {
 	fields := make([]string, 0, 7)
-	if m.task_id != nil {
-		fields = append(fields, task.FieldTaskID)
+	if m.uuid != nil {
+		fields = append(fields, task.FieldUUID)
 	}
 	if m.name != nil {
 		fields = append(fields, task.FieldName)
@@ -1627,8 +1627,8 @@ func (m *TaskMutation) Fields() []string {
 // schema.
 func (m *TaskMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case task.FieldTaskID:
-		return m.TaskID()
+	case task.FieldUUID:
+		return m.UUID()
 	case task.FieldName:
 		return m.Name()
 	case task.FieldStatus:
@@ -1650,8 +1650,8 @@ func (m *TaskMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *TaskMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case task.FieldTaskID:
-		return m.OldTaskID(ctx)
+	case task.FieldUUID:
+		return m.OldUUID(ctx)
 	case task.FieldName:
 		return m.OldName(ctx)
 	case task.FieldStatus:
@@ -1673,12 +1673,12 @@ func (m *TaskMutation) OldField(ctx context.Context, name string) (ent.Value, er
 // type.
 func (m *TaskMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case task.FieldTaskID:
+	case task.FieldUUID:
 		v, ok := value.(uuid.UUID)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetTaskID(v)
+		m.SetUUID(v)
 		return nil
 	case task.FieldName:
 		v, ok := value.(string)
@@ -1801,8 +1801,8 @@ func (m *TaskMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *TaskMutation) ResetField(name string) error {
 	switch name {
-	case task.FieldTaskID:
-		m.ResetTaskID()
+	case task.FieldUUID:
+		m.ResetUUID()
 		return nil
 	case task.FieldName:
 		m.ResetName()
@@ -2674,6 +2674,7 @@ type WorkflowMutation struct {
 	op            Op
 	typ           string
 	id            *int
+	uuid          *uuid.UUID
 	temporal_id   *string
 	_type         *enums.WorkflowType
 	status        *int8
@@ -2787,6 +2788,42 @@ func (m *WorkflowMutation) IDs(ctx context.Context) ([]int, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetUUID sets the "uuid" field.
+func (m *WorkflowMutation) SetUUID(u uuid.UUID) {
+	m.uuid = &u
+}
+
+// UUID returns the value of the "uuid" field in the mutation.
+func (m *WorkflowMutation) UUID() (r uuid.UUID, exists bool) {
+	v := m.uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUUID returns the old "uuid" field's value of the Workflow entity.
+// If the Workflow object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *WorkflowMutation) OldUUID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUUID: %w", err)
+	}
+	return oldValue.UUID, nil
+}
+
+// ResetUUID resets all changes to the "uuid" field.
+func (m *WorkflowMutation) ResetUUID() {
+	m.uuid = nil
 }
 
 // SetTemporalID sets the "temporal_id" field.
@@ -3166,7 +3203,10 @@ func (m *WorkflowMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *WorkflowMutation) Fields() []string {
-	fields := make([]string, 0, 6)
+	fields := make([]string, 0, 7)
+	if m.uuid != nil {
+		fields = append(fields, workflow.FieldUUID)
+	}
 	if m.temporal_id != nil {
 		fields = append(fields, workflow.FieldTemporalID)
 	}
@@ -3193,6 +3233,8 @@ func (m *WorkflowMutation) Fields() []string {
 // schema.
 func (m *WorkflowMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case workflow.FieldUUID:
+		return m.UUID()
 	case workflow.FieldTemporalID:
 		return m.TemporalID()
 	case workflow.FieldType:
@@ -3214,6 +3256,8 @@ func (m *WorkflowMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *WorkflowMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case workflow.FieldUUID:
+		return m.OldUUID(ctx)
 	case workflow.FieldTemporalID:
 		return m.OldTemporalID(ctx)
 	case workflow.FieldType:
@@ -3235,6 +3279,13 @@ func (m *WorkflowMutation) OldField(ctx context.Context, name string) (ent.Value
 // type.
 func (m *WorkflowMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case workflow.FieldUUID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUUID(v)
+		return nil
 	case workflow.FieldTemporalID:
 		v, ok := value.(string)
 		if !ok {
@@ -3356,6 +3407,9 @@ func (m *WorkflowMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *WorkflowMutation) ResetField(name string) error {
 	switch name {
+	case workflow.FieldUUID:
+		m.ResetUUID()
+		return nil
 	case workflow.FieldTemporalID:
 		m.ResetTemporalID()
 		return nil

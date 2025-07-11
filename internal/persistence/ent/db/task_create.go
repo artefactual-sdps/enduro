@@ -22,9 +22,9 @@ type TaskCreate struct {
 	hooks    []Hook
 }
 
-// SetTaskID sets the "task_id" field.
-func (tc *TaskCreate) SetTaskID(u uuid.UUID) *TaskCreate {
-	tc.mutation.SetTaskID(u)
+// SetUUID sets the "uuid" field.
+func (tc *TaskCreate) SetUUID(u uuid.UUID) *TaskCreate {
+	tc.mutation.SetUUID(u)
 	return tc
 }
 
@@ -119,8 +119,8 @@ func (tc *TaskCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (tc *TaskCreate) check() error {
-	if _, ok := tc.mutation.TaskID(); !ok {
-		return &ValidationError{Name: "task_id", err: errors.New(`db: missing required field "Task.task_id"`)}
+	if _, ok := tc.mutation.UUID(); !ok {
+		return &ValidationError{Name: "uuid", err: errors.New(`db: missing required field "Task.uuid"`)}
 	}
 	if _, ok := tc.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`db: missing required field "Task.name"`)}
@@ -168,9 +168,9 @@ func (tc *TaskCreate) createSpec() (*Task, *sqlgraph.CreateSpec) {
 		_node = &Task{config: tc.config}
 		_spec = sqlgraph.NewCreateSpec(task.Table, sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt))
 	)
-	if value, ok := tc.mutation.TaskID(); ok {
-		_spec.SetField(task.FieldTaskID, field.TypeUUID, value)
-		_node.TaskID = value
+	if value, ok := tc.mutation.UUID(); ok {
+		_spec.SetField(task.FieldUUID, field.TypeUUID, value)
+		_node.UUID = value
 	}
 	if value, ok := tc.mutation.Name(); ok {
 		_spec.SetField(task.FieldName, field.TypeString, value)
