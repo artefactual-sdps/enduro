@@ -17,11 +17,12 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/gorilla/websocket"
+	"go.artefactual.dev/tools/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
 	goahttp "goa.design/goa/v3/http"
 	goahttpmwr "goa.design/goa/v3/http/middleware"
-	"goa.design/goa/v3/middleware"
+	goamiddleware "goa.design/goa/v3/middleware"
 
 	intabout "github.com/artefactual-sdps/enduro/internal/about"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/about"
@@ -56,16 +57,16 @@ func HTTPServer(
 	ingestEndpoints := ingest.NewEndpoints(ingestsvc.Goa())
 	ingestErrorHandler := errorHandler(logger, "Ingest error.")
 	ingestServer := ingestsvr.New(ingestEndpoints, mux, dec, enc, ingestErrorHandler, nil, websocketUpgrader, nil)
-	ingestServer.DownloadSip = writeTimeout(ingestServer.DownloadSip, 0)
-	ingestServer.UploadSip = writeTimeout(ingestServer.UploadSip, 0)
-	ingestServer.UploadSip = readTimeout(ingestServer.UploadSip, 0)
+	ingestServer.DownloadSip = middleware.WriteTimeout(0)(ingestServer.DownloadSip)
+	ingestServer.UploadSip = middleware.WriteTimeout(0)(ingestServer.UploadSip)
+	ingestServer.UploadSip = middleware.ReadTimeout(0)(ingestServer.UploadSip)
 	ingestsvr.Mount(mux, ingestServer)
 
 	// Storage service.
 	storageEndpoints := storage.NewEndpoints(storagesvc)
 	storageErrorHandler := errorHandler(logger, "Storage error.")
 	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
-	storageServer.DownloadAip = writeTimeout(storageServer.DownloadAip, 0)
+	storageServer.DownloadAip = middleware.WriteTimeout(0)(storageServer.DownloadAip)
 	storagesvr.Mount(mux, storageServer)
 
 	// About service.
@@ -76,9 +77,9 @@ func HTTPServer(
 
 	// Global middlewares.
 	var handler http.Handler = mux
-	handler = recoverMiddleware(logger)(handler)
+	handler = middleware.Recover(logger)(handler)
 	handler = otelhttp.NewHandler(handler, "api", otelhttp.WithTracerProvider(tp))
-	handler = versionHeaderMiddleware(version.Short)(handler)
+	handler = middleware.VersionHeader("X-Enduro-Version", version.Short)(handler)
 	if config.Debug {
 		handler = goahttpmwr.Log(loggerAdapter(logger))(handler) //nolint SA1019: deprecated - use OpenTelemetry.
 		handler = goahttpmwr.Debug(mux, os.Stdout)(handler)
@@ -102,7 +103,7 @@ type errorMessage struct {
 // including the request ID.
 func errorHandler(logger logr.Logger, msg string) func(context.Context, http.ResponseWriter, error) {
 	return func(ctx context.Context, w http.ResponseWriter, err error) {
-		reqID, ok := ctx.Value(middleware.RequestIDKey).(string)
+		reqID, ok := ctx.Value(goamiddleware.RequestIDKey).(string)
 		if !ok {
 			reqID = "unknown"
 		}

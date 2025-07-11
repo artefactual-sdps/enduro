@@ -45,7 +45,7 @@ require (
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.10.0
 	go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c
-	go.artefactual.dev/tools v0.20.0
+	go.artefactual.dev/tools v0.21.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.60.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.54.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.60.0
