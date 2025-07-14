@@ -8,19 +8,21 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 )
 
 func (c *client) CreateTask(ctx context.Context, task *datatypes.Task) error {
 	// Validate required fields.
-	taskID, err := uuid.Parse(task.TaskID)
-	if err != nil {
-		return newParseError(err, "TaskID")
+	if task.UUID == uuid.Nil {
+		return newRequiredFieldError("UUID")
 	}
 	if task.Name == "" {
 		return newRequiredFieldError("Name")
 	}
-	if task.WorkflowID == 0 {
-		return newRequiredFieldError("WorkflowID")
+	if task.WorkflowUUID == uuid.Nil {
+		return newRequiredFieldError("WorkflowUUID")
 	}
 	// TODO: Validate Status.
 
@@ -35,22 +37,34 @@ func (c *client) CreateTask(ctx context.Context, task *datatypes.Task) error {
 		completedAt = &task.CompletedAt.Time
 	}
 
-	q := c.ent.Task.Create().
-		SetTaskID(taskID).
+	tx, err := c.ent.BeginTx(ctx, nil)
+	if err != nil {
+		return newDBErrorWithDetails(err, "create task")
+	}
+
+	wDBID, err := tx.Workflow.Query().Where(workflow.UUID(task.WorkflowUUID)).OnlyID(ctx)
+	if err != nil {
+		return rollback(tx, newDBErrorWithDetails(err, "create task"))
+	}
+
+	q := tx.Task.Create().
+		SetUUID(task.UUID).
 		SetName(task.Name).
 		SetStatus(int8(task.Status)). // #nosec G115 -- constrained value.
 		SetNillableStartedAt(startedAt).
 		SetNillableCompletedAt(completedAt).
 		SetNote(task.Note).
-		SetWorkflowID(int(task.WorkflowID))
+		SetWorkflowID(wDBID)
 
-	r, err := q.Save(ctx)
+	dbt, err := q.Save(ctx)
 	if err != nil {
-		return newDBErrorWithDetails(err, "create task")
+		return rollback(tx, newDBErrorWithDetails(err, "create task"))
+	}
+	if err = tx.Commit(); err != nil {
+		return rollback(tx, newDBErrorWithDetails(err, "create task"))
 	}
 
-	// Update value of task with data from DB (e.g. ID).
-	*task = *convertTask(r)
+	task.ID = dbt.ID
 
 	return nil
 }
@@ -65,28 +79,25 @@ func (c *client) UpdateTask(
 		return nil, newDBErrorWithDetails(err, "update task")
 	}
 
-	task, err := tx.Task.Get(ctx, id)
+	task, err := tx.Task.Query().WithWorkflow(func(q *db.WorkflowQuery) {
+		q.Select(workflow.FieldUUID)
+	}).Where(task.ID(id)).Only(ctx)
 	if err != nil {
 		return nil, rollback(tx, newDBError(err))
 	}
+
+	// Keep track of the workflow UUID to include it in the task after conversion.
+	wUUID := task.Edges.Workflow.UUID
 
 	up, err := updater(convertTask(task))
 	if err != nil {
 		return nil, rollback(tx, newUpdaterError(err))
 	}
 
-	// Set required column values.
-	taskID, err := uuid.Parse(up.TaskID)
-	if err != nil {
-		return nil, rollback(tx, newParseError(err, "TaskID"))
-	}
-
 	q := tx.Task.UpdateOneID(id).
-		SetTaskID(taskID).
 		SetName(up.Name).
 		SetStatus(int8(up.Status)). // #nosec G115 -- constrained value.
-		SetNote(up.Note).
-		SetWorkflowID(int(up.WorkflowID))
+		SetNote(up.Note)
 
 	// Set nullable column values.
 	if up.StartedAt.Valid {
@@ -104,5 +115,8 @@ func (c *client) UpdateTask(
 		return nil, rollback(tx, newDBError(err))
 	}
 
-	return convertTask(task), nil
+	t := convertTask(task)
+	t.WorkflowUUID = wUUID
+
+	return t, nil
 }

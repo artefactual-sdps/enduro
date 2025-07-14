@@ -56,9 +56,9 @@ func IDLTE(id int) predicate.Task {
 	return predicate.Task(sql.FieldLTE(FieldID, id))
 }
 
-// TaskID applies equality check predicate on the "task_id" field. It's identical to TaskIDEQ.
-func TaskID(v uuid.UUID) predicate.Task {
-	return predicate.Task(sql.FieldEQ(FieldTaskID, v))
+// UUID applies equality check predicate on the "uuid" field. It's identical to UUIDEQ.
+func UUID(v uuid.UUID) predicate.Task {
+	return predicate.Task(sql.FieldEQ(FieldUUID, v))
 }
 
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
@@ -91,44 +91,44 @@ func WorkflowID(v int) predicate.Task {
 	return predicate.Task(sql.FieldEQ(FieldWorkflowID, v))
 }
 
-// TaskIDEQ applies the EQ predicate on the "task_id" field.
-func TaskIDEQ(v uuid.UUID) predicate.Task {
-	return predicate.Task(sql.FieldEQ(FieldTaskID, v))
+// UUIDEQ applies the EQ predicate on the "uuid" field.
+func UUIDEQ(v uuid.UUID) predicate.Task {
+	return predicate.Task(sql.FieldEQ(FieldUUID, v))
 }
 
-// TaskIDNEQ applies the NEQ predicate on the "task_id" field.
-func TaskIDNEQ(v uuid.UUID) predicate.Task {
-	return predicate.Task(sql.FieldNEQ(FieldTaskID, v))
+// UUIDNEQ applies the NEQ predicate on the "uuid" field.
+func UUIDNEQ(v uuid.UUID) predicate.Task {
+	return predicate.Task(sql.FieldNEQ(FieldUUID, v))
 }
 
-// TaskIDIn applies the In predicate on the "task_id" field.
-func TaskIDIn(vs ...uuid.UUID) predicate.Task {
-	return predicate.Task(sql.FieldIn(FieldTaskID, vs...))
+// UUIDIn applies the In predicate on the "uuid" field.
+func UUIDIn(vs ...uuid.UUID) predicate.Task {
+	return predicate.Task(sql.FieldIn(FieldUUID, vs...))
 }
 
-// TaskIDNotIn applies the NotIn predicate on the "task_id" field.
-func TaskIDNotIn(vs ...uuid.UUID) predicate.Task {
-	return predicate.Task(sql.FieldNotIn(FieldTaskID, vs...))
+// UUIDNotIn applies the NotIn predicate on the "uuid" field.
+func UUIDNotIn(vs ...uuid.UUID) predicate.Task {
+	return predicate.Task(sql.FieldNotIn(FieldUUID, vs...))
 }
 
-// TaskIDGT applies the GT predicate on the "task_id" field.
-func TaskIDGT(v uuid.UUID) predicate.Task {
-	return predicate.Task(sql.FieldGT(FieldTaskID, v))
+// UUIDGT applies the GT predicate on the "uuid" field.
+func UUIDGT(v uuid.UUID) predicate.Task {
+	return predicate.Task(sql.FieldGT(FieldUUID, v))
 }
 
-// TaskIDGTE applies the GTE predicate on the "task_id" field.
-func TaskIDGTE(v uuid.UUID) predicate.Task {
-	return predicate.Task(sql.FieldGTE(FieldTaskID, v))
+// UUIDGTE applies the GTE predicate on the "uuid" field.
+func UUIDGTE(v uuid.UUID) predicate.Task {
+	return predicate.Task(sql.FieldGTE(FieldUUID, v))
 }
 
-// TaskIDLT applies the LT predicate on the "task_id" field.
-func TaskIDLT(v uuid.UUID) predicate.Task {
-	return predicate.Task(sql.FieldLT(FieldTaskID, v))
+// UUIDLT applies the LT predicate on the "uuid" field.
+func UUIDLT(v uuid.UUID) predicate.Task {
+	return predicate.Task(sql.FieldLT(FieldUUID, v))
 }
 
-// TaskIDLTE applies the LTE predicate on the "task_id" field.
-func TaskIDLTE(v uuid.UUID) predicate.Task {
-	return predicate.Task(sql.FieldLTE(FieldTaskID, v))
+// UUIDLTE applies the LTE predicate on the "uuid" field.
+func UUIDLTE(v uuid.UUID) predicate.Task {
+	return predicate.Task(sql.FieldLTE(FieldUUID, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.

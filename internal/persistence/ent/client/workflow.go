@@ -12,6 +12,9 @@ import (
 
 func (c *client) CreateWorkflow(ctx context.Context, w *datatypes.Workflow) error {
 	// Validate required fields.
+	if w.UUID == uuid.Nil {
+		return newRequiredFieldError("UUID")
+	}
 	if w.TemporalID == "" {
 		return newRequiredFieldError("TemporalID")
 	}
@@ -43,6 +46,7 @@ func (c *client) CreateWorkflow(ctx context.Context, w *datatypes.Workflow) erro
 	}
 
 	q := tx.Workflow.Create().
+		SetUUID(w.UUID).
 		SetTemporalID(w.TemporalID).
 		SetType(w.Type).
 		SetStatus(int8(w.Status)). // #nosec G115 -- constrained value.

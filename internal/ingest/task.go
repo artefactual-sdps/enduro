@@ -19,7 +19,7 @@ func (svc *ingestImpl) CreateTask(ctx context.Context, task *datatypes.Task) err
 	}
 
 	event.PublishEvent(ctx, svc.evsvc, &goaingest.SIPTaskCreatedEvent{
-		ID:   uint(task.ID), // #nosec G115 -- constrained value.
+		UUID: task.UUID,
 		Item: taskToGoa(task),
 	})
 
@@ -58,7 +58,7 @@ func (svc *ingestImpl) CompleteTask(
 	}
 
 	event.PublishEvent(ctx, svc.evsvc, &goaingest.SIPTaskUpdatedEvent{
-		ID:   uint(id), // #nosec G115 -- range validated.
+		UUID: task.UUID,
 		Item: taskToGoa(task),
 	})
 

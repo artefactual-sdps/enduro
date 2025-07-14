@@ -24,6 +24,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 	t.Parallel()
 
 	sipUUID := uuid.New()
+	workflowUUID := uuid.New()
 	startedAt := time.Date(2024, 6, 13, 17, 50, 13, 0, time.UTC)
 	completedAt := time.Date(2024, 6, 13, 17, 50, 14, 0, time.UTC)
 
@@ -38,6 +39,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 		{
 			name: "Creates a workflow",
 			params: &createWorkflowLocalActivityParams{
+				UUID:        workflowUUID,
 				TemporalID:  "workflow-id",
 				Type:        enums.WorkflowTypeCreateAip,
 				Status:      enums.WorkflowStatusDone,
@@ -47,6 +49,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateWorkflow(mockutil.Context(), &datatypes.Workflow{
+					UUID:        workflowUUID,
 					TemporalID:  "workflow-id",
 					Type:        enums.WorkflowTypeCreateAip,
 					Status:      enums.WorkflowStatusDone,
@@ -63,6 +66,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 		{
 			name: "Does not pass zero dates",
 			params: &createWorkflowLocalActivityParams{
+				UUID:       workflowUUID,
 				TemporalID: "workflow-id",
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,
@@ -70,6 +74,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateWorkflow(mockutil.Context(), &datatypes.Workflow{
+					UUID:       workflowUUID,
 					TemporalID: "workflow-id",
 					Type:       enums.WorkflowTypeCreateAip,
 					Status:     enums.WorkflowStatusDone,
@@ -84,6 +89,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 		{
 			name: "Fails if there is a persistence error",
 			params: &createWorkflowLocalActivityParams{
+				UUID:       workflowUUID,
 				TemporalID: "workflow-id",
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,
@@ -91,6 +97,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateWorkflow(mockutil.Context(), &datatypes.Workflow{
+					UUID:       workflowUUID,
 					TemporalID: "workflow-id",
 					Type:       enums.WorkflowTypeCreateAip,
 					Status:     enums.WorkflowStatusDone,

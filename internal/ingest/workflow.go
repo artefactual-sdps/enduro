@@ -21,7 +21,7 @@ func (svc *ingestImpl) CreateWorkflow(
 	}
 
 	ev := &goaingest.SIPWorkflowCreatedEvent{
-		ID:   uint(w.ID), // #nosec G115 -- constrained value.
+		UUID: w.UUID,
 		Item: workflowToGoa(w),
 	}
 	event.PublishEvent(ctx, svc.evsvc, ev)
@@ -49,7 +49,7 @@ func (svc *ingestImpl) SetWorkflowStatus(
 		event.PublishEvent(
 			ctx,
 			svc.evsvc,
-			&goaingest.SIPWorkflowUpdatedEvent{ID: item.ID, Item: item},
+			&goaingest.SIPWorkflowUpdatedEvent{UUID: item.UUID, Item: item},
 		)
 	}
 
@@ -78,7 +78,7 @@ func (svc *ingestImpl) CompleteWorkflow(
 		event.PublishEvent(
 			ctx,
 			svc.evsvc,
-			&goaingest.SIPWorkflowUpdatedEvent{ID: item.ID, Item: item},
+			&goaingest.SIPWorkflowUpdatedEvent{UUID: item.UUID, Item: item},
 		)
 	}
 
@@ -92,6 +92,7 @@ func (svc *ingestImpl) readWorkflow(
 	query := `
 		SELECT
 			workflow.id,
+			workflow.uuid,
 			workflow.temporal_id,
 			workflow.type,
 			workflow.status,

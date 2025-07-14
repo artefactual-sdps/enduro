@@ -298,12 +298,12 @@ func (tq *TaskQuery) WithWorkflow(opts ...func(*WorkflowQuery)) *TaskQuery {
 // Example:
 //
 //	var v []struct {
-//		TaskID uuid.UUID `json:"task_id,omitempty"`
+//		UUID uuid.UUID `json:"uuid,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Task.Query().
-//		GroupBy(task.FieldTaskID).
+//		GroupBy(task.FieldUUID).
 //		Aggregate(db.Count()).
 //		Scan(ctx, &v)
 func (tq *TaskQuery) GroupBy(field string, fields ...string) *TaskGroupBy {
@@ -321,11 +321,11 @@ func (tq *TaskQuery) GroupBy(field string, fields ...string) *TaskGroupBy {
 // Example:
 //
 //	var v []struct {
-//		TaskID uuid.UUID `json:"task_id,omitempty"`
+//		UUID uuid.UUID `json:"uuid,omitempty"`
 //	}
 //
 //	client.Task.Query().
-//		Select(task.FieldTaskID).
+//		Select(task.FieldUUID).
 //		Scan(ctx, &v)
 func (tq *TaskQuery) Select(fields ...string) *TaskSelect {
 	tq.ctx.Fields = append(tq.ctx.Fields, fields...)

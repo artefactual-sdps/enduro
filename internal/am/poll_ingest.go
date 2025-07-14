@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
 	temporal_tools "go.artefactual.dev/tools/temporal"
@@ -16,8 +17,8 @@ import (
 const PollIngestActivityName = "poll-ingest-activity"
 
 type PollIngestActivityParams struct {
-	WorkflowID int
-	SIPID      string
+	WorkflowUUID uuid.UUID
+	SIPID        string
 }
 
 type PollIngestActivity struct {
@@ -62,12 +63,12 @@ func (a *PollIngestActivity) Execute(
 ) (*PollIngestActivityResult, error) {
 	logger := temporal_tools.GetLogger(ctx)
 	logger.V(1).Info("Executing PollIngestActivity",
-		"WorkflowID", params.WorkflowID,
+		"WorkflowUUID", params.WorkflowUUID,
 		"SIPID", params.SIPID,
 	)
 
 	var taskCount int
-	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.WorkflowID)
+	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.WorkflowUUID)
 	ticker := time.NewTicker(a.cfg.PollInterval)
 	defer ticker.Stop()
 

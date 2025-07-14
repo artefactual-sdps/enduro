@@ -1291,7 +1291,7 @@ func marshalIngestviewsSIPWorkflowViewToSIPWorkflowResponseBody(v *ingestviews.S
 		return nil
 	}
 	res := &SIPWorkflowResponseBody{
-		ID:          *v.ID,
+		UUID:        *v.UUID,
 		TemporalID:  *v.TemporalID,
 		Type:        *v.Type,
 		Status:      *v.Status,
@@ -1316,14 +1316,13 @@ func marshalIngestviewsSIPTaskViewToSIPTaskResponseBody(v *ingestviews.SIPTaskVi
 		return nil
 	}
 	res := &SIPTaskResponseBody{
-		ID:          *v.ID,
-		TaskID:      *v.TaskID,
-		Name:        *v.Name,
-		Status:      *v.Status,
-		StartedAt:   *v.StartedAt,
-		CompletedAt: v.CompletedAt,
-		Note:        v.Note,
-		WorkflowID:  v.WorkflowID,
+		UUID:         *v.UUID,
+		Name:         *v.Name,
+		Status:       *v.Status,
+		StartedAt:    *v.StartedAt,
+		CompletedAt:  v.CompletedAt,
+		Note:         v.Note,
+		WorkflowUUID: *v.WorkflowUUID,
 	}
 
 	return res

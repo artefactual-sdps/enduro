@@ -6,6 +6,7 @@ import (
 	"entgo.io/ent/schema"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
+	"github.com/google/uuid"
 
 	"github.com/artefactual-sdps/enduro/internal/enums"
 )
@@ -25,6 +26,9 @@ func (Workflow) Annotations() []schema.Annotation {
 // Fields of the Workflow.
 func (Workflow) Fields() []ent.Field {
 	return []ent.Field{
+		field.UUID("uuid", uuid.UUID{}).
+			Unique().
+			Immutable(),
 		field.String("temporal_id").
 			Annotations(entsql.Annotation{
 				Size: 255,

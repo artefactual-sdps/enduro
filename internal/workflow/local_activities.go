@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"io"
 	"time"
 
 	"github.com/google/uuid"
@@ -117,6 +116,7 @@ func setStatusLocalActivity(
 }
 
 type createWorkflowLocalActivityParams struct {
+	UUID        uuid.UUID
 	TemporalID  string
 	Type        enums.WorkflowType
 	Status      enums.WorkflowStatus
@@ -131,6 +131,7 @@ func createWorkflowLocalActivity(
 	params *createWorkflowLocalActivityParams,
 ) (int, error) {
 	w := datatypes.Workflow{
+		UUID:       params.UUID,
 		TemporalID: params.TemporalID,
 		Type:       params.Type,
 		Status:     params.Status,
@@ -184,28 +185,18 @@ func completeWorkflowLocalActivity(
 
 type createTaskLocalActivityParams struct {
 	Ingestsvc ingest.Service
-	RNG       io.Reader
-	Task      datatypes.Task
+	Task      *datatypes.Task
 }
 
 func createTaskLocalActivity(
 	ctx context.Context,
 	params *createTaskLocalActivityParams,
 ) (int, error) {
-	task := params.Task
-	if task.TaskID == "" {
-		id, err := uuid.NewRandomFromReader(params.RNG)
-		if err != nil {
-			return 0, err
-		}
-		task.TaskID = id.String()
-	}
-
-	if err := params.Ingestsvc.CreateTask(ctx, &task); err != nil {
+	if err := params.Ingestsvc.CreateTask(ctx, params.Task); err != nil {
 		return 0, err
 	}
 
-	return task.ID, nil
+	return params.Task.ID, nil
 }
 
 type completeTaskLocalActivityParams struct {

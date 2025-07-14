@@ -25,7 +25,8 @@ import (
 func TestJobTracker(t *testing.T) {
 	t.Parallel()
 
-	wID := 1
+	wUUID := uuid.New()
+	taskUUID := uuid.New()
 	unitID := uuid.New().String()
 	startedAt := time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC)
 	completedAt := time.Date(2024, time.January, 18, 1, 27, 51, 0, time.UTC)
@@ -47,7 +48,7 @@ func TestJobTracker(t *testing.T) {
 
 	jobs := []amclient.Job{
 		{
-			ID:     "f60018ac-da79-4769-9509-c6c41d5efe7e",
+			ID:     taskUUID.String(),
 			LinkID: "3229e01f-adf3-4294-85f7-4acb01b3fbcf",
 			Name:   "Extract zipped bag transfer",
 			Status: amclient.JobStatusComplete,
@@ -102,13 +103,13 @@ func TestJobTracker(t *testing.T) {
 				m.CreateTask(
 					mockutil.Context(),
 					&datatypes.Task{
-						ID:          0,
-						TaskID:      "f60018ac-da79-4769-9509-c6c41d5efe7e",
-						Name:        "Extract zipped bag transfer",
-						Status:      enums.TaskStatusDone,
-						StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
-						CompletedAt: sql.NullTime{Time: completedAt, Valid: true},
-						WorkflowID:  wID,
+						ID:           0,
+						UUID:         taskUUID,
+						Name:         "Extract zipped bag transfer",
+						Status:       enums.TaskStatusDone,
+						StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
+						CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+						WorkflowUUID: wUUID,
 					},
 				).Return(nil)
 			},
@@ -158,7 +159,7 @@ func TestJobTracker(t *testing.T) {
 				tt.ingestRec(ingestsvc.EXPECT())
 			}
 
-			jt := am.NewJobTracker(clock, jobsSvc, ingestsvc, wID)
+			jt := am.NewJobTracker(clock, jobsSvc, ingestsvc, wUUID)
 			got, err := jt.SaveTasks(context.Background(), unitID)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
@@ -175,17 +176,20 @@ func TestJobTracker(t *testing.T) {
 func TestConvertJobToTask(t *testing.T) {
 	t.Parallel()
 
+	taskUUID := uuid.New()
+
 	type test struct {
-		name string
-		job  amclient.Job
-		want datatypes.Task
+		name    string
+		job     amclient.Job
+		want    *datatypes.Task
+		wantErr string
 	}
 
 	for _, tt := range []test{
 		{
 			name: "Returns task with computed time range",
 			job: amclient.Job{
-				ID:     "f60018ac-da79-4769-9509-c6c41d5efe7e",
+				ID:     taskUUID.String(),
 				LinkID: "70669a5b-01e4-4ea0-ac70-10292f87da05",
 				Name:   "Move to processing directory",
 				Status: amclient.JobStatusComplete,
@@ -208,8 +212,8 @@ func TestConvertJobToTask(t *testing.T) {
 					},
 				},
 			},
-			want: datatypes.Task{
-				TaskID: "f60018ac-da79-4769-9509-c6c41d5efe7e",
+			want: &datatypes.Task{
+				UUID:   taskUUID,
 				Name:   "Move to processing directory",
 				Status: enums.TaskStatusDone,
 				StartedAt: sql.NullTime{
@@ -225,7 +229,7 @@ func TestConvertJobToTask(t *testing.T) {
 		{
 			name: "Returns NULL completedAt if job is still processing",
 			job: amclient.Job{
-				ID:     "c2128d39-2ace-47c5-8cac-39ded8d9c9ef",
+				ID:     taskUUID.String(),
 				LinkID: "208d441b-6938-44f9-b54a-bd73f05bc764",
 				Name:   "Verify SIP compliance",
 				Status: amclient.JobStatusProcessing,
@@ -248,8 +252,8 @@ func TestConvertJobToTask(t *testing.T) {
 					},
 				},
 			},
-			want: datatypes.Task{
-				TaskID: "c2128d39-2ace-47c5-8cac-39ded8d9c9ef",
+			want: &datatypes.Task{
+				UUID:   taskUUID,
 				Name:   "Verify SIP compliance",
 				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
@@ -260,16 +264,39 @@ func TestConvertJobToTask(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns NULL timestamps in the job has no tasks",
-			job:  amclient.Job{},
-			want: datatypes.Task{},
+			name: "Returns NULL timestamps if the job has no tasks",
+			job: amclient.Job{
+				ID:     taskUUID.String(),
+				LinkID: "208d441b-6938-44f9-b54a-bd73f05bc764",
+				Name:   "Verify SIP compliance",
+				Status: amclient.JobStatusProcessing,
+			},
+			want: &datatypes.Task{
+				UUID:   taskUUID,
+				Name:   "Verify SIP compliance",
+				Status: enums.TaskStatusInProgress,
+			},
+		},
+		{
+			name: "Errors on invalid jod ID",
+			job: amclient.Job{
+				ID:     "invalid-uuid",
+				LinkID: "70669a5b-01e4-4ea0-ac70-10292f87da05",
+				Name:   "Move to processing directory",
+				Status: amclient.JobStatusComplete,
+			},
+			wantErr: "unable to parse task UUID from job ID: \"invalid-uuid\"",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			got := am.ConvertJobToTask(tt.job)
-
+			got, err := am.ConvertJobToTask(tt.job)
+			if tt.wantErr != "" {
+				assert.ErrorContains(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
 			assert.DeepEqual(t, got, tt.want)
 		})
 	}

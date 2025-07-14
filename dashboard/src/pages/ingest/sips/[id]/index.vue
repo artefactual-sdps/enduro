@@ -107,7 +107,7 @@ onMounted(() => {
           :workflow="workflow"
           :index="index"
           v-for="(workflow, index) in sipStore.currentWorkflows?.workflows"
-          v-bind:key="workflow.id"
+          v-bind:key="workflow.uuid"
         />
       </div>
     </div>

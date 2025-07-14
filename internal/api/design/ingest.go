@@ -453,7 +453,7 @@ var SIPWorkflow = ResultType("application/vnd.enduro.ingest.sip.workflow", func(
 	Description("SIPWorkflow describes a workflow of a SIP.")
 	TypeName("SIPWorkflow")
 	Attributes(func() {
-		Attribute("id", UInt)
+		TypedAttributeUUID("uuid", "Identifier of the workflow")
 		Attribute("temporal_id", String)
 		Attribute("type", String, func() {
 			EnumWorkflowType()
@@ -471,7 +471,7 @@ var SIPWorkflow = ResultType("application/vnd.enduro.ingest.sip.workflow", func(
 		TypedAttributeUUID("sip_uuid", "Identifier of related SIP")
 	})
 	View("simple", func() {
-		Attribute("id")
+		Attribute("uuid")
 		Attribute("temporal_id")
 		Attribute("type")
 		Attribute("status")
@@ -479,7 +479,7 @@ var SIPWorkflow = ResultType("application/vnd.enduro.ingest.sip.workflow", func(
 		Attribute("completed_at")
 		Attribute("sip_uuid")
 	})
-	Required("id", "temporal_id", "type", "status", "started_at", "sip_uuid")
+	Required("uuid", "temporal_id", "type", "status", "started_at", "sip_uuid")
 })
 
 var EnumTaskStatus = func() {
@@ -490,8 +490,7 @@ var SIPTask = ResultType("application/vnd.enduro.ingest.sip.task", func() {
 	Description("SIPTask describes a SIP workflow task.")
 	TypeName("SIPTask")
 	Attributes(func() {
-		Attribute("id", UInt)
-		Attribute("task_id", String)
+		TypedAttributeUUID("uuid", "Identifier of the task")
 		Attribute("name", String)
 		Attribute("status", String, func() {
 			EnumTaskStatus()
@@ -503,7 +502,7 @@ var SIPTask = ResultType("application/vnd.enduro.ingest.sip.task", func() {
 			Format(FormatDateTime)
 		})
 		Attribute("note", String)
-		Attribute("workflow_id", UInt)
+		TypedAttributeUUID("workflow_uuid", "Identifier of related workflow")
 	})
-	Required("id", "task_id", "name", "status", "started_at")
+	Required("uuid", "name", "status", "started_at", "workflow_uuid")
 })

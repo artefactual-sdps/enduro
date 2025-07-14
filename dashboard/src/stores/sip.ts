@@ -36,24 +36,26 @@ export const useSipStore = defineStore("sip", {
       return this.current?.status == api.EnduroIngestSipStatusEnum.Pending;
     },
     getWorkflowById: (state) => {
-      return (workflowId: number): api.EnduroIngestSipWorkflow | undefined => {
+      return (workflowId: string): api.EnduroIngestSipWorkflow | undefined => {
         const x = state.currentWorkflows?.workflows?.find(
-          (workflow: api.EnduroIngestSipWorkflow) => workflow.id === workflowId,
+          (workflow: api.EnduroIngestSipWorkflow) =>
+            workflow.uuid === workflowId,
         );
         return x;
       };
     },
     getTaskById: (state) => {
       return (
-        workflowId: number,
-        taskId: number,
+        workflowId: string,
+        taskId: string,
       ): api.EnduroIngestSipTask | undefined => {
         const workflow = state.currentWorkflows?.workflows?.find(
-          (workflow: api.EnduroIngestSipWorkflow) => workflow.id === workflowId,
+          (workflow: api.EnduroIngestSipWorkflow) =>
+            workflow.uuid === workflowId,
         );
         if (!workflow) return;
         return workflow.tasks?.find(
-          (task: api.EnduroIngestSipTask) => task.id === taskId,
+          (task: api.EnduroIngestSipTask) => task.uuid === taskId,
         );
       };
     },

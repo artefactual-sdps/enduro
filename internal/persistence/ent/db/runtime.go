@@ -41,7 +41,7 @@ func init() {
 	workflowFields := schema.Workflow{}.Fields()
 	_ = workflowFields
 	// workflowDescSipID is the schema descriptor for sip_id field.
-	workflowDescSipID := workflowFields[5].Descriptor()
+	workflowDescSipID := workflowFields[6].Descriptor()
 	// workflow.SipIDValidator is a validator for the "sip_id" field. It is called by the builders before save.
 	workflow.SipIDValidator = workflowDescSipID.Validators[0].(func(int) error)
 }

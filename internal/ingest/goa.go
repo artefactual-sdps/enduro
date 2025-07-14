@@ -195,7 +195,7 @@ func (w *goaWrapper) ListSipWorkflows(
 		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	query := "SELECT id, temporal_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM workflow WHERE sip_id = ? ORDER BY started_at DESC"
+	query := "SELECT id, uuid, temporal_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM workflow WHERE sip_id = ? ORDER BY started_at DESC"
 	args := []any{s.ID}
 
 	rows, err := w.db.QueryxContext(ctx, query, args...)
@@ -213,7 +213,7 @@ func (w *goaWrapper) ListSipWorkflows(
 		workflow.SIPUUID = s.UUID
 		goaworkflow := workflowToGoa(&workflow)
 
-		ptQuery := "SELECT id, task_id, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM task WHERE workflow_id = ?"
+		ptQuery := "SELECT id, uuid, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM task WHERE workflow_id = ?"
 		ptQueryArgs := []any{workflow.ID}
 
 		ptRows, err := w.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)

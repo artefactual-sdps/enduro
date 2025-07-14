@@ -16,7 +16,10 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/enttest"
 )
 
-var sipUUID = uuid.New()
+var (
+	sipUUID = uuid.New()
+	wUUID   = uuid.New()
+)
 
 func setUpClient(t *testing.T, logger logr.Logger) (*db.Client, persistence.Service) {
 	t.Helper()
@@ -65,6 +68,7 @@ func createWorkflow(
 	status enums.WorkflowStatus,
 ) (*db.Workflow, error) {
 	return entc.Workflow.Create().
+		SetUUID(wUUID).
 		SetTemporalID("12345").
 		SetType(enums.WorkflowTypeCreateAip).
 		SetStatus(int8(status)). // #nosec G115 -- constrained value.

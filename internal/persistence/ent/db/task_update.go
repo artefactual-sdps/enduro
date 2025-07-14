@@ -14,7 +14,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
-	"github.com/google/uuid"
 )
 
 // TaskUpdate is the builder for updating Task entities.
@@ -27,20 +26,6 @@ type TaskUpdate struct {
 // Where appends a list predicates to the TaskUpdate builder.
 func (tu *TaskUpdate) Where(ps ...predicate.Task) *TaskUpdate {
 	tu.mutation.Where(ps...)
-	return tu
-}
-
-// SetTaskID sets the "task_id" field.
-func (tu *TaskUpdate) SetTaskID(u uuid.UUID) *TaskUpdate {
-	tu.mutation.SetTaskID(u)
-	return tu
-}
-
-// SetNillableTaskID sets the "task_id" field if the given value is not nil.
-func (tu *TaskUpdate) SetNillableTaskID(u *uuid.UUID) *TaskUpdate {
-	if u != nil {
-		tu.SetTaskID(*u)
-	}
 	return tu
 }
 
@@ -215,9 +200,6 @@ func (tu *TaskUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := tu.mutation.TaskID(); ok {
-		_spec.SetField(task.FieldTaskID, field.TypeUUID, value)
-	}
 	if value, ok := tu.mutation.Name(); ok {
 		_spec.SetField(task.FieldName, field.TypeString, value)
 	}
@@ -289,20 +271,6 @@ type TaskUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *TaskMutation
-}
-
-// SetTaskID sets the "task_id" field.
-func (tuo *TaskUpdateOne) SetTaskID(u uuid.UUID) *TaskUpdateOne {
-	tuo.mutation.SetTaskID(u)
-	return tuo
-}
-
-// SetNillableTaskID sets the "task_id" field if the given value is not nil.
-func (tuo *TaskUpdateOne) SetNillableTaskID(u *uuid.UUID) *TaskUpdateOne {
-	if u != nil {
-		tuo.SetTaskID(*u)
-	}
-	return tuo
 }
 
 // SetName sets the "name" field.
@@ -505,9 +473,6 @@ func (tuo *TaskUpdateOne) sqlSave(ctx context.Context) (_node *Task, err error) 
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := tuo.mutation.TaskID(); ok {
-		_spec.SetField(task.FieldTaskID, field.TypeUUID, value)
 	}
 	if value, ok := tuo.mutation.Name(); ok {
 		_spec.SetField(task.FieldName, field.TypeString, value)

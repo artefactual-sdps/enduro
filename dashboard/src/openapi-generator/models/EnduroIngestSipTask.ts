@@ -27,12 +27,6 @@ export interface EnduroIngestSipTask {
     completedAt?: Date;
     /**
      * 
-     * @type {number}
-     * @memberof EnduroIngestSipTask
-     */
-    id: number;
-    /**
-     * 
      * @type {string}
      * @memberof EnduroIngestSipTask
      */
@@ -56,17 +50,17 @@ export interface EnduroIngestSipTask {
      */
     status: EnduroIngestSipTaskStatusEnum;
     /**
-     * 
+     * Identifier of the task
      * @type {string}
      * @memberof EnduroIngestSipTask
      */
-    taskId: string;
+    uuid: string;
     /**
-     * 
-     * @type {number}
+     * Identifier of related workflow
+     * @type {string}
      * @memberof EnduroIngestSipTask
      */
-    workflowId?: number;
+    workflowUuid: string;
 }
 
 
@@ -90,11 +84,11 @@ export type EnduroIngestSipTaskStatusEnum = typeof EnduroIngestSipTaskStatusEnum
  */
 export function instanceOfEnduroIngestSipTask(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "startedAt" in value;
     isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "taskId" in value;
+    isInstance = isInstance && "uuid" in value;
+    isInstance = isInstance && "workflowUuid" in value;
 
     return isInstance;
 }
@@ -110,13 +104,12 @@ export function EnduroIngestSipTaskFromJSONTyped(json: any, ignoreDiscriminator:
     return {
         
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
-        'id': json['id'],
         'name': json['name'],
         'note': !exists(json, 'note') ? undefined : json['note'],
         'startedAt': (new Date(json['started_at'])),
         'status': json['status'],
-        'taskId': json['task_id'],
-        'workflowId': !exists(json, 'workflow_id') ? undefined : json['workflow_id'],
+        'uuid': json['uuid'],
+        'workflowUuid': json['workflow_uuid'],
     };
 }
 
@@ -130,13 +123,12 @@ export function EnduroIngestSipTaskToJSON(value?: EnduroIngestSipTask | null): a
     return {
         
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
-        'id': value.id,
         'name': value.name,
         'note': value.note,
         'started_at': (value.startedAt.toISOString()),
         'status': value.status,
-        'task_id': value.taskId,
-        'workflow_id': value.workflowId,
+        'uuid': value.uuid,
+        'workflow_uuid': value.workflowUuid,
     };
 }
 

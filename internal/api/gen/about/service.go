@@ -117,27 +117,28 @@ type SIPStatusUpdatedEvent struct {
 
 // SIPTask describes a SIP workflow task.
 type SIPTask struct {
-	ID          uint
-	TaskID      string
+	// Identifier of the task
+	UUID        uuid.UUID
 	Name        string
 	Status      string
 	StartedAt   string
 	CompletedAt *string
 	Note        *string
-	WorkflowID  *uint
+	// Identifier of related workflow
+	WorkflowUUID uuid.UUID
 }
 
 type SIPTaskCollection []*SIPTask
 
 type SIPTaskCreatedEvent struct {
 	// Identifier of task
-	ID   uint
+	UUID uuid.UUID
 	Item *SIPTask
 }
 
 type SIPTaskUpdatedEvent struct {
 	// Identifier of task
-	ID   uint
+	UUID uuid.UUID
 	Item *SIPTask
 }
 
@@ -149,7 +150,8 @@ type SIPUpdatedEvent struct {
 
 // SIPWorkflow describes a workflow of a SIP.
 type SIPWorkflow struct {
-	ID          uint
+	// Identifier of the workflow
+	UUID        uuid.UUID
 	TemporalID  string
 	Type        string
 	Status      string
@@ -162,13 +164,13 @@ type SIPWorkflow struct {
 
 type SIPWorkflowCreatedEvent struct {
 	// Identifier of workflow
-	ID   uint
+	UUID uuid.UUID
 	Item *SIPWorkflow
 }
 
 type SIPWorkflowUpdatedEvent struct {
 	// Identifier of workflow
-	ID   uint
+	UUID uuid.UUID
 	Item *SIPWorkflow
 }
 

@@ -28,7 +28,7 @@ var (
 func TestPollTransferActivity(t *testing.T) {
 	t.Parallel()
 	transferID := uuid.New().String()
-	workflowID := 1
+	wUUID := uuid.New()
 	sipID := uuid.New().String()
 	path := "/var/archivematica/fake/sip"
 
@@ -82,8 +82,8 @@ func TestPollTransferActivity(t *testing.T) {
 		{
 			name: "Polls twice then returns successfully",
 			params: &am.PollTransferActivityParams{
-				WorkflowID: workflowID,
-				TransferID: transferID,
+				WorkflowUUID: wUUID,
+				TransferID:   transferID,
 			},
 			tfrRec: func(m *amclienttest.MockTransferServiceMockRecorder) {
 				// First poll. AM sometimes returns a "400 Bad Request" error
@@ -149,9 +149,9 @@ func TestPollTransferActivity(t *testing.T) {
 			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
 				// Second poll.
 				for _, job := range jobs {
-					task := am.ConvertJobToTask(job)
-					task.WorkflowID = workflowID
-					m.CreateTask(mockutil.Context(), &task).Return(nil)
+					task, _ := am.ConvertJobToTask(job)
+					task.WorkflowUUID = wUUID
+					m.CreateTask(mockutil.Context(), task).Return(nil)
 
 				}
 			},
@@ -306,8 +306,8 @@ func TestPollTransferActivity(t *testing.T) {
 			enc, err := env.ExecuteActivity(
 				am.PollTransferActivityName,
 				am.PollTransferActivityParams{
-					WorkflowID: workflowID,
-					TransferID: transferID,
+					WorkflowUUID: wUUID,
+					TransferID:   transferID,
 				},
 			)
 			if tt.wantErr != "" {

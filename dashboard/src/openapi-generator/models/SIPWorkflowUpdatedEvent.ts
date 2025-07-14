@@ -27,17 +27,17 @@ import {
  */
 export interface SIPWorkflowUpdatedEvent {
     /**
-     * Identifier of workflow
-     * @type {number}
-     * @memberof SIPWorkflowUpdatedEvent
-     */
-    id: number;
-    /**
      * 
      * @type {EnduroIngestSipWorkflow}
      * @memberof SIPWorkflowUpdatedEvent
      */
     item: EnduroIngestSipWorkflow;
+    /**
+     * Identifier of workflow
+     * @type {string}
+     * @memberof SIPWorkflowUpdatedEvent
+     */
+    uuid: string;
 }
 
 /**
@@ -45,8 +45,8 @@ export interface SIPWorkflowUpdatedEvent {
  */
 export function instanceOfSIPWorkflowUpdatedEvent(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "item" in value;
+    isInstance = isInstance && "uuid" in value;
 
     return isInstance;
 }
@@ -61,8 +61,8 @@ export function SIPWorkflowUpdatedEventFromJSONTyped(json: any, ignoreDiscrimina
     }
     return {
         
-        'id': json['id'],
         'item': EnduroIngestSipWorkflowFromJSON(json['item']),
+        'uuid': json['uuid'],
     };
 }
 
@@ -75,8 +75,8 @@ export function SIPWorkflowUpdatedEventToJSON(value?: SIPWorkflowUpdatedEvent | 
     }
     return {
         
-        'id': value.id,
         'item': EnduroIngestSipWorkflowToJSON(value.item),
+        'uuid': value.uuid,
     };
 }
 

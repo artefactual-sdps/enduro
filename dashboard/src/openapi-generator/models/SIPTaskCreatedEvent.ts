@@ -27,17 +27,17 @@ import {
  */
 export interface SIPTaskCreatedEvent {
     /**
-     * Identifier of task
-     * @type {number}
-     * @memberof SIPTaskCreatedEvent
-     */
-    id: number;
-    /**
      * 
      * @type {EnduroIngestSipTask}
      * @memberof SIPTaskCreatedEvent
      */
     item: EnduroIngestSipTask;
+    /**
+     * Identifier of task
+     * @type {string}
+     * @memberof SIPTaskCreatedEvent
+     */
+    uuid: string;
 }
 
 /**
@@ -45,8 +45,8 @@ export interface SIPTaskCreatedEvent {
  */
 export function instanceOfSIPTaskCreatedEvent(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "id" in value;
     isInstance = isInstance && "item" in value;
+    isInstance = isInstance && "uuid" in value;
 
     return isInstance;
 }
@@ -61,8 +61,8 @@ export function SIPTaskCreatedEventFromJSONTyped(json: any, ignoreDiscriminator:
     }
     return {
         
-        'id': json['id'],
         'item': EnduroIngestSipTaskFromJSON(json['item']),
+        'uuid': json['uuid'],
     };
 }
 
@@ -75,8 +75,8 @@ export function SIPTaskCreatedEventToJSON(value?: SIPTaskCreatedEvent | null): a
     }
     return {
         
-        'id': value.id,
         'item': EnduroIngestSipTaskToJSON(value.item),
+        'uuid': value.uuid,
     };
 }
 

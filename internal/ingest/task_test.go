@@ -8,6 +8,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
 	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
@@ -21,7 +22,8 @@ import (
 func TestCreateTask(t *testing.T) {
 	t.Parallel()
 
-	taskID := "a499e8fc-7309-4e26-b39d-d8ab68466c27"
+	taskUUID := uuid.New()
+	wUUID := uuid.New()
 
 	type test struct {
 		name    string
@@ -34,17 +36,17 @@ func TestCreateTask(t *testing.T) {
 		{
 			name: "Creates a task",
 			task: datatypes.Task{
-				TaskID:     taskID,
-				Name:       "PT1",
-				Status:     enums.TaskStatusInProgress,
-				WorkflowID: 11,
+				UUID:         taskUUID,
+				Name:         "PT1",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
 			},
 			want: datatypes.Task{
-				ID:         1,
-				TaskID:     taskID,
-				Name:       "PT1",
-				Status:     enums.TaskStatusInProgress,
-				WorkflowID: 11,
+				ID:           1,
+				UUID:         taskUUID,
+				Name:         "PT1",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
 			},
 			mock: func(svc *persistence_fake.MockService, task datatypes.Task) *persistence_fake.MockService {
 				svc.EXPECT().
@@ -61,7 +63,7 @@ func TestCreateTask(t *testing.T) {
 		{
 			name: "Creates a task with optional values",
 			task: datatypes.Task{
-				TaskID: taskID,
+				UUID:   taskUUID,
 				Name:   "PT2",
 				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
@@ -72,8 +74,8 @@ func TestCreateTask(t *testing.T) {
 					Time:  time.Date(2024, 3, 27, 11, 32, 43, 0, time.UTC),
 					Valid: true,
 				},
-				Note:       "PT2 Note",
-				WorkflowID: 12,
+				Note:         "PT2 Note",
+				WorkflowUUID: wUUID,
 			},
 			mock: func(svc *persistence_fake.MockService, task datatypes.Task) *persistence_fake.MockService {
 				svc.EXPECT().
@@ -88,7 +90,7 @@ func TestCreateTask(t *testing.T) {
 			},
 			want: datatypes.Task{
 				ID:     2,
-				TaskID: taskID,
+				UUID:   taskUUID,
 				Name:   "PT2",
 				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
@@ -99,8 +101,8 @@ func TestCreateTask(t *testing.T) {
 					Time:  time.Date(2024, 3, 27, 11, 32, 43, 0, time.UTC),
 					Valid: true,
 				},
-				Note:       "PT2 Note",
-				WorkflowID: 12,
+				Note:         "PT2 Note",
+				WorkflowUUID: wUUID,
 			},
 		},
 		{

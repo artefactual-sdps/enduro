@@ -16,6 +16,7 @@ import (
 func TestCreateWorkflow(t *testing.T) {
 	t.Parallel()
 
+	workflowUUID := uuid.New()
 	temporalID := "processing-workflow-720db1d4-825c-4911-9a20-61c212cf23ff"
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
@@ -29,6 +30,7 @@ func TestCreateWorkflow(t *testing.T) {
 		{
 			name: "Saves a new workflow to the database",
 			args: &datatypes.Workflow{
+				UUID:        workflowUUID,
 				TemporalID:  temporalID,
 				Type:        enums.WorkflowTypeCreateAip,
 				Status:      enums.WorkflowStatusDone,
@@ -38,6 +40,7 @@ func TestCreateWorkflow(t *testing.T) {
 			},
 			want: &datatypes.Workflow{
 				ID:          1,
+				UUID:        workflowUUID,
 				TemporalID:  temporalID,
 				Type:        enums.WorkflowTypeCreateAip,
 				Status:      enums.WorkflowStatusDone,
@@ -47,8 +50,17 @@ func TestCreateWorkflow(t *testing.T) {
 			},
 		},
 		{
+			name: "Required field error for missing UUID",
+			args: &datatypes.Workflow{
+				Type:   enums.WorkflowTypeCreateAip,
+				Status: enums.WorkflowStatusDone,
+			},
+			wantErr: "invalid data error: field \"UUID\" is required",
+		},
+		{
 			name: "Required field error for missing TemporalID",
 			args: &datatypes.Workflow{
+				UUID:   workflowUUID,
 				Type:   enums.WorkflowTypeCreateAip,
 				Status: enums.WorkflowStatusDone,
 			},
@@ -57,6 +69,7 @@ func TestCreateWorkflow(t *testing.T) {
 		{
 			name: "Required field error for missing SIPUUID",
 			args: &datatypes.Workflow{
+				UUID:       workflowUUID,
 				TemporalID: temporalID,
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,
@@ -66,6 +79,7 @@ func TestCreateWorkflow(t *testing.T) {
 		{
 			name: "Invalid Type field error",
 			args: &datatypes.Workflow{
+				UUID:       workflowUUID,
 				SIPUUID:    sipUUID,
 				TemporalID: temporalID,
 				Type:       "invalid",
@@ -75,6 +89,7 @@ func TestCreateWorkflow(t *testing.T) {
 		{
 			name: "Not found SIP error",
 			args: &datatypes.Workflow{
+				UUID:       workflowUUID,
 				TemporalID: temporalID,
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,

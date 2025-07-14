@@ -32,13 +32,8 @@ func workflowToGoa(w *datatypes.Workflow) *goaingest.SIPWorkflow {
 		startedAt = w.StartedAt.Time.Format(time.RFC3339)
 	}
 
-	var id uint
-	if w.ID > 0 {
-		id = uint(w.ID) // #nosec G115 -- range validated.
-	}
-
 	return &goaingest.SIPWorkflow{
-		ID:          id,
+		UUID:        w.UUID,
 		TemporalID:  w.TemporalID,
 		Type:        w.Type.String(),
 		Status:      w.Status.String(),
@@ -50,19 +45,8 @@ func workflowToGoa(w *datatypes.Workflow) *goaingest.SIPWorkflow {
 
 // taskToGoa returns the API representation of a task.
 func taskToGoa(task *datatypes.Task) *goaingest.SIPTask {
-	var id uint
-	if task.ID > 0 {
-		id = uint(task.ID) // #nosec G115 -- range validated.
-	}
-
-	var wID uint
-	if task.WorkflowID > 0 {
-		wID = uint(task.WorkflowID) // #nosec G115 -- range validated.
-	}
-
 	return &goaingest.SIPTask{
-		ID:     id,
-		TaskID: task.TaskID,
+		UUID:   task.UUID,
 		Name:   task.Name,
 		Status: task.Status.String(),
 
@@ -70,9 +54,9 @@ func taskToGoa(task *datatypes.Task) *goaingest.SIPTask {
 		// convert a null time to an empty (zero value) string.
 		StartedAt: ref.DerefZero(db.FormatOptionalTime(task.CompletedAt)),
 
-		CompletedAt: db.FormatOptionalTime(task.CompletedAt),
-		Note:        &task.Note,
-		WorkflowID:  ref.New(wID),
+		CompletedAt:  db.FormatOptionalTime(task.CompletedAt),
+		Note:         &task.Note,
+		WorkflowUUID: task.WorkflowUUID,
 	}
 }
 

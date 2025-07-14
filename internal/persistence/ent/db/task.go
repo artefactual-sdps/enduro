@@ -19,8 +19,8 @@ type Task struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// TaskID holds the value of the "task_id" field.
-	TaskID uuid.UUID `json:"task_id,omitempty"`
+	// UUID holds the value of the "uuid" field.
+	UUID uuid.UUID `json:"uuid,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
 	// Status holds the value of the "status" field.
@@ -70,7 +70,7 @@ func (*Task) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullString)
 		case task.FieldStartedAt, task.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
-		case task.FieldTaskID:
+		case task.FieldUUID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -93,11 +93,11 @@ func (t *Task) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			t.ID = int(value.Int64)
-		case task.FieldTaskID:
+		case task.FieldUUID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field task_id", values[i])
+				return fmt.Errorf("unexpected type %T for field uuid", values[i])
 			} else if value != nil {
-				t.TaskID = *value
+				t.UUID = *value
 			}
 		case task.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -176,8 +176,8 @@ func (t *Task) String() string {
 	var builder strings.Builder
 	builder.WriteString("Task(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", t.ID))
-	builder.WriteString("task_id=")
-	builder.WriteString(fmt.Sprintf("%v", t.TaskID))
+	builder.WriteString("uuid=")
+	builder.WriteString(fmt.Sprintf("%v", t.UUID))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(t.Name)

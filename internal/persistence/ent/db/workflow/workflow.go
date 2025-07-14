@@ -15,6 +15,8 @@ const (
 	Label = "workflow"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
+	// FieldUUID holds the string denoting the uuid field in the database.
+	FieldUUID = "uuid"
 	// FieldTemporalID holds the string denoting the temporal_id field in the database.
 	FieldTemporalID = "temporal_id"
 	// FieldType holds the string denoting the type field in the database.
@@ -52,6 +54,7 @@ const (
 // Columns holds all SQL columns for workflow fields.
 var Columns = []string{
 	FieldID,
+	FieldUUID,
 	FieldTemporalID,
 	FieldType,
 	FieldStatus,
@@ -91,6 +94,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByUUID orders the results by the uuid field.
+func ByUUID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldUUID, opts...).ToFunc()
 }
 
 // ByTemporalID orders the results by the temporal_id field.

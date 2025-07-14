@@ -75,7 +75,7 @@ var (
 	// TaskColumns holds the columns for the "task" table.
 	TaskColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "task_id", Type: field.TypeUUID},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "status", Type: field.TypeInt8},
 		{Name: "started_at", Type: field.TypeTime, Nullable: true},
@@ -134,6 +134,7 @@ var (
 	// WorkflowColumns holds the columns for the "workflow" table.
 	WorkflowColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "temporal_id", Type: field.TypeString, Size: 255},
 		{Name: "type", Type: field.TypeEnum, Enums: []string{"create aip", "create and review aip"}},
 		{Name: "status", Type: field.TypeInt8},
@@ -149,7 +150,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "workflow_sip_workflows",
-				Columns:    []*schema.Column{WorkflowColumns[6]},
+				Columns:    []*schema.Column{WorkflowColumns[7]},
 				RefColumns: []*schema.Column{SipColumns[0]},
 				OnDelete:   schema.Cascade,
 			},

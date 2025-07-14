@@ -490,7 +490,8 @@ type SIPWorkflowResponseBodyCollection []*SIPWorkflowResponseBody
 
 // SIPWorkflowResponseBody is used to define fields on response body types.
 type SIPWorkflowResponseBody struct {
-	ID          uint                          `form:"id" json:"id" xml:"id"`
+	// Identifier of the workflow
+	UUID        uuid.UUID                     `form:"uuid" json:"uuid" xml:"uuid"`
 	TemporalID  string                        `form:"temporal_id" json:"temporal_id" xml:"temporal_id"`
 	Type        string                        `form:"type" json:"type" xml:"type"`
 	Status      string                        `form:"status" json:"status" xml:"status"`
@@ -507,14 +508,15 @@ type SIPTaskResponseBodyCollection []*SIPTaskResponseBody
 
 // SIPTaskResponseBody is used to define fields on response body types.
 type SIPTaskResponseBody struct {
-	ID          uint    `form:"id" json:"id" xml:"id"`
-	TaskID      string  `form:"task_id" json:"task_id" xml:"task_id"`
-	Name        string  `form:"name" json:"name" xml:"name"`
-	Status      string  `form:"status" json:"status" xml:"status"`
-	StartedAt   string  `form:"started_at" json:"started_at" xml:"started_at"`
-	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
-	Note        *string `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
-	WorkflowID  *uint   `form:"workflow_id,omitempty" json:"workflow_id,omitempty" xml:"workflow_id,omitempty"`
+	// Identifier of the task
+	UUID        uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	Name        string    `form:"name" json:"name" xml:"name"`
+	Status      string    `form:"status" json:"status" xml:"status"`
+	StartedAt   string    `form:"started_at" json:"started_at" xml:"started_at"`
+	CompletedAt *string   `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	Note        *string   `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
+	// Identifier of related workflow
+	WorkflowUUID uuid.UUID `form:"workflow_uuid" json:"workflow_uuid" xml:"workflow_uuid"`
 }
 
 // UserResponseBodyCollection is used to define fields on response body types.

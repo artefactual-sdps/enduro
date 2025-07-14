@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
 	temporal_tools "go.artefactual.dev/tools/temporal"
@@ -17,8 +18,8 @@ import (
 const PollTransferActivityName = "poll-transfer-activity"
 
 type PollTransferActivityParams struct {
-	WorkflowID int
-	TransferID string
+	WorkflowUUID uuid.UUID
+	TransferID   string
 }
 
 type PollTransferActivity struct {
@@ -69,11 +70,11 @@ func (a *PollTransferActivity) Execute(
 
 	logger := temporal_tools.GetLogger(ctx)
 	logger.V(1).Info("Executing PollTransferActivity",
-		"WorkflowID", params.WorkflowID,
+		"WorkflowUUID", params.WorkflowUUID,
 		"TransferID", params.TransferID,
 	)
 
-	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.WorkflowID)
+	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.WorkflowUUID)
 	ticker := time.NewTicker(a.cfg.PollInterval)
 	defer ticker.Stop()
 

@@ -22,8 +22,8 @@ type SavePreprocessingTasksActivityParams struct {
 	// RNG is a random number generator source.
 	RNG io.Reader
 
-	// WorkflowID is the primary key of the parent Workflow.
-	WorkflowID int
+	// WorkflowUUID is the UUID of the parent Workflow.
+	WorkflowUUID uuid.UUID
 
 	// Tasks is a list of preprocessing tasks to save as Tasks.
 	Tasks []preprocessing.Task
@@ -41,13 +41,9 @@ func SavePreprocessingTasksActivity(
 	var res SavePreprocessingTasksActivityResult
 	for _, t := range params.Tasks {
 		task := preprocTaskToTask(t)
-		task.WorkflowID = params.WorkflowID
-
-		u, err := uuid.NewRandomFromReader(params.RNG)
-		if err != nil {
-			return &res, fmt.Errorf("SavePreprocessingTasksActivity: generate UUID: %v", err)
-		}
-		task.TaskID = u.String()
+		task.WorkflowUUID = params.WorkflowUUID
+		// TODO: Create deterministic UUIDs and make activities idempotent.
+		task.UUID = uuid.Must(uuid.NewRandomFromReader(params.RNG))
 
 		if err := params.Ingestsvc.CreateTask(ctx, &task); err != nil {
 			return &res, fmt.Errorf("SavePreprocessingTasksActivity: %v", err)

@@ -67,44 +67,44 @@ var SIPStatusUpdatedEvent = Type("SIPStatusUpdatedEvent", func() {
 })
 
 var SIPWorkflowCreatedEvent = Type("SIPWorkflowCreatedEvent", func() {
-	Attribute("id", UInt, "Identifier of workflow")
+	TypedAttributeUUID("uuid", "Identifier of workflow")
 	Attribute("item", SIPWorkflow, func() {
 		View("simple")
 	})
-	Required("id", "item")
+	Required("uuid", "item")
 
 	Meta("type:generate:force")
 	Meta("openapi:typename", "SIPWorkflowCreatedEvent")
 })
 
 var SIPWorkflowUpdatedEvent = Type("SIPWorkflowUpdatedEvent", func() {
-	Attribute("id", UInt, "Identifier of workflow")
+	TypedAttributeUUID("uuid", "Identifier of workflow")
 	Attribute("item", SIPWorkflow, func() {
 		View("simple")
 	})
-	Required("id", "item")
+	Required("uuid", "item")
 
 	Meta("type:generate:force")
 	Meta("openapi:typename", "SIPWorkflowUpdatedEvent")
 })
 
 var SIPTaskCreatedEvent = Type("SIPTaskCreatedEvent", func() {
-	Attribute("id", UInt, "Identifier of task")
+	TypedAttributeUUID("uuid", "Identifier of task")
 	Attribute("item", SIPTask, func() {
 		View("default")
 	})
-	Required("id", "item")
+	Required("uuid", "item")
 
 	Meta("type:generate:force")
 	Meta("openapi:typename", "SIPTaskCreatedEvent")
 })
 
 var SIPTaskUpdatedEvent = Type("SIPTaskUpdatedEvent", func() {
-	Attribute("id", UInt, "Identifier of task")
+	TypedAttributeUUID("uuid", "Identifier of task")
 	Attribute("item", SIPTask, func() {
 		View("default")
 	})
-	Required("id", "item")
+	Required("uuid", "item")
 
 	Meta("type:generate:force")
 	Meta("openapi:typename", "SIPTaskUpdatedEvent")
