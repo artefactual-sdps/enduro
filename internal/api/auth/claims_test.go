@@ -38,6 +38,26 @@ func TestUserClaimsFromContext(t *testing.T) {
 	})
 }
 
+func TestMarshalBinary(t *testing.T) {
+	t.Parallel()
+
+	claims := &auth.Claims{
+		Email:         "user@example.com",
+		EmailVerified: true,
+		Name:          "Test User",
+		Iss:           "issuer",
+		Sub:           "subject",
+	}
+
+	data, err := claims.MarshalBinary()
+	assert.NilError(t, err)
+
+	var decoded auth.Claims
+	err = decoded.UnmarshalBinary(data)
+	assert.NilError(t, err)
+	assert.DeepEqual(t, decoded, *claims)
+}
+
 func TestCheckAttributes(t *testing.T) {
 	t.Parallel()
 

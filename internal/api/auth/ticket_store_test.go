@@ -39,7 +39,7 @@ func TestRedisStore(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		err = s.GetDel(ctx, storeKey)
+		err = s.GetDel(ctx, storeKey, nil)
 		assert.Error(t, err, "dial tcp 127.0.0.1:12345: connect: connection refused")
 	})
 
@@ -56,13 +56,14 @@ func TestRedisStore(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		err = store.SetEx(ctx, storeKey, time.Second)
+		value := "value"
+		err = store.SetEx(ctx, storeKey, value, time.Second)
 		assert.NilError(t, err)
 
 		// It should find the item.
 		cmd := redisClient.Get(ctx, "prefix:ticket:"+storeKey)
 		assert.NilError(t, cmd.Err())
-		assert.Equal(t, cmd.Val(), "")
+		assert.Equal(t, cmd.Val(), value)
 
 		// It should error as keys can only be used once.
 		redisServer.FastForward(time.Minute)
@@ -83,13 +84,14 @@ func TestRedisStore(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		err = store.SetEx(ctx, storeKey, time.Second)
+		value := "value"
+		err = store.SetEx(ctx, storeKey, value, time.Second)
 		assert.NilError(t, err)
 
 		// It should find the item.
 		cmd := redisClient.Get(ctx, "prefix:ticket:"+storeKey)
 		assert.NilError(t, cmd.Err())
-		assert.Equal(t, cmd.Val(), "")
+		assert.Equal(t, cmd.Val(), value)
 	})
 
 	t.Run("Checks the ticket", func(t *testing.T) {
@@ -99,7 +101,8 @@ func TestRedisStore(t *testing.T) {
 		redisServer := miniredis.RunT(t)
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
-		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, "", time.Minute).Err()
+		value := "value"
+		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, value, time.Minute).Err()
 		assert.NilError(t, err)
 
 		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
@@ -108,11 +111,13 @@ func TestRedisStore(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		// It returns nil error as the key is not expired.
-		assert.NilError(t, store.GetDel(ctx, storeKey))
+		// It scans the value and returns nil error as the key is not expired.
+		var scannedValue string
+		assert.NilError(t, store.GetDel(ctx, storeKey, &scannedValue))
+		assert.Equal(t, scannedValue, value)
 
 		// It returns an error as the key was removed in the previous operation.
-		assert.ErrorIs(t, store.GetDel(ctx, storeKey), auth.ErrKeyNotFound)
+		assert.ErrorIs(t, store.GetDel(ctx, storeKey, nil), auth.ErrKeyNotFound)
 	})
 
 	t.Run("Fails checking an expired ticket", func(t *testing.T) {
@@ -122,7 +127,7 @@ func TestRedisStore(t *testing.T) {
 		redisServer := miniredis.RunT(t)
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
-		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, "", time.Second*5).Err()
+		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, nil, time.Second*5).Err()
 		assert.NilError(t, err)
 
 		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
@@ -133,7 +138,26 @@ func TestRedisStore(t *testing.T) {
 
 		redisServer.FastForward(time.Minute)
 
-		assert.ErrorIs(t, store.GetDel(ctx, storeKey), auth.ErrKeyNotFound)
+		assert.ErrorIs(t, store.GetDel(ctx, storeKey, nil), auth.ErrKeyNotFound)
+	})
+
+	t.Run("Doesn't scan a nil value", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		redisServer := miniredis.RunT(t)
+		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
+
+		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, nil, time.Second*5).Err()
+		assert.NilError(t, err)
+
+		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
+			Address: "redis://" + redisServer.Addr(),
+			Prefix:  "prefix",
+		})
+		assert.NilError(t, err)
+
+		assert.NilError(t, store.GetDel(ctx, storeKey, nil))
 	})
 
 	t.Run("Closes the client", func(t *testing.T) {
@@ -149,7 +173,7 @@ func TestRedisStore(t *testing.T) {
 		assert.NilError(t, err)
 
 		store.Close() // Close the client.
-		assert.Error(t, store.SetEx(ctx, "key", time.Second), "redis: client is closed")
+		assert.Error(t, store.SetEx(ctx, "key", nil, time.Second), "redis: client is closed")
 	})
 }
 
@@ -164,14 +188,17 @@ func TestInMemStore(t *testing.T) {
 		defer store.Close()
 
 		// It stores the ticket.
-		err := store.SetEx(ctx, "ticket", time.Second)
+		value := "value"
+		err := store.SetEx(ctx, "ticket", value, time.Second)
 		assert.NilError(t, err)
 
-		// It returns non-nil indicating that the ticket was found
-		assert.NilError(t, store.GetDel(ctx, "ticket"))
+		// It scans the value and returns non-nil indicating that the ticket was found.
+		var scannedValue string
+		assert.NilError(t, store.GetDel(ctx, "ticket", &scannedValue))
+		assert.Equal(t, scannedValue, value)
 
 		// It returns error, confirming that the element was removed.
-		assert.Error(t, store.GetDel(ctx, "ticket"), "key not found")
+		assert.Error(t, store.GetDel(ctx, "ticket", nil), "key not found")
 	})
 
 	t.Run("Fails checking an expired ticket", func(t *testing.T) {
@@ -181,11 +208,11 @@ func TestInMemStore(t *testing.T) {
 		store := auth.NewInMemStore()
 		defer store.Close()
 
-		err := store.SetEx(ctx, "ticket", time.Nanosecond)
+		err := store.SetEx(ctx, "ticket", nil, time.Nanosecond)
 		assert.NilError(t, err)
 
 		// ttl was one billionth of a second, should be expired already.
-		assert.Error(t, store.GetDel(ctx, "ticket"), "key not found")
+		assert.Error(t, store.GetDel(ctx, "ticket", nil), "key not found")
 	})
 
 	t.Run("Fails checking an unknown ticket", func(t *testing.T) {
@@ -195,6 +222,67 @@ func TestInMemStore(t *testing.T) {
 		store := auth.NewInMemStore()
 		defer store.Close()
 
-		assert.Error(t, store.GetDel(ctx, "ticket"), "key not found")
+		assert.Error(t, store.GetDel(ctx, "ticket", nil), "key not found")
+	})
+
+	t.Run("Fails if value argument is not a pointer", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		store := auth.NewInMemStore()
+		defer store.Close()
+
+		err := store.SetEx(ctx, "ticket", "value", time.Second)
+		assert.NilError(t, err)
+
+		var notPtr string
+		err = store.GetDel(ctx, "ticket", notPtr)
+		assert.ErrorContains(t, err, "value argument must be a pointer")
+	})
+
+	t.Run("Fails if value types do not match", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		store := auth.NewInMemStore()
+		defer store.Close()
+
+		err := store.SetEx(ctx, "ticket", "value", time.Second)
+		assert.NilError(t, err)
+
+		var wrongType int
+		err = store.GetDel(ctx, "ticket", &wrongType)
+		assert.ErrorContains(t, err, "type mismatch")
+	})
+
+	t.Run("Works if stored value is a pointer", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		store := auth.NewInMemStore()
+		defer store.Close()
+
+		val := "value"
+		err := store.SetEx(ctx, "ticket", &val, time.Second)
+		assert.NilError(t, err)
+
+		var scannedValue string
+		err = store.GetDel(ctx, "ticket", &scannedValue)
+		assert.NilError(t, err)
+		assert.Equal(t, scannedValue, val)
+	})
+
+	t.Run("Works with a nil value argument", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		store := auth.NewInMemStore()
+		defer store.Close()
+
+		err := store.SetEx(ctx, "ticket", "value", time.Second)
+		assert.NilError(t, err)
+
+		err = store.GetDel(ctx, "ticket", nil)
+		assert.NilError(t, err)
 	})
 }

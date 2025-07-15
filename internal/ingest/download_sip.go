@@ -62,7 +62,7 @@ func (w *goaWrapper) DownloadSipRequest(
 	}
 
 	// Request a ticket.
-	ticket, err := w.ticketProvider.Request(ctx)
+	ticket, err := w.ticketProvider.Request(ctx, nil)
 	if err != nil {
 		return nil, goaingest.MakeInternalError(errors.New("ticket request failed"))
 	}
@@ -82,7 +82,7 @@ func (w *goaWrapper) DownloadSip(
 	payload *goaingest.DownloadSipPayload,
 ) (*goaingest.DownloadSipResult, io.ReadCloser, error) {
 	// Verify the ticket.
-	if err := w.ticketProvider.Check(ctx, payload.Ticket); err != nil {
+	if err := w.ticketProvider.Check(ctx, payload.Ticket, nil); err != nil {
 		return nil, nil, ErrUnauthorized
 	}
 

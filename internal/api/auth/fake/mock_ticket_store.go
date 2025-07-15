@@ -79,17 +79,17 @@ func (c *MockTicketStoreCloseCall) DoAndReturn(f func() error) *MockTicketStoreC
 }
 
 // GetDel mocks base method.
-func (m *MockTicketStore) GetDel(arg0 context.Context, arg1 string) error {
+func (m *MockTicketStore) GetDel(arg0 context.Context, arg1 string, arg2 any) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDel", arg0, arg1)
+	ret := m.ctrl.Call(m, "GetDel", arg0, arg1, arg2)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // GetDel indicates an expected call of GetDel.
-func (mr *MockTicketStoreMockRecorder) GetDel(arg0, arg1 any) *MockTicketStoreGetDelCall {
+func (mr *MockTicketStoreMockRecorder) GetDel(arg0, arg1, arg2 any) *MockTicketStoreGetDelCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDel", reflect.TypeOf((*MockTicketStore)(nil).GetDel), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDel", reflect.TypeOf((*MockTicketStore)(nil).GetDel), arg0, arg1, arg2)
 	return &MockTicketStoreGetDelCall{Call: call}
 }
 
@@ -105,29 +105,29 @@ func (c *MockTicketStoreGetDelCall) Return(arg0 error) *MockTicketStoreGetDelCal
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTicketStoreGetDelCall) Do(f func(context.Context, string) error) *MockTicketStoreGetDelCall {
+func (c *MockTicketStoreGetDelCall) Do(f func(context.Context, string, any) error) *MockTicketStoreGetDelCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTicketStoreGetDelCall) DoAndReturn(f func(context.Context, string) error) *MockTicketStoreGetDelCall {
+func (c *MockTicketStoreGetDelCall) DoAndReturn(f func(context.Context, string, any) error) *MockTicketStoreGetDelCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
 
 // SetEx mocks base method.
-func (m *MockTicketStore) SetEx(arg0 context.Context, arg1 string, arg2 time.Duration) error {
+func (m *MockTicketStore) SetEx(arg0 context.Context, arg1 string, arg2 any, arg3 time.Duration) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetEx", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SetEx", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetEx indicates an expected call of SetEx.
-func (mr *MockTicketStoreMockRecorder) SetEx(arg0, arg1, arg2 any) *MockTicketStoreSetExCall {
+func (mr *MockTicketStoreMockRecorder) SetEx(arg0, arg1, arg2, arg3 any) *MockTicketStoreSetExCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEx", reflect.TypeOf((*MockTicketStore)(nil).SetEx), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEx", reflect.TypeOf((*MockTicketStore)(nil).SetEx), arg0, arg1, arg2, arg3)
 	return &MockTicketStoreSetExCall{Call: call}
 }
 
@@ -143,13 +143,13 @@ func (c *MockTicketStoreSetExCall) Return(arg0 error) *MockTicketStoreSetExCall 
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTicketStoreSetExCall) Do(f func(context.Context, string, time.Duration) error) *MockTicketStoreSetExCall {
+func (c *MockTicketStoreSetExCall) Do(f func(context.Context, string, any, time.Duration) error) *MockTicketStoreSetExCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTicketStoreSetExCall) DoAndReturn(f func(context.Context, string, time.Duration) error) *MockTicketStoreSetExCall {
+func (c *MockTicketStoreSetExCall) DoAndReturn(f func(context.Context, string, any, time.Duration) error) *MockTicketStoreSetExCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

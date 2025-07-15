@@ -41,8 +41,8 @@ func NewTicketProvider(ctx context.Context, store TicketStore, rander io.Reader)
 	}
 }
 
-// Request a new ticket.
-func (t *TicketProvider) Request(ctx context.Context) (string, error) {
+// Request a new ticket saving the key/value pair in the store.
+func (t *TicketProvider) Request(ctx context.Context, value any) (string, error) {
 	if t.store == nil {
 		return "", nil
 	}
@@ -52,7 +52,7 @@ func (t *TicketProvider) Request(ctx context.Context) (string, error) {
 		return "", fmt.Errorf("error creating ticket: %v", err)
 	}
 
-	err = t.store.SetEx(ctx, ticket, t.ttl)
+	err = t.store.SetEx(ctx, ticket, value, t.ttl)
 	if err != nil {
 		return "", fmt.Errorf("error storing ticket: %v", err)
 	}
@@ -60,9 +60,9 @@ func (t *TicketProvider) Request(ctx context.Context) (string, error) {
 	return ticket, nil
 }
 
-// Check that a ticket is known to the provider, not including tickets that
-// exceeded the time-to-live attribute.
-func (t *TicketProvider) Check(ctx context.Context, ticket *string) error {
+// Check that a ticket is known to the provider and scan its value,
+// not including tickets that exceeded the time-to-live attribute.
+func (t *TicketProvider) Check(ctx context.Context, ticket *string, value any) error {
 	if t.store == nil {
 		return nil
 	}
@@ -71,7 +71,7 @@ func (t *TicketProvider) Check(ctx context.Context, ticket *string) error {
 		return fmt.Errorf("missing ticket to retrieve")
 	}
 
-	err := t.store.GetDel(ctx, *ticket)
+	err := t.store.GetDel(ctx, *ticket, value)
 	if err != nil {
 		return fmt.Errorf("error retrieving ticket: %v", err)
 	}

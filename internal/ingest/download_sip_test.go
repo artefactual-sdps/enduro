@@ -119,7 +119,7 @@ func TestDownloadSipRequest(t *testing.T) {
 						nil,
 					)
 				ts.EXPECT().
-					SetEx(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", time.Second*5).
+					SetEx(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", nil, time.Second*5).
 					Return(errors.New("ticket error"))
 			},
 			wantErr: "ticket request failed",
@@ -134,7 +134,7 @@ func TestDownloadSipRequest(t *testing.T) {
 						&datatypes.SIP{UUID: sipUUID, FailedAs: enums.SIPFailedAsSIP, FailedKey: key},
 						nil,
 					)
-				ts.EXPECT().SetEx(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", time.Second*5).Return(nil)
+				ts.EXPECT().SetEx(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", nil, time.Second*5).Return(nil)
 			},
 			wantRes: &goaingest.DownloadSipRequestResult{
 				Ticket: ref.New("Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"),
@@ -189,7 +189,7 @@ func TestDownloadSip(t *testing.T) {
 			name:    "Fails to download a SIP (invalid ticket)",
 			payload: &goaingest.DownloadSipPayload{Ticket: ref.New("invalid-ticket")},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
-				ts.EXPECT().GetDel(ctx, "invalid-ticket").Return(auth.ErrKeyNotFound)
+				ts.EXPECT().GetDel(ctx, "invalid-ticket", nil).Return(auth.ErrKeyNotFound)
 			},
 			wantErr: "Unauthorized",
 		},
@@ -200,7 +200,7 @@ func TestDownloadSip(t *testing.T) {
 				UUID:   "invalid-uuid",
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket").Return(nil)
+				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
 			},
 			wantErr: "invalid UUID",
 		},
@@ -211,7 +211,7 @@ func TestDownloadSip(t *testing.T) {
 				UUID:   sipUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket").Return(nil)
+				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
 				psvc.EXPECT().ReadSIP(ctx, sipUUID).Return(nil, persistence.ErrNotFound)
 			},
 			wantErr: "SIP not found.",
@@ -223,7 +223,7 @@ func TestDownloadSip(t *testing.T) {
 				UUID:   sipUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket").Return(nil)
+				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
 				psvc.EXPECT().ReadSIP(ctx, sipUUID).Return(nil, persistence.ErrInternal)
 			},
 			wantErr: "error reading SIP",
@@ -235,7 +235,7 @@ func TestDownloadSip(t *testing.T) {
 				UUID:   sipUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket").Return(nil)
+				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
 				psvc.EXPECT().ReadSIP(ctx, sipUUID).Return(&datatypes.SIP{UUID: sipUUID}, nil)
 			},
 			wantErr: "SIP has no failed values",
@@ -247,7 +247,7 @@ func TestDownloadSip(t *testing.T) {
 				UUID:   sipUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket").Return(nil)
+				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
 				psvc.EXPECT().
 					ReadSIP(ctx, sipUUID).
 					Return(
@@ -264,7 +264,7 @@ func TestDownloadSip(t *testing.T) {
 				UUID:   sipUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket").Return(nil)
+				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
 				psvc.EXPECT().
 					ReadSIP(ctx, sipUUID).
 					Return(

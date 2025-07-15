@@ -59,7 +59,7 @@ func (w *goaWrapper) MonitorRequest(
 ) (*goaingest.MonitorRequestResult, error) {
 	res := &goaingest.MonitorRequestResult{}
 
-	ticket, err := w.ticketProvider.Request(ctx)
+	ticket, err := w.ticketProvider.Request(ctx, auth.UserClaimsFromContext(ctx))
 	if err != nil {
 		w.logger.Error(err, "failed to request ticket")
 		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
@@ -82,8 +82,9 @@ func (w *goaWrapper) Monitor(
 ) error {
 	defer stream.Close()
 
-	// Verify the ticket.
-	if err := w.ticketProvider.Check(ctx, payload.Ticket); err != nil {
+	// Verify the ticket and update the claims.
+	var claims auth.Claims
+	if err := w.ticketProvider.Check(ctx, payload.Ticket, &claims); err != nil {
 		w.logger.V(1).Info("failed to check ticket", "err", err)
 		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}

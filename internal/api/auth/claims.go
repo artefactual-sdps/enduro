@@ -2,17 +2,32 @@ package auth
 
 import (
 	"context"
+	"encoding/json"
 	"slices"
 	"strings"
 )
 
 type Claims struct {
-	Email         string   `json:"email,omitempty"`
-	EmailVerified bool     `json:"email_verified,omitempty"`
-	Name          string   `json:"name,omitempty"`
-	Iss           string   `json:"iss,omitempty"`
-	Sub           string   `json:"sub,omitempty"`
-	Attributes    []string `json:"-"`
+	Email         string `json:"email,omitempty"`
+	EmailVerified bool   `json:"email_verified,omitempty"`
+	Name          string `json:"name,omitempty"`
+	Iss           string `json:"iss,omitempty"`
+	Sub           string `json:"sub,omitempty"`
+	// The attributes are parsed from a configured claim and added here,
+	// they are needed in the JSON representation for the MarshalBinary and
+	// UnmarshalBinary methods below. We use the `enduro_internal_attributes`
+	// JSON key to reduce the possibility of a conflict when the JWT is parsed.
+	Attributes []string `json:"enduro_internal_attributes,omitempty"`
+}
+
+// MarshalBinary implements encoding.BinaryMarshaler for Redis compatibility.
+func (c *Claims) MarshalBinary() ([]byte, error) {
+	return json.Marshal(c)
+}
+
+// UnmarshalBinary implements encoding.BinaryUnmarshaler for Redis compatibility.
+func (c *Claims) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, c)
 }
 
 // CheckAttributes verifies all required attributes are present in the claim
