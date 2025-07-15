@@ -65,7 +65,7 @@ type serviceImpl struct {
 	tokenVerifier auth.TokenVerifier
 
 	// Ticket provider.
-	ticketProvider *auth.TicketProvider
+	ticketProvider auth.TicketProvider
 
 	// Random number generator
 	rander io.Reader
@@ -84,7 +84,7 @@ func NewService(
 	storagePersistence persistence.Storage,
 	tc temporalsdk_client.Client,
 	tokenVerifier auth.TokenVerifier,
-	ticketProvider *auth.TicketProvider,
+	ticketProvider auth.TicketProvider,
 	rander io.Reader,
 ) (s *serviceImpl, err error) {
 	s = &serviceImpl{

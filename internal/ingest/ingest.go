@@ -65,7 +65,7 @@ type ingestImpl struct {
 	evsvc           event.EventService
 	perSvc          persistence.Service
 	tokenVerifier   auth.TokenVerifier
-	ticketProvider  *auth.TicketProvider
+	ticketProvider  auth.TicketProvider
 	taskQueue       string
 	internalStorage *blob.Bucket
 	uploadMaxSize   int64
@@ -81,7 +81,7 @@ func NewService(
 	evsvc event.EventService,
 	psvc persistence.Service,
 	tokenVerifier auth.TokenVerifier,
-	ticketProvider *auth.TicketProvider,
+	ticketProvider auth.TicketProvider,
 	taskQueue string,
 	internalBucket *blob.Bucket,
 	uploadMaxSize int64,

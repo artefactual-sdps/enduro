@@ -38,7 +38,7 @@ func testSvc(t *testing.T, b *blob.Bucket, s int64) (
 		event.NopEventService(),
 		psvc,
 		&auth.NoopTokenVerifier{},
-		&auth.TicketProvider{},
+		auth.NewTicketProvider(t.Context(), nil, nil),
 		"test",
 		b,
 		s,

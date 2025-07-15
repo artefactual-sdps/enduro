@@ -11,8 +11,20 @@ import (
 
 const TicketTTL = time.Second * 5
 
-// TicketProvider issues WebSocket authentication tickets.
-type TicketProvider struct {
+// TicketProvider issues tickets used for authentication cookies.
+type TicketProvider interface {
+	// Request requests a new ticket saving the key/value pair in the store.
+	Request(ctx context.Context, value any) (string, error)
+	// Check checks that a ticket is known to the provider and scan its value,
+	// not including tickets that exceeded the time-to-live attribute.
+	Check(ctx context.Context, ticket *string, value any) error
+	// Close closes the provider, releasing resources associated to the store.
+	Close() error
+}
+
+var _ TicketProvider = (*ticketProviderImpl)(nil)
+
+type ticketProviderImpl struct {
 	// Internal store used to persist tickets. When nil, the provider is no-op.
 	store TicketStore
 
@@ -25,24 +37,23 @@ type TicketProvider struct {
 
 // NewTicketProvider creates a new TicketProvider. The provider is no-op when
 // the store is nil.
-func NewTicketProvider(ctx context.Context, store TicketStore, rander io.Reader) *TicketProvider {
+func NewTicketProvider(ctx context.Context, store TicketStore, rander io.Reader) TicketProvider {
 	if store == nil {
-		return &TicketProvider{}
+		return &ticketProviderImpl{}
 	}
 
 	if rander == nil {
 		rander = rand.Reader
 	}
 
-	return &TicketProvider{
+	return &ticketProviderImpl{
 		store:  store,
 		ttl:    TicketTTL,
 		rander: rander,
 	}
 }
 
-// Request a new ticket saving the key/value pair in the store.
-func (t *TicketProvider) Request(ctx context.Context, value any) (string, error) {
+func (t *ticketProviderImpl) Request(ctx context.Context, value any) (string, error) {
 	if t.store == nil {
 		return "", nil
 	}
@@ -60,9 +71,7 @@ func (t *TicketProvider) Request(ctx context.Context, value any) (string, error)
 	return ticket, nil
 }
 
-// Check that a ticket is known to the provider and scan its value,
-// not including tickets that exceeded the time-to-live attribute.
-func (t *TicketProvider) Check(ctx context.Context, ticket *string, value any) error {
+func (t *ticketProviderImpl) Check(ctx context.Context, ticket *string, value any) error {
 	if t.store == nil {
 		return nil
 	}
@@ -79,7 +88,7 @@ func (t *TicketProvider) Check(ctx context.Context, ticket *string, value any) e
 	return nil
 }
 
-func (t TicketProvider) ticket() (string, error) {
+func (t ticketProviderImpl) ticket() (string, error) {
 	b := make([]byte, 32)
 	_, err := t.rander.Read(b)
 	if err != nil {
@@ -89,8 +98,7 @@ func (t TicketProvider) ticket() (string, error) {
 	return base64.RawURLEncoding.EncodeToString(b), nil
 }
 
-// Close closes the provider, releasing resources associated to the store.
-func (t *TicketProvider) Close() error {
+func (t *ticketProviderImpl) Close() error {
 	if t.store == nil {
 		return nil
 	}

@@ -51,7 +51,7 @@ type setUpAttrs struct {
 	persistenceMock    *fake.MockStorage
 	temporalClientMock *temporalsdk_mocks.Client
 	tokenVerifier      auth.TokenVerifier
-	ticketProvider     *auth.TicketProvider
+	ticketProvider     auth.TicketProvider
 }
 
 func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {

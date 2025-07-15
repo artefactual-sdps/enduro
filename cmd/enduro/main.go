@@ -172,7 +172,7 @@ func main() {
 	}
 
 	// Set up the WebSocket/downloads ticket provider.
-	var ticketProvider *auth.TicketProvider
+	var ticketProvider auth.TicketProvider
 	{
 		var store auth.TicketStore
 		if cfg.API.Auth.Enabled {
