@@ -28,6 +28,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Scan code
-        uses: securego/gosec@4a8cb4609fccc267e012189996cad9b08f2f2af8 # master
+        uses: securego/gosec@59ae7e9e275d7dce03bb9c37432b7b3575dbe5fc # master
         with:
           args: ./...
