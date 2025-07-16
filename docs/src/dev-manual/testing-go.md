@@ -1,4 +1,4 @@
-# Testing
+# Testing the Go code
 
 ## `go test`
 

@@ -47,6 +47,12 @@ atlas-hash: tool-atlas # @HELP Recalculate the migration hashes.
 		--dir="file://internal/storage/persistence/migrations" \
 		--dir-format="atlas"
 
+auth: HOST ?= http://keycloak:7470/realms/artefactual
+auth: CLIENT ?= enduro
+auth: SCOPES ?= openid,email,profile,enduro
+auth: # @HELP Get an API access token from a Keycloak provider.
+	go run ./hack/auth/main.go $(HOST) $(CLIENT) $(SCOPES)
+
 db: # @HELP Opens the MySQL shell connected to the enduro development database.
 db:
 	mysql -h127.0.0.1 -P3306 -uroot -proot123 enduro

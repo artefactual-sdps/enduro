@@ -99,8 +99,18 @@ if os.environ.get('TRIGGER_MODE_AUTO', '').lower() in true:
   trigger_mode = TRIGGER_MODE_AUTO
 
 # Enduro resources
-k8s_resource("enduro", labels=["Enduro"], port_forwards="9002:9002", trigger_mode=trigger_mode)
-k8s_resource("enduro-dashboard", port_forwards="8080:80", labels=["Enduro"], trigger_mode=trigger_mode)
+k8s_resource(
+  "enduro",
+  labels=["Enduro"],
+  port_forwards=["9000:9000", "9002:9002"],
+  trigger_mode=trigger_mode
+)
+k8s_resource(
+  "enduro-dashboard",
+  labels=["Enduro"],
+  port_forwards="8080:80",
+  trigger_mode=trigger_mode
+)
 
 if PRES_SYS == 'am':
   k8s_resource("enduro-am", labels=["Enduro"], trigger_mode=trigger_mode)
@@ -108,16 +118,16 @@ else:
   k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=trigger_mode)
 
 # Other resources
-k8s_resource("keycloak", port_forwards="7470", labels=["Others"])
-k8s_resource("mysql", port_forwards="3306", labels=["Others"])
+k8s_resource("keycloak", labels=["Others"], port_forwards="7470")
+k8s_resource("mysql", labels=["Others"], port_forwards="3306")
 k8s_resource(
   "minio",
-  port_forwards=["7460:9001", "0.0.0.0:7461:9000"],
-  labels=["Others"]
+  labels=["Others"],
+  port_forwards=["7460:9001", "0.0.0.0:7461:9000"]
 )
 k8s_resource("redis", labels=["Others"])
 k8s_resource("temporal", labels=["Others"])
-k8s_resource("temporal-ui", port_forwards="7440:8080", labels=["Others"])
+k8s_resource("temporal-ui", labels=["Others"], port_forwards="7440:8080")
 
 # Tools
 k8s_resource("minio-setup-buckets", labels=["Tools"])
@@ -126,10 +136,10 @@ if PRES_SYS == 'am':
   k8s_resource("mysql-create-amss-location", labels=["Tools"])
 
 # Observability
-k8s_resource("prometheus-server", port_forwards="7491:9090", labels=["Observability"])
+k8s_resource("prometheus-server", labels=["Observability"], port_forwards="7491:9090")
 k8s_resource("grafana-alloy", labels=["Observability"])
 k8s_resource("grafana-tempo", labels=["Observability"])
-k8s_resource("grafana", port_forwards="7490:3000", labels=["Observability"])
+k8s_resource("grafana", labels=["Observability"], port_forwards="7490:3000")
 
 # Buttons
 cmd_button(
