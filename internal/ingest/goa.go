@@ -149,6 +149,7 @@ func (w *goaWrapper) ListSipWorkflows(
 			if err := ptRows.StructScan(&task); err != nil {
 				return nil, fmt.Errorf("error scanning database result: %w", err)
 			}
+			task.WorkflowUUID = workflow.UUID
 			tasks = append(tasks, taskToGoa(&task))
 		}
 
