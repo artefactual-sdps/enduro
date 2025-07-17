@@ -1591,6 +1591,171 @@ func DecodeListUsersResponse(decoder func(*http.Response) goahttp.Decoder, resto
 	}
 }
 
+// BuildListSipSourceObjectsRequest instantiates a HTTP request object with
+// method and path set to call the "ingest" service "list_sip_source_objects"
+// endpoint
+func (c *Client) BuildListSipSourceObjectsRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*ingest.ListSipSourceObjectsPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("ingest", "list_sip_source_objects", "*ingest.ListSipSourceObjectsPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListSipSourceObjectsIngestPath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "list_sip_source_objects", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeListSipSourceObjectsRequest returns an encoder for requests sent to
+// the ingest list_sip_source_objects server.
+func EncodeListSipSourceObjectsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.ListSipSourceObjectsPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "list_sip_source_objects", "*ingest.ListSipSourceObjectsPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		values := req.URL.Query()
+		if p.Limit != nil {
+			values.Add("limit", fmt.Sprintf("%v", *p.Limit))
+		}
+		if p.Cursor != nil {
+			values.Add("cursor", *p.Cursor)
+		}
+		req.URL.RawQuery = values.Encode()
+		return nil
+	}
+}
+
+// DecodeListSipSourceObjectsResponse returns a decoder for responses returned
+// by the ingest list_sip_source_objects endpoint. restoreBody controls whether
+// the response body should be restored after having been read.
+// DecodeListSipSourceObjectsResponse may return the following errors:
+//   - "not_found" (type *goa.ServiceError): http.StatusNotFound
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeListSipSourceObjectsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ListSipSourceObjectsResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_source_objects", err)
+			}
+			p := NewListSipSourceObjectsSIPSourceObjectsOK(&body)
+			view := "default"
+			vres := &ingestviews.SIPSourceObjects{Projected: p, View: view}
+			if err = ingestviews.ValidateSIPSourceObjects(vres); err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_sip_source_objects", err)
+			}
+			res := ingest.NewSIPSourceObjects(vres)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body ListSipSourceObjectsNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_source_objects", err)
+			}
+			err = ValidateListSipSourceObjectsNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_sip_source_objects", err)
+			}
+			return nil, NewListSipSourceObjectsNotFound(&body)
+		case http.StatusBadRequest:
+			var (
+				body ListSipSourceObjectsNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_source_objects", err)
+			}
+			err = ValidateListSipSourceObjectsNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_sip_source_objects", err)
+			}
+			return nil, NewListSipSourceObjectsNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body ListSipSourceObjectsInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_source_objects", err)
+			}
+			err = ValidateListSipSourceObjectsInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_sip_source_objects", err)
+			}
+			return nil, NewListSipSourceObjectsInternalError(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_source_objects", err)
+			}
+			return nil, NewListSipSourceObjectsForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_source_objects", err)
+			}
+			return nil, NewListSipSourceObjectsUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "list_sip_source_objects", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalSIPResponseBodyToIngestviewsSIPView builds a value of type
 // *ingestviews.SIPView from a value of type *SIPResponseBody.
 func unmarshalSIPResponseBodyToIngestviewsSIPView(v *SIPResponseBody) *ingestviews.SIPView {
@@ -1678,6 +1843,20 @@ func unmarshalUserResponseBodyToIngestviewsUserView(v *UserResponseBody) *ingest
 		Email:     v.Email,
 		Name:      v.Name,
 		CreatedAt: v.CreatedAt,
+	}
+
+	return res
+}
+
+// unmarshalSIPSourceObjectResponseBodyToIngestviewsSIPSourceObjectView builds
+// a value of type *ingestviews.SIPSourceObjectView from a value of type
+// *SIPSourceObjectResponseBody.
+func unmarshalSIPSourceObjectResponseBodyToIngestviewsSIPSourceObjectView(v *SIPSourceObjectResponseBody) *ingestviews.SIPSourceObjectView {
+	res := &ingestviews.SIPSourceObjectView{
+		Key:     v.Key,
+		ModTime: v.ModTime,
+		Size:    v.Size,
+		IsDir:   v.IsDir,
 	}
 
 	return res

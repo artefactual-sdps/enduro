@@ -120,6 +120,7 @@ data:
               "ingest:sips:read",
               "ingest:sips:upload",
               "ingest:sips:workflows:list",
+              "ingest:sipsources:objects:list",
               "ingest:users:list",
               "storage:aips:deletion:request",
               "storage:aips:download",

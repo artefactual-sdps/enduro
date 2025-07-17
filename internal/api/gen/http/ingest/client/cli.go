@@ -394,3 +394,48 @@ func BuildListUsersPayload(ingestListUsersEmail string, ingestListUsersName stri
 
 	return v, nil
 }
+
+// BuildListSipSourceObjectsPayload builds the payload for the ingest
+// list_sip_source_objects endpoint from CLI flags.
+func BuildListSipSourceObjectsPayload(ingestListSipSourceObjectsUUID string, ingestListSipSourceObjectsLimit string, ingestListSipSourceObjectsCursor string, ingestListSipSourceObjectsToken string) (*ingest.ListSipSourceObjectsPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = ingestListSipSourceObjectsUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var limit *int
+	{
+		if ingestListSipSourceObjectsLimit != "" {
+			var v int64
+			v, err = strconv.ParseInt(ingestListSipSourceObjectsLimit, 10, strconv.IntSize)
+			val := int(v)
+			limit = &val
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for limit, must be INT")
+			}
+		}
+	}
+	var cursor *string
+	{
+		if ingestListSipSourceObjectsCursor != "" {
+			cursor = &ingestListSipSourceObjectsCursor
+		}
+	}
+	var token *string
+	{
+		if ingestListSipSourceObjectsToken != "" {
+			token = &ingestListSipSourceObjectsToken
+		}
+	}
+	v := &ingest.ListSipSourceObjectsPayload{}
+	v.UUID = uuid
+	v.Limit = limit
+	v.Cursor = cursor
+	v.Token = token
+
+	return v, nil
+}

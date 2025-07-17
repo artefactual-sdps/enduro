@@ -20,6 +20,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
+	"github.com/artefactual-sdps/enduro/internal/sipsource"
 )
 
 const (
@@ -70,6 +71,7 @@ type ingestImpl struct {
 	internalStorage *blob.Bucket
 	uploadMaxSize   int64
 	rander          io.Reader
+	sipSource       sipsource.SIPSource
 }
 
 var _ Service = (*ingestImpl)(nil)
@@ -86,6 +88,7 @@ func NewService(
 	internalBucket *blob.Bucket,
 	uploadMaxSize int64,
 	rander io.Reader,
+	sipSource sipsource.SIPSource,
 ) *ingestImpl {
 	return &ingestImpl{
 		logger:          logger,
@@ -99,6 +102,7 @@ func NewService(
 		internalStorage: internalBucket,
 		uploadMaxSize:   uploadMaxSize,
 		rander:          rander,
+		sipSource:       sipSource,
 	}
 }
 

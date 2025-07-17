@@ -17,33 +17,35 @@ import (
 
 // Client is the "ingest" service client.
 type Client struct {
-	MonitorRequestEndpoint     goa.Endpoint
-	MonitorEndpoint            goa.Endpoint
-	ListSipsEndpoint           goa.Endpoint
-	ShowSipEndpoint            goa.Endpoint
-	ListSipWorkflowsEndpoint   goa.Endpoint
-	ConfirmSipEndpoint         goa.Endpoint
-	RejectSipEndpoint          goa.Endpoint
-	UploadSipEndpoint          goa.Endpoint
-	DownloadSipRequestEndpoint goa.Endpoint
-	DownloadSipEndpoint        goa.Endpoint
-	ListUsersEndpoint          goa.Endpoint
+	MonitorRequestEndpoint       goa.Endpoint
+	MonitorEndpoint              goa.Endpoint
+	ListSipsEndpoint             goa.Endpoint
+	ShowSipEndpoint              goa.Endpoint
+	ListSipWorkflowsEndpoint     goa.Endpoint
+	ConfirmSipEndpoint           goa.Endpoint
+	RejectSipEndpoint            goa.Endpoint
+	UploadSipEndpoint            goa.Endpoint
+	DownloadSipRequestEndpoint   goa.Endpoint
+	DownloadSipEndpoint          goa.Endpoint
+	ListUsersEndpoint            goa.Endpoint
+	ListSipSourceObjectsEndpoint goa.Endpoint
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip, downloadSipRequest, downloadSip, listUsers goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip, downloadSipRequest, downloadSip, listUsers, listSipSourceObjects goa.Endpoint) *Client {
 	return &Client{
-		MonitorRequestEndpoint:     monitorRequest,
-		MonitorEndpoint:            monitor,
-		ListSipsEndpoint:           listSips,
-		ShowSipEndpoint:            showSip,
-		ListSipWorkflowsEndpoint:   listSipWorkflows,
-		ConfirmSipEndpoint:         confirmSip,
-		RejectSipEndpoint:          rejectSip,
-		UploadSipEndpoint:          uploadSip,
-		DownloadSipRequestEndpoint: downloadSipRequest,
-		DownloadSipEndpoint:        downloadSip,
-		ListUsersEndpoint:          listUsers,
+		MonitorRequestEndpoint:       monitorRequest,
+		MonitorEndpoint:              monitor,
+		ListSipsEndpoint:             listSips,
+		ShowSipEndpoint:              showSip,
+		ListSipWorkflowsEndpoint:     listSipWorkflows,
+		ConfirmSipEndpoint:           confirmSip,
+		RejectSipEndpoint:            rejectSip,
+		UploadSipEndpoint:            uploadSip,
+		DownloadSipRequestEndpoint:   downloadSipRequest,
+		DownloadSipEndpoint:          downloadSip,
+		ListUsersEndpoint:            listUsers,
+		ListSipSourceObjectsEndpoint: listSipSourceObjects,
 	}
 }
 
@@ -216,4 +218,22 @@ func (c *Client) ListUsers(ctx context.Context, p *ListUsersPayload) (res *Users
 		return
 	}
 	return ires.(*Users), nil
+}
+
+// ListSipSourceObjects calls the "list_sip_source_objects" endpoint of the
+// "ingest" service.
+// ListSipSourceObjects may return the following errors:
+//   - "not_found" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) ListSipSourceObjects(ctx context.Context, p *ListSipSourceObjectsPayload) (res *SIPSourceObjects, err error) {
+	var ires any
+	ires, err = c.ListSipSourceObjectsEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*SIPSourceObjects), nil
 }

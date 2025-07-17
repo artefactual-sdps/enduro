@@ -20,9 +20,10 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
+	"github.com/artefactual-sdps/enduro/internal/sipsource"
 )
 
-func testSvc(t *testing.T, b *blob.Bucket, s int64) (
+func testSvc(t *testing.T, internalBucket *blob.Bucket, uploadMaxSize int64) (
 	ingest.Service,
 	*persistence_fake.MockService,
 	*temporalsdk_mocks.Client,
@@ -30,22 +31,24 @@ func testSvc(t *testing.T, b *blob.Bucket, s int64) (
 	t.Helper()
 
 	psvc := persistence_fake.NewMockService(gomock.NewController(t))
-	tc := new(temporalsdk_mocks.Client)
+	temporalClient := new(temporalsdk_mocks.Client)
+	taskQueue := "test"
 	ingestsvc := ingest.NewService(
 		logr.Discard(),
 		&sql.DB{},
-		tc,
+		temporalClient,
 		event.NopEventService(),
 		psvc,
 		&auth.NoopTokenVerifier{},
 		auth.NewTicketProvider(t.Context(), nil, nil),
-		"test",
-		b,
-		s,
+		taskQueue,
+		internalBucket,
+		uploadMaxSize,
 		rand.New(rand.NewSource(1)), // #nosec: G404
+		&sipsource.BucketSource{},
 	)
 
-	return ingestsvc, psvc, tc
+	return ingestsvc, psvc, temporalClient
 }
 
 func TestCreateSIP(t *testing.T) {

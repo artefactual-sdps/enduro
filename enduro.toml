@@ -227,6 +227,24 @@ bucket = "internal"
 storageAccount = ""
 storageKey = ""
 
+# sipsource configures a SIP Source location where SIPs can be put and later
+# ingested via the Dashboard or API.
+[sipsource]
+# id uniquely identifies the SIP Source and must be a valid Version 4 UUID.
+id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
+# name is a human-readable name for the SIP Source.
+name = "Minio SIP Source"
+
+# sipsource.bucket is a bucket where SIPs can be put for ingest — make sure it
+# doesn't match any of the watched buckets.
+[sipsource.bucket]
+endpoint = "http://minio.enduro-sdps:9000"
+pathStyle = true
+accessKey = "minio"
+secretKey = "minio123"
+region = "us-west-1"
+bucket = "sipsource"
+
 [telemetry.traces]
 enabled = false
 address = ""

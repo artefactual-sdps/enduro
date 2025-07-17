@@ -326,6 +326,34 @@ var _ = Service("ingest", func() {
 			})
 		})
 	})
+	Method("list_sip_source_objects", func() {
+		Description("List the objects in a SIP source")
+		Security(JWTAuth, func() {
+			Scope(auth.IngestSIPSourcesObjectsListAttr)
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "SIP source identifier -- CURRENTLY NOT USED")
+			Attribute("limit", Int, "Limit the number of results to return")
+			Attribute("cursor", String, "Cursor token to get subsequent pages")
+			Token("token", String)
+			Required("uuid")
+		})
+		Result(SIPSourceObjects)
+		Error("not_found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			GET("/sip-sources/{uuid}/objects")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+			Params(func() {
+				Param("limit")
+				Param("cursor")
+			})
+		})
+	})
 })
 
 var EnumSIPStatus = func() {
@@ -504,4 +532,26 @@ var SIPTask = ResultType("application/vnd.enduro.ingest.sip.task", func() {
 		TypedAttributeUUID("workflow_uuid", "Identifier of related workflow")
 	})
 	Required("uuid", "name", "status", "started_at", "workflow_uuid")
+})
+
+var SIPSourceObject = ResultType("application/vnd.enduro.ingest.sipsource.object", func() {
+	Description("SIPSourceObject describes an object in a SIP source location.")
+	TypeName("SIPSourceObject")
+	Attributes(func() {
+		Attribute("key", String, "Key of the object")
+		Attribute("mod_time", String, "Last modification time of the object", func() {
+			Format(FormatDateTime)
+		})
+		Attribute("size", Int64, "Size of the object in bytes")
+		Attribute("is_dir", Boolean, "True if the object is a directory, false if it is a file")
+	})
+	Required("key", "is_dir")
+})
+
+var SIPSourceObjects = ResultType("application/vnd.enduro.ingest.sipsource.objects", func() {
+	TypeName("SIPSourceObjects")
+	Attribute("objects", CollectionOf(SIPSourceObject))
+	Attribute("limit", Int, "Limit of objects per page")
+	Attribute("next", String, "Token to get the next page of objects")
+	Required("objects", "limit")
 })

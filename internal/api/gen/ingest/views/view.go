@@ -45,6 +45,14 @@ type Users struct {
 	View string
 }
 
+// SIPSourceObjects is the viewed result type that is projected based on a view.
+type SIPSourceObjects struct {
+	// Type to project
+	Projected *SIPSourceObjectsView
+	// View to render
+	View string
+}
+
 // SIPsView is a type that runs validations on a projected type.
 type SIPsView struct {
 	Items SIPCollectionView
@@ -152,6 +160,31 @@ type UserView struct {
 	CreatedAt *string
 }
 
+// SIPSourceObjectsView is a type that runs validations on a projected type.
+type SIPSourceObjectsView struct {
+	Objects SIPSourceObjectCollectionView
+	// Limit of objects per page
+	Limit *int
+	// Token to get the next page of objects
+	Next *string
+}
+
+// SIPSourceObjectCollectionView is a type that runs validations on a projected
+// type.
+type SIPSourceObjectCollectionView []*SIPSourceObjectView
+
+// SIPSourceObjectView is a type that runs validations on a projected type.
+type SIPSourceObjectView struct {
+	// Key of the object
+	Key *string
+	// Last modification time of the object
+	ModTime *string
+	// Size of the object in bytes
+	Size *int64
+	// True if the object is a directory, false if it is a file
+	IsDir *bool
+}
+
 var (
 	// SIPsMap is a map indexing the attribute names of SIPs by view name.
 	SIPsMap = map[string][]string{
@@ -189,6 +222,15 @@ var (
 		"default": {
 			"items",
 			"page",
+		},
+	}
+	// SIPSourceObjectsMap is a map indexing the attribute names of
+	// SIPSourceObjects by view name.
+	SIPSourceObjectsMap = map[string][]string{
+		"default": {
+			"objects",
+			"limit",
+			"next",
 		},
 	}
 	// SIPCollectionMap is a map indexing the attribute names of SIPCollection by
@@ -308,6 +350,26 @@ var (
 			"created_at",
 		},
 	}
+	// SIPSourceObjectCollectionMap is a map indexing the attribute names of
+	// SIPSourceObjectCollection by view name.
+	SIPSourceObjectCollectionMap = map[string][]string{
+		"default": {
+			"key",
+			"mod_time",
+			"size",
+			"is_dir",
+		},
+	}
+	// SIPSourceObjectMap is a map indexing the attribute names of SIPSourceObject
+	// by view name.
+	SIPSourceObjectMap = map[string][]string{
+		"default": {
+			"key",
+			"mod_time",
+			"size",
+			"is_dir",
+		},
+	}
 )
 
 // ValidateSIPs runs the validations defined on the viewed result type SIPs.
@@ -349,6 +411,18 @@ func ValidateUsers(result *Users) (err error) {
 	switch result.View {
 	case "default", "":
 		err = ValidateUsersView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
+
+// ValidateSIPSourceObjects runs the validations defined on the viewed result
+// type SIPSourceObjects.
+func ValidateSIPSourceObjects(result *SIPSourceObjects) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateSIPSourceObjectsView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
@@ -642,6 +716,46 @@ func ValidateUserView(result *UserView) (err error) {
 	}
 	if result.CreatedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.created_at", *result.CreatedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateSIPSourceObjectsView runs the validations defined on
+// SIPSourceObjectsView using the "default" view.
+func ValidateSIPSourceObjectsView(result *SIPSourceObjectsView) (err error) {
+	if result.Limit == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("limit", "result"))
+	}
+	if result.Objects != nil {
+		if err2 := ValidateSIPSourceObjectCollectionView(result.Objects); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateSIPSourceObjectCollectionView runs the validations defined on
+// SIPSourceObjectCollectionView using the "default" view.
+func ValidateSIPSourceObjectCollectionView(result SIPSourceObjectCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateSIPSourceObjectView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateSIPSourceObjectView runs the validations defined on
+// SIPSourceObjectView using the "default" view.
+func ValidateSIPSourceObjectView(result *SIPSourceObjectView) (err error) {
+	if result.Key == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("key", "result"))
+	}
+	if result.IsDir == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("is_dir", "result"))
+	}
+	if result.ModTime != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.mod_time", *result.ModTime, goa.FormatDateTime))
 	}
 	return
 }
