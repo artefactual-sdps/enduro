@@ -79,17 +79,17 @@ func TestCheckAttributes(t *testing.T) {
 		{
 			name: "Checks a single attribute exists",
 			claims: &auth.Claims{
-				Attributes: []string{"ingest:sips:list"},
+				Attributes: []string{auth.IngestSIPSListAttr},
 			},
-			attributes: []string{"ingest:sips:list"},
+			attributes: []string{auth.IngestSIPSListAttr},
 			want:       true,
 		},
 		{
 			name: "Checks multiple attributes exist",
 			claims: &auth.Claims{
-				Attributes: []string{"ingest:sips:list", "ingest:sips:read"},
+				Attributes: []string{auth.IngestSIPSListAttr, auth.IngestSIPSReadAttr},
 			},
-			attributes: []string{"ingest:sips:list", "ingest:sips:read"},
+			attributes: []string{auth.IngestSIPSListAttr, auth.IngestSIPSReadAttr},
 			want:       true,
 		},
 		{
@@ -97,18 +97,18 @@ func TestCheckAttributes(t *testing.T) {
 			claims: &auth.Claims{
 				Attributes: []string{},
 			},
-			attributes: []string{"ingest:sips:download"},
+			attributes: []string{auth.IngestSIPSDownloadAttr},
 			want:       false,
 		},
 		{
 			name:       "Checks attributes on nil claim (auth disabled)",
-			attributes: []string{"ingest:sips:list"},
+			attributes: []string{auth.IngestSIPSListAttr},
 			want:       true,
 		},
 		{
 			name:       "Checks attributes on nil attributes (ABAC disabled)",
 			claims:     &auth.Claims{},
-			attributes: []string{"ingest:sips:list"},
+			attributes: []string{auth.IngestSIPSListAttr},
 			want:       true,
 		},
 		{
@@ -116,7 +116,7 @@ func TestCheckAttributes(t *testing.T) {
 			claims: &auth.Claims{
 				Attributes: []string{"ingest:sips:*", "storage:*"},
 			},
-			attributes: []string{"ingest:sips:list:something", "storage:aips:download"},
+			attributes: []string{"ingest:sips:list:something", auth.StorageAIPSDownloadAttr},
 			want:       true,
 		},
 		{
@@ -124,7 +124,7 @@ func TestCheckAttributes(t *testing.T) {
 			claims: &auth.Claims{
 				Attributes: []string{"*"},
 			},
-			attributes: []string{"ingest:sips:list", "storage:aips:download"},
+			attributes: []string{auth.IngestSIPSListAttr, auth.StorageAIPSDownloadAttr},
 			want:       true,
 		},
 		{
@@ -132,13 +132,13 @@ func TestCheckAttributes(t *testing.T) {
 			claims: &auth.Claims{
 				Attributes: []string{"ingest:sips:*"},
 			},
-			attributes: []string{"ingest:sips:list", "storage:aips:download"},
+			attributes: []string{auth.IngestSIPSListAttr, auth.StorageAIPSDownloadAttr},
 			want:       false,
 		},
 		{
 			name: "Checks a more specific attribute doesn't match a general one",
 			claims: &auth.Claims{
-				Attributes: []string{"ingest:sips:list"},
+				Attributes: []string{auth.IngestSIPSListAttr},
 			},
 			attributes: []string{"ingest:sips:list:something"},
 			want:       false,

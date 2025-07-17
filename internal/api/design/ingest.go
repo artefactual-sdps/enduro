@@ -3,6 +3,7 @@ package design
 import (
 	. "goa.design/goa/v3/dsl" //nolint:staticcheck
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
@@ -18,9 +19,9 @@ var _ = Service("ingest", func() {
 	Method("monitor_request", func() {
 		Description("Request access to the /monitor WebSocket")
 		Security(JWTAuth, func() {
-			Scope("ingest:sips:list")
-			Scope("ingest:sips:read")
-			Scope("ingest:sips:workflows:list")
+			Scope(auth.IngestSIPSListAttr)
+			Scope(auth.IngestSIPSReadAttr)
+			Scope(auth.IngestSIPSWorkflowsListAttr)
 		})
 		Payload(func() {
 			Token("token", String)
@@ -59,7 +60,7 @@ var _ = Service("ingest", func() {
 	Method("list_sips", func() {
 		Description("List all ingested SIPs")
 		Security(JWTAuth, func() {
-			Scope("ingest:sips:list")
+			Scope(auth.IngestSIPSListAttr)
 		})
 		Payload(func() {
 			Attribute("name", String)
@@ -100,7 +101,7 @@ var _ = Service("ingest", func() {
 	Method("show_sip", func() {
 		Description("Show SIP by ID")
 		Security(JWTAuth, func() {
-			Scope("ingest:sips:read")
+			Scope(auth.IngestSIPSReadAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to show")
@@ -120,7 +121,7 @@ var _ = Service("ingest", func() {
 	Method("list_sip_workflows", func() {
 		Description("List all workflows for a SIP")
 		Security(JWTAuth, func() {
-			Scope("ingest:sips:workflows:list")
+			Scope(auth.IngestSIPSWorkflowsListAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to look up")
@@ -138,7 +139,7 @@ var _ = Service("ingest", func() {
 	Method("confirm_sip", func() {
 		Description("Signal the SIP has been reviewed and accepted")
 		Security(JWTAuth, func() {
-			Scope("ingest:sips:review")
+			Scope(auth.IngestSIPSReviewAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to look up")
@@ -160,7 +161,7 @@ var _ = Service("ingest", func() {
 	Method("reject_sip", func() {
 		Description("Signal the SIP has been reviewed and rejected")
 		Security(JWTAuth, func() {
-			Scope("ingest:sips:review")
+			Scope(auth.IngestSIPSReviewAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to look up")
@@ -181,7 +182,7 @@ var _ = Service("ingest", func() {
 	Method("upload_sip", func() {
 		Description("Upload a SIP to trigger an ingest workflow")
 		Security(JWTAuth, func() {
-			Scope("ingest:sips:upload")
+			Scope(auth.IngestSIPSUploadAttr)
 		})
 		Payload(func() {
 			Attribute("content_type", String, "Content-Type header, must define value for multipart boundary.", func() {
@@ -229,7 +230,7 @@ var _ = Service("ingest", func() {
 	Method("download_sip_request", func() {
 		Description("Request access to SIP download")
 		Security(JWTAuth, func() {
-			Scope("ingest:sips:download")
+			Scope(auth.IngestSIPSDownloadAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of the SIP to download")
@@ -295,7 +296,7 @@ var _ = Service("ingest", func() {
 	Method("list_users", func() {
 		Description("List all users")
 		Security(JWTAuth, func() {
-			Scope("ingest:users:list")
+			Scope(auth.IngestUsersListAttr)
 		})
 		Payload(func() {
 			Attribute("email", String, "Email of the user", func() {

@@ -297,9 +297,18 @@ func TestParseAttributes(t *testing.T) {
 					ClaimPath: "attributes",
 					UseRoles:  true,
 					RolesMapping: map[string][]string{
-						"admin":    {"*"},
-						"operator": {"ingest:sips:list", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"},
-						"readonly": {"ingest:sips:list", "ingest:sips:read", "ingest:sips:workflows:list"},
+						"admin": {"*"},
+						"operator": {
+							auth.IngestSIPSListAttr,
+							auth.IngestSIPSReadAttr,
+							auth.IngestSIPSUploadAttr,
+							auth.IngestSIPSWorkflowsListAttr,
+						},
+						"readonly": {
+							auth.IngestSIPSListAttr,
+							auth.IngestSIPSReadAttr,
+							auth.IngestSIPSWorkflowsListAttr,
+						},
 					},
 				},
 			},
@@ -313,7 +322,13 @@ func TestParseAttributes(t *testing.T) {
 				EmailVerified: true,
 				Iss:           iss,
 				Sub:           subject,
-				Attributes:    []string{"*", "ingest:sips:list", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"},
+				Attributes: []string{
+					"*",
+					auth.IngestSIPSListAttr,
+					auth.IngestSIPSReadAttr,
+					auth.IngestSIPSUploadAttr,
+					auth.IngestSIPSWorkflowsListAttr,
+				},
 			},
 		},
 		{

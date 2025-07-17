@@ -3,6 +3,7 @@ package design
 import (
 	. "goa.design/goa/v3/dsl" //nolint:staticcheck
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -19,7 +20,7 @@ var _ = Service("storage", func() {
 	Method("list_aips", func() {
 		Description("List all AIPs")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:list")
+			Scope(auth.StorageAIPSListAttr)
 		})
 		Payload(func() {
 			Attribute("name", String)
@@ -58,7 +59,7 @@ var _ = Service("storage", func() {
 	Method("create_aip", func() {
 		Description("Create a new AIP")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:create")
+			Scope(auth.StorageAIPSCreateAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of the AIP")
@@ -83,7 +84,7 @@ var _ = Service("storage", func() {
 	Method("submit_aip", func() {
 		Description("Start the submission of an AIP")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:submit")
+			Scope(auth.StorageAIPSSubmitAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
@@ -105,7 +106,7 @@ var _ = Service("storage", func() {
 	Method("update_aip", func() {
 		Description("Signal that an AIP submission is complete")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:submit")
+			Scope(auth.StorageAIPSSubmitAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
@@ -125,7 +126,7 @@ var _ = Service("storage", func() {
 	Method("download_aip_request", func() {
 		Description("Request access to AIP download")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:download")
+			Scope(auth.StorageAIPSDownloadAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of the AIP to download")
@@ -187,7 +188,7 @@ var _ = Service("storage", func() {
 	Method("move_aip", func() {
 		Description("Move an AIP to a permanent storage location")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:move")
+			Scope(auth.StorageAIPSMoveAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
@@ -209,7 +210,7 @@ var _ = Service("storage", func() {
 	Method("move_aip_status", func() {
 		Description("Retrieve the status of a permanent storage location move of the AIP")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:move")
+			Scope(auth.StorageAIPSMoveAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
@@ -229,7 +230,7 @@ var _ = Service("storage", func() {
 	Method("reject_aip", func() {
 		Description("Reject an AIP")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:review")
+			Scope(auth.StorageAIPSReviewAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
@@ -250,7 +251,7 @@ var _ = Service("storage", func() {
 	Method("show_aip", func() {
 		Description("Show AIP by AIPID")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:read")
+			Scope(auth.StorageAIPSReadAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
@@ -268,7 +269,7 @@ var _ = Service("storage", func() {
 	Method("list_aip_workflows", func() {
 		Description("List workflows related to an AIP")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:workflows:list")
+			Scope(auth.StorageAIPSWorkflowsListAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
@@ -296,7 +297,7 @@ var _ = Service("storage", func() {
 	Method("request_aip_deletion", func() {
 		Description("Request an AIP deletion")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:deletion:request")
+			Scope(auth.StorageAIPSDeletionRequestAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
@@ -314,7 +315,7 @@ var _ = Service("storage", func() {
 	Method("review_aip_deletion", func() {
 		Description("Review an AIP deletion request")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:deletion:review")
+			Scope(auth.StorageAIPSDeletionReviewAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
@@ -332,7 +333,7 @@ var _ = Service("storage", func() {
 	Method("cancel_aip_deletion", func() {
 		Description("Cancel an AIP deletion request")
 		Security(JWTAuth, func() {
-			Scope("storage:aips:deletion:request")
+			Scope(auth.StorageAIPSDeletionRequestAttr)
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
@@ -354,7 +355,7 @@ var _ = Service("storage", func() {
 	Method("list_locations", func() {
 		Description("List locations")
 		Security(JWTAuth, func() {
-			Scope("storage:locations:list")
+			Scope(auth.StorageLocationsListAttr)
 		})
 		Payload(func() {
 			Token("token", String)
@@ -368,7 +369,7 @@ var _ = Service("storage", func() {
 	Method("create_location", func() {
 		Description("Create a storage location")
 		Security(JWTAuth, func() {
-			Scope("storage:locations:create")
+			Scope(auth.StorageLocationsCreateAttr)
 		})
 		Payload(func() {
 			Attribute("name", String)
@@ -399,7 +400,7 @@ var _ = Service("storage", func() {
 	Method("show_location", func() {
 		Description("Show location by UUID")
 		Security(JWTAuth, func() {
-			Scope("storage:locations:read")
+			Scope(auth.StorageLocationsReadAttr)
 		})
 		Payload(func() {
 			// TODO: explore how we can use uuid.UUID that are also URL params.
@@ -418,7 +419,7 @@ var _ = Service("storage", func() {
 	Method("list_location_aips", func() {
 		Description("List all the AIPs stored in the location with UUID")
 		Security(JWTAuth, func() {
-			Scope("storage:locations:aips:list")
+			Scope(auth.StorageLocationsAIPSListAttr)
 		})
 		Payload(func() {
 			// TODO: explore how we can use uuid.UUID that are also URL params.

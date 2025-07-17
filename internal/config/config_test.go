@@ -10,6 +10,7 @@ import (
 	"gotest.tools/v3/fs"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 )
@@ -58,12 +59,16 @@ func TestConfig(t *testing.T) {
 		assert.DeepEqual(t, c.API.Auth.OIDC.ABAC.RolesMapping, map[string][]string{
 			"admin": {"*"},
 			"operator": {
-				"ingest:sips:list",
-				"ingest:sips:workflows:list",
-				"ingest:sips:read",
-				"ingest:sips:upload",
+				auth.IngestSIPSListAttr,
+				auth.IngestSIPSWorkflowsListAttr,
+				auth.IngestSIPSReadAttr,
+				auth.IngestSIPSUploadAttr,
 			},
-			"readonly": {"ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read"},
+			"readonly": {
+				auth.IngestSIPSListAttr,
+				auth.IngestSIPSWorkflowsListAttr,
+				auth.IngestSIPSReadAttr,
+			},
 		})
 	})
 
