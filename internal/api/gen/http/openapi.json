@@ -894,6 +894,202 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
+    "IngestListSipSourceObjectsInternalErrorResponseBody": {
+      "description": "list_sip_source_objects_internal_error_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListSipSourceObjectsNotFoundResponseBody": {
+      "description": "list_sip_source_objects_not_found_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListSipSourceObjectsNotValidResponseBody": {
+      "description": "list_sip_source_objects_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListSipSourceObjectsResponseBody": {
+      "description": "list_sip_source_objects_response_body result type (default view)",
+      "example": {
+        "limit": 1,
+        "next": "abc123",
+        "objects": [
+          {
+            "is_dir": false,
+            "key": "abc123",
+            "mod_time": "1970-01-01T00:00:01Z",
+            "size": 1
+          }
+        ]
+      },
+      "properties": {
+        "limit": {
+          "description": "Limit of objects per page",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "next": {
+          "description": "Token to get the next page of objects",
+          "example": "abc123",
+          "type": "string"
+        },
+        "objects": {
+          "$ref": "#/definitions/SIPSourceObjectResponseBodyCollection"
+        }
+      },
+      "required": [
+        "objects",
+        "limit"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sipsource.objects; view=default",
+      "type": "object"
+    },
     "IngestListSipWorkflowsNotFoundResponseBody": {
       "description": "SIP not found",
       "example": {
@@ -1961,6 +2157,61 @@
         "$ref": "#/definitions/SIPResponseBody"
       },
       "title": "Mediatype identifier: application/vnd.enduro.ingest.sip; type=collection; view=default",
+      "type": "array"
+    },
+    "SIPSourceObjectResponseBody": {
+      "description": "SIPSourceObject describes an object in a SIP source location. (default view)",
+      "example": {
+        "is_dir": false,
+        "key": "abc123",
+        "mod_time": "1970-01-01T00:00:01Z",
+        "size": 1
+      },
+      "properties": {
+        "is_dir": {
+          "description": "True if the object is a directory, false if it is a file",
+          "example": false,
+          "type": "boolean"
+        },
+        "key": {
+          "description": "Key of the object",
+          "example": "abc123",
+          "type": "string"
+        },
+        "mod_time": {
+          "description": "Last modification time of the object",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "size": {
+          "description": "Size of the object in bytes",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "key",
+        "is_dir"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sipsource.object; view=default",
+      "type": "object"
+    },
+    "SIPSourceObjectResponseBodyCollection": {
+      "description": "SIPSourceObjectCollectionResponseBody is the result type for an array of SIPSourceObjectResponseBody (default view)",
+      "example": [
+        {
+          "is_dir": false,
+          "key": "abc123",
+          "mod_time": "1970-01-01T00:00:01Z",
+          "size": 1
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/SIPSourceObjectResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sipsource.object; type=collection; view=default",
       "type": "array"
     },
     "SIPTaskResponseBody": {
@@ -4401,6 +4652,92 @@
         ]
       }
     },
+    "/ingest/sip-sources/{uuid}/objects": {
+      "get": {
+        "description": "List the objects in a SIP source\n\n**Required security scopes for jwt**:\n  * `ingest:sipsources:objects:list`",
+        "operationId": "ingest#list_sip_source_objects",
+        "parameters": [
+          {
+            "description": "Limit the number of results to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "Cursor token to get subsequent pages",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "SIP source identifier -- CURRENTLY NOT USED",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSipSourceObjectsResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSipSourceObjectsNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSipSourceObjectsNotFoundResponseBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSipSourceObjectsInternalErrorResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "list_sip_source_objects ingest",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
     "/ingest/sips": {
       "get": {
         "description": "List all ingested SIPs\n\n**Required security scopes for jwt**:\n  * `ingest:sips:list`",
@@ -6506,7 +6843,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

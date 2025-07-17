@@ -127,6 +127,95 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization: []
+    /ingest/sip-sources/{uuid}/objects:
+        get:
+            tags:
+                - ingest
+            summary: list_sip_source_objects ingest
+            description: List the objects in a SIP source
+            operationId: ingest#list_sip_source_objects
+            parameters:
+                - name: limit
+                  in: query
+                  description: Limit the number of results to return
+                  allowEmptyValue: true
+                  schema:
+                    type: integer
+                    description: Limit the number of results to return
+                    example: 1
+                    format: int64
+                  example: 1
+                - name: cursor
+                  in: query
+                  description: Cursor token to get subsequent pages
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    description: Cursor token to get subsequent pages
+                    example: abc123
+                  example: abc123
+                - name: uuid
+                  in: path
+                  description: SIP source identifier -- CURRENTLY NOT USED
+                  required: true
+                  schema:
+                    type: string
+                    description: SIP source identifier -- CURRENTLY NOT USED
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/SIPSourceObjects'
+                            example:
+                                limit: 1
+                                next: abc123
+                                objects:
+                                    - is_dir: false
+                                      key: abc123
+                                      mod_time: "1970-01-01T00:00:01Z"
+                                      size: 1
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: Not Found response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - ingest:sipsources:objects:list
     /ingest/sips:
         get:
             tags:
@@ -2788,6 +2877,36 @@ components:
                 - status
                 - started_at
                 - sip_uuid
+        EnduroIngestSipsourceObject:
+            type: object
+            properties:
+                is_dir:
+                    type: boolean
+                    description: True if the object is a directory, false if it is a file
+                    example: false
+                key:
+                    type: string
+                    description: Key of the object
+                    example: abc123
+                mod_time:
+                    type: string
+                    description: Last modification time of the object
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                size:
+                    type: integer
+                    description: Size of the object in bytes
+                    example: 1
+                    format: int64
+            description: SIPSourceObject describes an object in a SIP source location.
+            example:
+                is_dir: false
+                key: abc123
+                mod_time: "1970-01-01T00:00:01Z"
+                size: 1
+            required:
+                - key
+                - is_dir
         EnduroIngestUser:
             type: object
             properties:
@@ -3494,6 +3613,40 @@ components:
             required:
                 - message
                 - uuid
+        SIPSourceObjectCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroIngestSipsourceObject'
+            example:
+                - is_dir: false
+                  key: abc123
+                  mod_time: "1970-01-01T00:00:01Z"
+                  size: 1
+        SIPSourceObjects:
+            type: object
+            properties:
+                limit:
+                    type: integer
+                    description: Limit of objects per page
+                    example: 1
+                    format: int64
+                next:
+                    type: string
+                    description: Token to get the next page of objects
+                    example: abc123
+                objects:
+                    $ref: '#/components/schemas/SIPSourceObjectCollection'
+            example:
+                limit: 1
+                next: abc123
+                objects:
+                    - is_dir: false
+                      key: abc123
+                      mod_time: "1970-01-01T00:00:01Z"
+                      size: 1
+            required:
+                - objects
+                - limit
         SIPStatusUpdatedEvent:
             type: object
             properties:

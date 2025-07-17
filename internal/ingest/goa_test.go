@@ -3,6 +3,7 @@ package ingest
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
@@ -24,6 +25,8 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
+	"github.com/artefactual-sdps/enduro/internal/sipsource"
+	sipsource_fake "github.com/artefactual-sdps/enduro/internal/sipsource/fake"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
@@ -566,6 +569,171 @@ func TestListUsers(t *testing.T) {
 			}
 
 			got, err := wrapper.ListUsers(ctx, tt.payload)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
+		})
+	}
+}
+
+func TestListSIPSourceObjects(t *testing.T) {
+	t.Parallel()
+
+	sourceID := uuid.MustParse("cc6a61cd-ce26-4338-890a-8a4393f63eed")
+	modTime := time.Now()
+
+	type test struct {
+		name         string
+		payload      *goaingest.ListSipSourceObjectsPayload
+		mockRecorder func(mr *sipsource_fake.MockSIPSourceMockRecorder)
+		want         *goaingest.SIPSourceObjects
+		wantErr      string
+	}
+	for _, tt := range []test{
+		{
+			name: "Returns SIP source objects with a next page value",
+			payload: &goaingest.ListSipSourceObjectsPayload{
+				UUID:  sourceID.String(),
+				Limit: ref.New(10),
+			},
+			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
+				mr.ListObjects(
+					mockutil.Context(),
+					nil,
+					10,
+				).Return(
+					&sipsource.Page{
+						Objects: []*sipsource.Object{
+							{Key: "object1", Size: 1234, ModTime: modTime},
+						},
+						Limit:     10,
+						NextToken: []byte("next-token"),
+					},
+					nil,
+				)
+			},
+			want: &goaingest.SIPSourceObjects{
+				Objects: goaingest.SIPSourceObjectCollection{
+					{
+						Key:     "object1",
+						Size:    ref.New(int64(1234)),
+						ModTime: ref.New(modTime.Format(time.RFC3339)),
+					},
+				},
+				Limit: 10,
+				Next:  ref.New("next-token"),
+			},
+		},
+		{
+			name: "Returns SIP source objects when a cursor value is provided",
+			payload: &goaingest.ListSipSourceObjectsPayload{
+				UUID:   sourceID.String(),
+				Limit:  ref.New(10),
+				Cursor: ref.New("page-token"),
+			},
+			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
+				mr.ListObjects(
+					mockutil.Context(),
+					[]byte("page-token"),
+					10,
+				).Return(
+					&sipsource.Page{
+						Objects: []*sipsource.Object{
+							{Key: "object2", Size: 5678, ModTime: modTime},
+						},
+						Limit: 10,
+					},
+					nil,
+				)
+			},
+			want: &goaingest.SIPSourceObjects{
+				Objects: goaingest.SIPSourceObjectCollection{
+					{
+						Key:     "object2",
+						Size:    ref.New(int64(5678)),
+						ModTime: ref.New(modTime.Format(time.RFC3339)),
+					},
+				},
+				Limit: 10,
+			},
+		},
+		{
+			name: "Returns an not found error when SIP source does not exist",
+			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
+				mr.ListObjects(
+					mockutil.Context(),
+					nil,
+					0,
+				).Return(
+					nil,
+					sipsource.ErrMissingBucket,
+				)
+			},
+			wantErr: "SIP source not found",
+		},
+		{
+			name: "Returns an internal error",
+			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
+				mr.ListObjects(
+					mockutil.Context(),
+					nil,
+					0,
+				).Return(
+					nil,
+					errors.New("internal error"),
+				)
+			},
+			wantErr: "internal error",
+		},
+		{
+			name: "Returns an empty page when no objects found",
+			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
+				mr.ListObjects(
+					mockutil.Context(),
+					nil,
+					0,
+				).Return(
+					&sipsource.Page{
+						Objects: []*sipsource.Object{},
+						Limit:   100,
+					},
+					nil,
+				)
+			},
+			want: &goaingest.SIPSourceObjects{
+				Objects: goaingest.SIPSourceObjectCollection{},
+				Limit:   100,
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctrl := gomock.NewController(t)
+			src := sipsource_fake.NewMockSIPSource(ctrl)
+			if tt.mockRecorder != nil {
+				tt.mockRecorder(src.EXPECT())
+			}
+
+			svc := NewService(
+				logr.Discard(),
+				nil,               // SQL DB
+				nil,               // Temporal client
+				nil,               // Event service
+				nil,               // Persistence service
+				nil,               // Token verifier
+				nil,               // Ticket provider
+				"test-task-queue", // Task queue
+				nil,               // Internal storage bucket
+				1000000,           // Upload max size
+				nil,               // Mocked random reader
+				src,               // Mocked SIP source
+			)
+
+			got, err := svc.Goa().ListSipSourceObjects(t.Context(), tt.payload)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
