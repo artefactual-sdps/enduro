@@ -159,13 +159,15 @@ attributes allow a wildcard hierarchical declaration. For example,
 
 In order to stablish a Websocket connection from the browser, the
 `GET /ingest/monitor` endpoint requires a cookie obtained from the
-`POST /ingest/monitor` endpoint. Similarly, to be able to stream a SIP download
-from the browser, the `GET /ingest/sips/{id}/download` endpoint requires a
-cookie obtained from the `POST /ingest/sips/{id}/download` endpoint.
+`POST /ingest/monitor` endpoint. User claims are stored internally and the
+attributes are checked before sending events to the connection.
+
+Similarly, to be able to stream a SIP/AIP download from the browser, the `GET`
+endpoints require a cookie obtained from the `POST` endpoints.
 
 | Method | Endpoint                              | Attributes                      |
 | ------ | ------------------------------------- | ------------------------------- |
-| POST   | /ingest/monitor                       | `All ingest attributes`         |
+| POST   | /ingest/monitor                       | `-`                             |
 | GET    | /ingest/monitor                       | `-`                             |
 | GET    | /ingest/sips                          | `ingest:sips:list`              |
 | GET    | /ingest/sips/{id}                     | `ingest:sips:read`              |
@@ -182,7 +184,8 @@ cookie obtained from the `POST /ingest/sips/{id}/download` endpoint.
 | POST   | /storage/aips/{uuid}/deletion-cancel  | `storage:aips:deletion:request` |
 | POST   | /storage/aips/{uuid}/deletion-request | `storage:aips:deletion:request` |
 | POST   | /storage/aips/{uuid}/deletion-review  | `storage:aips:deletion:review`  |
-| GET    | /storage/aips/{uuid}/download         | `storage:aips:download`         |
+| POST   | /storage/aips/{uuid}/download         | `storage:aips:download`         |
+| GET    | /storage/aips/{uuid}/download         | `-`                             |
 | POST   | /storage/aips/{uuid}/reject           | `storage:aips:review`           |
 | GET    | /storage/aips/{uuid}/store            | `storage:aips:move`             |
 | POST   | /storage/aips/{uuid}/store            | `storage:aips:move`             |

@@ -65,13 +65,7 @@ paths:
             tags:
                 - ingest
             summary: monitor_request ingest
-            description: |-
-                Request access to the /monitor WebSocket
-
-                **Required security scopes for jwt**:
-                  * `ingest:sips:list`
-                  * `ingest:sips:read`
-                  * `ingest:sips:workflows:list`
+            description: Request access to the /monitor WebSocket
             operationId: ingest#monitor_request
             parameters:
                 - name: Authorization

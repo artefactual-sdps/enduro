@@ -18,11 +18,9 @@ var _ = Service("ingest", func() {
 	})
 	Method("monitor_request", func() {
 		Description("Request access to the /monitor WebSocket")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSListAttr)
-			Scope(auth.IngestSIPSReadAttr)
-			Scope(auth.IngestSIPSWorkflowsListAttr)
-		})
+		// Do not require any scope, user claims will be stored internally
+		// and checked in the monitor endpoint after validating the cookie.
+		Security(JWTAuth)
 		Payload(func() {
 			Token("token", String)
 		})

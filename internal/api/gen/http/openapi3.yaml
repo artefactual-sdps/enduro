@@ -126,10 +126,7 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:list
-                    - ingest:sips:read
-                    - ingest:sips:workflows:list
+                - jwt_header_Authorization: []
     /ingest/sips:
         get:
             tags:
