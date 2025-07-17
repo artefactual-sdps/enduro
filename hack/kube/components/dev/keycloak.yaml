@@ -121,19 +121,15 @@ data:
               "ingest:sips:upload",
               "ingest:sips:workflows:list",
               "ingest:users:list",
-              "storage:locations:list",
-              "storage:locations:aips:list",
-              "storage:locations:read",
               "storage:aips:deletion:request",
               "storage:aips:download",
               "storage:aips:list",
               "storage:aips:move",
               "storage:aips:read",
-              "storage:aips:submit",
-              "storage:aips:workflows:list"
-            ],
-            "minio": [
-              "consoleAdmin"
+              "storage:aips:workflows:list",
+              "storage:locations:aips:list",
+              "storage:locations:list",
+              "storage:locations:read"
             ]
           }
         },
@@ -156,11 +152,30 @@ data:
               "ingest:sips:read",
               "ingest:sips:workflows:list",
               "ingest:users:list",
-              "storage:locations:list",
+              "storage:aips:list",
+              "storage:aips:read",
+              "storage:aips:workflows:list",
               "storage:locations:aips:list",
-              "storage:locations:read",
-              "storage:aips:read"
+              "storage:locations:list",
+              "storage:locations:read"
             ]
+          }
+        },
+        {
+          "username": "noattributes",
+          "email": "noattributes@example.com",
+          "enabled": true,
+          "emailVerified": true,
+          "firstName": "-",
+          "lastName": "-",
+          "credentials": [
+            {
+              "type": "password",
+              "value": "noattributes123"
+            }
+          ],
+          "attributes": {
+            "enduro": [""]
           }
         }
       ],
