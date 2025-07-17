@@ -176,7 +176,7 @@ func main() {
 	{
 		var store auth.TicketStore
 		if cfg.API.Auth.Enabled {
-			if cfg.API.Auth.Ticket.Redis != nil {
+			if cfg.API.Auth.Ticket != nil && cfg.API.Auth.Ticket.Redis != nil {
 				var err error
 				store, err = auth.NewRedisStore(ctx, tp, cfg.API.Auth.Ticket.Redis)
 				if err != nil {
