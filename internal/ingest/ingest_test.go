@@ -43,6 +43,7 @@ func testSvc(t *testing.T, b *blob.Bucket, s int64) (
 		b,
 		s,
 		rand.New(rand.NewSource(1)), // #nosec: G404
+		nil,                         // sipSource
 	)
 
 	return ingestsvc, psvc, tc

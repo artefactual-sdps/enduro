@@ -99,6 +99,16 @@ type ListUsersResponseBody struct {
 	Page  *EnduroPageResponseBody    `form:"page,omitempty" json:"page,omitempty" xml:"page,omitempty"`
 }
 
+// ListSourceItemsResponseBody is the type of the "ingest" service
+// "list_source_items" endpoint HTTP response body.
+type ListSourceItemsResponseBody struct {
+	Items SourceItemCollectionResponseBody `form:"items,omitempty" json:"items,omitempty" xml:"items,omitempty"`
+	// Limit of items per page
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" xml:"limit,omitempty"`
+	// Token to get the next page of items
+	Next *string `form:"next,omitempty" json:"next,omitempty" xml:"next,omitempty"`
+}
+
 // MonitorRequestNotAvailableResponseBody is the type of the "ingest" service
 // "monitor_request" endpoint HTTP response body for the "not_available" error.
 type MonitorRequestNotAvailableResponseBody struct {
@@ -443,6 +453,80 @@ type ListUsersNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// ListSourceItemsNotImplementedResponseBody is the type of the "ingest"
+// service "list_source_items" endpoint HTTP response body for the
+// "not_implemented" error.
+type ListSourceItemsNotImplementedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListSourceItemsNotFoundResponseBody is the type of the "ingest" service
+// "list_source_items" endpoint HTTP response body for the "not_found" error.
+type ListSourceItemsNotFoundResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListSourceItemsNotValidResponseBody is the type of the "ingest" service
+// "list_source_items" endpoint HTTP response body for the "not_valid" error.
+type ListSourceItemsNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListSourceItemsInternalErrorResponseBody is the type of the "ingest" service
+// "list_source_items" endpoint HTTP response body for the "internal_error"
+// error.
+type ListSourceItemsInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // SIPCollectionResponseBody is used to define fields on response body types.
 type SIPCollectionResponseBody []*SIPResponseBody
 
@@ -532,6 +616,22 @@ type UserResponseBody struct {
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Creation date & time of the user
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
+}
+
+// SourceItemCollectionResponseBody is used to define fields on response body
+// types.
+type SourceItemCollectionResponseBody []*SourceItemResponseBody
+
+// SourceItemResponseBody is used to define fields on response body types.
+type SourceItemResponseBody struct {
+	// Key of the item
+	Key *string `form:"key,omitempty" json:"key,omitempty" xml:"key,omitempty"`
+	// Last modification time of the item
+	ModTime *string `form:"mod_time,omitempty" json:"mod_time,omitempty" xml:"mod_time,omitempty"`
+	// Size of the item in bytes
+	Size *int64 `form:"size,omitempty" json:"size,omitempty" xml:"size,omitempty"`
+	// True if the item is a directory, false if it is a file
+	IsDir *bool `form:"is_dir,omitempty" json:"is_dir,omitempty" xml:"is_dir,omitempty"`
 }
 
 // NewConfirmSipRequestBody builds the HTTP request body from the payload of
@@ -1167,6 +1267,97 @@ func NewListUsersUnauthorized(body string) ingest.Unauthorized {
 	return v
 }
 
+// NewListSourceItemsSourceItemsOK builds a "ingest" service
+// "list_source_items" endpoint result from a HTTP "OK" response.
+func NewListSourceItemsSourceItemsOK(body *ListSourceItemsResponseBody) *ingestviews.SourceItemsView {
+	v := &ingestviews.SourceItemsView{
+		Limit: body.Limit,
+		Next:  body.Next,
+	}
+	v.Items = make([]*ingestviews.SourceItemView, len(body.Items))
+	for i, val := range body.Items {
+		v.Items[i] = unmarshalSourceItemResponseBodyToIngestviewsSourceItemView(val)
+	}
+
+	return v
+}
+
+// NewListSourceItemsNotImplemented builds a ingest service list_source_items
+// endpoint not_implemented error.
+func NewListSourceItemsNotImplemented(body *ListSourceItemsNotImplementedResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListSourceItemsNotFound builds a ingest service list_source_items
+// endpoint not_found error.
+func NewListSourceItemsNotFound(body *ListSourceItemsNotFoundResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListSourceItemsNotValid builds a ingest service list_source_items
+// endpoint not_valid error.
+func NewListSourceItemsNotValid(body *ListSourceItemsNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListSourceItemsInternalError builds a ingest service list_source_items
+// endpoint internal_error error.
+func NewListSourceItemsInternalError(body *ListSourceItemsInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListSourceItemsForbidden builds a ingest service list_source_items
+// endpoint forbidden error.
+func NewListSourceItemsForbidden(body string) ingest.Forbidden {
+	v := ingest.Forbidden(body)
+
+	return v
+}
+
+// NewListSourceItemsUnauthorized builds a ingest service list_source_items
+// endpoint unauthorized error.
+func NewListSourceItemsUnauthorized(body string) ingest.Unauthorized {
+	v := ingest.Unauthorized(body)
+
+	return v
+}
+
 // ValidateMonitorResponseBody runs the validations defined on
 // MonitorResponseBody
 func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
@@ -1672,6 +1863,102 @@ func ValidateListUsersNotValidResponseBody(body *ListUsersNotValidResponseBody) 
 	return
 }
 
+// ValidateListSourceItemsNotImplementedResponseBody runs the validations
+// defined on list_source_items_not_implemented_response_body
+func ValidateListSourceItemsNotImplementedResponseBody(body *ListSourceItemsNotImplementedResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListSourceItemsNotFoundResponseBody runs the validations defined on
+// list_source_items_not_found_response_body
+func ValidateListSourceItemsNotFoundResponseBody(body *ListSourceItemsNotFoundResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListSourceItemsNotValidResponseBody runs the validations defined on
+// list_source_items_not_valid_response_body
+func ValidateListSourceItemsNotValidResponseBody(body *ListSourceItemsNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListSourceItemsInternalErrorResponseBody runs the validations
+// defined on list_source_items_internal_error_response_body
+func ValidateListSourceItemsInternalErrorResponseBody(body *ListSourceItemsInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
 // ValidateSIPCollectionResponseBody runs the validations defined on
 // SIPCollectionResponseBody
 func ValidateSIPCollectionResponseBody(body SIPCollectionResponseBody) (err error) {
@@ -1868,6 +2155,34 @@ func ValidateUserResponseBody(body *UserResponseBody) (err error) {
 	}
 	if body.CreatedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.created_at", *body.CreatedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateSourceItemCollectionResponseBody runs the validations defined on
+// SourceItemCollectionResponseBody
+func ValidateSourceItemCollectionResponseBody(body SourceItemCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateSourceItemResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateSourceItemResponseBody runs the validations defined on
+// SourceItemResponseBody
+func ValidateSourceItemResponseBody(body *SourceItemResponseBody) (err error) {
+	if body.Key == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("key", "body"))
+	}
+	if body.IsDir == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("is_dir", "body"))
+	}
+	if body.ModTime != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.mod_time", *body.ModTime, goa.FormatDateTime))
 	}
 	return
 }

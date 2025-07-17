@@ -1029,6 +1029,255 @@
       "title": "Mediatype identifier: application/vnd.enduro.ingest.sips; view=default",
       "type": "object"
     },
+    "IngestListSourceItemsInternalErrorResponseBody": {
+      "description": "list_source_items_internal_error_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListSourceItemsNotFoundResponseBody": {
+      "description": "list_source_items_not_found_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListSourceItemsNotImplementedResponseBody": {
+      "description": "list_source_items_not_implemented_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListSourceItemsNotValidResponseBody": {
+      "description": "list_source_items_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListSourceItemsResponseBody": {
+      "description": "list_source_items_response_body result type (default view)",
+      "example": {
+        "items": [
+          {
+            "is_dir": false,
+            "key": "abc123",
+            "mod_time": "1970-01-01T00:00:01Z",
+            "size": 1
+          }
+        ],
+        "limit": 1,
+        "next": "abc123"
+      },
+      "properties": {
+        "items": {
+          "$ref": "#/definitions/SourceItemResponseBodyCollection"
+        },
+        "limit": {
+          "description": "Limit of items per page",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "next": {
+          "description": "Token to get the next page of items",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "items",
+        "limit"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.source.items; view=default",
+      "type": "object"
+    },
     "IngestListUsersNotValidResponseBody": {
       "description": "list_users_not_valid_response_body result type (default view)",
       "example": {
@@ -2139,6 +2388,61 @@
         "$ref": "#/definitions/SIPWorkflowResponseBody"
       },
       "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.workflow; type=collection; view=default",
+      "type": "array"
+    },
+    "SourceItemResponseBody": {
+      "description": "SourceItem describes an item in a data source location. (default view)",
+      "example": {
+        "is_dir": false,
+        "key": "abc123",
+        "mod_time": "1970-01-01T00:00:01Z",
+        "size": 1
+      },
+      "properties": {
+        "is_dir": {
+          "description": "True if the item is a directory, false if it is a file",
+          "example": false,
+          "type": "boolean"
+        },
+        "key": {
+          "description": "Key of the item",
+          "example": "abc123",
+          "type": "string"
+        },
+        "mod_time": {
+          "description": "Last modification time of the item",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "size": {
+          "description": "Size of the item in bytes",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "key",
+        "is_dir"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.source.item; view=default",
+      "type": "object"
+    },
+    "SourceItemResponseBodyCollection": {
+      "description": "SourceItemCollectionResponseBody is the result type for an array of SourceItemResponseBody (default view)",
+      "example": [
+        {
+          "is_dir": false,
+          "key": "abc123",
+          "mod_time": "1970-01-01T00:00:01Z",
+          "size": 1
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/SourceItemResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.source.item; type=collection; view=default",
       "type": "array"
     },
     "StorageAIPResponseCollection": {
@@ -4744,6 +5048,98 @@
         ]
       }
     },
+    "/ingest/sources/{uuid}/items": {
+      "get": {
+        "description": "List SIP source items\n\n**Required security scopes for jwt**:\n  * `ingest:sources:items:list`",
+        "operationId": "ingest#list_source_items",
+        "parameters": [
+          {
+            "description": "Limit the number of results to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "Cursor token to get subsequent pages",
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Identifier of SIP source -- CURRENTLY NOT USED",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSourceItemsResponseBody"
+            }
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSourceItemsNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSourceItemsNotFoundResponseBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSourceItemsInternalErrorResponseBody"
+            }
+          },
+          "501": {
+            "description": "Not Implemented response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSourceItemsNotImplementedResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "list_source_items ingest",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
     "/ingest/users": {
       "get": {
         "description": "List all users\n\n**Required security scopes for jwt**:\n  * `ingest:users:list`",
@@ -6130,7 +6526,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sources:items:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

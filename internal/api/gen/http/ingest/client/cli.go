@@ -394,3 +394,48 @@ func BuildListUsersPayload(ingestListUsersEmail string, ingestListUsersName stri
 
 	return v, nil
 }
+
+// BuildListSourceItemsPayload builds the payload for the ingest
+// list_source_items endpoint from CLI flags.
+func BuildListSourceItemsPayload(ingestListSourceItemsUUID string, ingestListSourceItemsLimit string, ingestListSourceItemsCursor string, ingestListSourceItemsToken string) (*ingest.ListSourceItemsPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = ingestListSourceItemsUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var limit *int
+	{
+		if ingestListSourceItemsLimit != "" {
+			var v int64
+			v, err = strconv.ParseInt(ingestListSourceItemsLimit, 10, strconv.IntSize)
+			val := int(v)
+			limit = &val
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for limit, must be INT")
+			}
+		}
+	}
+	var cursor *string
+	{
+		if ingestListSourceItemsCursor != "" {
+			cursor = &ingestListSourceItemsCursor
+		}
+	}
+	var token *string
+	{
+		if ingestListSourceItemsToken != "" {
+			token = &ingestListSourceItemsToken
+		}
+	}
+	v := &ingest.ListSourceItemsPayload{}
+	v.UUID = uuid
+	v.Limit = limit
+	v.Cursor = cursor
+	v.Token = token
+
+	return v, nil
+}

@@ -7,12 +7,14 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/ref"
 	"goa.design/goa/v3/security"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
+	"github.com/artefactual-sdps/enduro/internal/sipsource"
 )
 
 // GoaWrapper returns a ingestImpl wrapper that implements
@@ -229,6 +231,46 @@ func (w *goaWrapper) ListUsers(ctx context.Context, payload *goaingest.ListUsers
 	res := &goaingest.Users{
 		Items: items,
 		Page:  pg.Goa(),
+	}
+
+	return res, nil
+}
+
+func (w *goaWrapper) ListSourceItems(
+	ctx context.Context,
+	payload *goaingest.ListSourceItemsPayload,
+) (*goaingest.SourceItems, error) {
+	// TODO: Use the payload.UUID to select a SIP source when we add support for
+	// multiple SIP sources.
+	if payload == nil {
+		payload = &goaingest.ListSourceItemsPayload{}
+	}
+
+	var cursor []byte
+	if payload.Cursor != nil {
+		cursor = []byte(*payload.Cursor)
+	}
+
+	page, err := w.sipSource.ListItems(ctx, cursor, ref.DerefZero(payload.Limit))
+	if err != nil {
+		if errors.Is(err, sipsource.ErrMissingBucket) {
+			return nil, goaingest.MakeNotFound(errors.New("SIP source not found"))
+		}
+
+		w.logger.Error(err, "Error listing source items")
+		return nil, goaingest.MakeInternalError(errors.New("internal error"))
+	}
+	if page == nil || len(page.Items) == 0 {
+		return nil, goaingest.MakeNotFound(errors.New("no items found"))
+	}
+
+	res := &goaingest.SourceItems{
+		Items: sourceItemsToGoa(page.Items),
+		Limit: page.Limit,
+	}
+
+	if page.NextToken != nil {
+		res.Next = ref.New(string(page.NextToken))
 	}
 
 	return res, nil

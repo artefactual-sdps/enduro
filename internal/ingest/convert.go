@@ -14,6 +14,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
+	"github.com/artefactual-sdps/enduro/internal/sipsource"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
@@ -155,4 +156,24 @@ func validateStringPtr(s *string, maxLength int) (*string, error) {
 	}
 
 	return s, nil
+}
+
+func sourceItemsToGoa(items []*sipsource.Item) goaingest.SourceItemCollection {
+	if items == nil {
+		return nil
+	}
+
+	goaItems := make([]*goaingest.SourceItem, len(items))
+	for i, item := range items {
+		goaItems[i] = &goaingest.SourceItem{Key: item.Key, IsDir: item.IsDir}
+
+		if item.Size != 0 {
+			goaItems[i].Size = ref.New(item.Size)
+		}
+		if !item.ModTime.IsZero() {
+			goaItems[i].ModTime = ref.New(item.ModTime.Format(time.RFC3339))
+		}
+	}
+
+	return goaItems
 }

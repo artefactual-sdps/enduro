@@ -7,6 +7,7 @@ const (
 	IngestSIPSReviewAttr           = "ingest:sips:review"
 	IngestSIPSUploadAttr           = "ingest:sips:upload"
 	IngestSIPSWorkflowsListAttr    = "ingest:sips:workflows:list"
+	IngestSourcesItemsListAttr     = "ingest:sources:items:list"
 	IngestUsersListAttr            = "ingest:users:list"
 	StorageAIPSCreateAttr          = "storage:aips:create"
 	StorageAIPSDeletionRequestAttr = "storage:aips:deletion:request"
