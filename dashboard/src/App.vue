@@ -8,8 +8,10 @@ import Sidebar from "@/components/Sidebar.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
+authStore.loadConfig();
 
-// Connect to the ingest monitor API when the user is loaded successfully.
+// Connect to the ingest monitor API when the user is
+// loaded successfully or if authentication is disabled.
 watch(
   () => authStore.isUserValid,
   (valid) => {
@@ -19,6 +21,7 @@ watch(
       });
     }
   },
+  { immediate: true },
 );
 </script>
 
