@@ -8,6 +8,17 @@ requests.
 
 ## [Unreleased]
 
+## [0.16.0] - 2025-07-17
+
+### Fixed
+
+- Increase read and write timeouts for SIP upload ([#1237])
+
+### Changed
+
+- Send websocket events based on user attributes ([#1221])
+- Use UUIDs as identifiers for ingest workflows and tasks ([#1209])
+
 ## [0.15.0] - 2025-06-27
 
 ### Fixed
@@ -191,7 +202,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.15.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.16.0...HEAD
+[0.16.0]: https://github.com/artefactual-sdps/enduro/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/artefactual-sdps/enduro/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/artefactual-sdps/enduro/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/artefactual-sdps/enduro/compare/v0.12.0...v0.13.0
@@ -214,6 +226,7 @@ Initial release.
 [#1238]: https://github.com/artefactual-sdps/enduro/issues/1238
 [#1237]: https://github.com/artefactual-sdps/enduro/issues/1237
 [#1231]: https://github.com/artefactual-sdps/enduro/issues/1231
+[#1221]: https://github.com/artefactual-sdps/enduro/issues/1221
 [#1218]: https://github.com/artefactual-sdps/enduro/issues/1218
 [#1210]: https://github.com/artefactual-sdps/enduro/issues/1210
 [#1209]: https://github.com/artefactual-sdps/enduro/issues/1209
