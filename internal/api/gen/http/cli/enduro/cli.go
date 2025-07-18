@@ -26,7 +26,7 @@ import (
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `about about
-ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip|download-sip-request|download-sip|list-users)
+ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip|download-sip-request|download-sip|list-users|list-source-items)
 storage (list-aips|create-aip|submit-aip|update-aip|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)
 `
 }
@@ -111,6 +111,11 @@ func ParseEndpoint(
 		ingestListUsersLimitFlag  = ingestListUsersFlags.String("limit", "", "")
 		ingestListUsersOffsetFlag = ingestListUsersFlags.String("offset", "", "")
 		ingestListUsersTokenFlag  = ingestListUsersFlags.String("token", "", "")
+
+		ingestListSourceItemsFlags     = flag.NewFlagSet("list-source-items", flag.ExitOnError)
+		ingestListSourceItemsBodyFlag  = ingestListSourceItemsFlags.String("body", "REQUIRED", "")
+		ingestListSourceItemsUUIDFlag  = ingestListSourceItemsFlags.String("uuid", "REQUIRED", "Identifier of source")
+		ingestListSourceItemsTokenFlag = ingestListSourceItemsFlags.String("token", "", "")
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
@@ -212,6 +217,7 @@ func ParseEndpoint(
 	ingestDownloadSipRequestFlags.Usage = ingestDownloadSipRequestUsage
 	ingestDownloadSipFlags.Usage = ingestDownloadSipUsage
 	ingestListUsersFlags.Usage = ingestListUsersUsage
+	ingestListSourceItemsFlags.Usage = ingestListSourceItemsUsage
 
 	storageFlags.Usage = storageUsage
 	storageListAipsFlags.Usage = storageListAipsUsage
@@ -310,6 +316,9 @@ func ParseEndpoint(
 
 			case "list-users":
 				epf = ingestListUsersFlags
+
+			case "list-source-items":
+				epf = ingestListSourceItemsFlags
 
 			}
 
@@ -437,6 +446,9 @@ func ParseEndpoint(
 			case "list-users":
 				endpoint = c.ListUsers()
 				data, err = ingestc.BuildListUsersPayload(*ingestListUsersEmailFlag, *ingestListUsersNameFlag, *ingestListUsersLimitFlag, *ingestListUsersOffsetFlag, *ingestListUsersTokenFlag)
+			case "list-source-items":
+				endpoint = c.ListSourceItems()
+				data, err = ingestc.BuildListSourceItemsPayload(*ingestListSourceItemsBodyFlag, *ingestListSourceItemsUUIDFlag, *ingestListSourceItemsTokenFlag)
 			}
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
@@ -547,6 +559,7 @@ COMMAND:
     download-sip-request: Request access to SIP download
     download-sip: Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP's `+"`"+`failed_as`+"`"+` value.
     list-users: List all users
+    list-source-items: List the items in the given source
 
 Additional help:
     %[1]s ingest COMMAND --help
@@ -693,6 +706,22 @@ List all users
 
 Example:
     %[1]s ingest list-users --email "nobody@example.com" --name "Jane Doe" --limit 1 --offset 1 --token "abc123"
+`, os.Args[0])
+}
+
+func ingestListSourceItemsUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-source-items -body JSON -uuid STRING -token STRING
+
+List the items in the given source
+    -body JSON: 
+    -uuid STRING: Identifier of source
+    -token STRING: 
+
+Example:
+    %[1]s ingest list-source-items --body '{
+      "limit": 1,
+      "page": "abc123"
+   }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
 

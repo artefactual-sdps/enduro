@@ -45,6 +45,14 @@ type Users struct {
 	View string
 }
 
+// SourceItems is the viewed result type that is projected based on a view.
+type SourceItems struct {
+	// Type to project
+	Projected *SourceItemsView
+	// View to render
+	View string
+}
+
 // SIPsView is a type that runs validations on a projected type.
 type SIPsView struct {
 	Items SIPCollectionView
@@ -152,6 +160,30 @@ type UserView struct {
 	CreatedAt *string
 }
 
+// SourceItemsView is a type that runs validations on a projected type.
+type SourceItemsView struct {
+	Items SourceItemCollectionView
+	// Limit of items per page
+	Limit *int
+	// Token to get the next page of items
+	Next *string
+}
+
+// SourceItemCollectionView is a type that runs validations on a projected type.
+type SourceItemCollectionView []*SourceItemView
+
+// SourceItemView is a type that runs validations on a projected type.
+type SourceItemView struct {
+	// Key of the item
+	Key *string
+	// Last modification time of the item
+	ModTime *string
+	// Size of the item in bytes
+	Size *int64
+	// True if the item is a directory, false if it is a file
+	IsDir *bool
+}
+
 var (
 	// SIPsMap is a map indexing the attribute names of SIPs by view name.
 	SIPsMap = map[string][]string{
@@ -189,6 +221,15 @@ var (
 		"default": {
 			"items",
 			"page",
+		},
+	}
+	// SourceItemsMap is a map indexing the attribute names of SourceItems by view
+	// name.
+	SourceItemsMap = map[string][]string{
+		"default": {
+			"items",
+			"limit",
+			"next",
 		},
 	}
 	// SIPCollectionMap is a map indexing the attribute names of SIPCollection by
@@ -308,6 +349,26 @@ var (
 			"created_at",
 		},
 	}
+	// SourceItemCollectionMap is a map indexing the attribute names of
+	// SourceItemCollection by view name.
+	SourceItemCollectionMap = map[string][]string{
+		"default": {
+			"key",
+			"mod_time",
+			"size",
+			"is_dir",
+		},
+	}
+	// SourceItemMap is a map indexing the attribute names of SourceItem by view
+	// name.
+	SourceItemMap = map[string][]string{
+		"default": {
+			"key",
+			"mod_time",
+			"size",
+			"is_dir",
+		},
+	}
 )
 
 // ValidateSIPs runs the validations defined on the viewed result type SIPs.
@@ -349,6 +410,18 @@ func ValidateUsers(result *Users) (err error) {
 	switch result.View {
 	case "default", "":
 		err = ValidateUsersView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
+
+// ValidateSourceItems runs the validations defined on the viewed result type
+// SourceItems.
+func ValidateSourceItems(result *SourceItems) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateSourceItemsView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
@@ -642,6 +715,46 @@ func ValidateUserView(result *UserView) (err error) {
 	}
 	if result.CreatedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.created_at", *result.CreatedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateSourceItemsView runs the validations defined on SourceItemsView
+// using the "default" view.
+func ValidateSourceItemsView(result *SourceItemsView) (err error) {
+	if result.Limit == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("limit", "result"))
+	}
+	if result.Items != nil {
+		if err2 := ValidateSourceItemCollectionView(result.Items); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateSourceItemCollectionView runs the validations defined on
+// SourceItemCollectionView using the "default" view.
+func ValidateSourceItemCollectionView(result SourceItemCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateSourceItemView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateSourceItemView runs the validations defined on SourceItemView using
+// the "default" view.
+func ValidateSourceItemView(result *SourceItemView) (err error) {
+	if result.Key == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("key", "result"))
+	}
+	if result.IsDir == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("is_dir", "result"))
+	}
+	if result.ModTime != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.mod_time", *result.ModTime, goa.FormatDateTime))
 	}
 	return
 }

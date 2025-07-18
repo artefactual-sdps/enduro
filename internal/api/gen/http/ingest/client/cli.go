@@ -394,3 +394,38 @@ func BuildListUsersPayload(ingestListUsersEmail string, ingestListUsersName stri
 
 	return v, nil
 }
+
+// BuildListSourceItemsPayload builds the payload for the ingest
+// list_source_items endpoint from CLI flags.
+func BuildListSourceItemsPayload(ingestListSourceItemsBody string, ingestListSourceItemsUUID string, ingestListSourceItemsToken string) (*ingest.ListSourceItemsPayload, error) {
+	var err error
+	var body ListSourceItemsRequestBody
+	{
+		err = json.Unmarshal([]byte(ingestListSourceItemsBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"limit\": 1,\n      \"page\": \"abc123\"\n   }'")
+		}
+	}
+	var uuid string
+	{
+		uuid = ingestListSourceItemsUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if ingestListSourceItemsToken != "" {
+			token = &ingestListSourceItemsToken
+		}
+	}
+	v := &ingest.ListSourceItemsPayload{
+		Limit: body.Limit,
+		Page:  body.Page,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}

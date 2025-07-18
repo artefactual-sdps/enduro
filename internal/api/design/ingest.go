@@ -327,6 +327,32 @@ var _ = Service("ingest", func() {
 			})
 		})
 	})
+	Method("list_source_items", func() {
+		Description("List the items in the given source")
+		Security(JWTAuth, func() {
+			Scope("ingest:sources:items:list")
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of source")
+			Attribute("limit", Int, "Limit the number of results to return")
+			Attribute("page", String, "Page token to continue listing items")
+			Token("token", String)
+			Required("uuid")
+		})
+		Result(SourceItems)
+		Error("not_implemented")
+		Error("not_found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			GET("/sources/{uuid}/items")
+			Response(StatusOK)
+			Response("not_implemented", StatusNotImplemented)
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+		})
+	})
 })
 
 var EnumSIPStatus = func() {
@@ -505,4 +531,32 @@ var SIPTask = ResultType("application/vnd.enduro.ingest.sip.task", func() {
 		TypedAttributeUUID("workflow_uuid", "Identifier of related workflow")
 	})
 	Required("uuid", "name", "status", "started_at", "workflow_uuid")
+})
+
+var SourceItem = ResultType("application/vnd.enduro.ingest.source.item", func() {
+	Description("SourceItem describes an item in a data source location.")
+	TypeName("SourceItem")
+	Attributes(func() {
+		Attribute("key", String, "Key of the item")
+		Attribute("mod_time", String, "Last modification time of the item", func() {
+			Format(FormatDateTime)
+		})
+		Attribute("size", Int64, "Size of the item in bytes")
+		Attribute("is_dir", Boolean, "True if the item is a directory, false if it is a file")
+	})
+	View("default", func() {
+		Attribute("key")
+		Attribute("mod_time")
+		Attribute("size")
+		Attribute("is_dir")
+	})
+	Required("key", "is_dir")
+})
+
+var SourceItems = ResultType("application/vnd.enduro.ingest.source.items", func() {
+	TypeName("SourceItems")
+	Attribute("items", CollectionOf(SourceItem))
+	Attribute("limit", Int, "Limit of items per page")
+	Attribute("next", String, "Token to get the next page of items")
+	Required("items", "limit")
 })

@@ -43,6 +43,8 @@ type Service interface {
 	DownloadSip(context.Context, *DownloadSipPayload) (res *DownloadSipResult, body io.ReadCloser, err error)
 	// List all users
 	ListUsers(context.Context, *ListUsersPayload) (res *Users, err error)
+	// List the items in the given source
+	ListSourceItems(context.Context, *ListSourceItemsPayload) (res *SourceItems, err error)
 }
 
 // Auther defines the authorization functions to be implemented by the service.
@@ -65,7 +67,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [11]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "upload_sip", "download_sip_request", "download_sip", "list_users"}
+var MethodNames = [12]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_source_items"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -156,6 +158,18 @@ type ListSipsPayload struct {
 	// Offset from the beginning of the found set
 	Offset *int
 	Token  *string
+}
+
+// ListSourceItemsPayload is the payload type of the ingest service
+// list_source_items method.
+type ListSourceItemsPayload struct {
+	// Identifier of source
+	UUID string
+	// Limit the number of results to return
+	Limit *int
+	// Page token to continue listing items
+	Page  *string
+	Token *string
 }
 
 // ListUsersPayload is the payload type of the ingest service list_users method.
@@ -336,6 +350,30 @@ type ShowSipPayload struct {
 	Token *string
 }
 
+// SourceItem describes an item in a data source location.
+type SourceItem struct {
+	// Key of the item
+	Key string
+	// Last modification time of the item
+	ModTime *string
+	// Size of the item in bytes
+	Size *int64
+	// True if the item is a directory, false if it is a file
+	IsDir bool
+}
+
+type SourceItemCollection []*SourceItem
+
+// SourceItems is the result type of the ingest service list_source_items
+// method.
+type SourceItems struct {
+	Items SourceItemCollection
+	// Limit of items per page
+	Limit int
+	// Token to get the next page of items
+	Next *string
+}
+
 // UploadSipPayload is the payload type of the ingest service upload_sip method.
 type UploadSipPayload struct {
 	// Content-Type header, must define value for multipart boundary.
@@ -459,6 +497,16 @@ func MakeInternalError(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "internal_error", false, false, false)
 }
 
+// MakeNotImplemented builds a goa.ServiceError from an error.
+func MakeNotImplemented(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "not_implemented", false, false, false)
+}
+
+// MakeNotFound builds a goa.ServiceError from an error.
+func MakeNotFound(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "not_found", false, false, false)
+}
+
 // NewSIPs initializes result type SIPs from viewed result type SIPs.
 func NewSIPs(vres *ingestviews.SIPs) *SIPs {
 	return newSIPs(vres.Projected)
@@ -506,6 +554,19 @@ func NewUsers(vres *ingestviews.Users) *Users {
 func NewViewedUsers(res *Users, view string) *ingestviews.Users {
 	p := newUsersView(res)
 	return &ingestviews.Users{Projected: p, View: "default"}
+}
+
+// NewSourceItems initializes result type SourceItems from viewed result type
+// SourceItems.
+func NewSourceItems(vres *ingestviews.SourceItems) *SourceItems {
+	return newSourceItems(vres.Projected)
+}
+
+// NewViewedSourceItems initializes viewed result type SourceItems from result
+// type SourceItems using the given view.
+func NewViewedSourceItems(res *SourceItems, view string) *ingestviews.SourceItems {
+	p := newSourceItemsView(res)
+	return &ingestviews.SourceItems{Projected: p, View: "default"}
 }
 
 // newSIPs converts projected type SIPs to service type SIPs.
@@ -908,6 +969,81 @@ func newUserView(res *User) *ingestviews.UserView {
 		Email:     &res.Email,
 		Name:      &res.Name,
 		CreatedAt: &res.CreatedAt,
+	}
+	return vres
+}
+
+// newSourceItems converts projected type SourceItems to service type
+// SourceItems.
+func newSourceItems(vres *ingestviews.SourceItemsView) *SourceItems {
+	res := &SourceItems{
+		Next: vres.Next,
+	}
+	if vres.Limit != nil {
+		res.Limit = *vres.Limit
+	}
+	if vres.Items != nil {
+		res.Items = newSourceItemCollection(vres.Items)
+	}
+	return res
+}
+
+// newSourceItemsView projects result type SourceItems to projected type
+// SourceItemsView using the "default" view.
+func newSourceItemsView(res *SourceItems) *ingestviews.SourceItemsView {
+	vres := &ingestviews.SourceItemsView{
+		Limit: &res.Limit,
+		Next:  res.Next,
+	}
+	if res.Items != nil {
+		vres.Items = newSourceItemCollectionView(res.Items)
+	}
+	return vres
+}
+
+// newSourceItemCollection converts projected type SourceItemCollection to
+// service type SourceItemCollection.
+func newSourceItemCollection(vres ingestviews.SourceItemCollectionView) SourceItemCollection {
+	res := make(SourceItemCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newSourceItem(n)
+	}
+	return res
+}
+
+// newSourceItemCollectionView projects result type SourceItemCollection to
+// projected type SourceItemCollectionView using the "default" view.
+func newSourceItemCollectionView(res SourceItemCollection) ingestviews.SourceItemCollectionView {
+	vres := make(ingestviews.SourceItemCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newSourceItemView(n)
+	}
+	return vres
+}
+
+// newSourceItem converts projected type SourceItem to service type SourceItem.
+func newSourceItem(vres *ingestviews.SourceItemView) *SourceItem {
+	res := &SourceItem{
+		ModTime: vres.ModTime,
+		Size:    vres.Size,
+	}
+	if vres.Key != nil {
+		res.Key = *vres.Key
+	}
+	if vres.IsDir != nil {
+		res.IsDir = *vres.IsDir
+	}
+	return res
+}
+
+// newSourceItemView projects result type SourceItem to projected type
+// SourceItemView using the "default" view.
+func newSourceItemView(res *SourceItem) *ingestviews.SourceItemView {
+	vres := &ingestviews.SourceItemView{
+		Key:     &res.Key,
+		ModTime: res.ModTime,
+		Size:    res.Size,
+		IsDir:   &res.IsDir,
 	}
 	return vres
 }

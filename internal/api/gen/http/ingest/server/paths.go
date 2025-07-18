@@ -66,3 +66,8 @@ func DownloadSipIngestPath(uuid string) string {
 func ListUsersIngestPath() string {
 	return "/ingest/users"
 }
+
+// ListSourceItemsIngestPath returns the URL path to the ingest service list_source_items HTTP endpoint.
+func ListSourceItemsIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/sources/%v/items", uuid)
+}

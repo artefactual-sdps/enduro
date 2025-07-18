@@ -311,3 +311,7 @@ func (w *goaWrapper) ListUsers(ctx context.Context, payload *goaingest.ListUsers
 
 	return res, nil
 }
+
+func (w *goaWrapper) ListSourceItems(ctx context.Context, payload *goaingest.ListSourceItemsPayload) (*goaingest.SourceItems, error) {
+	return nil, goaingest.MakeNotImplemented(errors.New("not implemented"))
+}

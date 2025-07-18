@@ -28,10 +28,11 @@ type Client struct {
 	DownloadSipRequestEndpoint goa.Endpoint
 	DownloadSipEndpoint        goa.Endpoint
 	ListUsersEndpoint          goa.Endpoint
+	ListSourceItemsEndpoint    goa.Endpoint
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip, downloadSipRequest, downloadSip, listUsers goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip, downloadSipRequest, downloadSip, listUsers, listSourceItems goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:     monitorRequest,
 		MonitorEndpoint:            monitor,
@@ -44,6 +45,7 @@ func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, con
 		DownloadSipRequestEndpoint: downloadSipRequest,
 		DownloadSipEndpoint:        downloadSip,
 		ListUsersEndpoint:          listUsers,
+		ListSourceItemsEndpoint:    listSourceItems,
 	}
 }
 
@@ -216,4 +218,23 @@ func (c *Client) ListUsers(ctx context.Context, p *ListUsersPayload) (res *Users
 		return
 	}
 	return ires.(*Users), nil
+}
+
+// ListSourceItems calls the "list_source_items" endpoint of the "ingest"
+// service.
+// ListSourceItems may return the following errors:
+//   - "not_implemented" (type *goa.ServiceError)
+//   - "not_found" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) ListSourceItems(ctx context.Context, p *ListSourceItemsPayload) (res *SourceItems, err error) {
+	var ires any
+	ires, err = c.ListSourceItemsEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*SourceItems), nil
 }

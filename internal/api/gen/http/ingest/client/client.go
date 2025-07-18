@@ -65,6 +65,10 @@ type Client struct {
 	// endpoint.
 	ListUsersDoer goahttp.Doer
 
+	// ListSourceItems Doer is the HTTP client used to make requests to the
+	// list_source_items endpoint.
+	ListSourceItemsDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -106,6 +110,7 @@ func NewClient(
 		DownloadSipRequestDoer: doer,
 		DownloadSipDoer:        doer,
 		ListUsersDoer:          doer,
+		ListSourceItemsDoer:    doer,
 		CORSDoer:               doer,
 		RestoreResponseBody:    restoreBody,
 		scheme:                 scheme,
@@ -399,6 +404,30 @@ func (c *Client) ListUsers() goa.Endpoint {
 		resp, err := c.ListUsersDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("ingest", "list_users", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// ListSourceItems returns an endpoint that makes HTTP requests to the ingest
+// service list_source_items server.
+func (c *Client) ListSourceItems() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeListSourceItemsRequest(c.encoder)
+		decodeResponse = DecodeListSourceItemsResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildListSourceItemsRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ListSourceItemsDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("ingest", "list_source_items", err)
 		}
 		return decodeResponse(resp)
 	}

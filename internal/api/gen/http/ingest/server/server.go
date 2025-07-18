@@ -36,6 +36,7 @@ type Server struct {
 	DownloadSipRequest http.Handler
 	DownloadSip        http.Handler
 	ListUsers          http.Handler
+	ListSourceItems    http.Handler
 	CORS               http.Handler
 }
 
@@ -82,6 +83,7 @@ func New(
 			{"DownloadSipRequest", "POST", "/ingest/sips/{uuid}/download"},
 			{"DownloadSip", "GET", "/ingest/sips/{uuid}/download"},
 			{"ListUsers", "GET", "/ingest/users"},
+			{"ListSourceItems", "GET", "/ingest/sources/{uuid}/items"},
 			{"CORS", "OPTIONS", "/ingest/monitor"},
 			{"CORS", "OPTIONS", "/ingest/sips"},
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}"},
@@ -91,6 +93,7 @@ func New(
 			{"CORS", "OPTIONS", "/ingest/sips/upload"},
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/download"},
 			{"CORS", "OPTIONS", "/ingest/users"},
+			{"CORS", "OPTIONS", "/ingest/sources/{uuid}/items"},
 		},
 		MonitorRequest:     NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
 		Monitor:            NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
@@ -103,6 +106,7 @@ func New(
 		DownloadSipRequest: NewDownloadSipRequestHandler(e.DownloadSipRequest, mux, decoder, encoder, errhandler, formatter),
 		DownloadSip:        NewDownloadSipHandler(e.DownloadSip, mux, decoder, encoder, errhandler, formatter),
 		ListUsers:          NewListUsersHandler(e.ListUsers, mux, decoder, encoder, errhandler, formatter),
+		ListSourceItems:    NewListSourceItemsHandler(e.ListSourceItems, mux, decoder, encoder, errhandler, formatter),
 		CORS:               NewCORSHandler(),
 	}
 }
@@ -123,6 +127,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.DownloadSipRequest = m(s.DownloadSipRequest)
 	s.DownloadSip = m(s.DownloadSip)
 	s.ListUsers = m(s.ListUsers)
+	s.ListSourceItems = m(s.ListSourceItems)
 	s.CORS = m(s.CORS)
 }
 
@@ -142,6 +147,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountDownloadSipRequestHandler(mux, h.DownloadSipRequest)
 	MountDownloadSipHandler(mux, h.DownloadSip)
 	MountListUsersHandler(mux, h.ListUsers)
+	MountListSourceItemsHandler(mux, h.ListSourceItems)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -744,6 +750,57 @@ func NewListUsersHandler(
 	})
 }
 
+// MountListSourceItemsHandler configures the mux to serve the "ingest" service
+// "list_source_items" endpoint.
+func MountListSourceItemsHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/ingest/sources/{uuid}/items", otelhttp.WithRouteTag("/ingest/sources/{uuid}/items", f).ServeHTTP)
+}
+
+// NewListSourceItemsHandler creates a HTTP handler which loads the HTTP
+// request and calls the "ingest" service "list_source_items" endpoint.
+func NewListSourceItemsHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeListSourceItemsRequest(mux, decoder)
+		encodeResponse = EncodeListSourceItemsResponse(encoder)
+		encodeError    = EncodeListSourceItemsError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "list_source_items")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service ingest.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
@@ -757,6 +814,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/ingest/sips/upload", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/download", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/users", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/sources/{uuid}/items", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 204 response.

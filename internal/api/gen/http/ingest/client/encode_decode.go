@@ -1591,6 +1591,181 @@ func DecodeListUsersResponse(decoder func(*http.Response) goahttp.Decoder, resto
 	}
 }
 
+// BuildListSourceItemsRequest instantiates a HTTP request object with method
+// and path set to call the "ingest" service "list_source_items" endpoint
+func (c *Client) BuildListSourceItemsRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*ingest.ListSourceItemsPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("ingest", "list_source_items", "*ingest.ListSourceItemsPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListSourceItemsIngestPath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "list_source_items", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeListSourceItemsRequest returns an encoder for requests sent to the
+// ingest list_source_items server.
+func EncodeListSourceItemsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.ListSourceItemsPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "list_source_items", "*ingest.ListSourceItemsPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		body := NewListSourceItemsRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("ingest", "list_source_items", err)
+		}
+		return nil
+	}
+}
+
+// DecodeListSourceItemsResponse returns a decoder for responses returned by
+// the ingest list_source_items endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeListSourceItemsResponse may return the following errors:
+//   - "not_implemented" (type *goa.ServiceError): http.StatusNotImplemented
+//   - "not_found" (type *goa.ServiceError): http.StatusNotFound
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeListSourceItemsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ListSourceItemsResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_source_items", err)
+			}
+			p := NewListSourceItemsSourceItemsOK(&body)
+			view := "default"
+			vres := &ingestviews.SourceItems{Projected: p, View: view}
+			if err = ingestviews.ValidateSourceItems(vres); err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_source_items", err)
+			}
+			res := ingest.NewSourceItems(vres)
+			return res, nil
+		case http.StatusNotImplemented:
+			var (
+				body ListSourceItemsNotImplementedResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_source_items", err)
+			}
+			err = ValidateListSourceItemsNotImplementedResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_source_items", err)
+			}
+			return nil, NewListSourceItemsNotImplemented(&body)
+		case http.StatusNotFound:
+			var (
+				body ListSourceItemsNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_source_items", err)
+			}
+			err = ValidateListSourceItemsNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_source_items", err)
+			}
+			return nil, NewListSourceItemsNotFound(&body)
+		case http.StatusBadRequest:
+			var (
+				body ListSourceItemsNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_source_items", err)
+			}
+			err = ValidateListSourceItemsNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_source_items", err)
+			}
+			return nil, NewListSourceItemsNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body ListSourceItemsInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_source_items", err)
+			}
+			err = ValidateListSourceItemsInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_source_items", err)
+			}
+			return nil, NewListSourceItemsInternalError(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_source_items", err)
+			}
+			return nil, NewListSourceItemsForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_source_items", err)
+			}
+			return nil, NewListSourceItemsUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "list_source_items", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalSIPResponseBodyToIngestviewsSIPView builds a value of type
 // *ingestviews.SIPView from a value of type *SIPResponseBody.
 func unmarshalSIPResponseBodyToIngestviewsSIPView(v *SIPResponseBody) *ingestviews.SIPView {
@@ -1678,6 +1853,20 @@ func unmarshalUserResponseBodyToIngestviewsUserView(v *UserResponseBody) *ingest
 		Email:     v.Email,
 		Name:      v.Name,
 		CreatedAt: v.CreatedAt,
+	}
+
+	return res
+}
+
+// unmarshalSourceItemResponseBodyToIngestviewsSourceItemView builds a value of
+// type *ingestviews.SourceItemView from a value of type
+// *SourceItemResponseBody.
+func unmarshalSourceItemResponseBodyToIngestviewsSourceItemView(v *SourceItemResponseBody) *ingestviews.SourceItemView {
+	res := &ingestviews.SourceItemView{
+		Key:     v.Key,
+		ModTime: v.ModTime,
+		Size:    v.Size,
+		IsDir:   v.IsDir,
 	}
 
 	return res
