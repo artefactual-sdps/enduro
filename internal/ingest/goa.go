@@ -313,5 +313,30 @@ func (w *goaWrapper) ListUsers(ctx context.Context, payload *goaingest.ListUsers
 }
 
 func (w *goaWrapper) ListSourceItems(ctx context.Context, payload *goaingest.ListSourceItemsPayload) (*goaingest.SourceItems, error) {
-	return nil, goaingest.MakeNotImplemented(errors.New("not implemented"))
+	if payload == nil || payload.UUID == "" {
+		return nil, goaingest.MakeNotValid(errors.New("source UUID is required"))
+	}
+	if w.sipSource == nil {
+		return nil, goaingest.MakeNotFound(errors.New("SIP source not found"))
+	}
+
+	page, err := w.sipSource.ListItems(ctx, nil, 0)
+	if err != nil {
+		w.logger.Error(err, "Error listing source items")
+		return nil, goaingest.MakeInternalError(errors.New("internal error"))
+	}
+	if page == nil {
+		return nil, goaingest.MakeNotFound(errors.New("no items found"))
+	}
+
+	res := &goaingest.SourceItems{
+		Items: sourceItemsToGoa(page.Items),
+		Limit: page.Limit,
+	}
+
+	if page.NextToken != nil {
+		res.Next = ref.New(string(page.NextToken))
+	}
+
+	return res, nil
 }

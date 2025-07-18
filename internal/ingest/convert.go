@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
+	"gocloud.dev/blob"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
@@ -155,4 +156,24 @@ func validateStringPtr(s *string, maxLength int) (*string, error) {
 	}
 
 	return s, nil
+}
+
+func sourceItemsToGoa(items []*blob.ListObject) goaingest.SourceItemCollection {
+	if items == nil {
+		return nil
+	}
+
+	goaItems := make([]*goaingest.SourceItem, len(items))
+	for i, item := range items {
+		goaItems[i] = &goaingest.SourceItem{Key: item.Key, IsDir: item.IsDir}
+
+		if item.Size != 0 {
+			goaItems[i].Size = ref.New(item.Size)
+		}
+		if !item.ModTime.IsZero() {
+			goaItems[i].ModTime = ref.New(item.ModTime.Format(time.RFC3339))
+		}
+	}
+
+	return goaItems
 }
