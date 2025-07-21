@@ -11,11 +11,11 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/ref"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	"goa.design/goa/v3/security"
 	"gocloud.dev/blob"
-	"go.artefactual.dev/tools/ref"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -63,8 +63,8 @@ type serviceImpl struct {
 	// Persistence client.
 	storagePersistence persistence.Storage
 
-	// Event service.
-	evsvc event.EventService
+	// Storage event service.
+	evsvc event.StorageEventService
 
 	// Token verifier.
 	tokenVerifier auth.TokenVerifier
@@ -88,7 +88,7 @@ func NewService(
 	config Config,
 	storagePersistence persistence.Storage,
 	tc temporalsdk_client.Client,
-	evsvc event.EventService,
+	evsvc event.StorageEventService,
 	tokenVerifier auth.TokenVerifier,
 	ticketProvider auth.TicketProvider,
 	rander io.Reader,
@@ -225,13 +225,13 @@ func (s *serviceImpl) CreateAip(ctx context.Context, payload *goastorage.CreateA
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Publish AIP created event
-	event.PublishEvent(ctx, s.evsvc, &goastorage.AIPCreatedEvent{
+	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.AIPCreatedEvent{
 		UUID: aipID,
 		Item: aip,
 	})
-	
+
 	return aip, nil
 }
 
@@ -358,7 +358,7 @@ func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, stat
 	if err != nil {
 		return err
 	}
-	
+
 	// Read the updated AIP to publish event
 	aip, err := s.ReadAip(ctx, aipID)
 	if err != nil {
@@ -366,13 +366,13 @@ func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, stat
 		s.logger.Error(err, "failed to read AIP for event publishing", "aipID", aipID)
 		return nil
 	}
-	
+
 	// Publish AIP updated event
-	event.PublishEvent(ctx, s.evsvc, &goastorage.AIPUpdatedEvent{
+	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.AIPUpdatedEvent{
 		UUID: aipID,
 		Item: aip,
 	})
-	
+
 	return nil
 }
 
@@ -509,9 +509,9 @@ func (s *serviceImpl) CreateLocation(
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
 	}
-	
+
 	// Publish location created event
-	event.PublishEvent(ctx, s.evsvc, &goastorage.LocationCreatedEvent{
+	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.LocationCreatedEvent{
 		UUID: UUID,
 		Item: location,
 	})
@@ -563,13 +563,13 @@ func (svc *serviceImpl) CreateWorkflow(ctx context.Context, w *types.Workflow) e
 	if err != nil {
 		return err
 	}
-	
+
 	// Publish workflow created event
-	event.PublishEvent(ctx, svc.evsvc, &goastorage.WorkflowCreatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.WorkflowCreatedEvent{
 		UUID: w.UUID,
 		Item: svc.workflowGoa(w),
 	})
-	
+
 	return nil
 }
 
@@ -582,13 +582,13 @@ func (svc *serviceImpl) UpdateWorkflow(
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Publish workflow updated event
-	event.PublishEvent(ctx, svc.evsvc, &goastorage.WorkflowUpdatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.WorkflowUpdatedEvent{
 		UUID: workflow.UUID,
 		Item: svc.workflowGoa(workflow),
 	})
-	
+
 	return workflow, nil
 }
 
@@ -597,13 +597,13 @@ func (svc *serviceImpl) CreateTask(ctx context.Context, t *types.Task) error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Publish task created event
-	event.PublishEvent(ctx, svc.evsvc, &goastorage.TaskCreatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.TaskCreatedEvent{
 		UUID: t.UUID,
 		Item: svc.taskGoa(t),
 	})
-	
+
 	return nil
 }
 
@@ -616,13 +616,13 @@ func (svc *serviceImpl) UpdateTask(
 	if err != nil {
 		return nil, err
 	}
-	
+
 	// Publish task updated event
-	event.PublishEvent(ctx, svc.evsvc, &goastorage.TaskUpdatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.TaskUpdatedEvent{
 		UUID: task.UUID,
 		Item: svc.taskGoa(task),
 	})
-	
+
 	return task, nil
 }
 
@@ -650,11 +650,11 @@ func (svc *serviceImpl) ReadAipPendingDeletionRequest(
 // workflowGoa converts a storage Workflow to a Goa AIPWorkflow.
 func (svc *serviceImpl) workflowGoa(w *types.Workflow) *goastorage.AIPWorkflow {
 	var startedAt, completedAt *string
-	
+
 	if !w.StartedAt.IsZero() {
 		startedAt = ref.New(w.StartedAt.Format(time.RFC3339))
 	}
-	
+
 	if !w.CompletedAt.IsZero() {
 		completedAt = ref.New(w.CompletedAt.Format(time.RFC3339))
 	}
@@ -673,15 +673,15 @@ func (svc *serviceImpl) workflowGoa(w *types.Workflow) *goastorage.AIPWorkflow {
 // taskGoa converts a storage Task to a Goa AIPTask.
 func (svc *serviceImpl) taskGoa(t *types.Task) *goastorage.AIPTask {
 	var startedAt, completedAt, note *string
-	
+
 	if !t.StartedAt.IsZero() {
 		startedAt = ref.New(t.StartedAt.Format(time.RFC3339))
 	}
-	
+
 	if !t.CompletedAt.IsZero() {
 		completedAt = ref.New(t.CompletedAt.Format(time.RFC3339))
 	}
-	
+
 	if t.Note != "" {
 		note = ref.New(t.Note)
 	}

@@ -436,6 +436,8 @@ func newStorageClient(tp trace.TracerProvider, cfg config.Configuration) *goasto
 		goahttp.RequestEncoder,
 		goahttp.ResponseDecoder,
 		false,
+		nil, // dialer
+		nil, // conn configurer
 	)
 
 	storageClient := goastorage.NewClient(
@@ -457,6 +459,8 @@ func newStorageClient(tp trace.TracerProvider, cfg config.Configuration) *goasto
 		storageHttpClient.CreateLocation(),
 		storageHttpClient.ShowLocation(),
 		storageHttpClient.ListLocationAips(),
+		storageHttpClient.MonitorRequest(),
+		storageHttpClient.Monitor(),
 	)
 
 	return storageClient

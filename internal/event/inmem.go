@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
 // EventServiceInMemImpl represents a service for managing events in the system.
@@ -96,5 +97,94 @@ func (s *SubscriptionInMemImpl) Close() error {
 
 // C returns a receive-only channel of user-related events.
 func (s *SubscriptionInMemImpl) C() <-chan *goaingest.MonitorEvent {
+	return s.c
+}
+
+// StorageEventServiceInMemImpl represents a service for managing storage events in the system.
+type StorageEventServiceInMemImpl struct {
+	mu   sync.Mutex
+	subs map[uuid.UUID]*StorageSubscriptionInMemImpl
+}
+
+var _ StorageEventService = (*StorageEventServiceInMemImpl)(nil)
+
+// NewStorageEventServiceInMemImpl returns a new instance of StorageEventService.
+func NewStorageEventServiceInMemImpl() *StorageEventServiceInMemImpl {
+	return &StorageEventServiceInMemImpl{
+		subs: map[uuid.UUID]*StorageSubscriptionInMemImpl{},
+	}
+}
+
+// PublishEvent publishes event to all of a user's subscriptions.
+func (s *StorageEventServiceInMemImpl) PublishEvent(ctx context.Context, event *goastorage.StorageMonitorEvent) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	// Publish event to all subscriptions for the user.
+	for _, sub := range s.subs {
+		select {
+		case sub.c <- event:
+		default:
+			s.unsubscribe(sub)
+		}
+	}
+}
+
+// Subscribe creates a new subscription.
+func (s *StorageEventServiceInMemImpl) Subscribe(ctx context.Context) (StorageSubscription, error) {
+	sub := &StorageSubscriptionInMemImpl{
+		service: s,
+		c:       make(chan *goastorage.StorageMonitorEvent, EventBufferSize),
+		id:      uuid.New(),
+	}
+
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.subs[sub.id] = sub
+
+	return sub, nil
+}
+
+// Unsubscribe disconnects sub from the service.
+func (s *StorageEventServiceInMemImpl) Unsubscribe(sub *StorageSubscriptionInMemImpl) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.unsubscribe(sub)
+}
+
+func (s *StorageEventServiceInMemImpl) unsubscribe(sub *StorageSubscriptionInMemImpl) {
+	// Only close the underlying channel once. Otherwise Go will panic.
+	sub.once.Do(func() {
+		close(sub.c)
+	})
+
+	_, ok := s.subs[sub.id]
+	if !ok {
+		return
+	}
+
+	delete(s.subs, sub.id)
+}
+
+// StorageSubscriptionInMemImpl represents a stream of storage-related events.
+type StorageSubscriptionInMemImpl struct {
+	service *StorageEventServiceInMemImpl        // service subscription was created from
+	c       chan *goastorage.StorageMonitorEvent // channel of events
+	once    sync.Once                            // ensures c only closed once
+	id      uuid.UUID                            // subscription identifier
+}
+
+var _ StorageSubscription = (*StorageSubscriptionInMemImpl)(nil)
+
+// Close disconnects the subscription from the service it was created from.
+func (s *StorageSubscriptionInMemImpl) Close() error {
+	s.service.Unsubscribe(s)
+	return nil
+}
+
+// C returns a receive-only channel of storage-related events.
+func (s *StorageSubscriptionInMemImpl) C() <-chan *goastorage.StorageMonitorEvent {
 	return s.c
 }

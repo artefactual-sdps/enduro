@@ -28,6 +28,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
@@ -105,6 +106,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		*params.config,
 		*params.persistence,
 		*params.temporalClient,
+		event.NewStorageEventServiceInMemImpl(),
 		params.tokenVerifier,
 		params.ticketProvider,
 		rand.New(rand.NewSource(1)), // #nosec: G404
@@ -136,6 +138,7 @@ func TestNewService(t *testing.T) {
 			storage.Config{},
 			nil,
 			nil,
+			event.NewStorageEventServiceInMemImpl(),
 			&auth.OIDCTokenVerifier{},
 			nil,
 			nil,
@@ -637,6 +640,11 @@ func TestReject(t *testing.T) {
 				enums.AIPStatusDeleted,
 			).
 			Return(nil)
+
+		attrs.persistenceMock.
+			EXPECT().
+			ReadAIP(ctx, aipID).
+			Return(&goastorage.AIP{UUID: aipID}, nil)
 
 		err := svc.RejectAip(ctx, &goastorage.RejectAipPayload{UUID: aipID.String()})
 		assert.NilError(t, err)
@@ -1247,6 +1255,11 @@ func TestServiceUpdate(t *testing.T) {
 			Return(
 				nil,
 			)
+
+		attrs.persistenceMock.
+			EXPECT().
+			ReadAIP(gomock.AssignableToTypeOf(ctx), gomock.Any()).
+			Return(&goastorage.AIP{UUID: aipID}, nil)
 
 		err := svc.UpdateAip(ctx, &goastorage.UpdateAipPayload{
 			UUID: aipID.String(),

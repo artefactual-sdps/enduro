@@ -286,6 +286,8 @@ func main() {
 			goahttp.RequestEncoder,
 			goahttp.ResponseDecoder,
 			false,
+			nil, // dialer
+			nil, // conn configurer
 		)
 		storageClient := goastorage.NewClient(
 			storageHttpClient.ListAips(),
@@ -306,6 +308,8 @@ func main() {
 			storageHttpClient.CreateLocation(),
 			storageHttpClient.ShowLocation(),
 			storageHttpClient.ListLocationAips(),
+			storageHttpClient.MonitorRequest(),
+			storageHttpClient.Monitor(),
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewUploadActivity(storageClient).Execute,

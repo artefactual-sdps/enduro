@@ -157,6 +157,9 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Set up the storage event service.
+	storageEvsvc := event.NewStorageEventServiceInMemImpl()
+
 	// Set up the OIDC token verifier.
 	var tokenVerifier auth.TokenVerifier
 	{
@@ -259,7 +262,7 @@ func main() {
 			cfg.Storage,
 			storagePersistence,
 			temporalClient,
-			evsvc,
+			storageEvsvc,
 			tokenVerifier,
 			ticketProvider,
 			rand.Reader,
@@ -331,7 +334,7 @@ func main() {
 			cfg.Storage,
 			storagePersistence,
 			temporalClient,
-			evsvc,
+			storageEvsvc,
 			&auth.NoopTokenVerifier{},
 			ticketProvider,
 			rand.Reader,

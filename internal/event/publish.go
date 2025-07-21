@@ -42,7 +42,7 @@ func PublishEvent(ctx context.Context, events EventService, event any) {
 type StorageEventService interface {
 	// Publishes a storage event to a user's event listeners.
 	PublishEvent(ctx context.Context, event *goastorage.StorageMonitorEvent)
-	
+
 	// Creates a subscription. Caller must call StorageSubscription.Close() when done.
 	Subscribe(ctx context.Context) (StorageSubscription, error)
 }
