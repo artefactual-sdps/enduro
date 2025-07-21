@@ -437,6 +437,45 @@ var _ = Service("storage", func() {
 			Response("not_valid", StatusBadRequest)
 		})
 	})
+	Method("monitor_request", func() {
+		Description("Request access to the /monitor WebSocket")
+		// Do not require any scope, user claims will be stored internally
+		// and checked in the monitor endpoint after validating the cookie.
+		Security(JWTAuth)
+		Payload(func() {
+			Token("token", String)
+		})
+		Result(func() {
+			Attribute("ticket", String)
+		})
+		Error("not_available")
+		HTTP(func() {
+			POST("/monitor")
+			Response("not_available", StatusInternalServerError)
+			Response(StatusOK, func() {
+				Cookie("ticket:enduro-storage-ws-ticket")
+				CookieMaxAge(5)
+				CookieSecure()
+				CookieHTTPOnly()
+			})
+		})
+	})
+	Method("monitor", func() {
+		Description("Obtain access to the /monitor WebSocket")
+		// Disable JWTAuth security (it validates the previous method cookie).
+		NoSecurity()
+		Payload(func() {
+			Attribute("ticket", String)
+		})
+		StreamingResult(StorageMonitorEvent)
+		Error("not_available")
+		HTTP(func() {
+			GET("/monitor")
+			Response("not_available", StatusInternalServerError)
+			Response(StatusOK)
+			Cookie("ticket:enduro-storage-ws-ticket")
+		})
+	})
 })
 
 var SubmitAIPResult = Type("SubmitAIPResult", func() {

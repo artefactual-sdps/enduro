@@ -43,6 +43,8 @@ type Server struct {
 	CreateLocation     http.Handler
 	ShowLocation       http.Handler
 	ListLocationAips   http.Handler
+	MonitorRequest     http.Handler
+	Monitor            http.Handler
 	CORS               http.Handler
 }
 
@@ -70,7 +72,12 @@ func New(
 	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	errhandler func(context.Context, http.ResponseWriter, error),
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
+	upgrader goahttp.Upgrader,
+	configurer *ConnConfigurer,
 ) *Server {
+	if configurer == nil {
+		configurer = &ConnConfigurer{}
+	}
 	return &Server{
 		Mounts: []*MountPoint{
 			{"ListAips", "GET", "/storage/aips"},
@@ -91,6 +98,8 @@ func New(
 			{"CreateLocation", "POST", "/storage/locations"},
 			{"ShowLocation", "GET", "/storage/locations/{uuid}"},
 			{"ListLocationAips", "GET", "/storage/locations/{uuid}/aips"},
+			{"MonitorRequest", "POST", "/storage/monitor"},
+			{"Monitor", "GET", "/storage/monitor"},
 			{"CORS", "OPTIONS", "/storage/aips"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/submit"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/update"},
@@ -105,6 +114,7 @@ func New(
 			{"CORS", "OPTIONS", "/storage/locations"},
 			{"CORS", "OPTIONS", "/storage/locations/{uuid}"},
 			{"CORS", "OPTIONS", "/storage/locations/{uuid}/aips"},
+			{"CORS", "OPTIONS", "/storage/monitor"},
 		},
 		ListAips:           NewListAipsHandler(e.ListAips, mux, decoder, encoder, errhandler, formatter),
 		CreateAip:          NewCreateAipHandler(e.CreateAip, mux, decoder, encoder, errhandler, formatter),
@@ -124,6 +134,8 @@ func New(
 		CreateLocation:     NewCreateLocationHandler(e.CreateLocation, mux, decoder, encoder, errhandler, formatter),
 		ShowLocation:       NewShowLocationHandler(e.ShowLocation, mux, decoder, encoder, errhandler, formatter),
 		ListLocationAips:   NewListLocationAipsHandler(e.ListLocationAips, mux, decoder, encoder, errhandler, formatter),
+		MonitorRequest:     NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
+		Monitor:            NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
 		CORS:               NewCORSHandler(),
 	}
 }
@@ -151,6 +163,8 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.CreateLocation = m(s.CreateLocation)
 	s.ShowLocation = m(s.ShowLocation)
 	s.ListLocationAips = m(s.ListLocationAips)
+	s.MonitorRequest = m(s.MonitorRequest)
+	s.Monitor = m(s.Monitor)
 	s.CORS = m(s.CORS)
 }
 
@@ -177,6 +191,8 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountCreateLocationHandler(mux, h.CreateLocation)
 	MountShowLocationHandler(mux, h.ShowLocation)
 	MountListLocationAipsHandler(mux, h.ListLocationAips)
+	MountMonitorRequestHandler(mux, h.MonitorRequest)
+	MountMonitorHandler(mux, h.Monitor)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -1120,6 +1136,123 @@ func NewListLocationAipsHandler(
 	})
 }
 
+// MountMonitorRequestHandler configures the mux to serve the "storage" service
+// "monitor_request" endpoint.
+func MountMonitorRequestHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/storage/monitor", otelhttp.WithRouteTag("/storage/monitor", f).ServeHTTP)
+}
+
+// NewMonitorRequestHandler creates a HTTP handler which loads the HTTP request
+// and calls the "storage" service "monitor_request" endpoint.
+func NewMonitorRequestHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeMonitorRequestRequest(mux, decoder)
+		encodeResponse = EncodeMonitorRequestResponse(encoder)
+		encodeError    = EncodeMonitorRequestError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "monitor_request")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountMonitorHandler configures the mux to serve the "storage" service
+// "monitor" endpoint.
+func MountMonitorHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/storage/monitor", otelhttp.WithRouteTag("/storage/monitor", f).ServeHTTP)
+}
+
+// NewMonitorHandler creates a HTTP handler which loads the HTTP request and
+// calls the "storage" service "monitor" endpoint.
+func NewMonitorHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+	upgrader goahttp.Upgrader,
+	configurer goahttp.ConnConfigureFunc,
+) http.Handler {
+	var (
+		decodeRequest = DecodeMonitorRequest(mux, decoder)
+		encodeError   = EncodeMonitorError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "monitor")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		var cancel context.CancelFunc
+		ctx, cancel = context.WithCancel(ctx)
+		v := &storage.MonitorEndpointInput{
+			Stream: &MonitorServerStream{
+				upgrader:   upgrader,
+				configurer: configurer,
+				cancel:     cancel,
+				w:          w,
+				r:          r,
+			},
+			Payload: payload.(*storage.MonitorPayload),
+		}
+		_, err = endpoint(ctx, v)
+		if err != nil {
+			if v.Stream.(*MonitorServerStream).conn != nil {
+				// Response writer has been hijacked, do not encode the error
+				errhandler(ctx, w, err)
+				return
+			}
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+	})
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service storage.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
@@ -1138,6 +1271,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/storage/locations", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/locations/{uuid}", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/locations/{uuid}/aips", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/monitor", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 204 response.

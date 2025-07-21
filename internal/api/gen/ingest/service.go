@@ -83,6 +83,64 @@ type MonitorClientStream interface {
 	Recv() (*MonitorEvent, error)
 }
 
+// An AIP describes an AIP retrieved by the storage service.
+type AIP struct {
+	Name string
+	UUID uuid.UUID
+	// Status of the AIP
+	Status    string
+	ObjectKey uuid.UUID
+	// Identifier of storage location
+	LocationUUID *uuid.UUID
+	// Creation datetime
+	CreatedAt string
+}
+
+type AIPCreatedEvent struct {
+	// Identifier of AIP
+	UUID uuid.UUID
+	Item *AIP
+}
+
+// AIPTask describes an AIP workflow task.
+type AIPTask struct {
+	UUID        uuid.UUID
+	Name        string
+	Status      string
+	StartedAt   *string
+	CompletedAt *string
+	Note        *string
+	// Identifier of related workflow
+	WorkflowUUID uuid.UUID
+}
+
+type AIPTaskCollection []*AIPTask
+
+type AIPUpdatedEvent struct {
+	// Identifier of AIP
+	UUID uuid.UUID
+	Item *AIP
+}
+
+// AIPWorkflow describes a workflow of an AIP.
+type AIPWorkflow struct {
+	UUID        uuid.UUID
+	TemporalID  string
+	Type        string
+	Status      string
+	StartedAt   *string
+	CompletedAt *string
+	// Identifier of related AIP
+	AipUUID uuid.UUID
+	Tasks   AIPTaskCollection
+}
+
+type AMSSConfig struct {
+	APIKey   string
+	URL      string
+	Username string
+}
+
 // ConfirmSipPayload is the payload type of the ingest service confirm_sip
 // method.
 type ConfirmSipPayload struct {
@@ -171,6 +229,36 @@ type ListUsersPayload struct {
 	Token  *string
 }
 
+// A Location describes a location retrieved by the storage service.
+type Location struct {
+	// Name of location
+	Name string
+	// Description of the location
+	Description *string
+	// Data source of the location
+	Source string
+	// Purpose of the location
+	Purpose string
+	UUID    uuid.UUID
+	Config  interface {
+		configVal()
+	}
+	// Creation datetime
+	CreatedAt string
+}
+
+type LocationCreatedEvent struct {
+	// Identifier of Location
+	UUID uuid.UUID
+	Item *Location
+}
+
+type LocationUpdatedEvent struct {
+	// Identifier of Location
+	UUID uuid.UUID
+	Item *Location
+}
+
 // MonitorEvent is the result type of the ingest service monitor method.
 type MonitorEvent struct {
 	Event interface {
@@ -204,6 +292,24 @@ type RejectSipPayload struct {
 	// Identifier of SIP to look up
 	UUID  string
 	Token *string
+}
+
+type S3Config struct {
+	Bucket    string
+	Region    string
+	Endpoint  *string
+	PathStyle *bool
+	Profile   *string
+	Key       *string
+	Secret    *string
+	Token     *string
+}
+
+type SFTPConfig struct {
+	Address   string
+	Username  string
+	Password  string
+	Directory string
 }
 
 // SIP is the result type of the ingest service show_sip method.
@@ -336,6 +442,26 @@ type ShowSipPayload struct {
 	Token *string
 }
 
+type StorageMonitorPingEvent struct {
+	Message *string
+}
+
+type TaskCreatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
+type TaskUpdatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
+type URLConfig struct {
+	URL string
+}
+
 // UploadSipPayload is the payload type of the ingest service upload_sip method.
 type UploadSipPayload struct {
 	// Content-Type header, must define value for multipart boundary.
@@ -367,6 +493,18 @@ type UserCollection []*User
 type Users struct {
 	Items UserCollection
 	Page  *EnduroPage
+}
+
+type WorkflowCreatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
+}
+
+type WorkflowUpdatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
 }
 
 // Forbidden
@@ -425,7 +563,10 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
+func (*AMSSConfig) configVal()             {}
 func (*MonitorPingEvent) eventVal()        {}
+func (*S3Config) configVal()               {}
+func (*SFTPConfig) configVal()             {}
 func (*SIPCreatedEvent) eventVal()         {}
 func (*SIPStatusUpdatedEvent) eventVal()   {}
 func (*SIPTaskCreatedEvent) eventVal()     {}
@@ -433,6 +574,7 @@ func (*SIPTaskUpdatedEvent) eventVal()     {}
 func (*SIPUpdatedEvent) eventVal()         {}
 func (*SIPWorkflowCreatedEvent) eventVal() {}
 func (*SIPWorkflowUpdatedEvent) eventVal() {}
+func (*URLConfig) configVal()              {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {

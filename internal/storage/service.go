@@ -18,6 +18,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
@@ -61,6 +62,9 @@ type serviceImpl struct {
 	// Persistence client.
 	storagePersistence persistence.Storage
 
+	// Event service.
+	evsvc event.EventService
+
 	// Token verifier.
 	tokenVerifier auth.TokenVerifier
 
@@ -83,6 +87,7 @@ func NewService(
 	config Config,
 	storagePersistence persistence.Storage,
 	tc temporalsdk_client.Client,
+	evsvc event.EventService,
 	tokenVerifier auth.TokenVerifier,
 	ticketProvider auth.TicketProvider,
 	rander io.Reader,
@@ -92,6 +97,7 @@ func NewService(
 		tc:                 tc,
 		config:             config,
 		storagePersistence: storagePersistence,
+		evsvc:              evsvc,
 		tokenVerifier:      tokenVerifier,
 		ticketProvider:     ticketProvider,
 		rander:             rander,
@@ -214,7 +220,18 @@ func (s *serviceImpl) CreateAip(ctx context.Context, payload *goastorage.CreateA
 		LocationUUID: payload.LocationUUID,
 	}
 
-	return s.storagePersistence.CreateAIP(ctx, p)
+	aip, err := s.storagePersistence.CreateAIP(ctx, p)
+	if err != nil {
+		return nil, err
+	}
+	
+	// Publish AIP created event
+	event.PublishEvent(ctx, s.evsvc, &goastorage.AIPCreatedEvent{
+		UUID: aipID,
+		Item: aip,
+	})
+	
+	return aip, nil
 }
 
 func (s *serviceImpl) UpdateAip(ctx context.Context, payload *goastorage.UpdateAipPayload) error {
@@ -336,7 +353,26 @@ func (s *serviceImpl) ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage
 }
 
 func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {
-	return s.storagePersistence.UpdateAIPStatus(ctx, aipID, status)
+	err := s.storagePersistence.UpdateAIPStatus(ctx, aipID, status)
+	if err != nil {
+		return err
+	}
+	
+	// Read the updated AIP to publish event
+	aip, err := s.ReadAip(ctx, aipID)
+	if err != nil {
+		// Log error but don't fail the update operation
+		s.logger.Error(err, "failed to read AIP for event publishing", "aipID", aipID)
+		return nil
+	}
+	
+	// Publish AIP updated event
+	event.PublishEvent(ctx, s.evsvc, &goastorage.AIPUpdatedEvent{
+		UUID: aipID,
+		Item: aip,
+	})
+	
+	return nil
 }
 
 func (s *serviceImpl) UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error {
@@ -462,7 +498,7 @@ func (s *serviceImpl) CreateLocation(
 		return nil, goastorage.MakeNotValid(errors.New("invalid configuration"))
 	}
 
-	_, err = s.storagePersistence.CreateLocation(ctx, &goastorage.Location{
+	location, err := s.storagePersistence.CreateLocation(ctx, &goastorage.Location{
 		Name:        payload.Name,
 		Description: payload.Description,
 		Source:      source.String(),
@@ -472,6 +508,12 @@ func (s *serviceImpl) CreateLocation(
 	if err != nil {
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
 	}
+	
+	// Publish location created event
+	event.PublishEvent(ctx, s.evsvc, &goastorage.LocationCreatedEvent{
+		UUID: UUID,
+		Item: location,
+	})
 
 	return &goastorage.CreateLocationResult{UUID: UUID.String()}, nil
 }
@@ -516,7 +558,18 @@ func (s *serviceImpl) ListLocationAips(
 }
 
 func (svc *serviceImpl) CreateWorkflow(ctx context.Context, w *types.Workflow) error {
-	return svc.storagePersistence.CreateWorkflow(ctx, w)
+	err := svc.storagePersistence.CreateWorkflow(ctx, w)
+	if err != nil {
+		return err
+	}
+	
+	// Publish workflow created event
+	event.PublishEvent(ctx, svc.evsvc, &goastorage.WorkflowCreatedEvent{
+		UUID: w.UUID,
+		Item: w.Goa(),
+	})
+	
+	return nil
 }
 
 func (svc *serviceImpl) UpdateWorkflow(
@@ -524,11 +577,33 @@ func (svc *serviceImpl) UpdateWorkflow(
 	id int,
 	upd persistence.WorkflowUpdater,
 ) (*types.Workflow, error) {
-	return svc.storagePersistence.UpdateWorkflow(ctx, id, upd)
+	workflow, err := svc.storagePersistence.UpdateWorkflow(ctx, id, upd)
+	if err != nil {
+		return nil, err
+	}
+	
+	// Publish workflow updated event
+	event.PublishEvent(ctx, svc.evsvc, &goastorage.WorkflowUpdatedEvent{
+		UUID: workflow.UUID,
+		Item: workflow.Goa(),
+	})
+	
+	return workflow, nil
 }
 
 func (svc *serviceImpl) CreateTask(ctx context.Context, t *types.Task) error {
-	return svc.storagePersistence.CreateTask(ctx, t)
+	err := svc.storagePersistence.CreateTask(ctx, t)
+	if err != nil {
+		return err
+	}
+	
+	// Publish task created event
+	event.PublishEvent(ctx, svc.evsvc, &goastorage.TaskCreatedEvent{
+		UUID: t.UUID,
+		Item: t.Goa(),
+	})
+	
+	return nil
 }
 
 func (svc *serviceImpl) UpdateTask(
@@ -536,7 +611,18 @@ func (svc *serviceImpl) UpdateTask(
 	id int,
 	upd persistence.TaskUpdater,
 ) (*types.Task, error) {
-	return svc.storagePersistence.UpdateTask(ctx, id, upd)
+	task, err := svc.storagePersistence.UpdateTask(ctx, id, upd)
+	if err != nil {
+		return nil, err
+	}
+	
+	// Publish task updated event
+	event.PublishEvent(ctx, svc.evsvc, &goastorage.TaskUpdatedEvent{
+		UUID: task.UUID,
+		Item: task.Goa(),
+	})
+	
+	return task, nil
 }
 
 func (svc *serviceImpl) CreateDeletionRequest(ctx context.Context, dr *types.DeletionRequest) error {

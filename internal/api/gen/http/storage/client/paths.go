@@ -101,3 +101,13 @@ func ShowLocationStoragePath(uuid string) string {
 func ListLocationAipsStoragePath(uuid string) string {
 	return fmt.Sprintf("/storage/locations/%v/aips", uuid)
 }
+
+// MonitorRequestStoragePath returns the URL path to the storage service monitor_request HTTP endpoint.
+func MonitorRequestStoragePath() string {
+	return "/storage/monitor"
+}
+
+// MonitorStoragePath returns the URL path to the storage service monitor HTTP endpoint.
+func MonitorStoragePath() string {
+	return "/storage/monitor"
+}

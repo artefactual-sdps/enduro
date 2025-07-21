@@ -177,6 +177,26 @@ type ShowLocationResponseBody struct {
 // "list_location_aips" endpoint HTTP response body.
 type ListLocationAipsResponseBody []*AIPResponse
 
+// MonitorResponseBody is the type of the "storage" service "monitor" endpoint
+// HTTP response body.
+type MonitorResponseBody struct {
+	Event *struct {
+		// Union type name, one of:
+		// - "monitor_ping_event"
+		// - "location_created_event"
+		// - "location_updated_event"
+		// - "aip_created_event"
+		// - "aip_updated_event"
+		// - "workflow_created_event"
+		// - "workflow_updated_event"
+		// - "task_created_event"
+		// - "task_updated_event"
+		Type *string `form:"Type" json:"Type" xml:"Type"`
+		// JSON encoded union value
+		Value *string `form:"Value" json:"Value" xml:"Value"`
+	} `form:"event,omitempty" json:"event,omitempty" xml:"event,omitempty"`
+}
+
 // ListAipsNotAvailableResponseBody is the type of the "storage" service
 // "list_aips" endpoint HTTP response body for the "not_available" error.
 type ListAipsNotAvailableResponseBody struct {
@@ -607,6 +627,42 @@ type ListLocationAipsNotFoundResponseBody struct {
 	// Message of error
 	Message *string    `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
+// MonitorRequestNotAvailableResponseBody is the type of the "storage" service
+// "monitor_request" endpoint HTTP response body for the "not_available" error.
+type MonitorRequestNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// MonitorNotAvailableResponseBody is the type of the "storage" service
+// "monitor" endpoint HTTP response body for the "not_available" error.
+type MonitorNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
 // AIPCollectionResponseBody is used to define fields on response body types.
@@ -1663,6 +1719,125 @@ func NewListLocationAipsUnauthorized(body string) storage.Unauthorized {
 	return v
 }
 
+// NewMonitorRequestResultOK builds a "storage" service "monitor_request"
+// endpoint result from a HTTP "OK" response.
+func NewMonitorRequestResultOK(ticket *string) *storage.MonitorRequestResult {
+	v := &storage.MonitorRequestResult{}
+	v.Ticket = ticket
+
+	return v
+}
+
+// NewMonitorRequestNotAvailable builds a storage service monitor_request
+// endpoint not_available error.
+func NewMonitorRequestNotAvailable(body *MonitorRequestNotAvailableResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewMonitorRequestForbidden builds a storage service monitor_request endpoint
+// forbidden error.
+func NewMonitorRequestForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewMonitorRequestUnauthorized builds a storage service monitor_request
+// endpoint unauthorized error.
+func NewMonitorRequestUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
+// NewMonitorStorageMonitorEventOK builds a "storage" service "monitor"
+// endpoint result from a HTTP "OK" response.
+func NewMonitorStorageMonitorEventOK(body *MonitorResponseBody) *storage.StorageMonitorEvent {
+	v := &storage.StorageMonitorEvent{}
+	if body.Event != nil {
+		switch *body.Event.Type {
+		case "monitor_ping_event":
+			var val *storage.StorageMonitorPingEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "location_created_event":
+			var val *storage.LocationCreatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "location_updated_event":
+			var val *storage.LocationUpdatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "aip_created_event":
+			var val *storage.AIPCreatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "aip_updated_event":
+			var val *storage.AIPUpdatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "workflow_created_event":
+			var val *storage.WorkflowCreatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "workflow_updated_event":
+			var val *storage.WorkflowUpdatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "task_created_event":
+			var val *storage.TaskCreatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		case "task_updated_event":
+			var val *storage.TaskUpdatedEvent
+			json.Unmarshal([]byte(*body.Event.Value), &val)
+			v.Event = val
+		}
+	}
+
+	return v
+}
+
+// NewMonitorNotAvailable builds a storage service monitor endpoint
+// not_available error.
+func NewMonitorNotAvailable(body *MonitorNotAvailableResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewMonitorForbidden builds a storage service monitor endpoint forbidden
+// error.
+func NewMonitorForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewMonitorUnauthorized builds a storage service monitor endpoint
+// unauthorized error.
+func NewMonitorUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
 // ValidateSubmitAipResponseBody runs the validations defined on
 // submit_aip_response_body
 func ValidateSubmitAipResponseBody(body *SubmitAipResponseBody) (err error) {
@@ -1686,6 +1861,25 @@ func ValidateMoveAipStatusResponseBody(body *MoveAipStatusResponseBody) (err err
 func ValidateCreateLocationResponseBody(body *CreateLocationResponseBody) (err error) {
 	if body.UUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
+// ValidateMonitorResponseBody runs the validations defined on
+// MonitorResponseBody
+func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
+	if body.Event != nil {
+		if body.Event.Type == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Type", "body.event"))
+		}
+		if body.Event.Value == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.event"))
+		}
+		if body.Event.Type != nil {
+			if !(*body.Event.Type == "monitor_ping_event" || *body.Event.Type == "location_created_event" || *body.Event.Type == "location_updated_event" || *body.Event.Type == "aip_created_event" || *body.Event.Type == "aip_updated_event" || *body.Event.Type == "workflow_created_event" || *body.Event.Type == "workflow_updated_event" || *body.Event.Type == "task_created_event" || *body.Event.Type == "task_updated_event") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.event.Type", *body.Event.Type, []any{"monitor_ping_event", "location_created_event", "location_updated_event", "aip_created_event", "aip_updated_event", "workflow_created_event", "workflow_updated_event", "task_created_event", "task_updated_event"}))
+			}
+		}
 	}
 	return
 }
@@ -2262,6 +2456,54 @@ func ValidateListLocationAipsNotFoundResponseBody(body *ListLocationAipsNotFound
 	}
 	if body.UUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
+// ValidateMonitorRequestNotAvailableResponseBody runs the validations defined
+// on monitor_request_not_available_response_body
+func ValidateMonitorRequestNotAvailableResponseBody(body *MonitorRequestNotAvailableResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateMonitorNotAvailableResponseBody runs the validations defined on
+// monitor_not_available_response_body
+func ValidateMonitorNotAvailableResponseBody(body *MonitorNotAvailableResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
 	}
 	return
 }

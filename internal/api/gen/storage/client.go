@@ -35,10 +35,12 @@ type Client struct {
 	CreateLocationEndpoint     goa.Endpoint
 	ShowLocationEndpoint       goa.Endpoint
 	ListLocationAipsEndpoint   goa.Endpoint
+	MonitorRequestEndpoint     goa.Endpoint
+	MonitorEndpoint            goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(listAips, createAip, submitAip, updateAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(listAips, createAip, submitAip, updateAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, listLocations, createLocation, showLocation, listLocationAips, monitorRequest, monitor goa.Endpoint) *Client {
 	return &Client{
 		ListAipsEndpoint:           listAips,
 		CreateAipEndpoint:          createAip,
@@ -58,6 +60,8 @@ func NewClient(listAips, createAip, submitAip, updateAip, downloadAipRequest, do
 		CreateLocationEndpoint:     createLocation,
 		ShowLocationEndpoint:       showLocation,
 		ListLocationAipsEndpoint:   listLocationAips,
+		MonitorRequestEndpoint:     monitorRequest,
+		MonitorEndpoint:            monitor,
 	}
 }
 
@@ -326,4 +330,34 @@ func (c *Client) ListLocationAips(ctx context.Context, p *ListLocationAipsPayloa
 		return
 	}
 	return ires.(AIPCollection), nil
+}
+
+// MonitorRequest calls the "monitor_request" endpoint of the "storage" service.
+// MonitorRequest may return the following errors:
+//   - "not_available" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) MonitorRequest(ctx context.Context, p *MonitorRequestPayload) (res *MonitorRequestResult, err error) {
+	var ires any
+	ires, err = c.MonitorRequestEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*MonitorRequestResult), nil
+}
+
+// Monitor calls the "monitor" endpoint of the "storage" service.
+// Monitor may return the following errors:
+//   - "not_available" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) Monitor(ctx context.Context, p *MonitorPayload) (res MonitorClientStream, err error) {
+	var ires any
+	ires, err = c.MonitorEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(MonitorClientStream), nil
 }

@@ -641,3 +641,33 @@ func BuildListLocationAipsPayload(storageListLocationAipsUUID string, storageLis
 
 	return v, nil
 }
+
+// BuildMonitorRequestPayload builds the payload for the storage
+// monitor_request endpoint from CLI flags.
+func BuildMonitorRequestPayload(storageMonitorRequestToken string) (*storage.MonitorRequestPayload, error) {
+	var token *string
+	{
+		if storageMonitorRequestToken != "" {
+			token = &storageMonitorRequestToken
+		}
+	}
+	v := &storage.MonitorRequestPayload{}
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildMonitorPayload builds the payload for the storage monitor endpoint from
+// CLI flags.
+func BuildMonitorPayload(storageMonitorTicket string) (*storage.MonitorPayload, error) {
+	var ticket *string
+	{
+		if storageMonitorTicket != "" {
+			ticket = &storageMonitorTicket
+		}
+	}
+	v := &storage.MonitorPayload{}
+	v.Ticket = ticket
+
+	return v, nil
+}
