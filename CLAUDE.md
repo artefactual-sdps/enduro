@@ -35,6 +35,11 @@ make atlas-hash   # Recalculate migration hashes
 
 # Check dependencies
 make deps         # List available module dependency updates
+
+# Build binaries (for testing compilation)
+go build -o dist/enduro ./cmd/enduro
+go build -o dist/enduro-am-worker ./cmd/enduro-am-worker
+go build -o dist/enduro-a3m-worker ./cmd/enduro-a3m-worker
 ```
 
 ### Frontend (Vue.js) Development
