@@ -17,7 +17,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/event"
+	event "github.com/artefactual-sdps/enduro/internal/event2"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )

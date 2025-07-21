@@ -15,7 +15,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
-	"github.com/artefactual-sdps/enduro/internal/event"
+	event "github.com/artefactual-sdps/enduro/internal/event2"
 )
 
 func TestMonitorRequest(t *testing.T) {
@@ -208,7 +208,7 @@ func TestMonitor(t *testing.T) {
 			t.Parallel()
 
 			tpMock := authfake.NewMockTicketProvider(gomock.NewController(t))
-			evsvc := event.NewEventServiceInMem()
+			evsvc := event.NewEventServiceInMemImpl()
 			stream := &mockMonitorServerStream{}
 
 			gw := &goaWrapper{

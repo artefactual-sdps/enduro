@@ -44,7 +44,7 @@ import (
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
-	"github.com/artefactual-sdps/enduro/internal/event"
+	event "github.com/artefactual-sdps/enduro/internal/event2"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"

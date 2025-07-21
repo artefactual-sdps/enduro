@@ -17,7 +17,7 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/event"
+	event "github.com/artefactual-sdps/enduro/internal/event2"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 

@@ -77,9 +77,16 @@ func (w *goaWrapper) Monitor(
 				return nil
 			}
 
-		case event, ok := <-sub.C():
+		case eventAny, ok := <-sub.C():
 			if !ok {
 				return nil
+			}
+
+			// Type assert to get the ingest monitor event
+			event, ok := eventAny.(*goaingest.MonitorEvent)
+			if !ok {
+				// Skip non-ingest events (e.g., storage events)
+				continue
 			}
 
 			// Check the event type and the user attributes before sending.

@@ -77,9 +77,16 @@ func (s *serviceImpl) Monitor(
 				return nil
 			}
 
-		case event, ok := <-sub.C():
+		case eventAny, ok := <-sub.C():
 			if !ok {
 				return nil
+			}
+
+			// Type assert to get the storage monitor event
+			event, ok := eventAny.(*goastorage.StorageMonitorEvent)
+			if !ok {
+				// Skip non-storage events (e.g., ingest events)
+				continue
 			}
 
 			// Check the event type and the user attributes before sending.
