@@ -1,5 +1,11 @@
 # Storage Service WebSocket Implementation Plan
 
+## User Request
+"Implement WebSocket support for the storage service to provide real-time updates, similar to what exists for the ingest service"
+
+## Related Files
+- Implementation: `.claude/implms/0001_storage_websocket.md`
+
 ## Overview
 This plan outlines the implementation of WebSocket support for real-time updates in the storage service, replicating the pattern established in the ingest service.
 

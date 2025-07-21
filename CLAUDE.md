@@ -149,6 +149,7 @@ Enduro is a preservation workflow application that orchestrates digital preserva
 5. AIP storage and registration
 6. Post-storage activities (cleanup, notifications)
 
+
 ## Key Development Patterns
 
 - Use generated code for API, database models, and enums

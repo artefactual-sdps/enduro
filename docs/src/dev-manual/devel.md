@@ -63,6 +63,19 @@ extensions:
 - Prettier - Code formatter
 - ESLint
 
+## Working with Claude Code
+
+When using Claude Code for development, use the `/plan-first` command to follow
+the recommended planning workflow for feature development and significant
+changes:
+
+```
+/plan-first [your feature request]
+```
+
+This ensures proper planning, documentation, and approval before implementation
+begins.
+
 ## Managing development binaries with bine
 
 This project uses [bine] to manage common development tools.

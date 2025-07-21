@@ -1,5 +1,8 @@
 # Storage Service WebSocket Implementation Summary
 
+## Related Files
+- Original Plan: `.claude/plans/0001_storage_websocket.md`
+
 ## Overview
 Successfully implemented WebSocket support for real-time updates in the storage service, replicating the implementation pattern from the ingest service. This enables real-time monitoring of all storage operations including Location, AIP, Workflow, and Task operations.
 
