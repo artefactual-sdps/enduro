@@ -15,6 +15,7 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 	"goa.design/goa/v3/security"
 	"gocloud.dev/blob"
+	"go.artefactual.dev/tools/ref"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -566,7 +567,7 @@ func (svc *serviceImpl) CreateWorkflow(ctx context.Context, w *types.Workflow) e
 	// Publish workflow created event
 	event.PublishEvent(ctx, svc.evsvc, &goastorage.WorkflowCreatedEvent{
 		UUID: w.UUID,
-		Item: w.Goa(),
+		Item: svc.workflowGoa(w),
 	})
 	
 	return nil
@@ -585,7 +586,7 @@ func (svc *serviceImpl) UpdateWorkflow(
 	// Publish workflow updated event
 	event.PublishEvent(ctx, svc.evsvc, &goastorage.WorkflowUpdatedEvent{
 		UUID: workflow.UUID,
-		Item: workflow.Goa(),
+		Item: svc.workflowGoa(workflow),
 	})
 	
 	return workflow, nil
@@ -600,7 +601,7 @@ func (svc *serviceImpl) CreateTask(ctx context.Context, t *types.Task) error {
 	// Publish task created event
 	event.PublishEvent(ctx, svc.evsvc, &goastorage.TaskCreatedEvent{
 		UUID: t.UUID,
-		Item: t.Goa(),
+		Item: svc.taskGoa(t),
 	})
 	
 	return nil
@@ -619,7 +620,7 @@ func (svc *serviceImpl) UpdateTask(
 	// Publish task updated event
 	event.PublishEvent(ctx, svc.evsvc, &goastorage.TaskUpdatedEvent{
 		UUID: task.UUID,
-		Item: task.Goa(),
+		Item: svc.taskGoa(task),
 	})
 	
 	return task, nil
@@ -642,4 +643,55 @@ func (svc *serviceImpl) ReadAipPendingDeletionRequest(
 	aipID uuid.UUID,
 ) (*types.DeletionRequest, error) {
 	return svc.storagePersistence.ReadAipPendingDeletionRequest(ctx, aipID)
+}
+
+// Helper methods to convert types to Goa types for event publishing
+
+// workflowGoa converts a storage Workflow to a Goa AIPWorkflow.
+func (svc *serviceImpl) workflowGoa(w *types.Workflow) *goastorage.AIPWorkflow {
+	var startedAt, completedAt *string
+	
+	if !w.StartedAt.IsZero() {
+		startedAt = ref.New(w.StartedAt.Format(time.RFC3339))
+	}
+	
+	if !w.CompletedAt.IsZero() {
+		completedAt = ref.New(w.CompletedAt.Format(time.RFC3339))
+	}
+
+	return &goastorage.AIPWorkflow{
+		UUID:        w.UUID,
+		TemporalID:  w.TemporalID,
+		Type:        w.Type.String(),
+		Status:      w.Status.String(),
+		StartedAt:   startedAt,
+		CompletedAt: completedAt,
+		Tasks:       nil, // Tasks are loaded separately when needed
+	}
+}
+
+// taskGoa converts a storage Task to a Goa AIPTask.
+func (svc *serviceImpl) taskGoa(t *types.Task) *goastorage.AIPTask {
+	var startedAt, completedAt, note *string
+	
+	if !t.StartedAt.IsZero() {
+		startedAt = ref.New(t.StartedAt.Format(time.RFC3339))
+	}
+	
+	if !t.CompletedAt.IsZero() {
+		completedAt = ref.New(t.CompletedAt.Format(time.RFC3339))
+	}
+	
+	if t.Note != "" {
+		note = ref.New(t.Note)
+	}
+
+	return &goastorage.AIPTask{
+		UUID:        t.UUID,
+		Name:        t.Name,
+		Status:      t.Status.String(),
+		StartedAt:   startedAt,
+		CompletedAt: completedAt,
+		Note:        note,
+	}
 }
