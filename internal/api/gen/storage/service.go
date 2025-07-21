@@ -20,6 +20,10 @@ import (
 
 // The storage service manages locations and AIPs.
 type Service interface {
+	// Request access to the /monitor WebSocket
+	MonitorRequest(context.Context, *MonitorRequestPayload) (res *MonitorRequestResult, err error)
+	// Obtain access to the /monitor WebSocket
+	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 	// List all AIPs
 	ListAips(context.Context, *ListAipsPayload) (res *AIPs, err error)
 	// Create a new AIP
@@ -56,10 +60,6 @@ type Service interface {
 	ShowLocation(context.Context, *ShowLocationPayload) (res *Location, err error)
 	// List all the AIPs stored in the location with UUID
 	ListLocationAips(context.Context, *ListLocationAipsPayload) (res AIPCollection, err error)
-	// Request access to the /monitor WebSocket
-	MonitorRequest(context.Context, *MonitorRequestPayload) (res *MonitorRequestResult, err error)
-	// Obtain access to the /monitor WebSocket
-	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 }
 
 // Auther defines the authorization functions to be implemented by the service.
@@ -82,7 +82,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [20]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips", "monitor_request", "monitor"}
+var MethodNames = [20]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "update_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -145,6 +145,18 @@ type AIPTask struct {
 
 type AIPTaskCollection []*AIPTask
 
+type AIPTaskCreatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
+type AIPTaskUpdatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
 type AIPUpdatedEvent struct {
 	// Identifier of AIP
 	UUID uuid.UUID
@@ -165,6 +177,18 @@ type AIPWorkflow struct {
 }
 
 type AIPWorkflowCollection []*AIPWorkflow
+
+type AIPWorkflowCreatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
+}
+
+type AIPWorkflowUpdatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
+}
 
 // AIPWorkflows is the result type of the storage service list_aip_workflows
 // method.
@@ -270,6 +294,10 @@ type EnduroPage struct {
 	Total int
 }
 
+type IngestPingEvent struct {
+	Message *string
+}
+
 // ListAipWorkflowsPayload is the payload type of the storage service
 // list_aip_workflows method.
 type ListAipWorkflowsPayload struct {
@@ -351,10 +379,6 @@ type LocationUpdatedEvent struct {
 // MonitorPayload is the payload type of the storage service monitor method.
 type MonitorPayload struct {
 	Ticket *string
-}
-
-type MonitorPingEvent struct {
-	Message *string
 }
 
 // MonitorRequestPayload is the payload type of the storage service
@@ -557,7 +581,7 @@ type StorageMonitorEvent struct {
 	}
 }
 
-type StorageMonitorPingEvent struct {
+type StoragePingEvent struct {
 	Message *string
 }
 
@@ -575,18 +599,6 @@ type SubmitAipPayload struct {
 	Token *string
 }
 
-type TaskCreatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *AIPTask
-}
-
-type TaskUpdatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *AIPTask
-}
-
 type URLConfig struct {
 	URL string
 }
@@ -597,18 +609,6 @@ type UpdateAipPayload struct {
 	// Identifier of AIP
 	UUID  string
 	Token *string
-}
-
-type WorkflowCreatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *AIPWorkflow
-}
-
-type WorkflowUpdatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *AIPWorkflow
 }
 
 // Forbidden
@@ -685,18 +685,18 @@ func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
 func (*AIPCreatedEvent) eventVal()         {}
+func (*AIPTaskCreatedEvent) eventVal()     {}
+func (*AIPTaskUpdatedEvent) eventVal()     {}
 func (*AIPUpdatedEvent) eventVal()         {}
+func (*AIPWorkflowCreatedEvent) eventVal() {}
+func (*AIPWorkflowUpdatedEvent) eventVal() {}
 func (*AMSSConfig) configVal()             {}
 func (*LocationCreatedEvent) eventVal()    {}
 func (*LocationUpdatedEvent) eventVal()    {}
 func (*S3Config) configVal()               {}
 func (*SFTPConfig) configVal()             {}
-func (*StorageMonitorPingEvent) eventVal() {}
-func (*TaskCreatedEvent) eventVal()        {}
-func (*TaskUpdatedEvent) eventVal()        {}
+func (*StoragePingEvent) eventVal()        {}
 func (*URLConfig) configVal()              {}
-func (*WorkflowCreatedEvent) eventVal()    {}
-func (*WorkflowUpdatedEvent) eventVal()    {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {

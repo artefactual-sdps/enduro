@@ -23,27 +23,27 @@ import {
 /**
  * 
  * @export
- * @interface TaskCreatedEvent
+ * @interface AIPTaskCreatedEvent
  */
-export interface TaskCreatedEvent {
+export interface AIPTaskCreatedEvent {
     /**
      * 
      * @type {EnduroStorageAipTask}
-     * @memberof TaskCreatedEvent
+     * @memberof AIPTaskCreatedEvent
      */
     item: EnduroStorageAipTask;
     /**
      * Identifier of task
      * @type {string}
-     * @memberof TaskCreatedEvent
+     * @memberof AIPTaskCreatedEvent
      */
     uuid: string;
 }
 
 /**
- * Check if a given object implements the TaskCreatedEvent interface.
+ * Check if a given object implements the AIPTaskCreatedEvent interface.
  */
-export function instanceOfTaskCreatedEvent(value: object): boolean {
+export function instanceOfAIPTaskCreatedEvent(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "item" in value;
     isInstance = isInstance && "uuid" in value;
@@ -51,11 +51,11 @@ export function instanceOfTaskCreatedEvent(value: object): boolean {
     return isInstance;
 }
 
-export function TaskCreatedEventFromJSON(json: any): TaskCreatedEvent {
-    return TaskCreatedEventFromJSONTyped(json, false);
+export function AIPTaskCreatedEventFromJSON(json: any): AIPTaskCreatedEvent {
+    return AIPTaskCreatedEventFromJSONTyped(json, false);
 }
 
-export function TaskCreatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): TaskCreatedEvent {
+export function AIPTaskCreatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPTaskCreatedEvent {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -66,7 +66,7 @@ export function TaskCreatedEventFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function TaskCreatedEventToJSON(value?: TaskCreatedEvent | null): any {
+export function AIPTaskCreatedEventToJSON(value?: AIPTaskCreatedEvent | null): any {
     if (value === undefined) {
         return undefined;
     }

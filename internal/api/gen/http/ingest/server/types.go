@@ -29,7 +29,7 @@ type ConfirmSipRequestBody struct {
 type MonitorResponseBody struct {
 	Event *struct {
 		// Union type name, one of:
-		// - "monitor_ping_event"
+		// - "ingest_ping_event"
 		// - "sip_created_event"
 		// - "sip_updated_event"
 		// - "sip_status_updated_event"
@@ -536,14 +536,14 @@ type UserResponseBody struct {
 
 // NewMonitorResponseBody builds the HTTP response body from the result of the
 // "monitor" endpoint of the "ingest" service.
-func NewMonitorResponseBody(res *ingest.MonitorEvent) *MonitorResponseBody {
+func NewMonitorResponseBody(res *ingest.IngestMonitorEvent) *MonitorResponseBody {
 	body := &MonitorResponseBody{}
 	if res.Event != nil {
 		js, _ := json.Marshal(res.Event)
 		var name string
 		switch res.Event.(type) {
-		case *ingest.MonitorPingEvent:
-			name = "monitor_ping_event"
+		case *ingest.IngestPingEvent:
+			name = "ingest_ping_event"
 		case *ingest.SIPCreatedEvent:
 			name = "sip_created_event"
 		case *ingest.SIPUpdatedEvent:
@@ -561,7 +561,7 @@ func NewMonitorResponseBody(res *ingest.MonitorEvent) *MonitorResponseBody {
 		}
 		body.Event = &struct {
 			// Union type name, one of:
-			// - "monitor_ping_event"
+			// - "ingest_ping_event"
 			// - "sip_created_event"
 			// - "sip_updated_event"
 			// - "sip_status_updated_event"

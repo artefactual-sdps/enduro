@@ -27,7 +27,7 @@ import (
 func UsageCommands() string {
 	return `about about
 ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip|download-sip-request|download-sip|list-users)
-storage (list-aips|create-aip|submit-aip|update-aip|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips|monitor-request|monitor)
+storage (monitor-request|monitor|list-aips|create-aip|submit-aip|update-aip|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)
 `
 }
 
@@ -35,7 +35,7 @@ storage (list-aips|create-aip|submit-aip|update-aip|download-aip-request|downloa
 func UsageExamples() string {
 	return os.Args[0] + ` about about --token "abc123"` + "\n" +
 		os.Args[0] + ` ingest monitor-request --token "abc123"` + "\n" +
-		os.Args[0] + ` storage list-aips --name "abc123" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "stored" --limit 1 --offset 1 --token "abc123"` + "\n" +
+		os.Args[0] + ` storage monitor-request --token "abc123"` + "\n" +
 		""
 }
 
@@ -114,6 +114,12 @@ func ParseEndpoint(
 		ingestListUsersTokenFlag  = ingestListUsersFlags.String("token", "", "")
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
+
+		storageMonitorRequestFlags     = flag.NewFlagSet("monitor-request", flag.ExitOnError)
+		storageMonitorRequestTokenFlag = storageMonitorRequestFlags.String("token", "", "")
+
+		storageMonitorFlags      = flag.NewFlagSet("monitor", flag.ExitOnError)
+		storageMonitorTicketFlag = storageMonitorFlags.String("ticket", "", "")
 
 		storageListAipsFlags                   = flag.NewFlagSet("list-aips", flag.ExitOnError)
 		storageListAipsNameFlag                = storageListAipsFlags.String("name", "", "")
@@ -197,12 +203,6 @@ func ParseEndpoint(
 		storageListLocationAipsFlags     = flag.NewFlagSet("list-location-aips", flag.ExitOnError)
 		storageListLocationAipsUUIDFlag  = storageListLocationAipsFlags.String("uuid", "REQUIRED", "Identifier of location")
 		storageListLocationAipsTokenFlag = storageListLocationAipsFlags.String("token", "", "")
-
-		storageMonitorRequestFlags     = flag.NewFlagSet("monitor-request", flag.ExitOnError)
-		storageMonitorRequestTokenFlag = storageMonitorRequestFlags.String("token", "", "")
-
-		storageMonitorFlags      = flag.NewFlagSet("monitor", flag.ExitOnError)
-		storageMonitorTicketFlag = storageMonitorFlags.String("ticket", "", "")
 	)
 	aboutFlags.Usage = aboutUsage
 	aboutAboutFlags.Usage = aboutAboutUsage
@@ -221,6 +221,8 @@ func ParseEndpoint(
 	ingestListUsersFlags.Usage = ingestListUsersUsage
 
 	storageFlags.Usage = storageUsage
+	storageMonitorRequestFlags.Usage = storageMonitorRequestUsage
+	storageMonitorFlags.Usage = storageMonitorUsage
 	storageListAipsFlags.Usage = storageListAipsUsage
 	storageCreateAipFlags.Usage = storageCreateAipUsage
 	storageSubmitAipFlags.Usage = storageSubmitAipUsage
@@ -239,8 +241,6 @@ func ParseEndpoint(
 	storageCreateLocationFlags.Usage = storageCreateLocationUsage
 	storageShowLocationFlags.Usage = storageShowLocationUsage
 	storageListLocationAipsFlags.Usage = storageListLocationAipsUsage
-	storageMonitorRequestFlags.Usage = storageMonitorRequestUsage
-	storageMonitorFlags.Usage = storageMonitorUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
 		return nil, nil, err
@@ -324,6 +324,12 @@ func ParseEndpoint(
 
 		case "storage":
 			switch epn {
+			case "monitor-request":
+				epf = storageMonitorRequestFlags
+
+			case "monitor":
+				epf = storageMonitorFlags
+
 			case "list-aips":
 				epf = storageListAipsFlags
 
@@ -377,12 +383,6 @@ func ParseEndpoint(
 
 			case "list-location-aips":
 				epf = storageListLocationAipsFlags
-
-			case "monitor-request":
-				epf = storageMonitorRequestFlags
-
-			case "monitor":
-				epf = storageMonitorFlags
 
 			}
 
@@ -456,6 +456,12 @@ func ParseEndpoint(
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore, dialer, storageConfigurer)
 			switch epn {
+			case "monitor-request":
+				endpoint = c.MonitorRequest()
+				data, err = storagec.BuildMonitorRequestPayload(*storageMonitorRequestTokenFlag)
+			case "monitor":
+				endpoint = c.Monitor()
+				data, err = storagec.BuildMonitorPayload(*storageMonitorTicketFlag)
 			case "list-aips":
 				endpoint = c.ListAips()
 				data, err = storagec.BuildListAipsPayload(*storageListAipsNameFlag, *storageListAipsEarliestCreatedTimeFlag, *storageListAipsLatestCreatedTimeFlag, *storageListAipsStatusFlag, *storageListAipsLimitFlag, *storageListAipsOffsetFlag, *storageListAipsTokenFlag)
@@ -510,12 +516,6 @@ func ParseEndpoint(
 			case "list-location-aips":
 				endpoint = c.ListLocationAips()
 				data, err = storagec.BuildListLocationAipsPayload(*storageListLocationAipsUUIDFlag, *storageListLocationAipsTokenFlag)
-			case "monitor-request":
-				endpoint = c.MonitorRequest()
-				data, err = storagec.BuildMonitorRequestPayload(*storageMonitorRequestTokenFlag)
-			case "monitor":
-				endpoint = c.Monitor()
-				data, err = storagec.BuildMonitorPayload(*storageMonitorTicketFlag)
 			}
 		}
 	}
@@ -724,6 +724,8 @@ Usage:
     %[1]s [globalflags] storage COMMAND [flags]
 
 COMMAND:
+    monitor-request: Request access to the /monitor WebSocket
+    monitor: Obtain access to the /monitor WebSocket
     list-aips: List all AIPs
     create-aip: Create a new AIP
     submit-aip: Start the submission of an AIP
@@ -742,13 +744,33 @@ COMMAND:
     create-location: Create a storage location
     show-location: Show location by UUID
     list-location-aips: List all the AIPs stored in the location with UUID
-    monitor-request: Request access to the /monitor WebSocket
-    monitor: Obtain access to the /monitor WebSocket
 
 Additional help:
     %[1]s storage COMMAND --help
 `, os.Args[0])
 }
+func storageMonitorRequestUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage monitor-request -token STRING
+
+Request access to the /monitor WebSocket
+    -token STRING: 
+
+Example:
+    %[1]s storage monitor-request --token "abc123"
+`, os.Args[0])
+}
+
+func storageMonitorUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage monitor -ticket STRING
+
+Obtain access to the /monitor WebSocket
+    -ticket STRING: 
+
+Example:
+    %[1]s storage monitor --ticket "abc123"
+`, os.Args[0])
+}
+
 func storageListAipsUsage() {
 	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage list-aips -name STRING -earliest-created-time STRING -latest-created-time STRING -status STRING -limit INT -offset INT -token STRING
 
@@ -998,27 +1020,5 @@ List all the AIPs stored in the location with UUID
 
 Example:
     %[1]s storage list-location-aips --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
-`, os.Args[0])
-}
-
-func storageMonitorRequestUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage monitor-request -token STRING
-
-Request access to the /monitor WebSocket
-    -token STRING: 
-
-Example:
-    %[1]s storage monitor-request --token "abc123"
-`, os.Args[0])
-}
-
-func storageMonitorUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] storage monitor -ticket STRING
-
-Obtain access to the /monitor WebSocket
-    -ticket STRING: 
-
-Example:
-    %[1]s storage monitor --ticket "abc123"
 `, os.Args[0])
 }

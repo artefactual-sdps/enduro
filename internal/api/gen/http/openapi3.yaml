@@ -48,7 +48,7 @@ paths:
             description: Obtain access to the /monitor WebSocket
             operationId: ingest#monitor
             parameters:
-                - name: enduro-ws-ticket
+                - name: enduro-ingest-ws-ticket
                   in: cookie
                   allowEmptyValue: true
                   schema:
@@ -61,7 +61,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/MonitorEvent'
+                                $ref: '#/components/schemas/IngestMonitorEvent'
                             example:
                                 event:
                                     Type: sip_created_event
@@ -2039,7 +2039,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/MonitorEvent'
+                                $ref: '#/components/schemas/IngestMonitorEvent'
                             example:
                                 event:
                                     Type: location_created_event
@@ -2210,6 +2210,50 @@ components:
                   status: in progress
                   uuid: abc123
                   workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        AIPTaskCreatedEvent:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/EnduroStorageAipTask'
+                uuid:
+                    type: string
+                    description: Identifier of task
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            example:
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    name: abc123
+                    note: abc123
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    uuid: abc123
+                    workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - item
+        AIPTaskUpdatedEvent:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/EnduroStorageAipTask'
+                uuid:
+                    type: string
+                    description: Identifier of task
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            example:
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    name: abc123
+                    note: abc123
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    uuid: abc123
+                    workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - item
         AIPUpdatedEvent:
             type: object
             properties:
@@ -2251,6 +2295,66 @@ components:
                   temporal_id: abc123
                   type: upload aip
                   uuid: abc123
+        AIPWorkflowCreatedEvent:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/EnduroStorageAipWorkflow'
+                uuid:
+                    type: string
+                    description: Identifier of workflow
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            example:
+                item:
+                    aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    completed_at: "1970-01-01T00:00:01Z"
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    tasks:
+                        - completed_at: "1970-01-01T00:00:01Z"
+                          name: abc123
+                          note: abc123
+                          started_at: "1970-01-01T00:00:01Z"
+                          status: in progress
+                          uuid: abc123
+                          workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    temporal_id: abc123
+                    type: upload aip
+                    uuid: abc123
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - item
+        AIPWorkflowUpdatedEvent:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/EnduroStorageAipWorkflow'
+                uuid:
+                    type: string
+                    description: Identifier of workflow
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            example:
+                item:
+                    aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    completed_at: "1970-01-01T00:00:01Z"
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: in progress
+                    tasks:
+                        - completed_at: "1970-01-01T00:00:01Z"
+                          name: abc123
+                          note: abc123
+                          started_at: "1970-01-01T00:00:01Z"
+                          status: in progress
+                          uuid: abc123
+                          workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    temporal_id: abc123
+                    type: upload aip
+                    uuid: abc123
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - item
         AIPWorkflows:
             type: object
             properties:
@@ -3048,6 +3152,56 @@ components:
                 - temporary
                 - timeout
                 - fault
+        IngestMonitorEvent:
+            type: object
+            properties:
+                event:
+                    type: object
+                    properties:
+                        Type:
+                            type: string
+                            description: |-
+                                Union type name, one of:
+                                - "ingest_ping_event"
+                                - "sip_created_event"
+                                - "sip_updated_event"
+                                - "sip_status_updated_event"
+                                - "sip_workflow_created_event"
+                                - "sip_workflow_updated_event"
+                                - "sip_task_created_event"
+                                - "sip_task_updated_event"
+                            example: sip_created_event
+                            enum:
+                                - ingest_ping_event
+                                - sip_created_event
+                                - sip_updated_event
+                                - sip_status_updated_event
+                                - sip_workflow_created_event
+                                - sip_workflow_updated_event
+                                - sip_task_created_event
+                                - sip_task_updated_event
+                        Value:
+                            type: string
+                            description: JSON encoded union value
+                            example: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                    example:
+                        Type: sip_created_event
+                        Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                    required:
+                        - Type
+                        - Value
+            example:
+                event:
+                    Type: sip_created_event
+                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+        IngestPingEvent:
+            type: object
+            properties:
+                message:
+                    type: string
+                    example: abc123
+            example:
+                message: abc123
         LocationCreatedEvent:
             type: object
             properties:
@@ -3171,56 +3325,6 @@ components:
             required:
                 - uuid
                 - item
-        MonitorEvent:
-            type: object
-            properties:
-                event:
-                    type: object
-                    properties:
-                        Type:
-                            type: string
-                            description: |-
-                                Union type name, one of:
-                                - "monitor_ping_event"
-                                - "sip_created_event"
-                                - "sip_updated_event"
-                                - "sip_status_updated_event"
-                                - "sip_workflow_created_event"
-                                - "sip_workflow_updated_event"
-                                - "sip_task_created_event"
-                                - "sip_task_updated_event"
-                            example: sip_created_event
-                            enum:
-                                - monitor_ping_event
-                                - sip_created_event
-                                - sip_updated_event
-                                - sip_status_updated_event
-                                - sip_workflow_created_event
-                                - sip_workflow_updated_event
-                                - sip_task_created_event
-                                - sip_task_updated_event
-                        Value:
-                            type: string
-                            description: JSON encoded union value
-                            example: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-                    example:
-                        Type: sip_created_event
-                        Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-                    required:
-                        - Type
-                        - Value
-            example:
-                event:
-                    Type: sip_created_event
-                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-        MonitorPingEvent:
-            type: object
-            properties:
-                message:
-                    type: string
-                    example: abc123
-            example:
-                message: abc123
         MoveStatusResult:
             type: object
             properties:
@@ -3614,7 +3718,7 @@ components:
             required:
                 - items
                 - page
-        StorageMonitorPingEvent:
+        StoragePingEvent:
             type: object
             properties:
                 message:
@@ -3632,50 +3736,6 @@ components:
                 name: abc123
             required:
                 - name
-        TaskCreatedEvent:
-            type: object
-            properties:
-                item:
-                    $ref: '#/components/schemas/EnduroStorageAipTask'
-                uuid:
-                    type: string
-                    description: Identifier of task
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            example:
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    name: abc123
-                    note: abc123
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    uuid: abc123
-                    workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            required:
-                - uuid
-                - item
-        TaskUpdatedEvent:
-            type: object
-            properties:
-                item:
-                    $ref: '#/components/schemas/EnduroStorageAipTask'
-                uuid:
-                    type: string
-                    description: Identifier of task
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            example:
-                item:
-                    completed_at: "1970-01-01T00:00:01Z"
-                    name: abc123
-                    note: abc123
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    uuid: abc123
-                    workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            required:
-                - uuid
-                - item
         URLConfig:
             type: object
             properties:
@@ -3727,66 +3787,6 @@ components:
             required:
                 - items
                 - page
-        WorkflowCreatedEvent:
-            type: object
-            properties:
-                item:
-                    $ref: '#/components/schemas/EnduroStorageAipWorkflow'
-                uuid:
-                    type: string
-                    description: Identifier of workflow
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            example:
-                item:
-                    aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    completed_at: "1970-01-01T00:00:01Z"
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    tasks:
-                        - completed_at: "1970-01-01T00:00:01Z"
-                          name: abc123
-                          note: abc123
-                          started_at: "1970-01-01T00:00:01Z"
-                          status: in progress
-                          uuid: abc123
-                          workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    temporal_id: abc123
-                    type: upload aip
-                    uuid: abc123
-                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            required:
-                - uuid
-                - item
-        WorkflowUpdatedEvent:
-            type: object
-            properties:
-                item:
-                    $ref: '#/components/schemas/EnduroStorageAipWorkflow'
-                uuid:
-                    type: string
-                    description: Identifier of workflow
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            example:
-                item:
-                    aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    completed_at: "1970-01-01T00:00:01Z"
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: in progress
-                    tasks:
-                        - completed_at: "1970-01-01T00:00:01Z"
-                          name: abc123
-                          note: abc123
-                          started_at: "1970-01-01T00:00:01Z"
-                          status: in progress
-                          uuid: abc123
-                          workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    temporal_id: abc123
-                    type: upload aip
-                    uuid: abc123
-                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            required:
-                - uuid
-                - item
     securitySchemes:
         jwt_header_Authorization:
             type: http

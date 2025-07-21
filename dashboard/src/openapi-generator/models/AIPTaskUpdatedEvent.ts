@@ -23,27 +23,27 @@ import {
 /**
  * 
  * @export
- * @interface TaskUpdatedEvent
+ * @interface AIPTaskUpdatedEvent
  */
-export interface TaskUpdatedEvent {
+export interface AIPTaskUpdatedEvent {
     /**
      * 
      * @type {EnduroStorageAipTask}
-     * @memberof TaskUpdatedEvent
+     * @memberof AIPTaskUpdatedEvent
      */
     item: EnduroStorageAipTask;
     /**
      * Identifier of task
      * @type {string}
-     * @memberof TaskUpdatedEvent
+     * @memberof AIPTaskUpdatedEvent
      */
     uuid: string;
 }
 
 /**
- * Check if a given object implements the TaskUpdatedEvent interface.
+ * Check if a given object implements the AIPTaskUpdatedEvent interface.
  */
-export function instanceOfTaskUpdatedEvent(value: object): boolean {
+export function instanceOfAIPTaskUpdatedEvent(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "item" in value;
     isInstance = isInstance && "uuid" in value;
@@ -51,11 +51,11 @@ export function instanceOfTaskUpdatedEvent(value: object): boolean {
     return isInstance;
 }
 
-export function TaskUpdatedEventFromJSON(json: any): TaskUpdatedEvent {
-    return TaskUpdatedEventFromJSONTyped(json, false);
+export function AIPTaskUpdatedEventFromJSON(json: any): AIPTaskUpdatedEvent {
+    return AIPTaskUpdatedEventFromJSONTyped(json, false);
 }
 
-export function TaskUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): TaskUpdatedEvent {
+export function AIPTaskUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPTaskUpdatedEvent {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -66,7 +66,7 @@ export function TaskUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function TaskUpdatedEventToJSON(value?: TaskUpdatedEvent | null): any {
+export function AIPTaskUpdatedEventToJSON(value?: AIPTaskUpdatedEvent | null): any {
     if (value === undefined) {
         return undefined;
     }

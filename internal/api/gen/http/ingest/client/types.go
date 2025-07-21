@@ -29,7 +29,7 @@ type ConfirmSipRequestBody struct {
 type MonitorResponseBody struct {
 	Event *struct {
 		// Union type name, one of:
-		// - "monitor_ping_event"
+		// - "ingest_ping_event"
 		// - "sip_created_event"
 		// - "sip_updated_event"
 		// - "sip_status_updated_event"
@@ -583,14 +583,14 @@ func NewMonitorRequestUnauthorized(body string) ingest.Unauthorized {
 	return v
 }
 
-// NewMonitorEventOK builds a "ingest" service "monitor" endpoint result from a
-// HTTP "OK" response.
-func NewMonitorEventOK(body *MonitorResponseBody) *ingest.MonitorEvent {
-	v := &ingest.MonitorEvent{}
+// NewMonitorIngestMonitorEventOK builds a "ingest" service "monitor" endpoint
+// result from a HTTP "OK" response.
+func NewMonitorIngestMonitorEventOK(body *MonitorResponseBody) *ingest.IngestMonitorEvent {
+	v := &ingest.IngestMonitorEvent{}
 	if body.Event != nil {
 		switch *body.Event.Type {
-		case "monitor_ping_event":
-			var val *ingest.MonitorPingEvent
+		case "ingest_ping_event":
+			var val *ingest.IngestPingEvent
 			json.Unmarshal([]byte(*body.Event.Value), &val)
 			v.Event = val
 		case "sip_created_event":
@@ -1178,8 +1178,8 @@ func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.event"))
 		}
 		if body.Event.Type != nil {
-			if !(*body.Event.Type == "monitor_ping_event" || *body.Event.Type == "sip_created_event" || *body.Event.Type == "sip_updated_event" || *body.Event.Type == "sip_status_updated_event" || *body.Event.Type == "sip_workflow_created_event" || *body.Event.Type == "sip_workflow_updated_event" || *body.Event.Type == "sip_task_created_event" || *body.Event.Type == "sip_task_updated_event") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.event.Type", *body.Event.Type, []any{"monitor_ping_event", "sip_created_event", "sip_updated_event", "sip_status_updated_event", "sip_workflow_created_event", "sip_workflow_updated_event", "sip_task_created_event", "sip_task_updated_event"}))
+			if !(*body.Event.Type == "ingest_ping_event" || *body.Event.Type == "sip_created_event" || *body.Event.Type == "sip_updated_event" || *body.Event.Type == "sip_status_updated_event" || *body.Event.Type == "sip_workflow_created_event" || *body.Event.Type == "sip_workflow_updated_event" || *body.Event.Type == "sip_task_created_event" || *body.Event.Type == "sip_task_updated_event") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.event.Type", *body.Event.Type, []any{"ingest_ping_event", "sip_created_event", "sip_updated_event", "sip_status_updated_event", "sip_workflow_created_event", "sip_workflow_updated_event", "sip_task_created_event", "sip_task_updated_event"}))
 			}
 		}
 	}

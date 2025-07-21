@@ -1253,9 +1253,9 @@
           },
           "properties": {
             "Type": {
-              "description": "Union type name, one of:\n- \"monitor_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"",
+              "description": "Union type name, one of:\n- \"ingest_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"",
               "enum": [
-                "monitor_ping_event",
+                "ingest_ping_event",
                 "sip_created_event",
                 "sip_updated_event",
                 "sip_status_updated_event",
@@ -3204,17 +3204,17 @@
           },
           "properties": {
             "Type": {
-              "description": "Union type name, one of:\n- \"monitor_ping_event\"\n- \"location_created_event\"\n- \"location_updated_event\"\n- \"aip_created_event\"\n- \"aip_updated_event\"\n- \"workflow_created_event\"\n- \"workflow_updated_event\"\n- \"task_created_event\"\n- \"task_updated_event\"",
+              "description": "Union type name, one of:\n- \"storage_ping_event\"\n- \"location_created_event\"\n- \"location_updated_event\"\n- \"aip_created_event\"\n- \"aip_updated_event\"\n- \"aip_workflow_created_event\"\n- \"aip_workflow_updated_event\"\n- \"aip_task_created_event\"\n- \"aip_task_updated_event\"",
               "enum": [
-                "monitor_ping_event",
+                "storage_ping_event",
                 "location_created_event",
                 "location_updated_event",
                 "aip_created_event",
                 "aip_updated_event",
-                "workflow_created_event",
-                "workflow_updated_event",
-                "task_created_event",
-                "task_updated_event"
+                "aip_workflow_created_event",
+                "aip_workflow_updated_event",
+                "aip_task_created_event",
+                "aip_task_updated_event"
               ],
               "example": "location_created_event",
               "type": "string"

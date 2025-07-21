@@ -21,6 +21,14 @@ import (
 
 // Client lists the storage service endpoint HTTP clients.
 type Client struct {
+	// MonitorRequest Doer is the HTTP client used to make requests to the
+	// monitor_request endpoint.
+	MonitorRequestDoer goahttp.Doer
+
+	// Monitor Doer is the HTTP client used to make requests to the monitor
+	// endpoint.
+	MonitorDoer goahttp.Doer
+
 	// ListAips Doer is the HTTP client used to make requests to the list_aips
 	// endpoint.
 	ListAipsDoer goahttp.Doer
@@ -93,14 +101,6 @@ type Client struct {
 	// list_location_aips endpoint.
 	ListLocationAipsDoer goahttp.Doer
 
-	// MonitorRequest Doer is the HTTP client used to make requests to the
-	// monitor_request endpoint.
-	MonitorRequestDoer goahttp.Doer
-
-	// Monitor Doer is the HTTP client used to make requests to the monitor
-	// endpoint.
-	MonitorDoer goahttp.Doer
-
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -131,6 +131,8 @@ func NewClient(
 		cfn = &ConnConfigurer{}
 	}
 	return &Client{
+		MonitorRequestDoer:     doer,
+		MonitorDoer:            doer,
 		ListAipsDoer:           doer,
 		CreateAipDoer:          doer,
 		SubmitAipDoer:          doer,
@@ -149,8 +151,6 @@ func NewClient(
 		CreateLocationDoer:     doer,
 		ShowLocationDoer:       doer,
 		ListLocationAipsDoer:   doer,
-		MonitorRequestDoer:     doer,
-		MonitorDoer:            doer,
 		CORSDoer:               doer,
 		RestoreResponseBody:    restoreBody,
 		scheme:                 scheme,
@@ -159,6 +159,72 @@ func NewClient(
 		encoder:                enc,
 		dialer:                 dialer,
 		configurer:             cfn,
+	}
+}
+
+// MonitorRequest returns an endpoint that makes HTTP requests to the storage
+// service monitor_request server.
+func (c *Client) MonitorRequest() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeMonitorRequestRequest(c.encoder)
+		decodeResponse = DecodeMonitorRequestResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildMonitorRequestRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.MonitorRequestDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "monitor_request", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Monitor returns an endpoint that makes HTTP requests to the storage service
+// monitor server.
+func (c *Client) Monitor() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeMonitorRequest(c.encoder)
+		decodeResponse = DecodeMonitorResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildMonitorRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		conn, resp, err := c.dialer.DialContext(ctx, req.URL.String(), req.Header)
+		if err != nil {
+			if resp != nil {
+				return decodeResponse(resp)
+			}
+			return nil, goahttp.ErrRequestError("storage", "monitor", err)
+		}
+		if c.configurer.MonitorFn != nil {
+			var cancel context.CancelFunc
+			ctx, cancel = context.WithCancel(ctx)
+			conn = c.configurer.MonitorFn(conn, cancel)
+		}
+		go func() {
+			<-ctx.Done()
+			conn.WriteControl(
+				websocket.CloseMessage,
+				websocket.FormatCloseMessage(websocket.CloseNormalClosure, "client closing connection"),
+				time.Now().Add(time.Second),
+			)
+			conn.Close()
+		}()
+		stream := &MonitorClientStream{conn: conn}
+		return stream, nil
 	}
 }
 
@@ -596,71 +662,5 @@ func (c *Client) ListLocationAips() goa.Endpoint {
 			return nil, goahttp.ErrRequestError("storage", "list_location_aips", err)
 		}
 		return decodeResponse(resp)
-	}
-}
-
-// MonitorRequest returns an endpoint that makes HTTP requests to the storage
-// service monitor_request server.
-func (c *Client) MonitorRequest() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeMonitorRequestRequest(c.encoder)
-		decodeResponse = DecodeMonitorRequestResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildMonitorRequestRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.MonitorRequestDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "monitor_request", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// Monitor returns an endpoint that makes HTTP requests to the storage service
-// monitor server.
-func (c *Client) Monitor() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeMonitorRequest(c.encoder)
-		decodeResponse = DecodeMonitorResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildMonitorRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		conn, resp, err := c.dialer.DialContext(ctx, req.URL.String(), req.Header)
-		if err != nil {
-			if resp != nil {
-				return decodeResponse(resp)
-			}
-			return nil, goahttp.ErrRequestError("storage", "monitor", err)
-		}
-		if c.configurer.MonitorFn != nil {
-			var cancel context.CancelFunc
-			ctx, cancel = context.WithCancel(ctx)
-			conn = c.configurer.MonitorFn(conn, cancel)
-		}
-		go func() {
-			<-ctx.Done()
-			conn.WriteControl(
-				websocket.CloseMessage,
-				websocket.FormatCloseMessage(websocket.CloseNormalClosure, "client closing connection"),
-				time.Now().Add(time.Second),
-			)
-			conn.Close()
-		}()
-		stream := &MonitorClientStream{conn: conn}
-		return stream, nil
 	}
 }

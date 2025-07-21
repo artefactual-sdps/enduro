@@ -84,6 +84,26 @@ type CreateLocationRequestBody struct {
 	} `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 }
 
+// MonitorResponseBody is the type of the "storage" service "monitor" endpoint
+// HTTP response body.
+type MonitorResponseBody struct {
+	Event *struct {
+		// Union type name, one of:
+		// - "storage_ping_event"
+		// - "location_created_event"
+		// - "location_updated_event"
+		// - "aip_created_event"
+		// - "aip_updated_event"
+		// - "aip_workflow_created_event"
+		// - "aip_workflow_updated_event"
+		// - "aip_task_created_event"
+		// - "aip_task_updated_event"
+		Type string `form:"Type" json:"Type" xml:"Type"`
+		// JSON encoded union value
+		Value string `form:"Value" json:"Value" xml:"Value"`
+	} `form:"event,omitempty" json:"event,omitempty" xml:"event,omitempty"`
+}
+
 // ListAipsResponseBody is the type of the "storage" service "list_aips"
 // endpoint HTTP response body.
 type ListAipsResponseBody struct {
@@ -167,24 +187,40 @@ type ShowLocationResponseBody struct {
 // "list_location_aips" endpoint HTTP response body.
 type AIPResponseCollection []*AIPResponse
 
-// MonitorResponseBody is the type of the "storage" service "monitor" endpoint
-// HTTP response body.
-type MonitorResponseBody struct {
-	Event *struct {
-		// Union type name, one of:
-		// - "monitor_ping_event"
-		// - "location_created_event"
-		// - "location_updated_event"
-		// - "aip_created_event"
-		// - "aip_updated_event"
-		// - "workflow_created_event"
-		// - "workflow_updated_event"
-		// - "task_created_event"
-		// - "task_updated_event"
-		Type string `form:"Type" json:"Type" xml:"Type"`
-		// JSON encoded union value
-		Value string `form:"Value" json:"Value" xml:"Value"`
-	} `form:"event,omitempty" json:"event,omitempty" xml:"event,omitempty"`
+// MonitorRequestNotAvailableResponseBody is the type of the "storage" service
+// "monitor_request" endpoint HTTP response body for the "not_available" error.
+type MonitorRequestNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// MonitorNotAvailableResponseBody is the type of the "storage" service
+// "monitor" endpoint HTTP response body for the "not_available" error.
+type MonitorNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
 // ListAipsNotAvailableResponseBody is the type of the "storage" service
@@ -619,42 +655,6 @@ type ListLocationAipsNotFoundResponseBody struct {
 	UUID    uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
-// MonitorRequestNotAvailableResponseBody is the type of the "storage" service
-// "monitor_request" endpoint HTTP response body for the "not_available" error.
-type MonitorRequestNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// MonitorNotAvailableResponseBody is the type of the "storage" service
-// "monitor" endpoint HTTP response body for the "not_available" error.
-type MonitorNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
 // AIPResponseBodyCollection is used to define fields on response body types.
 type AIPResponseBodyCollection []*AIPResponseBody
 
@@ -740,6 +740,55 @@ type AIPResponse struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
+}
+
+// NewMonitorResponseBody builds the HTTP response body from the result of the
+// "monitor" endpoint of the "storage" service.
+func NewMonitorResponseBody(res *storage.StorageMonitorEvent) *MonitorResponseBody {
+	body := &MonitorResponseBody{}
+	if res.Event != nil {
+		js, _ := json.Marshal(res.Event)
+		var name string
+		switch res.Event.(type) {
+		case *storage.StoragePingEvent:
+			name = "storage_ping_event"
+		case *storage.LocationCreatedEvent:
+			name = "location_created_event"
+		case *storage.LocationUpdatedEvent:
+			name = "location_updated_event"
+		case *storage.AIPCreatedEvent:
+			name = "aip_created_event"
+		case *storage.AIPUpdatedEvent:
+			name = "aip_updated_event"
+		case *storage.AIPWorkflowCreatedEvent:
+			name = "aip_workflow_created_event"
+		case *storage.AIPWorkflowUpdatedEvent:
+			name = "aip_workflow_updated_event"
+		case *storage.AIPTaskCreatedEvent:
+			name = "aip_task_created_event"
+		case *storage.AIPTaskUpdatedEvent:
+			name = "aip_task_updated_event"
+		}
+		body.Event = &struct {
+			// Union type name, one of:
+			// - "storage_ping_event"
+			// - "location_created_event"
+			// - "location_updated_event"
+			// - "aip_created_event"
+			// - "aip_updated_event"
+			// - "aip_workflow_created_event"
+			// - "aip_workflow_updated_event"
+			// - "aip_task_created_event"
+			// - "aip_task_updated_event"
+			Type string `form:"Type" json:"Type" xml:"Type"`
+			// JSON encoded union value
+			Value string `form:"Value" json:"Value" xml:"Value"`
+		}{
+			Type:  name,
+			Value: string(js),
+		}
+	}
+	return body
 }
 
 // NewListAipsResponseBody builds the HTTP response body from the result of the
@@ -862,51 +911,30 @@ func NewAIPResponseCollection(res storageviews.AIPCollectionView) AIPResponseCol
 	return body
 }
 
-// NewMonitorResponseBody builds the HTTP response body from the result of the
-// "monitor" endpoint of the "storage" service.
-func NewMonitorResponseBody(res *storage.StorageMonitorEvent) *MonitorResponseBody {
-	body := &MonitorResponseBody{}
-	if res.Event != nil {
-		js, _ := json.Marshal(res.Event)
-		var name string
-		switch res.Event.(type) {
-		case *storage.StorageMonitorPingEvent:
-			name = "monitor_ping_event"
-		case *storage.LocationCreatedEvent:
-			name = "location_created_event"
-		case *storage.LocationUpdatedEvent:
-			name = "location_updated_event"
-		case *storage.AIPCreatedEvent:
-			name = "aip_created_event"
-		case *storage.AIPUpdatedEvent:
-			name = "aip_updated_event"
-		case *storage.WorkflowCreatedEvent:
-			name = "workflow_created_event"
-		case *storage.WorkflowUpdatedEvent:
-			name = "workflow_updated_event"
-		case *storage.TaskCreatedEvent:
-			name = "task_created_event"
-		case *storage.TaskUpdatedEvent:
-			name = "task_updated_event"
-		}
-		body.Event = &struct {
-			// Union type name, one of:
-			// - "monitor_ping_event"
-			// - "location_created_event"
-			// - "location_updated_event"
-			// - "aip_created_event"
-			// - "aip_updated_event"
-			// - "workflow_created_event"
-			// - "workflow_updated_event"
-			// - "task_created_event"
-			// - "task_updated_event"
-			Type string `form:"Type" json:"Type" xml:"Type"`
-			// JSON encoded union value
-			Value string `form:"Value" json:"Value" xml:"Value"`
-		}{
-			Type:  name,
-			Value: string(js),
-		}
+// NewMonitorRequestNotAvailableResponseBody builds the HTTP response body from
+// the result of the "monitor_request" endpoint of the "storage" service.
+func NewMonitorRequestNotAvailableResponseBody(res *goa.ServiceError) *MonitorRequestNotAvailableResponseBody {
+	body := &MonitorRequestNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewMonitorNotAvailableResponseBody builds the HTTP response body from the
+// result of the "monitor" endpoint of the "storage" service.
+func NewMonitorNotAvailableResponseBody(res *goa.ServiceError) *MonitorNotAvailableResponseBody {
+	body := &MonitorNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
 	}
 	return body
 }
@@ -1284,32 +1312,21 @@ func NewListLocationAipsNotFoundResponseBody(res *storage.LocationNotFound) *Lis
 	return body
 }
 
-// NewMonitorRequestNotAvailableResponseBody builds the HTTP response body from
-// the result of the "monitor_request" endpoint of the "storage" service.
-func NewMonitorRequestNotAvailableResponseBody(res *goa.ServiceError) *MonitorRequestNotAvailableResponseBody {
-	body := &MonitorRequestNotAvailableResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
+// NewMonitorRequestPayload builds a storage service monitor_request endpoint
+// payload.
+func NewMonitorRequestPayload(token *string) *storage.MonitorRequestPayload {
+	v := &storage.MonitorRequestPayload{}
+	v.Token = token
+
+	return v
 }
 
-// NewMonitorNotAvailableResponseBody builds the HTTP response body from the
-// result of the "monitor" endpoint of the "storage" service.
-func NewMonitorNotAvailableResponseBody(res *goa.ServiceError) *MonitorNotAvailableResponseBody {
-	body := &MonitorNotAvailableResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
+// NewMonitorPayload builds a storage service monitor endpoint payload.
+func NewMonitorPayload(ticket *string) *storage.MonitorPayload {
+	v := &storage.MonitorPayload{}
+	v.Ticket = ticket
+
+	return v
 }
 
 // NewListAipsPayload builds a storage service list_aips endpoint payload.
@@ -1530,23 +1547,6 @@ func NewListLocationAipsPayload(uuid string, token *string) *storage.ListLocatio
 	v := &storage.ListLocationAipsPayload{}
 	v.UUID = uuid
 	v.Token = token
-
-	return v
-}
-
-// NewMonitorRequestPayload builds a storage service monitor_request endpoint
-// payload.
-func NewMonitorRequestPayload(token *string) *storage.MonitorRequestPayload {
-	v := &storage.MonitorRequestPayload{}
-	v.Token = token
-
-	return v
-}
-
-// NewMonitorPayload builds a storage service monitor endpoint payload.
-func NewMonitorPayload(ticket *string) *storage.MonitorPayload {
-	v := &storage.MonitorPayload{}
-	v.Ticket = ticket
 
 	return v
 }

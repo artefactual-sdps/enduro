@@ -70,8 +70,8 @@ var MethodNames = [11]string{"monitor_request", "monitor", "list_sips", "show_si
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
 type MonitorServerStream interface {
-	// Send streams instances of "MonitorEvent".
-	Send(*MonitorEvent) error
+	// Send streams instances of "IngestMonitorEvent".
+	Send(*IngestMonitorEvent) error
 	// Close closes the stream.
 	Close() error
 }
@@ -79,8 +79,8 @@ type MonitorServerStream interface {
 // MonitorClientStream is the interface a "monitor" endpoint client stream must
 // satisfy.
 type MonitorClientStream interface {
-	// Recv reads instances of "MonitorEvent" from the stream.
-	Recv() (*MonitorEvent, error)
+	// Recv reads instances of "IngestMonitorEvent" from the stream.
+	Recv() (*IngestMonitorEvent, error)
 }
 
 // An AIP describes an AIP retrieved by the storage service.
@@ -116,6 +116,18 @@ type AIPTask struct {
 
 type AIPTaskCollection []*AIPTask
 
+type AIPTaskCreatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
+type AIPTaskUpdatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
 type AIPUpdatedEvent struct {
 	// Identifier of AIP
 	UUID uuid.UUID
@@ -133,6 +145,18 @@ type AIPWorkflow struct {
 	// Identifier of related AIP
 	AipUUID uuid.UUID
 	Tasks   AIPTaskCollection
+}
+
+type AIPWorkflowCreatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
+}
+
+type AIPWorkflowUpdatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
 }
 
 type AMSSConfig struct {
@@ -189,6 +213,17 @@ type EnduroPage struct {
 	Offset int
 	// Total result count before paging
 	Total int
+}
+
+// IngestMonitorEvent is the result type of the ingest service monitor method.
+type IngestMonitorEvent struct {
+	Event interface {
+		eventVal()
+	}
+}
+
+type IngestPingEvent struct {
+	Message *string
 }
 
 // ListSipWorkflowsPayload is the payload type of the ingest service
@@ -259,20 +294,9 @@ type LocationUpdatedEvent struct {
 	Item *Location
 }
 
-// MonitorEvent is the result type of the ingest service monitor method.
-type MonitorEvent struct {
-	Event interface {
-		eventVal()
-	}
-}
-
 // MonitorPayload is the payload type of the ingest service monitor method.
 type MonitorPayload struct {
 	Ticket *string
-}
-
-type MonitorPingEvent struct {
-	Message *string
 }
 
 // MonitorRequestPayload is the payload type of the ingest service
@@ -442,20 +466,8 @@ type ShowSipPayload struct {
 	Token *string
 }
 
-type StorageMonitorPingEvent struct {
+type StoragePingEvent struct {
 	Message *string
-}
-
-type TaskCreatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *AIPTask
-}
-
-type TaskUpdatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *AIPTask
 }
 
 type URLConfig struct {
@@ -493,18 +505,6 @@ type UserCollection []*User
 type Users struct {
 	Items UserCollection
 	Page  *EnduroPage
-}
-
-type WorkflowCreatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *AIPWorkflow
-}
-
-type WorkflowUpdatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *AIPWorkflow
 }
 
 // Forbidden
@@ -564,7 +564,7 @@ func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
 func (*AMSSConfig) configVal()             {}
-func (*MonitorPingEvent) eventVal()        {}
+func (*IngestPingEvent) eventVal()         {}
 func (*S3Config) configVal()               {}
 func (*SFTPConfig) configVal()             {}
 func (*SIPCreatedEvent) eventVal()         {}

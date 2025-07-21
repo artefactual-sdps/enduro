@@ -23,27 +23,27 @@ import {
 /**
  * 
  * @export
- * @interface WorkflowUpdatedEvent
+ * @interface AIPWorkflowCreatedEvent
  */
-export interface WorkflowUpdatedEvent {
+export interface AIPWorkflowCreatedEvent {
     /**
      * 
      * @type {EnduroStorageAipWorkflow}
-     * @memberof WorkflowUpdatedEvent
+     * @memberof AIPWorkflowCreatedEvent
      */
     item: EnduroStorageAipWorkflow;
     /**
      * Identifier of workflow
      * @type {string}
-     * @memberof WorkflowUpdatedEvent
+     * @memberof AIPWorkflowCreatedEvent
      */
     uuid: string;
 }
 
 /**
- * Check if a given object implements the WorkflowUpdatedEvent interface.
+ * Check if a given object implements the AIPWorkflowCreatedEvent interface.
  */
-export function instanceOfWorkflowUpdatedEvent(value: object): boolean {
+export function instanceOfAIPWorkflowCreatedEvent(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "item" in value;
     isInstance = isInstance && "uuid" in value;
@@ -51,11 +51,11 @@ export function instanceOfWorkflowUpdatedEvent(value: object): boolean {
     return isInstance;
 }
 
-export function WorkflowUpdatedEventFromJSON(json: any): WorkflowUpdatedEvent {
-    return WorkflowUpdatedEventFromJSONTyped(json, false);
+export function AIPWorkflowCreatedEventFromJSON(json: any): AIPWorkflowCreatedEvent {
+    return AIPWorkflowCreatedEventFromJSONTyped(json, false);
 }
 
-export function WorkflowUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): WorkflowUpdatedEvent {
+export function AIPWorkflowCreatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPWorkflowCreatedEvent {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -66,7 +66,7 @@ export function WorkflowUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator
     };
 }
 
-export function WorkflowUpdatedEventToJSON(value?: WorkflowUpdatedEvent | null): any {
+export function AIPWorkflowCreatedEventToJSON(value?: AIPWorkflowCreatedEvent | null): any {
     if (value === undefined) {
         return undefined;
     }

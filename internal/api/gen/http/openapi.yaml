@@ -2550,7 +2550,7 @@ definitions:
                         type: string
                         description: |-
                             Union type name, one of:
-                            - "monitor_ping_event"
+                            - "ingest_ping_event"
                             - "sip_created_event"
                             - "sip_updated_event"
                             - "sip_status_updated_event"
@@ -2560,7 +2560,7 @@ definitions:
                             - "sip_task_updated_event"
                         example: sip_created_event
                         enum:
-                            - monitor_ping_event
+                            - ingest_ping_event
                             - sip_created_event
                             - sip_updated_event
                             - sip_status_updated_event
@@ -4114,26 +4114,26 @@ definitions:
                         type: string
                         description: |-
                             Union type name, one of:
-                            - "monitor_ping_event"
+                            - "storage_ping_event"
                             - "location_created_event"
                             - "location_updated_event"
                             - "aip_created_event"
                             - "aip_updated_event"
-                            - "workflow_created_event"
-                            - "workflow_updated_event"
-                            - "task_created_event"
-                            - "task_updated_event"
+                            - "aip_workflow_created_event"
+                            - "aip_workflow_updated_event"
+                            - "aip_task_created_event"
+                            - "aip_task_updated_event"
                         example: location_created_event
                         enum:
-                            - monitor_ping_event
+                            - storage_ping_event
                             - location_created_event
                             - location_updated_event
                             - aip_created_event
                             - aip_updated_event
-                            - workflow_created_event
-                            - workflow_updated_event
-                            - task_created_event
-                            - task_updated_event
+                            - aip_workflow_created_event
+                            - aip_workflow_updated_event
+                            - aip_task_created_event
+                            - aip_task_updated_event
                     Value:
                         type: string
                         description: JSON encoded union value

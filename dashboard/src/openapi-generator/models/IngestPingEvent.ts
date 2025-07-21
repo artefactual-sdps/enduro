@@ -16,31 +16,31 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface MonitorPingEvent
+ * @interface IngestPingEvent
  */
-export interface MonitorPingEvent {
+export interface IngestPingEvent {
     /**
      * 
      * @type {string}
-     * @memberof MonitorPingEvent
+     * @memberof IngestPingEvent
      */
     message?: string;
 }
 
 /**
- * Check if a given object implements the MonitorPingEvent interface.
+ * Check if a given object implements the IngestPingEvent interface.
  */
-export function instanceOfMonitorPingEvent(value: object): boolean {
+export function instanceOfIngestPingEvent(value: object): boolean {
     let isInstance = true;
 
     return isInstance;
 }
 
-export function MonitorPingEventFromJSON(json: any): MonitorPingEvent {
-    return MonitorPingEventFromJSONTyped(json, false);
+export function IngestPingEventFromJSON(json: any): IngestPingEvent {
+    return IngestPingEventFromJSONTyped(json, false);
 }
 
-export function MonitorPingEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): MonitorPingEvent {
+export function IngestPingEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): IngestPingEvent {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -50,7 +50,7 @@ export function MonitorPingEventFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function MonitorPingEventToJSON(value?: MonitorPingEvent | null): any {
+export function IngestPingEventToJSON(value?: IngestPingEvent | null): any {
     if (value === undefined) {
         return undefined;
     }

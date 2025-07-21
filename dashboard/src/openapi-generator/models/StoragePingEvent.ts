@@ -16,31 +16,31 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface StorageMonitorPingEvent
+ * @interface StoragePingEvent
  */
-export interface StorageMonitorPingEvent {
+export interface StoragePingEvent {
     /**
      * 
      * @type {string}
-     * @memberof StorageMonitorPingEvent
+     * @memberof StoragePingEvent
      */
     message?: string;
 }
 
 /**
- * Check if a given object implements the StorageMonitorPingEvent interface.
+ * Check if a given object implements the StoragePingEvent interface.
  */
-export function instanceOfStorageMonitorPingEvent(value: object): boolean {
+export function instanceOfStoragePingEvent(value: object): boolean {
     let isInstance = true;
 
     return isInstance;
 }
 
-export function StorageMonitorPingEventFromJSON(json: any): StorageMonitorPingEvent {
-    return StorageMonitorPingEventFromJSONTyped(json, false);
+export function StoragePingEventFromJSON(json: any): StoragePingEvent {
+    return StoragePingEventFromJSONTyped(json, false);
 }
 
-export function StorageMonitorPingEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): StorageMonitorPingEvent {
+export function StoragePingEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): StoragePingEvent {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -50,7 +50,7 @@ export function StorageMonitorPingEventFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function StorageMonitorPingEventToJSON(value?: StorageMonitorPingEvent | null): any {
+export function StoragePingEventToJSON(value?: StoragePingEvent | null): any {
     if (value === undefined) {
         return undefined;
     }

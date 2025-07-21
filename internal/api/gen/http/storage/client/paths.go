@@ -12,6 +12,16 @@ import (
 	"fmt"
 )
 
+// MonitorRequestStoragePath returns the URL path to the storage service monitor_request HTTP endpoint.
+func MonitorRequestStoragePath() string {
+	return "/storage/monitor"
+}
+
+// MonitorStoragePath returns the URL path to the storage service monitor HTTP endpoint.
+func MonitorStoragePath() string {
+	return "/storage/monitor"
+}
+
 // ListAipsStoragePath returns the URL path to the storage service list_aips HTTP endpoint.
 func ListAipsStoragePath() string {
 	return "/storage/aips"
@@ -100,14 +110,4 @@ func ShowLocationStoragePath(uuid string) string {
 // ListLocationAipsStoragePath returns the URL path to the storage service list_location_aips HTTP endpoint.
 func ListLocationAipsStoragePath(uuid string) string {
 	return fmt.Sprintf("/storage/locations/%v/aips", uuid)
-}
-
-// MonitorRequestStoragePath returns the URL path to the storage service monitor_request HTTP endpoint.
-func MonitorRequestStoragePath() string {
-	return "/storage/monitor"
-}
-
-// MonitorStoragePath returns the URL path to the storage service monitor HTTP endpoint.
-func MonitorStoragePath() string {
-	return "/storage/monitor"
 }

@@ -77,6 +77,18 @@ type AIPTask struct {
 
 type AIPTaskCollection []*AIPTask
 
+type AIPTaskCreatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
+type AIPTaskUpdatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
 type AIPUpdatedEvent struct {
 	// Identifier of AIP
 	UUID uuid.UUID
@@ -94,6 +106,18 @@ type AIPWorkflow struct {
 	// Identifier of related AIP
 	AipUUID uuid.UUID
 	Tasks   AIPTaskCollection
+}
+
+type AIPWorkflowCreatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
+}
+
+type AIPWorkflowUpdatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
 }
 
 type AMSSConfig struct {
@@ -129,6 +153,10 @@ type EnduroPreprocessing struct {
 	TaskQueue    string
 }
 
+type IngestPingEvent struct {
+	Message *string
+}
+
 // A Location describes a location retrieved by the storage service.
 type Location struct {
 	// Name of location
@@ -157,10 +185,6 @@ type LocationUpdatedEvent struct {
 	// Identifier of Location
 	UUID uuid.UUID
 	Item *Location
-}
-
-type MonitorPingEvent struct {
-	Message *string
 }
 
 type S3Config struct {
@@ -280,36 +304,12 @@ type SIPWorkflowUpdatedEvent struct {
 	Item *SIPWorkflow
 }
 
-type StorageMonitorPingEvent struct {
+type StoragePingEvent struct {
 	Message *string
-}
-
-type TaskCreatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *AIPTask
-}
-
-type TaskUpdatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *AIPTask
 }
 
 type URLConfig struct {
 	URL string
-}
-
-type WorkflowCreatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *AIPWorkflow
-}
-
-type WorkflowUpdatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *AIPWorkflow
 }
 
 // Unauthorized
