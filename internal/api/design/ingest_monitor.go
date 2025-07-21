@@ -12,14 +12,14 @@ import (
 //     It guarantees that the schema is included in the OpenAPI spec when it
 //     is only listed as a member of an union type (OneOf).
 //
-//   - Meta("openapi:typename", "MonitorPingEvent")
+//   - Meta("openapi:typename", "IngestPingEvent")
 //     It guarantees that the schema is not omitted because there is another
 //     type structurally equivalent, which is the default behavior in Goa.
 //
 
-var MonitorEvent = Type("MonitorEvent", func() {
+var IngestMonitorEvent = Type("IngestMonitorEvent", func() {
 	OneOf("event", func() {
-		Attribute("monitor_ping_event", MonitorPingEvent)
+		Attribute("ingest_ping_event", IngestPingEvent)
 		Attribute("sip_created_event", SIPCreatedEvent)
 		Attribute("sip_updated_event", SIPUpdatedEvent)
 		Attribute("sip_status_updated_event", SIPStatusUpdatedEvent)
@@ -30,11 +30,11 @@ var MonitorEvent = Type("MonitorEvent", func() {
 	})
 })
 
-var MonitorPingEvent = Type("MonitorPingEvent", func() {
+var IngestPingEvent = Type("IngestPingEvent", func() {
 	Attribute("message", String)
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "MonitorPingEvent")
+	Meta("openapi:typename", "IngestPingEvent")
 })
 
 var SIPCreatedEvent = Type("SIPCreatedEvent", func() {

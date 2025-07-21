@@ -12,30 +12,30 @@ import (
 //     It guarantees that the schema is included in the OpenAPI spec when it
 //     is only listed as a member of an union type (OneOf).
 //
-//   - Meta("openapi:typename", "StorageMonitorPingEvent")
+//   - Meta("openapi:typename", "IngestPingEvent")
 //     It guarantees that the schema is not omitted because there is another
 //     type structurally equivalent, which is the default behavior in Goa.
 //
 
 var StorageMonitorEvent = Type("StorageMonitorEvent", func() {
 	OneOf("event", func() {
-		Attribute("monitor_ping_event", StorageMonitorPingEvent)
+		Attribute("storage_ping_event", StoragePingEvent)
 		Attribute("location_created_event", LocationCreatedEvent)
 		Attribute("location_updated_event", LocationUpdatedEvent)
 		Attribute("aip_created_event", AIPCreatedEvent)
 		Attribute("aip_updated_event", AIPUpdatedEvent)
-		Attribute("workflow_created_event", WorkflowCreatedEvent)
-		Attribute("workflow_updated_event", WorkflowUpdatedEvent)
-		Attribute("task_created_event", TaskCreatedEvent)
-		Attribute("task_updated_event", TaskUpdatedEvent)
+		Attribute("aip_workflow_created_event", AIPWorkflowCreatedEvent)
+		Attribute("aip_workflow_updated_event", AIPWorkflowUpdatedEvent)
+		Attribute("aip_task_created_event", AIPTaskCreatedEvent)
+		Attribute("aip_task_updated_event", AIPTaskUpdatedEvent)
 	})
 })
 
-var StorageMonitorPingEvent = Type("StorageMonitorPingEvent", func() {
+var StoragePingEvent = Type("StoragePingEvent", func() {
 	Attribute("message", String)
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "StorageMonitorPingEvent")
+	Meta("openapi:typename", "StoragePingEvent")
 })
 
 var LocationCreatedEvent = Type("LocationCreatedEvent", func() {
@@ -74,38 +74,38 @@ var AIPUpdatedEvent = Type("AIPUpdatedEvent", func() {
 	Meta("openapi:typename", "AIPUpdatedEvent")
 })
 
-var WorkflowCreatedEvent = Type("WorkflowCreatedEvent", func() {
+var AIPWorkflowCreatedEvent = Type("AIPWorkflowCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of workflow")
 	Attribute("item", AIPWorkflow)
 	Required("uuid", "item")
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "WorkflowCreatedEvent")
+	Meta("openapi:typename", "AIPWorkflowCreatedEvent")
 })
 
-var WorkflowUpdatedEvent = Type("WorkflowUpdatedEvent", func() {
+var AIPWorkflowUpdatedEvent = Type("AIPWorkflowUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of workflow")
 	Attribute("item", AIPWorkflow)
 	Required("uuid", "item")
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "WorkflowUpdatedEvent")
+	Meta("openapi:typename", "AIPWorkflowUpdatedEvent")
 })
 
-var TaskCreatedEvent = Type("TaskCreatedEvent", func() {
+var AIPTaskCreatedEvent = Type("AIPTaskCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of task")
 	Attribute("item", AIPTask)
 	Required("uuid", "item")
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "TaskCreatedEvent")
+	Meta("openapi:typename", "AIPTaskCreatedEvent")
 })
 
-var TaskUpdatedEvent = Type("TaskUpdatedEvent", func() {
+var AIPTaskUpdatedEvent = Type("AIPTaskUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of task")
 	Attribute("item", AIPTask)
 	Required("uuid", "item")
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "TaskUpdatedEvent")
+	Meta("openapi:typename", "AIPTaskUpdatedEvent")
 })
