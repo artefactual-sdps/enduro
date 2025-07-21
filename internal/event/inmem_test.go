@@ -11,7 +11,7 @@ import (
 func TestEventService(t *testing.T) {
 	t.Run("Subscribe", func(t *testing.T) {
 		ctx := context.Background()
-		s := event.NewEventServiceInMemImpl()
+		s := event.NewEventServiceInMem()
 
 		subA, err := s.Subscribe(ctx)
 		if err != nil {
@@ -42,7 +42,7 @@ func TestEventService(t *testing.T) {
 
 	t.Run("Unsubscribe", func(t *testing.T) {
 		ctx := context.Background()
-		s := event.NewEventServiceInMemImpl()
+		s := event.NewEventServiceInMem()
 
 		sub, err := s.Subscribe(ctx)
 		if err != nil {

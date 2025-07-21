@@ -158,7 +158,11 @@ func main() {
 	}
 
 	// Set up the storage event service.
-	storageEvsvc := event.NewStorageEventServiceInMemImpl()
+	storageEvsvc, err := event.NewStorageEventServiceRedis(logger.WithName("storage-events"), tp, &cfg.Event)
+	if err != nil {
+		logger.Error(err, "Error creating Storage Event service.")
+		os.Exit(1)
+	}
 
 	// Set up the OIDC token verifier.
 	var tokenVerifier auth.TokenVerifier

@@ -38,24 +38,6 @@ func PublishEvent(ctx context.Context, events EventService, event any) {
 	}
 }
 
-// StorageEventService represents a service for managing storage event dispatch and event listeners.
-type StorageEventService interface {
-	// Publishes a storage event to a user's event listeners.
-	PublishEvent(ctx context.Context, event *goastorage.StorageMonitorEvent)
-
-	// Creates a subscription. Caller must call StorageSubscription.Close() when done.
-	Subscribe(ctx context.Context) (StorageSubscription, error)
-}
-
-// StorageSubscription represents a stream of storage events for a single user.
-type StorageSubscription interface {
-	// Event stream for all user's storage events.
-	C() <-chan *goastorage.StorageMonitorEvent
-
-	// Closes the event stream channel and disconnects from the event service.
-	Close() error
-}
-
 func PublishStorageEvent(ctx context.Context, events StorageEventService, event any) {
 	switch v := event.(type) {
 	case *goastorage.StorageMonitorPingEvent:

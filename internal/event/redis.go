@@ -13,18 +13,74 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/http/ingest/client"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/http/ingest/server"
+	storageclient "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
+	storageserver "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
-type EventServiceRedisImpl struct {
-	logger logr.Logger
-	client redis.UniversalClient
-	cfg    *Config
+// EventSerializer handles serialization/deserialization of events for Redis
+type EventSerializer[T any] interface {
+	Marshal(event T) ([]byte, error)
+	Unmarshal(data []byte) (T, error)
 }
 
-var _ EventService = (*EventServiceRedisImpl)(nil)
+// IngestEventSerializer handles ingest events
+type IngestEventSerializer struct{}
 
-func NewEventServiceRedis(logger logr.Logger, tp trace.TracerProvider, cfg *Config) (EventService, error) {
+func (s *IngestEventSerializer) Marshal(event *goaingest.MonitorEvent) ([]byte, error) {
+	return json.Marshal(server.NewMonitorResponseBody(event))
+}
+
+func (s *IngestEventSerializer) Unmarshal(data []byte) (*goaingest.MonitorEvent, error) {
+	payload := client.MonitorResponseBody{}
+	if err := json.Unmarshal(data, &payload); err != nil {
+		return nil, err
+	}
+	if err := client.ValidateMonitorResponseBody(&payload); err != nil {
+		return nil, err
+	}
+	return client.NewMonitorEventOK(&payload), nil
+}
+
+// StorageEventSerializer handles storage events
+type StorageEventSerializer struct{}
+
+func (s *StorageEventSerializer) Marshal(event *goastorage.StorageMonitorEvent) ([]byte, error) {
+	return json.Marshal(storageserver.NewMonitorResponseBody(event))
+}
+
+func (s *StorageEventSerializer) Unmarshal(data []byte) (*goastorage.StorageMonitorEvent, error) {
+	payload := storageclient.MonitorResponseBody{}
+	if err := json.Unmarshal(data, &payload); err != nil {
+		return nil, err
+	}
+	if err := storageclient.ValidateMonitorResponseBody(&payload); err != nil {
+		return nil, err
+	}
+	return storageclient.NewMonitorStorageMonitorEventOK(&payload), nil
+}
+
+// ServiceRedisImpl represents a generic Redis-based service for managing events.
+type ServiceRedisImpl[T any] struct {
+	logger     logr.Logger
+	client     redis.UniversalClient
+	cfg        *Config
+	serializer EventSerializer[T]
+}
+
+var (
+	_ Service[*goaingest.MonitorEvent]         = (*ServiceRedisImpl[*goaingest.MonitorEvent])(nil)
+	_ Service[*goastorage.StorageMonitorEvent] = (*ServiceRedisImpl[*goastorage.StorageMonitorEvent])(nil)
+)
+
+// NewServiceRedis returns a new instance of a generic Redis event service.
+func NewServiceRedis[T any](
+	logger logr.Logger,
+	tp trace.TracerProvider,
+	cfg *Config,
+	serializer EventSerializer[T],
+) (Service[T], error) {
 	opts, err := redis.ParseURL(cfg.RedisAddress)
 	if err != nil {
 		return nil, err
@@ -39,79 +95,94 @@ func NewEventServiceRedis(logger logr.Logger, tp trace.TracerProvider, cfg *Conf
 		return nil, fmt.Errorf("instrument redis client tracing: %v", err)
 	}
 
-	return &EventServiceRedisImpl{
-		logger: logger,
-		client: client,
-		cfg:    cfg,
+	return &ServiceRedisImpl[T]{
+		logger:     logger,
+		client:     client,
+		cfg:        cfg,
+		serializer: serializer,
 	}, nil
 }
 
-func (s *EventServiceRedisImpl) PublishEvent(ctx context.Context, event *goaingest.MonitorEvent) {
+// NewEventServiceRedis returns a new instance of a Redis ingest event service.
+func NewEventServiceRedis(logger logr.Logger, tp trace.TracerProvider, cfg *Config) (EventService, error) {
+	return NewServiceRedis(logger, tp, cfg, &IngestEventSerializer{})
+}
+
+// NewStorageEventServiceRedis returns a new instance of a Redis storage event service.
+func NewStorageEventServiceRedis(
+	logger logr.Logger,
+	tp trace.TracerProvider,
+	cfg *Config,
+) (StorageEventService, error) {
+	return NewServiceRedis(logger, tp, cfg, &StorageEventSerializer{})
+}
+
+func (s *ServiceRedisImpl[T]) PublishEvent(ctx context.Context, event T) {
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	blob, err := json.Marshal(server.NewMonitorResponseBody(event))
+	blob, err := s.serializer.Marshal(event)
 	if err != nil {
-		s.logger.Error(err, "Error encoding monitor event.")
+		s.logger.Error(err, "Error encoding event.")
+		return
 	}
 
 	if err := s.client.Publish(ctx, s.cfg.RedisChannel, blob).Err(); err != nil {
-		s.logger.Error(err, "Error publishing monitor event.")
+		s.logger.Error(err, "Error publishing event.")
 	}
 }
 
-func (s *EventServiceRedisImpl) Subscribe(ctx context.Context) (Subscription, error) {
-	sub := NewSubscriptionRedis(ctx, s.logger, s.client, s.cfg.RedisChannel)
-
+func (s *ServiceRedisImpl[T]) Subscribe(ctx context.Context) (Subscription[T], error) {
+	sub := NewSubscriptionRedis(ctx, s.logger, s.client, s.cfg.RedisChannel, s.serializer)
 	return sub, nil
 }
 
-// SubscriptionRedisImpl represents a stream of user-related events.
-type SubscriptionRedisImpl struct {
-	logger logr.Logger
-	pubsub *redis.PubSub
-	c      chan *goaingest.MonitorEvent // channel of events
-	stopCh chan struct{}
+// SubscriptionRedisImpl represents a stream of events.
+type SubscriptionRedisImpl[T any] struct {
+	logger     logr.Logger
+	pubsub     *redis.PubSub
+	c          chan T
+	stopCh     chan struct{}
+	serializer EventSerializer[T]
 }
 
-var _ Subscription = (*SubscriptionRedisImpl)(nil)
+var (
+	_ Subscription[*goaingest.MonitorEvent]         = (*SubscriptionRedisImpl[*goaingest.MonitorEvent])(nil)
+	_ Subscription[*goastorage.StorageMonitorEvent] = (*SubscriptionRedisImpl[*goastorage.StorageMonitorEvent])(nil)
+)
 
-func NewSubscriptionRedis(
+func NewSubscriptionRedis[T any](
 	ctx context.Context,
 	logger logr.Logger,
 	c redis.UniversalClient,
 	channel string,
-) Subscription {
+	serializer EventSerializer[T],
+) Subscription[T] {
 	pubsub := c.Subscribe(ctx, channel)
-	// Call Receive to force the connection to wait a response from
-	// Redis so the subscription is active immediately.
 	_, _ = pubsub.Receive(ctx)
-	sub := SubscriptionRedisImpl{
-		logger: logger,
-		pubsub: pubsub,
-		c:      make(chan *goaingest.MonitorEvent, EventBufferSize),
-		stopCh: make(chan struct{}),
+	sub := SubscriptionRedisImpl[T]{
+		logger:     logger,
+		pubsub:     pubsub,
+		c:          make(chan T, EventBufferSize),
+		stopCh:     make(chan struct{}),
+		serializer: serializer,
 	}
 	go sub.loop()
 	return &sub
 }
 
-func (s *SubscriptionRedisImpl) loop() {
+func (s *SubscriptionRedisImpl[T]) loop() {
 	ch := s.pubsub.Channel()
 
 	for {
 		select {
 		case msg := <-ch:
-			payload := client.MonitorResponseBody{}
-			if err := json.Unmarshal([]byte(msg.Payload), &payload); err != nil {
-				s.logger.Error(err, "Error decoding monitor event.")
+			event, err := s.serializer.Unmarshal([]byte(msg.Payload))
+			if err != nil {
+				s.logger.Error(err, "Error decoding event.")
 				continue
 			}
-			if err := client.ValidateMonitorResponseBody(&payload); err != nil {
-				s.logger.Error(err, "Monitor event is invalid.")
-				continue
-			}
-			s.c <- client.NewMonitorEventOK(&payload)
+			s.c <- event
 		case <-s.stopCh:
 			return
 		}
@@ -119,13 +190,12 @@ func (s *SubscriptionRedisImpl) loop() {
 }
 
 // Close disconnects the subscription from the service it was created from.
-func (s *SubscriptionRedisImpl) Close() error {
+func (s *SubscriptionRedisImpl[T]) Close() error {
 	s.stopCh <- struct{}{}
-
 	return s.pubsub.Close()
 }
 
-// C returns a receive-only channel of user-related events.
-func (s *SubscriptionRedisImpl) C() <-chan *goaingest.MonitorEvent {
+// C returns a receive-only channel of events.
+func (s *SubscriptionRedisImpl[T]) C() <-chan T {
 	return s.c
 }

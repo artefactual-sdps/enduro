@@ -208,7 +208,7 @@ func TestMonitor(t *testing.T) {
 			t.Parallel()
 
 			tpMock := authfake.NewMockTicketProvider(gomock.NewController(t))
-			evsvc := event.NewEventServiceInMemImpl()
+			evsvc := event.NewEventServiceInMem()
 			stream := &mockMonitorServerStream{}
 
 			gw := &goaWrapper{
