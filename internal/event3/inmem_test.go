@@ -25,7 +25,7 @@ func TestIngestEventService(t *testing.T) {
 		}
 
 		// Publish event to both users
-		s.PublishEvent(ctx, &goaingest.MonitorEvent{})
+		s.PublishEvent(ctx, &goaingest.IngestMonitorEvent{})
 
 		// Verify both subscribers received the update.
 		select {
@@ -55,7 +55,7 @@ func TestIngestEventService(t *testing.T) {
 		}
 
 		// Publish event after unsubscribe
-		s.PublishEvent(ctx, &goaingest.MonitorEvent{})
+		s.PublishEvent(ctx, &goaingest.IngestMonitorEvent{})
 
 		// Verify subscriber did not receive the update (channel should be closed).
 		select {

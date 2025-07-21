@@ -24,7 +24,7 @@ func TestEventService(t *testing.T) {
 		}
 
 		// Publish event to both users
-		s.PublishEvent(ctx, &goaingest.MonitorEvent{})
+		s.PublishEvent(ctx, &goaingest.IngestMonitorEvent{})
 
 		// Verify both subscribers received the update.
 		select {
@@ -50,7 +50,7 @@ func TestEventService(t *testing.T) {
 		}
 
 		// Publish event & close.
-		s.PublishEvent(ctx, &goaingest.MonitorEvent{})
+		s.PublishEvent(ctx, &goaingest.IngestMonitorEvent{})
 		if err := sub.Close(); err != nil {
 			t.Fatal(err)
 		}

@@ -38,15 +38,15 @@ type Subscription[T any] interface {
 
 // Type aliases for convenience
 type (
-	IngestEventService  = Service[*goaingest.MonitorEvent]
+	IngestEventService  = Service[*goaingest.IngestMonitorEvent]
 	StorageEventService = Service[*goastorage.StorageMonitorEvent]
-	IngestSubscription  = Subscription[*goaingest.MonitorEvent]
+	IngestSubscription  = Subscription[*goaingest.IngestMonitorEvent]
 	StorageSubscription = Subscription[*goastorage.StorageMonitorEvent]
 )
 
 // NopIngestEventService returns an ingest event service that does nothing.
 func NopIngestEventService() IngestEventService {
-	return &nopService[*goaingest.MonitorEvent]{}
+	return &nopService[*goaingest.IngestMonitorEvent]{}
 }
 
 // NopStorageEventService returns a storage event service that does nothing.
@@ -66,7 +66,7 @@ func (*nopService[T]) Subscribe(ctx context.Context) (Subscription[T], error) {
 
 // NewIngestEventServiceInMem returns a new instance of an in-memory ingest event service.
 func NewIngestEventServiceInMem() IngestEventService {
-	return NewServiceInMem[*goaingest.MonitorEvent]()
+	return NewServiceInMem[*goaingest.IngestMonitorEvent]()
 }
 
 // NewStorageEventServiceInMem returns a new instance of an in-memory storage event service.

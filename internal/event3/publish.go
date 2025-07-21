@@ -10,22 +10,22 @@ import (
 // PublishIngestEvent publishes an ingest event with type safety.
 func PublishIngestEvent(ctx context.Context, svc IngestEventService, event any) {
 	switch v := event.(type) {
-	case *goaingest.MonitorPingEvent:
-		svc.PublishEvent(ctx, &goaingest.MonitorEvent{Event: v})
+	case *goaingest.IngestPingEvent:
+		svc.PublishEvent(ctx, &goaingest.IngestMonitorEvent{Event: v})
 	case *goaingest.SIPCreatedEvent:
-		svc.PublishEvent(ctx, &goaingest.MonitorEvent{Event: v})
+		svc.PublishEvent(ctx, &goaingest.IngestMonitorEvent{Event: v})
 	case *goaingest.SIPUpdatedEvent:
-		svc.PublishEvent(ctx, &goaingest.MonitorEvent{Event: v})
+		svc.PublishEvent(ctx, &goaingest.IngestMonitorEvent{Event: v})
 	case *goaingest.SIPStatusUpdatedEvent:
-		svc.PublishEvent(ctx, &goaingest.MonitorEvent{Event: v})
+		svc.PublishEvent(ctx, &goaingest.IngestMonitorEvent{Event: v})
 	case *goaingest.SIPWorkflowCreatedEvent:
-		svc.PublishEvent(ctx, &goaingest.MonitorEvent{Event: v})
+		svc.PublishEvent(ctx, &goaingest.IngestMonitorEvent{Event: v})
 	case *goaingest.SIPWorkflowUpdatedEvent:
-		svc.PublishEvent(ctx, &goaingest.MonitorEvent{Event: v})
+		svc.PublishEvent(ctx, &goaingest.IngestMonitorEvent{Event: v})
 	case *goaingest.SIPTaskCreatedEvent:
-		svc.PublishEvent(ctx, &goaingest.MonitorEvent{Event: v})
+		svc.PublishEvent(ctx, &goaingest.IngestMonitorEvent{Event: v})
 	case *goaingest.SIPTaskUpdatedEvent:
-		svc.PublishEvent(ctx, &goaingest.MonitorEvent{Event: v})
+		svc.PublishEvent(ctx, &goaingest.IngestMonitorEvent{Event: v})
 	default:
 		panic("invalid ingest event type")
 	}
@@ -34,7 +34,7 @@ func PublishIngestEvent(ctx context.Context, svc IngestEventService, event any) 
 // PublishStorageEvent publishes a storage event with type safety.
 func PublishStorageEvent(ctx context.Context, svc StorageEventService, event any) {
 	switch v := event.(type) {
-	case *goastorage.StorageMonitorPingEvent:
+	case *goastorage.StoragePingEvent:
 		svc.PublishEvent(ctx, &goastorage.StorageMonitorEvent{Event: v})
 	case *goastorage.LocationCreatedEvent:
 		svc.PublishEvent(ctx, &goastorage.StorageMonitorEvent{Event: v})
@@ -44,13 +44,13 @@ func PublishStorageEvent(ctx context.Context, svc StorageEventService, event any
 		svc.PublishEvent(ctx, &goastorage.StorageMonitorEvent{Event: v})
 	case *goastorage.AIPUpdatedEvent:
 		svc.PublishEvent(ctx, &goastorage.StorageMonitorEvent{Event: v})
-	case *goastorage.WorkflowCreatedEvent:
+	case *goastorage.AIPWorkflowCreatedEvent:
 		svc.PublishEvent(ctx, &goastorage.StorageMonitorEvent{Event: v})
-	case *goastorage.WorkflowUpdatedEvent:
+	case *goastorage.AIPWorkflowUpdatedEvent:
 		svc.PublishEvent(ctx, &goastorage.StorageMonitorEvent{Event: v})
-	case *goastorage.TaskCreatedEvent:
+	case *goastorage.AIPTaskCreatedEvent:
 		svc.PublishEvent(ctx, &goastorage.StorageMonitorEvent{Event: v})
-	case *goastorage.TaskUpdatedEvent:
+	case *goastorage.AIPTaskUpdatedEvent:
 		svc.PublishEvent(ctx, &goastorage.StorageMonitorEvent{Event: v})
 	default:
 		panic("invalid storage event type")

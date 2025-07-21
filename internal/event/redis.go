@@ -28,11 +28,11 @@ type EventSerializer[T any] interface {
 // IngestEventSerializer handles ingest events
 type IngestEventSerializer struct{}
 
-func (s *IngestEventSerializer) Marshal(event *goaingest.MonitorEvent) ([]byte, error) {
+func (s *IngestEventSerializer) Marshal(event *goaingest.IngestMonitorEvent) ([]byte, error) {
 	return json.Marshal(server.NewMonitorResponseBody(event))
 }
 
-func (s *IngestEventSerializer) Unmarshal(data []byte) (*goaingest.MonitorEvent, error) {
+func (s *IngestEventSerializer) Unmarshal(data []byte) (*goaingest.IngestMonitorEvent, error) {
 	payload := client.MonitorResponseBody{}
 	if err := json.Unmarshal(data, &payload); err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (s *IngestEventSerializer) Unmarshal(data []byte) (*goaingest.MonitorEvent,
 	if err := client.ValidateMonitorResponseBody(&payload); err != nil {
 		return nil, err
 	}
-	return client.NewMonitorEventOK(&payload), nil
+	return client.NewMonitorIngestMonitorEventOK(&payload), nil
 }
 
 // StorageEventSerializer handles storage events
@@ -70,7 +70,7 @@ type ServiceRedisImpl[T any] struct {
 }
 
 var (
-	_ Service[*goaingest.MonitorEvent]         = (*ServiceRedisImpl[*goaingest.MonitorEvent])(nil)
+	_ Service[*goaingest.IngestMonitorEvent]   = (*ServiceRedisImpl[*goaingest.IngestMonitorEvent])(nil)
 	_ Service[*goastorage.StorageMonitorEvent] = (*ServiceRedisImpl[*goastorage.StorageMonitorEvent])(nil)
 )
 
@@ -147,7 +147,7 @@ type SubscriptionRedisImpl[T any] struct {
 }
 
 var (
-	_ Subscription[*goaingest.MonitorEvent]         = (*SubscriptionRedisImpl[*goaingest.MonitorEvent])(nil)
+	_ Subscription[*goaingest.IngestMonitorEvent]   = (*SubscriptionRedisImpl[*goaingest.IngestMonitorEvent])(nil)
 	_ Subscription[*goastorage.StorageMonitorEvent] = (*SubscriptionRedisImpl[*goastorage.StorageMonitorEvent])(nil)
 )
 

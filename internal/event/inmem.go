@@ -17,7 +17,7 @@ type ServiceInMemImpl[T any] struct {
 }
 
 var (
-	_ Service[*goaingest.MonitorEvent]         = (*ServiceInMemImpl[*goaingest.MonitorEvent])(nil)
+	_ Service[*goaingest.IngestMonitorEvent]   = (*ServiceInMemImpl[*goaingest.IngestMonitorEvent])(nil)
 	_ Service[*goastorage.StorageMonitorEvent] = (*ServiceInMemImpl[*goastorage.StorageMonitorEvent])(nil)
 )
 
@@ -30,7 +30,7 @@ func NewServiceInMem[T any]() *ServiceInMemImpl[T] {
 
 // NewEventServiceInMem returns a new instance of an ingest event service.
 func NewEventServiceInMem() EventService {
-	return NewServiceInMem[*goaingest.MonitorEvent]()
+	return NewServiceInMem[*goaingest.IngestMonitorEvent]()
 }
 
 // NewStorageEventServiceInMem returns a new instance of a storage event service.
@@ -109,7 +109,7 @@ type SubscriptionInMemImpl[T any] struct {
 }
 
 var (
-	_ Subscription[*goaingest.MonitorEvent]         = (*SubscriptionInMemImpl[*goaingest.MonitorEvent])(nil)
+	_ Subscription[*goaingest.IngestMonitorEvent]   = (*SubscriptionInMemImpl[*goaingest.IngestMonitorEvent])(nil)
 	_ Subscription[*goastorage.StorageMonitorEvent] = (*SubscriptionInMemImpl[*goastorage.StorageMonitorEvent])(nil)
 )
 

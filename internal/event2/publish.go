@@ -11,23 +11,23 @@ func PublishEvent(ctx context.Context, events EventService, event any) {
 	var e any
 
 	switch v := event.(type) {
-	case *goaingest.MonitorPingEvent:
-		e = &goaingest.MonitorEvent{Event: v}
+	case *goaingest.IngestPingEvent:
+		e = &goaingest.IngestMonitorEvent{Event: v}
 	case *goaingest.SIPCreatedEvent:
-		e = &goaingest.MonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{Event: v}
 	case *goaingest.SIPUpdatedEvent:
-		e = &goaingest.MonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{Event: v}
 	case *goaingest.SIPStatusUpdatedEvent:
-		e = &goaingest.MonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{Event: v}
 	case *goaingest.SIPWorkflowCreatedEvent:
-		e = &goaingest.MonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{Event: v}
 	case *goaingest.SIPWorkflowUpdatedEvent:
-		e = &goaingest.MonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{Event: v}
 	case *goaingest.SIPTaskCreatedEvent:
-		e = &goaingest.MonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{Event: v}
 	case *goaingest.SIPTaskUpdatedEvent:
-		e = &goaingest.MonitorEvent{Event: v}
-	case *goastorage.StorageMonitorPingEvent:
+		e = &goaingest.IngestMonitorEvent{Event: v}
+	case *goastorage.StoragePingEvent:
 		e = &goastorage.StorageMonitorEvent{Event: v}
 	case *goastorage.LocationCreatedEvent:
 		e = &goastorage.StorageMonitorEvent{Event: v}
@@ -37,13 +37,13 @@ func PublishEvent(ctx context.Context, events EventService, event any) {
 		e = &goastorage.StorageMonitorEvent{Event: v}
 	case *goastorage.AIPUpdatedEvent:
 		e = &goastorage.StorageMonitorEvent{Event: v}
-	case *goastorage.WorkflowCreatedEvent:
+	case *goastorage.AIPWorkflowCreatedEvent:
 		e = &goastorage.StorageMonitorEvent{Event: v}
-	case *goastorage.WorkflowUpdatedEvent:
+	case *goastorage.AIPWorkflowUpdatedEvent:
 		e = &goastorage.StorageMonitorEvent{Event: v}
-	case *goastorage.TaskCreatedEvent:
+	case *goastorage.AIPTaskCreatedEvent:
 		e = &goastorage.StorageMonitorEvent{Event: v}
-	case *goastorage.TaskUpdatedEvent:
+	case *goastorage.AIPTaskUpdatedEvent:
 		e = &goastorage.StorageMonitorEvent{Event: v}
 	default:
 		panic("tried to publish unexpected event")

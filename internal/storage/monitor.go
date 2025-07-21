@@ -55,7 +55,7 @@ func (s *serviceImpl) Monitor(
 	defer sub.Close()
 
 	// Say hello to be nice.
-	event := &goastorage.StorageMonitorPingEvent{Message: ref.New("Hello")}
+	event := &goastorage.StoragePingEvent{Message: ref.New("Hello")}
 	if err := stream.Send(&goastorage.StorageMonitorEvent{Event: event}); err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (s *serviceImpl) Monitor(
 			return nil
 
 		case <-ticker.C:
-			event := &goastorage.StorageMonitorPingEvent{Message: ref.New("Ping")}
+			event := &goastorage.StoragePingEvent{Message: ref.New("Ping")}
 			if err := stream.Send(&goastorage.StorageMonitorEvent{Event: event}); err != nil {
 				return nil
 			}
@@ -84,7 +84,7 @@ func (s *serviceImpl) Monitor(
 
 			// Check the event type and the user attributes before sending.
 			switch event.Event.(type) {
-			case *goastorage.StorageMonitorPingEvent:
+			case *goastorage.StoragePingEvent:
 				// Is this event even sent through this channel?
 			case *goastorage.LocationCreatedEvent, *goastorage.LocationUpdatedEvent:
 				if !claims.CheckAttributes([]string{auth.StorageLocationsListAttr}) {
@@ -99,10 +99,10 @@ func (s *serviceImpl) Monitor(
 					!claims.CheckAttributes([]string{auth.StorageAIPSReadAttr}) {
 					continue
 				}
-			case *goastorage.WorkflowCreatedEvent,
-				*goastorage.WorkflowUpdatedEvent,
-				*goastorage.TaskCreatedEvent,
-				*goastorage.TaskUpdatedEvent:
+			case *goastorage.AIPWorkflowCreatedEvent,
+				*goastorage.AIPWorkflowUpdatedEvent,
+				*goastorage.AIPTaskCreatedEvent,
+				*goastorage.AIPTaskUpdatedEvent:
 				if !claims.CheckAttributes([]string{auth.StorageAIPSWorkflowsListAttr}) {
 					continue
 				}

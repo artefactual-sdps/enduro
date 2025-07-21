@@ -565,7 +565,7 @@ func (svc *serviceImpl) CreateWorkflow(ctx context.Context, w *types.Workflow) e
 	}
 
 	// Publish workflow created event
-	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.WorkflowCreatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.AIPWorkflowCreatedEvent{
 		UUID: w.UUID,
 		Item: svc.workflowGoa(w),
 	})
@@ -584,7 +584,7 @@ func (svc *serviceImpl) UpdateWorkflow(
 	}
 
 	// Publish workflow updated event
-	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.WorkflowUpdatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.AIPWorkflowUpdatedEvent{
 		UUID: workflow.UUID,
 		Item: svc.workflowGoa(workflow),
 	})
@@ -599,7 +599,7 @@ func (svc *serviceImpl) CreateTask(ctx context.Context, t *types.Task) error {
 	}
 
 	// Publish task created event
-	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.TaskCreatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.AIPTaskCreatedEvent{
 		UUID: t.UUID,
 		Item: svc.taskGoa(t),
 	})
@@ -618,7 +618,7 @@ func (svc *serviceImpl) UpdateTask(
 	}
 
 	// Publish task updated event
-	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.TaskUpdatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.AIPTaskUpdatedEvent{
 		UUID: task.UUID,
 		Item: svc.taskGoa(task),
 	})
