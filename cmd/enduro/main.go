@@ -33,7 +33,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
-	event "github.com/artefactual-sdps/enduro/internal/event2"
+	event "github.com/artefactual-sdps/enduro/internal/event3"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"
@@ -150,10 +150,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Set up the unified event service.
-	evsvc, err := event.NewEventServiceRedis(logger.WithName("events"), tp, &cfg.Event)
+	// Set up the event services.
+	ingestEventSvc, err := event.NewIngestEventServiceRedis(logger.WithName("ingest-events"), tp, &cfg.Event)
 	if err != nil {
-		logger.Error(err, "Error creating Event service.")
+		logger.Error(err, "Error creating Ingest Event service.")
+		os.Exit(1)
+	}
+
+	storageEventSvc, err := event.NewStorageEventServiceRedis(logger.WithName("storage-events"), tp, &cfg.Event)
+	if err != nil {
+		logger.Error(err, "Error creating Storage Event service.")
 		os.Exit(1)
 	}
 
@@ -223,7 +229,7 @@ func main() {
 			logger.WithName("ingest"),
 			enduroDatabase,
 			temporalClient,
-			evsvc,
+			ingestEventSvc,
 			perSvc,
 			tokenVerifier,
 			ticketProvider,
@@ -259,7 +265,7 @@ func main() {
 			cfg.Storage,
 			storagePersistence,
 			temporalClient,
-			evsvc,
+			storageEventSvc,
 			tokenVerifier,
 			ticketProvider,
 			rand.Reader,
@@ -316,7 +322,7 @@ func main() {
 			logger.WithName("internal-ingest"),
 			enduroDatabase,
 			temporalClient,
-			evsvc,
+			ingestEventSvc,
 			perSvc,
 			&auth.NoopTokenVerifier{},
 			ticketProvider,
@@ -331,7 +337,7 @@ func main() {
 			cfg.Storage,
 			storagePersistence,
 			temporalClient,
-			evsvc,
+			storageEventSvc,
 			&auth.NoopTokenVerifier{},
 			ticketProvider,
 			rand.Reader,

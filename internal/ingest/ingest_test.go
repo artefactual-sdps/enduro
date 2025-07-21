@@ -17,7 +17,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	event "github.com/artefactual-sdps/enduro/internal/event2"
+	event "github.com/artefactual-sdps/enduro/internal/event3"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
@@ -35,7 +35,7 @@ func testSvc(t *testing.T, b *blob.Bucket, s int64) (
 		logr.Discard(),
 		&sql.DB{},
 		tc,
-		event.NopEventService(),
+		event.NopIngestEventService(),
 		psvc,
 		&auth.NoopTokenVerifier{},
 		auth.NewTicketProvider(t.Context(), nil, nil),

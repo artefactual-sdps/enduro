@@ -28,7 +28,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	event "github.com/artefactual-sdps/enduro/internal/event2"
+	event "github.com/artefactual-sdps/enduro/internal/event3"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
@@ -106,7 +106,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		*params.config,
 		*params.persistence,
 		*params.temporalClient,
-		event.NewEventServiceInMemImpl(),
+		event.NewStorageEventServiceInMem(),
 		params.tokenVerifier,
 		params.ticketProvider,
 		rand.New(rand.NewSource(1)), // #nosec: G404
@@ -138,7 +138,7 @@ func TestNewService(t *testing.T) {
 			storage.Config{},
 			nil,
 			nil,
-			event.NewEventServiceInMemImpl(),
+			event.NewStorageEventServiceInMem(),
 			&auth.OIDCTokenVerifier{},
 			nil,
 			nil,

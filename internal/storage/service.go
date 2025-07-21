@@ -19,7 +19,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	event "github.com/artefactual-sdps/enduro/internal/event2"
+	event "github.com/artefactual-sdps/enduro/internal/event3"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
@@ -64,7 +64,7 @@ type serviceImpl struct {
 	storagePersistence persistence.Storage
 
 	// Storage event service.
-	evsvc event.EventService
+	evsvc event.StorageEventService
 
 	// Token verifier.
 	tokenVerifier auth.TokenVerifier
@@ -88,7 +88,7 @@ func NewService(
 	config Config,
 	storagePersistence persistence.Storage,
 	tc temporalsdk_client.Client,
-	evsvc event.EventService,
+	evsvc event.StorageEventService,
 	tokenVerifier auth.TokenVerifier,
 	ticketProvider auth.TicketProvider,
 	rander io.Reader,
@@ -227,7 +227,7 @@ func (s *serviceImpl) CreateAip(ctx context.Context, payload *goastorage.CreateA
 	}
 
 	// Publish AIP created event
-	event.PublishEvent(ctx, s.evsvc, &goastorage.AIPCreatedEvent{
+	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.AIPCreatedEvent{
 		UUID: aipID,
 		Item: aip,
 	})
@@ -368,7 +368,7 @@ func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, stat
 	}
 
 	// Publish AIP updated event
-	event.PublishEvent(ctx, s.evsvc, &goastorage.AIPUpdatedEvent{
+	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.AIPUpdatedEvent{
 		UUID: aipID,
 		Item: aip,
 	})
@@ -511,7 +511,7 @@ func (s *serviceImpl) CreateLocation(
 	}
 
 	// Publish location created event
-	event.PublishEvent(ctx, s.evsvc, &goastorage.LocationCreatedEvent{
+	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.LocationCreatedEvent{
 		UUID: UUID,
 		Item: location,
 	})
@@ -565,7 +565,7 @@ func (svc *serviceImpl) CreateWorkflow(ctx context.Context, w *types.Workflow) e
 	}
 
 	// Publish workflow created event
-	event.PublishEvent(ctx, svc.evsvc, &goastorage.WorkflowCreatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.WorkflowCreatedEvent{
 		UUID: w.UUID,
 		Item: svc.workflowGoa(w),
 	})
@@ -584,7 +584,7 @@ func (svc *serviceImpl) UpdateWorkflow(
 	}
 
 	// Publish workflow updated event
-	event.PublishEvent(ctx, svc.evsvc, &goastorage.WorkflowUpdatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.WorkflowUpdatedEvent{
 		UUID: workflow.UUID,
 		Item: svc.workflowGoa(workflow),
 	})
@@ -599,7 +599,7 @@ func (svc *serviceImpl) CreateTask(ctx context.Context, t *types.Task) error {
 	}
 
 	// Publish task created event
-	event.PublishEvent(ctx, svc.evsvc, &goastorage.TaskCreatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.TaskCreatedEvent{
 		UUID: t.UUID,
 		Item: svc.taskGoa(t),
 	})
@@ -618,7 +618,7 @@ func (svc *serviceImpl) UpdateTask(
 	}
 
 	// Publish task updated event
-	event.PublishEvent(ctx, svc.evsvc, &goastorage.TaskUpdatedEvent{
+	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.TaskUpdatedEvent{
 		UUID: task.UUID,
 		Item: svc.taskGoa(task),
 	})

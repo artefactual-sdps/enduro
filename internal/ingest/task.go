@@ -9,7 +9,7 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	event "github.com/artefactual-sdps/enduro/internal/event2"
+	event "github.com/artefactual-sdps/enduro/internal/event3"
 )
 
 func (svc *ingestImpl) CreateTask(ctx context.Context, task *datatypes.Task) error {
@@ -18,7 +18,7 @@ func (svc *ingestImpl) CreateTask(ctx context.Context, task *datatypes.Task) err
 		return fmt.Errorf("task: create: %v", err)
 	}
 
-	event.PublishEvent(ctx, svc.evsvc, &goaingest.SIPTaskCreatedEvent{
+	event.PublishIngestEvent(ctx, svc.evsvc, &goaingest.SIPTaskCreatedEvent{
 		UUID: task.UUID,
 		Item: taskToGoa(task),
 	})
@@ -57,7 +57,7 @@ func (svc *ingestImpl) CompleteTask(
 		return fmt.Errorf("error updating task: %v", err)
 	}
 
-	event.PublishEvent(ctx, svc.evsvc, &goaingest.SIPTaskUpdatedEvent{
+	event.PublishIngestEvent(ctx, svc.evsvc, &goaingest.SIPTaskUpdatedEvent{
 		UUID: task.UUID,
 		Item: taskToGoa(task),
 	})

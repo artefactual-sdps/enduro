@@ -8,7 +8,7 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	event "github.com/artefactual-sdps/enduro/internal/event2"
+	event "github.com/artefactual-sdps/enduro/internal/event3"
 )
 
 func (svc *ingestImpl) CreateWorkflow(
@@ -24,7 +24,7 @@ func (svc *ingestImpl) CreateWorkflow(
 		UUID: w.UUID,
 		Item: workflowToGoa(w),
 	}
-	event.PublishEvent(ctx, svc.evsvc, ev)
+	event.PublishIngestEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }
@@ -46,7 +46,7 @@ func (svc *ingestImpl) SetWorkflowStatus(
 	}
 
 	if item, err := svc.readWorkflow(ctx, ID); err == nil {
-		event.PublishEvent(
+		event.PublishIngestEvent(
 			ctx,
 			svc.evsvc,
 			&goaingest.SIPWorkflowUpdatedEvent{UUID: item.UUID, Item: item},
@@ -75,7 +75,7 @@ func (svc *ingestImpl) CompleteWorkflow(
 	}
 
 	if item, err := svc.readWorkflow(ctx, ID); err == nil {
-		event.PublishEvent(
+		event.PublishIngestEvent(
 			ctx,
 			svc.evsvc,
 			&goaingest.SIPWorkflowUpdatedEvent{UUID: item.UUID, Item: item},
