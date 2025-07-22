@@ -8,20 +8,23 @@ export function handleEvent(event: api.MonitorEventEvent) {
 }
 
 const handlers: {
-  [key in api.MonitorEventEventTypeEnum]: (data: unknown) => void;
+  [key in api.IngestMonitorEventEventTypeEnum]: (data: unknown) => void;
 } = {
-  [MonitorEventEventTypeEnum.MonitorPingEvent]: handleMonitorPing,
-  [MonitorEventEventTypeEnum.SipCreatedEvent]: handleSipCreated,
-  [MonitorEventEventTypeEnum.SipUpdatedEvent]: handleSipUpdated,
-  [MonitorEventEventTypeEnum.SipStatusUpdatedEvent]: handleSipStatusUpdated,
-  [MonitorEventEventTypeEnum.SipWorkflowCreatedEvent]: handleWorkflowCreated,
-  [MonitorEventEventTypeEnum.SipWorkflowUpdatedEvent]: handleWorkflowUpdated,
-  [MonitorEventEventTypeEnum.SipTaskCreatedEvent]: handleTaskCreated,
-  [MonitorEventEventTypeEnum.SipTaskUpdatedEvent]: handleTaskUpdated,
+  [IngestMonitorEventEventTypeEnum.IngestPingEvent]: handleIngestPing,
+  [IngestMonitorEventEventTypeEnum.SipCreatedEvent]: handleSipCreated,
+  [IngestMonitorEventEventTypeEnum.SipUpdatedEvent]: handleSipUpdated,
+  [IngestMonitorEventEventTypeEnum.SipStatusUpdatedEvent]:
+    handleSipStatusUpdated,
+  [IngestMonitorEventEventTypeEnum.SipWorkflowCreatedEvent]:
+    handleSipWorkflowCreated,
+  [IngestMonitorEventEventTypeEnum.SipWorkflowUpdatedEvent]:
+    handleSipWorkflowUpdated,
+  [IngestMonitorEventEventTypeEnum.SipTaskCreatedEvent]: handleSipTaskCreated,
+  [IngestMonitorEventEventTypeEnum.SipTaskUpdatedEvent]: handleSipTaskUpdated,
 };
 
-function handleMonitorPing(data: unknown) {
-  api.MonitorPingEventFromJSON(data);
+function handleIngestPing(data: unknown) {
+  api.IngestPingEventFromJSON(data);
 }
 
 function handleSipCreated(data: unknown) {
@@ -46,7 +49,7 @@ function handleSipStatusUpdated(data: unknown) {
   store.$state.current.status = event.status;
 }
 
-function handleWorkflowCreated(data: unknown) {
+function handleSipWorkflowCreated(data: unknown) {
   const event = api.SIPWorkflowCreatedEventFromJSON(data);
   const store = useSipStore();
 
@@ -59,7 +62,7 @@ function handleWorkflowCreated(data: unknown) {
   store.currentWorkflows?.workflows?.unshift(event.item);
 }
 
-function handleWorkflowUpdated(data: unknown) {
+function handleSipWorkflowUpdated(data: unknown) {
   const event = api.SIPWorkflowUpdatedEventFromJSON(data);
   const store = useSipStore();
 
@@ -76,7 +79,7 @@ function handleWorkflowUpdated(data: unknown) {
   workflow.tasks = tasks;
 }
 
-function handleTaskCreated(data: unknown) {
+function handleSipTaskCreated(data: unknown) {
   const event = api.SIPTaskCreatedEventFromJSON(data);
   const store = useSipStore();
 
@@ -90,7 +93,7 @@ function handleTaskCreated(data: unknown) {
   }
 }
 
-function handleTaskUpdated(data: unknown) {
+function handleSipTaskUpdated(data: unknown) {
   const event = api.SIPTaskUpdatedEventFromJSON(data);
   const store = useSipStore();
 

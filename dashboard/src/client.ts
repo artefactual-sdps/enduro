@@ -41,7 +41,7 @@ function connectIngestMonitor() {
   const socket = new WebSocket(url);
   socket.onmessage = (event: MessageEvent) => {
     const body = JSON.parse(event.data);
-    const data = api.MonitorEventFromJSON(body);
+    const data = api.IngestMonitorEventFromJSON(body);
     if (data.event) {
       handleEvent(data.event);
     }
