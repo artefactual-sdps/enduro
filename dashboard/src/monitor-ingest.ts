@@ -1,16 +1,10 @@
 import { api } from "@/client";
+import { transformKeys } from "@/helpers/transform";
 import { IngestMonitorEventIngestEventTypeEnum } from "@/openapi-generator";
 import { useSipStore } from "@/stores/sip";
 
 export function handleIngestEvent(event: api.IngestMonitorEventIngestEvent) {
-  const json = JSON.parse(event.value);
-  // TODO: avoid key transformation in the backend or make
-  // this fully recursive, considering objects and slices.
-  const value = mapKeys(json, (_, key) => snakeCase(key));
-  if (value.item) {
-    value.item = mapKeys(value.item, (_, key) => snakeCase(key));
-  }
-  handlers[event.type](value);
+  handlers[event.type](transformKeys(event.value));
 }
 
 const handlers: {
