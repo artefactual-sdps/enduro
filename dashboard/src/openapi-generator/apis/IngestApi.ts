@@ -21,6 +21,7 @@ import type {
   SIPNotFound,
   SIPWorkflows,
   SIPs,
+  SourceItems,
   UploadSipResponseBody,
   Users,
 } from '../models/index';
@@ -37,6 +38,8 @@ import {
     SIPWorkflowsToJSON,
     SIPsFromJSON,
     SIPsToJSON,
+    SourceItemsFromJSON,
+    SourceItemsToJSON,
     UploadSipResponseBodyFromJSON,
     UploadSipResponseBodyToJSON,
     UsersFromJSON,
@@ -70,6 +73,12 @@ export interface IngestListSipsRequest {
     uploaderId?: string;
     limit?: number;
     offset?: number;
+}
+
+export interface IngestListSourceItemsRequest {
+    uuid: string;
+    limit?: number;
+    cursor?: string;
 }
 
 export interface IngestListUsersRequest {
@@ -190,6 +199,24 @@ export interface IngestApiInterface {
      * list_sips ingest
      */
     ingestListSips(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPs>;
+
+    /**
+     * List SIP source items
+     * @summary list_source_items ingest
+     * @param {string} uuid Identifier of SIP source -- CURRENTLY NOT USED
+     * @param {number} [limit] Limit the number of results to return
+     * @param {string} [cursor] Cursor token to get subsequent pages
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestListSourceItemsRaw(requestParameters: IngestListSourceItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SourceItems>>;
+
+    /**
+     * List SIP source items
+     * list_source_items ingest
+     */
+    ingestListSourceItems(requestParameters: IngestListSourceItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SourceItems>;
 
     /**
      * List all users
@@ -518,6 +545,54 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      */
     async ingestListSips(requestParameters: IngestListSipsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPs> {
         const response = await this.ingestListSipsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * List SIP source items
+     * list_source_items ingest
+     */
+    async ingestListSourceItemsRaw(requestParameters: IngestListSourceItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SourceItems>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestListSourceItems.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.limit !== undefined) {
+            queryParameters['limit'] = requestParameters.limit;
+        }
+
+        if (requestParameters.cursor !== undefined) {
+            queryParameters['cursor'] = requestParameters.cursor;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/ingest/sources/{uuid}/items`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => SourceItemsFromJSON(jsonValue));
+    }
+
+    /**
+     * List SIP source items
+     * list_source_items ingest
+     */
+    async ingestListSourceItems(requestParameters: IngestListSourceItemsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SourceItems> {
+        const response = await this.ingestListSourceItemsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

@@ -16,6 +16,7 @@ models/EnduroAbout.ts
 models/EnduroIngestSip.ts
 models/EnduroIngestSipTask.ts
 models/EnduroIngestSipWorkflow.ts
+models/EnduroIngestSourceItem.ts
 models/EnduroIngestUser.ts
 models/EnduroPage.ts
 models/EnduroPoststorage.ts
@@ -42,6 +43,7 @@ models/SIPWorkflowCreatedEvent.ts
 models/SIPWorkflowUpdatedEvent.ts
 models/SIPWorkflows.ts
 models/SIPs.ts
+models/SourceItems.ts
 models/SubmitAIPResult.ts
 models/SubmitAipRequestBody.ts
 models/UploadSipResponseBody.ts
