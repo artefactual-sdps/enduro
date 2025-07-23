@@ -315,6 +315,16 @@ export const useAipStore = defineStore("aip", {
           throw new Error("Couldn't load AIP");
         });
     },
+    async fetchCurrentDebounced(id: string) {
+      return this.fetchCurrent(id);
+    },
+    async fetchAipsDebounced(page: number) {
+      return this.fetchAips(page);
+    },
+  },
+  debounce: {
+    fetchCurrentDebounced: [500, { isImmediate: false }],
+    fetchAipsDebounced: [500, { isImmediate: false }],
   },
 });
 

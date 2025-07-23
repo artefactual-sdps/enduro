@@ -41,6 +41,16 @@ export const useLocationStore = defineStore("location", {
       const resp = await client.storage.storageListLocations();
       this.locations = resp;
     },
+    async fetchCurrentDebounced(uuid: string) {
+      return this.fetchCurrent(uuid);
+    },
+    async fetchLocationsDebounced() {
+      return this.fetchLocations();
+    },
+  },
+  debounce: {
+    fetchCurrentDebounced: [500, { isImmediate: false }],
+    fetchLocationsDebounced: [500, { isImmediate: false }],
   },
 });
 
