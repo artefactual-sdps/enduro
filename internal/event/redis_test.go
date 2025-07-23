@@ -57,7 +57,7 @@ func TestEventServiceRedisPublish(t *testing.T) {
 	assert.NilError(t, err)
 
 	svc.PublishEvent(ctx, &goaingest.IngestMonitorEvent{
-		Event: &goaingest.IngestPingEvent{
+		IngestEvent: &goaingest.IngestPingEvent{
 			Message: ref.New("hello"),
 		},
 	})
@@ -94,7 +94,7 @@ func TestEventServiceRedisSubscribe(t *testing.T) {
 		Addr: s.Addr(),
 	})
 	ev := goaingest.IngestMonitorEvent{
-		Event: &goaingest.IngestPingEvent{
+		IngestEvent: &goaingest.IngestPingEvent{
 			Message: ref.New("hello"),
 		},
 	}

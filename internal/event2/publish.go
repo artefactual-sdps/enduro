@@ -12,39 +12,39 @@ func PublishEvent(ctx context.Context, events EventService, event any) {
 
 	switch v := event.(type) {
 	case *goaingest.IngestPingEvent:
-		e = &goaingest.IngestMonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{IngestEvent: v}
 	case *goaingest.SIPCreatedEvent:
-		e = &goaingest.IngestMonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{IngestEvent: v}
 	case *goaingest.SIPUpdatedEvent:
-		e = &goaingest.IngestMonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{IngestEvent: v}
 	case *goaingest.SIPStatusUpdatedEvent:
-		e = &goaingest.IngestMonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{IngestEvent: v}
 	case *goaingest.SIPWorkflowCreatedEvent:
-		e = &goaingest.IngestMonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{IngestEvent: v}
 	case *goaingest.SIPWorkflowUpdatedEvent:
-		e = &goaingest.IngestMonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{IngestEvent: v}
 	case *goaingest.SIPTaskCreatedEvent:
-		e = &goaingest.IngestMonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{IngestEvent: v}
 	case *goaingest.SIPTaskUpdatedEvent:
-		e = &goaingest.IngestMonitorEvent{Event: v}
+		e = &goaingest.IngestMonitorEvent{IngestEvent: v}
 	case *goastorage.StoragePingEvent:
-		e = &goastorage.StorageMonitorEvent{Event: v}
+		e = &goastorage.StorageMonitorEvent{StorageEvent: v}
 	case *goastorage.LocationCreatedEvent:
-		e = &goastorage.StorageMonitorEvent{Event: v}
+		e = &goastorage.StorageMonitorEvent{StorageEvent: v}
 	case *goastorage.LocationUpdatedEvent:
-		e = &goastorage.StorageMonitorEvent{Event: v}
+		e = &goastorage.StorageMonitorEvent{StorageEvent: v}
 	case *goastorage.AIPCreatedEvent:
-		e = &goastorage.StorageMonitorEvent{Event: v}
+		e = &goastorage.StorageMonitorEvent{StorageEvent: v}
 	case *goastorage.AIPUpdatedEvent:
-		e = &goastorage.StorageMonitorEvent{Event: v}
+		e = &goastorage.StorageMonitorEvent{StorageEvent: v}
 	case *goastorage.AIPWorkflowCreatedEvent:
-		e = &goastorage.StorageMonitorEvent{Event: v}
+		e = &goastorage.StorageMonitorEvent{StorageEvent: v}
 	case *goastorage.AIPWorkflowUpdatedEvent:
-		e = &goastorage.StorageMonitorEvent{Event: v}
+		e = &goastorage.StorageMonitorEvent{StorageEvent: v}
 	case *goastorage.AIPTaskCreatedEvent:
-		e = &goastorage.StorageMonitorEvent{Event: v}
+		e = &goastorage.StorageMonitorEvent{StorageEvent: v}
 	case *goastorage.AIPTaskUpdatedEvent:
-		e = &goastorage.StorageMonitorEvent{Event: v}
+		e = &goastorage.StorageMonitorEvent{StorageEvent: v}
 	default:
 		panic("tried to publish unexpected event")
 	}

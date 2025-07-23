@@ -16,9 +16,9 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface IngestMonitorEventEvent
+ * @interface IngestMonitorEventIngestEvent
  */
-export interface IngestMonitorEventEvent {
+export interface IngestMonitorEventIngestEvent {
     /**
      * Union type name, one of:
      * - "ingest_ping_event"
@@ -30,13 +30,13 @@ export interface IngestMonitorEventEvent {
      * - "sip_task_created_event"
      * - "sip_task_updated_event"
      * @type {string}
-     * @memberof IngestMonitorEventEvent
+     * @memberof IngestMonitorEventIngestEvent
      */
-    type: IngestMonitorEventEventTypeEnum;
+    type: IngestMonitorEventIngestEventTypeEnum;
     /**
      * JSON encoded union value
      * @type {string}
-     * @memberof IngestMonitorEventEvent
+     * @memberof IngestMonitorEventIngestEvent
      */
     value: string;
 }
@@ -45,7 +45,7 @@ export interface IngestMonitorEventEvent {
 /**
  * @export
  */
-export const IngestMonitorEventEventTypeEnum = {
+export const IngestMonitorEventIngestEventTypeEnum = {
     IngestPingEvent: 'ingest_ping_event',
     SipCreatedEvent: 'sip_created_event',
     SipUpdatedEvent: 'sip_updated_event',
@@ -55,13 +55,13 @@ export const IngestMonitorEventEventTypeEnum = {
     SipTaskCreatedEvent: 'sip_task_created_event',
     SipTaskUpdatedEvent: 'sip_task_updated_event'
 } as const;
-export type IngestMonitorEventEventTypeEnum = typeof IngestMonitorEventEventTypeEnum[keyof typeof IngestMonitorEventEventTypeEnum];
+export type IngestMonitorEventIngestEventTypeEnum = typeof IngestMonitorEventIngestEventTypeEnum[keyof typeof IngestMonitorEventIngestEventTypeEnum];
 
 
 /**
- * Check if a given object implements the IngestMonitorEventEvent interface.
+ * Check if a given object implements the IngestMonitorEventIngestEvent interface.
  */
-export function instanceOfIngestMonitorEventEvent(value: object): boolean {
+export function instanceOfIngestMonitorEventIngestEvent(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "type" in value;
     isInstance = isInstance && "value" in value;
@@ -69,11 +69,11 @@ export function instanceOfIngestMonitorEventEvent(value: object): boolean {
     return isInstance;
 }
 
-export function IngestMonitorEventEventFromJSON(json: any): IngestMonitorEventEvent {
-    return IngestMonitorEventEventFromJSONTyped(json, false);
+export function IngestMonitorEventIngestEventFromJSON(json: any): IngestMonitorEventIngestEvent {
+    return IngestMonitorEventIngestEventFromJSONTyped(json, false);
 }
 
-export function IngestMonitorEventEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): IngestMonitorEventEvent {
+export function IngestMonitorEventIngestEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): IngestMonitorEventIngestEvent {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -84,7 +84,7 @@ export function IngestMonitorEventEventFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function IngestMonitorEventEventToJSON(value?: IngestMonitorEventEvent | null): any {
+export function IngestMonitorEventIngestEventToJSON(value?: IngestMonitorEventIngestEvent | null): any {
     if (value === undefined) {
         return undefined;
     }

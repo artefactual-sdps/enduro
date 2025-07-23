@@ -56,7 +56,7 @@ func (s *serviceImpl) Monitor(
 
 	// Say hello to be nice.
 	event := &goastorage.StoragePingEvent{Message: ref.New("Hello")}
-	if err := stream.Send(&goastorage.StorageMonitorEvent{Event: event}); err != nil {
+	if err := stream.Send(&goastorage.StorageMonitorEvent{StorageEvent: event}); err != nil {
 		return err
 	}
 
@@ -73,7 +73,7 @@ func (s *serviceImpl) Monitor(
 
 		case <-ticker.C:
 			event := &goastorage.StoragePingEvent{Message: ref.New("Ping")}
-			if err := stream.Send(&goastorage.StorageMonitorEvent{Event: event}); err != nil {
+			if err := stream.Send(&goastorage.StorageMonitorEvent{StorageEvent: event}); err != nil {
 				return nil
 			}
 
@@ -83,7 +83,7 @@ func (s *serviceImpl) Monitor(
 			}
 
 			// Check the event type and the user attributes before sending.
-			switch event.Event.(type) {
+			switch event.StorageEvent.(type) {
 			case *goastorage.StoragePingEvent:
 				// Is this event even sent through this channel?
 			case *goastorage.LocationCreatedEvent, *goastorage.LocationUpdatedEvent:

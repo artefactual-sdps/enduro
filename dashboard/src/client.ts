@@ -1,4 +1,4 @@
-import { handleEvent } from "./monitor";
+import { handleIngestEvent } from "./monitor";
 import { handleStorageEvent } from "./monitor_storage";
 import * as api from "./openapi-generator";
 import * as runtime from "./openapi-generator/runtime";
@@ -44,8 +44,8 @@ function connectIngestMonitor() {
   socket.onmessage = (event: MessageEvent) => {
     const body = JSON.parse(event.data);
     const data = api.IngestMonitorEventFromJSON(body);
-    if (data.event) {
-      handleEvent(data.event);
+    if (data.ingestEvent) {
+      handleIngestEvent(data.ingestEvent);
     }
   };
 }
@@ -55,7 +55,10 @@ function connectStorageMonitor() {
   const socket = new WebSocket(url);
   socket.onmessage = (event: MessageEvent) => {
     const body = JSON.parse(event.data);
-    handleStorageEvent(body);
+    const data = api.StorageMonitorEventFromJSON(body);
+    if (data.storageEvent) {
+      handleStorageEvent(data.storageEvent);
+    }
   };
 }
 

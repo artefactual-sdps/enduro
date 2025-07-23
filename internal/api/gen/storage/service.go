@@ -576,8 +576,8 @@ type ShowLocationPayload struct {
 
 // StorageMonitorEvent is the result type of the storage service monitor method.
 type StorageMonitorEvent struct {
-	Event interface {
-		eventVal()
+	StorageEvent interface {
+		storageEventVal()
 	}
 }
 
@@ -684,19 +684,19 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
-func (*AIPCreatedEvent) eventVal()         {}
-func (*AIPTaskCreatedEvent) eventVal()     {}
-func (*AIPTaskUpdatedEvent) eventVal()     {}
-func (*AIPUpdatedEvent) eventVal()         {}
-func (*AIPWorkflowCreatedEvent) eventVal() {}
-func (*AIPWorkflowUpdatedEvent) eventVal() {}
-func (*AMSSConfig) configVal()             {}
-func (*LocationCreatedEvent) eventVal()    {}
-func (*LocationUpdatedEvent) eventVal()    {}
-func (*S3Config) configVal()               {}
-func (*SFTPConfig) configVal()             {}
-func (*StoragePingEvent) eventVal()        {}
-func (*URLConfig) configVal()              {}
+func (*AIPCreatedEvent) storageEventVal()         {}
+func (*AIPTaskCreatedEvent) storageEventVal()     {}
+func (*AIPTaskUpdatedEvent) storageEventVal()     {}
+func (*AIPUpdatedEvent) storageEventVal()         {}
+func (*AIPWorkflowCreatedEvent) storageEventVal() {}
+func (*AIPWorkflowUpdatedEvent) storageEventVal() {}
+func (*AMSSConfig) configVal()                    {}
+func (*LocationCreatedEvent) storageEventVal()    {}
+func (*LocationUpdatedEvent) storageEventVal()    {}
+func (*S3Config) configVal()                      {}
+func (*SFTPConfig) configVal()                    {}
+func (*StoragePingEvent) storageEventVal()        {}
+func (*URLConfig) configVal()                     {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {

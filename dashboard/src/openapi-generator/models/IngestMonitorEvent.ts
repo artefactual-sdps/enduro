@@ -13,12 +13,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { IngestMonitorEventEvent } from './IngestMonitorEventEvent';
+import type { IngestMonitorEventIngestEvent } from './IngestMonitorEventIngestEvent';
 import {
-    IngestMonitorEventEventFromJSON,
-    IngestMonitorEventEventFromJSONTyped,
-    IngestMonitorEventEventToJSON,
-} from './IngestMonitorEventEvent';
+    IngestMonitorEventIngestEventFromJSON,
+    IngestMonitorEventIngestEventFromJSONTyped,
+    IngestMonitorEventIngestEventToJSON,
+} from './IngestMonitorEventIngestEvent';
 
 /**
  * 
@@ -28,10 +28,10 @@ import {
 export interface IngestMonitorEvent {
     /**
      * 
-     * @type {IngestMonitorEventEvent}
+     * @type {IngestMonitorEventIngestEvent}
      * @memberof IngestMonitorEvent
      */
-    event?: IngestMonitorEventEvent;
+    ingestEvent?: IngestMonitorEventIngestEvent;
 }
 
 /**
@@ -53,7 +53,7 @@ export function IngestMonitorEventFromJSONTyped(json: any, ignoreDiscriminator: 
     }
     return {
         
-        'event': !exists(json, 'event') ? undefined : IngestMonitorEventEventFromJSON(json['event']),
+        'ingestEvent': !exists(json, 'ingest_event') ? undefined : IngestMonitorEventIngestEventFromJSON(json['ingest_event']),
     };
 }
 
@@ -66,7 +66,7 @@ export function IngestMonitorEventToJSON(value?: IngestMonitorEvent | null): any
     }
     return {
         
-        'event': IngestMonitorEventEventToJSON(value.event),
+        'ingest_event': IngestMonitorEventIngestEventToJSON(value.ingestEvent),
     };
 }
 

@@ -33,7 +33,7 @@ models/EnduroStorageAipWorkflow.ts
 models/EnduroStorageLocation.ts
 models/EnduroStorageLocationConfig.ts
 models/IngestMonitorEvent.ts
-models/IngestMonitorEventEvent.ts
+models/IngestMonitorEventIngestEvent.ts
 models/IngestPingEvent.ts
 models/LocationCreatedEvent.ts
 models/LocationResponse.ts
@@ -54,6 +54,8 @@ models/SIPWorkflowCreatedEvent.ts
 models/SIPWorkflowUpdatedEvent.ts
 models/SIPWorkflows.ts
 models/SIPs.ts
+models/StorageMonitorEvent.ts
+models/StorageMonitorEventStorageEvent.ts
 models/StoragePingEvent.ts
 models/SubmitAipRequestBody.ts
 models/URLConfig.ts

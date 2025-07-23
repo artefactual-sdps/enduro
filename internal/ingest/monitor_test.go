@@ -96,7 +96,7 @@ func (m *mockMonitorServerStream) Send(event *goaingest.IngestMonitorEvent) erro
 	if m.closed {
 		return fmt.Errorf("stream closed")
 	}
-	m.events = append(m.events, event.Event)
+	m.events = append(m.events, event.IngestEvent)
 	return nil
 }
 
@@ -121,13 +121,13 @@ func TestMonitor(t *testing.T) {
 			})
 	}
 	allEvents := []*goaingest.IngestMonitorEvent{
-		{Event: &goaingest.SIPCreatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPUpdatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPStatusUpdatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPWorkflowCreatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPTaskCreatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPTaskUpdatedEvent{UUID: testUUID}},
+		{IngestEvent: &goaingest.SIPCreatedEvent{UUID: testUUID}},
+		{IngestEvent: &goaingest.SIPUpdatedEvent{UUID: testUUID}},
+		{IngestEvent: &goaingest.SIPStatusUpdatedEvent{UUID: testUUID}},
+		{IngestEvent: &goaingest.SIPWorkflowCreatedEvent{UUID: testUUID}},
+		{IngestEvent: &goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID}},
+		{IngestEvent: &goaingest.SIPTaskCreatedEvent{UUID: testUUID}},
+		{IngestEvent: &goaingest.SIPTaskUpdatedEvent{UUID: testUUID}},
 	}
 	allWantEvents := []any{
 		&goaingest.IngestPingEvent{Message: ref.New("Hello")},

@@ -1,26 +1,34 @@
 import { api } from "@/client";
-import { transformKeys } from "@/helpers/transform";
-import { MonitorEventEventTypeEnum } from "@/openapi-generator";
+import { IngestMonitorEventIngestEventTypeEnum } from "@/openapi-generator";
 import { useSipStore } from "@/stores/sip";
 
-export function handleEvent(event: api.MonitorEventEvent) {
-  handlers[event.type](transformKeys(event.value));
+export function handleIngestEvent(event: api.IngestMonitorEventIngestEvent) {
+  const json = JSON.parse(event.value);
+  // TODO: avoid key transformation in the backend or make
+  // this fully recursive, considering objects and slices.
+  const value = mapKeys(json, (_, key) => snakeCase(key));
+  if (value.item) {
+    value.item = mapKeys(value.item, (_, key) => snakeCase(key));
+  }
+  handlers[event.type](value);
 }
 
 const handlers: {
-  [key in api.IngestMonitorEventEventTypeEnum]: (data: unknown) => void;
+  [key in api.IngestMonitorEventIngestEventTypeEnum]: (data: unknown) => void;
 } = {
-  [IngestMonitorEventEventTypeEnum.IngestPingEvent]: handleIngestPing,
-  [IngestMonitorEventEventTypeEnum.SipCreatedEvent]: handleSipCreated,
-  [IngestMonitorEventEventTypeEnum.SipUpdatedEvent]: handleSipUpdated,
-  [IngestMonitorEventEventTypeEnum.SipStatusUpdatedEvent]:
+  [IngestMonitorEventIngestEventTypeEnum.IngestPingEvent]: handleIngestPing,
+  [IngestMonitorEventIngestEventTypeEnum.SipCreatedEvent]: handleSipCreated,
+  [IngestMonitorEventIngestEventTypeEnum.SipUpdatedEvent]: handleSipUpdated,
+  [IngestMonitorEventIngestEventTypeEnum.SipStatusUpdatedEvent]:
     handleSipStatusUpdated,
-  [IngestMonitorEventEventTypeEnum.SipWorkflowCreatedEvent]:
+  [IngestMonitorEventIngestEventTypeEnum.SipWorkflowCreatedEvent]:
     handleSipWorkflowCreated,
-  [IngestMonitorEventEventTypeEnum.SipWorkflowUpdatedEvent]:
+  [IngestMonitorEventIngestEventTypeEnum.SipWorkflowUpdatedEvent]:
     handleSipWorkflowUpdated,
-  [IngestMonitorEventEventTypeEnum.SipTaskCreatedEvent]: handleSipTaskCreated,
-  [IngestMonitorEventEventTypeEnum.SipTaskUpdatedEvent]: handleSipTaskUpdated,
+  [IngestMonitorEventIngestEventTypeEnum.SipTaskCreatedEvent]:
+    handleSipTaskCreated,
+  [IngestMonitorEventIngestEventTypeEnum.SipTaskUpdatedEvent]:
+    handleSipTaskUpdated,
 };
 
 function handleIngestPing(data: unknown) {

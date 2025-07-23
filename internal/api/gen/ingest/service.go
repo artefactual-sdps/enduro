@@ -217,8 +217,8 @@ type EnduroPage struct {
 
 // IngestMonitorEvent is the result type of the ingest service monitor method.
 type IngestMonitorEvent struct {
-	Event interface {
-		eventVal()
+	IngestEvent interface {
+		ingestEventVal()
 	}
 }
 
@@ -563,18 +563,18 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
-func (*AMSSConfig) configVal()             {}
-func (*IngestPingEvent) eventVal()         {}
-func (*S3Config) configVal()               {}
-func (*SFTPConfig) configVal()             {}
-func (*SIPCreatedEvent) eventVal()         {}
-func (*SIPStatusUpdatedEvent) eventVal()   {}
-func (*SIPTaskCreatedEvent) eventVal()     {}
-func (*SIPTaskUpdatedEvent) eventVal()     {}
-func (*SIPUpdatedEvent) eventVal()         {}
-func (*SIPWorkflowCreatedEvent) eventVal() {}
-func (*SIPWorkflowUpdatedEvent) eventVal() {}
-func (*URLConfig) configVal()              {}
+func (*AMSSConfig) configVal()                   {}
+func (*IngestPingEvent) ingestEventVal()         {}
+func (*S3Config) configVal()                     {}
+func (*SFTPConfig) configVal()                   {}
+func (*SIPCreatedEvent) ingestEventVal()         {}
+func (*SIPStatusUpdatedEvent) ingestEventVal()   {}
+func (*SIPTaskCreatedEvent) ingestEventVal()     {}
+func (*SIPTaskUpdatedEvent) ingestEventVal()     {}
+func (*SIPUpdatedEvent) ingestEventVal()         {}
+func (*SIPWorkflowCreatedEvent) ingestEventVal() {}
+func (*SIPWorkflowUpdatedEvent) ingestEventVal() {}
+func (*URLConfig) configVal()                    {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {

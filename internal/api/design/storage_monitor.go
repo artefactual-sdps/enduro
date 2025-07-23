@@ -12,13 +12,13 @@ import (
 //     It guarantees that the schema is included in the OpenAPI spec when it
 //     is only listed as a member of an union type (OneOf).
 //
-//   - Meta("openapi:typename", "IngestPingEvent")
+//   - Meta("openapi:typename", "StoragePingEvent")
 //     It guarantees that the schema is not omitted because there is another
 //     type structurally equivalent, which is the default behavior in Goa.
 //
 
 var StorageMonitorEvent = Type("StorageMonitorEvent", func() {
-	OneOf("event", func() {
+	OneOf("storage_event", func() {
 		Attribute("storage_ping_event", StoragePingEvent)
 		Attribute("location_created_event", LocationCreatedEvent)
 		Attribute("location_updated_event", LocationUpdatedEvent)

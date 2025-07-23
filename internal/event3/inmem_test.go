@@ -147,7 +147,7 @@ func TestPublishHelpers(t *testing.T) {
 		// Verify subscriber received the event
 		select {
 		case event := <-sub.C():
-			if event.Event == nil {
+			if event.IngestEvent == nil {
 				t.Fatal("expected event to contain data")
 			}
 		default:
@@ -170,7 +170,7 @@ func TestPublishHelpers(t *testing.T) {
 		// Verify subscriber received the event
 		select {
 		case event := <-sub.C():
-			if event.Event == nil {
+			if event.StorageEvent == nil {
 				t.Fatal("expected event to contain data")
 			}
 		default:

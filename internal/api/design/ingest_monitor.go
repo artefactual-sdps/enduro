@@ -18,7 +18,7 @@ import (
 //
 
 var IngestMonitorEvent = Type("IngestMonitorEvent", func() {
-	OneOf("event", func() {
+	OneOf("ingest_event", func() {
 		Attribute("ingest_ping_event", IngestPingEvent)
 		Attribute("sip_created_event", SIPCreatedEvent)
 		Attribute("sip_updated_event", SIPUpdatedEvent)
