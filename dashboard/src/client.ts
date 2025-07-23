@@ -1,5 +1,5 @@
-import { handleIngestEvent } from "./monitor";
-import { handleStorageEvent } from "./monitor_storage";
+import { handleIngestEvent } from "./monitor-ingest";
+import { handleStorageEvent } from "./monitor-storage";
 import * as api from "./openapi-generator";
 import * as runtime from "./openapi-generator/runtime";
 
