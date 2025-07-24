@@ -297,8 +297,8 @@ func EncodeListSipsRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 		if p.Name != nil {
 			values.Add("name", *p.Name)
 		}
-		if p.AipID != nil {
-			values.Add("aip_id", *p.AipID)
+		if p.AipUUID != nil {
+			values.Add("aip_uuid", *p.AipUUID)
 		}
 		if p.EarliestCreatedTime != nil {
 			values.Add("earliest_created_time", *p.EarliestCreatedTime)
@@ -309,8 +309,8 @@ func EncodeListSipsRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 		if p.Status != nil {
 			values.Add("status", *p.Status)
 		}
-		if p.UploaderID != nil {
-			values.Add("uploader_id", *p.UploaderID)
+		if p.UploaderUUID != nil {
+			values.Add("uploader_uuid", *p.UploaderUUID)
 		}
 		if p.Limit != nil {
 			values.Add("limit", fmt.Sprintf("%v", *p.Limit))
@@ -1598,7 +1598,7 @@ func unmarshalSIPResponseBodyToIngestviewsSIPView(v *SIPResponseBody) *ingestvie
 		UUID:          v.UUID,
 		Name:          v.Name,
 		Status:        v.Status,
-		AipID:         v.AipID,
+		AipUUID:       v.AipUUID,
 		CreatedAt:     v.CreatedAt,
 		StartedAt:     v.StartedAt,
 		CompletedAt:   v.CompletedAt,

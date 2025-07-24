@@ -89,8 +89,8 @@ type ConfirmSipPayload struct {
 	// Identifier of SIP to look up
 	UUID string
 	// Identifier of storage location
-	LocationID uuid.UUID
-	Token      *string
+	LocationUUID uuid.UUID
+	Token        *string
 }
 
 // DownloadSipPayload is the payload type of the ingest service download_sip
@@ -145,12 +145,12 @@ type ListSipWorkflowsPayload struct {
 type ListSipsPayload struct {
 	Name *string
 	// Identifier of AIP
-	AipID               *string
+	AipUUID             *string
 	EarliestCreatedTime *string
 	LatestCreatedTime   *string
 	Status              *string
 	// UUID of the SIP uploader
-	UploaderID *string
+	UploaderUUID *string
 	// Limit number of results to return
 	Limit *int
 	// Offset from the beginning of the found set
@@ -215,7 +215,7 @@ type SIP struct {
 	// Status of the SIP
 	Status string
 	// Identifier of AIP
-	AipID *string
+	AipUUID *string
 	// Creation datetime
 	CreatedAt string
 	// Start datetime
@@ -557,7 +557,7 @@ func newSIPCollectionView(res SIPCollection) ingestviews.SIPCollectionView {
 func newSIP(vres *ingestviews.SIPView) *SIP {
 	res := &SIP{
 		Name:          vres.Name,
-		AipID:         vres.AipID,
+		AipUUID:       vres.AipUUID,
 		StartedAt:     vres.StartedAt,
 		CompletedAt:   vres.CompletedAt,
 		FailedAs:      vres.FailedAs,
@@ -585,7 +585,7 @@ func newSIPView(res *SIP) *ingestviews.SIPView {
 		UUID:          &res.UUID,
 		Name:          res.Name,
 		Status:        &res.Status,
-		AipID:         res.AipID,
+		AipUUID:       res.AipUUID,
 		CreatedAt:     &res.CreatedAt,
 		StartedAt:     res.StartedAt,
 		CompletedAt:   res.CompletedAt,

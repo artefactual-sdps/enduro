@@ -44,11 +44,11 @@ func (a *CreateStorageAIPActivity) Execute(
 	logger.V(1).Info("Executing CreateStorageSIPActivity", "params", params)
 
 	payload := goastorage.CreateAipPayload{
-		UUID:       params.AIPID,
-		Name:       params.Name,
-		Status:     params.Status,
-		ObjectKey:  params.ObjectKey,
-		LocationID: params.LocationID,
+		UUID:         params.AIPID,
+		Name:         params.Name,
+		Status:       params.Status,
+		ObjectKey:    params.ObjectKey,
+		LocationUUID: params.LocationID,
 	}
 
 	aip, err := a.client.CreateAip(ctx, &payload)
@@ -98,8 +98,8 @@ func (a *MoveToPermanentStorageActivity) Execute(
 	defer cancel()
 
 	err := a.storageClient.MoveAip(childCtx, &goastorage.MoveAipPayload{
-		UUID:       params.AIPID,
-		LocationID: params.LocationID,
+		UUID:         params.AIPID,
+		LocationUUID: params.LocationID,
 	})
 
 	return &MoveToPermanentStorageActivityResult{}, err

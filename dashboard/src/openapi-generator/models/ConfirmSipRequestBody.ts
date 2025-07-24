@@ -24,7 +24,7 @@ export interface ConfirmSipRequestBody {
      * @type {string}
      * @memberof ConfirmSipRequestBody
      */
-    locationId: string;
+    locationUuid: string;
 }
 
 /**
@@ -32,7 +32,7 @@ export interface ConfirmSipRequestBody {
  */
 export function instanceOfConfirmSipRequestBody(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "locationId" in value;
+    isInstance = isInstance && "locationUuid" in value;
 
     return isInstance;
 }
@@ -47,7 +47,7 @@ export function ConfirmSipRequestBodyFromJSONTyped(json: any, ignoreDiscriminato
     }
     return {
         
-        'locationId': json['location_id'],
+        'locationUuid': json['location_uuid'],
     };
 }
 
@@ -60,7 +60,7 @@ export function ConfirmSipRequestBodyToJSON(value?: ConfirmSipRequestBody | null
     }
     return {
         
-        'location_id': value.locationId,
+        'location_uuid': value.locationUuid,
     };
 }
 

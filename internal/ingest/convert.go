@@ -61,7 +61,7 @@ func taskToGoa(task *datatypes.Task) *goaingest.SIPTask {
 }
 
 func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistence.SIPFilter, error) {
-	aipID, err := stringToUUIDPtr(payload.AipID)
+	aipID, err := stringToUUIDPtr(payload.AipUUID)
 	if err != nil {
 		return nil, goaingest.MakeNotValid(errors.New("aip_id: invalid UUID"))
 	}
@@ -81,8 +81,8 @@ func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistenc
 	}
 
 	var uploaderID *uuid.UUID
-	if payload.UploaderID != nil {
-		id, err := uuid.Parse(*payload.UploaderID)
+	if payload.UploaderUUID != nil {
+		id, err := uuid.Parse(*payload.UploaderUUID)
 		if err != nil {
 			return nil, goaingest.MakeNotValid(errors.New("uploader_id: invalid UUID"))
 		}

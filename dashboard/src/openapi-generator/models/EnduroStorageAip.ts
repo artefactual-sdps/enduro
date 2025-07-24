@@ -30,7 +30,7 @@ export interface EnduroStorageAip {
      * @type {string}
      * @memberof EnduroStorageAip
      */
-    locationId?: string;
+    locationUuid?: string;
     /**
      * 
      * @type {string}
@@ -97,7 +97,7 @@ export function EnduroStorageAipFromJSONTyped(json: any, ignoreDiscriminator: bo
     return {
         
         'createdAt': (new Date(json['created_at'])),
-        'locationId': !exists(json, 'location_id') ? undefined : json['location_id'],
+        'locationUuid': !exists(json, 'location_uuid') ? undefined : json['location_uuid'],
         'name': json['name'],
         'objectKey': json['object_key'],
         'status': json['status'],
@@ -115,7 +115,7 @@ export function EnduroStorageAipToJSON(value?: EnduroStorageAip | null): any {
     return {
         
         'created_at': (value.createdAt.toISOString()),
-        'location_id': value.locationId,
+        'location_uuid': value.locationUuid,
         'name': value.name,
         'object_key': value.objectKey,
         'status': value.status,

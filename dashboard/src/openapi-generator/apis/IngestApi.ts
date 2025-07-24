@@ -63,11 +63,11 @@ export interface IngestListSipWorkflowsRequest {
 
 export interface IngestListSipsRequest {
     name?: string;
-    aipId?: string;
+    aipUuid?: string;
     earliestCreatedTime?: Date;
     latestCreatedTime?: Date;
     status?: IngestListSipsStatusEnum;
-    uploaderId?: string;
+    uploaderUuid?: string;
     limit?: number;
     offset?: number;
 }
@@ -172,11 +172,11 @@ export interface IngestApiInterface {
      * List all ingested SIPs
      * @summary list_sips ingest
      * @param {string} [name] 
-     * @param {string} [aipId] Identifier of AIP
+     * @param {string} [aipUuid] Identifier of AIP
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
      * @param {'error' | 'failed' | 'queued' | 'processing' | 'pending' | 'ingested'} [status] 
-     * @param {string} [uploaderId] UUID of the SIP uploader
+     * @param {string} [uploaderUuid] UUID of the SIP uploader
      * @param {number} [limit] Limit number of results to return
      * @param {number} [offset] Offset from the beginning of the found set
      * @param {*} [options] Override http request option.
@@ -464,8 +464,8 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             queryParameters['name'] = requestParameters.name;
         }
 
-        if (requestParameters.aipId !== undefined) {
-            queryParameters['aip_id'] = requestParameters.aipId;
+        if (requestParameters.aipUuid !== undefined) {
+            queryParameters['aip_uuid'] = requestParameters.aipUuid;
         }
 
         if (requestParameters.earliestCreatedTime !== undefined) {
@@ -480,8 +480,8 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             queryParameters['status'] = requestParameters.status;
         }
 
-        if (requestParameters.uploaderId !== undefined) {
-            queryParameters['uploader_id'] = requestParameters.uploaderId;
+        if (requestParameters.uploaderUuid !== undefined) {
+            queryParameters['uploader_uuid'] = requestParameters.uploaderUuid;
         }
 
         if (requestParameters.limit !== undefined) {

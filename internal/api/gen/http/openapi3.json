@@ -5,7 +5,7 @@
         "example": [
           {
             "created_at": "1970-01-01T00:00:01Z",
-            "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "name": "abc123",
             "object_key": "abc123",
             "status": "stored",
@@ -21,7 +21,7 @@
         "description": "An AIP describes an AIP retrieved by the storage service. (default view)",
         "example": {
           "created_at": "1970-01-01T00:00:01Z",
-          "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "name": "abc123",
           "object_key": "abc123",
           "status": "stored",
@@ -34,7 +34,7 @@
             "format": "date-time",
             "type": "string"
           },
-          "location_id": {
+          "location_uuid": {
             "description": "Identifier of storage location",
             "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "type": "string"
@@ -80,7 +80,7 @@
         "example": [
           {
             "created_at": "1970-01-01T00:00:01Z",
-            "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "name": "abc123",
             "object_key": "abc123",
             "status": "stored",
@@ -174,7 +174,7 @@
           "items": [
             {
               "created_at": "1970-01-01T00:00:01Z",
-              "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
               "name": "abc123",
               "object_key": "abc123",
               "status": "stored",
@@ -216,30 +216,30 @@
       },
       "ConfirmSipRequestBody": {
         "example": {
-          "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
-          "location_id": {
+          "location_uuid": {
             "description": "Identifier of storage location",
             "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "type": "string"
           }
         },
         "required": [
-          "location_id"
+          "location_uuid"
         ],
         "type": "object"
       },
       "CreateAipRequestBody": {
         "example": {
-          "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "name": "abc123",
           "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "status": "stored",
           "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
-          "location_id": {
+          "location_uuid": {
             "description": "Identifier of the AIP's storage location",
             "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "type": "string"
@@ -407,7 +407,7 @@
       "EnduroIngestSip": {
         "description": "SIP describes an ingest SIP type.",
         "example": {
-          "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "completed_at": "1970-01-01T00:00:01Z",
           "created_at": "1970-01-01T00:00:01Z",
           "failed_as": "PIP",
@@ -421,7 +421,7 @@
           "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
-          "aip_id": {
+          "aip_uuid": {
             "description": "Identifier of AIP",
             "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "format": "uuid",
@@ -787,7 +787,7 @@
         "description": "An AIP describes an AIP retrieved by the storage service.",
         "example": {
           "created_at": "1970-01-01T00:00:01Z",
-          "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "name": "abc123",
           "object_key": "abc123",
           "status": "stored",
@@ -800,7 +800,7 @@
             "format": "date-time",
             "type": "string"
           },
-          "location_id": {
+          "location_uuid": {
             "description": "Identifier of storage location",
             "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "type": "string"
@@ -1213,14 +1213,14 @@
         "example": {
           "event": {
             "Type": "sip_created_event",
-            "Value": "{\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+            "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
           }
         },
         "properties": {
           "event": {
             "example": {
               "Type": "sip_created_event",
-              "Value": "{\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+              "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
             },
             "properties": {
               "Type": {
@@ -1240,7 +1240,7 @@
               },
               "Value": {
                 "description": "JSON encoded union value",
-                "example": "{\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
+                "example": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
                 "type": "string"
               }
             },
@@ -1313,7 +1313,7 @@
       "SIPCollection": {
         "example": [
           {
-            "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "completed_at": "1970-01-01T00:00:01Z",
             "created_at": "1970-01-01T00:00:01Z",
             "failed_as": "PIP",
@@ -1335,7 +1335,7 @@
       "SIPCreatedEvent": {
         "example": {
           "item": {
-            "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "completed_at": "1970-01-01T00:00:01Z",
             "created_at": "1970-01-01T00:00:01Z",
             "failed_as": "PIP",
@@ -1499,7 +1499,7 @@
       "SIPUpdatedEvent": {
         "example": {
           "item": {
-            "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "completed_at": "1970-01-01T00:00:01Z",
             "created_at": "1970-01-01T00:00:01Z",
             "failed_as": "PIP",
@@ -1674,7 +1674,7 @@
         "example": {
           "items": [
             {
-              "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
               "completed_at": "1970-01-01T00:00:01Z",
               "created_at": "1970-01-01T00:00:01Z",
               "failed_as": "PIP",
@@ -1892,7 +1892,7 @@
                 "example": {
                   "event": {
                     "Type": "sip_created_event",
-                    "Value": "{\"item\":{\"aip_id\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+                    "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
                   }
                 },
                 "schema": {
@@ -2024,7 +2024,7 @@
             "description": "Identifier of AIP",
             "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "in": "query",
-            "name": "aip_id",
+            "name": "aip_uuid",
             "schema": {
               "description": "Identifier of AIP",
               "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
@@ -2077,7 +2077,7 @@
             "description": "UUID of the SIP uploader",
             "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "in": "query",
-            "name": "uploader_id",
+            "name": "uploader_uuid",
             "schema": {
               "description": "UUID of the SIP uploader",
               "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
@@ -2119,7 +2119,7 @@
                 "example": {
                   "items": [
                     {
-                      "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                      "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                       "completed_at": "1970-01-01T00:00:01Z",
                       "created_at": "1970-01-01T00:00:01Z",
                       "failed_as": "PIP",
@@ -2310,7 +2310,7 @@
             "content": {
               "application/json": {
                 "example": {
-                  "aip_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                  "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                   "completed_at": "1970-01-01T00:00:01Z",
                   "created_at": "1970-01-01T00:00:01Z",
                   "failed_as": "PIP",
@@ -2415,7 +2415,7 @@
           "content": {
             "application/json": {
               "example": {
-                "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
               },
               "schema": {
                 "$ref": "#/components/schemas/ConfirmSipRequestBody"
@@ -3153,7 +3153,7 @@
                   "items": [
                     {
                       "created_at": "1970-01-01T00:00:01Z",
-                      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                      "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                       "name": "abc123",
                       "object_key": "abc123",
                       "status": "stored",
@@ -3237,7 +3237,7 @@
           "content": {
             "application/json": {
               "example": {
-                "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                 "name": "abc123",
                 "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                 "status": "stored",
@@ -3256,7 +3256,7 @@
               "application/json": {
                 "example": {
                   "created_at": "1970-01-01T00:00:01Z",
-                  "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                  "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                   "name": "abc123",
                   "object_key": "abc123",
                   "status": "stored",
@@ -3342,7 +3342,7 @@
               "application/json": {
                 "example": {
                   "created_at": "1970-01-01T00:00:01Z",
-                  "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                  "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                   "name": "abc123",
                   "object_key": "abc123",
                   "status": "stored",
@@ -4114,7 +4114,7 @@
           "content": {
             "application/json": {
               "example": {
-                "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
               },
               "schema": {
                 "$ref": "#/components/schemas/ConfirmSipRequestBody"
@@ -4792,7 +4792,7 @@
                 "example": [
                   {
                     "created_at": "1970-01-01T00:00:01Z",
-                    "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                    "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                     "name": "abc123",
                     "object_key": "abc123",
                     "status": "stored",

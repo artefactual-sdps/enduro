@@ -21,7 +21,7 @@ import (
 // endpoint HTTP request body.
 type ConfirmSipRequestBody struct {
 	// Identifier of storage location
-	LocationID uuid.UUID `form:"location_id" json:"location_id" xml:"location_id"`
+	LocationUUID uuid.UUID `form:"location_uuid" json:"location_uuid" xml:"location_uuid"`
 }
 
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
@@ -60,7 +60,7 @@ type ShowSipResponseBody struct {
 	// Status of the SIP
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	// Identifier of AIP
-	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	AipUUID *string `form:"aip_uuid,omitempty" json:"aip_uuid,omitempty" xml:"aip_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
 	// Start datetime
@@ -455,7 +455,7 @@ type SIPResponseBody struct {
 	// Status of the SIP
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	// Identifier of AIP
-	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	AipUUID *string `form:"aip_uuid,omitempty" json:"aip_uuid,omitempty" xml:"aip_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
 	// Start datetime
@@ -538,7 +538,7 @@ type UserResponseBody struct {
 // the "confirm_sip" endpoint of the "ingest" service.
 func NewConfirmSipRequestBody(p *ingest.ConfirmSipPayload) *ConfirmSipRequestBody {
 	body := &ConfirmSipRequestBody{
-		LocationID: p.LocationID,
+		LocationUUID: p.LocationUUID,
 	}
 	return body
 }
@@ -708,7 +708,7 @@ func NewShowSipSIPOK(body *ShowSipResponseBody) *ingestviews.SIPView {
 		UUID:          body.UUID,
 		Name:          body.Name,
 		Status:        body.Status,
-		AipID:         body.AipID,
+		AipUUID:       body.AipUUID,
 		CreatedAt:     body.CreatedAt,
 		StartedAt:     body.StartedAt,
 		CompletedAt:   body.CompletedAt,
@@ -1701,8 +1701,8 @@ func ValidateSIPResponseBody(body *SIPResponseBody) (err error) {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
 		}
 	}
-	if body.AipID != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("body.aip_id", *body.AipID, goa.FormatUUID))
+	if body.AipUUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.aip_uuid", *body.AipUUID, goa.FormatUUID))
 	}
 	if body.CreatedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.created_at", *body.CreatedAt, goa.FormatDateTime))

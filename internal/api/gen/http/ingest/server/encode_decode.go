@@ -196,11 +196,11 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 	return func(r *http.Request) (any, error) {
 		var (
 			name                *string
-			aipID               *string
+			aipUUID             *string
 			earliestCreatedTime *string
 			latestCreatedTime   *string
 			status              *string
-			uploaderID          *string
+			uploaderUUID        *string
 			limit               *int
 			offset              *int
 			token               *string
@@ -210,12 +210,12 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 		if nameRaw != "" {
 			name = &nameRaw
 		}
-		aipIDRaw := r.URL.Query().Get("aip_id")
-		if aipIDRaw != "" {
-			aipID = &aipIDRaw
+		aipUUIDRaw := r.URL.Query().Get("aip_uuid")
+		if aipUUIDRaw != "" {
+			aipUUID = &aipUUIDRaw
 		}
-		if aipID != nil {
-			err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", *aipID, goa.FormatUUID))
+		if aipUUID != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("aip_uuid", *aipUUID, goa.FormatUUID))
 		}
 		earliestCreatedTimeRaw := r.URL.Query().Get("earliest_created_time")
 		if earliestCreatedTimeRaw != "" {
@@ -240,12 +240,12 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
 			}
 		}
-		uploaderIDRaw := r.URL.Query().Get("uploader_id")
-		if uploaderIDRaw != "" {
-			uploaderID = &uploaderIDRaw
+		uploaderUUIDRaw := r.URL.Query().Get("uploader_uuid")
+		if uploaderUUIDRaw != "" {
+			uploaderUUID = &uploaderUUIDRaw
 		}
-		if uploaderID != nil {
-			err = goa.MergeErrors(err, goa.ValidateFormat("uploader_id", *uploaderID, goa.FormatUUID))
+		if uploaderUUID != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("uploader_uuid", *uploaderUUID, goa.FormatUUID))
 		}
 		{
 			limitRaw := r.URL.Query().Get("limit")
@@ -276,7 +276,7 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListSipsPayload(name, aipID, earliestCreatedTime, latestCreatedTime, status, uploaderID, limit, offset, token)
+		payload := NewListSipsPayload(name, aipUUID, earliestCreatedTime, latestCreatedTime, status, uploaderUUID, limit, offset, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -1256,7 +1256,7 @@ func marshalIngestviewsSIPViewToSIPResponseBody(v *ingestviews.SIPView) *SIPResp
 		UUID:          *v.UUID,
 		Name:          v.Name,
 		Status:        *v.Status,
-		AipID:         v.AipID,
+		AipUUID:       v.AipUUID,
 		CreatedAt:     *v.CreatedAt,
 		StartedAt:     v.StartedAt,
 		CompletedAt:   v.CompletedAt,

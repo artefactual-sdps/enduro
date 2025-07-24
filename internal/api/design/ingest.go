@@ -62,7 +62,7 @@ var _ = Service("ingest", func() {
 		})
 		Payload(func() {
 			Attribute("name", String)
-			AttributeUUID("aip_id", "Identifier of AIP")
+			AttributeUUID("aip_uuid", "Identifier of AIP")
 			Attribute("earliest_created_time", String, func() {
 				Format(FormatDateTime)
 			})
@@ -72,7 +72,7 @@ var _ = Service("ingest", func() {
 			Attribute("status", String, func() {
 				EnumSIPStatus()
 			})
-			AttributeUUID("uploader_id", "UUID of the SIP uploader")
+			AttributeUUID("uploader_uuid", "UUID of the SIP uploader")
 			Attribute("limit", Int, "Limit number of results to return")
 			Attribute("offset", Int, "Offset from the beginning of the found set")
 
@@ -86,11 +86,11 @@ var _ = Service("ingest", func() {
 			Response("not_valid", StatusBadRequest)
 			Params(func() {
 				Param("name")
-				Param("aip_id")
+				Param("aip_uuid")
 				Param("earliest_created_time")
 				Param("latest_created_time")
 				Param("status")
-				Param("uploader_id")
+				Param("uploader_uuid")
 				Param("limit")
 				Param("offset")
 			})
@@ -141,9 +141,9 @@ var _ = Service("ingest", func() {
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to look up")
-			TypedAttributeUUID("location_id", "Identifier of storage location")
+			TypedAttributeUUID("location_uuid", "Identifier of storage location")
 			Token("token", String)
-			Required("uuid", "location_id")
+			Required("uuid", "location_uuid")
 		})
 		Error("not_found", SIPNotFound, "SIP not found")
 		Error("not_available")
@@ -345,7 +345,7 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 		Attribute("status", String, "Status of the SIP", func() {
 			EnumSIPStatus()
 		})
-		AttributeUUID("aip_id", "Identifier of AIP")
+		AttributeUUID("aip_uuid", "Identifier of AIP")
 		Attribute("created_at", String, "Creation datetime", func() {
 			Format(FormatDateTime)
 		})
@@ -367,7 +367,7 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 		Attribute("uuid")
 		Attribute("name")
 		Attribute("status")
-		Attribute("aip_id")
+		Attribute("aip_uuid")
 		Attribute("created_at")
 		Attribute("started_at")
 		Attribute("completed_at")

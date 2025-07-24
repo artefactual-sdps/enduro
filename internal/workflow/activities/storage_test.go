@@ -48,20 +48,20 @@ func TestCreateAIPActivity(t *testing.T) {
 				m.CreateAip(
 					mockutil.Context(),
 					&goastorage.CreateAipPayload{
-						Name:       "AIP 1",
-						UUID:       aipID.String(),
-						ObjectKey:  objectKey.String(),
-						Status:     "stored",
-						LocationID: ref.New(locationID),
+						Name:         "AIP 1",
+						UUID:         aipID.String(),
+						ObjectKey:    objectKey.String(),
+						Status:       "stored",
+						LocationUUID: ref.New(locationID),
 					},
 				).Return(
 					&goastorage.AIP{
-						Name:       "AIP 1",
-						UUID:       aipID,
-						ObjectKey:  objectKey,
-						Status:     "stored",
-						LocationID: ref.New(locationID),
-						CreatedAt:  "2024-05-03 16:02:25",
+						Name:         "AIP 1",
+						UUID:         aipID,
+						ObjectKey:    objectKey,
+						Status:       "stored",
+						LocationUUID: ref.New(locationID),
+						CreatedAt:    "2024-05-03 16:02:25",
 					},
 					nil,
 				)
@@ -83,11 +83,11 @@ func TestCreateAIPActivity(t *testing.T) {
 				m.CreateAip(
 					mockutil.Context(),
 					&goastorage.CreateAipPayload{
-						Name:       "AIP 1",
-						UUID:       "12345",
-						ObjectKey:  objectKey.String(),
-						Status:     "stored",
-						LocationID: ref.New(locationID),
+						Name:         "AIP 1",
+						UUID:         "12345",
+						ObjectKey:    objectKey.String(),
+						Status:       "stored",
+						LocationUUID: ref.New(locationID),
 					},
 				).Return(
 					nil, goastorage.MakeNotValid(errors.New("invalid aip_id")),
@@ -108,11 +108,11 @@ func TestCreateAIPActivity(t *testing.T) {
 				m.CreateAip(
 					mockutil.Context(),
 					&goastorage.CreateAipPayload{
-						Name:       "AIP 1",
-						UUID:       aipID.String(),
-						ObjectKey:  objectKey.String(),
-						Status:     "stored",
-						LocationID: ref.New(locationID),
+						Name:         "AIP 1",
+						UUID:         aipID.String(),
+						ObjectKey:    objectKey.String(),
+						Status:       "stored",
+						LocationUUID: ref.New(locationID),
 					},
 				).Return(
 					nil, goastorage.Unauthorized("Unauthorized"),

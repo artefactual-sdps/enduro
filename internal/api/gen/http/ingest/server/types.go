@@ -21,7 +21,7 @@ import (
 // endpoint HTTP request body.
 type ConfirmSipRequestBody struct {
 	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 }
 
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
@@ -60,7 +60,7 @@ type ShowSipResponseBody struct {
 	// Status of the SIP
 	Status string `form:"status" json:"status" xml:"status"`
 	// Identifier of AIP
-	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	AipUUID *string `form:"aip_uuid,omitempty" json:"aip_uuid,omitempty" xml:"aip_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 	// Start datetime
@@ -455,7 +455,7 @@ type SIPResponseBody struct {
 	// Status of the SIP
 	Status string `form:"status" json:"status" xml:"status"`
 	// Identifier of AIP
-	AipID *string `form:"aip_id,omitempty" json:"aip_id,omitempty" xml:"aip_id,omitempty"`
+	AipUUID *string `form:"aip_uuid,omitempty" json:"aip_uuid,omitempty" xml:"aip_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 	// Start datetime
@@ -605,7 +605,7 @@ func NewShowSipResponseBody(res *ingestviews.SIPView) *ShowSipResponseBody {
 		UUID:          *res.UUID,
 		Name:          res.Name,
 		Status:        *res.Status,
-		AipID:         res.AipID,
+		AipUUID:       res.AipUUID,
 		CreatedAt:     *res.CreatedAt,
 		StartedAt:     res.StartedAt,
 		CompletedAt:   res.CompletedAt,
@@ -961,14 +961,14 @@ func NewMonitorPayload(ticket *string) *ingest.MonitorPayload {
 }
 
 // NewListSipsPayload builds a ingest service list_sips endpoint payload.
-func NewListSipsPayload(name *string, aipID *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, uploaderID *string, limit *int, offset *int, token *string) *ingest.ListSipsPayload {
+func NewListSipsPayload(name *string, aipUUID *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, uploaderUUID *string, limit *int, offset *int, token *string) *ingest.ListSipsPayload {
 	v := &ingest.ListSipsPayload{}
 	v.Name = name
-	v.AipID = aipID
+	v.AipUUID = aipUUID
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
 	v.Status = status
-	v.UploaderID = uploaderID
+	v.UploaderUUID = uploaderUUID
 	v.Limit = limit
 	v.Offset = offset
 	v.Token = token
@@ -998,7 +998,7 @@ func NewListSipWorkflowsPayload(uuid string, token *string) *ingest.ListSipWorkf
 // NewConfirmSipPayload builds a ingest service confirm_sip endpoint payload.
 func NewConfirmSipPayload(body *ConfirmSipRequestBody, uuid string, token *string) *ingest.ConfirmSipPayload {
 	v := &ingest.ConfirmSipPayload{
-		LocationID: *body.LocationID,
+		LocationUUID: *body.LocationUUID,
 	}
 	v.UUID = uuid
 	v.Token = token
@@ -1058,8 +1058,8 @@ func NewListUsersPayload(email *string, name *string, limit *int, offset *int, t
 // ValidateConfirmSipRequestBody runs the validations defined on
 // confirm_sip_request_body
 func ValidateConfirmSipRequestBody(body *ConfirmSipRequestBody) (err error) {
-	if body.LocationID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
+	if body.LocationUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location_uuid", "body"))
 	}
 	return
 }

@@ -79,7 +79,7 @@ type AIPView struct {
 	Status    *string
 	ObjectKey *uuid.UUID
 	// Identifier of storage location
-	LocationID *uuid.UUID
+	LocationUUID *uuid.UUID
 	// Creation datetime
 	CreatedAt *string
 }
@@ -204,7 +204,7 @@ var (
 			"uuid",
 			"status",
 			"object_key",
-			"location_id",
+			"location_uuid",
 			"created_at",
 		},
 	}
@@ -246,7 +246,7 @@ var (
 			"uuid",
 			"status",
 			"object_key",
-			"location_id",
+			"location_uuid",
 			"created_at",
 		},
 	}

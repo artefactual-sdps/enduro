@@ -49,7 +49,7 @@ func BuildMonitorPayload(ingestMonitorTicket string) (*ingest.MonitorPayload, er
 
 // BuildListSipsPayload builds the payload for the ingest list_sips endpoint
 // from CLI flags.
-func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string, ingestListSipsEarliestCreatedTime string, ingestListSipsLatestCreatedTime string, ingestListSipsStatus string, ingestListSipsUploaderID string, ingestListSipsLimit string, ingestListSipsOffset string, ingestListSipsToken string) (*ingest.ListSipsPayload, error) {
+func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipUUID string, ingestListSipsEarliestCreatedTime string, ingestListSipsLatestCreatedTime string, ingestListSipsStatus string, ingestListSipsUploaderUUID string, ingestListSipsLimit string, ingestListSipsOffset string, ingestListSipsToken string) (*ingest.ListSipsPayload, error) {
 	var err error
 	var name *string
 	{
@@ -57,11 +57,11 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string,
 			name = &ingestListSipsName
 		}
 	}
-	var aipID *string
+	var aipUUID *string
 	{
-		if ingestListSipsAipID != "" {
-			aipID = &ingestListSipsAipID
-			err = goa.MergeErrors(err, goa.ValidateFormat("aip_id", *aipID, goa.FormatUUID))
+		if ingestListSipsAipUUID != "" {
+			aipUUID = &ingestListSipsAipUUID
+			err = goa.MergeErrors(err, goa.ValidateFormat("aip_uuid", *aipUUID, goa.FormatUUID))
 			if err != nil {
 				return nil, err
 			}
@@ -99,11 +99,11 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string,
 			}
 		}
 	}
-	var uploaderID *string
+	var uploaderUUID *string
 	{
-		if ingestListSipsUploaderID != "" {
-			uploaderID = &ingestListSipsUploaderID
-			err = goa.MergeErrors(err, goa.ValidateFormat("uploader_id", *uploaderID, goa.FormatUUID))
+		if ingestListSipsUploaderUUID != "" {
+			uploaderUUID = &ingestListSipsUploaderUUID
+			err = goa.MergeErrors(err, goa.ValidateFormat("uploader_uuid", *uploaderUUID, goa.FormatUUID))
 			if err != nil {
 				return nil, err
 			}
@@ -141,11 +141,11 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipID string,
 	}
 	v := &ingest.ListSipsPayload{}
 	v.Name = name
-	v.AipID = aipID
+	v.AipUUID = aipUUID
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
 	v.Status = status
-	v.UploaderID = uploaderID
+	v.UploaderUUID = uploaderUUID
 	v.Limit = limit
 	v.Offset = offset
 	v.Token = token
@@ -211,7 +211,7 @@ func BuildConfirmSipPayload(ingestConfirmSipBody string, ingestConfirmSipUUID st
 	{
 		err = json.Unmarshal([]byte(ingestConfirmSipBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_uuid\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
 		}
 	}
 	var uuid string
@@ -229,7 +229,7 @@ func BuildConfirmSipPayload(ingestConfirmSipBody string, ingestConfirmSipUUID st
 		}
 	}
 	v := &ingest.ConfirmSipPayload{
-		LocationID: body.LocationID,
+		LocationUUID: body.LocationUUID,
 	}
 	v.UUID = uuid
 	v.Token = token

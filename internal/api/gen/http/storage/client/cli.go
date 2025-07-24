@@ -109,7 +109,7 @@ func BuildCreateAipPayload(storageCreateAipBody string, storageCreateAipToken st
 	{
 		err = json.Unmarshal([]byte(storageCreateAipBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"name\": \"abc123\",\n      \"object_key\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"status\": \"stored\",\n      \"uuid\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_uuid\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"name\": \"abc123\",\n      \"object_key\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\n      \"status\": \"stored\",\n      \"uuid\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
 		}
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", body.UUID, goa.FormatUUID))
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.object_key", body.ObjectKey, goa.FormatUUID))
@@ -127,11 +127,11 @@ func BuildCreateAipPayload(storageCreateAipBody string, storageCreateAipToken st
 		}
 	}
 	v := &storage.CreateAipPayload{
-		UUID:       body.UUID,
-		Name:       body.Name,
-		ObjectKey:  body.ObjectKey,
-		Status:     body.Status,
-		LocationID: body.LocationID,
+		UUID:         body.UUID,
+		Name:         body.Name,
+		ObjectKey:    body.ObjectKey,
+		Status:       body.Status,
+		LocationUUID: body.LocationUUID,
 	}
 	{
 		var zero string
@@ -261,7 +261,7 @@ func BuildMoveAipPayload(storageMoveAipBody string, storageMoveAipUUID string, s
 	{
 		err = json.Unmarshal([]byte(storageMoveAipBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"location_uuid\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
 		}
 	}
 	var uuid string
@@ -279,7 +279,7 @@ func BuildMoveAipPayload(storageMoveAipBody string, storageMoveAipUUID string, s
 		}
 	}
 	v := &storage.MoveAipPayload{
-		LocationID: body.LocationID,
+		LocationUUID: body.LocationUUID,
 	}
 	v.UUID = uuid
 	v.Token = token

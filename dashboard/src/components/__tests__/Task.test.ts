@@ -18,6 +18,7 @@ describe("Task.vue", () => {
           completedAt: new Date("2020-02-25T17:22:38Z"),
           status: "done",
           note: "This is a note\nwith multiple lines",
+          workflowUuid: "workflow-uuid",
         },
       },
     });
@@ -47,6 +48,7 @@ describe("Task.vue", () => {
           name: "Task 1",
           startedAt: new Date("2020-02-25T17:21:03Z"),
           status: "in progress",
+          workflowUuid: "workflow-uuid",
         },
       },
     });
@@ -88,6 +90,7 @@ describe("Task.vue", () => {
           completedAt: new Date("2020-02-25T17:22:38Z"),
           status: "done",
           note: "This note is only one line",
+          workflowUuid: "workflow-uuid",
         },
       },
     });

@@ -82,10 +82,10 @@ func TestDownloadAipRequest(t *testing.T) {
 					ReadAIP(ctx, missingAIPUUID).
 					Return(
 						&goastorage.AIP{
-							UUID:       missingAIPUUID,
-							Status:     enums.AIPStatusStored.String(),
-							ObjectKey:  missingAIPUUID,
-							LocationID: &locationID,
+							UUID:         missingAIPUUID,
+							Status:       enums.AIPStatusStored.String(),
+							ObjectKey:    missingAIPUUID,
+							LocationUUID: &locationID,
 						},
 						nil,
 					)
@@ -112,10 +112,10 @@ func TestDownloadAipRequest(t *testing.T) {
 					ReadAIP(ctx, aipID).
 					Return(
 						&goastorage.AIP{
-							UUID:       aipID,
-							Status:     enums.AIPStatusStored.String(),
-							ObjectKey:  aipID,
-							LocationID: &locationID,
+							UUID:         aipID,
+							Status:       enums.AIPStatusStored.String(),
+							ObjectKey:    aipID,
+							LocationUUID: &locationID,
 						},
 						nil,
 					)
@@ -145,10 +145,10 @@ func TestDownloadAipRequest(t *testing.T) {
 					ReadAIP(ctx, aipID).
 					Return(
 						&goastorage.AIP{
-							UUID:       aipID,
-							Status:     enums.AIPStatusStored.String(),
-							ObjectKey:  aipID,
-							LocationID: &locationID,
+							UUID:         aipID,
+							Status:       enums.AIPStatusStored.String(),
+							ObjectKey:    aipID,
+							LocationUUID: &locationID,
 						},
 						nil,
 					)
@@ -295,10 +295,10 @@ func TestDownloadAip(t *testing.T) {
 					ReadAIP(ctx, missingAIPUUID).
 					Return(
 						&goastorage.AIP{
-							UUID:       missingAIPUUID,
-							Status:     enums.AIPStatusStored.String(),
-							ObjectKey:  missingAIPUUID,
-							LocationID: &locationID,
+							UUID:         missingAIPUUID,
+							Status:       enums.AIPStatusStored.String(),
+							ObjectKey:    missingAIPUUID,
+							LocationUUID: &locationID,
 						},
 						nil,
 					)
@@ -329,11 +329,11 @@ func TestDownloadAip(t *testing.T) {
 					ReadAIP(ctx, aipID).
 					Return(
 						&goastorage.AIP{
-							Name:       "AIP.zip",
-							UUID:       aipID,
-							Status:     enums.AIPStatusStored.String(),
-							ObjectKey:  aipID,
-							LocationID: &locationID,
+							Name:         "AIP.zip",
+							UUID:         aipID,
+							Status:       enums.AIPStatusStored.String(),
+							ObjectKey:    aipID,
+							LocationUUID: &locationID,
 						},
 						nil,
 					)

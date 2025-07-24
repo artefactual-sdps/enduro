@@ -106,28 +106,28 @@ func TestCreateAIP(t *testing.T) {
 		{
 			name: "Creates an AIP with all data",
 			params: &goastorage.AIP{
-				Name:       "test_aip",
-				UUID:       aipID,
-				ObjectKey:  objectKey,
-				Status:     "stored",
-				LocationID: ref.New(locationID),
+				Name:         "test_aip",
+				UUID:         aipID,
+				ObjectKey:    objectKey,
+				Status:       "stored",
+				LocationUUID: ref.New(locationID),
 			},
 			want: &goastorage.AIP{
-				Name:       "test_aip",
-				UUID:       aipID,
-				ObjectKey:  objectKey,
-				Status:     "stored",
-				LocationID: ref.New(locationID),
-				CreatedAt:  fakeNow().Format(time.RFC3339),
+				Name:         "test_aip",
+				UUID:         aipID,
+				ObjectKey:    objectKey,
+				Status:       "stored",
+				LocationUUID: ref.New(locationID),
+				CreatedAt:    fakeNow().Format(time.RFC3339),
 			},
 		},
 		{
 			name: "Errors if locationID is not found",
 			params: &goastorage.AIP{
-				Name:       "test_aip",
-				UUID:       aipID,
-				ObjectKey:  objectKey,
-				LocationID: ref.New(uuid.MustParse("f1508f95-cab7-447f-b6a2-e01bf7c64558")),
+				Name:         "test_aip",
+				UUID:         aipID,
+				ObjectKey:    objectKey,
+				LocationUUID: ref.New(uuid.MustParse("f1508f95-cab7-447f-b6a2-e01bf7c64558")),
 			},
 			wantErr: "Storage location not found.",
 		},
@@ -473,12 +473,12 @@ func TestReadAIP(t *testing.T) {
 		aip, err := c.ReadAIP(context.Background(), aipID)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, aip, &goastorage.AIP{
-			Name:       "AIP",
-			UUID:       aipID,
-			Status:     "stored",
-			ObjectKey:  objectKey,
-			LocationID: nil,
-			CreatedAt:  "2013-02-03T19:54:00Z",
+			Name:         "AIP",
+			UUID:         aipID,
+			Status:       "stored",
+			ObjectKey:    objectKey,
+			LocationUUID: nil,
+			CreatedAt:    "2013-02-03T19:54:00Z",
 		})
 	})
 
@@ -1066,12 +1066,12 @@ func TestLocationAIPs(t *testing.T) {
 		assert.NilError(t, err)
 		assert.DeepEqual(t, aips, goastorage.AIPCollection{
 			{
-				Name:       "AIP",
-				UUID:       aipID,
-				Status:     "stored",
-				ObjectKey:  objectKey,
-				LocationID: ref.New(locationID),
-				CreatedAt:  "2013-02-03T19:54:00Z",
+				Name:         "AIP",
+				UUID:         aipID,
+				Status:       "stored",
+				ObjectKey:    objectKey,
+				LocationUUID: ref.New(locationID),
+				CreatedAt:    "2013-02-03T19:54:00Z",
 			},
 		})
 	})

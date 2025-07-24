@@ -367,41 +367,41 @@ func TestServiceCreate(t *testing.T) {
 			CreateAIP(
 				mockutil.Context(),
 				&goastorage.AIP{
-					Name:       name,
-					UUID:       aipID,
-					Status:     status,
-					ObjectKey:  objectKey,
-					LocationID: &locationID,
+					Name:         name,
+					UUID:         aipID,
+					Status:       status,
+					ObjectKey:    objectKey,
+					LocationUUID: &locationID,
 				},
 			).
 			Return(
 				&goastorage.AIP{
-					Name:       name,
-					UUID:       aipID,
-					Status:     status,
-					ObjectKey:  objectKey,
-					LocationID: &locationID,
-					CreatedAt:  created.Format(time.DateTime),
+					Name:         name,
+					UUID:         aipID,
+					Status:       status,
+					ObjectKey:    objectKey,
+					LocationUUID: &locationID,
+					CreatedAt:    created.Format(time.DateTime),
 				},
 				nil,
 			)
 
 		got, err := svc.CreateAip(context.Background(), &goastorage.CreateAipPayload{
-			UUID:       aipID.String(),
-			Name:       name,
-			ObjectKey:  objectKey.String(),
-			Status:     status,
-			LocationID: &locationID,
+			UUID:         aipID.String(),
+			Name:         name,
+			ObjectKey:    objectKey.String(),
+			Status:       status,
+			LocationUUID: &locationID,
 		})
 
 		assert.NilError(t, err)
 		assert.DeepEqual(t, got, &goastorage.AIP{
-			UUID:       aipID,
-			Name:       name,
-			ObjectKey:  objectKey,
-			Status:     status,
-			LocationID: &locationID,
-			CreatedAt:  created.Format(time.DateTime),
+			UUID:         aipID,
+			Name:         name,
+			ObjectKey:    objectKey,
+			Status:       status,
+			LocationUUID: &locationID,
+			CreatedAt:    created.Format(time.DateTime),
 		})
 	})
 
@@ -690,7 +690,7 @@ func TestServiceUpdateAipStatus(t *testing.T) {
 	})
 }
 
-func TestServiceUpdateAipLocationID(t *testing.T) {
+func TestServiceUpdateAipLocationUUID(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Returns if persistence failed", func(t *testing.T) {
@@ -735,9 +735,9 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				&goastorage.AIP{
-					UUID:       aipID,
-					ObjectKey:  aipID,
-					LocationID: &uuid.Nil,
+					UUID:         aipID,
+					ObjectKey:    aipID,
+					LocationUUID: &uuid.Nil,
 				},
 				nil,
 			)
@@ -766,9 +766,9 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				&goastorage.AIP{
-					UUID:       aipID,
-					ObjectKey:  aipID,
-					LocationID: &locationID,
+					UUID:         aipID,
+					ObjectKey:    aipID,
+					LocationUUID: &locationID,
 				},
 				nil,
 			)
@@ -810,9 +810,9 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				&goastorage.AIP{
-					UUID:       aipID,
-					ObjectKey:  objectKey,
-					LocationID: &locationID,
+					UUID:         aipID,
+					ObjectKey:    objectKey,
+					LocationUUID: &locationID,
 				},
 				nil,
 			)
@@ -855,9 +855,9 @@ func TestServiceDelete(t *testing.T) {
 			).
 			Return(
 				&goastorage.AIP{
-					UUID:       aipID,
-					ObjectKey:  objectKey,
-					LocationID: &locationID,
+					UUID:         aipID,
+					ObjectKey:    objectKey,
+					LocationUUID: &locationID,
 				},
 				nil,
 			)
@@ -932,9 +932,9 @@ func TestAipReader(t *testing.T) {
 			)
 
 		reader, err := svc.AipReader(ctx, &goastorage.AIP{
-			UUID:       aipID,
-			ObjectKey:  aipID,
-			LocationID: &locationID,
+			UUID:         aipID,
+			ObjectKey:    aipID,
+			LocationUUID: &locationID,
 		})
 		assert.NilError(t, err)
 		defer reader.Close()
@@ -963,9 +963,9 @@ func TestAipReader(t *testing.T) {
 			)
 
 		_, err := svc.AipReader(ctx, &goastorage.AIP{
-			UUID:       aipID,
-			ObjectKey:  aipID,
-			LocationID: &locationID,
+			UUID:         aipID,
+			ObjectKey:    aipID,
+			LocationUUID: &locationID,
 		})
 		assert.ErrorContains(t, err, "location not found")
 	})
@@ -994,9 +994,9 @@ func TestAipReader(t *testing.T) {
 			)
 
 		_, err := svc.AipReader(ctx, &goastorage.AIP{
-			UUID:       aipID,
-			ObjectKey:  aipID,
-			LocationID: &locationID,
+			UUID:         aipID,
+			ObjectKey:    aipID,
+			LocationUUID: &locationID,
 		})
 		assert.Error(t, err, fmt.Sprintf(
 			"blob (key %q) (code=NotFound): blob not found",
@@ -1291,8 +1291,8 @@ func TestServiceMove(t *testing.T) {
 			)
 
 		err := svc.MoveAip(ctx, &goastorage.MoveAipPayload{
-			UUID:       aipID.String(),
-			LocationID: locationID,
+			UUID:         aipID.String(),
+			LocationUUID: locationID,
 		})
 		assert.ErrorContains(t, err, "AIP not found")
 	})
@@ -1333,8 +1333,8 @@ func TestServiceMove(t *testing.T) {
 			)
 
 		err := svc.MoveAip(ctx, &goastorage.MoveAipPayload{
-			UUID:       aipID.String(),
-			LocationID: locationID,
+			UUID:         aipID.String(),
+			LocationUUID: locationID,
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_available")
 		assert.ErrorContains(t, err, "cannot perform operation")
@@ -1376,8 +1376,8 @@ func TestServiceMove(t *testing.T) {
 			)
 
 		err := svc.MoveAip(ctx, &goastorage.MoveAipPayload{
-			UUID:       aipID.String(),
-			LocationID: locationID,
+			UUID:         aipID.String(),
+			LocationUUID: locationID,
 		})
 		assert.NilError(t, err)
 	})
@@ -1855,12 +1855,12 @@ func TestServiceListLocationAips(t *testing.T) {
 			Return(
 				goastorage.AIPCollection{
 					{
-						Name:       "AIP",
-						UUID:       aipID,
-						Status:     "stored",
-						ObjectKey:  objectKey,
-						LocationID: &locationID,
-						CreatedAt:  "2013-02-03T19:54:00Z",
+						Name:         "AIP",
+						UUID:         aipID,
+						Status:       "stored",
+						ObjectKey:    objectKey,
+						LocationUUID: &locationID,
+						CreatedAt:    "2013-02-03T19:54:00Z",
 					},
 				},
 				nil,
@@ -1872,12 +1872,12 @@ func TestServiceListLocationAips(t *testing.T) {
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, goastorage.AIPCollection{
 			{
-				Name:       "AIP",
-				UUID:       aipID,
-				Status:     "stored",
-				ObjectKey:  objectKey,
-				LocationID: &locationID,
-				CreatedAt:  "2013-02-03T19:54:00Z",
+				Name:         "AIP",
+				UUID:         aipID,
+				Status:       "stored",
+				ObjectKey:    objectKey,
+				LocationUUID: &locationID,
+				CreatedAt:    "2013-02-03T19:54:00Z",
 			},
 		})
 	})
@@ -1916,9 +1916,9 @@ func TestServiceShow(t *testing.T) {
 			).
 			Return(
 				&goastorage.AIP{
-					UUID:       aipID,
-					ObjectKey:  objectKey,
-					LocationID: &uuid.Nil,
+					UUID:         aipID,
+					ObjectKey:    objectKey,
+					LocationUUID: &uuid.Nil,
 				},
 				nil,
 			)
@@ -1928,9 +1928,9 @@ func TestServiceShow(t *testing.T) {
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, &goastorage.AIP{
-			UUID:       aipID,
-			ObjectKey:  objectKey,
-			LocationID: &uuid.Nil,
+			UUID:         aipID,
+			ObjectKey:    objectKey,
+			LocationUUID: &uuid.Nil,
 		})
 	})
 }

@@ -175,7 +175,7 @@ func (w *goaWrapper) ConfirmSip(ctx context.Context, payload *goaingest.ConfirmS
 
 	signal := ReviewPerformedSignal{
 		Accepted:   true,
-		LocationID: &payload.LocationID,
+		LocationID: &payload.LocationUUID,
 	}
 	err = w.tc.SignalWorkflow(ctx, goaworkflows.Workflows[0].TemporalID, "", ReviewPerformedSignalName, signal)
 	if err != nil {

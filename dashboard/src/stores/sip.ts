@@ -113,7 +113,7 @@ export const useSipStore = defineStore("sip", {
           status: this.filters.status,
           earliestCreatedTime: this.filters.earliestCreatedTime,
           latestCreatedTime: this.filters.latestCreatedTime,
-          uploaderId:
+          uploaderUuid:
             this.filters.uploaderId !== ""
               ? this.filters.uploaderId
               : undefined,
@@ -157,7 +157,7 @@ export const useSipStore = defineStore("sip", {
       client.ingest
         .ingestConfirmSip({
           uuid: this.current.uuid,
-          confirmSipRequestBody: { locationId: locationId },
+          confirmSipRequestBody: { locationUuid: locationId },
         })
         .then(() => {
           if (!this.current) return;

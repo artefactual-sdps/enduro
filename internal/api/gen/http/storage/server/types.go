@@ -29,7 +29,7 @@ type CreateAipRequestBody struct {
 	// Status of the the AIP
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
 	// Identifier of the AIP's storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 }
 
 // SubmitAipRequestBody is the type of the "storage" service "submit_aip"
@@ -42,7 +42,7 @@ type SubmitAipRequestBody struct {
 // HTTP request body.
 type MoveAipRequestBody struct {
 	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 }
 
 // RequestAipDeletionRequestBody is the type of the "storage" service
@@ -100,7 +100,7 @@ type CreateAipResponseBody struct {
 	Status    string    `form:"status" json:"status" xml:"status"`
 	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
 	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
@@ -126,7 +126,7 @@ type ShowAipResponseBody struct {
 	Status    string    `form:"status" json:"status" xml:"status"`
 	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
 	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
@@ -610,7 +610,7 @@ type AIPResponseBody struct {
 	Status    string    `form:"status" json:"status" xml:"status"`
 	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
 	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
@@ -681,7 +681,7 @@ type AIPResponse struct {
 	Status    string    `form:"status" json:"status" xml:"status"`
 	ObjectKey uuid.UUID `form:"object_key" json:"object_key" xml:"object_key"`
 	// Identifier of storage location
-	LocationID *uuid.UUID `form:"location_id,omitempty" json:"location_id,omitempty" xml:"location_id,omitempty"`
+	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
@@ -708,12 +708,12 @@ func NewListAipsResponseBody(res *storageviews.AIPsView) *ListAipsResponseBody {
 // the "create_aip" endpoint of the "storage" service.
 func NewCreateAipResponseBody(res *storageviews.AIPView) *CreateAipResponseBody {
 	body := &CreateAipResponseBody{
-		Name:       *res.Name,
-		UUID:       *res.UUID,
-		Status:     *res.Status,
-		ObjectKey:  *res.ObjectKey,
-		LocationID: res.LocationID,
-		CreatedAt:  *res.CreatedAt,
+		Name:         *res.Name,
+		UUID:         *res.UUID,
+		Status:       *res.Status,
+		ObjectKey:    *res.ObjectKey,
+		LocationUUID: res.LocationUUID,
+		CreatedAt:    *res.CreatedAt,
 	}
 	return body
 }
@@ -740,12 +740,12 @@ func NewMoveAipStatusResponseBody(res *storage.MoveStatusResult) *MoveAipStatusR
 // "show_aip" endpoint of the "storage" service.
 func NewShowAipResponseBody(res *storageviews.AIPView) *ShowAipResponseBody {
 	body := &ShowAipResponseBody{
-		Name:       *res.Name,
-		UUID:       *res.UUID,
-		Status:     *res.Status,
-		ObjectKey:  *res.ObjectKey,
-		LocationID: res.LocationID,
-		CreatedAt:  *res.CreatedAt,
+		Name:         *res.Name,
+		UUID:         *res.UUID,
+		Status:       *res.Status,
+		ObjectKey:    *res.ObjectKey,
+		LocationUUID: res.LocationUUID,
+		CreatedAt:    *res.CreatedAt,
 	}
 	return body
 }
@@ -1196,10 +1196,10 @@ func NewListAipsPayload(name *string, earliestCreatedTime *string, latestCreated
 // NewCreateAipPayload builds a storage service create_aip endpoint payload.
 func NewCreateAipPayload(body *CreateAipRequestBody, token *string) *storage.CreateAipPayload {
 	v := &storage.CreateAipPayload{
-		UUID:       *body.UUID,
-		Name:       *body.Name,
-		ObjectKey:  *body.ObjectKey,
-		LocationID: body.LocationID,
+		UUID:         *body.UUID,
+		Name:         *body.Name,
+		ObjectKey:    *body.ObjectKey,
+		LocationUUID: body.LocationUUID,
 	}
 	if body.Status != nil {
 		v.Status = *body.Status
@@ -1254,7 +1254,7 @@ func NewDownloadAipPayload(uuid string, ticket *string) *storage.DownloadAipPayl
 // NewMoveAipPayload builds a storage service move_aip endpoint payload.
 func NewMoveAipPayload(body *MoveAipRequestBody, uuid string, token *string) *storage.MoveAipPayload {
 	v := &storage.MoveAipPayload{
-		LocationID: *body.LocationID,
+		LocationUUID: *body.LocationUUID,
 	}
 	v.UUID = uuid
 	v.Token = token
@@ -1439,8 +1439,8 @@ func ValidateSubmitAipRequestBody(body *SubmitAipRequestBody) (err error) {
 // ValidateMoveAipRequestBody runs the validations defined on
 // move_aip_request_body
 func ValidateMoveAipRequestBody(body *MoveAipRequestBody) (err error) {
-	if body.LocationID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("location_id", "body"))
+	if body.LocationUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("location_uuid", "body"))
 	}
 	return
 }

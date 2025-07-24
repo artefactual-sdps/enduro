@@ -50,9 +50,9 @@ func NewStorageDeleteWorkflowTestSuite(
 
 	s.req = req
 	s.aip = &goastorage.AIP{
-		UUID:       s.req.AIPID,
-		LocationID: ref.New(uuid.New()),
-		Status:     enums.AIPStatusStored.String(),
+		UUID:         s.req.AIPID,
+		LocationUUID: ref.New(uuid.New()),
+		Status:       enums.AIPStatusStored.String(),
 	}
 	s.reviewTask = &datatypes.Task{
 		ID: 1,
@@ -247,7 +247,7 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 			storage.ReadLocationInfoLocalActivity,
 			mock.AnythingOfType("*context.valueCtx"),
 			s.storagesvc,
-			*s.aip.LocationID,
+			*s.aip.LocationUUID,
 		).Return(locationInfo, nil)
 
 		s.env.OnActivity(

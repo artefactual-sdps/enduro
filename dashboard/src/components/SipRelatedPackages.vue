@@ -12,23 +12,23 @@ const sipStore = useSipStore();
   <div
     class="card mb-3"
     v-if="
-      sipStore.current?.aipId ||
+      sipStore.current?.aipUuid ||
       (sipStore.current?.failedAs && sipStore.current?.failedKey)
     "
   >
     <div class="card-body">
       <h4 class="card-title">Related Packages</h4>
-      <template v-if="sipStore.current?.aipId">
+      <template v-if="sipStore.current?.aipUuid">
         <p class="card-text">
           <strong>AIP</strong>
-          <UUID :id="sipStore.current.aipId" />
+          <UUID :id="sipStore.current.aipUuid" />
         </p>
         <router-link
           v-if="authStore.checkAttributes(['storage:aips:read'])"
           class="btn btn-primary btn-sm"
           :to="{
             name: '/storage/aips/[id]/',
-            params: { id: sipStore.current.aipId },
+            params: { id: sipStore.current.aipUuid },
           }"
           >View</router-link
         >

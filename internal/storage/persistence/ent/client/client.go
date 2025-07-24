@@ -44,14 +44,14 @@ func (c *Client) CreateAIP(ctx context.Context, goaaip *goastorage.AIP) (*goasto
 		SetObjectKey(goaaip.ObjectKey).
 		SetStatus(status)
 
-	if goaaip.LocationID != nil {
+	if goaaip.LocationUUID != nil {
 		id, err := c.c.Location.Query().
-			Where(location.UUID(*goaaip.LocationID)).
+			Where(location.UUID(*goaaip.LocationUUID)).
 			OnlyID(ctx)
 		if err != nil {
 			if db.IsNotFound(err) {
 				return nil, &goastorage.LocationNotFound{
-					UUID: *goaaip.LocationID, Message: "location not found",
+					UUID: *goaaip.LocationUUID, Message: "location not found",
 				}
 			} else {
 				return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))

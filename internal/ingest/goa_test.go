@@ -218,7 +218,7 @@ func TestListSIPs(t *testing.T) {
 						UUID:          sipUUID1,
 						Name:          ref.New("Test SIP 1"),
 						Status:        enums.SIPStatusIngested.String(),
-						AipID:         ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+						AipUUID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 						CreatedAt:     "2024-09-25T09:31:10Z",
 						StartedAt:     ref.New("2024-09-25T09:31:11Z"),
 						CompletedAt:   ref.New("2024-09-25T09:31:12Z"),
@@ -230,7 +230,7 @@ func TestListSIPs(t *testing.T) {
 						UUID:        sipUUID2,
 						Name:        ref.New("Test SIP 2"),
 						Status:      enums.SIPStatusProcessing.String(),
-						AipID:       ref.New("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
+						AipUUID:     ref.New("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
 						CreatedAt:   "2024-10-01T17:13:26Z",
 						StartedAt:   ref.New("2024-10-01T17:13:27Z"),
 						CompletedAt: ref.New("2024-10-01T17:13:28Z"),
@@ -256,11 +256,11 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns filtered SIPs",
 			payload: &goaingest.ListSipsPayload{
 				Name:                ref.New("Test SIP 1"),
-				AipID:               ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+				AipUUID:             ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 				EarliestCreatedTime: ref.New("2024-09-25T09:30:00Z"),
 				LatestCreatedTime:   ref.New("2024-09-25T09:40:00Z"),
 				Status:              ref.New(enums.SIPStatusIngested.String()),
-				UploaderID:          ref.New("0b075937-458c-43d9-b46c-222a072d62a9"),
+				UploaderUUID:        ref.New("0b075937-458c-43d9-b46c-222a072d62a9"),
 				Limit:               ref.New(10),
 				Offset:              ref.New(1),
 			},
@@ -294,7 +294,7 @@ func TestListSIPs(t *testing.T) {
 						UUID:          sipUUID1,
 						Name:          ref.New("Test SIP 1"),
 						Status:        enums.SIPStatusIngested.String(),
-						AipID:         ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+						AipUUID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 						CreatedAt:     "2024-09-25T09:31:10Z",
 						StartedAt:     ref.New("2024-09-25T09:31:11Z"),
 						CompletedAt:   ref.New("2024-09-25T09:31:12Z"),
@@ -332,7 +332,7 @@ func TestListSIPs(t *testing.T) {
 		{
 			name: "Errors on a bad aip_id",
 			payload: &goaingest.ListSipsPayload{
-				AipID: ref.New("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"),
+				AipUUID: ref.New("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"),
 			},
 			wantErr: "aip_id: invalid UUID",
 		},
@@ -368,7 +368,7 @@ func TestListSIPs(t *testing.T) {
 		{
 			name: "Errors on a bad uploader_id",
 			payload: &goaingest.ListSipsPayload{
-				UploaderID: ref.New("invalid"),
+				UploaderUUID: ref.New("invalid"),
 			},
 			wantErr: "uploader_id: invalid UUID",
 		},

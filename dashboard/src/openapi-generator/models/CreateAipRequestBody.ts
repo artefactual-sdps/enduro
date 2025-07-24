@@ -24,7 +24,7 @@ export interface CreateAipRequestBody {
      * @type {string}
      * @memberof CreateAipRequestBody
      */
-    locationId?: string;
+    locationUuid?: string;
     /**
      * Name of the AIP
      * @type {string}
@@ -88,7 +88,7 @@ export function CreateAipRequestBodyFromJSONTyped(json: any, ignoreDiscriminator
     }
     return {
         
-        'locationId': !exists(json, 'location_id') ? undefined : json['location_id'],
+        'locationUuid': !exists(json, 'location_uuid') ? undefined : json['location_uuid'],
         'name': json['name'],
         'objectKey': json['object_key'],
         'status': !exists(json, 'status') ? undefined : json['status'],
@@ -105,7 +105,7 @@ export function CreateAipRequestBodyToJSON(value?: CreateAipRequestBody | null):
     }
     return {
         
-        'location_id': value.locationId,
+        'location_uuid': value.locationUuid,
         'name': value.name,
         'object_key': value.objectKey,
         'status': value.status,

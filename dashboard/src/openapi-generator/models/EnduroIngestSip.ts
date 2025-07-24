@@ -24,7 +24,7 @@ export interface EnduroIngestSip {
      * @type {string}
      * @memberof EnduroIngestSip
      */
-    aipId?: string;
+    aipUuid?: string;
     /**
      * Completion datetime
      * @type {Date}
@@ -139,7 +139,7 @@ export function EnduroIngestSipFromJSONTyped(json: any, ignoreDiscriminator: boo
     }
     return {
         
-        'aipId': !exists(json, 'aip_id') ? undefined : json['aip_id'],
+        'aipUuid': !exists(json, 'aip_uuid') ? undefined : json['aip_uuid'],
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'createdAt': (new Date(json['created_at'])),
         'failedAs': !exists(json, 'failed_as') ? undefined : json['failed_as'],
@@ -163,7 +163,7 @@ export function EnduroIngestSipToJSON(value?: EnduroIngestSip | null): any {
     }
     return {
         
-        'aip_id': value.aipId,
+        'aip_uuid': value.aipUuid,
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'created_at': (value.createdAt.toISOString()),
         'failed_as': value.failedAs,

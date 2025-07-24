@@ -43,7 +43,7 @@ describe("SipRelatedPackages.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              sip: { current: { aipId: "aip-uuid" } },
+              sip: { current: { aipUuid: "aip-uuid" } },
               auth: {
                 config: { enabled: true, abac: { enabled: true } },
                 attributes: ["storage:aips:read"],
@@ -68,7 +68,7 @@ describe("SipRelatedPackages.vue", () => {
           createTestingPinia({
             createSpy: vi.fn,
             initialState: {
-              sip: { current: { aipId: "aip-uuid" } },
+              sip: { current: { aipUuid: "aip-uuid" } },
               auth: {
                 config: { enabled: true, abac: { enabled: true } },
                 attributes: [],
@@ -228,7 +228,7 @@ describe("SipRelatedPackages.vue", () => {
               initialState: {
                 sip: {
                   current: {
-                    aipId: "aip-uuid",
+                    aipUuid: "aip-uuid",
                     failedAs: api.EnduroIngestSipFailedAsEnum.Sip,
                     failedKey: "failed-sip.zip",
                   },

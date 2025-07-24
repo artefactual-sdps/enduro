@@ -30,7 +30,7 @@ export interface AIPResponse {
      * @type {string}
      * @memberof AIPResponse
      */
-    locationId?: string;
+    locationUuid?: string;
     /**
      * 
      * @type {string}
@@ -97,7 +97,7 @@ export function AIPResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean
     return {
         
         'createdAt': (new Date(json['created_at'])),
-        'locationId': !exists(json, 'location_id') ? undefined : json['location_id'],
+        'locationUuid': !exists(json, 'location_uuid') ? undefined : json['location_uuid'],
         'name': json['name'],
         'objectKey': json['object_key'],
         'status': json['status'],
@@ -115,7 +115,7 @@ export function AIPResponseToJSON(value?: AIPResponse | null): any {
     return {
         
         'created_at': (value.createdAt.toISOString()),
-        'location_id': value.locationId,
+        'location_uuid': value.locationUuid,
         'name': value.name,
         'object_key': value.objectKey,
         'status': value.status,

@@ -362,7 +362,7 @@ const statuses = [
             </td>
             <td><UUID :id="aip.uuid" /></td>
             <td>{{ $filters.formatDateTime(aip.createdAt) }}</td>
-            <td><UUID :id="aip.locationId" /></td>
+            <td><UUID :id="aip.locationUuid" /></td>
             <td><StatusBadge :status="aip.status" type="package" /></td>
           </tr>
         </tbody>

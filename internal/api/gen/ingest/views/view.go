@@ -63,7 +63,7 @@ type SIPView struct {
 	// Status of the SIP
 	Status *string
 	// Identifier of AIP
-	AipID *string
+	AipUUID *string
 	// Creation datetime
 	CreatedAt *string
 	// Start datetime
@@ -166,7 +166,7 @@ var (
 			"uuid",
 			"name",
 			"status",
-			"aip_id",
+			"aip_uuid",
 			"created_at",
 			"started_at",
 			"completed_at",
@@ -198,7 +198,7 @@ var (
 			"uuid",
 			"name",
 			"status",
-			"aip_id",
+			"aip_uuid",
 			"created_at",
 			"started_at",
 			"completed_at",
@@ -400,8 +400,8 @@ func ValidateSIPView(result *SIPView) (err error) {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
 		}
 	}
-	if result.AipID != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("result.aip_id", *result.AipID, goa.FormatUUID))
+	if result.AipUUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.aip_uuid", *result.AipUUID, goa.FormatUUID))
 	}
 	if result.CreatedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.created_at", *result.CreatedAt, goa.FormatDateTime))

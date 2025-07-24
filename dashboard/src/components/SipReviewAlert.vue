@@ -16,8 +16,8 @@ const emit = defineEmits<{
 const aipStore = useAipStore();
 const sipStore = useSipStore();
 
-if (sipStore.current?.aipId) {
-  aipStore.fetchCurrent(sipStore.current.aipId);
+if (sipStore.current?.aipUuid) {
+  aipStore.fetchCurrent(sipStore.current.aipUuid);
 }
 
 const confirm = async () => {

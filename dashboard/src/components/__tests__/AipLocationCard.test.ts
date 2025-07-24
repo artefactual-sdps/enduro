@@ -19,7 +19,7 @@ describe("AipLocationCard.vue", () => {
               aip: {
                 current: {
                   status: api.EnduroStorageAipStatusEnum.Stored,
-                  locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+                  locationUuid: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroStorageAip,
               },
             },
@@ -61,7 +61,7 @@ describe("AipLocationCard.vue", () => {
               aip: {
                 current: {
                   status: api.EnduroStorageAipStatusEnum.Stored,
-                  locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+                  locationUuid: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroStorageAip,
               },
               auth: {
@@ -110,7 +110,7 @@ describe("AipLocationCard.vue", () => {
               aip: {
                 current: {
                   status: api.EnduroStorageAipStatusEnum.Stored,
-                  locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+                  locationUuid: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroStorageAip,
               },
             },
@@ -194,7 +194,7 @@ describe("AipLocationCard.vue", () => {
               aip: {
                 current: {
                   status: api.EnduroStorageAipStatusEnum.Deleted,
-                  locationId: undefined,
+                  locationUuid: undefined,
                 } as api.EnduroStorageAip,
               },
             },
@@ -226,7 +226,7 @@ describe("AipLocationCard.vue", () => {
               aip: {
                 current: {
                   status: api.EnduroStorageAipStatusEnum.Processing,
-                  locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+                  locationUuid: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroStorageAip,
               },
             },
@@ -270,7 +270,7 @@ describe("AipLocationCard.vue", () => {
               aip: {
                 current: {
                   status: api.EnduroStorageAipStatusEnum.Stored,
-                  locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+                  locationUuid: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroStorageAip,
               },
             },
@@ -292,7 +292,7 @@ describe("AipLocationCard.vue", () => {
               aip: {
                 current: {
                   status: api.EnduroStorageAipStatusEnum.Stored,
-                  locationId: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+                  locationUuid: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
                 } as api.EnduroStorageAip,
               },
               auth: {

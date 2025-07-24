@@ -60,7 +60,7 @@ func (s *SIP) Goa() *goaingest.SIP {
 		CompletedAt: db.FormatOptionalTime(s.CompletedAt),
 	}
 	if s.AIPID.Valid {
-		col.AipID = ref.New(s.AIPID.UUID.String())
+		col.AipUUID = ref.New(s.AIPID.UUID.String())
 	}
 	if s.FailedAs != "" {
 		col.FailedAs = ref.New(s.FailedAs.String())

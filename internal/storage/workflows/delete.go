@@ -48,7 +48,7 @@ func (w *StorageDeleteWorkflow) Execute(
 	if aip.Status != enums.AIPStatusStored.String() {
 		return fmt.Errorf("AIP is no longer stored")
 	}
-	if aip.LocationID == nil || *aip.LocationID == uuid.Nil {
+	if aip.LocationUUID == nil || *aip.LocationUUID == uuid.Nil {
 		return fmt.Errorf("AIP location is missing")
 	}
 
@@ -146,7 +146,7 @@ func (w *StorageDeleteWorkflow) Execute(
 		activityOpts,
 		storage.ReadLocationInfoLocalActivity,
 		w.storagesvc,
-		*aip.LocationID,
+		*aip.LocationUUID,
 	).Get(activityOpts, &locationInfo)
 	if err != nil {
 		return errors.Join(err, completeTask(

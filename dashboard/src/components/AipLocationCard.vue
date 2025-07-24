@@ -15,7 +15,7 @@ const failed = ref(false);
 const choose = async () => {
   failed.value = false;
   const locationId = await openDialog(LocationDialog, {
-    currentLocationId: aipStore.current?.locationId,
+    currentLocationId: aipStore.current?.locationUuid,
   });
   if (!locationId) return;
   const error = await aipStore.move(locationId);
@@ -45,10 +45,10 @@ const requestDeletion = async () => {
       <h4 class="card-title">Location</h4>
       <p class="card-text">
         <span v-if="aipStore.isDeleted">AIP deleted.</span>
-        <span v-else-if="!aipStore.current?.locationId"
+        <span v-else-if="!aipStore.current?.locationUuid"
           >Not available yet.</span
         >
-        <span v-else><UUID :id="aipStore.current.locationId" /></span>
+        <span v-else><UUID :id="aipStore.current.locationUuid" /></span>
       </p>
       <div v-if="!aipStore.isDeleted">
         <Transition mode="out-in">

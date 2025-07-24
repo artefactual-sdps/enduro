@@ -66,11 +66,11 @@ func ParseEndpoint(
 
 		ingestListSipsFlags                   = flag.NewFlagSet("list-sips", flag.ExitOnError)
 		ingestListSipsNameFlag                = ingestListSipsFlags.String("name", "", "")
-		ingestListSipsAipIDFlag               = ingestListSipsFlags.String("aip-id", "", "")
+		ingestListSipsAipUUIDFlag             = ingestListSipsFlags.String("aip-uuid", "", "")
 		ingestListSipsEarliestCreatedTimeFlag = ingestListSipsFlags.String("earliest-created-time", "", "")
 		ingestListSipsLatestCreatedTimeFlag   = ingestListSipsFlags.String("latest-created-time", "", "")
 		ingestListSipsStatusFlag              = ingestListSipsFlags.String("status", "", "")
-		ingestListSipsUploaderIDFlag          = ingestListSipsFlags.String("uploader-id", "", "")
+		ingestListSipsUploaderUUIDFlag        = ingestListSipsFlags.String("uploader-uuid", "", "")
 		ingestListSipsLimitFlag               = ingestListSipsFlags.String("limit", "", "")
 		ingestListSipsOffsetFlag              = ingestListSipsFlags.String("offset", "", "")
 		ingestListSipsTokenFlag               = ingestListSipsFlags.String("token", "", "")
@@ -409,7 +409,7 @@ func ParseEndpoint(
 				data, err = ingestc.BuildMonitorPayload(*ingestMonitorTicketFlag)
 			case "list-sips":
 				endpoint = c.ListSips()
-				data, err = ingestc.BuildListSipsPayload(*ingestListSipsNameFlag, *ingestListSipsAipIDFlag, *ingestListSipsEarliestCreatedTimeFlag, *ingestListSipsLatestCreatedTimeFlag, *ingestListSipsStatusFlag, *ingestListSipsUploaderIDFlag, *ingestListSipsLimitFlag, *ingestListSipsOffsetFlag, *ingestListSipsTokenFlag)
+				data, err = ingestc.BuildListSipsPayload(*ingestListSipsNameFlag, *ingestListSipsAipUUIDFlag, *ingestListSipsEarliestCreatedTimeFlag, *ingestListSipsLatestCreatedTimeFlag, *ingestListSipsStatusFlag, *ingestListSipsUploaderUUIDFlag, *ingestListSipsLimitFlag, *ingestListSipsOffsetFlag, *ingestListSipsTokenFlag)
 			case "show-sip":
 				endpoint = c.ShowSip()
 				data, err = ingestc.BuildShowSipPayload(*ingestShowSipUUIDFlag, *ingestShowSipTokenFlag)
@@ -575,21 +575,21 @@ Example:
 }
 
 func ingestListSipsUsage() {
-	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-sips -name STRING -aip-id STRING -earliest-created-time STRING -latest-created-time STRING -status STRING -uploader-id STRING -limit INT -offset INT -token STRING
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest list-sips -name STRING -aip-uuid STRING -earliest-created-time STRING -latest-created-time STRING -status STRING -uploader-uuid STRING -limit INT -offset INT -token STRING
 
 List all ingested SIPs
     -name STRING: 
-    -aip-id STRING: 
+    -aip-uuid STRING: 
     -earliest-created-time STRING: 
     -latest-created-time STRING: 
     -status STRING: 
-    -uploader-id STRING: 
+    -uploader-uuid STRING: 
     -limit INT: 
     -offset INT: 
     -token STRING: 
 
 Example:
-    %[1]s ingest list-sips --name "abc123" --aip-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "failed" --uploader-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --limit 1 --offset 1 --token "abc123"
+    %[1]s ingest list-sips --name "abc123" --aip-uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "failed" --uploader-uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --limit 1 --offset 1 --token "abc123"
 `, os.Args[0])
 }
 
@@ -627,7 +627,7 @@ Signal the SIP has been reviewed and accepted
 
 Example:
     %[1]s ingest confirm-sip --body '{
-      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
    }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }
@@ -752,7 +752,7 @@ Create a new AIP
 
 Example:
     %[1]s storage create-aip --body '{
-      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+      "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
       "name": "abc123",
       "object_key": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
       "status": "stored",
@@ -822,7 +822,7 @@ Move an AIP to a permanent storage location
 
 Example:
     %[1]s storage move-aip --body '{
-      "location_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
    }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
 `, os.Args[0])
 }

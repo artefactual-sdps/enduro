@@ -69,7 +69,7 @@ var _ = Service("storage", func() {
 				EnumAIPStatus()
 				Default("unspecified")
 			})
-			TypedAttributeUUID("location_id", "Identifier of the AIP's storage location")
+			TypedAttributeUUID("location_uuid", "Identifier of the AIP's storage location")
 			Token("token", String)
 			Required("uuid", "name", "object_key")
 		})
@@ -192,9 +192,9 @@ var _ = Service("storage", func() {
 		})
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
-			TypedAttributeUUID("location_id", "Identifier of storage location")
+			TypedAttributeUUID("location_uuid", "Identifier of storage location")
 			Token("token", String)
-			Required("uuid", "location_id")
+			Required("uuid", "location_uuid")
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_available")
@@ -543,7 +543,7 @@ var AIP = ResultType("application/vnd.enduro.storage.aip", func() {
 		Attribute("object_key", String, func() {
 			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
 		})
-		TypedAttributeUUID("location_id", "Identifier of storage location")
+		TypedAttributeUUID("location_uuid", "Identifier of storage location")
 		Attribute("created_at", String, "Creation datetime", func() {
 			Format(FormatDateTime)
 		})
@@ -555,7 +555,7 @@ var AIP = ResultType("application/vnd.enduro.storage.aip", func() {
 		Attribute("uuid")
 		Attribute("status")
 		Attribute("object_key")
-		Attribute("location_id")
+		Attribute("location_uuid")
 		Attribute("created_at")
 	})
 })

@@ -207,11 +207,11 @@ func (s *serviceImpl) CreateAip(ctx context.Context, payload *goastorage.CreateA
 	}
 
 	p := &goastorage.AIP{
-		Name:       payload.Name,
-		UUID:       aipID,
-		Status:     payload.Status,
-		ObjectKey:  objKey,
-		LocationID: payload.LocationID,
+		Name:         payload.Name,
+		UUID:         aipID,
+		Status:       payload.Status,
+		ObjectKey:    objKey,
+		LocationUUID: payload.LocationUUID,
 	}
 
 	return s.storagePersistence.CreateAIP(ctx, p)
@@ -266,7 +266,7 @@ func (s *serviceImpl) MoveAip(ctx context.Context, payload *goastorage.MoveAipPa
 
 	_, err = InitStorageMoveWorkflow(ctx, s.tc, &StorageMoveWorkflowRequest{
 		AIPID:      aip.UUID,
-		LocationID: payload.LocationID,
+		LocationID: payload.LocationUUID,
 		TaskQueue:  s.config.TaskQueue,
 	})
 	if err != nil {
@@ -346,11 +346,11 @@ func (s *serviceImpl) UpdateAipLocationID(ctx context.Context, aipID, locationID
 // aipLocation returns the bucket and the key of the given AIP.
 func (s *serviceImpl) aipLocation(ctx context.Context, a *goastorage.AIP) (Location, string, error) {
 	// AIP is still in the internal processing bucket.
-	if a.LocationID == nil || *a.LocationID == uuid.Nil {
+	if a.LocationUUID == nil || *a.LocationUUID == uuid.Nil {
 		return s.internal, a.ObjectKey.String(), nil
 	}
 
-	location, err := s.Location(ctx, *a.LocationID)
+	location, err := s.Location(ctx, *a.LocationUUID)
 	if err != nil {
 		return nil, "", err
 	}

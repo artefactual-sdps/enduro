@@ -157,7 +157,7 @@ export const useAipStore = defineStore("aip", {
       try {
         await client.storage.storageMoveAip({
           uuid: this.current.uuid,
-          confirmSipRequestBody: { locationId: locationId },
+          confirmSipRequestBody: { locationUuid: locationId },
         });
       } catch (error) {
         return error;

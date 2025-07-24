@@ -68,7 +68,7 @@ func aipAsGoa(ctx context.Context, a *db.AIP) *goastorage.AIP {
 	// TODO: should we use UUID as the foreign key?
 	l, err := a.QueryLocation().Only(ctx)
 	if err == nil {
-		p.LocationID = &l.UUID
+		p.LocationUUID = &l.UUID
 	}
 
 	return p

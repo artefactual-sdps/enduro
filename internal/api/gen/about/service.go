@@ -84,7 +84,7 @@ type SIP struct {
 	// Status of the SIP
 	Status string
 	// Identifier of AIP
-	AipID *string
+	AipUUID *string
 	// Creation datetime
 	CreatedAt string
 	// Start datetime

@@ -137,6 +137,7 @@ describe("fetch current", () => {
           status: api.EnduroStorageAipWorkflowStatusEnum.Done,
           type: api.EnduroStorageAipWorkflowTypeEnum.DeleteAip,
           temporalId: "c18d00f2-a1c4-4161-820c-6fc6ce707811",
+          aipUuid: "aip-uuid-1",
         },
       ],
     };

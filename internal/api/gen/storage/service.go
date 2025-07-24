@@ -88,7 +88,7 @@ type AIP struct {
 	Status    string
 	ObjectKey uuid.UUID
 	// Identifier of storage location
-	LocationID *uuid.UUID
+	LocationUUID *uuid.UUID
 	// Creation datetime
 	CreatedAt string
 }
@@ -175,8 +175,8 @@ type CreateAipPayload struct {
 	// Status of the the AIP
 	Status string
 	// Identifier of the AIP's storage location
-	LocationID *uuid.UUID
-	Token      *string
+	LocationUUID *uuid.UUID
+	Token        *string
 }
 
 // CreateLocationPayload is the payload type of the storage service
@@ -313,8 +313,8 @@ type MoveAipPayload struct {
 	// Identifier of AIP
 	UUID string
 	// Identifier of storage location
-	LocationID uuid.UUID
-	Token      *string
+	LocationUUID uuid.UUID
+	Token        *string
 }
 
 // MoveAipStatusPayload is the payload type of the storage service
@@ -384,7 +384,7 @@ type SIP struct {
 	// Status of the SIP
 	Status string
 	// Identifier of AIP
-	AipID *string
+	AipUUID *string
 	// Creation datetime
 	CreatedAt string
 	// Start datetime
@@ -737,7 +737,7 @@ func newAIPCollectionView(res AIPCollection) storageviews.AIPCollectionView {
 // newAIP converts projected type AIP to service type AIP.
 func newAIP(vres *storageviews.AIPView) *AIP {
 	res := &AIP{
-		LocationID: vres.LocationID,
+		LocationUUID: vres.LocationUUID,
 	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
@@ -764,12 +764,12 @@ func newAIP(vres *storageviews.AIPView) *AIP {
 // "default" view.
 func newAIPView(res *AIP) *storageviews.AIPView {
 	vres := &storageviews.AIPView{
-		Name:       &res.Name,
-		UUID:       &res.UUID,
-		Status:     &res.Status,
-		ObjectKey:  &res.ObjectKey,
-		LocationID: res.LocationID,
-		CreatedAt:  &res.CreatedAt,
+		Name:         &res.Name,
+		UUID:         &res.UUID,
+		Status:       &res.Status,
+		ObjectKey:    &res.ObjectKey,
+		LocationUUID: res.LocationUUID,
+		CreatedAt:    &res.CreatedAt,
 	}
 	return vres
 }
