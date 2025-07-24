@@ -58,6 +58,30 @@ export const useAipStore = defineStore("aip", {
     isProcessing(): boolean {
       return this.current?.status == api.EnduroStorageAipStatusEnum.Processing;
     },
+    getWorkflowById: (state) => {
+      return (workflowId: string): api.EnduroStorageAipWorkflow | undefined => {
+        const x = state.currentWorkflows?.workflows?.find(
+          (workflow: api.EnduroStorageAipWorkflow) =>
+            workflow.uuid === workflowId,
+        );
+        return x;
+      };
+    },
+    getTaskById: (state) => {
+      return (
+        workflowId: string,
+        taskId: string,
+      ): api.EnduroStorageAipTask | undefined => {
+        const workflow = state.currentWorkflows?.workflows?.find(
+          (workflow: api.EnduroStorageAipWorkflow) =>
+            workflow.uuid === workflowId,
+        );
+        if (!workflow) return;
+        return workflow.tasks?.find(
+          (task: api.EnduroStorageAipTask) => task.uuid === taskId,
+        );
+      };
+    },
   },
   actions: {
     async fetchCurrent(id: string) {
@@ -315,15 +339,11 @@ export const useAipStore = defineStore("aip", {
           throw new Error("Couldn't load AIP");
         });
     },
-    async fetchCurrentDebounced(id: string) {
-      return this.fetchCurrent(id);
-    },
     async fetchAipsDebounced(page: number) {
       return this.fetchAips(page);
     },
   },
   debounce: {
-    fetchCurrentDebounced: [500, { isImmediate: false }],
     fetchAipsDebounced: [500, { isImmediate: false }],
   },
 });

@@ -10,7 +10,7 @@ export function handleIngestEvent(event: api.IngestMonitorEventIngestEvent) {
 const handlers: {
   [key in api.IngestMonitorEventIngestEventTypeEnum]: (data: unknown) => void;
 } = {
-  [IngestMonitorEventIngestEventTypeEnum.IngestPingEvent]: handleIngestPing,
+  [IngestMonitorEventIngestEventTypeEnum.IngestPingEvent]: () => {},
   [IngestMonitorEventIngestEventTypeEnum.SipCreatedEvent]: handleSipCreated,
   [IngestMonitorEventIngestEventTypeEnum.SipUpdatedEvent]: handleSipUpdated,
   [IngestMonitorEventIngestEventTypeEnum.SipStatusUpdatedEvent]:
@@ -25,12 +25,7 @@ const handlers: {
     handleSipTaskUpdated,
 };
 
-function handleIngestPing(data: unknown) {
-  api.IngestPingEventFromJSON(data);
-}
-
-function handleSipCreated(data: unknown) {
-  api.SIPCreatedEventFromJSON(data);
+function handleSipCreated() {
   const store = useSipStore();
   store.fetchSipsDebounced(1);
 }
@@ -39,16 +34,16 @@ function handleSipUpdated(data: unknown) {
   const event = api.SIPUpdatedEventFromJSON(data);
   const store = useSipStore();
   store.fetchSipsDebounced(1);
-  if (store.$state.current?.uuid != event.uuid) return;
-  Object.assign(store.$state.current, event.item);
+  if (store.current?.uuid != event.uuid) return;
+  Object.assign(store.current, event.item);
 }
 
 function handleSipStatusUpdated(data: unknown) {
   const event = api.SIPStatusUpdatedEventFromJSON(data);
   const store = useSipStore();
   store.fetchSipsDebounced(1);
-  if (store.$state.current?.uuid != event.uuid) return;
-  store.$state.current.status = event.status;
+  if (store.current?.uuid != event.uuid) return;
+  store.current.status = event.status;
 }
 
 function handleSipWorkflowCreated(data: unknown) {
