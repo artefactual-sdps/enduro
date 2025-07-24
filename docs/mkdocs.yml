@@ -19,6 +19,13 @@ nav:
 
 markdown_extensions:
   - admonition
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
 
 plugins:
   - autorefs
@@ -27,9 +34,20 @@ plugins:
   - swagger-ui-tag
 
 theme:
-  name: readthedocs
+  name: material
+  logo: img/logo.png
+  favicon: img/favicon.ico
   highlightjs: true
-  hljs_languages:
-    - yaml
-    - json
-    - go
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      toggle:
+        icon: material/weather-night
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to light mode
+extra_css:
+  - stylesheets/extra.css
