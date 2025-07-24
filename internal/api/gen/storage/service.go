@@ -113,6 +113,8 @@ type AIPTask struct {
 	StartedAt   *string
 	CompletedAt *string
 	Note        *string
+	// Identifier of related workflow
+	WorkflowUUID uuid.UUID
 }
 
 type AIPTaskCollection []*AIPTask
@@ -125,7 +127,9 @@ type AIPWorkflow struct {
 	Status      string
 	StartedAt   *string
 	CompletedAt *string
-	Tasks       AIPTaskCollection
+	// Identifier of related AIP
+	AipUUID uuid.UUID
+	Tasks   AIPTaskCollection
 }
 
 type AIPWorkflowCollection []*AIPWorkflow
@@ -876,6 +880,9 @@ func newAIPWorkflowSimple(vres *storageviews.AIPWorkflowView) *AIPWorkflow {
 	if vres.Status != nil {
 		res.Status = *vres.Status
 	}
+	if vres.AipUUID != nil {
+		res.AipUUID = *vres.AipUUID
+	}
 	if vres.Tasks != nil {
 		res.Tasks = newAIPTaskCollection(vres.Tasks)
 	}
@@ -901,6 +908,9 @@ func newAIPWorkflow(vres *storageviews.AIPWorkflowView) *AIPWorkflow {
 	if vres.Status != nil {
 		res.Status = *vres.Status
 	}
+	if vres.AipUUID != nil {
+		res.AipUUID = *vres.AipUUID
+	}
 	if vres.Tasks != nil {
 		res.Tasks = newAIPTaskCollection(vres.Tasks)
 	}
@@ -917,6 +927,7 @@ func newAIPWorkflowViewSimple(res *AIPWorkflow) *storageviews.AIPWorkflowView {
 		Status:      &res.Status,
 		StartedAt:   res.StartedAt,
 		CompletedAt: res.CompletedAt,
+		AipUUID:     &res.AipUUID,
 	}
 	return vres
 }
@@ -931,6 +942,7 @@ func newAIPWorkflowView(res *AIPWorkflow) *storageviews.AIPWorkflowView {
 		Status:      &res.Status,
 		StartedAt:   res.StartedAt,
 		CompletedAt: res.CompletedAt,
+		AipUUID:     &res.AipUUID,
 	}
 	if res.Tasks != nil {
 		vres.Tasks = newAIPTaskCollectionView(res.Tasks)
@@ -974,6 +986,9 @@ func newAIPTask(vres *storageviews.AIPTaskView) *AIPTask {
 	if vres.Status != nil {
 		res.Status = *vres.Status
 	}
+	if vres.WorkflowUUID != nil {
+		res.WorkflowUUID = *vres.WorkflowUUID
+	}
 	return res
 }
 
@@ -981,12 +996,13 @@ func newAIPTask(vres *storageviews.AIPTaskView) *AIPTask {
 // using the "default" view.
 func newAIPTaskView(res *AIPTask) *storageviews.AIPTaskView {
 	vres := &storageviews.AIPTaskView{
-		UUID:        &res.UUID,
-		Name:        &res.Name,
-		Status:      &res.Status,
-		StartedAt:   res.StartedAt,
-		CompletedAt: res.CompletedAt,
-		Note:        res.Note,
+		UUID:         &res.UUID,
+		Name:         &res.Name,
+		Status:       &res.Status,
+		StartedAt:    res.StartedAt,
+		CompletedAt:  res.CompletedAt,
+		Note:         res.Note,
+		WorkflowUUID: &res.WorkflowUUID,
 	}
 	return vres
 }

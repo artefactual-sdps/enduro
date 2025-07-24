@@ -631,13 +631,15 @@ type AIPWorkflowResponseBodyCollection []*AIPWorkflowResponseBody
 
 // AIPWorkflowResponseBody is used to define fields on response body types.
 type AIPWorkflowResponseBody struct {
-	UUID        uuid.UUID                     `form:"uuid" json:"uuid" xml:"uuid"`
-	TemporalID  string                        `form:"temporal_id" json:"temporal_id" xml:"temporal_id"`
-	Type        string                        `form:"type" json:"type" xml:"type"`
-	Status      string                        `form:"status" json:"status" xml:"status"`
-	StartedAt   *string                       `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
-	CompletedAt *string                       `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
-	Tasks       AIPTaskResponseBodyCollection `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
+	UUID        uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	TemporalID  string    `form:"temporal_id" json:"temporal_id" xml:"temporal_id"`
+	Type        string    `form:"type" json:"type" xml:"type"`
+	Status      string    `form:"status" json:"status" xml:"status"`
+	StartedAt   *string   `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string   `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	// Identifier of related AIP
+	AipUUID uuid.UUID                     `form:"aip_uuid" json:"aip_uuid" xml:"aip_uuid"`
+	Tasks   AIPTaskResponseBodyCollection `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
 }
 
 // AIPTaskResponseBodyCollection is used to define fields on response body
@@ -652,6 +654,8 @@ type AIPTaskResponseBody struct {
 	StartedAt   *string   `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	CompletedAt *string   `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 	Note        *string   `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
+	// Identifier of related workflow
+	WorkflowUUID uuid.UUID `form:"workflow_uuid" json:"workflow_uuid" xml:"workflow_uuid"`
 }
 
 // LocationResponse is used to define fields on response body types.

@@ -641,13 +641,15 @@ type AIPWorkflowCollectionResponseBody []*AIPWorkflowResponseBody
 
 // AIPWorkflowResponseBody is used to define fields on response body types.
 type AIPWorkflowResponseBody struct {
-	UUID        *uuid.UUID                    `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
-	TemporalID  *string                       `form:"temporal_id,omitempty" json:"temporal_id,omitempty" xml:"temporal_id,omitempty"`
-	Type        *string                       `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
-	Status      *string                       `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	StartedAt   *string                       `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
-	CompletedAt *string                       `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
-	Tasks       AIPTaskCollectionResponseBody `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
+	UUID        *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	TemporalID  *string    `form:"temporal_id,omitempty" json:"temporal_id,omitempty" xml:"temporal_id,omitempty"`
+	Type        *string    `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+	Status      *string    `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	StartedAt   *string    `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	CompletedAt *string    `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	// Identifier of related AIP
+	AipUUID *uuid.UUID                    `form:"aip_uuid,omitempty" json:"aip_uuid,omitempty" xml:"aip_uuid,omitempty"`
+	Tasks   AIPTaskCollectionResponseBody `form:"tasks,omitempty" json:"tasks,omitempty" xml:"tasks,omitempty"`
 }
 
 // AIPTaskCollectionResponseBody is used to define fields on response body
@@ -662,6 +664,8 @@ type AIPTaskResponseBody struct {
 	StartedAt   *string    `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	CompletedAt *string    `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 	Note        *string    `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
+	// Identifier of related workflow
+	WorkflowUUID *uuid.UUID `form:"workflow_uuid,omitempty" json:"workflow_uuid,omitempty" xml:"workflow_uuid,omitempty"`
 }
 
 // LocationResponse is used to define fields on response body types.
@@ -2346,6 +2350,9 @@ func ValidateAIPWorkflowResponseBody(body *AIPWorkflowResponseBody) (err error) 
 	if body.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
 	}
+	if body.AipUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_uuid", "body"))
+	}
 	if body.Type != nil {
 		if !(*body.Type == "unspecified" || *body.Type == "upload aip" || *body.Type == "move aip" || *body.Type == "delete aip") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
@@ -2394,6 +2401,9 @@ func ValidateAIPTaskResponseBody(body *AIPTaskResponseBody) (err error) {
 	}
 	if body.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
+	}
+	if body.WorkflowUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_uuid", "body"))
 	}
 	if body.Status != nil {
 		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending") {

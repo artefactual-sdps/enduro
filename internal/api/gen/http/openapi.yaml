@@ -1654,6 +1654,10 @@ definitions:
             uuid:
                 type: string
                 example: abc123
+            workflow_uuid:
+                type: string
+                description: Identifier of related workflow
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         description: AIPTask describes an AIP workflow task. (default view)
         example:
             completed_at: "1970-01-01T00:00:01Z"
@@ -1662,10 +1666,12 @@ definitions:
             started_at: "1970-01-01T00:00:01Z"
             status: in progress
             uuid: abc123
+            workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
             - uuid
             - name
             - status
+            - workflow_uuid
     AIPTaskResponseBodyCollection:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip.task; type=collection; view=default'
         type: array
@@ -1679,10 +1685,15 @@ definitions:
               started_at: "1970-01-01T00:00:01Z"
               status: in progress
               uuid: abc123
+              workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     AIPWorkflowResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip.workflow; view=default'
         type: object
         properties:
+            aip_uuid:
+                type: string
+                description: Identifier of related AIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             completed_at:
                 type: string
                 example: "1970-01-01T00:00:01Z"
@@ -1720,6 +1731,7 @@ definitions:
                 example: abc123
         description: AIPWorkflow describes a workflow of an AIP. (default view)
         example:
+            aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             completed_at: "1970-01-01T00:00:01Z"
             started_at: "1970-01-01T00:00:01Z"
             status: in progress
@@ -1730,6 +1742,7 @@ definitions:
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
                   uuid: abc123
+                  workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             temporal_id: abc123
             type: upload aip
             uuid: abc123
@@ -1738,6 +1751,7 @@ definitions:
             - temporal_id
             - type
             - status
+            - aip_uuid
     AIPWorkflowResponseBodyCollection:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip.workflow; type=collection; view=default'
         type: array
@@ -1745,7 +1759,8 @@ definitions:
             $ref: '#/definitions/AIPWorkflowResponseBody'
         description: AIPWorkflowCollectionResponseBody is the result type for an array of AIPWorkflowResponseBody (default view)
         example:
-            - completed_at: "1970-01-01T00:00:01Z"
+            - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+              completed_at: "1970-01-01T00:00:01Z"
               started_at: "1970-01-01T00:00:01Z"
               status: in progress
               tasks:
@@ -1755,6 +1770,7 @@ definitions:
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
                   uuid: abc123
+                  workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               temporal_id: abc123
               type: upload aip
               uuid: abc123
@@ -3746,7 +3762,8 @@ definitions:
         description: list_aip_workflows_response_body result type (default view)
         example:
             workflows:
-                - completed_at: "1970-01-01T00:00:01Z"
+                - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  completed_at: "1970-01-01T00:00:01Z"
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
                   tasks:
@@ -3756,6 +3773,7 @@ definitions:
                       started_at: "1970-01-01T00:00:01Z"
                       status: in progress
                       uuid: abc123
+                      workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   temporal_id: abc123
                   type: upload aip
                   uuid: abc123

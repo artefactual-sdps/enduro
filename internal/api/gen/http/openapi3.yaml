@@ -1752,7 +1752,8 @@ paths:
                                 $ref: '#/components/schemas/AIPWorkflows'
                             example:
                                 workflows:
-                                    - completed_at: "1970-01-01T00:00:01Z"
+                                    - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                      completed_at: "1970-01-01T00:00:01Z"
                                       started_at: "1970-01-01T00:00:01Z"
                                       status: in progress
                                       tasks:
@@ -1762,6 +1763,7 @@ paths:
                                           started_at: "1970-01-01T00:00:01Z"
                                           status: in progress
                                           uuid: abc123
+                                          workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                       temporal_id: abc123
                                       type: upload aip
                                       uuid: abc123
@@ -2099,12 +2101,14 @@ components:
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
                   uuid: abc123
+                  workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         AIPWorkflowCollection:
             type: array
             items:
                 $ref: '#/components/schemas/EnduroStorageAipWorkflow'
             example:
-                - completed_at: "1970-01-01T00:00:01Z"
+                - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  completed_at: "1970-01-01T00:00:01Z"
                   started_at: "1970-01-01T00:00:01Z"
                   status: in progress
                   tasks:
@@ -2114,6 +2118,7 @@ components:
                       started_at: "1970-01-01T00:00:01Z"
                       status: in progress
                       uuid: abc123
+                      workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   temporal_id: abc123
                   type: upload aip
                   uuid: abc123
@@ -2124,7 +2129,8 @@ components:
                     $ref: '#/components/schemas/AIPWorkflowCollection'
             example:
                 workflows:
-                    - completed_at: "1970-01-01T00:00:01Z"
+                    - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      completed_at: "1970-01-01T00:00:01Z"
                       started_at: "1970-01-01T00:00:01Z"
                       status: in progress
                       tasks:
@@ -2134,6 +2140,7 @@ components:
                           started_at: "1970-01-01T00:00:01Z"
                           status: in progress
                           uuid: abc123
+                          workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                       temporal_id: abc123
                       type: upload aip
                       uuid: abc123
@@ -2693,6 +2700,10 @@ components:
                 uuid:
                     type: string
                     example: abc123
+                workflow_uuid:
+                    type: string
+                    description: Identifier of related workflow
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             description: AIPTask describes an AIP workflow task.
             example:
                 completed_at: "1970-01-01T00:00:01Z"
@@ -2701,13 +2712,19 @@ components:
                 started_at: "1970-01-01T00:00:01Z"
                 status: in progress
                 uuid: abc123
+                workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             required:
                 - uuid
                 - name
                 - status
+                - workflow_uuid
         EnduroStorageAipWorkflow:
             type: object
             properties:
+                aip_uuid:
+                    type: string
+                    description: Identifier of related AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 completed_at:
                     type: string
                     example: "1970-01-01T00:00:01Z"
@@ -2745,6 +2762,7 @@ components:
                     example: abc123
             description: AIPWorkflow describes a workflow of an AIP.
             example:
+                aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 completed_at: "1970-01-01T00:00:01Z"
                 started_at: "1970-01-01T00:00:01Z"
                 status: in progress
@@ -2755,6 +2773,7 @@ components:
                       started_at: "1970-01-01T00:00:01Z"
                       status: in progress
                       uuid: abc123
+                      workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 temporal_id: abc123
                 type: upload aip
                 uuid: abc123
@@ -2763,6 +2782,7 @@ components:
                 - temporal_id
                 - type
                 - status
+                - aip_uuid
         Error:
             type: object
             properties:

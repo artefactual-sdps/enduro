@@ -203,7 +203,9 @@ func (c *Client) ListWorkflows(
 		q = q.Where(workflow.TypeEQ(*f.Type))
 	}
 
-	res, err := q.WithTasks().All(ctx)
+	res, err := q.WithAip(func(a *db.AIPQuery) {
+		a.Select(aip.FieldAipID)
+	}).WithTasks().All(ctx)
 	if err != nil {
 		return nil, err
 	}

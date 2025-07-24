@@ -89,9 +89,14 @@ func workflowAsGoa(dbw *db.Workflow) *goastorage.AIPWorkflow {
 		w.CompletedAt = ref.New(dbw.CompletedAt.Format(time.RFC3339))
 	}
 
+	if dbw.Edges.Aip != nil {
+		w.AipUUID = dbw.Edges.Aip.AipID
+	}
+
 	if len(dbw.Edges.Tasks) > 0 {
 		for _, dbt := range dbw.Edges.Tasks {
 			if dbt != nil {
+				dbt.Edges.Workflow = &db.Workflow{UUID: dbw.UUID}
 				w.Tasks = append(w.Tasks, taskAsGoa(dbt))
 			}
 		}
@@ -115,6 +120,10 @@ func taskAsGoa(dbt *db.Task) *goastorage.AIPTask {
 	}
 	if dbt.Note != "" {
 		t.Note = &dbt.Note
+	}
+
+	if dbt.Edges.Workflow != nil {
+		t.WorkflowUUID = dbt.Edges.Workflow.UUID
 	}
 
 	return t

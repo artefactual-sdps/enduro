@@ -2451,6 +2451,7 @@ func unmarshalAIPWorkflowResponseBodyToStorageviewsAIPWorkflowView(v *AIPWorkflo
 		Status:      v.Status,
 		StartedAt:   v.StartedAt,
 		CompletedAt: v.CompletedAt,
+		AipUUID:     v.AipUUID,
 	}
 	if v.Tasks != nil {
 		res.Tasks = make([]*storageviews.AIPTaskView, len(v.Tasks))
@@ -2469,12 +2470,13 @@ func unmarshalAIPTaskResponseBodyToStorageviewsAIPTaskView(v *AIPTaskResponseBod
 		return nil
 	}
 	res := &storageviews.AIPTaskView{
-		UUID:        v.UUID,
-		Name:        v.Name,
-		Status:      v.Status,
-		StartedAt:   v.StartedAt,
-		CompletedAt: v.CompletedAt,
-		Note:        v.Note,
+		UUID:         v.UUID,
+		Name:         v.Name,
+		Status:       v.Status,
+		StartedAt:    v.StartedAt,
+		CompletedAt:  v.CompletedAt,
+		Note:         v.Note,
+		WorkflowUUID: v.WorkflowUUID,
 	}
 
 	return res

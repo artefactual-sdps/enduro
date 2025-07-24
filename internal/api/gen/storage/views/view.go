@@ -111,7 +111,9 @@ type AIPWorkflowView struct {
 	Status      *string
 	StartedAt   *string
 	CompletedAt *string
-	Tasks       AIPTaskCollectionView
+	// Identifier of related AIP
+	AipUUID *uuid.UUID
+	Tasks   AIPTaskCollectionView
 }
 
 // AIPTaskCollectionView is a type that runs validations on a projected type.
@@ -125,6 +127,8 @@ type AIPTaskView struct {
 	StartedAt   *string
 	CompletedAt *string
 	Note        *string
+	// Identifier of related workflow
+	WorkflowUUID *uuid.UUID
 }
 
 // LocationCollectionView is a type that runs validations on a projected type.
@@ -265,6 +269,7 @@ var (
 			"status",
 			"started_at",
 			"completed_at",
+			"aip_uuid",
 		},
 		"default": {
 			"uuid",
@@ -273,6 +278,7 @@ var (
 			"status",
 			"started_at",
 			"completed_at",
+			"aip_uuid",
 			"tasks",
 		},
 	}
@@ -286,6 +292,7 @@ var (
 			"status",
 			"started_at",
 			"completed_at",
+			"aip_uuid",
 		},
 		"default": {
 			"uuid",
@@ -294,6 +301,7 @@ var (
 			"status",
 			"started_at",
 			"completed_at",
+			"aip_uuid",
 			"tasks",
 		},
 	}
@@ -307,6 +315,7 @@ var (
 			"started_at",
 			"completed_at",
 			"note",
+			"workflow_uuid",
 		},
 	}
 	// AIPTaskMap is a map indexing the attribute names of AIPTask by view name.
@@ -318,6 +327,7 @@ var (
 			"started_at",
 			"completed_at",
 			"note",
+			"workflow_uuid",
 		},
 	}
 )
@@ -513,6 +523,9 @@ func ValidateAIPWorkflowViewSimple(result *AIPWorkflowView) (err error) {
 	if result.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
 	}
+	if result.AipUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_uuid", "result"))
+	}
 	if result.Type != nil {
 		if !(*result.Type == "unspecified" || *result.Type == "upload aip" || *result.Type == "move aip" || *result.Type == "delete aip") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"unspecified", "upload aip", "move aip", "delete aip"}))
@@ -546,6 +559,9 @@ func ValidateAIPWorkflowView(result *AIPWorkflowView) (err error) {
 	}
 	if result.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
+	}
+	if result.AipUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_uuid", "result"))
 	}
 	if result.Type != nil {
 		if !(*result.Type == "unspecified" || *result.Type == "upload aip" || *result.Type == "move aip" || *result.Type == "delete aip") {
@@ -593,6 +609,9 @@ func ValidateAIPTaskView(result *AIPTaskView) (err error) {
 	}
 	if result.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
+	}
+	if result.WorkflowUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_uuid", "result"))
 	}
 	if result.Status != nil {
 		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending") {

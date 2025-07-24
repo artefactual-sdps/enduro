@@ -27,6 +27,12 @@ import {
  */
 export interface EnduroStorageAipWorkflow {
     /**
+     * Identifier of related AIP
+     * @type {string}
+     * @memberof EnduroStorageAipWorkflow
+     */
+    aipUuid: string;
+    /**
      * 
      * @type {Date}
      * @memberof EnduroStorageAipWorkflow
@@ -102,6 +108,7 @@ export type EnduroStorageAipWorkflowTypeEnum = typeof EnduroStorageAipWorkflowTy
  */
 export function instanceOfEnduroStorageAipWorkflow(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "aipUuid" in value;
     isInstance = isInstance && "status" in value;
     isInstance = isInstance && "temporalId" in value;
     isInstance = isInstance && "type" in value;
@@ -120,6 +127,7 @@ export function EnduroStorageAipWorkflowFromJSONTyped(json: any, ignoreDiscrimin
     }
     return {
         
+        'aipUuid': json['aip_uuid'],
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
@@ -139,6 +147,7 @@ export function EnduroStorageAipWorkflowToJSON(value?: EnduroStorageAipWorkflow 
     }
     return {
         
+        'aip_uuid': value.aipUuid,
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),
         'status': value.status,

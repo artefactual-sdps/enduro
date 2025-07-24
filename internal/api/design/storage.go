@@ -649,6 +649,7 @@ var AIPWorkflow = ResultType("application/vnd.enduro.storage.aip.workflow", func
 		Attribute("completed_at", String, func() {
 			Format(FormatDateTime)
 		})
+		TypedAttributeUUID("aip_uuid", "Identifier of related AIP")
 		Attribute("tasks", CollectionOf(AIPTask))
 	})
 	View("simple", func() {
@@ -658,8 +659,9 @@ var AIPWorkflow = ResultType("application/vnd.enduro.storage.aip.workflow", func
 		Attribute("status")
 		Attribute("started_at")
 		Attribute("completed_at")
+		Attribute("aip_uuid")
 	})
-	Required("uuid", "temporal_id", "type", "status")
+	Required("uuid", "temporal_id", "type", "status", "aip_uuid")
 })
 
 var EnumAIPTaskStatus = func() {
@@ -684,6 +686,7 @@ var AIPTask = ResultType("application/vnd.enduro.storage.aip.task", func() {
 			Format(FormatDateTime)
 		})
 		Attribute("note", String)
+		TypedAttributeUUID("workflow_uuid", "Identifier of related workflow")
 	})
-	Required("uuid", "name", "status")
+	Required("uuid", "name", "status", "workflow_uuid")
 })

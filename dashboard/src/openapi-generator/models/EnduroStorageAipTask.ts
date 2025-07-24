@@ -55,6 +55,12 @@ export interface EnduroStorageAipTask {
      * @memberof EnduroStorageAipTask
      */
     uuid: string;
+    /**
+     * Identifier of related workflow
+     * @type {string}
+     * @memberof EnduroStorageAipTask
+     */
+    workflowUuid: string;
 }
 
 
@@ -80,6 +86,7 @@ export function instanceOfEnduroStorageAipTask(value: object): boolean {
     isInstance = isInstance && "name" in value;
     isInstance = isInstance && "status" in value;
     isInstance = isInstance && "uuid" in value;
+    isInstance = isInstance && "workflowUuid" in value;
 
     return isInstance;
 }
@@ -100,6 +107,7 @@ export function EnduroStorageAipTaskFromJSONTyped(json: any, ignoreDiscriminator
         'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
         'uuid': json['uuid'],
+        'workflowUuid': json['workflow_uuid'],
     };
 }
 
@@ -118,6 +126,7 @@ export function EnduroStorageAipTaskToJSON(value?: EnduroStorageAipTask | null):
         'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),
         'status': value.status,
         'uuid': value.uuid,
+        'workflow_uuid': value.workflowUuid,
     };
 }
 
