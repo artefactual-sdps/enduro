@@ -16,9 +16,9 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface StorageMonitorEventStorageEvent
+ * @interface StorageEventStorageValue
  */
-export interface StorageMonitorEventStorageEvent {
+export interface StorageEventStorageValue {
     /**
      * Union type name, one of:
      * - "storage_ping_event"
@@ -31,13 +31,13 @@ export interface StorageMonitorEventStorageEvent {
      * - "aip_task_created_event"
      * - "aip_task_updated_event"
      * @type {string}
-     * @memberof StorageMonitorEventStorageEvent
+     * @memberof StorageEventStorageValue
      */
-    type: StorageMonitorEventStorageEventTypeEnum;
+    type: StorageEventStorageValueTypeEnum;
     /**
      * JSON encoded union value
      * @type {string}
-     * @memberof StorageMonitorEventStorageEvent
+     * @memberof StorageEventStorageValue
      */
     value: string;
 }
@@ -46,7 +46,7 @@ export interface StorageMonitorEventStorageEvent {
 /**
  * @export
  */
-export const StorageMonitorEventStorageEventTypeEnum = {
+export const StorageEventStorageValueTypeEnum = {
     StoragePingEvent: 'storage_ping_event',
     LocationCreatedEvent: 'location_created_event',
     LocationUpdatedEvent: 'location_updated_event',
@@ -57,13 +57,13 @@ export const StorageMonitorEventStorageEventTypeEnum = {
     AipTaskCreatedEvent: 'aip_task_created_event',
     AipTaskUpdatedEvent: 'aip_task_updated_event'
 } as const;
-export type StorageMonitorEventStorageEventTypeEnum = typeof StorageMonitorEventStorageEventTypeEnum[keyof typeof StorageMonitorEventStorageEventTypeEnum];
+export type StorageEventStorageValueTypeEnum = typeof StorageEventStorageValueTypeEnum[keyof typeof StorageEventStorageValueTypeEnum];
 
 
 /**
- * Check if a given object implements the StorageMonitorEventStorageEvent interface.
+ * Check if a given object implements the StorageEventStorageValue interface.
  */
-export function instanceOfStorageMonitorEventStorageEvent(value: object): boolean {
+export function instanceOfStorageEventStorageValue(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "type" in value;
     isInstance = isInstance && "value" in value;
@@ -71,11 +71,11 @@ export function instanceOfStorageMonitorEventStorageEvent(value: object): boolea
     return isInstance;
 }
 
-export function StorageMonitorEventStorageEventFromJSON(json: any): StorageMonitorEventStorageEvent {
-    return StorageMonitorEventStorageEventFromJSONTyped(json, false);
+export function StorageEventStorageValueFromJSON(json: any): StorageEventStorageValue {
+    return StorageEventStorageValueFromJSONTyped(json, false);
 }
 
-export function StorageMonitorEventStorageEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): StorageMonitorEventStorageEvent {
+export function StorageEventStorageValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): StorageEventStorageValue {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -86,7 +86,7 @@ export function StorageMonitorEventStorageEventFromJSONTyped(json: any, ignoreDi
     };
 }
 
-export function StorageMonitorEventStorageEventToJSON(value?: StorageMonitorEventStorageEvent | null): any {
+export function StorageEventStorageValueToJSON(value?: StorageEventStorageValue | null): any {
     if (value === undefined) {
         return undefined;
     }

@@ -1,31 +1,29 @@
 import { api } from "@/client";
 import { transformKeys } from "@/helpers/transform";
-import { StorageMonitorEventStorageEventTypeEnum } from "@/openapi-generator";
+import { StorageEventStorageValueTypeEnum } from "@/openapi-generator";
 import { useAipStore } from "@/stores/aip";
 import { useLocationStore } from "@/stores/location";
 
-export function handleStorageEvent(event: api.StorageMonitorEventStorageEvent) {
+export function handleStorageEvent(event: api.StorageEventStorageValue) {
   handlers[event.type](transformKeys(event.value));
 }
 
 const handlers: {
-  [key in api.StorageMonitorEventStorageEventTypeEnum]: (data: unknown) => void;
+  [key in api.StorageEventStorageValueTypeEnum]: (data: unknown) => void;
 } = {
-  [StorageMonitorEventStorageEventTypeEnum.StoragePingEvent]: () => {},
-  [StorageMonitorEventStorageEventTypeEnum.LocationCreatedEvent]:
+  [StorageEventStorageValueTypeEnum.StoragePingEvent]: () => {},
+  [StorageEventStorageValueTypeEnum.LocationCreatedEvent]:
     handleLocationCreated,
-  [StorageMonitorEventStorageEventTypeEnum.LocationUpdatedEvent]:
+  [StorageEventStorageValueTypeEnum.LocationUpdatedEvent]:
     handleLocationUpdated,
-  [StorageMonitorEventStorageEventTypeEnum.AipCreatedEvent]: handleAipCreated,
-  [StorageMonitorEventStorageEventTypeEnum.AipUpdatedEvent]: handleAipUpdated,
-  [StorageMonitorEventStorageEventTypeEnum.AipWorkflowCreatedEvent]:
+  [StorageEventStorageValueTypeEnum.AipCreatedEvent]: handleAipCreated,
+  [StorageEventStorageValueTypeEnum.AipUpdatedEvent]: handleAipUpdated,
+  [StorageEventStorageValueTypeEnum.AipWorkflowCreatedEvent]:
     handleAipWorkflowCreated,
-  [StorageMonitorEventStorageEventTypeEnum.AipWorkflowUpdatedEvent]:
+  [StorageEventStorageValueTypeEnum.AipWorkflowUpdatedEvent]:
     handleAipWorkflowUpdated,
-  [StorageMonitorEventStorageEventTypeEnum.AipTaskCreatedEvent]:
-    handleAipTaskCreated,
-  [StorageMonitorEventStorageEventTypeEnum.AipTaskUpdatedEvent]:
-    handleAipTaskUpdated,
+  [StorageEventStorageValueTypeEnum.AipTaskCreatedEvent]: handleAipTaskCreated,
+  [StorageEventStorageValueTypeEnum.AipTaskUpdatedEvent]: handleAipTaskUpdated,
 };
 
 function handleLocationCreated() {

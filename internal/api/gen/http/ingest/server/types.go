@@ -27,7 +27,7 @@ type ConfirmSipRequestBody struct {
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
-	IngestEvent *struct {
+	IngestValue *struct {
 		// Union type name, one of:
 		// - "ingest_ping_event"
 		// - "sip_created_event"
@@ -40,7 +40,7 @@ type MonitorResponseBody struct {
 		Type string `form:"Type" json:"Type" xml:"Type"`
 		// JSON encoded union value
 		Value string `form:"Value" json:"Value" xml:"Value"`
-	} `form:"ingest_event,omitempty" json:"ingest_event,omitempty" xml:"ingest_event,omitempty"`
+	} `form:"ingest_value,omitempty" json:"ingest_value,omitempty" xml:"ingest_value,omitempty"`
 }
 
 // ListSipsResponseBody is the type of the "ingest" service "list_sips"
@@ -536,12 +536,12 @@ type UserResponseBody struct {
 
 // NewMonitorResponseBody builds the HTTP response body from the result of the
 // "monitor" endpoint of the "ingest" service.
-func NewMonitorResponseBody(res *ingest.IngestMonitorEvent) *MonitorResponseBody {
+func NewMonitorResponseBody(res *ingest.IngestEvent) *MonitorResponseBody {
 	body := &MonitorResponseBody{}
-	if res.IngestEvent != nil {
-		js, _ := json.Marshal(res.IngestEvent)
+	if res.IngestValue != nil {
+		js, _ := json.Marshal(res.IngestValue)
 		var name string
-		switch res.IngestEvent.(type) {
+		switch res.IngestValue.(type) {
 		case *ingest.IngestPingEvent:
 			name = "ingest_ping_event"
 		case *ingest.SIPCreatedEvent:
@@ -559,7 +559,7 @@ func NewMonitorResponseBody(res *ingest.IngestMonitorEvent) *MonitorResponseBody
 		case *ingest.SIPTaskUpdatedEvent:
 			name = "sip_task_updated_event"
 		}
-		body.IngestEvent = &struct {
+		body.IngestValue = &struct {
 			// Union type name, one of:
 			// - "ingest_ping_event"
 			// - "sip_created_event"

@@ -47,7 +47,7 @@ var _ = Service("storage", func() {
 		Payload(func() {
 			Attribute("ticket", String)
 		})
-		StreamingResult(StorageMonitorEvent)
+		StreamingResult(StorageEvent)
 		Error("not_available")
 		HTTP(func() {
 			GET("/monitor")

@@ -35,23 +35,23 @@ type Subscription[T any] interface {
 
 // EventService represents a service for managing ingest event dispatch and event
 // listeners (aka subscriptions).
-type EventService = Service[*goaingest.IngestMonitorEvent]
+type EventService = Service[*goaingest.IngestEvent]
 
 // StorageEventService represents a service for managing storage event dispatch and event listeners.
-type StorageEventService = Service[*goastorage.StorageMonitorEvent]
+type StorageEventService = Service[*goastorage.StorageEvent]
 
 // EventSubscription represents a stream of ingest events for a single user.
-type EventSubscription = Subscription[*goaingest.IngestMonitorEvent]
+type EventSubscription = Subscription[*goaingest.IngestEvent]
 
 // StorageSubscription represents a stream of storage events for a single user.
-type StorageSubscription = Subscription[*goastorage.StorageMonitorEvent]
+type StorageSubscription = Subscription[*goastorage.StorageEvent]
 
 // NopEventService returns an event service that does nothing.
-func NopEventService() EventService { return &nopService[*goaingest.IngestMonitorEvent]{} }
+func NopEventService() EventService { return &nopService[*goaingest.IngestEvent]{} }
 
 // NopStorageEventService returns a storage event service that does nothing.
 func NopStorageEventService() StorageEventService {
-	return &nopService[*goastorage.StorageMonitorEvent]{}
+	return &nopService[*goastorage.StorageEvent]{}
 }
 
 type nopService[T any] struct{}

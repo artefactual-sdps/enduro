@@ -43,9 +43,9 @@ function connectIngestMonitor() {
   const socket = new WebSocket(url);
   socket.onmessage = (event: MessageEvent) => {
     const body = JSON.parse(event.data);
-    const data = api.IngestMonitorEventFromJSON(body);
-    if (data.ingestEvent) {
-      handleIngestEvent(data.ingestEvent);
+    const data = api.IngestEventFromJSON(body);
+    if (data.ingestValue) {
+      handleIngestEvent(data.ingestValue);
     }
   };
 }
@@ -55,9 +55,9 @@ function connectStorageMonitor() {
   const socket = new WebSocket(url);
   socket.onmessage = (event: MessageEvent) => {
     const body = JSON.parse(event.data);
-    const data = api.StorageMonitorEventFromJSON(body);
-    if (data.storageEvent) {
-      handleStorageEvent(data.storageEvent);
+    const data = api.StorageEventFromJSON(body);
+    if (data.storageValue) {
+      handleStorageEvent(data.storageValue);
     }
   };
 }

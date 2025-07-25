@@ -70,8 +70,8 @@ var MethodNames = [11]string{"monitor_request", "monitor", "list_sips", "show_si
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
 type MonitorServerStream interface {
-	// Send streams instances of "IngestMonitorEvent".
-	Send(*IngestMonitorEvent) error
+	// Send streams instances of "IngestEvent".
+	Send(*IngestEvent) error
 	// Close closes the stream.
 	Close() error
 }
@@ -79,8 +79,8 @@ type MonitorServerStream interface {
 // MonitorClientStream is the interface a "monitor" endpoint client stream must
 // satisfy.
 type MonitorClientStream interface {
-	// Recv reads instances of "IngestMonitorEvent" from the stream.
-	Recv() (*IngestMonitorEvent, error)
+	// Recv reads instances of "IngestEvent" from the stream.
+	Recv() (*IngestEvent, error)
 }
 
 // An AIP describes an AIP retrieved by the storage service.
@@ -215,10 +215,10 @@ type EnduroPage struct {
 	Total int
 }
 
-// IngestMonitorEvent is the result type of the ingest service monitor method.
-type IngestMonitorEvent struct {
-	IngestEvent interface {
-		ingestEventVal()
+// IngestEvent is the result type of the ingest service monitor method.
+type IngestEvent struct {
+	IngestValue interface {
+		ingestValueVal()
 	}
 }
 
@@ -564,16 +564,16 @@ func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
 func (*AMSSConfig) configVal()                   {}
-func (*IngestPingEvent) ingestEventVal()         {}
+func (*IngestPingEvent) ingestValueVal()         {}
 func (*S3Config) configVal()                     {}
 func (*SFTPConfig) configVal()                   {}
-func (*SIPCreatedEvent) ingestEventVal()         {}
-func (*SIPStatusUpdatedEvent) ingestEventVal()   {}
-func (*SIPTaskCreatedEvent) ingestEventVal()     {}
-func (*SIPTaskUpdatedEvent) ingestEventVal()     {}
-func (*SIPUpdatedEvent) ingestEventVal()         {}
-func (*SIPWorkflowCreatedEvent) ingestEventVal() {}
-func (*SIPWorkflowUpdatedEvent) ingestEventVal() {}
+func (*SIPCreatedEvent) ingestValueVal()         {}
+func (*SIPStatusUpdatedEvent) ingestValueVal()   {}
+func (*SIPTaskCreatedEvent) ingestValueVal()     {}
+func (*SIPTaskUpdatedEvent) ingestValueVal()     {}
+func (*SIPUpdatedEvent) ingestValueVal()         {}
+func (*SIPWorkflowCreatedEvent) ingestValueVal() {}
+func (*SIPWorkflowUpdatedEvent) ingestValueVal() {}
 func (*URLConfig) configVal()                    {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.

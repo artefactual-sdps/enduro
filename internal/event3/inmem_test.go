@@ -25,7 +25,7 @@ func TestIngestEventService(t *testing.T) {
 		}
 
 		// Publish event to both users
-		s.PublishEvent(ctx, &goaingest.IngestMonitorEvent{})
+		s.PublishEvent(ctx, &goaingest.IngestEvent{})
 
 		// Verify both subscribers received the update.
 		select {
@@ -55,7 +55,7 @@ func TestIngestEventService(t *testing.T) {
 		}
 
 		// Publish event after unsubscribe
-		s.PublishEvent(ctx, &goaingest.IngestMonitorEvent{})
+		s.PublishEvent(ctx, &goaingest.IngestEvent{})
 
 		// Verify subscriber did not receive the update (channel should be closed).
 		select {
@@ -86,7 +86,7 @@ func TestStorageEventService(t *testing.T) {
 		}
 
 		// Publish event to both users
-		s.PublishEvent(ctx, &goastorage.StorageMonitorEvent{})
+		s.PublishEvent(ctx, &goastorage.StorageEvent{})
 
 		// Verify both subscribers received the update.
 		select {
@@ -116,7 +116,7 @@ func TestStorageEventService(t *testing.T) {
 		}
 
 		// Publish event after unsubscribe
-		s.PublishEvent(ctx, &goastorage.StorageMonitorEvent{})
+		s.PublishEvent(ctx, &goastorage.StorageEvent{})
 
 		// Verify subscriber did not receive the update (channel should be closed).
 		select {
@@ -147,7 +147,7 @@ func TestPublishHelpers(t *testing.T) {
 		// Verify subscriber received the event
 		select {
 		case event := <-sub.C():
-			if event.IngestEvent == nil {
+			if event.IngestValue == nil {
 				t.Fatal("expected event to contain data")
 			}
 		default:
@@ -170,7 +170,7 @@ func TestPublishHelpers(t *testing.T) {
 		// Verify subscriber received the event
 		select {
 		case event := <-sub.C():
-			if event.StorageEvent == nil {
+			if event.StorageValue == nil {
 				t.Fatal("expected event to contain data")
 			}
 		default:

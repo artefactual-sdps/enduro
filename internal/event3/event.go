@@ -38,20 +38,20 @@ type Subscription[T any] interface {
 
 // Type aliases for convenience
 type (
-	IngestEventService  = Service[*goaingest.IngestMonitorEvent]
-	StorageEventService = Service[*goastorage.StorageMonitorEvent]
-	IngestSubscription  = Subscription[*goaingest.IngestMonitorEvent]
-	StorageSubscription = Subscription[*goastorage.StorageMonitorEvent]
+	IngestEventService  = Service[*goaingest.IngestEvent]
+	StorageEventService = Service[*goastorage.StorageEvent]
+	IngestSubscription  = Subscription[*goaingest.IngestEvent]
+	StorageSubscription = Subscription[*goastorage.StorageEvent]
 )
 
 // NopIngestEventService returns an ingest event service that does nothing.
 func NopIngestEventService() IngestEventService {
-	return &nopService[*goaingest.IngestMonitorEvent]{}
+	return &nopService[*goaingest.IngestEvent]{}
 }
 
 // NopStorageEventService returns a storage event service that does nothing.
 func NopStorageEventService() StorageEventService {
-	return &nopService[*goastorage.StorageMonitorEvent]{}
+	return &nopService[*goastorage.StorageEvent]{}
 }
 
 type nopService[T any] struct{}
@@ -66,12 +66,12 @@ func (*nopService[T]) Subscribe(ctx context.Context) (Subscription[T], error) {
 
 // NewIngestEventServiceInMem returns a new instance of an in-memory ingest event service.
 func NewIngestEventServiceInMem() IngestEventService {
-	return NewServiceInMem[*goaingest.IngestMonitorEvent]()
+	return NewServiceInMem[*goaingest.IngestEvent]()
 }
 
 // NewStorageEventServiceInMem returns a new instance of an in-memory storage event service.
 func NewStorageEventServiceInMem() StorageEventService {
-	return NewServiceInMem[*goastorage.StorageMonitorEvent]()
+	return NewServiceInMem[*goastorage.StorageEvent]()
 }
 
 // NewIngestEventServiceRedis returns a new instance of a Redis ingest event service.

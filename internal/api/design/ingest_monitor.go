@@ -17,8 +17,8 @@ import (
 //     type structurally equivalent, which is the default behavior in Goa.
 //
 
-var IngestMonitorEvent = Type("IngestMonitorEvent", func() {
-	OneOf("ingest_event", func() {
+var IngestEvent = Type("IngestEvent", func() {
+	OneOf("ingest_value", func() {
 		Attribute("ingest_ping_event", IngestPingEvent)
 		Attribute("sip_created_event", SIPCreatedEvent)
 		Attribute("sip_updated_event", SIPUpdatedEvent)

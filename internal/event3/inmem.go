@@ -17,8 +17,8 @@ type ServiceInMemImpl[T any] struct {
 }
 
 var (
-	_ Service[*goaingest.IngestMonitorEvent]   = (*ServiceInMemImpl[*goaingest.IngestMonitorEvent])(nil)
-	_ Service[*goastorage.StorageMonitorEvent] = (*ServiceInMemImpl[*goastorage.StorageMonitorEvent])(nil)
+	_ Service[*goaingest.IngestEvent]   = (*ServiceInMemImpl[*goaingest.IngestEvent])(nil)
+	_ Service[*goastorage.StorageEvent] = (*ServiceInMemImpl[*goastorage.StorageEvent])(nil)
 )
 
 // NewServiceInMem returns a new instance of a generic event service.
@@ -90,8 +90,8 @@ type SubscriptionInMemImpl[T any] struct {
 }
 
 var (
-	_ Subscription[*goaingest.IngestMonitorEvent]   = (*SubscriptionInMemImpl[*goaingest.IngestMonitorEvent])(nil)
-	_ Subscription[*goastorage.StorageMonitorEvent] = (*SubscriptionInMemImpl[*goastorage.StorageMonitorEvent])(nil)
+	_ Subscription[*goaingest.IngestEvent]   = (*SubscriptionInMemImpl[*goaingest.IngestEvent])(nil)
+	_ Subscription[*goastorage.StorageEvent] = (*SubscriptionInMemImpl[*goastorage.StorageEvent])(nil)
 )
 
 // Close disconnects the subscription from the service it was created from.

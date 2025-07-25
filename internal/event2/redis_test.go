@@ -56,8 +56,8 @@ func TestEventServiceRedisPublish(t *testing.T) {
 	svc, err := event.NewEventServiceRedis(testr.New(t), noop.NewTracerProvider(), &cfg)
 	assert.NilError(t, err)
 
-	svc.PublishEvent(ctx, &goaingest.IngestMonitorEvent{
-		IngestEvent: &goaingest.IngestPingEvent{
+	svc.PublishEvent(ctx, &goaingest.IngestEvent{
+		IngestValue: &goaingest.IngestPingEvent{
 			Message: ref.New("hello"),
 		},
 	})
@@ -93,8 +93,8 @@ func TestEventServiceRedisSubscribe(t *testing.T) {
 	c := redis.NewClient(&redis.Options{
 		Addr: s.Addr(),
 	})
-	ev := goaingest.IngestMonitorEvent{
-		IngestEvent: &goaingest.IngestPingEvent{
+	ev := goaingest.IngestEvent{
+		IngestValue: &goaingest.IngestPingEvent{
 			Message: ref.New("hello"),
 		},
 	}

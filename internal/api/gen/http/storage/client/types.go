@@ -87,7 +87,7 @@ type CreateLocationRequestBody struct {
 // MonitorResponseBody is the type of the "storage" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
-	StorageEvent *struct {
+	StorageValue *struct {
 		// Union type name, one of:
 		// - "storage_ping_event"
 		// - "location_created_event"
@@ -101,7 +101,7 @@ type MonitorResponseBody struct {
 		Type *string `form:"Type" json:"Type" xml:"Type"`
 		// JSON encoded union value
 		Value *string `form:"Value" json:"Value" xml:"Value"`
-	} `form:"storage_event,omitempty" json:"storage_event,omitempty" xml:"storage_event,omitempty"`
+	} `form:"storage_value,omitempty" json:"storage_value,omitempty" xml:"storage_value,omitempty"`
 }
 
 // ListAipsResponseBody is the type of the "storage" service "list_aips"
@@ -905,48 +905,48 @@ func NewMonitorRequestUnauthorized(body string) storage.Unauthorized {
 	return v
 }
 
-// NewMonitorStorageMonitorEventOK builds a "storage" service "monitor"
-// endpoint result from a HTTP "OK" response.
-func NewMonitorStorageMonitorEventOK(body *MonitorResponseBody) *storage.StorageMonitorEvent {
-	v := &storage.StorageMonitorEvent{}
-	if body.StorageEvent != nil {
-		switch *body.StorageEvent.Type {
+// NewMonitorStorageEventOK builds a "storage" service "monitor" endpoint
+// result from a HTTP "OK" response.
+func NewMonitorStorageEventOK(body *MonitorResponseBody) *storage.StorageEvent {
+	v := &storage.StorageEvent{}
+	if body.StorageValue != nil {
+		switch *body.StorageValue.Type {
 		case "storage_ping_event":
 			var val *storage.StoragePingEvent
-			json.Unmarshal([]byte(*body.StorageEvent.Value), &val)
-			v.StorageEvent = val
+			json.Unmarshal([]byte(*body.StorageValue.Value), &val)
+			v.StorageValue = val
 		case "location_created_event":
 			var val *storage.LocationCreatedEvent
-			json.Unmarshal([]byte(*body.StorageEvent.Value), &val)
-			v.StorageEvent = val
+			json.Unmarshal([]byte(*body.StorageValue.Value), &val)
+			v.StorageValue = val
 		case "location_updated_event":
 			var val *storage.LocationUpdatedEvent
-			json.Unmarshal([]byte(*body.StorageEvent.Value), &val)
-			v.StorageEvent = val
+			json.Unmarshal([]byte(*body.StorageValue.Value), &val)
+			v.StorageValue = val
 		case "aip_created_event":
 			var val *storage.AIPCreatedEvent
-			json.Unmarshal([]byte(*body.StorageEvent.Value), &val)
-			v.StorageEvent = val
+			json.Unmarshal([]byte(*body.StorageValue.Value), &val)
+			v.StorageValue = val
 		case "aip_updated_event":
 			var val *storage.AIPUpdatedEvent
-			json.Unmarshal([]byte(*body.StorageEvent.Value), &val)
-			v.StorageEvent = val
+			json.Unmarshal([]byte(*body.StorageValue.Value), &val)
+			v.StorageValue = val
 		case "aip_workflow_created_event":
 			var val *storage.AIPWorkflowCreatedEvent
-			json.Unmarshal([]byte(*body.StorageEvent.Value), &val)
-			v.StorageEvent = val
+			json.Unmarshal([]byte(*body.StorageValue.Value), &val)
+			v.StorageValue = val
 		case "aip_workflow_updated_event":
 			var val *storage.AIPWorkflowUpdatedEvent
-			json.Unmarshal([]byte(*body.StorageEvent.Value), &val)
-			v.StorageEvent = val
+			json.Unmarshal([]byte(*body.StorageValue.Value), &val)
+			v.StorageValue = val
 		case "aip_task_created_event":
 			var val *storage.AIPTaskCreatedEvent
-			json.Unmarshal([]byte(*body.StorageEvent.Value), &val)
-			v.StorageEvent = val
+			json.Unmarshal([]byte(*body.StorageValue.Value), &val)
+			v.StorageValue = val
 		case "aip_task_updated_event":
 			var val *storage.AIPTaskUpdatedEvent
-			json.Unmarshal([]byte(*body.StorageEvent.Value), &val)
-			v.StorageEvent = val
+			json.Unmarshal([]byte(*body.StorageValue.Value), &val)
+			v.StorageValue = val
 		}
 	}
 
@@ -1841,16 +1841,16 @@ func NewListLocationAipsUnauthorized(body string) storage.Unauthorized {
 // ValidateMonitorResponseBody runs the validations defined on
 // MonitorResponseBody
 func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
-	if body.StorageEvent != nil {
-		if body.StorageEvent.Type == nil {
-			err = goa.MergeErrors(err, goa.MissingFieldError("Type", "body.storage_event"))
+	if body.StorageValue != nil {
+		if body.StorageValue.Type == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Type", "body.storage_value"))
 		}
-		if body.StorageEvent.Value == nil {
-			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.storage_event"))
+		if body.StorageValue.Value == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.storage_value"))
 		}
-		if body.StorageEvent.Type != nil {
-			if !(*body.StorageEvent.Type == "storage_ping_event" || *body.StorageEvent.Type == "location_created_event" || *body.StorageEvent.Type == "location_updated_event" || *body.StorageEvent.Type == "aip_created_event" || *body.StorageEvent.Type == "aip_updated_event" || *body.StorageEvent.Type == "aip_workflow_created_event" || *body.StorageEvent.Type == "aip_workflow_updated_event" || *body.StorageEvent.Type == "aip_task_created_event" || *body.StorageEvent.Type == "aip_task_updated_event") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.storage_event.Type", *body.StorageEvent.Type, []any{"storage_ping_event", "location_created_event", "location_updated_event", "aip_created_event", "aip_updated_event", "aip_workflow_created_event", "aip_workflow_updated_event", "aip_task_created_event", "aip_task_updated_event"}))
+		if body.StorageValue.Type != nil {
+			if !(*body.StorageValue.Type == "storage_ping_event" || *body.StorageValue.Type == "location_created_event" || *body.StorageValue.Type == "location_updated_event" || *body.StorageValue.Type == "aip_created_event" || *body.StorageValue.Type == "aip_updated_event" || *body.StorageValue.Type == "aip_workflow_created_event" || *body.StorageValue.Type == "aip_workflow_updated_event" || *body.StorageValue.Type == "aip_task_created_event" || *body.StorageValue.Type == "aip_task_updated_event") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.storage_value.Type", *body.StorageValue.Type, []any{"storage_ping_event", "location_created_event", "location_updated_event", "aip_created_event", "aip_updated_event", "aip_workflow_created_event", "aip_workflow_updated_event", "aip_task_created_event", "aip_task_updated_event"}))
 			}
 		}
 	}

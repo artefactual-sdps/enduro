@@ -46,7 +46,7 @@ var _ = Service("ingest", func() {
 		Payload(func() {
 			Attribute("ticket", String)
 		})
-		StreamingResult(IngestMonitorEvent)
+		StreamingResult(IngestEvent)
 		Error("not_available")
 		HTTP(func() {
 			GET("/monitor")

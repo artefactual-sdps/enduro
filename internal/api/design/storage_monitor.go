@@ -17,8 +17,8 @@ import (
 //     type structurally equivalent, which is the default behavior in Goa.
 //
 
-var StorageMonitorEvent = Type("StorageMonitorEvent", func() {
-	OneOf("storage_event", func() {
+var StorageEvent = Type("StorageEvent", func() {
+	OneOf("storage_value", func() {
 		Attribute("storage_ping_event", StoragePingEvent)
 		Attribute("location_created_event", LocationCreatedEvent)
 		Attribute("location_updated_event", LocationUpdatedEvent)

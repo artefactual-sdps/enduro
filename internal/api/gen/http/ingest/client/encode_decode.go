@@ -219,7 +219,7 @@ func DecodeMonitorResponse(decoder func(*http.Response) goahttp.Decoder, restore
 			if err != nil {
 				return nil, goahttp.ErrValidationError("ingest", "monitor", err)
 			}
-			res := NewMonitorIngestMonitorEventOK(&body)
+			res := NewMonitorIngestEventOK(&body)
 			return res, nil
 		case http.StatusInternalServerError:
 			var (

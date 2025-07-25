@@ -61,9 +61,9 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/IngestMonitorEvent'
+                                $ref: '#/components/schemas/IngestEvent'
                             example:
-                                ingest_event:
+                                ingest_value:
                                     Type: sip_created_event
                                     Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                 "401":
@@ -2039,9 +2039,9 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/StorageMonitorEvent'
+                                $ref: '#/components/schemas/StorageEvent'
                             example:
-                                storage_event:
+                                storage_value:
                                     Type: location_created_event
                                     Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                 "401":
@@ -3152,10 +3152,10 @@ components:
                 - temporary
                 - timeout
                 - fault
-        IngestMonitorEvent:
+        IngestEvent:
             type: object
             properties:
-                ingest_event:
+                ingest_value:
                     type: object
                     properties:
                         Type:
@@ -3191,7 +3191,7 @@ components:
                         - Type
                         - Value
             example:
-                ingest_event:
+                ingest_value:
                     Type: sip_created_event
                     Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
         IngestPingEvent:
@@ -3718,10 +3718,10 @@ components:
             required:
                 - items
                 - page
-        StorageMonitorEvent:
+        StorageEvent:
             type: object
             properties:
-                storage_event:
+                storage_value:
                     type: object
                     properties:
                         Type:
@@ -3759,7 +3759,7 @@ components:
                         - Type
                         - Value
             example:
-                storage_event:
+                storage_value:
                     Type: location_created_event
                     Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
         StoragePingEvent:

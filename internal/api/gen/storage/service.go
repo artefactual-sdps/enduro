@@ -87,8 +87,8 @@ var MethodNames = [20]string{"monitor_request", "monitor", "list_aips", "create_
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
 type MonitorServerStream interface {
-	// Send streams instances of "StorageMonitorEvent".
-	Send(*StorageMonitorEvent) error
+	// Send streams instances of "StorageEvent".
+	Send(*StorageEvent) error
 	// Close closes the stream.
 	Close() error
 }
@@ -96,8 +96,8 @@ type MonitorServerStream interface {
 // MonitorClientStream is the interface a "monitor" endpoint client stream must
 // satisfy.
 type MonitorClientStream interface {
-	// Recv reads instances of "StorageMonitorEvent" from the stream.
-	Recv() (*StorageMonitorEvent, error)
+	// Recv reads instances of "StorageEvent" from the stream.
+	Recv() (*StorageEvent, error)
 }
 
 // AIP is the result type of the storage service create_aip method.
@@ -574,10 +574,10 @@ type ShowLocationPayload struct {
 	Token *string
 }
 
-// StorageMonitorEvent is the result type of the storage service monitor method.
-type StorageMonitorEvent struct {
-	StorageEvent interface {
-		storageEventVal()
+// StorageEvent is the result type of the storage service monitor method.
+type StorageEvent struct {
+	StorageValue interface {
+		storageValueVal()
 	}
 }
 
@@ -684,18 +684,18 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
-func (*AIPCreatedEvent) storageEventVal()         {}
-func (*AIPTaskCreatedEvent) storageEventVal()     {}
-func (*AIPTaskUpdatedEvent) storageEventVal()     {}
-func (*AIPUpdatedEvent) storageEventVal()         {}
-func (*AIPWorkflowCreatedEvent) storageEventVal() {}
-func (*AIPWorkflowUpdatedEvent) storageEventVal() {}
+func (*AIPCreatedEvent) storageValueVal()         {}
+func (*AIPTaskCreatedEvent) storageValueVal()     {}
+func (*AIPTaskUpdatedEvent) storageValueVal()     {}
+func (*AIPUpdatedEvent) storageValueVal()         {}
+func (*AIPWorkflowCreatedEvent) storageValueVal() {}
+func (*AIPWorkflowUpdatedEvent) storageValueVal() {}
 func (*AMSSConfig) configVal()                    {}
-func (*LocationCreatedEvent) storageEventVal()    {}
-func (*LocationUpdatedEvent) storageEventVal()    {}
+func (*LocationCreatedEvent) storageValueVal()    {}
+func (*LocationUpdatedEvent) storageValueVal()    {}
 func (*S3Config) configVal()                      {}
 func (*SFTPConfig) configVal()                    {}
-func (*StoragePingEvent) storageEventVal()        {}
+func (*StoragePingEvent) storageValueVal()        {}
 func (*URLConfig) configVal()                     {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
