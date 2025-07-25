@@ -25,6 +25,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/premis"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
+	"github.com/artefactual-sdps/enduro/internal/sipsource"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
@@ -66,6 +67,7 @@ type Configuration struct {
 	Poststorage     []poststorage.Config
 	Preprocessing   preprocessing.Config
 	Preservation    pres.Config
+	SIPSource       sipsource.Config
 	Storage         storage.Config
 	Temporal        temporal.Config
 	InternalStorage InternalStorageConfig
@@ -82,6 +84,7 @@ func (c *Configuration) Validate() error {
 		c.API.Auth.Validate(),
 		c.BagIt.Validate(),
 		c.Preprocessing.Validate(),
+		c.SIPSource.Validate(),
 		c.ValidatePREMIS.Validate(),
 		c.Watcher.Validate(),
 	)

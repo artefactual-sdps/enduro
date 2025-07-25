@@ -99,6 +99,16 @@ type ListUsersResponseBody struct {
 	Page  *EnduroPageResponseBody    `form:"page,omitempty" json:"page,omitempty" xml:"page,omitempty"`
 }
 
+// ListSipSourceObjectsResponseBody is the type of the "ingest" service
+// "list_sip_source_objects" endpoint HTTP response body.
+type ListSipSourceObjectsResponseBody struct {
+	Objects SIPSourceObjectCollectionResponseBody `form:"objects,omitempty" json:"objects,omitempty" xml:"objects,omitempty"`
+	// Limit of objects per page
+	Limit *int `form:"limit,omitempty" json:"limit,omitempty" xml:"limit,omitempty"`
+	// Token to get the next page of objects
+	Next *string `form:"next,omitempty" json:"next,omitempty" xml:"next,omitempty"`
+}
+
 // MonitorRequestNotAvailableResponseBody is the type of the "ingest" service
 // "monitor_request" endpoint HTTP response body for the "not_available" error.
 type MonitorRequestNotAvailableResponseBody struct {
@@ -443,6 +453,63 @@ type ListUsersNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// ListSipSourceObjectsNotFoundResponseBody is the type of the "ingest" service
+// "list_sip_source_objects" endpoint HTTP response body for the "not_found"
+// error.
+type ListSipSourceObjectsNotFoundResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListSipSourceObjectsNotValidResponseBody is the type of the "ingest" service
+// "list_sip_source_objects" endpoint HTTP response body for the "not_valid"
+// error.
+type ListSipSourceObjectsNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListSipSourceObjectsInternalErrorResponseBody is the type of the "ingest"
+// service "list_sip_source_objects" endpoint HTTP response body for the
+// "internal_error" error.
+type ListSipSourceObjectsInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // SIPCollectionResponseBody is used to define fields on response body types.
 type SIPCollectionResponseBody []*SIPResponseBody
 
@@ -532,6 +599,22 @@ type UserResponseBody struct {
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// Creation date & time of the user
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
+}
+
+// SIPSourceObjectCollectionResponseBody is used to define fields on response
+// body types.
+type SIPSourceObjectCollectionResponseBody []*SIPSourceObjectResponseBody
+
+// SIPSourceObjectResponseBody is used to define fields on response body types.
+type SIPSourceObjectResponseBody struct {
+	// Key of the object
+	Key *string `form:"key,omitempty" json:"key,omitempty" xml:"key,omitempty"`
+	// Last modification time of the object
+	ModTime *string `form:"mod_time,omitempty" json:"mod_time,omitempty" xml:"mod_time,omitempty"`
+	// Size of the object in bytes
+	Size *int64 `form:"size,omitempty" json:"size,omitempty" xml:"size,omitempty"`
+	// True if the object is a directory, false if it is a file
+	IsDir *bool `form:"is_dir,omitempty" json:"is_dir,omitempty" xml:"is_dir,omitempty"`
 }
 
 // NewConfirmSipRequestBody builds the HTTP request body from the payload of
@@ -1167,6 +1250,82 @@ func NewListUsersUnauthorized(body string) ingest.Unauthorized {
 	return v
 }
 
+// NewListSipSourceObjectsSIPSourceObjectsOK builds a "ingest" service
+// "list_sip_source_objects" endpoint result from a HTTP "OK" response.
+func NewListSipSourceObjectsSIPSourceObjectsOK(body *ListSipSourceObjectsResponseBody) *ingestviews.SIPSourceObjectsView {
+	v := &ingestviews.SIPSourceObjectsView{
+		Limit: body.Limit,
+		Next:  body.Next,
+	}
+	v.Objects = make([]*ingestviews.SIPSourceObjectView, len(body.Objects))
+	for i, val := range body.Objects {
+		v.Objects[i] = unmarshalSIPSourceObjectResponseBodyToIngestviewsSIPSourceObjectView(val)
+	}
+
+	return v
+}
+
+// NewListSipSourceObjectsNotFound builds a ingest service
+// list_sip_source_objects endpoint not_found error.
+func NewListSipSourceObjectsNotFound(body *ListSipSourceObjectsNotFoundResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListSipSourceObjectsNotValid builds a ingest service
+// list_sip_source_objects endpoint not_valid error.
+func NewListSipSourceObjectsNotValid(body *ListSipSourceObjectsNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListSipSourceObjectsInternalError builds a ingest service
+// list_sip_source_objects endpoint internal_error error.
+func NewListSipSourceObjectsInternalError(body *ListSipSourceObjectsInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListSipSourceObjectsForbidden builds a ingest service
+// list_sip_source_objects endpoint forbidden error.
+func NewListSipSourceObjectsForbidden(body string) ingest.Forbidden {
+	v := ingest.Forbidden(body)
+
+	return v
+}
+
+// NewListSipSourceObjectsUnauthorized builds a ingest service
+// list_sip_source_objects endpoint unauthorized error.
+func NewListSipSourceObjectsUnauthorized(body string) ingest.Unauthorized {
+	v := ingest.Unauthorized(body)
+
+	return v
+}
+
 // ValidateMonitorResponseBody runs the validations defined on
 // MonitorResponseBody
 func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
@@ -1672,6 +1831,78 @@ func ValidateListUsersNotValidResponseBody(body *ListUsersNotValidResponseBody) 
 	return
 }
 
+// ValidateListSipSourceObjectsNotFoundResponseBody runs the validations
+// defined on list_sip_source_objects_not_found_response_body
+func ValidateListSipSourceObjectsNotFoundResponseBody(body *ListSipSourceObjectsNotFoundResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListSipSourceObjectsNotValidResponseBody runs the validations
+// defined on list_sip_source_objects_not_valid_response_body
+func ValidateListSipSourceObjectsNotValidResponseBody(body *ListSipSourceObjectsNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListSipSourceObjectsInternalErrorResponseBody runs the validations
+// defined on list_sip_source_objects_internal_error_response_body
+func ValidateListSipSourceObjectsInternalErrorResponseBody(body *ListSipSourceObjectsInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
 // ValidateSIPCollectionResponseBody runs the validations defined on
 // SIPCollectionResponseBody
 func ValidateSIPCollectionResponseBody(body SIPCollectionResponseBody) (err error) {
@@ -1868,6 +2099,34 @@ func ValidateUserResponseBody(body *UserResponseBody) (err error) {
 	}
 	if body.CreatedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.created_at", *body.CreatedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateSIPSourceObjectCollectionResponseBody runs the validations defined
+// on SIPSourceObjectCollectionResponseBody
+func ValidateSIPSourceObjectCollectionResponseBody(body SIPSourceObjectCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateSIPSourceObjectResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateSIPSourceObjectResponseBody runs the validations defined on
+// SIPSourceObjectResponseBody
+func ValidateSIPSourceObjectResponseBody(body *SIPSourceObjectResponseBody) (err error) {
+	if body.Key == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("key", "body"))
+	}
+	if body.IsDir == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("is_dir", "body"))
+	}
+	if body.ModTime != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.mod_time", *body.ModTime, goa.FormatDateTime))
 	}
 	return
 }

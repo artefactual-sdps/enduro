@@ -49,6 +49,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"
 	entdb "github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/sipsource"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
@@ -165,6 +166,14 @@ func main() {
 	}
 	defer internalStorage.Close()
 
+	// Set up a SIP source, if one is configured.
+	sipSource, err := sipsource.NewBucketSource(ctx, &cfg.SIPSource)
+	if err != nil {
+		logger.Error(err, "Error setting up SIP source.")
+		os.Exit(1)
+	}
+	defer sipSource.Close()
+
 	// Set up the ingest service.
 	var ingestsvc ingest.Service
 	{
@@ -180,6 +189,7 @@ func main() {
 			internalStorage,
 			0,
 			rand.Reader,
+			sipSource,
 		)
 	}
 
