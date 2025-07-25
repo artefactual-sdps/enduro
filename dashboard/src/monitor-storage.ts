@@ -42,7 +42,6 @@ function handleLocationUpdated(data: unknown) {
 function handleAipCreated() {
   const aipStore = useAipStore();
   aipStore.fetchAipsDebounced(1);
-  // TODO: Consider AIPs shown in the location page.
 }
 
 function handleAipUpdated(data: unknown) {
@@ -51,7 +50,6 @@ function handleAipUpdated(data: unknown) {
   aipStore.fetchAipsDebounced(1);
   if (aipStore.current?.uuid != event.uuid) return;
   Object.assign(aipStore.current, event.item);
-  // TODO: Consider AIPs shown in the location page.
 }
 
 function handleAipWorkflowCreated(data: unknown) {
@@ -59,8 +57,7 @@ function handleAipWorkflowCreated(data: unknown) {
   const aipStore = useAipStore();
 
   // Ignore event if it does not relate to the current AIP.
-  // TODO: Include AIP UUID in the workflows.
-  // if (aipStore.current?.uuid != event.item.aipUuid) return;
+  if (aipStore.current?.uuid != event.item.aipUuid) return;
 
   // Append the workflow.
   if (!aipStore.currentWorkflows) aipStore.currentWorkflows = {};
@@ -74,8 +71,7 @@ function handleAipWorkflowUpdated(data: unknown) {
   const aipStore = useAipStore();
 
   // Ignore event if it does not relate to the current AIP.
-  // TODO: Include AIP UUID in the workflows.
-  // if (aipStore.current?.uuid != event.item.aipUuid) return;
+  if (aipStore.current?.uuid != event.item.aipUuid) return;
 
   // Find and update the workflow.
   const workflow = aipStore.getWorkflowById(event.uuid);
@@ -87,26 +83,27 @@ function handleAipWorkflowUpdated(data: unknown) {
   workflow.tasks = tasks;
 }
 
-function handleAipTaskCreated() {
-  // const event = api.AIPTaskCreatedEventFromJSON(data);
-  // const aipStore = useAipStore();
-  // Find and update the workflow.
-  // TODO: Include Workflow UUID in the tasks.
-  // if (!event.item.workflowUuid) return;
-  // const workflow = aipStore.getWorkflowById(event.item.workflowUuid);
-  // if (!workflow) return;
-  // if (workflow.uuid === event.item.workflowUuid) {
-  //   if (!workflow.tasks) workflow.tasks = [];
-  //   workflow.tasks.push(event.item);
-  // }
+function handleAipTaskCreated(data: unknown) {
+  const event = api.AIPTaskCreatedEventFromJSON(data);
+  const aipStore = useAipStore();
+
+  // Find and update the workflow tasks.
+  if (!event.item.workflowUuid) return;
+  const workflow = aipStore.getWorkflowById(event.item.workflowUuid);
+  if (!workflow) return;
+  if (workflow.uuid === event.item.workflowUuid) {
+    if (!workflow.tasks) workflow.tasks = [];
+    workflow.tasks.push(event.item);
+  }
 }
 
-function handleAipTaskUpdated() {
-  // const event = api.AIPTaskUpdatedEventFromJSON(data);
-  // const aipStore = useAipStore();
-  // TODO: Include Workflow UUID in the tasks.
-  // if (!event.item.workflowUuid) return;
-  // const task = aipStore.getTaskById(event.item.workflowUuid, event.uuid);
-  // if (!task) return;
-  // Object.assign(task, event.item);
+function handleAipTaskUpdated(data: unknown) {
+  const event = api.AIPTaskUpdatedEventFromJSON(data);
+  const aipStore = useAipStore();
+
+  // Find and update the task.
+  if (!event.item.workflowUuid) return;
+  const task = aipStore.getTaskById(event.item.workflowUuid, event.uuid);
+  if (!task) return;
+  Object.assign(task, event.item);
 }
