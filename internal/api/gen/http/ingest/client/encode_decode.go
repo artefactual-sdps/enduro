@@ -92,7 +92,7 @@ func DecodeMonitorRequestResponse(decoder func(*http.Response) goahttp.Decoder, 
 			)
 			for _, c := range cookies {
 				switch c.Name {
-				case "enduro-ws-ticket":
+				case "enduro-ingest-ws-ticket":
 					ticketRaw = c.Value
 				}
 			}
@@ -175,7 +175,7 @@ func EncodeMonitorRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 		if p.Ticket != nil {
 			v := *p.Ticket
 			req.AddCookie(&http.Cookie{
-				Name:  "enduro-ws-ticket",
+				Name:  "enduro-ingest-ws-ticket",
 				Value: v,
 			})
 		}
@@ -219,7 +219,7 @@ func DecodeMonitorResponse(decoder func(*http.Response) goahttp.Decoder, restore
 			if err != nil {
 				return nil, goahttp.ErrValidationError("ingest", "monitor", err)
 			}
-			res := NewMonitorEventOK(&body)
+			res := NewMonitorIngestEventOK(&body)
 			return res, nil
 		case http.StatusInternalServerError:
 			var (

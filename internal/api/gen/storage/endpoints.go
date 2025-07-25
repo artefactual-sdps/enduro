@@ -18,6 +18,8 @@ import (
 
 // Endpoints wraps the "storage" service endpoints.
 type Endpoints struct {
+	MonitorRequest     goa.Endpoint
+	Monitor            goa.Endpoint
 	ListAips           goa.Endpoint
 	CreateAip          goa.Endpoint
 	SubmitAip          goa.Endpoint
@@ -38,7 +40,14 @@ type Endpoints struct {
 	ListLocationAips   goa.Endpoint
 }
 
-// DownloadAipResponseData holds both the result and the HTTP response body
+// MonitorEndpointInput holds both the payload and the server stream of the
+// "monitor" method.
+type MonitorEndpointInput struct {
+	// Payload is the method payload.
+	Payload *MonitorPayload
+	// Stream is the server stream used by the "monitor" method to send data.
+	Stream MonitorServerStream
+} // DownloadAipResponseData holds both the result and the HTTP response body
 // reader of the "download_aip" method.
 type DownloadAipResponseData struct {
 	// Result is the method result.
@@ -52,6 +61,8 @@ func NewEndpoints(s Service) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
 	return &Endpoints{
+		MonitorRequest:     NewMonitorRequestEndpoint(s, a.JWTAuth),
+		Monitor:            NewMonitorEndpoint(s),
 		ListAips:           NewListAipsEndpoint(s, a.JWTAuth),
 		CreateAip:          NewCreateAipEndpoint(s, a.JWTAuth),
 		SubmitAip:          NewSubmitAipEndpoint(s, a.JWTAuth),
@@ -75,6 +86,8 @@ func NewEndpoints(s Service) *Endpoints {
 
 // Use applies the given middleware to all the "storage" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
+	e.MonitorRequest = m(e.MonitorRequest)
+	e.Monitor = m(e.Monitor)
 	e.ListAips = m(e.ListAips)
 	e.CreateAip = m(e.CreateAip)
 	e.SubmitAip = m(e.SubmitAip)
@@ -93,6 +106,38 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.CreateLocation = m(e.CreateLocation)
 	e.ShowLocation = m(e.ShowLocation)
 	e.ListLocationAips = m(e.ListLocationAips)
+}
+
+// NewMonitorRequestEndpoint returns an endpoint function that calls the method
+// "monitor_request" of service "storage".
+func NewMonitorRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		p := req.(*MonitorRequestPayload)
+		var err error
+		sc := security.JWTScheme{
+			Name:           "jwt",
+			Scopes:         []string{"ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{},
+		}
+		var token string
+		if p.Token != nil {
+			token = *p.Token
+		}
+		ctx, err = authJWTFn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
+		return s.MonitorRequest(ctx, p)
+	}
+}
+
+// NewMonitorEndpoint returns an endpoint function that calls the method
+// "monitor" of service "storage".
+func NewMonitorEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		ep := req.(*MonitorEndpointInput)
+		return nil, s.Monitor(ctx, ep.Payload, ep.Stream)
+	}
 }
 
 // NewListAipsEndpoint returns an endpoint function that calls the method

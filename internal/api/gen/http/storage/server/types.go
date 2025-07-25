@@ -84,6 +84,26 @@ type CreateLocationRequestBody struct {
 	} `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 }
 
+// MonitorResponseBody is the type of the "storage" service "monitor" endpoint
+// HTTP response body.
+type MonitorResponseBody struct {
+	StorageValue *struct {
+		// Union type name, one of:
+		// - "storage_ping_event"
+		// - "location_created_event"
+		// - "location_updated_event"
+		// - "aip_created_event"
+		// - "aip_updated_event"
+		// - "aip_workflow_created_event"
+		// - "aip_workflow_updated_event"
+		// - "aip_task_created_event"
+		// - "aip_task_updated_event"
+		Type string `form:"Type" json:"Type" xml:"Type"`
+		// JSON encoded union value
+		Value string `form:"Value" json:"Value" xml:"Value"`
+	} `form:"storage_value,omitempty" json:"storage_value,omitempty" xml:"storage_value,omitempty"`
+}
+
 // ListAipsResponseBody is the type of the "storage" service "list_aips"
 // endpoint HTTP response body.
 type ListAipsResponseBody struct {
@@ -166,6 +186,79 @@ type ShowLocationResponseBody struct {
 // AIPResponseCollection is the type of the "storage" service
 // "list_location_aips" endpoint HTTP response body.
 type AIPResponseCollection []*AIPResponse
+
+// MonitorRequestInternalErrorResponseBody is the type of the "storage" service
+// "monitor_request" endpoint HTTP response body for the "internal_error" error.
+type MonitorRequestInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// MonitorRequestNotImplementedResponseBody is the type of the "storage"
+// service "monitor_request" endpoint HTTP response body for the
+// "not_implemented" error.
+type MonitorRequestNotImplementedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// MonitorInternalErrorResponseBody is the type of the "storage" service
+// "monitor" endpoint HTTP response body for the "internal_error" error.
+type MonitorInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// MonitorNotImplementedResponseBody is the type of the "storage" service
+// "monitor" endpoint HTTP response body for the "not_implemented" error.
+type MonitorNotImplementedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
 
 // ListAipsNotAvailableResponseBody is the type of the "storage" service
 // "list_aips" endpoint HTTP response body for the "not_available" error.
@@ -686,6 +779,55 @@ type AIPResponse struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
+// NewMonitorResponseBody builds the HTTP response body from the result of the
+// "monitor" endpoint of the "storage" service.
+func NewMonitorResponseBody(res *storage.StorageEvent) *MonitorResponseBody {
+	body := &MonitorResponseBody{}
+	if res.StorageValue != nil {
+		js, _ := json.Marshal(res.StorageValue)
+		var name string
+		switch res.StorageValue.(type) {
+		case *storage.StoragePingEvent:
+			name = "storage_ping_event"
+		case *storage.LocationCreatedEvent:
+			name = "location_created_event"
+		case *storage.LocationUpdatedEvent:
+			name = "location_updated_event"
+		case *storage.AIPCreatedEvent:
+			name = "aip_created_event"
+		case *storage.AIPUpdatedEvent:
+			name = "aip_updated_event"
+		case *storage.AIPWorkflowCreatedEvent:
+			name = "aip_workflow_created_event"
+		case *storage.AIPWorkflowUpdatedEvent:
+			name = "aip_workflow_updated_event"
+		case *storage.AIPTaskCreatedEvent:
+			name = "aip_task_created_event"
+		case *storage.AIPTaskUpdatedEvent:
+			name = "aip_task_updated_event"
+		}
+		body.StorageValue = &struct {
+			// Union type name, one of:
+			// - "storage_ping_event"
+			// - "location_created_event"
+			// - "location_updated_event"
+			// - "aip_created_event"
+			// - "aip_updated_event"
+			// - "aip_workflow_created_event"
+			// - "aip_workflow_updated_event"
+			// - "aip_task_created_event"
+			// - "aip_task_updated_event"
+			Type string `form:"Type" json:"Type" xml:"Type"`
+			// JSON encoded union value
+			Value string `form:"Value" json:"Value" xml:"Value"`
+		}{
+			Type:  name,
+			Value: string(js),
+		}
+	}
+	return body
+}
+
 // NewListAipsResponseBody builds the HTTP response body from the result of the
 // "list_aips" endpoint of the "storage" service.
 func NewListAipsResponseBody(res *storageviews.AIPsView) *ListAipsResponseBody {
@@ -802,6 +944,62 @@ func NewAIPResponseCollection(res storageviews.AIPCollectionView) AIPResponseCol
 	body := make([]*AIPResponse, len(res))
 	for i, val := range res {
 		body[i] = marshalStorageviewsAIPViewToAIPResponse(val)
+	}
+	return body
+}
+
+// NewMonitorRequestInternalErrorResponseBody builds the HTTP response body
+// from the result of the "monitor_request" endpoint of the "storage" service.
+func NewMonitorRequestInternalErrorResponseBody(res *goa.ServiceError) *MonitorRequestInternalErrorResponseBody {
+	body := &MonitorRequestInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewMonitorRequestNotImplementedResponseBody builds the HTTP response body
+// from the result of the "monitor_request" endpoint of the "storage" service.
+func NewMonitorRequestNotImplementedResponseBody(res *goa.ServiceError) *MonitorRequestNotImplementedResponseBody {
+	body := &MonitorRequestNotImplementedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewMonitorInternalErrorResponseBody builds the HTTP response body from the
+// result of the "monitor" endpoint of the "storage" service.
+func NewMonitorInternalErrorResponseBody(res *goa.ServiceError) *MonitorInternalErrorResponseBody {
+	body := &MonitorInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewMonitorNotImplementedResponseBody builds the HTTP response body from the
+// result of the "monitor" endpoint of the "storage" service.
+func NewMonitorNotImplementedResponseBody(res *goa.ServiceError) *MonitorNotImplementedResponseBody {
+	body := &MonitorNotImplementedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
 	}
 	return body
 }
@@ -1177,6 +1375,23 @@ func NewListLocationAipsNotFoundResponseBody(res *storage.LocationNotFound) *Lis
 		UUID:    res.UUID,
 	}
 	return body
+}
+
+// NewMonitorRequestPayload builds a storage service monitor_request endpoint
+// payload.
+func NewMonitorRequestPayload(token *string) *storage.MonitorRequestPayload {
+	v := &storage.MonitorRequestPayload{}
+	v.Token = token
+
+	return v
+}
+
+// NewMonitorPayload builds a storage service monitor endpoint payload.
+func NewMonitorPayload(ticket *string) *storage.MonitorPayload {
+	v := &storage.MonitorPayload{}
+	v.Ticket = ticket
+
+	return v
 }
 
 // NewListAipsPayload builds a storage service list_aips endpoint payload.

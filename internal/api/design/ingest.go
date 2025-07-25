@@ -32,7 +32,7 @@ var _ = Service("ingest", func() {
 			POST("/monitor")
 			Response("not_available", StatusInternalServerError)
 			Response(StatusOK, func() {
-				Cookie("ticket:enduro-ws-ticket")
+				Cookie("ticket:enduro-ingest-ws-ticket")
 				CookieMaxAge(5)
 				CookieSecure()
 				CookieHTTPOnly()
@@ -46,13 +46,13 @@ var _ = Service("ingest", func() {
 		Payload(func() {
 			Attribute("ticket", String)
 		})
-		StreamingResult(MonitorEvent)
+		StreamingResult(IngestEvent)
 		Error("not_available")
 		HTTP(func() {
 			GET("/monitor")
 			Response("not_available", StatusInternalServerError)
 			Response(StatusOK)
-			Cookie("ticket:enduro-ws-ticket")
+			Cookie("ticket:enduro-ingest-ws-ticket")
 		})
 	})
 	Method("list_sips", func() {

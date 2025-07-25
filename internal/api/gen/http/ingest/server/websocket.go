@@ -51,9 +51,9 @@ func NewConnConfigurer(fn goahttp.ConnConfigureFunc) *ConnConfigurer {
 	}
 }
 
-// Send streams instances of "ingest.MonitorEvent" to the "monitor" endpoint
+// Send streams instances of "ingest.IngestEvent" to the "monitor" endpoint
 // websocket connection.
-func (s *MonitorServerStream) Send(v *ingest.MonitorEvent) error {
+func (s *MonitorServerStream) Send(v *ingest.IngestEvent) error {
 	var err error
 	// Upgrade the HTTP connection to a websocket connection only once. Connection
 	// upgrade is done here so that authorization logic in the endpoint is executed

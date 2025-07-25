@@ -1,31 +1,29 @@
 import { api } from "@/client";
 import { transformKeys } from "@/helpers/transform";
-import { MonitorEventEventTypeEnum } from "@/openapi-generator";
+import { IngestEventIngestValueTypeEnum } from "@/openapi-generator";
 import { useSipStore } from "@/stores/sip";
 
-export function handleEvent(event: api.MonitorEventEvent) {
+export function handleIngestEvent(event: api.IngestEventIngestValue) {
   handlers[event.type](transformKeys(event.value));
 }
 
 const handlers: {
-  [key in api.MonitorEventEventTypeEnum]: (data: unknown) => void;
+  [key in api.IngestEventIngestValueTypeEnum]: (data: unknown) => void;
 } = {
-  [MonitorEventEventTypeEnum.MonitorPingEvent]: handleMonitorPing,
-  [MonitorEventEventTypeEnum.SipCreatedEvent]: handleSipCreated,
-  [MonitorEventEventTypeEnum.SipUpdatedEvent]: handleSipUpdated,
-  [MonitorEventEventTypeEnum.SipStatusUpdatedEvent]: handleSipStatusUpdated,
-  [MonitorEventEventTypeEnum.SipWorkflowCreatedEvent]: handleWorkflowCreated,
-  [MonitorEventEventTypeEnum.SipWorkflowUpdatedEvent]: handleWorkflowUpdated,
-  [MonitorEventEventTypeEnum.SipTaskCreatedEvent]: handleTaskCreated,
-  [MonitorEventEventTypeEnum.SipTaskUpdatedEvent]: handleTaskUpdated,
+  [IngestEventIngestValueTypeEnum.IngestPingEvent]: () => {},
+  [IngestEventIngestValueTypeEnum.SipCreatedEvent]: handleSipCreated,
+  [IngestEventIngestValueTypeEnum.SipUpdatedEvent]: handleSipUpdated,
+  [IngestEventIngestValueTypeEnum.SipStatusUpdatedEvent]:
+    handleSipStatusUpdated,
+  [IngestEventIngestValueTypeEnum.SipWorkflowCreatedEvent]:
+    handleSipWorkflowCreated,
+  [IngestEventIngestValueTypeEnum.SipWorkflowUpdatedEvent]:
+    handleSipWorkflowUpdated,
+  [IngestEventIngestValueTypeEnum.SipTaskCreatedEvent]: handleSipTaskCreated,
+  [IngestEventIngestValueTypeEnum.SipTaskUpdatedEvent]: handleSipTaskUpdated,
 };
 
-function handleMonitorPing(data: unknown) {
-  api.MonitorPingEventFromJSON(data);
-}
-
-function handleSipCreated(data: unknown) {
-  api.SIPCreatedEventFromJSON(data);
+function handleSipCreated() {
   const store = useSipStore();
   store.fetchSipsDebounced(1);
 }
@@ -34,19 +32,19 @@ function handleSipUpdated(data: unknown) {
   const event = api.SIPUpdatedEventFromJSON(data);
   const store = useSipStore();
   store.fetchSipsDebounced(1);
-  if (store.$state.current?.uuid != event.uuid) return;
-  Object.assign(store.$state.current, event.item);
+  if (store.current?.uuid != event.uuid) return;
+  Object.assign(store.current, event.item);
 }
 
 function handleSipStatusUpdated(data: unknown) {
   const event = api.SIPStatusUpdatedEventFromJSON(data);
   const store = useSipStore();
   store.fetchSipsDebounced(1);
-  if (store.$state.current?.uuid != event.uuid) return;
-  store.$state.current.status = event.status;
+  if (store.current?.uuid != event.uuid) return;
+  store.current.status = event.status;
 }
 
-function handleWorkflowCreated(data: unknown) {
+function handleSipWorkflowCreated(data: unknown) {
   const event = api.SIPWorkflowCreatedEventFromJSON(data);
   const store = useSipStore();
 
@@ -59,7 +57,7 @@ function handleWorkflowCreated(data: unknown) {
   store.currentWorkflows?.workflows?.unshift(event.item);
 }
 
-function handleWorkflowUpdated(data: unknown) {
+function handleSipWorkflowUpdated(data: unknown) {
   const event = api.SIPWorkflowUpdatedEventFromJSON(data);
   const store = useSipStore();
 
@@ -76,7 +74,7 @@ function handleWorkflowUpdated(data: unknown) {
   workflow.tasks = tasks;
 }
 
-function handleTaskCreated(data: unknown) {
+function handleSipTaskCreated(data: unknown) {
   const event = api.SIPTaskCreatedEventFromJSON(data);
   const store = useSipStore();
 
@@ -90,7 +88,7 @@ function handleTaskCreated(data: unknown) {
   }
 }
 
-function handleTaskUpdated(data: unknown) {
+function handleSipTaskUpdated(data: unknown) {
   const event = api.SIPTaskUpdatedEventFromJSON(data);
   const store = useSipStore();
 

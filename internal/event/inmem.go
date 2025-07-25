@@ -26,7 +26,7 @@ func NewEventServiceInMemImpl() *EventServiceInMemImpl {
 //
 // If user's channel is full then the user is disconnected. This is to prevent
 // slow users from blocking progress.
-func (s *EventServiceInMemImpl) PublishEvent(ctx context.Context, event *goaingest.MonitorEvent) {
+func (s *EventServiceInMemImpl) PublishEvent(ctx context.Context, event *goaingest.IngestEvent) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -44,7 +44,7 @@ func (s *EventServiceInMemImpl) PublishEvent(ctx context.Context, event *goainge
 func (s *EventServiceInMemImpl) Subscribe(ctx context.Context) (Subscription, error) {
 	sub := &SubscriptionInMemImpl{
 		service: s,
-		c:       make(chan *goaingest.MonitorEvent, EventBufferSize),
+		c:       make(chan *goaingest.IngestEvent, EventBufferSize),
 		id:      uuid.New(),
 	}
 
@@ -80,10 +80,10 @@ func (s *EventServiceInMemImpl) unsubscribe(sub *SubscriptionInMemImpl) {
 
 // SubscriptionInMemImpl represents a stream of user-related events.
 type SubscriptionInMemImpl struct {
-	service *EventServiceInMemImpl       // service subscription was created from
-	c       chan *goaingest.MonitorEvent // channel of events
-	once    sync.Once                    // ensures c only closed once
-	id      uuid.UUID                    // subscription identifier
+	service *EventServiceInMemImpl      // service subscription was created from
+	c       chan *goaingest.IngestEvent // channel of events
+	once    sync.Once                   // ensures c only closed once
+	id      uuid.UUID                   // subscription identifier
 }
 
 var _ Subscription = (*SubscriptionInMemImpl)(nil)
@@ -95,6 +95,6 @@ func (s *SubscriptionInMemImpl) Close() error {
 }
 
 // C returns a receive-only channel of user-related events.
-func (s *SubscriptionInMemImpl) C() <-chan *goaingest.MonitorEvent {
+func (s *SubscriptionInMemImpl) C() <-chan *goaingest.IngestEvent {
 	return s.c
 }

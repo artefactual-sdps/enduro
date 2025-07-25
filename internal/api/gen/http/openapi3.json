@@ -17,6 +17,34 @@
         },
         "type": "array"
       },
+      "AIPCreatedEvent": {
+        "example": {
+          "item": {
+            "created_at": "1970-01-01T00:00:01Z",
+            "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "name": "abc123",
+            "object_key": "abc123",
+            "status": "stored",
+            "uuid": "abc123"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/EnduroStorageAip"
+          },
+          "uuid": {
+            "description": "Identifier of AIP",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "item"
+        ],
+        "type": "object"
+      },
       "AIPResponse": {
         "description": "An AIP describes an AIP retrieved by the storage service. (default view)",
         "example": {
@@ -109,6 +137,92 @@
         },
         "type": "array"
       },
+      "AIPTaskCreatedEvent": {
+        "example": {
+          "item": {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "name": "abc123",
+            "note": "abc123",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "uuid": "abc123",
+            "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/EnduroStorageAipTask"
+          },
+          "uuid": {
+            "description": "Identifier of task",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "item"
+        ],
+        "type": "object"
+      },
+      "AIPTaskUpdatedEvent": {
+        "example": {
+          "item": {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "name": "abc123",
+            "note": "abc123",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "uuid": "abc123",
+            "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/EnduroStorageAipTask"
+          },
+          "uuid": {
+            "description": "Identifier of task",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "item"
+        ],
+        "type": "object"
+      },
+      "AIPUpdatedEvent": {
+        "example": {
+          "item": {
+            "created_at": "1970-01-01T00:00:01Z",
+            "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "name": "abc123",
+            "object_key": "abc123",
+            "status": "stored",
+            "uuid": "abc123"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/EnduroStorageAip"
+          },
+          "uuid": {
+            "description": "Identifier of AIP",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "item"
+        ],
+        "type": "object"
+      },
       "AIPWorkflowCollection": {
         "example": [
           {
@@ -136,6 +250,86 @@
           "$ref": "#/components/schemas/EnduroStorageAipWorkflow"
         },
         "type": "array"
+      },
+      "AIPWorkflowCreatedEvent": {
+        "example": {
+          "item": {
+            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "completed_at": "1970-01-01T00:00:01Z",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "tasks": [
+              {
+                "completed_at": "1970-01-01T00:00:01Z",
+                "name": "abc123",
+                "note": "abc123",
+                "started_at": "1970-01-01T00:00:01Z",
+                "status": "in progress",
+                "uuid": "abc123",
+                "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+              }
+            ],
+            "temporal_id": "abc123",
+            "type": "upload aip",
+            "uuid": "abc123"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/EnduroStorageAipWorkflow"
+          },
+          "uuid": {
+            "description": "Identifier of workflow",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "item"
+        ],
+        "type": "object"
+      },
+      "AIPWorkflowUpdatedEvent": {
+        "example": {
+          "item": {
+            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "completed_at": "1970-01-01T00:00:01Z",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "tasks": [
+              {
+                "completed_at": "1970-01-01T00:00:01Z",
+                "name": "abc123",
+                "note": "abc123",
+                "started_at": "1970-01-01T00:00:01Z",
+                "status": "in progress",
+                "uuid": "abc123",
+                "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+              }
+            ],
+            "temporal_id": "abc123",
+            "type": "upload aip",
+            "uuid": "abc123"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/EnduroStorageAipWorkflow"
+          },
+          "uuid": {
+            "description": "Identifier of workflow",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "item"
+        ],
+        "type": "object"
       },
       "AIPWorkflows": {
         "example": {
@@ -198,6 +392,33 @@
         "required": [
           "items",
           "page"
+        ],
+        "type": "object"
+      },
+      "AMSSConfig": {
+        "example": {
+          "api_key": "abc123",
+          "url": "abc123",
+          "username": "abc123"
+        },
+        "properties": {
+          "api_key": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "url": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "username": {
+            "example": "abc123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "api_key",
+          "url",
+          "username"
         ],
         "type": "object"
       },
@@ -983,6 +1204,105 @@
         ],
         "type": "object"
       },
+      "EnduroStorageLocation": {
+        "description": "A Location describes a location retrieved by the storage service.",
+        "example": {
+          "config": {
+            "bucket": "abc123",
+            "endpoint": "abc123",
+            "key": "abc123",
+            "path_style": false,
+            "profile": "abc123",
+            "region": "abc123",
+            "secret": "abc123",
+            "token": "abc123"
+          },
+          "created_at": "1970-01-01T00:00:01Z",
+          "description": "abc123",
+          "name": "abc123",
+          "purpose": "aip_store",
+          "source": "minio",
+          "uuid": "abc123"
+        },
+        "properties": {
+          "config": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AMSSConfig"
+              },
+              {
+                "$ref": "#/components/schemas/S3Config"
+              },
+              {
+                "$ref": "#/components/schemas/SFTPConfig"
+              },
+              {
+                "$ref": "#/components/schemas/URLConfig"
+              }
+            ],
+            "example": {
+              "bucket": "abc123",
+              "endpoint": "abc123",
+              "key": "abc123",
+              "path_style": false,
+              "profile": "abc123",
+              "region": "abc123",
+              "secret": "abc123",
+              "token": "abc123"
+            }
+          },
+          "created_at": {
+            "description": "Creation datetime",
+            "example": "1970-01-01T00:00:01Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "description": {
+            "description": "Description of the location",
+            "example": "abc123",
+            "type": "string"
+          },
+          "name": {
+            "description": "Name of location",
+            "example": "abc123",
+            "type": "string"
+          },
+          "purpose": {
+            "default": "unspecified",
+            "description": "Purpose of the location",
+            "enum": [
+              "unspecified",
+              "aip_store"
+            ],
+            "example": "aip_store",
+            "type": "string"
+          },
+          "source": {
+            "default": "unspecified",
+            "description": "Data source of the location",
+            "enum": [
+              "unspecified",
+              "minio",
+              "sftp",
+              "amss"
+            ],
+            "example": "minio",
+            "type": "string"
+          },
+          "uuid": {
+            "example": "abc123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "source",
+          "purpose",
+          "uuid",
+          "created_at"
+        ],
+        "type": "object"
+      },
       "Error": {
         "example": {
           "fault": false,
@@ -1034,40 +1354,38 @@
         ],
         "type": "object"
       },
-      "Location": {
+      "IngestEvent": {
         "example": {
-          "config": {
-            "Type": "s3",
-            "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
-          },
-          "created_at": "1970-01-01T00:00:01Z",
-          "description": "abc123",
-          "name": "abc123",
-          "purpose": "aip_store",
-          "source": "minio",
-          "uuid": "abc123"
+          "ingest_value": {
+            "Type": "sip_created_event",
+            "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+          }
         },
         "properties": {
-          "config": {
+          "ingest_value": {
             "example": {
-              "Type": "s3",
-              "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
+              "Type": "sip_created_event",
+              "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
             },
             "properties": {
               "Type": {
-                "description": "Union type name, one of:\n- \"amss\"\n- \"s3\"\n- \"sftp\"\n- \"url\"",
+                "description": "Union type name, one of:\n- \"ingest_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"",
                 "enum": [
-                  "amss",
-                  "s3",
-                  "sftp",
-                  "url"
+                  "ingest_ping_event",
+                  "sip_created_event",
+                  "sip_updated_event",
+                  "sip_status_updated_event",
+                  "sip_workflow_created_event",
+                  "sip_workflow_updated_event",
+                  "sip_task_created_event",
+                  "sip_task_updated_event"
                 ],
-                "example": "s3",
+                "example": "sip_created_event",
                 "type": "string"
               },
               "Value": {
                 "description": "JSON encoded union value",
-                "example": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}",
+                "example": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
                 "type": "string"
               }
             },
@@ -1076,56 +1394,57 @@
               "Value"
             ],
             "type": "object"
-          },
-          "created_at": {
-            "description": "Creation datetime",
-            "example": "1970-01-01T00:00:01Z",
-            "format": "date-time",
-            "type": "string"
-          },
-          "description": {
-            "description": "Description of the location",
-            "example": "abc123",
-            "type": "string"
-          },
-          "name": {
-            "description": "Name of location",
-            "example": "abc123",
-            "type": "string"
-          },
-          "purpose": {
-            "default": "unspecified",
-            "description": "Purpose of the location",
-            "enum": [
-              "unspecified",
-              "aip_store"
-            ],
-            "example": "aip_store",
-            "type": "string"
-          },
-          "source": {
-            "default": "unspecified",
-            "description": "Data source of the location",
-            "enum": [
-              "unspecified",
-              "minio",
-              "sftp",
-              "amss"
-            ],
-            "example": "minio",
-            "type": "string"
-          },
-          "uuid": {
+          }
+        },
+        "type": "object"
+      },
+      "IngestPingEvent": {
+        "example": {
+          "message": "abc123"
+        },
+        "properties": {
+          "message": {
             "example": "abc123",
             "type": "string"
           }
         },
+        "type": "object"
+      },
+      "LocationCreatedEvent": {
+        "example": {
+          "item": {
+            "config": {
+              "bucket": "abc123",
+              "endpoint": "abc123",
+              "key": "abc123",
+              "path_style": false,
+              "profile": "abc123",
+              "region": "abc123",
+              "secret": "abc123",
+              "token": "abc123"
+            },
+            "created_at": "1970-01-01T00:00:01Z",
+            "description": "abc123",
+            "name": "abc123",
+            "purpose": "aip_store",
+            "source": "minio",
+            "uuid": "abc123"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/EnduroStorageLocation"
+          },
+          "uuid": {
+            "description": "Identifier of Location",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
         "required": [
-          "name",
-          "source",
-          "purpose",
           "uuid",
-          "created_at"
+          "item"
         ],
         "type": "object"
       },
@@ -1209,60 +1528,42 @@
         },
         "type": "array"
       },
-      "MonitorEvent": {
+      "LocationUpdatedEvent": {
         "example": {
-          "event": {
-            "Type": "sip_created_event",
-            "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
-          }
+          "item": {
+            "config": {
+              "bucket": "abc123",
+              "endpoint": "abc123",
+              "key": "abc123",
+              "path_style": false,
+              "profile": "abc123",
+              "region": "abc123",
+              "secret": "abc123",
+              "token": "abc123"
+            },
+            "created_at": "1970-01-01T00:00:01Z",
+            "description": "abc123",
+            "name": "abc123",
+            "purpose": "aip_store",
+            "source": "minio",
+            "uuid": "abc123"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
-          "event": {
-            "example": {
-              "Type": "sip_created_event",
-              "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
-            },
-            "properties": {
-              "Type": {
-                "description": "Union type name, one of:\n- \"monitor_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"",
-                "enum": [
-                  "monitor_ping_event",
-                  "sip_created_event",
-                  "sip_updated_event",
-                  "sip_status_updated_event",
-                  "sip_workflow_created_event",
-                  "sip_workflow_updated_event",
-                  "sip_task_created_event",
-                  "sip_task_updated_event"
-                ],
-                "example": "sip_created_event",
-                "type": "string"
-              },
-              "Value": {
-                "description": "JSON encoded union value",
-                "example": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
-                "type": "string"
-              }
-            },
-            "required": [
-              "Type",
-              "Value"
-            ],
-            "type": "object"
-          }
-        },
-        "type": "object"
-      },
-      "MonitorPingEvent": {
-        "example": {
-          "message": "abc123"
-        },
-        "properties": {
-          "message": {
-            "example": "abc123",
+          "item": {
+            "$ref": "#/components/schemas/EnduroStorageLocation"
+          },
+          "uuid": {
+            "description": "Identifier of Location",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "type": "string"
           }
         },
+        "required": [
+          "uuid",
+          "item"
+        ],
         "type": "object"
       },
       "MoveStatusResult": {
@@ -1307,6 +1608,90 @@
         },
         "required": [
           "approved"
+        ],
+        "type": "object"
+      },
+      "S3Config": {
+        "example": {
+          "bucket": "abc123",
+          "endpoint": "abc123",
+          "key": "abc123",
+          "path_style": false,
+          "profile": "abc123",
+          "region": "abc123",
+          "secret": "abc123",
+          "token": "abc123"
+        },
+        "properties": {
+          "bucket": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "endpoint": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "key": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "path_style": {
+            "example": false,
+            "type": "boolean"
+          },
+          "profile": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "region": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "secret": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "token": {
+            "example": "abc123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "bucket",
+          "region"
+        ],
+        "type": "object"
+      },
+      "SFTPConfig": {
+        "example": {
+          "address": "abc123",
+          "directory": "abc123",
+          "password": "abc123",
+          "username": "abc123"
+        },
+        "properties": {
+          "address": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "directory": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "password": {
+            "example": "abc123",
+            "type": "string"
+          },
+          "username": {
+            "example": "abc123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "address",
+          "username",
+          "password",
+          "directory"
         ],
         "type": "object"
       },
@@ -1708,19 +2093,61 @@
         ],
         "type": "object"
       },
-      "SubmitAIPResult": {
+      "StorageEvent": {
         "example": {
-          "url": "abc123"
+          "storage_value": {
+            "Type": "location_created_event",
+            "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+          }
         },
         "properties": {
-          "url": {
+          "storage_value": {
+            "example": {
+              "Type": "location_created_event",
+              "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+            },
+            "properties": {
+              "Type": {
+                "description": "Union type name, one of:\n- \"storage_ping_event\"\n- \"location_created_event\"\n- \"location_updated_event\"\n- \"aip_created_event\"\n- \"aip_updated_event\"\n- \"aip_workflow_created_event\"\n- \"aip_workflow_updated_event\"\n- \"aip_task_created_event\"\n- \"aip_task_updated_event\"",
+                "enum": [
+                  "storage_ping_event",
+                  "location_created_event",
+                  "location_updated_event",
+                  "aip_created_event",
+                  "aip_updated_event",
+                  "aip_workflow_created_event",
+                  "aip_workflow_updated_event",
+                  "aip_task_created_event",
+                  "aip_task_updated_event"
+                ],
+                "example": "location_created_event",
+                "type": "string"
+              },
+              "Value": {
+                "description": "JSON encoded union value",
+                "example": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
+                "type": "string"
+              }
+            },
+            "required": [
+              "Type",
+              "Value"
+            ],
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "StoragePingEvent": {
+        "example": {
+          "message": "abc123"
+        },
+        "properties": {
+          "message": {
             "example": "abc123",
             "type": "string"
           }
         },
-        "required": [
-          "url"
-        ],
         "type": "object"
       },
       "SubmitAipRequestBody": {
@@ -1735,6 +2162,21 @@
         },
         "required": [
           "name"
+        ],
+        "type": "object"
+      },
+      "URLConfig": {
+        "example": {
+          "url": "abc123"
+        },
+        "properties": {
+          "url": {
+            "example": "abc123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "url"
         ],
         "type": "object"
       },
@@ -1878,7 +2320,7 @@
             "allowEmptyValue": true,
             "example": "abc123",
             "in": "cookie",
-            "name": "enduro-ws-ticket",
+            "name": "enduro-ingest-ws-ticket",
             "schema": {
               "example": "abc123",
               "type": "string"
@@ -1890,13 +2332,13 @@
             "content": {
               "application/json": {
                 "example": {
-                  "event": {
+                  "ingest_value": {
                     "Type": "sip_created_event",
                     "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
                   }
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/MonitorEvent"
+                  "$ref": "#/components/schemas/IngestEvent"
                 }
               }
             },
@@ -4239,7 +4681,7 @@
                   "url": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/SubmitAIPResult"
+                  "$ref": "#/components/schemas/URLConfig"
                 }
               }
             },
@@ -4708,7 +5150,7 @@
                   "uuid": "abc123"
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/Location"
+                  "$ref": "#/components/schemas/EnduroStorageLocation"
                 }
               }
             },
@@ -4863,6 +5305,161 @@
           }
         ],
         "summary": "list_location_aips storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/monitor": {
+      "get": {
+        "description": "Obtain access to the /monitor WebSocket",
+        "operationId": "storage#monitor",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "example": "abc123",
+            "in": "cookie",
+            "name": "enduro-storage-ws-ticket",
+            "schema": {
+              "example": "abc123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "101": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "storage_value": {
+                    "Type": "location_created_event",
+                    "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/StorageEvent"
+                }
+              }
+            },
+            "description": "Switching Protocols response."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
+          },
+          "501": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_implemented: Not Implemented response."
+          }
+        },
+        "summary": "monitor storage",
+        "tags": [
+          "storage"
+        ]
+      },
+      "post": {
+        "description": "Request access to the /monitor WebSocket",
+        "operationId": "storage#monitor_request",
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "headers": {
+              "Set-Cookie": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
+          },
+          "501": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_implemented: Not Implemented response."
+          }
+        },
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "monitor_request storage",
         "tags": [
           "storage"
         ]

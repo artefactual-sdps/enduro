@@ -30,7 +30,7 @@ func EncodeMonitorRequestResponse(encoder func(context.Context, http.ResponseWri
 		if res.Ticket != nil {
 			ticket := *res.Ticket
 			http.SetCookie(w, &http.Cookie{
-				Name:     "enduro-ws-ticket",
+				Name:     "enduro-ingest-ws-ticket",
 				Value:    ticket,
 				MaxAge:   5,
 				Secure:   true,
@@ -119,7 +119,7 @@ func DecodeMonitorRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp
 			ticket *string
 			c      *http.Cookie
 		)
-		c, _ = r.Cookie("enduro-ws-ticket")
+		c, _ = r.Cookie("enduro-ingest-ws-ticket")
 		var ticketRaw string
 		if c != nil {
 			ticketRaw = c.Value

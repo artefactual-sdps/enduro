@@ -20,6 +20,10 @@ import (
 
 // The storage service manages locations and AIPs.
 type Service interface {
+	// Request access to the /monitor WebSocket
+	MonitorRequest(context.Context, *MonitorRequestPayload) (res *MonitorRequestResult, err error)
+	// Obtain access to the /monitor WebSocket
+	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 	// List all AIPs
 	ListAips(context.Context, *ListAipsPayload) (res *AIPs, err error)
 	// Create a new AIP
@@ -78,7 +82,23 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [18]string{"list_aips", "create_aip", "submit_aip", "update_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [20]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "update_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
+
+// MonitorServerStream is the interface a "monitor" endpoint server stream must
+// satisfy.
+type MonitorServerStream interface {
+	// Send streams instances of "StorageEvent".
+	Send(*StorageEvent) error
+	// Close closes the stream.
+	Close() error
+}
+
+// MonitorClientStream is the interface a "monitor" endpoint client stream must
+// satisfy.
+type MonitorClientStream interface {
+	// Recv reads instances of "StorageEvent" from the stream.
+	Recv() (*StorageEvent, error)
+}
 
 // AIP is the result type of the storage service create_aip method.
 type AIP struct {
@@ -96,6 +116,12 @@ type AIP struct {
 // AIPCollection is the result type of the storage service list_location_aips
 // method.
 type AIPCollection []*AIP
+
+type AIPCreatedEvent struct {
+	// Identifier of AIP
+	UUID uuid.UUID
+	Item *AIP
+}
 
 // AIP not found.
 type AIPNotFound struct {
@@ -119,6 +145,24 @@ type AIPTask struct {
 
 type AIPTaskCollection []*AIPTask
 
+type AIPTaskCreatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
+type AIPTaskUpdatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
+type AIPUpdatedEvent struct {
+	// Identifier of AIP
+	UUID uuid.UUID
+	Item *AIP
+}
+
 // AIPWorkflow describes a workflow of an AIP.
 type AIPWorkflow struct {
 	UUID        uuid.UUID
@@ -133,6 +177,18 @@ type AIPWorkflow struct {
 }
 
 type AIPWorkflowCollection []*AIPWorkflow
+
+type AIPWorkflowCreatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
+}
+
+type AIPWorkflowUpdatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
+}
 
 // AIPWorkflows is the result type of the storage service list_aip_workflows
 // method.
@@ -238,6 +294,10 @@ type EnduroPage struct {
 	Total int
 }
 
+type IngestPingEvent struct {
+	Message *string
+}
+
 // ListAipWorkflowsPayload is the payload type of the storage service
 // list_aip_workflows method.
 type ListAipWorkflowsPayload struct {
@@ -297,6 +357,12 @@ type Location struct {
 // method.
 type LocationCollection []*Location
 
+type LocationCreatedEvent struct {
+	// Identifier of Location
+	UUID uuid.UUID
+	Item *Location
+}
+
 // Storage location not found.
 type LocationNotFound struct {
 	// Message of error
@@ -304,8 +370,27 @@ type LocationNotFound struct {
 	UUID    uuid.UUID
 }
 
-type MonitorPingEvent struct {
-	Message *string
+type LocationUpdatedEvent struct {
+	// Identifier of Location
+	UUID uuid.UUID
+	Item *Location
+}
+
+// MonitorPayload is the payload type of the storage service monitor method.
+type MonitorPayload struct {
+	Ticket *string
+}
+
+// MonitorRequestPayload is the payload type of the storage service
+// monitor_request method.
+type MonitorRequestPayload struct {
+	Token *string
+}
+
+// MonitorRequestResult is the result type of the storage service
+// monitor_request method.
+type MonitorRequestResult struct {
+	Ticket *string
 }
 
 // MoveAipPayload is the payload type of the storage service move_aip method.
@@ -489,6 +574,17 @@ type ShowLocationPayload struct {
 	Token *string
 }
 
+// StorageEvent is the result type of the storage service monitor method.
+type StorageEvent struct {
+	StorageValue interface {
+		storageValueVal()
+	}
+}
+
+type StoragePingEvent struct {
+	Message *string
+}
+
 // SubmitAIPResult is the result type of the storage service submit_aip method.
 type SubmitAIPResult struct {
 	URL string
@@ -588,10 +684,29 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
-func (*AMSSConfig) configVal() {}
-func (*S3Config) configVal()   {}
-func (*SFTPConfig) configVal() {}
-func (*URLConfig) configVal()  {}
+func (*AIPCreatedEvent) storageValueVal()         {}
+func (*AIPTaskCreatedEvent) storageValueVal()     {}
+func (*AIPTaskUpdatedEvent) storageValueVal()     {}
+func (*AIPUpdatedEvent) storageValueVal()         {}
+func (*AIPWorkflowCreatedEvent) storageValueVal() {}
+func (*AIPWorkflowUpdatedEvent) storageValueVal() {}
+func (*AMSSConfig) configVal()                    {}
+func (*LocationCreatedEvent) storageValueVal()    {}
+func (*LocationUpdatedEvent) storageValueVal()    {}
+func (*S3Config) configVal()                      {}
+func (*SFTPConfig) configVal()                    {}
+func (*StoragePingEvent) storageValueVal()        {}
+func (*URLConfig) configVal()                     {}
+
+// MakeInternalError builds a goa.ServiceError from an error.
+func MakeInternalError(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "internal_error", false, false, false)
+}
+
+// MakeNotImplemented builds a goa.ServiceError from an error.
+func MakeNotImplemented(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "not_implemented", false, false, false)
+}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {
@@ -601,11 +716,6 @@ func MakeNotAvailable(err error) *goa.ServiceError {
 // MakeNotValid builds a goa.ServiceError from an error.
 func MakeNotValid(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_valid", false, false, false)
-}
-
-// MakeInternalError builds a goa.ServiceError from an error.
-func MakeInternalError(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "internal_error", false, false, false)
 }
 
 // MakeFailedDependency builds a goa.ServiceError from an error.

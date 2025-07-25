@@ -25,6 +25,273 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// BuildMonitorRequestRequest instantiates a HTTP request object with method
+// and path set to call the "storage" service "monitor_request" endpoint
+func (c *Client) BuildMonitorRequestRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: MonitorRequestStoragePath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "monitor_request", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeMonitorRequestRequest returns an encoder for requests sent to the
+// storage monitor_request server.
+func EncodeMonitorRequestRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.MonitorRequestPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "monitor_request", "*storage.MonitorRequestPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeMonitorRequestResponse returns a decoder for responses returned by the
+// storage monitor_request endpoint. restoreBody controls whether the response
+// body should be restored after having been read.
+// DecodeMonitorRequestResponse may return the following errors:
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "not_implemented" (type *goa.ServiceError): http.StatusNotImplemented
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeMonitorRequestResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				ticket    *string
+				ticketRaw string
+
+				cookies = resp.Cookies()
+			)
+			for _, c := range cookies {
+				switch c.Name {
+				case "enduro-storage-ws-ticket":
+					ticketRaw = c.Value
+				}
+			}
+			if ticketRaw != "" {
+				ticket = &ticketRaw
+			}
+			res := NewMonitorRequestResultOK(ticket)
+			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body MonitorRequestInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "monitor_request", err)
+			}
+			err = ValidateMonitorRequestInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "monitor_request", err)
+			}
+			return nil, NewMonitorRequestInternalError(&body)
+		case http.StatusNotImplemented:
+			var (
+				body MonitorRequestNotImplementedResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "monitor_request", err)
+			}
+			err = ValidateMonitorRequestNotImplementedResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "monitor_request", err)
+			}
+			return nil, NewMonitorRequestNotImplemented(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "monitor_request", err)
+			}
+			return nil, NewMonitorRequestForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "monitor_request", err)
+			}
+			return nil, NewMonitorRequestUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "monitor_request", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildMonitorRequest instantiates a HTTP request object with method and path
+// set to call the "storage" service "monitor" endpoint
+func (c *Client) BuildMonitorRequest(ctx context.Context, v any) (*http.Request, error) {
+	scheme := c.scheme
+	switch c.scheme {
+	case "http":
+		scheme = "ws"
+	case "https":
+		scheme = "wss"
+	}
+	u := &url.URL{Scheme: scheme, Host: c.host, Path: MonitorStoragePath()}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "monitor", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeMonitorRequest returns an encoder for requests sent to the storage
+// monitor server.
+func EncodeMonitorRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.MonitorPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "monitor", "*storage.MonitorPayload", v)
+		}
+		if p.Ticket != nil {
+			v := *p.Ticket
+			req.AddCookie(&http.Cookie{
+				Name:  "enduro-storage-ws-ticket",
+				Value: v,
+			})
+		}
+		return nil
+	}
+}
+
+// DecodeMonitorResponse returns a decoder for responses returned by the
+// storage monitor endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeMonitorResponse may return the following errors:
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "not_implemented" (type *goa.ServiceError): http.StatusNotImplemented
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeMonitorResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body MonitorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "monitor", err)
+			}
+			err = ValidateMonitorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "monitor", err)
+			}
+			res := NewMonitorStorageEventOK(&body)
+			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body MonitorInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "monitor", err)
+			}
+			err = ValidateMonitorInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "monitor", err)
+			}
+			return nil, NewMonitorInternalError(&body)
+		case http.StatusNotImplemented:
+			var (
+				body MonitorNotImplementedResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "monitor", err)
+			}
+			err = ValidateMonitorNotImplementedResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "monitor", err)
+			}
+			return nil, NewMonitorNotImplemented(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "monitor", err)
+			}
+			return nil, NewMonitorForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "monitor", err)
+			}
+			return nil, NewMonitorUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "monitor", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildListAipsRequest instantiates a HTTP request object with method and path
 // set to call the "storage" service "list_aips" endpoint
 func (c *Client) BuildListAipsRequest(ctx context.Context, v any) (*http.Request, error) {

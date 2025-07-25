@@ -92,11 +92,11 @@ type mockMonitorServerStream struct {
 	closed bool
 }
 
-func (m *mockMonitorServerStream) Send(event *goaingest.MonitorEvent) error {
+func (m *mockMonitorServerStream) Send(event *goaingest.IngestEvent) error {
 	if m.closed {
 		return fmt.Errorf("stream closed")
 	}
-	m.events = append(m.events, event.Event)
+	m.events = append(m.events, event.IngestValue)
 	return nil
 }
 
@@ -120,17 +120,17 @@ func TestMonitor(t *testing.T) {
 				return nil
 			})
 	}
-	allEvents := []*goaingest.MonitorEvent{
-		{Event: &goaingest.SIPCreatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPUpdatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPStatusUpdatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPWorkflowCreatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPTaskCreatedEvent{UUID: testUUID}},
-		{Event: &goaingest.SIPTaskUpdatedEvent{UUID: testUUID}},
+	allEvents := []*goaingest.IngestEvent{
+		{IngestValue: &goaingest.SIPCreatedEvent{UUID: testUUID}},
+		{IngestValue: &goaingest.SIPUpdatedEvent{UUID: testUUID}},
+		{IngestValue: &goaingest.SIPStatusUpdatedEvent{UUID: testUUID}},
+		{IngestValue: &goaingest.SIPWorkflowCreatedEvent{UUID: testUUID}},
+		{IngestValue: &goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID}},
+		{IngestValue: &goaingest.SIPTaskCreatedEvent{UUID: testUUID}},
+		{IngestValue: &goaingest.SIPTaskUpdatedEvent{UUID: testUUID}},
 	}
 	allWantEvents := []any{
-		&goaingest.MonitorPingEvent{Message: ref.New("Hello")},
+		&goaingest.IngestPingEvent{Message: ref.New("Hello")},
 		&goaingest.SIPCreatedEvent{UUID: testUUID},
 		&goaingest.SIPUpdatedEvent{UUID: testUUID},
 		&goaingest.SIPStatusUpdatedEvent{UUID: testUUID},
@@ -144,7 +144,7 @@ func TestMonitor(t *testing.T) {
 		name       string
 		claims     *auth.Claims
 		mock       func(*authfake.MockTicketProvider, context.Context, *string, *auth.Claims)
-		events     []*goaingest.MonitorEvent
+		events     []*goaingest.IngestEvent
 		wantEvents []any
 		wantErr    string
 	}{
@@ -176,7 +176,7 @@ func TestMonitor(t *testing.T) {
 			mock:   successMock,
 			events: allEvents,
 			wantEvents: []any{
-				&goaingest.MonitorPingEvent{Message: ref.New("Hello")},
+				&goaingest.IngestPingEvent{Message: ref.New("Hello")},
 			},
 		},
 		{
@@ -189,7 +189,7 @@ func TestMonitor(t *testing.T) {
 			mock:   successMock,
 			events: allEvents,
 			wantEvents: []any{
-				&goaingest.MonitorPingEvent{Message: ref.New("Hello")},
+				&goaingest.IngestPingEvent{Message: ref.New("Hello")},
 				&goaingest.SIPUpdatedEvent{UUID: testUUID},
 				&goaingest.SIPStatusUpdatedEvent{UUID: testUUID},
 			},
