@@ -436,9 +436,13 @@ func newStorageClient(tp trace.TracerProvider, cfg config.Configuration) *goasto
 		goahttp.RequestEncoder,
 		goahttp.ResponseDecoder,
 		false,
+		nil,
+		nil,
 	)
 
 	storageClient := goastorage.NewClient(
+		storageHttpClient.MonitorRequest(),
+		storageHttpClient.Monitor(),
 		storageHttpClient.ListAips(),
 		storageHttpClient.CreateAip(),
 		storageHttpClient.SubmitAip(),

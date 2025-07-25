@@ -46,7 +46,7 @@ func NewEventServiceRedis(logger logr.Logger, tp trace.TracerProvider, cfg *Conf
 	}, nil
 }
 
-func (s *EventServiceRedisImpl) PublishEvent(ctx context.Context, event *goaingest.MonitorEvent) {
+func (s *EventServiceRedisImpl) PublishEvent(ctx context.Context, event *goaingest.IngestEvent) {
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
@@ -70,7 +70,7 @@ func (s *EventServiceRedisImpl) Subscribe(ctx context.Context) (Subscription, er
 type SubscriptionRedisImpl struct {
 	logger logr.Logger
 	pubsub *redis.PubSub
-	c      chan *goaingest.MonitorEvent // channel of events
+	c      chan *goaingest.IngestEvent // channel of events
 	stopCh chan struct{}
 }
 
@@ -89,7 +89,7 @@ func NewSubscriptionRedis(
 	sub := SubscriptionRedisImpl{
 		logger: logger,
 		pubsub: pubsub,
-		c:      make(chan *goaingest.MonitorEvent, EventBufferSize),
+		c:      make(chan *goaingest.IngestEvent, EventBufferSize),
 		stopCh: make(chan struct{}),
 	}
 	go sub.loop()
@@ -111,7 +111,7 @@ func (s *SubscriptionRedisImpl) loop() {
 				s.logger.Error(err, "Monitor event is invalid.")
 				continue
 			}
-			s.c <- client.NewMonitorEventOK(&payload)
+			s.c <- client.NewMonitorIngestEventOK(&payload)
 		case <-s.stopCh:
 			return
 		}
@@ -126,6 +126,6 @@ func (s *SubscriptionRedisImpl) Close() error {
 }
 
 // C returns a receive-only channel of user-related events.
-func (s *SubscriptionRedisImpl) C() <-chan *goaingest.MonitorEvent {
+func (s *SubscriptionRedisImpl) C() <-chan *goaingest.IngestEvent {
 	return s.c
 }

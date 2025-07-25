@@ -17,7 +17,7 @@ import * as runtime from '../runtime';
 import type {
   ConfirmSipRequestBody,
   EnduroIngestSip,
-  MonitorEvent,
+  IngestEvent,
   SIPNotFound,
   SIPWorkflows,
   SIPs,
@@ -29,8 +29,8 @@ import {
     ConfirmSipRequestBodyToJSON,
     EnduroIngestSipFromJSON,
     EnduroIngestSipToJSON,
-    MonitorEventFromJSON,
-    MonitorEventToJSON,
+    IngestEventFromJSON,
+    IngestEventToJSON,
     SIPNotFoundFromJSON,
     SIPNotFoundToJSON,
     SIPWorkflowsFromJSON,
@@ -80,7 +80,7 @@ export interface IngestListUsersRequest {
 }
 
 export interface IngestMonitorRequest {
-    enduroWsTicket?: string;
+    enduroIngestWsTicket?: string;
 }
 
 export interface IngestRejectSipRequest {
@@ -213,7 +213,7 @@ export interface IngestApiInterface {
     /**
      * Obtain access to the /monitor WebSocket
      * @summary monitor ingest
-     * @param {string} [enduroWsTicket] 
+     * @param {string} [enduroIngestWsTicket] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface

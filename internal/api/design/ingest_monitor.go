@@ -12,14 +12,20 @@ import (
 //     It guarantees that the schema is included in the OpenAPI spec when it
 //     is only listed as a member of an union type (OneOf).
 //
-//   - Meta("openapi:typename", "MonitorPingEvent")
+//   - Meta("openapi:typename", "IngestPingEvent")
 //     It guarantees that the schema is not omitted because there is another
 //     type structurally equivalent, which is the default behavior in Goa.
 //
 
-var MonitorEvent = Type("MonitorEvent", func() {
-	OneOf("event", func() {
-		Attribute("monitor_ping_event", MonitorPingEvent)
+var IngestEvent = Type("IngestEvent", func() {
+	// The IngestEvent and the StorageEvent share a similar structure.
+	// To differentiate them we use distinct keys for the event value.
+	// If we use the Meta("type:generate:force") option in this type we
+	// get two versions in the design because it's used as an streaming
+	// response, and we get HTTP and WebSocket schemas. Without the meta
+	// and the same structure we only get the IngestEvent in the schema.
+	OneOf("ingest_value", func() {
+		Attribute("ingest_ping_event", IngestPingEvent)
 		Attribute("sip_created_event", SIPCreatedEvent)
 		Attribute("sip_updated_event", SIPUpdatedEvent)
 		Attribute("sip_status_updated_event", SIPStatusUpdatedEvent)
@@ -30,11 +36,11 @@ var MonitorEvent = Type("MonitorEvent", func() {
 	})
 })
 
-var MonitorPingEvent = Type("MonitorPingEvent", func() {
+var IngestPingEvent = Type("IngestPingEvent", func() {
 	Attribute("message", String)
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "MonitorPingEvent")
+	Meta("openapi:typename", "IngestPingEvent")
 })
 
 var SIPCreatedEvent = Type("SIPCreatedEvent", func() {

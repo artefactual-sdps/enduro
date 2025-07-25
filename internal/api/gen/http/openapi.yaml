@@ -1513,6 +1513,70 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
+    /storage/monitor:
+        get:
+            tags:
+                - storage
+            summary: monitor storage
+            description: Obtain access to the /monitor WebSocket
+            operationId: storage#monitor
+            responses:
+                "101":
+                    description: Switching Protocols response.
+                    schema:
+                        $ref: '#/definitions/StorageMonitorResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/StorageMonitorInternalErrorResponseBody'
+                "501":
+                    description: Not Implemented response.
+                    schema:
+                        $ref: '#/definitions/StorageMonitorNotImplementedResponseBody'
+            schemes:
+                - ws
+        post:
+            tags:
+                - storage
+            summary: monitor_request storage
+            description: Request access to the /monitor WebSocket
+            operationId: storage#monitor_request
+            parameters:
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/StorageMonitorRequestInternalErrorResponseBody'
+                "501":
+                    description: Not Implemented response.
+                    schema:
+                        $ref: '#/definitions/StorageMonitorRequestNotImplementedResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
 definitions:
     AIPResponse:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip; view=default'
@@ -2487,14 +2551,14 @@ definitions:
         title: IngestMonitorResponseBody
         type: object
         properties:
-            event:
+            ingest_value:
                 type: object
                 properties:
                     Type:
                         type: string
                         description: |-
                             Union type name, one of:
-                            - "monitor_ping_event"
+                            - "ingest_ping_event"
                             - "sip_created_event"
                             - "sip_updated_event"
                             - "sip_status_updated_event"
@@ -2504,7 +2568,7 @@ definitions:
                             - "sip_task_updated_event"
                         example: sip_created_event
                         enum:
-                            - monitor_ping_event
+                            - ingest_ping_event
                             - sip_created_event
                             - sip_updated_event
                             - sip_status_updated_event
@@ -2523,7 +2587,7 @@ definitions:
                     - Type
                     - Value
         example:
-            event:
+            ingest_value:
                 Type: sip_created_event
                 Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
     IngestRejectSipNotAvailableResponseBody:
@@ -3961,6 +4025,223 @@ definitions:
               purpose: aip_store
               source: minio
               uuid: abc123
+    StorageMonitorInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: monitor_internal_error_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    StorageMonitorNotImplementedResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: monitor_not_implemented_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    StorageMonitorRequestInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: monitor_request_internal_error_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    StorageMonitorRequestNotImplementedResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: monitor_request_not_implemented_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    StorageMonitorResponseBody:
+        title: StorageMonitorResponseBody
+        type: object
+        properties:
+            storage_value:
+                type: object
+                properties:
+                    Type:
+                        type: string
+                        description: |-
+                            Union type name, one of:
+                            - "storage_ping_event"
+                            - "location_created_event"
+                            - "location_updated_event"
+                            - "aip_created_event"
+                            - "aip_updated_event"
+                            - "aip_workflow_created_event"
+                            - "aip_workflow_updated_event"
+                            - "aip_task_created_event"
+                            - "aip_task_updated_event"
+                        example: location_created_event
+                        enum:
+                            - storage_ping_event
+                            - location_created_event
+                            - location_updated_event
+                            - aip_created_event
+                            - aip_updated_event
+                            - aip_workflow_created_event
+                            - aip_workflow_updated_event
+                            - aip_task_created_event
+                            - aip_task_updated_event
+                    Value:
+                        type: string
+                        description: JSON encoded union value
+                        example: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                example:
+                    Type: location_created_event
+                    Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                required:
+                    - Type
+                    - Value
+        example:
+            storage_value:
+                Type: location_created_event
+                Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
     StorageMoveAipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object

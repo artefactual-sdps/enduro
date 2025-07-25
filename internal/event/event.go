@@ -16,7 +16,7 @@ const (
 type EventService interface {
 	// Publishes an event to a user's event listeners.
 	// If the user is not currently subscribed then this is a no-op.
-	PublishEvent(ctx context.Context, event *goaingest.MonitorEvent)
+	PublishEvent(ctx context.Context, event *goaingest.IngestEvent)
 
 	// Creates a subscription. Caller must call Subscription.Close() when done
 	// with the subscription.
@@ -28,7 +28,7 @@ func NopEventService() EventService { return &nopEventService{} }
 
 type nopEventService struct{}
 
-func (*nopEventService) PublishEvent(ctx context.Context, event *goaingest.MonitorEvent) {}
+func (*nopEventService) PublishEvent(ctx context.Context, event *goaingest.IngestEvent) {}
 
 func (*nopEventService) Subscribe(ctx context.Context) (Subscription, error) {
 	panic("not implemented")
@@ -37,7 +37,7 @@ func (*nopEventService) Subscribe(ctx context.Context) (Subscription, error) {
 // Subscription represents a stream of events for a single user.
 type Subscription interface {
 	// Event stream for all user's event.
-	C() <-chan *goaingest.MonitorEvent
+	C() <-chan *goaingest.IngestEvent
 
 	// Closes the event stream channel and disconnects from the event service.
 	Close() error

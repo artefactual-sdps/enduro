@@ -36,11 +36,11 @@ func NewConnConfigurer(fn goahttp.ConnConfigureFunc) *ConnConfigurer {
 	}
 }
 
-// Recv reads instances of "ingest.MonitorEvent" from the "monitor" endpoint
+// Recv reads instances of "ingest.IngestEvent" from the "monitor" endpoint
 // websocket connection.
-func (s *MonitorClientStream) Recv() (*ingest.MonitorEvent, error) {
+func (s *MonitorClientStream) Recv() (*ingest.IngestEvent, error) {
 	var (
-		rv   *ingest.MonitorEvent
+		rv   *ingest.IngestEvent
 		body MonitorResponseBody
 		err  error
 	)
@@ -56,6 +56,6 @@ func (s *MonitorClientStream) Recv() (*ingest.MonitorEvent, error) {
 	if err != nil {
 		return rv, err
 	}
-	res := NewMonitorEventOK(&body)
+	res := NewMonitorIngestEventOK(&body)
 	return res, nil
 }
