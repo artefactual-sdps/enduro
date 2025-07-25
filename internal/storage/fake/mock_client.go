@@ -354,6 +354,84 @@ func (c *MockClientListLocationsCall) DoAndReturn(f func(context.Context, *stora
 	return c
 }
 
+// Monitor mocks base method.
+func (m *MockClient) Monitor(arg0 context.Context, arg1 *storage.MonitorPayload) (storage.MonitorClientStream, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Monitor", arg0, arg1)
+	ret0, _ := ret[0].(storage.MonitorClientStream)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Monitor indicates an expected call of Monitor.
+func (mr *MockClientMockRecorder) Monitor(arg0, arg1 any) *MockClientMonitorCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Monitor", reflect.TypeOf((*MockClient)(nil).Monitor), arg0, arg1)
+	return &MockClientMonitorCall{Call: call}
+}
+
+// MockClientMonitorCall wrap *gomock.Call
+type MockClientMonitorCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockClientMonitorCall) Return(arg0 storage.MonitorClientStream, arg1 error) *MockClientMonitorCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockClientMonitorCall) Do(f func(context.Context, *storage.MonitorPayload) (storage.MonitorClientStream, error)) *MockClientMonitorCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockClientMonitorCall) DoAndReturn(f func(context.Context, *storage.MonitorPayload) (storage.MonitorClientStream, error)) *MockClientMonitorCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// MonitorRequest mocks base method.
+func (m *MockClient) MonitorRequest(arg0 context.Context, arg1 *storage.MonitorRequestPayload) (*storage.MonitorRequestResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MonitorRequest", arg0, arg1)
+	ret0, _ := ret[0].(*storage.MonitorRequestResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MonitorRequest indicates an expected call of MonitorRequest.
+func (mr *MockClientMockRecorder) MonitorRequest(arg0, arg1 any) *MockClientMonitorRequestCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MonitorRequest", reflect.TypeOf((*MockClient)(nil).MonitorRequest), arg0, arg1)
+	return &MockClientMonitorRequestCall{Call: call}
+}
+
+// MockClientMonitorRequestCall wrap *gomock.Call
+type MockClientMonitorRequestCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockClientMonitorRequestCall) Return(arg0 *storage.MonitorRequestResult, arg1 error) *MockClientMonitorRequestCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockClientMonitorRequestCall) Do(f func(context.Context, *storage.MonitorRequestPayload) (*storage.MonitorRequestResult, error)) *MockClientMonitorRequestCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockClientMonitorRequestCall) DoAndReturn(f func(context.Context, *storage.MonitorRequestPayload) (*storage.MonitorRequestResult, error)) *MockClientMonitorRequestCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // MoveAip mocks base method.
 func (m *MockClient) MoveAip(arg0 context.Context, arg1 *storage.MoveAipPayload) error {
 	m.ctrl.T.Helper()

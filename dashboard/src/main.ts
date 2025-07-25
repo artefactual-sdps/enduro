@@ -64,25 +64,25 @@ app.config.globalProperties.$filters = {
         return value;
     }
   },
-  getLocationSourceLabel(value: api.LocationSourceEnum) {
+  getLocationSourceLabel(value: api.EnduroStorageLocationSourceEnum) {
     switch (value) {
-      case api.LocationSourceEnum.Minio:
+      case api.EnduroStorageLocationSourceEnum.Minio:
         return "MinIO";
-      case api.LocationSourceEnum.Sftp:
+      case api.EnduroStorageLocationSourceEnum.Sftp:
         return "SFTP";
-      case api.LocationSourceEnum.Amss:
+      case api.EnduroStorageLocationSourceEnum.Amss:
         return "AMSS";
-      case api.LocationSourceEnum.Unspecified:
+      case api.EnduroStorageLocationSourceEnum.Unspecified:
         return "Unspecified";
       default:
         return value;
     }
   },
-  getLocationPurposeLabel(value: api.LocationPurposeEnum) {
+  getLocationPurposeLabel(value: api.EnduroStorageLocationPurposeEnum) {
     switch (value) {
-      case api.LocationPurposeEnum.AipStore:
+      case api.EnduroStorageLocationPurposeEnum.AipStore:
         return "AIP Store";
-      case api.LocationPurposeEnum.Unspecified:
+      case api.EnduroStorageLocationPurposeEnum.Unspecified:
         return "Unspecified";
       default:
         return value;

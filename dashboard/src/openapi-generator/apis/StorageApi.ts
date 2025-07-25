@@ -23,14 +23,15 @@ import type {
   CreateAipRequestBody,
   CreateLocationRequestBody,
   EnduroStorageAip,
-  Location,
+  EnduroStorageLocation,
   LocationResponse,
   MoveStatusResult,
   RequestAipDeletionRequestBody,
   ReviewAipDeletionRequestBody,
   SIPNotFound,
-  SubmitAIPResult,
+  StorageEvent,
   SubmitAipRequestBody,
+  URLConfig,
   UploadSipResponseBody,
 } from '../models/index';
 import {
@@ -50,8 +51,8 @@ import {
     CreateLocationRequestBodyToJSON,
     EnduroStorageAipFromJSON,
     EnduroStorageAipToJSON,
-    LocationFromJSON,
-    LocationToJSON,
+    EnduroStorageLocationFromJSON,
+    EnduroStorageLocationToJSON,
     LocationResponseFromJSON,
     LocationResponseToJSON,
     MoveStatusResultFromJSON,
@@ -62,10 +63,12 @@ import {
     ReviewAipDeletionRequestBodyToJSON,
     SIPNotFoundFromJSON,
     SIPNotFoundToJSON,
-    SubmitAIPResultFromJSON,
-    SubmitAIPResultToJSON,
+    StorageEventFromJSON,
+    StorageEventToJSON,
     SubmitAipRequestBodyFromJSON,
     SubmitAipRequestBodyToJSON,
+    URLConfigFromJSON,
+    URLConfigToJSON,
     UploadSipResponseBodyFromJSON,
     UploadSipResponseBodyToJSON,
 } from '../models/index';
@@ -109,6 +112,10 @@ export interface StorageListAipsRequest {
 
 export interface StorageListLocationAipsRequest {
     uuid: string;
+}
+
+export interface StorageMonitorRequest {
+    enduroStorageWsTicket?: string;
 }
 
 export interface StorageMoveAipRequest {
@@ -311,6 +318,37 @@ export interface StorageApiInterface {
     storageListLocations(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<LocationResponse>>;
 
     /**
+     * Obtain access to the /monitor WebSocket
+     * @summary monitor storage
+     * @param {string} [enduroStorageWsTicket] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageMonitorRaw(requestParameters: StorageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Obtain access to the /monitor WebSocket
+     * monitor storage
+     */
+    storageMonitor(requestParameters: StorageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Request access to the /monitor WebSocket
+     * @summary monitor_request storage
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Request access to the /monitor WebSocket
+     * monitor_request storage
+     */
+    storageMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
      * Move an AIP to a permanent storage location
      * @summary move_aip storage
      * @param {string} uuid Identifier of AIP
@@ -417,13 +455,13 @@ export interface StorageApiInterface {
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageShowLocationRaw(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Location>>;
+    storageShowLocationRaw(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageLocation>>;
 
     /**
      * Show location by UUID
      * show_location storage
      */
-    storageShowLocation(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Location>;
+    storageShowLocation(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageLocation>;
 
     /**
      * Start the submission of an AIP
@@ -434,13 +472,13 @@ export interface StorageApiInterface {
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SubmitAIPResult>>;
+    storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<URLConfig>>;
 
     /**
      * Start the submission of an AIP
      * submit_aip storage
      */
-    storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SubmitAIPResult>;
+    storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<URLConfig>;
 
     /**
      * Signal that an AIP submission is complete
@@ -853,6 +891,68 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
+     * Obtain access to the /monitor WebSocket
+     * monitor storage
+     */
+    async storageMonitorRaw(requestParameters: StorageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/storage/monitor`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Obtain access to the /monitor WebSocket
+     * monitor storage
+     */
+    async storageMonitor(requestParameters: StorageMonitorRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageMonitorRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Request access to the /monitor WebSocket
+     * monitor_request storage
+     */
+    async storageMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/storage/monitor`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Request access to the /monitor WebSocket
+     * monitor_request storage
+     */
+    async storageMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageMonitorRequestRaw(initOverrides);
+    }
+
+    /**
      * Move an AIP to a permanent storage location
      * move_aip storage
      */
@@ -1113,7 +1213,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * Show location by UUID
      * show_location storage
      */
-    async storageShowLocationRaw(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Location>> {
+    async storageShowLocationRaw(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageLocation>> {
         if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
             throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageShowLocation.');
         }
@@ -1137,14 +1237,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => LocationFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroStorageLocationFromJSON(jsonValue));
     }
 
     /**
      * Show location by UUID
      * show_location storage
      */
-    async storageShowLocation(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Location> {
+    async storageShowLocation(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageLocation> {
         const response = await this.storageShowLocationRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -1153,7 +1253,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * Start the submission of an AIP
      * submit_aip storage
      */
-    async storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SubmitAIPResult>> {
+    async storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<URLConfig>> {
         if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
             throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageSubmitAip.');
         }
@@ -1184,14 +1284,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             body: SubmitAipRequestBodyToJSON(requestParameters.submitAipRequestBody),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => SubmitAIPResultFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => URLConfigFromJSON(jsonValue));
     }
 
     /**
      * Start the submission of an AIP
      * submit_aip storage
      */
-    async storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SubmitAIPResult> {
+    async storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<URLConfig> {
         const response = await this.storageSubmitAipRaw(requestParameters, initOverrides);
         return await response.value();
     }

@@ -56,15 +56,19 @@ func TestEventServiceRedisPublish(t *testing.T) {
 	svc, err := event.NewEventServiceRedis(testr.New(t), noop.NewTracerProvider(), &cfg)
 	assert.NilError(t, err)
 
-	svc.PublishEvent(ctx, &goaingest.MonitorEvent{
-		Event: &goaingest.MonitorPingEvent{
+	svc.PublishEvent(ctx, &goaingest.IngestEvent{
+		IngestValue: &goaingest.IngestPingEvent{
 			Message: ref.New("hello"),
 		},
 	})
 
 	select {
 	case ret := <-input:
-		assert.DeepEqual(t, ret.Payload, `{"event":{"Type":"monitor_ping_event","Value":"{\"Message\":\"hello\"}"}}`)
+		assert.DeepEqual(
+			t,
+			ret.Payload,
+			`{"ingest_value":{"Type":"ingest_ping_event","Value":"{\"Message\":\"hello\"}"}}`,
+		)
 	case <-time.After(10 * time.Second):
 		t.Fatal("timeout!")
 	}
@@ -93,8 +97,8 @@ func TestEventServiceRedisSubscribe(t *testing.T) {
 	c := redis.NewClient(&redis.Options{
 		Addr: s.Addr(),
 	})
-	ev := goaingest.MonitorEvent{
-		Event: &goaingest.MonitorPingEvent{
+	ev := goaingest.IngestEvent{
+		IngestValue: &goaingest.IngestPingEvent{
 			Message: ref.New("hello"),
 		},
 	}

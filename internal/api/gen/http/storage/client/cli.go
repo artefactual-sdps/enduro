@@ -17,6 +17,36 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// BuildMonitorRequestPayload builds the payload for the storage
+// monitor_request endpoint from CLI flags.
+func BuildMonitorRequestPayload(storageMonitorRequestToken string) (*storage.MonitorRequestPayload, error) {
+	var token *string
+	{
+		if storageMonitorRequestToken != "" {
+			token = &storageMonitorRequestToken
+		}
+	}
+	v := &storage.MonitorRequestPayload{}
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildMonitorPayload builds the payload for the storage monitor endpoint from
+// CLI flags.
+func BuildMonitorPayload(storageMonitorTicket string) (*storage.MonitorPayload, error) {
+	var ticket *string
+	{
+		if storageMonitorTicket != "" {
+			ticket = &storageMonitorTicket
+		}
+	}
+	v := &storage.MonitorPayload{}
+	v.Ticket = ticket
+
+	return v, nil
+}
+
 // BuildListAipsPayload builds the payload for the storage list_aips endpoint
 // from CLI flags.
 func BuildListAipsPayload(storageListAipsName string, storageListAipsEarliestCreatedTime string, storageListAipsLatestCreatedTime string, storageListAipsStatus string, storageListAipsLimit string, storageListAipsOffset string, storageListAipsToken string) (*storage.ListAipsPayload, error) {

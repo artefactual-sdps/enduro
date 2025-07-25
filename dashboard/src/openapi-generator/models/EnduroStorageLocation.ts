@@ -13,59 +13,59 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { CreateLocationRequestBodyConfig } from './CreateLocationRequestBodyConfig';
+import type { EnduroStorageLocationConfig } from './EnduroStorageLocationConfig';
 import {
-    CreateLocationRequestBodyConfigFromJSON,
-    CreateLocationRequestBodyConfigFromJSONTyped,
-    CreateLocationRequestBodyConfigToJSON,
-} from './CreateLocationRequestBodyConfig';
+    EnduroStorageLocationConfigFromJSON,
+    EnduroStorageLocationConfigFromJSONTyped,
+    EnduroStorageLocationConfigToJSON,
+} from './EnduroStorageLocationConfig';
 
 /**
- * 
+ * A Location describes a location retrieved by the storage service.
  * @export
- * @interface Location
+ * @interface EnduroStorageLocation
  */
-export interface Location {
+export interface EnduroStorageLocation {
     /**
      * 
-     * @type {CreateLocationRequestBodyConfig}
-     * @memberof Location
+     * @type {EnduroStorageLocationConfig}
+     * @memberof EnduroStorageLocation
      */
-    config?: CreateLocationRequestBodyConfig;
+    config?: EnduroStorageLocationConfig;
     /**
      * Creation datetime
      * @type {Date}
-     * @memberof Location
+     * @memberof EnduroStorageLocation
      */
     createdAt: Date;
     /**
      * Description of the location
      * @type {string}
-     * @memberof Location
+     * @memberof EnduroStorageLocation
      */
     description?: string;
     /**
      * Name of location
      * @type {string}
-     * @memberof Location
+     * @memberof EnduroStorageLocation
      */
     name: string;
     /**
      * Purpose of the location
      * @type {string}
-     * @memberof Location
+     * @memberof EnduroStorageLocation
      */
-    purpose: LocationPurposeEnum;
+    purpose: EnduroStorageLocationPurposeEnum;
     /**
      * Data source of the location
      * @type {string}
-     * @memberof Location
+     * @memberof EnduroStorageLocation
      */
-    source: LocationSourceEnum;
+    source: EnduroStorageLocationSourceEnum;
     /**
      * 
      * @type {string}
-     * @memberof Location
+     * @memberof EnduroStorageLocation
      */
     uuid: string;
 }
@@ -74,28 +74,28 @@ export interface Location {
 /**
  * @export
  */
-export const LocationPurposeEnum = {
+export const EnduroStorageLocationPurposeEnum = {
     Unspecified: 'unspecified',
     AipStore: 'aip_store'
 } as const;
-export type LocationPurposeEnum = typeof LocationPurposeEnum[keyof typeof LocationPurposeEnum];
+export type EnduroStorageLocationPurposeEnum = typeof EnduroStorageLocationPurposeEnum[keyof typeof EnduroStorageLocationPurposeEnum];
 
 /**
  * @export
  */
-export const LocationSourceEnum = {
+export const EnduroStorageLocationSourceEnum = {
     Unspecified: 'unspecified',
     Minio: 'minio',
     Sftp: 'sftp',
     Amss: 'amss'
 } as const;
-export type LocationSourceEnum = typeof LocationSourceEnum[keyof typeof LocationSourceEnum];
+export type EnduroStorageLocationSourceEnum = typeof EnduroStorageLocationSourceEnum[keyof typeof EnduroStorageLocationSourceEnum];
 
 
 /**
- * Check if a given object implements the Location interface.
+ * Check if a given object implements the EnduroStorageLocation interface.
  */
-export function instanceOfLocation(value: object): boolean {
+export function instanceOfEnduroStorageLocation(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "createdAt" in value;
     isInstance = isInstance && "name" in value;
@@ -106,17 +106,17 @@ export function instanceOfLocation(value: object): boolean {
     return isInstance;
 }
 
-export function LocationFromJSON(json: any): Location {
-    return LocationFromJSONTyped(json, false);
+export function EnduroStorageLocationFromJSON(json: any): EnduroStorageLocation {
+    return EnduroStorageLocationFromJSONTyped(json, false);
 }
 
-export function LocationFromJSONTyped(json: any, ignoreDiscriminator: boolean): Location {
+export function EnduroStorageLocationFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroStorageLocation {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'config': !exists(json, 'config') ? undefined : CreateLocationRequestBodyConfigFromJSON(json['config']),
+        'config': !exists(json, 'config') ? undefined : EnduroStorageLocationConfigFromJSON(json['config']),
         'createdAt': (new Date(json['created_at'])),
         'description': !exists(json, 'description') ? undefined : json['description'],
         'name': json['name'],
@@ -126,7 +126,7 @@ export function LocationFromJSONTyped(json: any, ignoreDiscriminator: boolean): 
     };
 }
 
-export function LocationToJSON(value?: Location | null): any {
+export function EnduroStorageLocationToJSON(value?: EnduroStorageLocation | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -135,7 +135,7 @@ export function LocationToJSON(value?: Location | null): any {
     }
     return {
         
-        'config': CreateLocationRequestBodyConfigToJSON(value.config),
+        'config': EnduroStorageLocationConfigToJSON(value.config),
         'created_at': (value.createdAt.toISOString()),
         'description': value.description,
         'name': value.name,

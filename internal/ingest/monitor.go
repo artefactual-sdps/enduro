@@ -55,8 +55,8 @@ func (w *goaWrapper) Monitor(
 	defer sub.Close()
 
 	// Say hello to be nice.
-	event := &goaingest.MonitorPingEvent{Message: ref.New("Hello")}
-	if err := stream.Send(&goaingest.MonitorEvent{Event: event}); err != nil {
+	event := &goaingest.IngestPingEvent{Message: ref.New("Hello")}
+	if err := stream.Send(&goaingest.IngestEvent{IngestValue: event}); err != nil {
 		return err
 	}
 
@@ -72,8 +72,8 @@ func (w *goaWrapper) Monitor(
 			return nil
 
 		case <-ticker.C:
-			event := &goaingest.MonitorPingEvent{Message: ref.New("Ping")}
-			if err := stream.Send(&goaingest.MonitorEvent{Event: event}); err != nil {
+			event := &goaingest.IngestPingEvent{Message: ref.New("Ping")}
+			if err := stream.Send(&goaingest.IngestEvent{IngestValue: event}); err != nil {
 				return nil
 			}
 
@@ -83,8 +83,8 @@ func (w *goaWrapper) Monitor(
 			}
 
 			// Check the event type and the user attributes before sending.
-			switch event.Event.(type) {
-			case *goaingest.MonitorPingEvent:
+			switch event.IngestValue.(type) {
+			case *goaingest.IngestPingEvent:
 				// Is this event even sent through this channel?
 			case *goaingest.SIPCreatedEvent:
 				if !claims.CheckAttributes([]string{auth.IngestSIPSListAttr}) {

@@ -27,9 +27,9 @@ type ConfirmSipRequestBody struct {
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
-	Event *struct {
+	IngestValue *struct {
 		// Union type name, one of:
-		// - "monitor_ping_event"
+		// - "ingest_ping_event"
 		// - "sip_created_event"
 		// - "sip_updated_event"
 		// - "sip_status_updated_event"
@@ -40,7 +40,7 @@ type MonitorResponseBody struct {
 		Type string `form:"Type" json:"Type" xml:"Type"`
 		// JSON encoded union value
 		Value string `form:"Value" json:"Value" xml:"Value"`
-	} `form:"event,omitempty" json:"event,omitempty" xml:"event,omitempty"`
+	} `form:"ingest_value,omitempty" json:"ingest_value,omitempty" xml:"ingest_value,omitempty"`
 }
 
 // ListSipsResponseBody is the type of the "ingest" service "list_sips"
@@ -536,14 +536,14 @@ type UserResponseBody struct {
 
 // NewMonitorResponseBody builds the HTTP response body from the result of the
 // "monitor" endpoint of the "ingest" service.
-func NewMonitorResponseBody(res *ingest.MonitorEvent) *MonitorResponseBody {
+func NewMonitorResponseBody(res *ingest.IngestEvent) *MonitorResponseBody {
 	body := &MonitorResponseBody{}
-	if res.Event != nil {
-		js, _ := json.Marshal(res.Event)
+	if res.IngestValue != nil {
+		js, _ := json.Marshal(res.IngestValue)
 		var name string
-		switch res.Event.(type) {
-		case *ingest.MonitorPingEvent:
-			name = "monitor_ping_event"
+		switch res.IngestValue.(type) {
+		case *ingest.IngestPingEvent:
+			name = "ingest_ping_event"
 		case *ingest.SIPCreatedEvent:
 			name = "sip_created_event"
 		case *ingest.SIPUpdatedEvent:
@@ -559,9 +559,9 @@ func NewMonitorResponseBody(res *ingest.MonitorEvent) *MonitorResponseBody {
 		case *ingest.SIPTaskUpdatedEvent:
 			name = "sip_task_updated_event"
 		}
-		body.Event = &struct {
+		body.IngestValue = &struct {
 			// Union type name, one of:
-			// - "monitor_ping_event"
+			// - "ingest_ping_event"
 			// - "sip_created_event"
 			// - "sip_updated_event"
 			// - "sip_status_updated_event"

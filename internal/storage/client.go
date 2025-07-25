@@ -8,6 +8,8 @@ import (
 )
 
 type Client interface {
+	MonitorRequest(context.Context, *goastorage.MonitorRequestPayload) (*goastorage.MonitorRequestResult, error)
+	Monitor(context.Context, *goastorage.MonitorPayload) (goastorage.MonitorClientStream, error)
 	ListAips(context.Context, *goastorage.ListAipsPayload) (*goastorage.AIPs, error)
 	SubmitAip(context.Context, *goastorage.SubmitAipPayload) (*goastorage.SubmitAIPResult, error)
 	CreateAip(context.Context, *goastorage.CreateAipPayload) (*goastorage.AIP, error)

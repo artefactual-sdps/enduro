@@ -16,42 +16,58 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface SubmitAIPResult
+ * @interface AMSSConfig
  */
-export interface SubmitAIPResult {
+export interface AMSSConfig {
     /**
      * 
      * @type {string}
-     * @memberof SubmitAIPResult
+     * @memberof AMSSConfig
+     */
+    apiKey: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AMSSConfig
      */
     url: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof AMSSConfig
+     */
+    username: string;
 }
 
 /**
- * Check if a given object implements the SubmitAIPResult interface.
+ * Check if a given object implements the AMSSConfig interface.
  */
-export function instanceOfSubmitAIPResult(value: object): boolean {
+export function instanceOfAMSSConfig(value: object): boolean {
     let isInstance = true;
+    isInstance = isInstance && "apiKey" in value;
     isInstance = isInstance && "url" in value;
+    isInstance = isInstance && "username" in value;
 
     return isInstance;
 }
 
-export function SubmitAIPResultFromJSON(json: any): SubmitAIPResult {
-    return SubmitAIPResultFromJSONTyped(json, false);
+export function AMSSConfigFromJSON(json: any): AMSSConfig {
+    return AMSSConfigFromJSONTyped(json, false);
 }
 
-export function SubmitAIPResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): SubmitAIPResult {
+export function AMSSConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean): AMSSConfig {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
+        'apiKey': json['api_key'],
         'url': json['url'],
+        'username': json['username'],
     };
 }
 
-export function SubmitAIPResultToJSON(value?: SubmitAIPResult | null): any {
+export function AMSSConfigToJSON(value?: AMSSConfig | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -60,7 +76,9 @@ export function SubmitAIPResultToJSON(value?: SubmitAIPResult | null): any {
     }
     return {
         
+        'api_key': value.apiKey,
         'url': value.url,
+        'username': value.username,
     };
 }
 

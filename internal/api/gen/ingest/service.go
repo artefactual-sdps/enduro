@@ -70,8 +70,8 @@ var MethodNames = [11]string{"monitor_request", "monitor", "list_sips", "show_si
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
 type MonitorServerStream interface {
-	// Send streams instances of "MonitorEvent".
-	Send(*MonitorEvent) error
+	// Send streams instances of "IngestEvent".
+	Send(*IngestEvent) error
 	// Close closes the stream.
 	Close() error
 }
@@ -79,8 +79,90 @@ type MonitorServerStream interface {
 // MonitorClientStream is the interface a "monitor" endpoint client stream must
 // satisfy.
 type MonitorClientStream interface {
-	// Recv reads instances of "MonitorEvent" from the stream.
-	Recv() (*MonitorEvent, error)
+	// Recv reads instances of "IngestEvent" from the stream.
+	Recv() (*IngestEvent, error)
+}
+
+// An AIP describes an AIP retrieved by the storage service.
+type AIP struct {
+	Name string
+	UUID uuid.UUID
+	// Status of the AIP
+	Status    string
+	ObjectKey uuid.UUID
+	// Identifier of storage location
+	LocationUUID *uuid.UUID
+	// Creation datetime
+	CreatedAt string
+}
+
+type AIPCreatedEvent struct {
+	// Identifier of AIP
+	UUID uuid.UUID
+	Item *AIP
+}
+
+// AIPTask describes an AIP workflow task.
+type AIPTask struct {
+	UUID        uuid.UUID
+	Name        string
+	Status      string
+	StartedAt   *string
+	CompletedAt *string
+	Note        *string
+	// Identifier of related workflow
+	WorkflowUUID uuid.UUID
+}
+
+type AIPTaskCollection []*AIPTask
+
+type AIPTaskCreatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
+type AIPTaskUpdatedEvent struct {
+	// Identifier of task
+	UUID uuid.UUID
+	Item *AIPTask
+}
+
+type AIPUpdatedEvent struct {
+	// Identifier of AIP
+	UUID uuid.UUID
+	Item *AIP
+}
+
+// AIPWorkflow describes a workflow of an AIP.
+type AIPWorkflow struct {
+	UUID        uuid.UUID
+	TemporalID  string
+	Type        string
+	Status      string
+	StartedAt   *string
+	CompletedAt *string
+	// Identifier of related AIP
+	AipUUID uuid.UUID
+	Tasks   AIPTaskCollection
+}
+
+type AIPWorkflowCreatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
+}
+
+type AIPWorkflowUpdatedEvent struct {
+	// Identifier of workflow
+	UUID uuid.UUID
+	Item *AIPWorkflow
+}
+
+type AMSSConfig struct {
+	APIKey   string
+	URL      string
+	Username string
 }
 
 // ConfirmSipPayload is the payload type of the ingest service confirm_sip
@@ -133,6 +215,17 @@ type EnduroPage struct {
 	Total int
 }
 
+// IngestEvent is the result type of the ingest service monitor method.
+type IngestEvent struct {
+	IngestValue interface {
+		ingestValueVal()
+	}
+}
+
+type IngestPingEvent struct {
+	Message *string
+}
+
 // ListSipWorkflowsPayload is the payload type of the ingest service
 // list_sip_workflows method.
 type ListSipWorkflowsPayload struct {
@@ -171,20 +264,39 @@ type ListUsersPayload struct {
 	Token  *string
 }
 
-// MonitorEvent is the result type of the ingest service monitor method.
-type MonitorEvent struct {
-	Event interface {
-		eventVal()
+// A Location describes a location retrieved by the storage service.
+type Location struct {
+	// Name of location
+	Name string
+	// Description of the location
+	Description *string
+	// Data source of the location
+	Source string
+	// Purpose of the location
+	Purpose string
+	UUID    uuid.UUID
+	Config  interface {
+		configVal()
 	}
+	// Creation datetime
+	CreatedAt string
+}
+
+type LocationCreatedEvent struct {
+	// Identifier of Location
+	UUID uuid.UUID
+	Item *Location
+}
+
+type LocationUpdatedEvent struct {
+	// Identifier of Location
+	UUID uuid.UUID
+	Item *Location
 }
 
 // MonitorPayload is the payload type of the ingest service monitor method.
 type MonitorPayload struct {
 	Ticket *string
-}
-
-type MonitorPingEvent struct {
-	Message *string
 }
 
 // MonitorRequestPayload is the payload type of the ingest service
@@ -204,6 +316,24 @@ type RejectSipPayload struct {
 	// Identifier of SIP to look up
 	UUID  string
 	Token *string
+}
+
+type S3Config struct {
+	Bucket    string
+	Region    string
+	Endpoint  *string
+	PathStyle *bool
+	Profile   *string
+	Key       *string
+	Secret    *string
+	Token     *string
+}
+
+type SFTPConfig struct {
+	Address   string
+	Username  string
+	Password  string
+	Directory string
 }
 
 // SIP is the result type of the ingest service show_sip method.
@@ -336,6 +466,14 @@ type ShowSipPayload struct {
 	Token *string
 }
 
+type StoragePingEvent struct {
+	Message *string
+}
+
+type URLConfig struct {
+	URL string
+}
+
 // UploadSipPayload is the payload type of the ingest service upload_sip method.
 type UploadSipPayload struct {
 	// Content-Type header, must define value for multipart boundary.
@@ -425,14 +563,18 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
-func (*MonitorPingEvent) eventVal()        {}
-func (*SIPCreatedEvent) eventVal()         {}
-func (*SIPStatusUpdatedEvent) eventVal()   {}
-func (*SIPTaskCreatedEvent) eventVal()     {}
-func (*SIPTaskUpdatedEvent) eventVal()     {}
-func (*SIPUpdatedEvent) eventVal()         {}
-func (*SIPWorkflowCreatedEvent) eventVal() {}
-func (*SIPWorkflowUpdatedEvent) eventVal() {}
+func (*AMSSConfig) configVal()                   {}
+func (*IngestPingEvent) ingestValueVal()         {}
+func (*S3Config) configVal()                     {}
+func (*SFTPConfig) configVal()                   {}
+func (*SIPCreatedEvent) ingestValueVal()         {}
+func (*SIPStatusUpdatedEvent) ingestValueVal()   {}
+func (*SIPTaskCreatedEvent) ingestValueVal()     {}
+func (*SIPTaskUpdatedEvent) ingestValueVal()     {}
+func (*SIPUpdatedEvent) ingestValueVal()         {}
+func (*SIPWorkflowCreatedEvent) ingestValueVal() {}
+func (*SIPWorkflowUpdatedEvent) ingestValueVal() {}
+func (*URLConfig) configVal()                    {}
 
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {
