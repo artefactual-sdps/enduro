@@ -43,8 +43,8 @@ type Service interface {
 	DownloadSip(context.Context, *DownloadSipPayload) (res *DownloadSipResult, body io.ReadCloser, err error)
 	// List all users
 	ListUsers(context.Context, *ListUsersPayload) (res *Users, err error)
-	// List SIP source items
-	ListSourceItems(context.Context, *ListSourceItemsPayload) (res *SourceItems, err error)
+	// List SIP source objects
+	ListSipSourceObjects(context.Context, *ListSipSourceObjectsPayload) (res *SIPSourceObjects, err error)
 }
 
 // Auther defines the authorization functions to be implemented by the service.
@@ -67,7 +67,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [12]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_source_items"}
+var MethodNames = [12]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_sip_source_objects"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -135,6 +135,18 @@ type EnduroPage struct {
 	Total int
 }
 
+// ListSipSourceObjectsPayload is the payload type of the ingest service
+// list_sip_source_objects method.
+type ListSipSourceObjectsPayload struct {
+	// SIP source identifier -- CURRENTLY NOT USED
+	UUID string
+	// Limit the number of results to return
+	Limit *int
+	// Cursor token to get subsequent pages
+	Cursor *string
+	Token  *string
+}
+
 // ListSipWorkflowsPayload is the payload type of the ingest service
 // list_sip_workflows method.
 type ListSipWorkflowsPayload struct {
@@ -157,18 +169,6 @@ type ListSipsPayload struct {
 	Limit *int
 	// Offset from the beginning of the found set
 	Offset *int
-	Token  *string
-}
-
-// ListSourceItemsPayload is the payload type of the ingest service
-// list_source_items method.
-type ListSourceItemsPayload struct {
-	// Identifier of SIP source -- CURRENTLY NOT USED
-	UUID string
-	// Limit the number of results to return
-	Limit *int
-	// Cursor token to get subsequent pages
-	Cursor *string
 	Token  *string
 }
 
@@ -264,6 +264,30 @@ type SIPNotFound struct {
 	UUID string
 }
 
+// SIPSourceObject describes an object in a SIP source location.
+type SIPSourceObject struct {
+	// Key of the object
+	Key string
+	// Last modification time of the object
+	ModTime *string
+	// Size of the object in bytes
+	Size *int64
+	// True if the object is a directory, false if it is a file
+	IsDir bool
+}
+
+type SIPSourceObjectCollection []*SIPSourceObject
+
+// SIPSourceObjects is the result type of the ingest service
+// list_sip_source_objects method.
+type SIPSourceObjects struct {
+	Objects SIPSourceObjectCollection
+	// Limit of objects per page
+	Limit int
+	// Token to get the next page of objects
+	Next *string
+}
+
 type SIPStatusUpdatedEvent struct {
 	// Identifier of SIP
 	UUID   uuid.UUID
@@ -348,30 +372,6 @@ type ShowSipPayload struct {
 	// Identifier of SIP to show
 	UUID  string
 	Token *string
-}
-
-// SourceItem describes an item in a data source location.
-type SourceItem struct {
-	// Key of the item
-	Key string
-	// Last modification time of the item
-	ModTime *string
-	// Size of the item in bytes
-	Size *int64
-	// True if the item is a directory, false if it is a file
-	IsDir bool
-}
-
-type SourceItemCollection []*SourceItem
-
-// SourceItems is the result type of the ingest service list_source_items
-// method.
-type SourceItems struct {
-	Items SourceItemCollection
-	// Limit of items per page
-	Limit int
-	// Token to get the next page of items
-	Next *string
 }
 
 // UploadSipPayload is the payload type of the ingest service upload_sip method.
@@ -497,11 +497,6 @@ func MakeInternalError(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "internal_error", false, false, false)
 }
 
-// MakeNotImplemented builds a goa.ServiceError from an error.
-func MakeNotImplemented(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "not_implemented", false, false, false)
-}
-
 // MakeNotFound builds a goa.ServiceError from an error.
 func MakeNotFound(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_found", false, false, false)
@@ -556,17 +551,17 @@ func NewViewedUsers(res *Users, view string) *ingestviews.Users {
 	return &ingestviews.Users{Projected: p, View: "default"}
 }
 
-// NewSourceItems initializes result type SourceItems from viewed result type
-// SourceItems.
-func NewSourceItems(vres *ingestviews.SourceItems) *SourceItems {
-	return newSourceItems(vres.Projected)
+// NewSIPSourceObjects initializes result type SIPSourceObjects from viewed
+// result type SIPSourceObjects.
+func NewSIPSourceObjects(vres *ingestviews.SIPSourceObjects) *SIPSourceObjects {
+	return newSIPSourceObjects(vres.Projected)
 }
 
-// NewViewedSourceItems initializes viewed result type SourceItems from result
-// type SourceItems using the given view.
-func NewViewedSourceItems(res *SourceItems, view string) *ingestviews.SourceItems {
-	p := newSourceItemsView(res)
-	return &ingestviews.SourceItems{Projected: p, View: "default"}
+// NewViewedSIPSourceObjects initializes viewed result type SIPSourceObjects
+// from result type SIPSourceObjects using the given view.
+func NewViewedSIPSourceObjects(res *SIPSourceObjects, view string) *ingestviews.SIPSourceObjects {
+	p := newSIPSourceObjectsView(res)
+	return &ingestviews.SIPSourceObjects{Projected: p, View: "default"}
 }
 
 // newSIPs converts projected type SIPs to service type SIPs.
@@ -973,57 +968,59 @@ func newUserView(res *User) *ingestviews.UserView {
 	return vres
 }
 
-// newSourceItems converts projected type SourceItems to service type
-// SourceItems.
-func newSourceItems(vres *ingestviews.SourceItemsView) *SourceItems {
-	res := &SourceItems{
+// newSIPSourceObjects converts projected type SIPSourceObjects to service type
+// SIPSourceObjects.
+func newSIPSourceObjects(vres *ingestviews.SIPSourceObjectsView) *SIPSourceObjects {
+	res := &SIPSourceObjects{
 		Next: vres.Next,
 	}
 	if vres.Limit != nil {
 		res.Limit = *vres.Limit
 	}
-	if vres.Items != nil {
-		res.Items = newSourceItemCollection(vres.Items)
+	if vres.Objects != nil {
+		res.Objects = newSIPSourceObjectCollection(vres.Objects)
 	}
 	return res
 }
 
-// newSourceItemsView projects result type SourceItems to projected type
-// SourceItemsView using the "default" view.
-func newSourceItemsView(res *SourceItems) *ingestviews.SourceItemsView {
-	vres := &ingestviews.SourceItemsView{
+// newSIPSourceObjectsView projects result type SIPSourceObjects to projected
+// type SIPSourceObjectsView using the "default" view.
+func newSIPSourceObjectsView(res *SIPSourceObjects) *ingestviews.SIPSourceObjectsView {
+	vres := &ingestviews.SIPSourceObjectsView{
 		Limit: &res.Limit,
 		Next:  res.Next,
 	}
-	if res.Items != nil {
-		vres.Items = newSourceItemCollectionView(res.Items)
+	if res.Objects != nil {
+		vres.Objects = newSIPSourceObjectCollectionView(res.Objects)
 	}
 	return vres
 }
 
-// newSourceItemCollection converts projected type SourceItemCollection to
-// service type SourceItemCollection.
-func newSourceItemCollection(vres ingestviews.SourceItemCollectionView) SourceItemCollection {
-	res := make(SourceItemCollection, len(vres))
+// newSIPSourceObjectCollection converts projected type
+// SIPSourceObjectCollection to service type SIPSourceObjectCollection.
+func newSIPSourceObjectCollection(vres ingestviews.SIPSourceObjectCollectionView) SIPSourceObjectCollection {
+	res := make(SIPSourceObjectCollection, len(vres))
 	for i, n := range vres {
-		res[i] = newSourceItem(n)
+		res[i] = newSIPSourceObject(n)
 	}
 	return res
 }
 
-// newSourceItemCollectionView projects result type SourceItemCollection to
-// projected type SourceItemCollectionView using the "default" view.
-func newSourceItemCollectionView(res SourceItemCollection) ingestviews.SourceItemCollectionView {
-	vres := make(ingestviews.SourceItemCollectionView, len(res))
+// newSIPSourceObjectCollectionView projects result type
+// SIPSourceObjectCollection to projected type SIPSourceObjectCollectionView
+// using the "default" view.
+func newSIPSourceObjectCollectionView(res SIPSourceObjectCollection) ingestviews.SIPSourceObjectCollectionView {
+	vres := make(ingestviews.SIPSourceObjectCollectionView, len(res))
 	for i, n := range res {
-		vres[i] = newSourceItemView(n)
+		vres[i] = newSIPSourceObjectView(n)
 	}
 	return vres
 }
 
-// newSourceItem converts projected type SourceItem to service type SourceItem.
-func newSourceItem(vres *ingestviews.SourceItemView) *SourceItem {
-	res := &SourceItem{
+// newSIPSourceObject converts projected type SIPSourceObject to service type
+// SIPSourceObject.
+func newSIPSourceObject(vres *ingestviews.SIPSourceObjectView) *SIPSourceObject {
+	res := &SIPSourceObject{
 		ModTime: vres.ModTime,
 		Size:    vres.Size,
 	}
@@ -1036,10 +1033,10 @@ func newSourceItem(vres *ingestviews.SourceItemView) *SourceItem {
 	return res
 }
 
-// newSourceItemView projects result type SourceItem to projected type
-// SourceItemView using the "default" view.
-func newSourceItemView(res *SourceItem) *ingestviews.SourceItemView {
-	vres := &ingestviews.SourceItemView{
+// newSIPSourceObjectView projects result type SIPSourceObject to projected
+// type SIPSourceObjectView using the "default" view.
+func newSIPSourceObjectView(res *SIPSourceObject) *ingestviews.SIPSourceObjectView {
+	vres := &ingestviews.SIPSourceObjectView{
 		Key:     &res.Key,
 		ModTime: res.ModTime,
 		Size:    res.Size,

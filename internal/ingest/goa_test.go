@@ -579,7 +579,7 @@ func TestListUsers(t *testing.T) {
 	}
 }
 
-func TestListSourceItems(t *testing.T) {
+func TestListSIPSourceObjects(t *testing.T) {
 	t.Parallel()
 
 	sourceID := uuid.MustParse("cc6a61cd-ce26-4338-890a-8a4393f63eed")
@@ -587,27 +587,27 @@ func TestListSourceItems(t *testing.T) {
 
 	type test struct {
 		name         string
-		payload      *goaingest.ListSourceItemsPayload
+		payload      *goaingest.ListSipSourceObjectsPayload
 		mockRecorder func(mr *sipsource_fake.MockSIPSourceMockRecorder)
-		want         *goaingest.SourceItems
+		want         *goaingest.SIPSourceObjects
 		wantErr      string
 	}
 	for _, tt := range []test{
 		{
-			name: "Returns SIP source items with a next page value",
-			payload: &goaingest.ListSourceItemsPayload{
+			name: "Returns SIP source objects with a next page value",
+			payload: &goaingest.ListSipSourceObjectsPayload{
 				UUID:  sourceID.String(),
 				Limit: ref.New(10),
 			},
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
-				mr.ListItems(
+				mr.ListObjects(
 					mockutil.Context(),
 					nil,
 					10,
 				).Return(
 					&sipsource.Page{
-						Items: []*sipsource.Item{
-							{Key: "item1", Size: 1234, ModTime: modTime},
+						Objects: []*sipsource.Object{
+							{Key: "object1", Size: 1234, ModTime: modTime},
 						},
 						Limit:     10,
 						NextToken: []byte("next-token"),
@@ -615,10 +615,10 @@ func TestListSourceItems(t *testing.T) {
 					nil,
 				)
 			},
-			want: &goaingest.SourceItems{
-				Items: goaingest.SourceItemCollection{
+			want: &goaingest.SIPSourceObjects{
+				Objects: goaingest.SIPSourceObjectCollection{
 					{
-						Key:     "item1",
+						Key:     "object1",
 						Size:    ref.New(int64(1234)),
 						ModTime: ref.New(modTime.Format(time.RFC3339)),
 					},
@@ -628,31 +628,31 @@ func TestListSourceItems(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns SIP source items when a cursor value is provided",
-			payload: &goaingest.ListSourceItemsPayload{
+			name: "Returns SIP source objects when a cursor value is provided",
+			payload: &goaingest.ListSipSourceObjectsPayload{
 				UUID:   sourceID.String(),
 				Limit:  ref.New(10),
 				Cursor: ref.New("page-token"),
 			},
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
-				mr.ListItems(
+				mr.ListObjects(
 					mockutil.Context(),
 					[]byte("page-token"),
 					10,
 				).Return(
 					&sipsource.Page{
-						Items: []*sipsource.Item{
-							{Key: "item2", Size: 5678, ModTime: modTime},
+						Objects: []*sipsource.Object{
+							{Key: "object2", Size: 5678, ModTime: modTime},
 						},
 						Limit: 10,
 					},
 					nil,
 				)
 			},
-			want: &goaingest.SourceItems{
-				Items: goaingest.SourceItemCollection{
+			want: &goaingest.SIPSourceObjects{
+				Objects: goaingest.SIPSourceObjectCollection{
 					{
-						Key:     "item2",
+						Key:     "object2",
 						Size:    ref.New(int64(5678)),
 						ModTime: ref.New(modTime.Format(time.RFC3339)),
 					},
@@ -661,12 +661,12 @@ func TestListSourceItems(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns an not found error when source does not exist",
+			name: "Returns an not found error when SIP source does not exist",
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
-				mr.ListItems(
+				mr.ListObjects(
 					mockutil.Context(),
 					nil,
-					0, // No limit specified
+					0,
 				).Return(
 					nil,
 					sipsource.ErrMissingBucket,
@@ -677,10 +677,10 @@ func TestListSourceItems(t *testing.T) {
 		{
 			name: "Returns an internal error",
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
-				mr.ListItems(
+				mr.ListObjects(
 					mockutil.Context(),
 					nil,
-					0, // No limit specified
+					0,
 				).Return(
 					nil,
 					errors.New("internal error"),
@@ -689,21 +689,24 @@ func TestListSourceItems(t *testing.T) {
 			wantErr: "internal error",
 		},
 		{
-			name: "Returns an error when no items found",
+			name: "Returns an empty page when no objects found",
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
-				mr.ListItems(
+				mr.ListObjects(
 					mockutil.Context(),
 					nil,
-					0, // No limit specified
+					0,
 				).Return(
 					&sipsource.Page{
-						Items: []*sipsource.Item{},
-						Limit: 100, // Default limit
+						Objects: []*sipsource.Object{},
+						Limit:   100,
 					},
 					nil,
 				)
 			},
-			wantErr: "no items found",
+			want: &goaingest.SIPSourceObjects{
+				Objects: goaingest.SIPSourceObjectCollection{},
+				Limit:   100,
+			},
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -730,7 +733,7 @@ func TestListSourceItems(t *testing.T) {
 				src,               // Mocked SIP source
 			)
 
-			got, err := svc.Goa().ListSourceItems(t.Context(), tt.payload)
+			got, err := svc.Goa().ListSipSourceObjects(t.Context(), tt.payload)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

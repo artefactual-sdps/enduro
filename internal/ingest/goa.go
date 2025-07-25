@@ -236,14 +236,14 @@ func (w *goaWrapper) ListUsers(ctx context.Context, payload *goaingest.ListUsers
 	return res, nil
 }
 
-func (w *goaWrapper) ListSourceItems(
+func (w *goaWrapper) ListSipSourceObjects(
 	ctx context.Context,
-	payload *goaingest.ListSourceItemsPayload,
-) (*goaingest.SourceItems, error) {
+	payload *goaingest.ListSipSourceObjectsPayload,
+) (*goaingest.SIPSourceObjects, error) {
 	// TODO: Use the payload.UUID to select a SIP source when we add support for
 	// multiple SIP sources.
 	if payload == nil {
-		payload = &goaingest.ListSourceItemsPayload{}
+		payload = &goaingest.ListSipSourceObjectsPayload{}
 	}
 
 	var cursor []byte
@@ -251,22 +251,19 @@ func (w *goaWrapper) ListSourceItems(
 		cursor = []byte(*payload.Cursor)
 	}
 
-	page, err := w.sipSource.ListItems(ctx, cursor, ref.DerefZero(payload.Limit))
+	page, err := w.sipSource.ListObjects(ctx, cursor, ref.DerefZero(payload.Limit))
 	if err != nil {
 		if errors.Is(err, sipsource.ErrMissingBucket) {
 			return nil, goaingest.MakeNotFound(errors.New("SIP source not found"))
 		}
 
-		w.logger.Error(err, "Error listing source items")
+		w.logger.Error(err, "Listing SIP source objects")
 		return nil, goaingest.MakeInternalError(errors.New("internal error"))
 	}
-	if page == nil || len(page.Items) == 0 {
-		return nil, goaingest.MakeNotFound(errors.New("no items found"))
-	}
 
-	res := &goaingest.SourceItems{
-		Items: sourceItemsToGoa(page.Items),
-		Limit: page.Limit,
+	res := &goaingest.SIPSourceObjects{
+		Objects: sipSourceObjectsToGoa(page.Objects),
+		Limit:   page.Limit,
 	}
 
 	if page.NextToken != nil {

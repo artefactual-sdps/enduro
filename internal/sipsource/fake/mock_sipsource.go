@@ -78,41 +78,41 @@ func (c *MockSIPSourceCloseCall) DoAndReturn(f func() error) *MockSIPSourceClose
 	return c
 }
 
-// ListItems mocks base method.
-func (m *MockSIPSource) ListItems(arg0 context.Context, arg1 []byte, arg2 int) (*sipsource.Page, error) {
+// ListObjects mocks base method.
+func (m *MockSIPSource) ListObjects(arg0 context.Context, arg1 []byte, arg2 int) (*sipsource.Page, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListItems", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "ListObjects", arg0, arg1, arg2)
 	ret0, _ := ret[0].(*sipsource.Page)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListItems indicates an expected call of ListItems.
-func (mr *MockSIPSourceMockRecorder) ListItems(arg0, arg1, arg2 any) *MockSIPSourceListItemsCall {
+// ListObjects indicates an expected call of ListObjects.
+func (mr *MockSIPSourceMockRecorder) ListObjects(arg0, arg1, arg2 any) *MockSIPSourceListObjectsCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListItems", reflect.TypeOf((*MockSIPSource)(nil).ListItems), arg0, arg1, arg2)
-	return &MockSIPSourceListItemsCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListObjects", reflect.TypeOf((*MockSIPSource)(nil).ListObjects), arg0, arg1, arg2)
+	return &MockSIPSourceListObjectsCall{Call: call}
 }
 
-// MockSIPSourceListItemsCall wrap *gomock.Call
-type MockSIPSourceListItemsCall struct {
+// MockSIPSourceListObjectsCall wrap *gomock.Call
+type MockSIPSourceListObjectsCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockSIPSourceListItemsCall) Return(arg0 *sipsource.Page, arg1 error) *MockSIPSourceListItemsCall {
+func (c *MockSIPSourceListObjectsCall) Return(arg0 *sipsource.Page, arg1 error) *MockSIPSourceListObjectsCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockSIPSourceListItemsCall) Do(f func(context.Context, []byte, int) (*sipsource.Page, error)) *MockSIPSourceListItemsCall {
+func (c *MockSIPSourceListObjectsCall) Do(f func(context.Context, []byte, int) (*sipsource.Page, error)) *MockSIPSourceListObjectsCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockSIPSourceListItemsCall) DoAndReturn(f func(context.Context, []byte, int) (*sipsource.Page, error)) *MockSIPSourceListItemsCall {
+func (c *MockSIPSourceListObjectsCall) DoAndReturn(f func(context.Context, []byte, int) (*sipsource.Page, error)) *MockSIPSourceListObjectsCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

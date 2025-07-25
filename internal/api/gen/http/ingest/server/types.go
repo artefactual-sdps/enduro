@@ -99,13 +99,13 @@ type ListUsersResponseBody struct {
 	Page  *EnduroPageResponseBody    `form:"page" json:"page" xml:"page"`
 }
 
-// ListSourceItemsResponseBody is the type of the "ingest" service
-// "list_source_items" endpoint HTTP response body.
-type ListSourceItemsResponseBody struct {
-	Items SourceItemResponseBodyCollection `form:"items" json:"items" xml:"items"`
-	// Limit of items per page
+// ListSipSourceObjectsResponseBody is the type of the "ingest" service
+// "list_sip_source_objects" endpoint HTTP response body.
+type ListSipSourceObjectsResponseBody struct {
+	Objects SIPSourceObjectResponseBodyCollection `form:"objects" json:"objects" xml:"objects"`
+	// Limit of objects per page
 	Limit int `form:"limit" json:"limit" xml:"limit"`
-	// Token to get the next page of items
+	// Token to get the next page of objects
 	Next *string `form:"next,omitempty" json:"next,omitempty" xml:"next,omitempty"`
 }
 
@@ -453,65 +453,48 @@ type ListUsersNotValidResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// ListSourceItemsNotImplementedResponseBody is the type of the "ingest"
-// service "list_source_items" endpoint HTTP response body for the
-// "not_implemented" error.
-type ListSourceItemsNotImplementedResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// ListSourceItemsNotFoundResponseBody is the type of the "ingest" service
-// "list_source_items" endpoint HTTP response body for the "not_found" error.
-type ListSourceItemsNotFoundResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// ListSourceItemsNotValidResponseBody is the type of the "ingest" service
-// "list_source_items" endpoint HTTP response body for the "not_valid" error.
-type ListSourceItemsNotValidResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// ListSourceItemsInternalErrorResponseBody is the type of the "ingest" service
-// "list_source_items" endpoint HTTP response body for the "internal_error"
+// ListSipSourceObjectsNotFoundResponseBody is the type of the "ingest" service
+// "list_sip_source_objects" endpoint HTTP response body for the "not_found"
 // error.
-type ListSourceItemsInternalErrorResponseBody struct {
+type ListSipSourceObjectsNotFoundResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ListSipSourceObjectsNotValidResponseBody is the type of the "ingest" service
+// "list_sip_source_objects" endpoint HTTP response body for the "not_valid"
+// error.
+type ListSipSourceObjectsNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ListSipSourceObjectsInternalErrorResponseBody is the type of the "ingest"
+// service "list_sip_source_objects" endpoint HTTP response body for the
+// "internal_error" error.
+type ListSipSourceObjectsInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -618,19 +601,19 @@ type UserResponseBody struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 }
 
-// SourceItemResponseBodyCollection is used to define fields on response body
-// types.
-type SourceItemResponseBodyCollection []*SourceItemResponseBody
+// SIPSourceObjectResponseBodyCollection is used to define fields on response
+// body types.
+type SIPSourceObjectResponseBodyCollection []*SIPSourceObjectResponseBody
 
-// SourceItemResponseBody is used to define fields on response body types.
-type SourceItemResponseBody struct {
-	// Key of the item
+// SIPSourceObjectResponseBody is used to define fields on response body types.
+type SIPSourceObjectResponseBody struct {
+	// Key of the object
 	Key string `form:"key" json:"key" xml:"key"`
-	// Last modification time of the item
+	// Last modification time of the object
 	ModTime *string `form:"mod_time,omitempty" json:"mod_time,omitempty" xml:"mod_time,omitempty"`
-	// Size of the item in bytes
+	// Size of the object in bytes
 	Size *int64 `form:"size,omitempty" json:"size,omitempty" xml:"size,omitempty"`
-	// True if the item is a directory, false if it is a file
+	// True if the object is a directory, false if it is a file
 	IsDir bool `form:"is_dir" json:"is_dir" xml:"is_dir"`
 }
 
@@ -758,20 +741,20 @@ func NewListUsersResponseBody(res *ingestviews.UsersView) *ListUsersResponseBody
 	return body
 }
 
-// NewListSourceItemsResponseBody builds the HTTP response body from the result
-// of the "list_source_items" endpoint of the "ingest" service.
-func NewListSourceItemsResponseBody(res *ingestviews.SourceItemsView) *ListSourceItemsResponseBody {
-	body := &ListSourceItemsResponseBody{
+// NewListSipSourceObjectsResponseBody builds the HTTP response body from the
+// result of the "list_sip_source_objects" endpoint of the "ingest" service.
+func NewListSipSourceObjectsResponseBody(res *ingestviews.SIPSourceObjectsView) *ListSipSourceObjectsResponseBody {
+	body := &ListSipSourceObjectsResponseBody{
 		Limit: *res.Limit,
 		Next:  res.Next,
 	}
-	if res.Items != nil {
-		body.Items = make([]*SourceItemResponseBody, len(res.Items))
-		for i, val := range res.Items {
-			body.Items[i] = marshalIngestviewsSourceItemViewToSourceItemResponseBody(val)
+	if res.Objects != nil {
+		body.Objects = make([]*SIPSourceObjectResponseBody, len(res.Objects))
+		for i, val := range res.Objects {
+			body.Objects[i] = marshalIngestviewsSIPSourceObjectViewToSIPSourceObjectResponseBody(val)
 		}
 	} else {
-		body.Items = []*SourceItemResponseBody{}
+		body.Objects = []*SIPSourceObjectResponseBody{}
 	}
 	return body
 }
@@ -1061,10 +1044,11 @@ func NewListUsersNotValidResponseBody(res *goa.ServiceError) *ListUsersNotValidR
 	return body
 }
 
-// NewListSourceItemsNotImplementedResponseBody builds the HTTP response body
-// from the result of the "list_source_items" endpoint of the "ingest" service.
-func NewListSourceItemsNotImplementedResponseBody(res *goa.ServiceError) *ListSourceItemsNotImplementedResponseBody {
-	body := &ListSourceItemsNotImplementedResponseBody{
+// NewListSipSourceObjectsNotFoundResponseBody builds the HTTP response body
+// from the result of the "list_sip_source_objects" endpoint of the "ingest"
+// service.
+func NewListSipSourceObjectsNotFoundResponseBody(res *goa.ServiceError) *ListSipSourceObjectsNotFoundResponseBody {
+	body := &ListSipSourceObjectsNotFoundResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -1075,10 +1059,11 @@ func NewListSourceItemsNotImplementedResponseBody(res *goa.ServiceError) *ListSo
 	return body
 }
 
-// NewListSourceItemsNotFoundResponseBody builds the HTTP response body from
-// the result of the "list_source_items" endpoint of the "ingest" service.
-func NewListSourceItemsNotFoundResponseBody(res *goa.ServiceError) *ListSourceItemsNotFoundResponseBody {
-	body := &ListSourceItemsNotFoundResponseBody{
+// NewListSipSourceObjectsNotValidResponseBody builds the HTTP response body
+// from the result of the "list_sip_source_objects" endpoint of the "ingest"
+// service.
+func NewListSipSourceObjectsNotValidResponseBody(res *goa.ServiceError) *ListSipSourceObjectsNotValidResponseBody {
+	body := &ListSipSourceObjectsNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -1089,24 +1074,11 @@ func NewListSourceItemsNotFoundResponseBody(res *goa.ServiceError) *ListSourceIt
 	return body
 }
 
-// NewListSourceItemsNotValidResponseBody builds the HTTP response body from
-// the result of the "list_source_items" endpoint of the "ingest" service.
-func NewListSourceItemsNotValidResponseBody(res *goa.ServiceError) *ListSourceItemsNotValidResponseBody {
-	body := &ListSourceItemsNotValidResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewListSourceItemsInternalErrorResponseBody builds the HTTP response body
-// from the result of the "list_source_items" endpoint of the "ingest" service.
-func NewListSourceItemsInternalErrorResponseBody(res *goa.ServiceError) *ListSourceItemsInternalErrorResponseBody {
-	body := &ListSourceItemsInternalErrorResponseBody{
+// NewListSipSourceObjectsInternalErrorResponseBody builds the HTTP response
+// body from the result of the "list_sip_source_objects" endpoint of the
+// "ingest" service.
+func NewListSipSourceObjectsInternalErrorResponseBody(res *goa.ServiceError) *ListSipSourceObjectsInternalErrorResponseBody {
+	body := &ListSipSourceObjectsInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -1229,10 +1201,10 @@ func NewListUsersPayload(email *string, name *string, limit *int, offset *int, t
 	return v
 }
 
-// NewListSourceItemsPayload builds a ingest service list_source_items endpoint
-// payload.
-func NewListSourceItemsPayload(uuid string, limit *int, cursor *string, token *string) *ingest.ListSourceItemsPayload {
-	v := &ingest.ListSourceItemsPayload{}
+// NewListSipSourceObjectsPayload builds a ingest service
+// list_sip_source_objects endpoint payload.
+func NewListSipSourceObjectsPayload(uuid string, limit *int, cursor *string, token *string) *ingest.ListSipSourceObjectsPayload {
+	v := &ingest.ListSipSourceObjectsPayload{}
 	v.UUID = uuid
 	v.Limit = limit
 	v.Cursor = cursor

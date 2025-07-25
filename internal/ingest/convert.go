@@ -158,22 +158,22 @@ func validateStringPtr(s *string, maxLength int) (*string, error) {
 	return s, nil
 }
 
-func sourceItemsToGoa(items []*sipsource.Item) goaingest.SourceItemCollection {
-	if items == nil {
+func sipSourceObjectsToGoa(objects []*sipsource.Object) goaingest.SIPSourceObjectCollection {
+	if objects == nil {
 		return nil
 	}
 
-	goaItems := make([]*goaingest.SourceItem, len(items))
-	for i, item := range items {
-		goaItems[i] = &goaingest.SourceItem{Key: item.Key, IsDir: item.IsDir}
+	r := make([]*goaingest.SIPSourceObject, len(objects))
+	for i, object := range objects {
+		r[i] = &goaingest.SIPSourceObject{Key: object.Key, IsDir: object.IsDir}
 
-		if item.Size != 0 {
-			goaItems[i].Size = ref.New(item.Size)
+		if object.Size != 0 {
+			r[i].Size = ref.New(object.Size)
 		}
-		if !item.ModTime.IsZero() {
-			goaItems[i].ModTime = ref.New(item.ModTime.Format(time.RFC3339))
+		if !object.ModTime.IsZero() {
+			r[i].ModTime = ref.New(object.ModTime.Format(time.RFC3339))
 		}
 	}
 
-	return goaItems
+	return r
 }

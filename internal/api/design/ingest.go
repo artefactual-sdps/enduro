@@ -326,27 +326,25 @@ var _ = Service("ingest", func() {
 			})
 		})
 	})
-	Method("list_source_items", func() {
-		Description("List SIP source items")
+	Method("list_sip_source_objects", func() {
+		Description("List the objects in a SIP source")
 		Security(JWTAuth, func() {
-			Scope("ingest:sources:items:list")
+			Scope(auth.IngestSIPSourcesObjectsListAttr)
 		})
 		Payload(func() {
-			AttributeUUID("uuid", "Identifier of SIP source -- CURRENTLY NOT USED")
+			AttributeUUID("uuid", "SIP source identifier -- CURRENTLY NOT USED")
 			Attribute("limit", Int, "Limit the number of results to return")
 			Attribute("cursor", String, "Cursor token to get subsequent pages")
 			Token("token", String)
 			Required("uuid")
 		})
-		Result(SourceItems)
-		Error("not_implemented")
+		Result(SIPSourceObjects)
 		Error("not_found")
 		Error("not_valid")
 		Error("internal_error")
 		HTTP(func() {
-			GET("/sources/{uuid}/items")
+			GET("/sip_sources/{uuid}/objects")
 			Response(StatusOK)
-			Response("not_implemented", StatusNotImplemented)
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
 			Response("internal_error", StatusInternalServerError)
@@ -536,30 +534,24 @@ var SIPTask = ResultType("application/vnd.enduro.ingest.sip.task", func() {
 	Required("uuid", "name", "status", "started_at", "workflow_uuid")
 })
 
-var SourceItem = ResultType("application/vnd.enduro.ingest.source.item", func() {
-	Description("SourceItem describes an item in a data source location.")
-	TypeName("SourceItem")
+var SIPSourceObject = ResultType("application/vnd.enduro.ingest.sip_source.object", func() {
+	Description("SIPSourceObject describes an object in a SIP source location.")
+	TypeName("SIPSourceObject")
 	Attributes(func() {
-		Attribute("key", String, "Key of the item")
-		Attribute("mod_time", String, "Last modification time of the item", func() {
+		Attribute("key", String, "Key of the object")
+		Attribute("mod_time", String, "Last modification time of the object", func() {
 			Format(FormatDateTime)
 		})
-		Attribute("size", Int64, "Size of the item in bytes")
-		Attribute("is_dir", Boolean, "True if the item is a directory, false if it is a file")
-	})
-	View("default", func() {
-		Attribute("key")
-		Attribute("mod_time")
-		Attribute("size")
-		Attribute("is_dir")
+		Attribute("size", Int64, "Size of the object in bytes")
+		Attribute("is_dir", Boolean, "True if the object is a directory, false if it is a file")
 	})
 	Required("key", "is_dir")
 })
 
-var SourceItems = ResultType("application/vnd.enduro.ingest.source.items", func() {
-	TypeName("SourceItems")
-	Attribute("items", CollectionOf(SourceItem))
-	Attribute("limit", Int, "Limit of items per page")
-	Attribute("next", String, "Token to get the next page of items")
-	Required("items", "limit")
+var SIPSourceObjects = ResultType("application/vnd.enduro.ingest.sip_source.objects", func() {
+	TypeName("SIPSourceObjects")
+	Attribute("objects", CollectionOf(SIPSourceObject))
+	Attribute("limit", Int, "Limit of objects per page")
+	Attribute("next", String, "Token to get the next page of objects")
+	Required("objects", "limit")
 })

@@ -85,8 +85,8 @@ func (c *Configuration) Validate() error {
 		c.BagIt.Validate(),
 		c.Preprocessing.Validate(),
 		c.SIPSource.Validate(),
-		c.Watcher.Validate(),
 		c.ValidatePREMIS.Validate(),
+		c.Watcher.Validate(),
 	)
 }
 

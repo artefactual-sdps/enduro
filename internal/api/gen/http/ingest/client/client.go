@@ -65,9 +65,9 @@ type Client struct {
 	// endpoint.
 	ListUsersDoer goahttp.Doer
 
-	// ListSourceItems Doer is the HTTP client used to make requests to the
-	// list_source_items endpoint.
-	ListSourceItemsDoer goahttp.Doer
+	// ListSipSourceObjects Doer is the HTTP client used to make requests to the
+	// list_sip_source_objects endpoint.
+	ListSipSourceObjectsDoer goahttp.Doer
 
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
@@ -99,26 +99,26 @@ func NewClient(
 		cfn = &ConnConfigurer{}
 	}
 	return &Client{
-		MonitorRequestDoer:     doer,
-		MonitorDoer:            doer,
-		ListSipsDoer:           doer,
-		ShowSipDoer:            doer,
-		ListSipWorkflowsDoer:   doer,
-		ConfirmSipDoer:         doer,
-		RejectSipDoer:          doer,
-		UploadSipDoer:          doer,
-		DownloadSipRequestDoer: doer,
-		DownloadSipDoer:        doer,
-		ListUsersDoer:          doer,
-		ListSourceItemsDoer:    doer,
-		CORSDoer:               doer,
-		RestoreResponseBody:    restoreBody,
-		scheme:                 scheme,
-		host:                   host,
-		decoder:                dec,
-		encoder:                enc,
-		dialer:                 dialer,
-		configurer:             cfn,
+		MonitorRequestDoer:       doer,
+		MonitorDoer:              doer,
+		ListSipsDoer:             doer,
+		ShowSipDoer:              doer,
+		ListSipWorkflowsDoer:     doer,
+		ConfirmSipDoer:           doer,
+		RejectSipDoer:            doer,
+		UploadSipDoer:            doer,
+		DownloadSipRequestDoer:   doer,
+		DownloadSipDoer:          doer,
+		ListUsersDoer:            doer,
+		ListSipSourceObjectsDoer: doer,
+		CORSDoer:                 doer,
+		RestoreResponseBody:      restoreBody,
+		scheme:                   scheme,
+		host:                     host,
+		decoder:                  dec,
+		encoder:                  enc,
+		dialer:                   dialer,
+		configurer:               cfn,
 	}
 }
 
@@ -409,15 +409,15 @@ func (c *Client) ListUsers() goa.Endpoint {
 	}
 }
 
-// ListSourceItems returns an endpoint that makes HTTP requests to the ingest
-// service list_source_items server.
-func (c *Client) ListSourceItems() goa.Endpoint {
+// ListSipSourceObjects returns an endpoint that makes HTTP requests to the
+// ingest service list_sip_source_objects server.
+func (c *Client) ListSipSourceObjects() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeListSourceItemsRequest(c.encoder)
-		decodeResponse = DecodeListSourceItemsResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeListSipSourceObjectsRequest(c.encoder)
+		decodeResponse = DecodeListSipSourceObjectsResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildListSourceItemsRequest(ctx, v)
+		req, err := c.BuildListSipSourceObjectsRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -425,9 +425,9 @@ func (c *Client) ListSourceItems() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.ListSourceItemsDoer.Do(req)
+		resp, err := c.ListSipSourceObjectsDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("ingest", "list_source_items", err)
+			return nil, goahttp.ErrRequestError("ingest", "list_sip_source_objects", err)
 		}
 		return decodeResponse(resp)
 	}

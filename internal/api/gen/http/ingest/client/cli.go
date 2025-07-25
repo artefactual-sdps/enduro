@@ -395,13 +395,13 @@ func BuildListUsersPayload(ingestListUsersEmail string, ingestListUsersName stri
 	return v, nil
 }
 
-// BuildListSourceItemsPayload builds the payload for the ingest
-// list_source_items endpoint from CLI flags.
-func BuildListSourceItemsPayload(ingestListSourceItemsUUID string, ingestListSourceItemsLimit string, ingestListSourceItemsCursor string, ingestListSourceItemsToken string) (*ingest.ListSourceItemsPayload, error) {
+// BuildListSipSourceObjectsPayload builds the payload for the ingest
+// list_sip_source_objects endpoint from CLI flags.
+func BuildListSipSourceObjectsPayload(ingestListSipSourceObjectsUUID string, ingestListSipSourceObjectsLimit string, ingestListSipSourceObjectsCursor string, ingestListSipSourceObjectsToken string) (*ingest.ListSipSourceObjectsPayload, error) {
 	var err error
 	var uuid string
 	{
-		uuid = ingestListSourceItemsUUID
+		uuid = ingestListSipSourceObjectsUUID
 		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
 			return nil, err
@@ -409,9 +409,9 @@ func BuildListSourceItemsPayload(ingestListSourceItemsUUID string, ingestListSou
 	}
 	var limit *int
 	{
-		if ingestListSourceItemsLimit != "" {
+		if ingestListSipSourceObjectsLimit != "" {
 			var v int64
-			v, err = strconv.ParseInt(ingestListSourceItemsLimit, 10, strconv.IntSize)
+			v, err = strconv.ParseInt(ingestListSipSourceObjectsLimit, 10, strconv.IntSize)
 			val := int(v)
 			limit = &val
 			if err != nil {
@@ -421,17 +421,17 @@ func BuildListSourceItemsPayload(ingestListSourceItemsUUID string, ingestListSou
 	}
 	var cursor *string
 	{
-		if ingestListSourceItemsCursor != "" {
-			cursor = &ingestListSourceItemsCursor
+		if ingestListSipSourceObjectsCursor != "" {
+			cursor = &ingestListSipSourceObjectsCursor
 		}
 	}
 	var token *string
 	{
-		if ingestListSourceItemsToken != "" {
-			token = &ingestListSourceItemsToken
+		if ingestListSipSourceObjectsToken != "" {
+			token = &ingestListSipSourceObjectsToken
 		}
 	}
-	v := &ingest.ListSourceItemsPayload{}
+	v := &ingest.ListSipSourceObjectsPayload{}
 	v.UUID = uuid
 	v.Limit = limit
 	v.Cursor = cursor

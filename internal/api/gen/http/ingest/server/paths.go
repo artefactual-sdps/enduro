@@ -67,7 +67,7 @@ func ListUsersIngestPath() string {
 	return "/ingest/users"
 }
 
-// ListSourceItemsIngestPath returns the URL path to the ingest service list_source_items HTTP endpoint.
-func ListSourceItemsIngestPath(uuid string) string {
-	return fmt.Sprintf("/ingest/sources/%v/items", uuid)
+// ListSipSourceObjectsIngestPath returns the URL path to the ingest service list_sip_source_objects HTTP endpoint.
+func ListSipSourceObjectsIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/sip_sources/%v/objects", uuid)
 }

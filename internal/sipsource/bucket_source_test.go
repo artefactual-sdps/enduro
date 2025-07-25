@@ -21,7 +21,7 @@ func TestNewBucketSource(t *testing.T) {
 	type test struct {
 		name    string
 		cfg     *sipsource.Config
-		want    *sipsource.SIPBucketSource
+		want    *sipsource.BucketSource
 		wantErr string
 	}
 
@@ -30,7 +30,7 @@ func TestNewBucketSource(t *testing.T) {
 	for _, tt := range []test{
 		{
 			name: "Returns an empty source if the source configuration is empty",
-			want: &sipsource.SIPBucketSource{},
+			want: &sipsource.BucketSource{},
 		},
 		{
 			name: "Returns a valid SIP source",
@@ -41,18 +41,10 @@ func TestNewBucketSource(t *testing.T) {
 					URL: "mem://", // Use a memory bucket for testing.
 				},
 			},
-			want: &sipsource.SIPBucketSource{
+			want: &sipsource.BucketSource{
 				ID:   sourceID,
 				Name: "Test SIP Source",
 			},
-		},
-		{
-			name: "Returns an error if the source ID is missing",
-			cfg: &sipsource.Config{
-				Name:   "Test SIP Source",
-				Bucket: &bucket.Config{URL: "mem://"},
-			},
-			wantErr: "SIP source: missing ID",
 		},
 		{
 			name: "Returns an error if the bucket URL is invalid",
@@ -63,7 +55,7 @@ func TestNewBucketSource(t *testing.T) {
 					URL: "invalid://", // Invalid URL to trigger an error.
 				},
 			},
-			wantErr: "SIP source: open bucket from URL \"invalid://\"",
+			wantErr: "SIP source: new bucket source: open bucket from URL \"invalid://\"",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -79,7 +71,7 @@ func TestNewBucketSource(t *testing.T) {
 			assert.NilError(t, err)
 			assert.DeepEqual(t, got, tt.want,
 				// We can't compare the bucket directly, so ignore it.
-				cmpopts.IgnoreFields(sipsource.SIPBucketSource{}, "Bucket"),
+				cmpopts.IgnoreFields(sipsource.BucketSource{}, "Bucket"),
 			)
 		})
 	}
@@ -101,13 +93,13 @@ func TestListItems(t *testing.T) {
 			name: "Returns a list of bucket items",
 			cfg: &sipsource.Config{
 				ID:   uuid.New(),
-				Name: "Test SIP Source",
+				Name: "Test bucket source",
 				Bucket: &bucket.Config{
 					URL: "mem://",
 				},
 			},
 			want: &sipsource.Page{
-				Items: []*sipsource.Item{
+				Objects: []*sipsource.Object{
 					{
 						Key:     "sip1",
 						ModTime: time.Now(),
@@ -129,14 +121,14 @@ func TestListItems(t *testing.T) {
 			name: "Returns the first page of bucket items",
 			cfg: &sipsource.Config{
 				ID:   uuid.New(),
-				Name: "Test SIP Source",
+				Name: "Test bucket source",
 				Bucket: &bucket.Config{
 					URL: "mem://",
 				},
 			},
 			limit: 1,
 			want: &sipsource.Page{
-				Items: []*sipsource.Item{
+				Objects: []*sipsource.Object{
 					{
 						Key:     "sip1",
 						ModTime: time.Now(),
@@ -152,7 +144,7 @@ func TestListItems(t *testing.T) {
 			name: "Returns the second page of bucket items",
 			cfg: &sipsource.Config{
 				ID:   uuid.New(),
-				Name: "Test SIP Source",
+				Name: "Test bucket source",
 				Bucket: &bucket.Config{
 					URL: "mem://",
 				},
@@ -160,7 +152,7 @@ func TestListItems(t *testing.T) {
 			token: []byte("sip1"),
 			limit: 1,
 			want: &sipsource.Page{
-				Items: []*sipsource.Item{
+				Objects: []*sipsource.Object{
 					{
 						Key:     "sip2",
 						ModTime: time.Now(),
@@ -200,7 +192,7 @@ func TestListItems(t *testing.T) {
 				}
 			}
 
-			got, err := source.ListItems(ctx, tt.token, tt.limit)
+			got, err := source.ListObjects(ctx, tt.token, tt.limit)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

@@ -45,10 +45,10 @@ type Users struct {
 	View string
 }
 
-// SourceItems is the viewed result type that is projected based on a view.
-type SourceItems struct {
+// SIPSourceObjects is the viewed result type that is projected based on a view.
+type SIPSourceObjects struct {
 	// Type to project
-	Projected *SourceItemsView
+	Projected *SIPSourceObjectsView
 	// View to render
 	View string
 }
@@ -160,27 +160,28 @@ type UserView struct {
 	CreatedAt *string
 }
 
-// SourceItemsView is a type that runs validations on a projected type.
-type SourceItemsView struct {
-	Items SourceItemCollectionView
-	// Limit of items per page
+// SIPSourceObjectsView is a type that runs validations on a projected type.
+type SIPSourceObjectsView struct {
+	Objects SIPSourceObjectCollectionView
+	// Limit of objects per page
 	Limit *int
-	// Token to get the next page of items
+	// Token to get the next page of objects
 	Next *string
 }
 
-// SourceItemCollectionView is a type that runs validations on a projected type.
-type SourceItemCollectionView []*SourceItemView
+// SIPSourceObjectCollectionView is a type that runs validations on a projected
+// type.
+type SIPSourceObjectCollectionView []*SIPSourceObjectView
 
-// SourceItemView is a type that runs validations on a projected type.
-type SourceItemView struct {
-	// Key of the item
+// SIPSourceObjectView is a type that runs validations on a projected type.
+type SIPSourceObjectView struct {
+	// Key of the object
 	Key *string
-	// Last modification time of the item
+	// Last modification time of the object
 	ModTime *string
-	// Size of the item in bytes
+	// Size of the object in bytes
 	Size *int64
-	// True if the item is a directory, false if it is a file
+	// True if the object is a directory, false if it is a file
 	IsDir *bool
 }
 
@@ -223,11 +224,11 @@ var (
 			"page",
 		},
 	}
-	// SourceItemsMap is a map indexing the attribute names of SourceItems by view
-	// name.
-	SourceItemsMap = map[string][]string{
+	// SIPSourceObjectsMap is a map indexing the attribute names of
+	// SIPSourceObjects by view name.
+	SIPSourceObjectsMap = map[string][]string{
 		"default": {
-			"items",
+			"objects",
 			"limit",
 			"next",
 		},
@@ -349,9 +350,9 @@ var (
 			"created_at",
 		},
 	}
-	// SourceItemCollectionMap is a map indexing the attribute names of
-	// SourceItemCollection by view name.
-	SourceItemCollectionMap = map[string][]string{
+	// SIPSourceObjectCollectionMap is a map indexing the attribute names of
+	// SIPSourceObjectCollection by view name.
+	SIPSourceObjectCollectionMap = map[string][]string{
 		"default": {
 			"key",
 			"mod_time",
@@ -359,9 +360,9 @@ var (
 			"is_dir",
 		},
 	}
-	// SourceItemMap is a map indexing the attribute names of SourceItem by view
-	// name.
-	SourceItemMap = map[string][]string{
+	// SIPSourceObjectMap is a map indexing the attribute names of SIPSourceObject
+	// by view name.
+	SIPSourceObjectMap = map[string][]string{
 		"default": {
 			"key",
 			"mod_time",
@@ -416,12 +417,12 @@ func ValidateUsers(result *Users) (err error) {
 	return
 }
 
-// ValidateSourceItems runs the validations defined on the viewed result type
-// SourceItems.
-func ValidateSourceItems(result *SourceItems) (err error) {
+// ValidateSIPSourceObjects runs the validations defined on the viewed result
+// type SIPSourceObjects.
+func ValidateSIPSourceObjects(result *SIPSourceObjects) (err error) {
 	switch result.View {
 	case "default", "":
-		err = ValidateSourceItemsView(result.Projected)
+		err = ValidateSIPSourceObjectsView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
@@ -719,34 +720,34 @@ func ValidateUserView(result *UserView) (err error) {
 	return
 }
 
-// ValidateSourceItemsView runs the validations defined on SourceItemsView
-// using the "default" view.
-func ValidateSourceItemsView(result *SourceItemsView) (err error) {
+// ValidateSIPSourceObjectsView runs the validations defined on
+// SIPSourceObjectsView using the "default" view.
+func ValidateSIPSourceObjectsView(result *SIPSourceObjectsView) (err error) {
 	if result.Limit == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("limit", "result"))
 	}
-	if result.Items != nil {
-		if err2 := ValidateSourceItemCollectionView(result.Items); err2 != nil {
+	if result.Objects != nil {
+		if err2 := ValidateSIPSourceObjectCollectionView(result.Objects); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateSourceItemCollectionView runs the validations defined on
-// SourceItemCollectionView using the "default" view.
-func ValidateSourceItemCollectionView(result SourceItemCollectionView) (err error) {
+// ValidateSIPSourceObjectCollectionView runs the validations defined on
+// SIPSourceObjectCollectionView using the "default" view.
+func ValidateSIPSourceObjectCollectionView(result SIPSourceObjectCollectionView) (err error) {
 	for _, item := range result {
-		if err2 := ValidateSourceItemView(item); err2 != nil {
+		if err2 := ValidateSIPSourceObjectView(item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateSourceItemView runs the validations defined on SourceItemView using
-// the "default" view.
-func ValidateSourceItemView(result *SourceItemView) (err error) {
+// ValidateSIPSourceObjectView runs the validations defined on
+// SIPSourceObjectView using the "default" view.
+func ValidateSIPSourceObjectView(result *SIPSourceObjectView) (err error) {
 	if result.Key == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("key", "result"))
 	}

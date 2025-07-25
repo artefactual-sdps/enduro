@@ -1249,21 +1249,21 @@ func EncodeListUsersError(encoder func(context.Context, http.ResponseWriter) goa
 	}
 }
 
-// EncodeListSourceItemsResponse returns an encoder for responses returned by
-// the ingest list_source_items endpoint.
-func EncodeListSourceItemsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeListSipSourceObjectsResponse returns an encoder for responses returned
+// by the ingest list_sip_source_objects endpoint.
+func EncodeListSipSourceObjectsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
-		res := v.(*ingestviews.SourceItems)
+		res := v.(*ingestviews.SIPSourceObjects)
 		enc := encoder(ctx, w)
-		body := NewListSourceItemsResponseBody(res.Projected)
+		body := NewListSipSourceObjectsResponseBody(res.Projected)
 		w.WriteHeader(http.StatusOK)
 		return enc.Encode(body)
 	}
 }
 
-// DecodeListSourceItemsRequest returns a decoder for requests sent to the
-// ingest list_source_items endpoint.
-func DecodeListSourceItemsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
+// DecodeListSipSourceObjectsRequest returns a decoder for requests sent to the
+// ingest list_sip_source_objects endpoint.
+func DecodeListSipSourceObjectsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (any, error) {
 	return func(r *http.Request) (any, error) {
 		var (
 			uuid   string
@@ -1298,7 +1298,7 @@ func DecodeListSourceItemsRequest(mux goahttp.Muxer, decoder func(*http.Request)
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListSourceItemsPayload(uuid, limit, cursor, token)
+		payload := NewListSipSourceObjectsPayload(uuid, limit, cursor, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -1311,9 +1311,9 @@ func DecodeListSourceItemsRequest(mux goahttp.Muxer, decoder func(*http.Request)
 	}
 }
 
-// EncodeListSourceItemsError returns an encoder for errors returned by the
-// list_source_items ingest endpoint.
-func EncodeListSourceItemsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeListSipSourceObjectsError returns an encoder for errors returned by
+// the list_sip_source_objects ingest endpoint.
+func EncodeListSipSourceObjectsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -1321,19 +1321,6 @@ func EncodeListSourceItemsError(encoder func(context.Context, http.ResponseWrite
 			return encodeError(ctx, w, v)
 		}
 		switch en.GoaErrorName() {
-		case "not_implemented":
-			var res *goa.ServiceError
-			errors.As(v, &res)
-			enc := encoder(ctx, w)
-			var body any
-			if formatter != nil {
-				body = formatter(ctx, res)
-			} else {
-				body = NewListSourceItemsNotImplementedResponseBody(res)
-			}
-			w.Header().Set("goa-error", res.GoaErrorName())
-			w.WriteHeader(http.StatusNotImplemented)
-			return enc.Encode(body)
 		case "not_found":
 			var res *goa.ServiceError
 			errors.As(v, &res)
@@ -1342,7 +1329,7 @@ func EncodeListSourceItemsError(encoder func(context.Context, http.ResponseWrite
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewListSourceItemsNotFoundResponseBody(res)
+				body = NewListSipSourceObjectsNotFoundResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusNotFound)
@@ -1355,7 +1342,7 @@ func EncodeListSourceItemsError(encoder func(context.Context, http.ResponseWrite
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewListSourceItemsNotValidResponseBody(res)
+				body = NewListSipSourceObjectsNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
@@ -1368,7 +1355,7 @@ func EncodeListSourceItemsError(encoder func(context.Context, http.ResponseWrite
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewListSourceItemsInternalErrorResponseBody(res)
+				body = NewListSipSourceObjectsInternalErrorResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -1487,11 +1474,11 @@ func marshalIngestviewsUserViewToUserResponseBody(v *ingestviews.UserView) *User
 	return res
 }
 
-// marshalIngestviewsSourceItemViewToSourceItemResponseBody builds a value of
-// type *SourceItemResponseBody from a value of type
-// *ingestviews.SourceItemView.
-func marshalIngestviewsSourceItemViewToSourceItemResponseBody(v *ingestviews.SourceItemView) *SourceItemResponseBody {
-	res := &SourceItemResponseBody{
+// marshalIngestviewsSIPSourceObjectViewToSIPSourceObjectResponseBody builds a
+// value of type *SIPSourceObjectResponseBody from a value of type
+// *ingestviews.SIPSourceObjectView.
+func marshalIngestviewsSIPSourceObjectViewToSIPSourceObjectResponseBody(v *ingestviews.SIPSourceObjectView) *SIPSourceObjectResponseBody {
+	res := &SIPSourceObjectResponseBody{
 		Key:     *v.Key,
 		ModTime: v.ModTime,
 		Size:    v.Size,
