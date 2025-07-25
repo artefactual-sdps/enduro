@@ -18,6 +18,7 @@ import (
 
 var JWTAuth = JWTSecurity("jwt", func() {
 	Description("Secures endpoint by requiring a valid JWT token.")
+	Scope(auth.IngestSIPSCreateAttr)
 	Scope(auth.IngestSIPSDownloadAttr)
 	Scope(auth.IngestSIPSListAttr)
 	Scope(auth.IngestSIPSReadAttr)

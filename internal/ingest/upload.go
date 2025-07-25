@@ -7,10 +7,8 @@ import (
 	"io"
 	"mime"
 	"mime/multipart"
-	"strings"
 
 	"github.com/google/uuid"
-	"github.com/mholt/archiver/v4"
 	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
@@ -48,25 +46,23 @@ func (w *goaWrapper) UploadSip(
 		return nil, goaingest.MakeInvalidMultipartRequest(errors.New("invalid multipart request"))
 	}
 
-	// Identify file format to add extension in the object key.
-	// TODO: Use github.com/mholt/archives. We still use the archived github.com/mholt/archiver/v4
-	// in some activities, and using both causes a panic registering the same compressors.
-	format, stream, err := archiver.Identify(part.FileName(), part)
+	// Remove the archive format extension from the filename if it is included.
+	base, ext, err := TrimArchiveExt(part.FileName(), part)
 	if err != nil {
-		return nil, goaingest.MakeInvalidMultipartRequest(errors.New("unable to identify format"))
+		return nil, goaingest.MakeInvalidMultipartRequest(err)
 	}
 
-	// Remove the format extension from the filename if it is included.
-	ext := format.Name()
-	name := strings.TrimSuffix(part.FileName(), ext)
+	// Build the internal object key for the SIP.
 	sipUUID := uuid.Must(uuid.NewRandomFromReader(w.rander))
-	objectKey := fmt.Sprintf("%s%s-%s%s", SIPPrefix, name, sipUUID.String(), ext)
+	objectKey := fmt.Sprintf("%s%s-%s%s", SIPPrefix, base, sipUUID.String(), ext)
+
+	// Write the SIP file to the internal storage bucket.
 	wr, err := w.internalStorage.NewWriter(ctx, objectKey, &blob.WriterOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	_, copyErr := io.Copy(wr, stream)
+	_, copyErr := io.Copy(wr, part)
 	closeErr := wr.Close()
 
 	if copyErr != nil {
@@ -101,24 +97,13 @@ func (w *goaWrapper) initSIP(
 	extension string,
 	wType enums.WorkflowType,
 ) error {
-	user, err := w.findOrCreateUser(ctx, w.perSvc)
-	if err != nil {
-		return err
-	}
-
 	s := &datatypes.SIP{
 		UUID:   id,
 		Name:   name,
 		Status: enums.SIPStatusQueued,
 	}
-
-	// If user is nil, it means authentication is not enabled.
-	if user != nil {
-		s.Uploader = &datatypes.Uploader{
-			UUID:  user.UUID,
-			Email: user.Email,
-			Name:  user.Name,
-		}
+	if err := w.addSIPUploader(ctx, s); err != nil {
+		return err
 	}
 
 	if err := w.perSvc.CreateSIP(ctx, s); err != nil {
@@ -142,10 +127,27 @@ func (w *goaWrapper) initSIP(
 	return nil
 }
 
-func (w *goaWrapper) findOrCreateUser(
-	ctx context.Context,
-	perSvc persistence.Service,
-) (*datatypes.User, error) {
+func (w *goaWrapper) addSIPUploader(ctx context.Context, sip *datatypes.SIP) error {
+	user, err := w.findOrCreateUser(ctx)
+	if err != nil {
+		return err
+	}
+
+	// If user is nil, it means authentication is not enabled.
+	if user == nil {
+		return nil
+	}
+
+	sip.Uploader = &datatypes.Uploader{
+		UUID:  user.UUID,
+		Email: user.Email,
+		Name:  user.Name,
+	}
+
+	return nil
+}
+
+func (w *goaWrapper) findOrCreateUser(ctx context.Context) (*datatypes.User, error) {
 	claims := auth.UserClaimsFromContext(ctx)
 	if claims == nil {
 		return nil, nil
@@ -157,11 +159,11 @@ func (w *goaWrapper) findOrCreateUser(
 		return nil, fmt.Errorf("invalid user claims: missing Sub")
 	}
 
-	user, err := perSvc.ReadOIDCUser(ctx, claims.Iss, claims.Sub)
+	user, err := w.perSvc.ReadOIDCUser(ctx, claims.Iss, claims.Sub)
 	if err != nil {
 		if errors.Is(err, persistence.ErrNotFound) {
 			// User does not exist, create a new one.
-			user, err := w.createUser(ctx, perSvc, claims)
+			user, err := w.createUser(ctx, w.perSvc, claims)
 			if err != nil {
 				return nil, fmt.Errorf("failed to create user: %w", err)
 			}

@@ -13,6 +13,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/sipsource"
 )
@@ -28,6 +29,7 @@ var _ goaingest.Service = (*goaWrapper)(nil)
 var (
 	ErrBulkStatusUnavailable error = errors.New("bulk status unavailable")
 	ErrForbidden             error = goaingest.Forbidden("Forbidden")
+	ErrInternalError         error = goaingest.MakeInternalError(errors.New("Internal error"))
 	ErrUnauthorized          error = goaingest.Unauthorized("Unauthorized")
 )
 
@@ -51,6 +53,45 @@ func (w *goaWrapper) JWTAuth(
 	ctx = auth.WithUserClaims(ctx, claims)
 
 	return ctx, nil
+}
+
+// AddSip ingests a new SIP from a SIP source.
+func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayload) (*goaingest.AddSipResult, error) {
+	if payload == nil {
+		return nil, goaingest.MakeNotValid(errors.New("missing payload"))
+	}
+
+	sipID, err := uuid.NewRandomFromReader(w.rander)
+	if err != nil {
+		w.logger.Info("add SIP: generate UUID: %w", err)
+		return nil, ErrInternalError
+	}
+
+	base, ext, err := TrimArchiveExt(payload.Key, nil)
+	if err != nil {
+		w.logger.Info("add SIP: trim archive ext: %w", err)
+		return nil, ErrInternalError
+	}
+	internalKey := fmt.Sprintf("%s%s-%s%s", SIPPrefix, base, sipID.String(), ext)
+
+	// Add a new SIP to the persistence layer.
+	sip := &datatypes.SIP{
+		UUID:   sipID,
+		Name:   base,
+		Status: enums.SIPStatusQueued,
+	}
+	if err := w.addSIPUploader(ctx, sip); err != nil {
+		w.logger.Info("add SIP: add Uploader: %w", err)
+		return nil, ErrInternalError
+	}
+	if err := w.perSvc.CreateSIP(ctx, sip); err != nil {
+		w.logger.Info("add SIP: %w", err)
+		return nil, ErrInternalError
+	}
+
+	w.logger.Info("add SIP: saved %s as %s", sip.UUID, internalKey)
+
+	return &goaingest.AddSipResult{UUID: sipID.String()}, nil
 }
 
 // List all SIPs. It implements goaingest.Service.

@@ -47,6 +47,11 @@ func RejectSipIngestPath(uuid string) string {
 	return fmt.Sprintf("/ingest/sips/%v/reject", uuid)
 }
 
+// AddSipIngestPath returns the URL path to the ingest service add_sip HTTP endpoint.
+func AddSipIngestPath() string {
+	return "/ingest/sips"
+}
+
 // UploadSipIngestPath returns the URL path to the ingest service upload_sip HTTP endpoint.
 func UploadSipIngestPath() string {
 	return "/ingest/sips/upload"

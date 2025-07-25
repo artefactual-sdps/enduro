@@ -957,6 +957,139 @@ func DecodeRejectSipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 	}
 }
 
+// BuildAddSipRequest instantiates a HTTP request object with method and path
+// set to call the "ingest" service "add_sip" endpoint
+func (c *Client) BuildAddSipRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AddSipIngestPath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "add_sip", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeAddSipRequest returns an encoder for requests sent to the ingest
+// add_sip server.
+func EncodeAddSipRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.AddSipPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "add_sip", "*ingest.AddSipPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		values := req.URL.Query()
+		values.Add("source_id", p.SourceID)
+		values.Add("key", p.Key)
+		req.URL.RawQuery = values.Encode()
+		return nil
+	}
+}
+
+// DecodeAddSipResponse returns a decoder for responses returned by the ingest
+// add_sip endpoint. restoreBody controls whether the response body should be
+// restored after having been read.
+// DecodeAddSipResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeAddSipResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusCreated:
+			var (
+				body AddSipResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_sip", err)
+			}
+			err = ValidateAddSipResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "add_sip", err)
+			}
+			res := NewAddSipResultCreated(&body)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body AddSipNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_sip", err)
+			}
+			err = ValidateAddSipNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "add_sip", err)
+			}
+			return nil, NewAddSipNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body AddSipInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_sip", err)
+			}
+			err = ValidateAddSipInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "add_sip", err)
+			}
+			return nil, NewAddSipInternalError(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_sip", err)
+			}
+			return nil, NewAddSipForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_sip", err)
+			}
+			return nil, NewAddSipUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "add_sip", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildUploadSipRequest instantiates a HTTP request object with method and
 // path set to call the "ingest" service "upload_sip" endpoint
 func (c *Client) BuildUploadSipRequest(ctx context.Context, v any) (*http.Request, error) {

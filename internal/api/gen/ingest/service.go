@@ -34,6 +34,8 @@ type Service interface {
 	ConfirmSip(context.Context, *ConfirmSipPayload) (err error)
 	// Signal the SIP has been reviewed and rejected
 	RejectSip(context.Context, *RejectSipPayload) (err error)
+	// Ingest a SIP from a SIP Source
+	AddSip(context.Context, *AddSipPayload) (res *AddSipResult, err error)
 	// Upload a SIP to trigger an ingest workflow
 	UploadSip(context.Context, *UploadSipPayload, io.ReadCloser) (res *UploadSipResult, err error)
 	// Request access to SIP download
@@ -67,7 +69,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [12]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_source_items"}
+var MethodNames = [13]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "add_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_source_items"}
 
 // MonitorServerStream is the interface a "monitor" endpoint server stream must
 // satisfy.
@@ -83,6 +85,21 @@ type MonitorServerStream interface {
 type MonitorClientStream interface {
 	// Recv reads instances of "MonitorEvent" from the stream.
 	Recv() (*MonitorEvent, error)
+}
+
+// AddSipPayload is the payload type of the ingest service add_sip method.
+type AddSipPayload struct {
+	// Identifier of SIP source -- CURRENTLY NOT USED
+	SourceID string
+	// Key of the item to ingest
+	Key   string
+	Token *string
+}
+
+// AddSipResult is the result type of the ingest service add_sip method.
+type AddSipResult struct {
+	// Identifier of the ingested SIP
+	UUID string
 }
 
 // ConfirmSipPayload is the payload type of the ingest service confirm_sip
@@ -482,6 +499,11 @@ func MakeNotValid(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_valid", false, false, false)
 }
 
+// MakeInternalError builds a goa.ServiceError from an error.
+func MakeInternalError(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "internal_error", false, false, false)
+}
+
 // MakeInvalidMediaType builds a goa.ServiceError from an error.
 func MakeInvalidMediaType(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "invalid_media_type", false, false, false)
@@ -490,11 +512,6 @@ func MakeInvalidMediaType(err error) *goa.ServiceError {
 // MakeInvalidMultipartRequest builds a goa.ServiceError from an error.
 func MakeInvalidMultipartRequest(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "invalid_multipart_request", false, false, false)
-}
-
-// MakeInternalError builds a goa.ServiceError from an error.
-func MakeInternalError(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "internal_error", false, false, false)
 }
 
 // MakeNotImplemented builds a goa.ServiceError from an error.

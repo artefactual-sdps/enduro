@@ -3,9 +3,12 @@ package ingest
 import (
 	"errors"
 	"fmt"
+	"io"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/mholt/archiver/v4"
 	"go.artefactual.dev/tools/ref"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
@@ -176,4 +179,19 @@ func sourceItemsToGoa(items []*sipsource.Item) goaingest.SourceItemCollection {
 	}
 
 	return goaItems
+}
+
+func TrimArchiveExt(name string, stream io.Reader) (base, ext string, err error) {
+	// Identify file format to add extension in the object key.
+	// TODO: Use github.com/mholt/archives. We still use the archived github.com/mholt/archiver/v4
+	// in some activities, and using both causes a panic registering the same compressors.
+	format, _, err := archiver.Identify(name, stream)
+	if err != nil {
+		return "", "", errors.New("unable to identify format")
+	}
+
+	ext = format.Name()
+	base = strings.TrimSuffix(name, ext)
+
+	return base, ext, nil
 }
