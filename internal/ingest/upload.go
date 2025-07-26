@@ -137,7 +137,7 @@ func (w *goaWrapper) initSIP(
 		return errors.Join(err, w.perSvc.DeleteSIP(ctx, s.ID))
 	}
 
-	event.PublishEvent(ctx, w.evsvc, sipToCreatedEvent(s))
+	event.PublishIngestEvent(ctx, w.evsvc, sipToCreatedEvent(s))
 
 	return nil
 }

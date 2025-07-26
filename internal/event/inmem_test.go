@@ -5,13 +5,14 @@ import (
 	"testing"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
-func TestEventService(t *testing.T) {
+func TestIngestEventService(t *testing.T) {
 	t.Run("Subscribe", func(t *testing.T) {
 		ctx := context.Background()
-		s := event.NewEventServiceInMemImpl()
+		s := event.NewIngestEventServiceInMem()
 
 		subA, err := s.Subscribe(ctx)
 		if err != nil {
@@ -23,7 +24,7 @@ func TestEventService(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		// Publish event to both users
+		// Publish event to both users.
 		s.PublishEvent(ctx, &goaingest.IngestEvent{})
 
 		// Verify both subscribers received the update.
@@ -42,34 +43,138 @@ func TestEventService(t *testing.T) {
 
 	t.Run("Unsubscribe", func(t *testing.T) {
 		ctx := context.Background()
-		s := event.NewEventServiceInMemImpl()
+		s := event.NewIngestEventServiceInMem()
 
 		sub, err := s.Subscribe(ctx)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		// Publish event & close.
-		s.PublishEvent(ctx, &goaingest.IngestEvent{})
 		if err := sub.Close(); err != nil {
 			t.Fatal(err)
 		}
 
-		// Verify event is still received.
+		// Publish event after unsubscribe.
+		s.PublishEvent(ctx, &goaingest.IngestEvent{})
+
+		// Verify subscriber did not receive the update (channel should be closed).
 		select {
-		case <-sub.C():
+		case _, ok := <-sub.C():
+			if ok {
+				t.Fatal("unexpected event")
+			}
+			// Channel is closed, which is expected.
+		default:
+			t.Fatal("expected channel to be closed")
+		}
+	})
+}
+
+func TestStorageEventService(t *testing.T) {
+	t.Run("Subscribe", func(t *testing.T) {
+		ctx := context.Background()
+		s := event.NewStorageEventServiceInMem()
+
+		subA, err := s.Subscribe(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		subB, err := s.Subscribe(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// Publish event to both users.
+		s.PublishEvent(ctx, &goastorage.StorageEvent{})
+
+		// Verify both subscribers received the update.
+		select {
+		case <-subA.C():
 		default:
 			t.Fatal("expected event")
 		}
 
-		// Ensure channel is now closed.
-		if _, ok := <-sub.C(); ok {
-			t.Fatal("expected closed channel")
+		select {
+		case <-subB.C():
+		default:
+			t.Fatal("expected event")
+		}
+	})
+
+	t.Run("Unsubscribe", func(t *testing.T) {
+		ctx := context.Background()
+		s := event.NewStorageEventServiceInMem()
+
+		sub, err := s.Subscribe(ctx)
+		if err != nil {
+			t.Fatal(err)
 		}
 
-		// Ensure unsubscribing twice is ok.
 		if err := sub.Close(); err != nil {
 			t.Fatal(err)
+		}
+
+		// Publish event after unsubscribe.
+		s.PublishEvent(ctx, &goastorage.StorageEvent{})
+
+		// Verify subscriber did not receive the update (channel should be closed).
+		select {
+		case _, ok := <-sub.C():
+			if ok {
+				t.Fatal("unexpected event")
+			}
+			// Channel is closed, which is expected.
+		default:
+			t.Fatal("expected channel to be closed")
+		}
+	})
+}
+
+func TestPublishHelpers(t *testing.T) {
+	t.Run("PublishIngestEvent", func(t *testing.T) {
+		ctx := context.Background()
+		s := event.NewIngestEventServiceInMem()
+
+		sub, err := s.Subscribe(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// Test publishing different event types.
+		event.PublishIngestEvent(ctx, s, &goaingest.SIPCreatedEvent{})
+
+		// Verify subscriber received the event.
+		select {
+		case event := <-sub.C():
+			if event.IngestValue == nil {
+				t.Fatal("expected event to contain data")
+			}
+		default:
+			t.Fatal("expected event")
+		}
+	})
+
+	t.Run("PublishStorageEvent", func(t *testing.T) {
+		ctx := context.Background()
+		s := event.NewStorageEventServiceInMem()
+
+		sub, err := s.Subscribe(ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// Test publishing different event types.
+		event.PublishStorageEvent(ctx, s, &goastorage.AIPCreatedEvent{})
+
+		// Verify subscriber received the event.
+		select {
+		case event := <-sub.C():
+			if event.StorageValue == nil {
+				t.Fatal("expected event to contain data")
+			}
+		default:
+			t.Fatal("expected event")
 		}
 	})
 }

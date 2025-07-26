@@ -7,26 +7,29 @@ import (
 	"github.com/google/uuid"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
-// EventServiceInMemImpl represents a service for managing events in the system.
-type EventServiceInMemImpl struct {
+// ServiceInMemImpl represents a generic service for managing events in the system.
+type ServiceInMemImpl[T any] struct {
 	mu   sync.Mutex
-	subs map[uuid.UUID]*SubscriptionInMemImpl
+	subs map[uuid.UUID]*SubscriptionInMemImpl[T]
 }
 
-// NewEventServiceInMemImpl returns a new instance of EventService.
-func NewEventServiceInMemImpl() *EventServiceInMemImpl {
-	return &EventServiceInMemImpl{
-		subs: map[uuid.UUID]*SubscriptionInMemImpl{},
+var (
+	_ Service[*goaingest.IngestEvent]   = (*ServiceInMemImpl[*goaingest.IngestEvent])(nil)
+	_ Service[*goastorage.StorageEvent] = (*ServiceInMemImpl[*goastorage.StorageEvent])(nil)
+)
+
+// NewServiceInMem returns a new instance of a generic event service.
+func NewServiceInMem[T any]() *ServiceInMemImpl[T] {
+	return &ServiceInMemImpl[T]{
+		subs: map[uuid.UUID]*SubscriptionInMemImpl[T]{},
 	}
 }
 
-// PublishEvent publishes event to all of a user's subscriptions.
-//
-// If user's channel is full then the user is disconnected. This is to prevent
-// slow users from blocking progress.
-func (s *EventServiceInMemImpl) PublishEvent(ctx context.Context, event *goaingest.IngestEvent) {
+// PublishEvent publishes event to all subscriptions.
+func (s *ServiceInMemImpl[T]) PublishEvent(ctx context.Context, event T) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
@@ -41,10 +44,10 @@ func (s *EventServiceInMemImpl) PublishEvent(ctx context.Context, event *goainge
 }
 
 // Subscribe creates a new subscription.
-func (s *EventServiceInMemImpl) Subscribe(ctx context.Context) (Subscription, error) {
-	sub := &SubscriptionInMemImpl{
+func (s *ServiceInMemImpl[T]) Subscribe(ctx context.Context) (Subscription[T], error) {
+	sub := &SubscriptionInMemImpl[T]{
 		service: s,
-		c:       make(chan *goaingest.IngestEvent, EventBufferSize),
+		c:       make(chan T, EventBufferSize),
 		id:      uuid.New(),
 	}
 
@@ -57,14 +60,14 @@ func (s *EventServiceInMemImpl) Subscribe(ctx context.Context) (Subscription, er
 }
 
 // Unsubscribe disconnects sub from the service.
-func (s *EventServiceInMemImpl) Unsubscribe(sub *SubscriptionInMemImpl) {
+func (s *ServiceInMemImpl[T]) Unsubscribe(sub *SubscriptionInMemImpl[T]) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.unsubscribe(sub)
 }
 
-func (s *EventServiceInMemImpl) unsubscribe(sub *SubscriptionInMemImpl) {
+func (s *ServiceInMemImpl[T]) unsubscribe(sub *SubscriptionInMemImpl[T]) {
 	// Only close the underlying channel once. Otherwise Go will panic.
 	sub.once.Do(func() {
 		close(sub.c)
@@ -78,23 +81,30 @@ func (s *EventServiceInMemImpl) unsubscribe(sub *SubscriptionInMemImpl) {
 	delete(s.subs, sub.id)
 }
 
-// SubscriptionInMemImpl represents a stream of user-related events.
-type SubscriptionInMemImpl struct {
-	service *EventServiceInMemImpl      // service subscription was created from
-	c       chan *goaingest.IngestEvent // channel of events
-	once    sync.Once                   // ensures c only closed once
-	id      uuid.UUID                   // subscription identifier
+// SubscriptionInMemImpl represents a stream of events.
+type SubscriptionInMemImpl[T any] struct {
+	// Service the subscription was created from.
+	service *ServiceInMemImpl[T]
+	// Channel of events.
+	c chan T
+	// Ensures c only closed once.
+	once sync.Once
+	// Subscription identifier.
+	id uuid.UUID
 }
 
-var _ Subscription = (*SubscriptionInMemImpl)(nil)
+var (
+	_ Subscription[*goaingest.IngestEvent]   = (*SubscriptionInMemImpl[*goaingest.IngestEvent])(nil)
+	_ Subscription[*goastorage.StorageEvent] = (*SubscriptionInMemImpl[*goastorage.StorageEvent])(nil)
+)
 
 // Close disconnects the subscription from the service it was created from.
-func (s *SubscriptionInMemImpl) Close() error {
+func (s *SubscriptionInMemImpl[T]) Close() error {
 	s.service.Unsubscribe(s)
 	return nil
 }
 
-// C returns a receive-only channel of user-related events.
-func (s *SubscriptionInMemImpl) C() <-chan *goaingest.IngestEvent {
+// C returns a receive-only channel of events.
+func (s *SubscriptionInMemImpl[T]) C() <-chan T {
 	return s.c
 }
