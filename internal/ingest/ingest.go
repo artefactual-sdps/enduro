@@ -62,7 +62,7 @@ type ingestImpl struct {
 	logger          logr.Logger
 	db              *sqlx.DB
 	tc              temporalsdk_client.Client
-	evsvc           event.EventService
+	evsvc           event.IngestEventService
 	perSvc          persistence.Service
 	tokenVerifier   auth.TokenVerifier
 	ticketProvider  auth.TicketProvider
@@ -78,7 +78,7 @@ func NewService(
 	logger logr.Logger,
 	db *sql.DB,
 	tc temporalsdk_client.Client,
-	evsvc event.EventService,
+	evsvc event.IngestEventService,
 	psvc persistence.Service,
 	tokenVerifier auth.TokenVerifier,
 	ticketProvider auth.TicketProvider,
@@ -116,7 +116,7 @@ func (svc *ingestImpl) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 		return fmt.Errorf("ingest: create SIP: %v", err)
 	}
 
-	event.PublishEvent(ctx, svc.evsvc, sipToCreatedEvent(s))
+	event.PublishIngestEvent(ctx, svc.evsvc, sipToCreatedEvent(s))
 
 	return nil
 }
@@ -132,7 +132,7 @@ func (svc *ingestImpl) UpdateSIP(
 	}
 
 	ev := &goaingest.SIPUpdatedEvent{UUID: id, Item: s.Goa()}
-	event.PublishEvent(ctx, svc.evsvc, ev)
+	event.PublishIngestEvent(ctx, svc.evsvc, ev)
 
 	return s, nil
 }
@@ -149,7 +149,7 @@ func (svc *ingestImpl) SetStatus(ctx context.Context, id uuid.UUID, status enums
 	}
 
 	ev := &goaingest.SIPStatusUpdatedEvent{UUID: id, Status: status.String()}
-	event.PublishEvent(ctx, svc.evsvc, ev)
+	event.PublishIngestEvent(ctx, svc.evsvc, ev)
 
 	return nil
 }
@@ -170,7 +170,7 @@ func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, id uuid.UUID, st
 		return err
 	}
 
-	event.PublishEvent(ctx, svc.evsvc, &goaingest.SIPStatusUpdatedEvent{
+	event.PublishIngestEvent(ctx, svc.evsvc, &goaingest.SIPStatusUpdatedEvent{
 		UUID:   id,
 		Status: enums.SIPStatusProcessing.String(),
 	})

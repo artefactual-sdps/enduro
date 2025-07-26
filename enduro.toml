@@ -78,7 +78,8 @@ migrate = true
 
 [event]
 redisAddress = "redis://redis.enduro-sdps:6379"
-redisChannel = "enduro-events"
+ingestRedisChannel = "enduro-ingest-events"
+storageRedisChannel = "enduro-storage-events"
 
 [extractActivity]
 dirMode = "0o700"
