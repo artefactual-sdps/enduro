@@ -102,12 +102,12 @@ package exceeds the configured limit.
 
     ![the local upload widget showing a max size limit warning](../screenshots/local-upload-size-limit.png)
 
-**Starting ingest**
+### Starting ingest
 
-6. When you're finished adding SIPs, you can now start ingest by **clicking the
+1. When you're finished adding SIPs, you can now start ingest by **clicking the
    green button** at the bottom of the upload widget.
 
-7. After a moment, the page will reload and you will be redirected to the SIP
+2. After a moment, the page will reload and you will be redirected to the SIP
    browse page, where any new worklfows started by the upload  will be visible
    at the top of the browse results. Each SIP uploaded will be ingested via its
    own separate workflow.
