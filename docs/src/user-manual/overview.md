@@ -31,12 +31,12 @@ digital preservation lifecycle. Currently these include:
 
 ## Logging in
 
-Depending on the [installation process], the application can be configured to
-require no authentication. However, Enduro optionally supports external OpenID
-Connect (OIDC) compatible providers for authentication and access control. Users
-can authenticate against the external provider from the dashboard - if
-authentication has been enabled, then when first arriving, users will see a
-sign-in button:
+Depending on the [installation process][installation], the application can be
+configured to require no authentication. However, Enduro optionally supports
+external OpenID Connect (OIDC) compatible providers for authentication and
+access control. Users can authenticate against the external provider from the
+dashboard - if authentication has been enabled, then when first arriving, users
+will see a sign-in button:
 
 ![The sign-in button when first navigating to Enduro](screenshots/sign-in-button.png)
 
@@ -99,4 +99,4 @@ The logout button is in the user menu at the bottom of the navbar
 [Artefactual Systems]: https://www.artefactual.com
 [automation-tools]: https://github.com/artefactual/automation-tools
 [Enduro]: https://github.com/artefactual-sdps/enduro
-[installation process]: ../admin-manual/iac.md
+[installation]: ../admin-manual/iac.md
