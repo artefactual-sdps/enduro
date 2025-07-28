@@ -79,21 +79,22 @@ package exceeds the configured limit.
 
 5. At this point, you can:
 
-   * Click the **X** icon next to any SIP to remove it from the upload staging
-     area
-   * Add additional packages for ingest, either by:
-       * Dragging and dropping more SIPs for ingest directly into the staging
-         area, or
-       * Clicking the "+ Add more" link in the top-right corner of the upload
-         widget
-   * Cancel the ingest and clear all staged packages by clicking the "Cancel"
-     link in the top-left corder of the upload widget
-   * **Start the ingest** of SIPs already in the staging area, using the green
-     button at the bottom of the upload widget
+    * Click the **X** icon next to any SIP to remove it from the upload staging
+      area
+    * Add additional packages for ingest, either by:
+        * Dragging and dropping more SIPs for ingest directly into the staging
+          area, or
+        * Clicking the "+ Add more" link in the top-right corner of the upload
+          widget
+    * Cancel the ingest and clear all staged packages by clicking the "Cancel"
+      link in the top-left corder of the upload widget
+    * **Start the ingest** of SIPs already in the staging area, using the green
+      button at the bottom of the upload widget
 
-   !!! note
-       Navigating away from the upload page at this point will also cancel the
-       ingest and clear the staging area.
+    !!! note
+
+        Navigating away from the upload page at this point will also cancel the
+        ingest and clear the staging area.
 
 6. If a package that exceeds the configured upload limit is added, instead of
    showing it in the staging area, Enduro will display a warning, even if there
