@@ -3,9 +3,11 @@
 [Enduro][Enduro] is a new application under development by [Artefactual
 Systems]. Designed following digital preservation standards and best practices,
 our goal with Enduro is to ensure records of the past can be cared for in the
-present and trusted in the future. The application borrows terminology from the
-digital preservation domain - a full glossary of terms and how we define them in
-the Enduro project can be found at:
+present and trusted in the future.
+
+The application borrows terminology from the digital preservation domain - a
+full **glossary of terms** and how we define them in the Enduro project can be
+found at:
 
 * [Glossary](glossary.md)
 
@@ -52,10 +54,10 @@ link to the Enduro documentation.
 
 ![an image of the landing page in Enduro](screenshots/landing-page.png)
 
-Additionally, clicking the **info icon** in the top right corner of the Enduro
-header bar will open an About widget with further information and links,
-including the application version, the configured preservation engine, the name
-of the workflows in use, and more.
+Clicking the **info icon** in the top right corner of the Enduro header bar will
+open an About widget with further information and links, including the
+application version, the configured preservation engine, the name of the
+workflows in use, and more.
 
 ![the about widget with additional information and links](screenshots/about-widget.png)
 
