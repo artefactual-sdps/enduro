@@ -248,7 +248,7 @@ configured in the preservation system.
 
 The component of Enduro that manages the transformation of **PIPs** into
 **AIPs** in a **workflow** during preservation processing. See:
-[Components](/src/user-manual/components.md).
+[Components](components.md).
 
 ## Preservation policy
 
@@ -272,7 +272,7 @@ processing workflow steps include file format characterization, and preservation
 A component of Enduro that acts as an interface between the **preservation
 engine** and whatever storage devices have been configured for the long-term
 preservation of **AIPs** produced by Enduro **workflows**. See:
-[Components](/src/user-manual/components.md).
+[Components](components.md).
 
 ## Processing Information Package (PIP)
 
@@ -289,7 +289,7 @@ a package type that Enduro operators will typically interact with directly.
 
 A component of Enduro that acts as Enduro's storage back-end for any local
 **package** interactions that are needed as part of **ingest** and preservation
-**workflows**. See: [Components](/src/user-manual/components.md).
+**workflows**. See: [Components](components.md).
 
 ## Producer
 
@@ -354,7 +354,7 @@ process that orchestrates the execution of tasks over time.
 A component of Enduro that handles preservation processing as part of a
 **workflow**, typically taking **Processing Information Packages(PIPs)** as
 input, and outputting one or more **Archival Information Packages (AIPs)** for
-long-term preservation. See: [Components](/src/user-manual/components.md).
+long-term preservation. See: [Components](components.md).
 
 -----
 
