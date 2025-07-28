@@ -8,17 +8,25 @@ docs_dir: "src"
 site_dir: "site"
 
 nav:
-  - "Home": "index.md"
-  - "User manual": "user-manual/"
-  - "Administrator manual": "admin-manual/"
-  - "Developer manual": "dev-manual/"
-  - "About":
-      - "Repository": "https://github.com/artefactual-sdps/enduro"
-      - "Issues": "https://github.com/artefactual-sdps/enduro/issues"
-      - "License": "https://github.com/artefactual-sdps/enduro/blob/main/LICENSE"
+  - Home: index.md
+  - User manual:
+      - Overview and first steps: user-manual/overview.md
+      - Ingest:
+          - user-manual/ingest/index.md
+          - Submitting content: user-manual/ingest/submitting-content.md
+      - Components: user-manual/components.md
+      - Glossary: user-manual/glossary.md
+  - Administrator manual: admin-manual/
+  - Developer manual: dev-manual/
+  - About:
+      - Repository: https://github.com/artefactual-sdps/enduro
+      - Issues: https://github.com/artefactual-sdps/enduro/issues
+      - License: https://github.com/artefactual-sdps/enduro/blob/main/LICENSE
 
 markdown_extensions:
   - admonition
+  - attr_list
+  - pymdownx.blocks.caption
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
@@ -31,12 +39,19 @@ plugins:
   - autorefs
   - literate-nav:
       nav_file: README.md
+  - search
   - swagger-ui-tag
 
 theme:
   name: material
   logo: img/logo.png
   favicon: img/favicon.ico
+  features:
+    - navigation.footer
+    - navigation.indexes
+    - navigation.top
+    - search.highlight
+    - search.suggest
   highlightjs: true
   palette:
     - media: "(prefers-color-scheme: light)"
