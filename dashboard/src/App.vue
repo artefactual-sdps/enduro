@@ -10,14 +10,17 @@ import { useAuthStore } from "@/stores/auth";
 const authStore = useAuthStore();
 authStore.loadConfig();
 
-// Connect to the ingest monitor API when the user is
-// loaded successfully or if authentication is disabled.
+// Connect to the monitor APIs when the user is loaded
+// successfully or if authentication is disabled.
 watch(
   () => authStore.isUserValid,
   (valid) => {
     if (valid) {
       client.ingest.ingestMonitorRequest().then(() => {
         client.connectIngestMonitor();
+      });
+      client.storage.storageMonitorRequest().then(() => {
+        client.connectStorageMonitor();
       });
     }
   },

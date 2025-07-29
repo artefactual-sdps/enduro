@@ -279,54 +279,18 @@ describe("cancel deletion request", () => {
       uuid: "aip-uuid-1",
     };
 
-    const storedAIP: api.AIPResponse = {
-      name: "AIP 1",
-      createdAt: new Date("2025-01-01T00:00:00Z"),
-      objectKey: "object-key-1",
-      status: api.EnduroStorageAipStatusEnum.Stored,
-      uuid: "aip-uuid-1",
-    };
-
-    const mockWorkflows: api.AIPWorkflows[] = [];
-
     store.$patch({
       current: pendingAIP,
     });
 
     client.storage.storageCancelAipDeletion = vi.fn().mockResolvedValue({});
-    client.storage.storageShowAip = vi
-      .fn()
-      .mockResolvedValueOnce(pendingAIP)
-      .mockResolvedValueOnce(storedAIP);
-    client.storage.storageListAipWorkflows = vi
-      .fn()
-      .mockResolvedValue(mockWorkflows);
 
-    const p = store.cancelDeletionRequest();
-
-    // Fast-forward the timer by 3.5 seconds to allow for three polling calls
-    // to "Show AIP".
-    await vi.advanceTimersByTimeAsync(3500);
-    await p;
+    store.cancelDeletionRequest();
 
     expect(client.storage.storageCancelAipDeletion).toHaveBeenCalledWith({
       uuid: pendingAIP.uuid,
       cancelAipDeletionRequestBody: {},
     });
-
-    // "Show AIP" should only be called twice, because the second call returns a
-    // "stored" status which cancels polling.
-    expect(client.storage.storageShowAip).toHaveBeenCalledWith({
-      uuid: pendingAIP.uuid,
-    });
-    expect(client.storage.storageShowAip).toHaveBeenCalledTimes(2);
-
-    expect(client.storage.storageListAipWorkflows).toHaveBeenCalledWith({
-      uuid: pendingAIP.uuid,
-    });
-    expect(client.storage.storageListAipWorkflows).toHaveBeenCalledTimes(2);
-
-    expect(store.current).toEqual(storedAIP);
   });
 
   it("throws an error cancelling a deletion request", async () => {
@@ -471,72 +435,5 @@ describe("canCancelDeletion", () => {
       "Internal Server Error",
     );
     expect(res).toBe(false);
-  });
-});
-
-describe("pollFetchCurrent", () => {
-  it("polls for current AIP", async () => {
-    const pendingAIP: api.AIPResponse = {
-      name: "AIP 1",
-      createdAt: new Date("2025-01-01T00:00:00Z"),
-      objectKey: "object-key-1",
-      status: api.EnduroStorageAipStatusEnum.Pending,
-      uuid: "aip-uuid-1",
-    };
-    const storedAIP: api.AIPResponse = {
-      ...pendingAIP,
-      status: api.AIPResponseStatusEnum.Stored,
-    };
-
-    client.storage.storageShowAip = vi
-      .fn()
-      .mockResolvedValueOnce(pendingAIP)
-      .mockResolvedValueOnce(storedAIP);
-    client.storage.storageListAipWorkflows = vi.fn().mockResolvedValue([]);
-
-    const store = useAipStore();
-    store.$patch({
-      current: pendingAIP,
-    });
-
-    const p = store.pollFetchCurrent((aip) => {
-      return aip?.status === api.AIPResponseStatusEnum.Stored;
-    });
-
-    // Fast-forward the timer by 3 seconds to allow for three polling calls
-    // to "Show AIP".
-    await vi.advanceTimersByTimeAsync(3000);
-    await p;
-
-    expect(store.current).toEqual(storedAIP);
-  });
-
-  it("stops polling after three attempts", async () => {
-    const pendingAIP: api.AIPResponse = {
-      name: "AIP 1",
-      createdAt: new Date("2025-01-01T00:00:00Z"),
-      objectKey: "object-key-1",
-      status: api.EnduroStorageAipStatusEnum.Pending,
-      uuid: "aip-uuid-1",
-    };
-
-    client.storage.storageShowAip = vi.fn().mockResolvedValue(pendingAIP);
-    client.storage.storageListAipWorkflows = vi.fn().mockResolvedValue([]);
-
-    const store = useAipStore();
-    store.$patch({
-      current: pendingAIP,
-    });
-
-    const p = store.pollFetchCurrent((aip) => {
-      return aip?.status === api.AIPResponseStatusEnum.Stored;
-    });
-
-    // Fast-forward the timer by 3 seconds to allow for three polling calls
-    // to "Show AIP".
-    await vi.advanceTimersByTimeAsync(3000);
-    await p;
-
-    expect(store.current).toEqual(pendingAIP);
   });
 });

@@ -8,10 +8,6 @@ import { useLayoutStore } from "@/stores/layout";
 
 const defaultPageSize = 20;
 
-function delay(ms: number, ...args: unknown[]): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms, args));
-}
-
 export const useAipStore = defineStore("aip", {
   state: () => ({
     // AIP currently displayed.
@@ -57,6 +53,30 @@ export const useAipStore = defineStore("aip", {
     },
     isProcessing(): boolean {
       return this.current?.status == api.EnduroStorageAipStatusEnum.Processing;
+    },
+    getWorkflowById: (state) => {
+      return (workflowId: string): api.EnduroStorageAipWorkflow | undefined => {
+        const x = state.currentWorkflows?.workflows?.find(
+          (workflow: api.EnduroStorageAipWorkflow) =>
+            workflow.uuid === workflowId,
+        );
+        return x;
+      };
+    },
+    getTaskById: (state) => {
+      return (
+        workflowId: string,
+        taskId: string,
+      ): api.EnduroStorageAipTask | undefined => {
+        const workflow = state.currentWorkflows?.workflows?.find(
+          (workflow: api.EnduroStorageAipWorkflow) =>
+            workflow.uuid === workflowId,
+        );
+        if (!workflow) return;
+        return workflow.tasks?.find(
+          (task: api.EnduroStorageAipTask) => task.uuid === taskId,
+        );
+      };
     },
   },
   actions: {
@@ -187,11 +207,6 @@ export const useAipStore = defineStore("aip", {
           uuid: this.current.uuid,
           requestAipDeletionRequestBody: { reason: reason },
         })
-        .then(() => {
-          return this.pollFetchCurrent(
-            (aip) => aip?.status === api.EnduroStorageAipStatusEnum.Pending,
-          );
-        })
         .catch((e) => {
           console.error("Error requesting deletion", e.message);
           throw new Error("Couldn't create deletion request");
@@ -204,13 +219,6 @@ export const useAipStore = defineStore("aip", {
           uuid: this.current.uuid,
           reviewAipDeletionRequestBody: { approved: approved },
         })
-        .then(() => {
-          return this.pollFetchCurrent(
-            (aip) =>
-              aip?.status === api.EnduroStorageAipStatusEnum.Deleted ||
-              aip?.status === api.EnduroStorageAipStatusEnum.Stored,
-          );
-        })
         .catch((e) => {
           console.error("Error reviewing deletion", e.message);
           throw new Error("Couldn't update deletion request");
@@ -222,11 +230,6 @@ export const useAipStore = defineStore("aip", {
         .storageCancelAipDeletion({
           uuid: this.current.uuid,
           cancelAipDeletionRequestBody: {},
-        })
-        .then(() => {
-          return this.pollFetchCurrent(
-            (aip) => aip?.status === api.EnduroStorageAipStatusEnum.Stored,
-          );
         })
         .catch((e) => {
           logError(e, "Error cancelling deletion request");
@@ -282,39 +285,12 @@ export const useAipStore = defineStore("aip", {
         setTimeout(() => (this.downloadError = null), 5000);
       }
     },
-    // TODO: Remove polling once we have websocket in the storage service.
-    async pollFetchCurrent(
-      stopFn: (aip: api.EnduroStorageAip | null) => boolean,
-      interval: number = 200,
-      tries: number = 3,
-    ): Promise<void> {
-      if (tries <= 0) return;
-
-      console.debug(
-        "fetch AIP attempts left",
-        tries,
-        "interval",
-        interval + "ms",
-      );
-
-      return delay(interval)
-        .then(() => {
-          if (!this.current) return;
-          return this.fetchCurrent(this.current.uuid);
-        })
-        .then(() => {
-          if (stopFn(this.current)) {
-            return;
-          }
-          // Exponential backoff, max 1s.
-          interval = Math.min(interval * 2, 1000);
-          return this.pollFetchCurrent(stopFn, interval, --tries);
-        })
-        .catch((e) => {
-          console.error("Error polling fetch current AIP", e.message);
-          throw new Error("Couldn't load AIP");
-        });
+    async fetchAipsDebounced(page: number) {
+      return this.fetchAips(page);
     },
+  },
+  debounce: {
+    fetchAipsDebounced: [500, { isImmediate: false }],
   },
 });
 

@@ -1,4 +1,5 @@
-import { handleIngestEvent } from "./monitor";
+import { handleIngestEvent } from "./monitor-ingest";
+import { handleStorageEvent } from "./monitor-storage";
 import * as api from "./openapi-generator";
 import * as runtime from "./openapi-generator/runtime";
 
@@ -10,6 +11,7 @@ export interface Client {
   ingest: api.IngestApi;
   storage: api.StorageApi;
   connectIngestMonitor: () => void;
+  connectStorageMonitor: () => void;
 }
 
 function getPath(): string {
@@ -48,6 +50,18 @@ function connectIngestMonitor() {
   };
 }
 
+function connectStorageMonitor() {
+  const url = getWebSocketURL() + "/storage/monitor";
+  const socket = new WebSocket(url);
+  socket.onmessage = (event: MessageEvent) => {
+    const body = JSON.parse(event.data);
+    const data = api.StorageEventFromJSON(body);
+    if (data.storageValue) {
+      handleStorageEvent(data.storageValue);
+    }
+  };
+}
+
 function createClient(): Client {
   const config: api.Configuration = new api.Configuration({
     basePath: getPath(),
@@ -71,6 +85,7 @@ function createClient(): Client {
     ingest: new api.IngestApi(config),
     storage: new api.StorageApi(config),
     connectIngestMonitor: connectIngestMonitor,
+    connectStorageMonitor: connectStorageMonitor,
   };
 }
 

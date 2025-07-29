@@ -44,6 +44,13 @@ server {
         proxy_read_timeout 24h;
         proxy_send_timeout 24h;
     }
+    location /api/storage/monitor {
+        proxy_pass http://backend/storage/monitor;
+        proxy_http_version 1.1;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Host \$http_host;
+    }
     location /api/ {
         proxy_pass http://backend/;
         proxy_redirect / /api/;
