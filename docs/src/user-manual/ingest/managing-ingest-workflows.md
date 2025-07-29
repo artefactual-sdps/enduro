@@ -53,8 +53,8 @@ few high-level metadata elements about the SIP and its ingest, including:
 !!! tip
 
     Internally, Enduro will store timestamps in Coordinated Universal Time
-    i.e. [UTC]. However, the user interface will then render those timestamps
-    based on your browser's or operating system's configured timezone settings.
+    (UTC). However, the user interface will then render those timestamps based
+    on your browser's or operating system's configured timezone settings.
 
 ### Related packages
 
@@ -211,6 +211,5 @@ widget](#related-packages) to inspect it.
 [preservation engine]: ../glossary.md#preservation-engine
 [system error]: ../glossary.md#system-error
 [task]: ../glossary.md#task
-[UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
 [watched-location]: submitting-content.md#initiate-ingest-via-a-watched-location-upload
 [workflow]: ../glossary.md#workflow
