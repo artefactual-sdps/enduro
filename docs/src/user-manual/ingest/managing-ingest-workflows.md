@@ -35,7 +35,6 @@ few high-level metadata elements about the SIP and its ingest, including:
 
      ![The UUID of a SIP, showing the tooltip for copying it](../screenshots/uuid-copy.png)
 
-
 * **Status**: The status of the SIP. Uses the same statuses as those shown on
   the SIP browse page.
 * **Uploaded by**: The user associated with initiating the SIP ingest by
@@ -54,8 +53,8 @@ few high-level metadata elements about the SIP and its ingest, including:
 !!! tip
 
     Internally, Enduro will store timestamps in Coordinated Universal Time
-    ([UTC]). However, the user interface will then render those timestamps based
-    on your browser's or operating system's configured timezone settings.
+    i.e. [UTC]. However, the user interface will then render those timestamps
+    based on your browser's or operating system's configured timezone settings.
 
 ### Related packages
 
