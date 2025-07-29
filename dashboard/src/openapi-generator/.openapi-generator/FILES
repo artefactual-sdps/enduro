@@ -5,10 +5,11 @@ apis/StorageApi.ts
 apis/index.ts
 index.ts
 models/AIPCreatedEvent.ts
+models/AIPLocationUpdatedEvent.ts
 models/AIPResponse.ts
+models/AIPStatusUpdatedEvent.ts
 models/AIPTaskCreatedEvent.ts
 models/AIPTaskUpdatedEvent.ts
-models/AIPUpdatedEvent.ts
 models/AIPWorkflowCreatedEvent.ts
 models/AIPWorkflowUpdatedEvent.ts
 models/AIPWorkflows.ts
@@ -37,7 +38,6 @@ models/IngestEventIngestValue.ts
 models/IngestPingEvent.ts
 models/LocationCreatedEvent.ts
 models/LocationResponse.ts
-models/LocationUpdatedEvent.ts
 models/ModelError.ts
 models/MoveStatusResult.ts
 models/RequestAipDeletionRequestBody.ts

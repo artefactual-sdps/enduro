@@ -2240,6 +2240,23 @@ components:
             required:
                 - uuid
                 - item
+        AIPLocationUpdatedEvent:
+            type: object
+            properties:
+                location_uuid:
+                    type: string
+                    description: Identifier of Location
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                uuid:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            example:
+                location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - location_uuid
         AIPResponse:
             type: object
             properties:
@@ -2299,6 +2316,29 @@ components:
                   object_key: abc123
                   status: stored
                   uuid: abc123
+        AIPStatusUpdatedEvent:
+            type: object
+            properties:
+                status:
+                    type: string
+                    example: stored
+                    enum:
+                        - unspecified
+                        - stored
+                        - pending
+                        - processing
+                        - deleted
+                        - queued
+                uuid:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            example:
+                status: stored
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - status
         AIPTaskCollection:
             type: array
             items:
@@ -2351,27 +2391,6 @@ components:
                     status: in progress
                     uuid: abc123
                     workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            required:
-                - uuid
-                - item
-        AIPUpdatedEvent:
-            type: object
-            properties:
-                item:
-                    $ref: '#/components/schemas/EnduroStorageAip'
-                uuid:
-                    type: string
-                    description: Identifier of AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            example:
-                item:
-                    created_at: "1970-01-01T00:00:01Z"
-                    location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    name: abc123
-                    object_key: abc123
-                    status: stored
-                    uuid: abc123
                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             required:
                 - uuid
@@ -3426,36 +3445,6 @@ components:
                   purpose: aip_store
                   source: minio
                   uuid: abc123
-        LocationUpdatedEvent:
-            type: object
-            properties:
-                item:
-                    $ref: '#/components/schemas/EnduroStorageLocation'
-                uuid:
-                    type: string
-                    description: Identifier of Location
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            example:
-                item:
-                    config:
-                        bucket: abc123
-                        endpoint: abc123
-                        key: abc123
-                        path_style: false
-                        profile: abc123
-                        region: abc123
-                        secret: abc123
-                        token: abc123
-                    created_at: "1970-01-01T00:00:01Z"
-                    description: abc123
-                    name: abc123
-                    purpose: aip_store
-                    source: minio
-                    uuid: abc123
-                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            required:
-                - uuid
-                - item
         MoveStatusResult:
             type: object
             properties:
@@ -3895,9 +3884,9 @@ components:
                                 Union type name, one of:
                                 - "storage_ping_event"
                                 - "location_created_event"
-                                - "location_updated_event"
                                 - "aip_created_event"
-                                - "aip_updated_event"
+                                - "aip_status_updated_event"
+                                - "aip_location_updated_event"
                                 - "aip_workflow_created_event"
                                 - "aip_workflow_updated_event"
                                 - "aip_task_created_event"
@@ -3906,9 +3895,9 @@ components:
                             enum:
                                 - storage_ping_event
                                 - location_created_event
-                                - location_updated_event
                                 - aip_created_event
-                                - aip_updated_event
+                                - aip_status_updated_event
+                                - aip_location_updated_event
                                 - aip_workflow_created_event
                                 - aip_workflow_updated_event
                                 - aip_task_created_event

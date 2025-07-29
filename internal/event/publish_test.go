@@ -58,9 +58,9 @@ func TestPublishStorageEventTypes(t *testing.T) {
 	}{
 		{"StoragePingEvent", &goastorage.StoragePingEvent{}, false},
 		{"LocationCreatedEvent", &goastorage.LocationCreatedEvent{}, false},
-		{"LocationUpdatedEvent", &goastorage.LocationUpdatedEvent{}, false},
 		{"AIPCreatedEvent", &goastorage.AIPCreatedEvent{}, false},
-		{"AIPUpdatedEvent", &goastorage.AIPUpdatedEvent{}, false},
+		{"AIPStatusUpdatedEvent", &goastorage.AIPStatusUpdatedEvent{}, false},
+		{"AIPLocationUpdatedEvent", &goastorage.AIPLocationUpdatedEvent{}, false},
 		{"AIPWorkflowCreatedEvent", &goastorage.AIPWorkflowCreatedEvent{}, false},
 		{"AIPWorkflowUpdatedEvent", &goastorage.AIPWorkflowUpdatedEvent{}, false},
 		{"AIPTaskCreatedEvent", &goastorage.AIPTaskCreatedEvent{}, false},

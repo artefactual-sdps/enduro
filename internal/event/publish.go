@@ -44,11 +44,11 @@ func PublishStorageEvent(ctx context.Context, svc StorageEventService, event any
 		update.StorageValue = v
 	case *goastorage.LocationCreatedEvent:
 		update.StorageValue = v
-	case *goastorage.LocationUpdatedEvent:
-		update.StorageValue = v
 	case *goastorage.AIPCreatedEvent:
 		update.StorageValue = v
-	case *goastorage.AIPUpdatedEvent:
+	case *goastorage.AIPStatusUpdatedEvent:
+		update.StorageValue = v
+	case *goastorage.AIPLocationUpdatedEvent:
 		update.StorageValue = v
 	case *goastorage.AIPWorkflowCreatedEvent:
 		update.StorageValue = v

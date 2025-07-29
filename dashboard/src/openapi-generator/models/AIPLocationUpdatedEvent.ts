@@ -13,60 +13,53 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { EnduroStorageAip } from './EnduroStorageAip';
-import {
-    EnduroStorageAipFromJSON,
-    EnduroStorageAipFromJSONTyped,
-    EnduroStorageAipToJSON,
-} from './EnduroStorageAip';
-
 /**
  * 
  * @export
- * @interface AIPUpdatedEvent
+ * @interface AIPLocationUpdatedEvent
  */
-export interface AIPUpdatedEvent {
+export interface AIPLocationUpdatedEvent {
     /**
-     * 
-     * @type {EnduroStorageAip}
-     * @memberof AIPUpdatedEvent
+     * Identifier of Location
+     * @type {string}
+     * @memberof AIPLocationUpdatedEvent
      */
-    item: EnduroStorageAip;
+    locationUuid: string;
     /**
      * Identifier of AIP
      * @type {string}
-     * @memberof AIPUpdatedEvent
+     * @memberof AIPLocationUpdatedEvent
      */
     uuid: string;
 }
 
 /**
- * Check if a given object implements the AIPUpdatedEvent interface.
+ * Check if a given object implements the AIPLocationUpdatedEvent interface.
  */
-export function instanceOfAIPUpdatedEvent(value: object): boolean {
+export function instanceOfAIPLocationUpdatedEvent(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "item" in value;
+    isInstance = isInstance && "locationUuid" in value;
     isInstance = isInstance && "uuid" in value;
 
     return isInstance;
 }
 
-export function AIPUpdatedEventFromJSON(json: any): AIPUpdatedEvent {
-    return AIPUpdatedEventFromJSONTyped(json, false);
+export function AIPLocationUpdatedEventFromJSON(json: any): AIPLocationUpdatedEvent {
+    return AIPLocationUpdatedEventFromJSONTyped(json, false);
 }
 
-export function AIPUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPUpdatedEvent {
+export function AIPLocationUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPLocationUpdatedEvent {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'item': EnduroStorageAipFromJSON(json['item']),
+        'locationUuid': json['location_uuid'],
         'uuid': json['uuid'],
     };
 }
 
-export function AIPUpdatedEventToJSON(value?: AIPUpdatedEvent | null): any {
+export function AIPLocationUpdatedEventToJSON(value?: AIPLocationUpdatedEvent | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -75,7 +68,7 @@ export function AIPUpdatedEventToJSON(value?: AIPUpdatedEvent | null): any {
     }
     return {
         
-        'item': EnduroStorageAipToJSON(value.item),
+        'location_uuid': value.locationUuid,
         'uuid': value.uuid,
     };
 }

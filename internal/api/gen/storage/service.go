@@ -123,12 +123,25 @@ type AIPCreatedEvent struct {
 	Item *AIP
 }
 
+type AIPLocationUpdatedEvent struct {
+	// Identifier of AIP
+	UUID uuid.UUID
+	// Identifier of Location
+	LocationUUID uuid.UUID
+}
+
 // AIP not found.
 type AIPNotFound struct {
 	// Message of error
 	Message string
 	// Identifier of missing AIP
 	UUID uuid.UUID
+}
+
+type AIPStatusUpdatedEvent struct {
+	// Identifier of AIP
+	UUID   uuid.UUID
+	Status string
 }
 
 // AIPTask describes an AIP workflow task.
@@ -155,12 +168,6 @@ type AIPTaskUpdatedEvent struct {
 	// Identifier of task
 	UUID uuid.UUID
 	Item *AIPTask
-}
-
-type AIPUpdatedEvent struct {
-	// Identifier of AIP
-	UUID uuid.UUID
-	Item *AIP
 }
 
 // AIPWorkflow describes a workflow of an AIP.
@@ -368,12 +375,6 @@ type LocationNotFound struct {
 	// Message of error
 	Message string
 	UUID    uuid.UUID
-}
-
-type LocationUpdatedEvent struct {
-	// Identifier of Location
-	UUID uuid.UUID
-	Item *Location
 }
 
 // MonitorPayload is the payload type of the storage service monitor method.
@@ -685,14 +686,14 @@ func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
 func (*AIPCreatedEvent) storageValueVal()         {}
+func (*AIPLocationUpdatedEvent) storageValueVal() {}
+func (*AIPStatusUpdatedEvent) storageValueVal()   {}
 func (*AIPTaskCreatedEvent) storageValueVal()     {}
 func (*AIPTaskUpdatedEvent) storageValueVal()     {}
-func (*AIPUpdatedEvent) storageValueVal()         {}
 func (*AIPWorkflowCreatedEvent) storageValueVal() {}
 func (*AIPWorkflowUpdatedEvent) storageValueVal() {}
 func (*AMSSConfig) configVal()                    {}
 func (*LocationCreatedEvent) storageValueVal()    {}
-func (*LocationUpdatedEvent) storageValueVal()    {}
 func (*S3Config) configVal()                      {}
 func (*SFTPConfig) configVal()                    {}
 func (*StoragePingEvent) storageValueVal()        {}

@@ -63,6 +63,19 @@ type AIPCreatedEvent struct {
 	Item *AIP
 }
 
+type AIPLocationUpdatedEvent struct {
+	// Identifier of AIP
+	UUID uuid.UUID
+	// Identifier of Location
+	LocationUUID uuid.UUID
+}
+
+type AIPStatusUpdatedEvent struct {
+	// Identifier of AIP
+	UUID   uuid.UUID
+	Status string
+}
+
 // AIPTask describes an AIP workflow task.
 type AIPTask struct {
 	UUID        uuid.UUID
@@ -87,12 +100,6 @@ type AIPTaskUpdatedEvent struct {
 	// Identifier of task
 	UUID uuid.UUID
 	Item *AIPTask
-}
-
-type AIPUpdatedEvent struct {
-	// Identifier of AIP
-	UUID uuid.UUID
-	Item *AIP
 }
 
 // AIPWorkflow describes a workflow of an AIP.
@@ -176,12 +183,6 @@ type Location struct {
 }
 
 type LocationCreatedEvent struct {
-	// Identifier of Location
-	UUID uuid.UUID
-	Item *Location
-}
-
-type LocationUpdatedEvent struct {
 	// Identifier of Location
 	UUID uuid.UUID
 	Item *Location

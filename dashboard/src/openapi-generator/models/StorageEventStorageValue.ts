@@ -23,9 +23,9 @@ export interface StorageEventStorageValue {
      * Union type name, one of:
      * - "storage_ping_event"
      * - "location_created_event"
-     * - "location_updated_event"
      * - "aip_created_event"
-     * - "aip_updated_event"
+     * - "aip_status_updated_event"
+     * - "aip_location_updated_event"
      * - "aip_workflow_created_event"
      * - "aip_workflow_updated_event"
      * - "aip_task_created_event"
@@ -49,9 +49,9 @@ export interface StorageEventStorageValue {
 export const StorageEventStorageValueTypeEnum = {
     StoragePingEvent: 'storage_ping_event',
     LocationCreatedEvent: 'location_created_event',
-    LocationUpdatedEvent: 'location_updated_event',
     AipCreatedEvent: 'aip_created_event',
-    AipUpdatedEvent: 'aip_updated_event',
+    AipStatusUpdatedEvent: 'aip_status_updated_event',
+    AipLocationUpdatedEvent: 'aip_location_updated_event',
     AipWorkflowCreatedEvent: 'aip_workflow_created_event',
     AipWorkflowUpdatedEvent: 'aip_workflow_updated_event',
     AipTaskCreatedEvent: 'aip_task_created_event',

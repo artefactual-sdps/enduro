@@ -27,9 +27,9 @@ var StorageEvent = Type("StorageEvent", func() {
 	OneOf("storage_value", func() {
 		Attribute("storage_ping_event", StoragePingEvent)
 		Attribute("location_created_event", LocationCreatedEvent)
-		Attribute("location_updated_event", LocationUpdatedEvent)
 		Attribute("aip_created_event", AIPCreatedEvent)
-		Attribute("aip_updated_event", AIPUpdatedEvent)
+		Attribute("aip_status_updated_event", AIPStatusUpdatedEvent)
+		Attribute("aip_location_updated_event", AIPLocationUpdatedEvent)
 		Attribute("aip_workflow_created_event", AIPWorkflowCreatedEvent)
 		Attribute("aip_workflow_updated_event", AIPWorkflowUpdatedEvent)
 		Attribute("aip_task_created_event", AIPTaskCreatedEvent)
@@ -53,15 +53,6 @@ var LocationCreatedEvent = Type("LocationCreatedEvent", func() {
 	Meta("openapi:typename", "LocationCreatedEvent")
 })
 
-var LocationUpdatedEvent = Type("LocationUpdatedEvent", func() {
-	TypedAttributeUUID("uuid", "Identifier of Location")
-	Attribute("item", Location)
-	Required("uuid", "item")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "LocationUpdatedEvent")
-})
-
 var AIPCreatedEvent = Type("AIPCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of AIP")
 	Attribute("item", AIP)
@@ -71,13 +62,24 @@ var AIPCreatedEvent = Type("AIPCreatedEvent", func() {
 	Meta("openapi:typename", "AIPCreatedEvent")
 })
 
-var AIPUpdatedEvent = Type("AIPUpdatedEvent", func() {
+var AIPStatusUpdatedEvent = Type("AIPStatusUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of AIP")
-	Attribute("item", AIP)
-	Required("uuid", "item")
+	Attribute("status", String, func() {
+		EnumAIPStatus()
+	})
+	Required("uuid", "status")
 
 	Meta("type:generate:force")
-	Meta("openapi:typename", "AIPUpdatedEvent")
+	Meta("openapi:typename", "AIPStatusUpdatedEvent")
+})
+
+var AIPLocationUpdatedEvent = Type("AIPLocationUpdatedEvent", func() {
+	TypedAttributeUUID("uuid", "Identifier of AIP")
+	TypedAttributeUUID("location_uuid", "Identifier of Location")
+	Required("uuid", "location_uuid")
+
+	Meta("type:generate:force")
+	Meta("openapi:typename", "AIPLocationUpdatedEvent")
 })
 
 var AIPWorkflowCreatedEvent = Type("AIPWorkflowCreatedEvent", func() {

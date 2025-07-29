@@ -1,10 +1,11 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AIPCreatedEvent';
+export * from './AIPLocationUpdatedEvent';
 export * from './AIPResponse';
+export * from './AIPStatusUpdatedEvent';
 export * from './AIPTaskCreatedEvent';
 export * from './AIPTaskUpdatedEvent';
-export * from './AIPUpdatedEvent';
 export * from './AIPWorkflowCreatedEvent';
 export * from './AIPWorkflowUpdatedEvent';
 export * from './AIPWorkflows';
@@ -33,7 +34,6 @@ export * from './IngestEventIngestValue';
 export * from './IngestPingEvent';
 export * from './LocationCreatedEvent';
 export * from './LocationResponse';
-export * from './LocationUpdatedEvent';
 export * from './ModelError';
 export * from './MoveStatusResult';
 export * from './RequestAipDeletionRequestBody';
