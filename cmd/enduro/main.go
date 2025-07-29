@@ -158,6 +158,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	// Set up the storage event service.
+	storageEventSvc, err := event.NewStorageEventServiceRedis(logger.WithName("storage-events"), tp, &cfg.Event)
+	if err != nil {
+		logger.Error(err, "Error creating Storage Event service.")
+		os.Exit(1)
+	}
+
 	// Set up the OIDC token verifier.
 	var tokenVerifier auth.TokenVerifier
 	{
@@ -269,6 +276,7 @@ func main() {
 			cfg.Storage,
 			storagePersistence,
 			temporalClient,
+			storageEventSvc,
 			tokenVerifier,
 			ticketProvider,
 			rand.Reader,
@@ -341,6 +349,7 @@ func main() {
 			cfg.Storage,
 			storagePersistence,
 			temporalClient,
+			storageEventSvc,
 			&auth.NoopTokenVerifier{},
 			ticketProvider,
 			rand.Reader,

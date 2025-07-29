@@ -136,6 +136,7 @@ func TestUpdateWorkflow(t *testing.T) {
 				Status:      enums.WorkflowStatusDone,
 				StartedAt:   startedAt,
 				CompletedAt: completedAt,
+				AIPUUID:     aipID,
 			},
 		},
 		{

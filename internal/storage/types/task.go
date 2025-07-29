@@ -17,4 +17,5 @@ type Task struct {
 	CompletedAt  time.Time
 	Note         string
 	WorkflowDBID int
+	WorkflowUUID uuid.UUID
 }

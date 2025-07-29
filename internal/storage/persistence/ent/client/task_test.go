@@ -17,13 +17,15 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
+var wUUID = uuid.MustParse("a06a155c-9cf0-4416-a2b6-e90e58ef3186")
+
 func initialDataForTaskTests(t *testing.T, ctx context.Context, entc *db.Client) {
 	t.Helper()
 
 	initialDataForWorkflowTests(t, ctx, entc)
 
 	entc.Workflow.Create().
-		SetUUID(uuid.MustParse("a06a155c-9cf0-4416-a2b6-e90e58ef3186")).
+		SetUUID(wUUID).
 		SetTemporalID("temporal-id").
 		SetType(enums.WorkflowTypeMoveAip).
 		SetStatus(enums.WorkflowStatusInProgress).
@@ -73,7 +75,7 @@ func TestCreateTask(t *testing.T) {
 				Name:   "task",
 				Status: enums.TaskStatusInProgress,
 			},
-			wantErr: "create task: db: validator failed for field \"Task.workflow_id\": value out of range",
+			wantErr: "create task: db: workflow not found",
 		},
 		{
 			name: "Fails to create a Task with an unknown Workflow ID",
@@ -83,7 +85,7 @@ func TestCreateTask(t *testing.T) {
 				Status:       enums.TaskStatusInProgress,
 				WorkflowDBID: 1234,
 			},
-			wantErr: "create task: db: constraint failed: FOREIGN KEY constraint failed",
+			wantErr: "create task: db: workflow not found",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -142,6 +144,7 @@ func TestUpdateTask(t *testing.T) {
 				CompletedAt:  completedAt,
 				Note:         "Updated note",
 				WorkflowDBID: 1,
+				WorkflowUUID: wUUID,
 			},
 		},
 		{
@@ -154,14 +157,6 @@ func TestUpdateTask(t *testing.T) {
 			name:    "Fails to update a Task (updater error)",
 			updater: func(t *types.Task) (*types.Task, error) { return nil, errors.New("updater error") },
 			wantErr: "update task: updater error",
-		},
-		{
-			name: "Fails to update a Task (constraint error)",
-			updater: func(t *types.Task) (*types.Task, error) {
-				t.WorkflowDBID = 1234
-				return t, nil
-			},
-			wantErr: "update task: db: constraint failed: FOREIGN KEY constraint failed",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

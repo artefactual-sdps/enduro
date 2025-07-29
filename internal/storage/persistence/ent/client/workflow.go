@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/google/uuid"
+
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -54,12 +57,17 @@ func (c *Client) UpdateWorkflow(ctx context.Context, id int, upd persistence.Wor
 		return nil, fmt.Errorf("update workflow: %v", err)
 	}
 
-	w, err := tx.Workflow.Get(ctx, id)
+	dbw, err := tx.Workflow.Query().WithAip(func(q *db.AIPQuery) {
+		q.Select(aip.FieldAipID)
+	}).Where(workflow.ID(id)).Only(ctx)
 	if err != nil {
 		return nil, rollback(tx, fmt.Errorf("update workflow: %v", err))
 	}
 
-	up, err := upd(convertWorkflow(w))
+	// Keep track of the AIP UUID to include it in the workflow after conversion.
+	aipUUID := dbw.Edges.Aip.AipID
+
+	up, err := upd(convertWorkflow(dbw))
 	if err != nil {
 		return nil, rollback(tx, fmt.Errorf("update workflow: %v", err))
 	}
@@ -77,7 +85,7 @@ func (c *Client) UpdateWorkflow(ctx context.Context, id int, upd persistence.Wor
 		q.SetCompletedAt(up.CompletedAt)
 	}
 
-	w, err = q.Save(ctx)
+	dbw, err = q.Save(ctx)
 	if err != nil {
 		return nil, rollback(tx, fmt.Errorf("update workflow: %v", err))
 	}
@@ -85,10 +93,17 @@ func (c *Client) UpdateWorkflow(ctx context.Context, id int, upd persistence.Wor
 		return nil, rollback(tx, fmt.Errorf("update workflow: %v", err))
 	}
 
-	return convertWorkflow(w), nil
+	w := convertWorkflow(dbw)
+	w.AIPUUID = aipUUID
+
+	return w, nil
 }
 
 func convertWorkflow(dbw *db.Workflow) *types.Workflow {
+	var aipUUID uuid.UUID
+	if dbw.Edges.Aip != nil {
+		aipUUID = dbw.Edges.Aip.AipID
+	}
 	return &types.Workflow{
 		DBID:        dbw.ID,
 		UUID:        dbw.UUID,
@@ -97,5 +112,6 @@ func convertWorkflow(dbw *db.Workflow) *types.Workflow {
 		Status:      dbw.Status,
 		StartedAt:   dbw.StartedAt,
 		CompletedAt: dbw.CompletedAt,
+		AIPUUID:     aipUUID,
 	}
 }
