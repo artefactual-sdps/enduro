@@ -60,9 +60,9 @@ of institution-specific requirements. This keeps locally specific
 implementations nicely separated from more general, reusable workflow activities
 available in Enduro Ingest.
 
-## Content error
+## Content failure
 
-An error in an **ingest** **workflow** that occurs during **SIP** validation,
+An failure in an **ingest** **workflow** that occurs during **SIP** validation,
 related to the submitted package's structure, files, or metadata, that must be
 resolved by the original package submitter or another operator. See also:
 [System error](#system-error).
@@ -319,7 +319,7 @@ formally recognized as an international standard in ISO 14721).
 A technical error in a **workflow** that is caused by a problem in one or more
 of the applications, networks, or connecting interfaces, typically requiring a
 system administrator or developer to resolve. See also:
-[Content error](#content-error).
+[Content failure](#content-failure).
 
 ## Task
 
