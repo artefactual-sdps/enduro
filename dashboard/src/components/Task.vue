@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref } from "vue";
 
 import StatusBadge from "@/components/StatusBadge.vue";
 import { addEmailLinks } from "@/composables/addEmailLinks";
@@ -8,33 +8,6 @@ import type {
   EnduroIngestSipTask,
   EnduroStorageAipTask,
 } from "@/openapi-generator";
-
-class Card {
-  isOpen: boolean;
-  note: string;
-  more: string;
-
-  constructor(task: EnduroIngestSipTask | EnduroStorageAipTask) {
-    this.isOpen = false;
-
-    if (task.note?.includes("\n")) {
-      const [firstLine, ...remainingLines] = task.note.split("\n");
-      this.note = firstLine;
-      this.more = remainingLines.join("\n");
-    } else {
-      this.note = task.note ? task.note : "";
-      this.more = "";
-    }
-  }
-
-  toggle() {
-    if (!this.more) {
-      return;
-    }
-
-    this.isOpen = !this.isOpen;
-  }
-}
 
 const isComplete = (task: EnduroIngestSipTask | EnduroStorageAipTask) => {
   return task.status == "done" || task.status == "error";
@@ -45,16 +18,31 @@ const props = defineProps<{
   task: EnduroIngestSipTask | EnduroStorageAipTask;
 }>();
 
-const card = ref(new Card(props.task));
+const isOpen = ref(false);
 
-watch(
-  () => props.task,
-  (task) => {
-    const isOpen = card.value.isOpen;
-    card.value = new Card(task);
-    card.value.isOpen = isOpen;
-  },
-);
+const noteData = computed(() => {
+  const taskNote = props.task.note;
+
+  if (taskNote?.includes("\n")) {
+    const [firstLine, ...remainingLines] = taskNote.split("\n");
+    return {
+      note: firstLine,
+      more: remainingLines.join("\n"),
+    };
+  } else {
+    return {
+      note: taskNote ? taskNote : "",
+      more: "",
+    };
+  }
+});
+
+const toggle = () => {
+  if (!noteData.value.more) {
+    return;
+  }
+  isOpen.value = !isOpen.value;
+};
 </script>
 
 <template>
@@ -88,26 +76,26 @@ watch(
         <div class="flex-grow-1">
           <span
             :id="'pt-' + index + '-note'"
-            v-html="addEmailLinks(card.note)"
+            v-html="addEmailLinks(noteData.note)"
           ></span>
-          <span v-if="card.more">
-            <span v-show="!card.isOpen">... </span>
+          <span v-if="noteData.more">
+            <span v-show="!isOpen">... </span>
             <Transition name="fade">
               <p
-                v-show="card.isOpen"
+                v-show="isOpen"
                 :id="'pt-' + index + '-note-more'"
                 class="line-break"
-                v-html="addEmailLinks(card.more)"
+                v-html="addEmailLinks(noteData.more)"
               ></p>
             </Transition>
             <a
               :id="'pt-' + index + '-note-toggle'"
               :aria-controls="'pt-' + index + '-note-more'"
               aria-label="Toggle display of additional notes"
-              @click.prevent="card.toggle"
+              @click.prevent="toggle"
               href="#"
             >
-              {{ card.isOpen ? "Show less" : "Show more" }}
+              {{ isOpen ? "Show less" : "Show more" }}
             </a>
           </span>
         </div>
