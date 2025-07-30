@@ -52,9 +52,10 @@ few high-level metadata elements about the SIP and its ingest, including:
 
 !!! tip
 
-    Internally, Enduro will store timestamps in Coordinated Universal Time
-    (UTC). However, the user interface will then render those timestamps based
-    on your browser's or operating system's configured timezone settings.
+    Internally, Enduro will store timestamps in Coordinated Universal Time, i.e.
+    [UTC](https://en.wikipedia.org/wiki/Coordinated_Universal_Time). However,
+    the user interface will then render those timestamps based on your browser's
+    or operating system's configured timezone settings.
 
 ### Related packages
 
@@ -170,7 +171,7 @@ with the most recent tasks at the top of the list.
 
 ![A workflow header card expanded to show the task list below](../screenshots/workflow-details-expanded.png)
 
-Tasks shown in this are will include both those ingest tasks performed by
+Tasks shown in this area will include both those ingest tasks performed by
 Enduro, as well as tasks run by the configured [preservation engine] if the SIP
 passes initial validation and transformation.
 
