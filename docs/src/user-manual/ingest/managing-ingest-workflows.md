@@ -35,8 +35,8 @@ few high-level metadata elements about the SIP and its ingest, including:
 
      ![The UUID of a SIP, showing the tooltip for copying it](../screenshots/uuid-copy.png)
 
-* **Status**: The status of the SIP. Uses the same statuses as those shown on
-  the SIP browse page.
+* **Status**: The status of the SIP. Uses the [same statuses as those shown on
+  the SIP browse page.](search-browse.md#sip-statuses).
 * **Uploaded by**: The user associated with initiating the SIP ingest by
   uploading the package. If [authentication is enabled][iac], then depending on
   what user properties are available from the provider, Enduro will first try to
@@ -119,6 +119,10 @@ task statuses, with a few additional statuses:
 
 * **QUEUED**: The workflow is waiting for an available worker to begin
 * **CANCELED**: The workflow has been canceled by a user
+
+!!! tip
+
+    SIPs also have their own statuses. See: [SIP statuses](search-browse.md#sip-statuses)
 
 #### Errors vs failures
 
