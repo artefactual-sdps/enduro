@@ -18,7 +18,7 @@ URL. The page is then organized into 3 main sections:
 
 * [SIP details](#sip-details)
 * [Related packages](#related-packages)
-* [Ingest workflow details area](#workflows-and-activities)
+* [Ingest workflow details](#workflows-and-activities)
 
 ### SIP details
 
@@ -162,8 +162,7 @@ package deletion request initiated by an operator might then show "Approve" and
 
 A workflow is a sequence of tasks managed by Enduro. The **Ingest workflow
 details** area will list all workflows that have been run against a given
-package in ascending order, with the most recent on the top. Typically, most SIP
-ingest pages will only include 1 workflow.
+package in ascending order, with the most recent on the top.
 
 Click anywhere on the **workflow header card** to expand it and see a list of
 all tasks run as part of that workflow. Tasks are also shown in ascending order,
