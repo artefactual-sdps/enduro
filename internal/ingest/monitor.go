@@ -78,7 +78,7 @@ func (w *goaWrapper) Monitor(
 			}
 
 		case event, ok := <-sub.C():
-			if !ok {
+			if !ok || event == nil {
 				return nil
 			}
 

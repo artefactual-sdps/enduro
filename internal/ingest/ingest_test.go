@@ -37,7 +37,7 @@ func testSvc(t *testing.T, internalBucket *blob.Bucket, uploadMaxSize int64) (
 		logr.Discard(),
 		&sql.DB{},
 		temporalClient,
-		event.NopEventService(),
+		event.NewIngestEventServiceNop(),
 		psvc,
 		&auth.NoopTokenVerifier{},
 		auth.NewTicketProvider(t.Context(), nil, nil),

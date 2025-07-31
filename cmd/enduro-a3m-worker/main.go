@@ -134,10 +134,10 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Set up the event service.
-	evsvc, err := event.NewEventServiceRedis(logger.WithName("events"), tp, &cfg.Event)
+	// Set up the ingest event service.
+	ingestEventSvc, err := event.NewIngestEventServiceRedis(logger.WithName("ingest-events"), tp, &cfg.Event)
 	if err != nil {
-		logger.Error(err, "Error creating Event service.")
+		logger.Error(err, "Error creating Ingest Event service.")
 		os.Exit(1)
 	}
 
@@ -181,7 +181,7 @@ func main() {
 			logger.WithName("ingest"),
 			enduroDatabase,
 			temporalClient,
-			evsvc,
+			ingestEventSvc,
 			perSvc,
 			&auth.NoopTokenVerifier{},
 			nil,

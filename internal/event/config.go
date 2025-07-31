@@ -1,6 +1,7 @@
 package event
 
 type Config struct {
-	RedisAddress string
-	RedisChannel string
+	RedisAddress        string
+	IngestRedisChannel  string
+	StorageRedisChannel string
 }

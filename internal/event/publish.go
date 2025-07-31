@@ -4,9 +4,11 @@ import (
 	"context"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
 
-func PublishEvent(ctx context.Context, events EventService, event any) {
+// PublishIngestEvent publishes an ingest event with type safety.
+func PublishIngestEvent(ctx context.Context, svc IngestEventService, event any) {
 	update := &goaingest.IngestEvent{}
 
 	switch v := event.(type) {
@@ -30,5 +32,35 @@ func PublishEvent(ctx context.Context, events EventService, event any) {
 		panic("tried to publish unexpected event")
 	}
 
-	events.PublishEvent(ctx, update)
+	svc.PublishEvent(ctx, update)
+}
+
+// PublishStorageEvent publishes a storage event with type safety.
+func PublishStorageEvent(ctx context.Context, svc StorageEventService, event any) {
+	update := &goastorage.StorageEvent{}
+
+	switch v := event.(type) {
+	case *goastorage.StoragePingEvent:
+		update.StorageValue = v
+	case *goastorage.LocationCreatedEvent:
+		update.StorageValue = v
+	case *goastorage.LocationUpdatedEvent:
+		update.StorageValue = v
+	case *goastorage.AIPCreatedEvent:
+		update.StorageValue = v
+	case *goastorage.AIPUpdatedEvent:
+		update.StorageValue = v
+	case *goastorage.AIPWorkflowCreatedEvent:
+		update.StorageValue = v
+	case *goastorage.AIPWorkflowUpdatedEvent:
+		update.StorageValue = v
+	case *goastorage.AIPTaskCreatedEvent:
+		update.StorageValue = v
+	case *goastorage.AIPTaskUpdatedEvent:
+		update.StorageValue = v
+	default:
+		panic("tried to publish unexpected event")
+	}
+
+	svc.PublishEvent(ctx, update)
 }
