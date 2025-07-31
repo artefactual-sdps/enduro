@@ -78,8 +78,9 @@ type serviceImpl struct {
 var _ Service = (*serviceImpl)(nil)
 
 var (
-	ErrUnauthorized error = goastorage.Unauthorized("Unauthorized")
-	ErrForbidden    error = goastorage.Forbidden("Forbidden")
+	ErrUnauthorized  error = goastorage.Unauthorized("Unauthorized")
+	ErrForbidden     error = goastorage.Forbidden("Forbidden")
+	ErrInternalError error = goastorage.MakeInternalError(errors.New("internal error"))
 )
 
 func NewService(

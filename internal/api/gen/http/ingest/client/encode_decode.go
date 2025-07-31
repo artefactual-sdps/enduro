@@ -64,7 +64,7 @@ func EncodeMonitorRequestRequest(encoder func(*http.Request) goahttp.Encoder) fu
 // ingest monitor_request endpoint. restoreBody controls whether the response
 // body should be restored after having been read.
 // DecodeMonitorRequestResponse may return the following errors:
-//   - "not_available" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -103,18 +103,18 @@ func DecodeMonitorRequestResponse(decoder func(*http.Response) goahttp.Decoder, 
 			return res, nil
 		case http.StatusInternalServerError:
 			var (
-				body MonitorRequestNotAvailableResponseBody
+				body MonitorRequestInternalErrorResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("ingest", "monitor_request", err)
 			}
-			err = ValidateMonitorRequestNotAvailableResponseBody(&body)
+			err = ValidateMonitorRequestInternalErrorResponseBody(&body)
 			if err != nil {
 				return nil, goahttp.ErrValidationError("ingest", "monitor_request", err)
 			}
-			return nil, NewMonitorRequestNotAvailable(&body)
+			return nil, NewMonitorRequestInternalError(&body)
 		case http.StatusForbidden:
 			var (
 				body string
@@ -187,7 +187,7 @@ func EncodeMonitorRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 // monitor endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeMonitorResponse may return the following errors:
-//   - "not_available" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -223,18 +223,18 @@ func DecodeMonitorResponse(decoder func(*http.Response) goahttp.Decoder, restore
 			return res, nil
 		case http.StatusInternalServerError:
 			var (
-				body MonitorNotAvailableResponseBody
+				body MonitorInternalErrorResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("ingest", "monitor", err)
 			}
-			err = ValidateMonitorNotAvailableResponseBody(&body)
+			err = ValidateMonitorInternalErrorResponseBody(&body)
 			if err != nil {
 				return nil, goahttp.ErrValidationError("ingest", "monitor", err)
 			}
-			return nil, NewMonitorNotAvailable(&body)
+			return nil, NewMonitorInternalError(&body)
 		case http.StatusForbidden:
 			var (
 				body string

@@ -51,7 +51,7 @@ func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, con
 
 // MonitorRequest calls the "monitor_request" endpoint of the "ingest" service.
 // MonitorRequest may return the following errors:
-//   - "not_available" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
@@ -66,7 +66,7 @@ func (c *Client) MonitorRequest(ctx context.Context, p *MonitorRequestPayload) (
 
 // Monitor calls the "monitor" endpoint of the "ingest" service.
 // Monitor may return the following errors:
-//   - "not_available" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error

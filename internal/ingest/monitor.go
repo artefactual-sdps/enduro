@@ -2,7 +2,6 @@ package ingest
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"go.artefactual.dev/tools/ref"
@@ -20,7 +19,7 @@ func (w *goaWrapper) MonitorRequest(
 	ticket, err := w.ticketProvider.Request(ctx, auth.UserClaimsFromContext(ctx))
 	if err != nil {
 		w.logger.Error(err, "failed to request ticket")
-		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
+		return nil, ErrInternalError
 	}
 
 	// A ticket is not provided when authentication is disabled.
@@ -32,7 +31,6 @@ func (w *goaWrapper) MonitorRequest(
 	return res, nil
 }
 
-// Monitor ingest activity. It implements goaingest.Service.
 func (w *goaWrapper) Monitor(
 	ctx context.Context,
 	payload *goaingest.MonitorPayload,
@@ -43,21 +41,24 @@ func (w *goaWrapper) Monitor(
 	// Verify the ticket and update the claims.
 	var claims auth.Claims
 	if err := w.ticketProvider.Check(ctx, payload.Ticket, &claims); err != nil {
-		w.logger.V(1).Info("failed to check ticket", "err", err)
-		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
+		w.logger.Error(err, "failed to check ticket", "ticket", payload.Ticket)
+		return ErrInternalError
 	}
 
 	// Subscribe to the event service.
 	sub, err := w.evsvc.Subscribe(ctx)
 	if err != nil {
-		return err
+		w.logger.Error(err, "failed to subscribe to event service")
+		return ErrInternalError
 	}
 	defer sub.Close()
 
 	// Say hello to be nice.
 	event := &goaingest.IngestPingEvent{Message: ref.New("Hello")}
 	if err := stream.Send(&goaingest.IngestEvent{IngestValue: event}); err != nil {
-		return err
+		// Consider send errors as client disconnections.
+		w.logger.V(1).Info("Failed to send hello event.", "err", err)
+		return nil
 	}
 
 	// We'll use this ticker to ping the client once in a while to detect stale
@@ -74,6 +75,8 @@ func (w *goaWrapper) Monitor(
 		case <-ticker.C:
 			event := &goaingest.IngestPingEvent{Message: ref.New("Ping")}
 			if err := stream.Send(&goaingest.IngestEvent{IngestValue: event}); err != nil {
+				// Consider send errors as client disconnections.
+				w.logger.V(1).Info("Failed to send ping event.", "err", err)
 				return nil
 			}
 
@@ -108,7 +111,9 @@ func (w *goaWrapper) Monitor(
 			}
 
 			if err := stream.Send(event); err != nil {
-				return err
+				// Consider send errors as client disconnections.
+				w.logger.V(1).Info("Failed to send event.", "err", err)
+				return nil
 			}
 		}
 	}

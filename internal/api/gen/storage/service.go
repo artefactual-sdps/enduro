@@ -704,11 +704,6 @@ func MakeInternalError(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "internal_error", false, false, false)
 }
 
-// MakeNotImplemented builds a goa.ServiceError from an error.
-func MakeNotImplemented(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "not_implemented", false, false, false)
-}
-
 // MakeNotAvailable builds a goa.ServiceError from an error.
 func MakeNotAvailable(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_available", false, false, false)

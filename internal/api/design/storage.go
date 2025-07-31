@@ -29,11 +29,9 @@ var _ = Service("storage", func() {
 			Attribute("ticket", String)
 		})
 		Error("internal_error")
-		Error("not_implemented")
 		HTTP(func() {
 			POST("/monitor")
 			Response("internal_error", StatusInternalServerError)
-			Response("not_implemented", StatusNotImplemented)
 			Response(StatusOK, func() {
 				Cookie("ticket:enduro-storage-ws-ticket")
 				CookieMaxAge(5)
@@ -51,11 +49,9 @@ var _ = Service("storage", func() {
 		})
 		StreamingResult(StorageEvent)
 		Error("internal_error")
-		Error("not_implemented")
 		HTTP(func() {
 			GET("/monitor")
 			Response("internal_error", StatusInternalServerError)
-			Response("not_implemented", StatusNotImplemented)
 			Response(StatusOK)
 			Cookie("ticket:enduro-storage-ws-ticket")
 		})

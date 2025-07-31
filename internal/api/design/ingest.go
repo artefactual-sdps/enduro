@@ -27,10 +27,10 @@ var _ = Service("ingest", func() {
 		Result(func() {
 			Attribute("ticket", String)
 		})
-		Error("not_available")
+		Error("internal_error")
 		HTTP(func() {
 			POST("/monitor")
-			Response("not_available", StatusInternalServerError)
+			Response("internal_error", StatusInternalServerError)
 			Response(StatusOK, func() {
 				Cookie("ticket:enduro-ingest-ws-ticket")
 				CookieMaxAge(5)
@@ -47,10 +47,10 @@ var _ = Service("ingest", func() {
 			Attribute("ticket", String)
 		})
 		StreamingResult(IngestEvent)
-		Error("not_available")
+		Error("internal_error")
 		HTTP(func() {
 			GET("/monitor")
-			Response("not_available", StatusInternalServerError)
+			Response("internal_error", StatusInternalServerError)
 			Response(StatusOK)
 			Cookie("ticket:enduro-ingest-ws-ticket")
 		})

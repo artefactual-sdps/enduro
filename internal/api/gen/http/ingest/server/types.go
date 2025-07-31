@@ -109,9 +109,9 @@ type ListSipSourceObjectsResponseBody struct {
 	Next *string `form:"next,omitempty" json:"next,omitempty" xml:"next,omitempty"`
 }
 
-// MonitorRequestNotAvailableResponseBody is the type of the "ingest" service
-// "monitor_request" endpoint HTTP response body for the "not_available" error.
-type MonitorRequestNotAvailableResponseBody struct {
+// MonitorRequestInternalErrorResponseBody is the type of the "ingest" service
+// "monitor_request" endpoint HTTP response body for the "internal_error" error.
+type MonitorRequestInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -127,9 +127,9 @@ type MonitorRequestNotAvailableResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// MonitorNotAvailableResponseBody is the type of the "ingest" service
-// "monitor" endpoint HTTP response body for the "not_available" error.
-type MonitorNotAvailableResponseBody struct {
+// MonitorInternalErrorResponseBody is the type of the "ingest" service
+// "monitor" endpoint HTTP response body for the "internal_error" error.
+type MonitorInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -759,10 +759,10 @@ func NewListSipSourceObjectsResponseBody(res *ingestviews.SIPSourceObjectsView) 
 	return body
 }
 
-// NewMonitorRequestNotAvailableResponseBody builds the HTTP response body from
-// the result of the "monitor_request" endpoint of the "ingest" service.
-func NewMonitorRequestNotAvailableResponseBody(res *goa.ServiceError) *MonitorRequestNotAvailableResponseBody {
-	body := &MonitorRequestNotAvailableResponseBody{
+// NewMonitorRequestInternalErrorResponseBody builds the HTTP response body
+// from the result of the "monitor_request" endpoint of the "ingest" service.
+func NewMonitorRequestInternalErrorResponseBody(res *goa.ServiceError) *MonitorRequestInternalErrorResponseBody {
+	body := &MonitorRequestInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -773,10 +773,10 @@ func NewMonitorRequestNotAvailableResponseBody(res *goa.ServiceError) *MonitorRe
 	return body
 }
 
-// NewMonitorNotAvailableResponseBody builds the HTTP response body from the
+// NewMonitorInternalErrorResponseBody builds the HTTP response body from the
 // result of the "monitor" endpoint of the "ingest" service.
-func NewMonitorNotAvailableResponseBody(res *goa.ServiceError) *MonitorNotAvailableResponseBody {
-	body := &MonitorNotAvailableResponseBody{
+func NewMonitorInternalErrorResponseBody(res *goa.ServiceError) *MonitorInternalErrorResponseBody {
+	body := &MonitorInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,

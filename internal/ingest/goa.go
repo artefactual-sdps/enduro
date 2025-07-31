@@ -29,6 +29,7 @@ var (
 	ErrBulkStatusUnavailable error = errors.New("bulk status unavailable")
 	ErrForbidden             error = goaingest.Forbidden("Forbidden")
 	ErrUnauthorized          error = goaingest.Unauthorized("Unauthorized")
+	ErrInternalError         error = goaingest.MakeInternalError(errors.New("internal error"))
 )
 
 func (w *goaWrapper) JWTAuth(

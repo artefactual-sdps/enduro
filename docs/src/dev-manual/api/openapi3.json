@@ -2450,7 +2450,7 @@
                 }
               }
             },
-            "description": "not_available: Internal Server Error response."
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "summary": "monitor ingest",
@@ -2506,7 +2506,7 @@
                 }
               }
             },
-            "description": "not_available: Internal Server Error response."
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -5585,16 +5585,6 @@
               }
             },
             "description": "internal_error: Internal Server Error response."
-          },
-          "501": {
-            "content": {
-              "application/vnd.goa.error": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "not_implemented: Not Implemented response."
           }
         },
         "summary": "monitor storage",
@@ -5651,16 +5641,6 @@
               }
             },
             "description": "internal_error: Internal Server Error response."
-          },
-          "501": {
-            "content": {
-              "application/vnd.goa.error": {
-                "schema": {
-                  "$ref": "#/components/schemas/Error"
-                }
-              }
-            },
-            "description": "not_implemented: Not Implemented response."
           }
         },
         "security": [

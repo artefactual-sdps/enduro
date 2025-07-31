@@ -65,7 +65,6 @@ func EncodeMonitorRequestRequest(encoder func(*http.Request) goahttp.Encoder) fu
 // body should be restored after having been read.
 // DecodeMonitorRequestResponse may return the following errors:
 //   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
-//   - "not_implemented" (type *goa.ServiceError): http.StatusNotImplemented
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -116,20 +115,6 @@ func DecodeMonitorRequestResponse(decoder func(*http.Response) goahttp.Decoder, 
 				return nil, goahttp.ErrValidationError("storage", "monitor_request", err)
 			}
 			return nil, NewMonitorRequestInternalError(&body)
-		case http.StatusNotImplemented:
-			var (
-				body MonitorRequestNotImplementedResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "monitor_request", err)
-			}
-			err = ValidateMonitorRequestNotImplementedResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "monitor_request", err)
-			}
-			return nil, NewMonitorRequestNotImplemented(&body)
 		case http.StatusForbidden:
 			var (
 				body string
@@ -203,7 +188,6 @@ func EncodeMonitorRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 // should be restored after having been read.
 // DecodeMonitorResponse may return the following errors:
 //   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
-//   - "not_implemented" (type *goa.ServiceError): http.StatusNotImplemented
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -251,20 +235,6 @@ func DecodeMonitorResponse(decoder func(*http.Response) goahttp.Decoder, restore
 				return nil, goahttp.ErrValidationError("storage", "monitor", err)
 			}
 			return nil, NewMonitorInternalError(&body)
-		case http.StatusNotImplemented:
-			var (
-				body MonitorNotImplementedResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "monitor", err)
-			}
-			err = ValidateMonitorNotImplementedResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "monitor", err)
-			}
-			return nil, NewMonitorNotImplemented(&body)
 		case http.StatusForbidden:
 			var (
 				body string

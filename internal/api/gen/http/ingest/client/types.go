@@ -109,9 +109,9 @@ type ListSipSourceObjectsResponseBody struct {
 	Next *string `form:"next,omitempty" json:"next,omitempty" xml:"next,omitempty"`
 }
 
-// MonitorRequestNotAvailableResponseBody is the type of the "ingest" service
-// "monitor_request" endpoint HTTP response body for the "not_available" error.
-type MonitorRequestNotAvailableResponseBody struct {
+// MonitorRequestInternalErrorResponseBody is the type of the "ingest" service
+// "monitor_request" endpoint HTTP response body for the "internal_error" error.
+type MonitorRequestInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -127,9 +127,9 @@ type MonitorRequestNotAvailableResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// MonitorNotAvailableResponseBody is the type of the "ingest" service
-// "monitor" endpoint HTTP response body for the "not_available" error.
-type MonitorNotAvailableResponseBody struct {
+// MonitorInternalErrorResponseBody is the type of the "ingest" service
+// "monitor" endpoint HTTP response body for the "internal_error" error.
+type MonitorInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -635,9 +635,9 @@ func NewMonitorRequestResultOK(ticket *string) *ingest.MonitorRequestResult {
 	return v
 }
 
-// NewMonitorRequestNotAvailable builds a ingest service monitor_request
-// endpoint not_available error.
-func NewMonitorRequestNotAvailable(body *MonitorRequestNotAvailableResponseBody) *goa.ServiceError {
+// NewMonitorRequestInternalError builds a ingest service monitor_request
+// endpoint internal_error error.
+func NewMonitorRequestInternalError(body *MonitorRequestInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -710,9 +710,9 @@ func NewMonitorIngestEventOK(body *MonitorResponseBody) *ingest.IngestEvent {
 	return v
 }
 
-// NewMonitorNotAvailable builds a ingest service monitor endpoint
-// not_available error.
-func NewMonitorNotAvailable(body *MonitorNotAvailableResponseBody) *goa.ServiceError {
+// NewMonitorInternalError builds a ingest service monitor endpoint
+// internal_error error.
+func NewMonitorInternalError(body *MonitorInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -1357,9 +1357,9 @@ func ValidateUploadSipResponseBody(body *UploadSipResponseBody) (err error) {
 	return
 }
 
-// ValidateMonitorRequestNotAvailableResponseBody runs the validations defined
-// on monitor_request_not_available_response_body
-func ValidateMonitorRequestNotAvailableResponseBody(body *MonitorRequestNotAvailableResponseBody) (err error) {
+// ValidateMonitorRequestInternalErrorResponseBody runs the validations defined
+// on monitor_request_internal_error_response_body
+func ValidateMonitorRequestInternalErrorResponseBody(body *MonitorRequestInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -1381,9 +1381,9 @@ func ValidateMonitorRequestNotAvailableResponseBody(body *MonitorRequestNotAvail
 	return
 }
 
-// ValidateMonitorNotAvailableResponseBody runs the validations defined on
-// monitor_not_available_response_body
-func ValidateMonitorNotAvailableResponseBody(body *MonitorNotAvailableResponseBody) (err error) {
+// ValidateMonitorInternalErrorResponseBody runs the validations defined on
+// monitor_internal_error_response_body
+func ValidateMonitorInternalErrorResponseBody(body *MonitorInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

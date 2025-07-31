@@ -76,7 +76,7 @@ func EncodeMonitorRequestError(encoder func(context.Context, http.ResponseWriter
 			return encodeError(ctx, w, v)
 		}
 		switch en.GoaErrorName() {
-		case "not_available":
+		case "internal_error":
 			var res *goa.ServiceError
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
@@ -84,7 +84,7 @@ func EncodeMonitorRequestError(encoder func(context.Context, http.ResponseWriter
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewMonitorRequestNotAvailableResponseBody(res)
+				body = NewMonitorRequestInternalErrorResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusInternalServerError)
@@ -143,7 +143,7 @@ func EncodeMonitorError(encoder func(context.Context, http.ResponseWriter) goaht
 			return encodeError(ctx, w, v)
 		}
 		switch en.GoaErrorName() {
-		case "not_available":
+		case "internal_error":
 			var res *goa.ServiceError
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
@@ -151,7 +151,7 @@ func EncodeMonitorError(encoder func(context.Context, http.ResponseWriter) goaht
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewMonitorNotAvailableResponseBody(res)
+				body = NewMonitorInternalErrorResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusInternalServerError)

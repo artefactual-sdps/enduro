@@ -1328,8 +1328,8 @@
       "title": "Mediatype identifier: application/vnd.enduro.ingest.users; view=default",
       "type": "object"
     },
-    "IngestMonitorNotAvailableResponseBody": {
-      "description": "monitor_not_available_response_body result type (default view)",
+    "IngestMonitorInternalErrorResponseBody": {
+      "description": "monitor_internal_error_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -1381,8 +1381,8 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestMonitorRequestNotAvailableResponseBody": {
-      "description": "monitor_request_not_available_response_body result type (default view)",
+    "IngestMonitorRequestInternalErrorResponseBody": {
+      "description": "monitor_request_internal_error_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3387,114 +3387,8 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageMonitorNotImplementedResponseBody": {
-      "description": "monitor_not_implemented_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
     "StorageMonitorRequestInternalErrorResponseBody": {
       "description": "monitor_request_internal_error_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "StorageMonitorRequestNotImplementedResponseBody": {
-      "description": "monitor_request_not_implemented_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -4592,7 +4486,7 @@
           "500": {
             "description": "Internal Server Error response.",
             "schema": {
-              "$ref": "#/definitions/IngestMonitorNotAvailableResponseBody"
+              "$ref": "#/definitions/IngestMonitorInternalErrorResponseBody"
             }
           }
         },
@@ -4634,7 +4528,7 @@
           "500": {
             "description": "Internal Server Error response.",
             "schema": {
-              "$ref": "#/definitions/IngestMonitorRequestNotAvailableResponseBody"
+              "$ref": "#/definitions/IngestMonitorRequestInternalErrorResponseBody"
             }
           }
         },
@@ -6765,12 +6659,6 @@
             "schema": {
               "$ref": "#/definitions/StorageMonitorInternalErrorResponseBody"
             }
-          },
-          "501": {
-            "description": "Not Implemented response.",
-            "schema": {
-              "$ref": "#/definitions/StorageMonitorNotImplementedResponseBody"
-            }
           }
         },
         "schemes": [
@@ -6812,12 +6700,6 @@
             "description": "Internal Server Error response.",
             "schema": {
               "$ref": "#/definitions/StorageMonitorRequestInternalErrorResponseBody"
-            }
-          },
-          "501": {
-            "description": "Not Implemented response.",
-            "schema": {
-              "$ref": "#/definitions/StorageMonitorRequestNotImplementedResponseBody"
             }
           }
         },

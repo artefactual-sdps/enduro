@@ -215,46 +215,9 @@ type MonitorRequestInternalErrorResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// MonitorRequestNotImplementedResponseBody is the type of the "storage"
-// service "monitor_request" endpoint HTTP response body for the
-// "not_implemented" error.
-type MonitorRequestNotImplementedResponseBody struct {
-	// Name is the name of this class of errors.
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Is the error temporary?
-	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
-	// Is the error a timeout?
-	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
-	// Is the error a server-side fault?
-	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
-}
-
 // MonitorInternalErrorResponseBody is the type of the "storage" service
 // "monitor" endpoint HTTP response body for the "internal_error" error.
 type MonitorInternalErrorResponseBody struct {
-	// Name is the name of this class of errors.
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Is the error temporary?
-	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
-	// Is the error a timeout?
-	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
-	// Is the error a server-side fault?
-	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
-}
-
-// MonitorNotImplementedResponseBody is the type of the "storage" service
-// "monitor" endpoint HTTP response body for the "not_implemented" error.
-type MonitorNotImplementedResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -926,21 +889,6 @@ func NewMonitorRequestInternalError(body *MonitorRequestInternalErrorResponseBod
 	return v
 }
 
-// NewMonitorRequestNotImplemented builds a storage service monitor_request
-// endpoint not_implemented error.
-func NewMonitorRequestNotImplemented(body *MonitorRequestNotImplementedResponseBody) *goa.ServiceError {
-	v := &goa.ServiceError{
-		Name:      *body.Name,
-		ID:        *body.ID,
-		Message:   *body.Message,
-		Temporary: *body.Temporary,
-		Timeout:   *body.Timeout,
-		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
 // NewMonitorRequestForbidden builds a storage service monitor_request endpoint
 // forbidden error.
 func NewMonitorRequestForbidden(body string) storage.Forbidden {
@@ -1008,21 +956,6 @@ func NewMonitorStorageEventOK(body *MonitorResponseBody) *storage.StorageEvent {
 // NewMonitorInternalError builds a storage service monitor endpoint
 // internal_error error.
 func NewMonitorInternalError(body *MonitorInternalErrorResponseBody) *goa.ServiceError {
-	v := &goa.ServiceError{
-		Name:      *body.Name,
-		ID:        *body.ID,
-		Message:   *body.Message,
-		Temporary: *body.Temporary,
-		Timeout:   *body.Timeout,
-		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
-// NewMonitorNotImplemented builds a storage service monitor endpoint
-// not_implemented error.
-func NewMonitorNotImplemented(body *MonitorNotImplementedResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -1975,57 +1908,9 @@ func ValidateMonitorRequestInternalErrorResponseBody(body *MonitorRequestInterna
 	return
 }
 
-// ValidateMonitorRequestNotImplementedResponseBody runs the validations
-// defined on monitor_request_not_implemented_response_body
-func ValidateMonitorRequestNotImplementedResponseBody(body *MonitorRequestNotImplementedResponseBody) (err error) {
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.Temporary == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
-	}
-	if body.Timeout == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
-	}
-	if body.Fault == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
-	}
-	return
-}
-
 // ValidateMonitorInternalErrorResponseBody runs the validations defined on
 // monitor_internal_error_response_body
 func ValidateMonitorInternalErrorResponseBody(body *MonitorInternalErrorResponseBody) (err error) {
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.Temporary == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
-	}
-	if body.Timeout == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
-	}
-	if body.Fault == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
-	}
-	return
-}
-
-// ValidateMonitorNotImplementedResponseBody runs the validations defined on
-// monitor_not_implemented_response_body
-func ValidateMonitorNotImplementedResponseBody(body *MonitorNotImplementedResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

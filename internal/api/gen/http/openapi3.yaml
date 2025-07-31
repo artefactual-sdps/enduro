@@ -83,7 +83,7 @@ paths:
                                 example: abc123
                             example: abc123
                 "500":
-                    description: 'not_available: Internal Server Error response.'
+                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
@@ -120,7 +120,7 @@ paths:
                                 example: abc123
                             example: abc123
                 "500":
-                    description: 'not_available: Internal Server Error response.'
+                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
@@ -2155,12 +2155,6 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
-                "501":
-                    description: 'not_implemented: Not Implemented response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
         post:
             tags:
                 - storage
@@ -2194,12 +2188,6 @@ paths:
                             example: abc123
                 "500":
                     description: 'internal_error: Internal Server Error response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
-                "501":
-                    description: 'not_implemented: Not Implemented response.'
                     content:
                         application/vnd.goa.error:
                             schema:

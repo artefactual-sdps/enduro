@@ -615,14 +615,19 @@ func (*SIPWorkflowCreatedEvent) ingestValueVal() {}
 func (*SIPWorkflowUpdatedEvent) ingestValueVal() {}
 func (*URLConfig) configVal()                    {}
 
-// MakeNotAvailable builds a goa.ServiceError from an error.
-func MakeNotAvailable(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "not_available", false, false, false)
+// MakeInternalError builds a goa.ServiceError from an error.
+func MakeInternalError(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "internal_error", false, false, false)
 }
 
 // MakeNotValid builds a goa.ServiceError from an error.
 func MakeNotValid(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_valid", false, false, false)
+}
+
+// MakeNotAvailable builds a goa.ServiceError from an error.
+func MakeNotAvailable(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "not_available", false, false, false)
 }
 
 // MakeInvalidMediaType builds a goa.ServiceError from an error.
@@ -633,11 +638,6 @@ func MakeInvalidMediaType(err error) *goa.ServiceError {
 // MakeInvalidMultipartRequest builds a goa.ServiceError from an error.
 func MakeInvalidMultipartRequest(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "invalid_multipart_request", false, false, false)
-}
-
-// MakeInternalError builds a goa.ServiceError from an error.
-func MakeInternalError(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "internal_error", false, false, false)
 }
 
 // MakeNotFound builds a goa.ServiceError from an error.

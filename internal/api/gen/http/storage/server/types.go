@@ -205,46 +205,9 @@ type MonitorRequestInternalErrorResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// MonitorRequestNotImplementedResponseBody is the type of the "storage"
-// service "monitor_request" endpoint HTTP response body for the
-// "not_implemented" error.
-type MonitorRequestNotImplementedResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
 // MonitorInternalErrorResponseBody is the type of the "storage" service
 // "monitor" endpoint HTTP response body for the "internal_error" error.
 type MonitorInternalErrorResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// MonitorNotImplementedResponseBody is the type of the "storage" service
-// "monitor" endpoint HTTP response body for the "not_implemented" error.
-type MonitorNotImplementedResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -962,38 +925,10 @@ func NewMonitorRequestInternalErrorResponseBody(res *goa.ServiceError) *MonitorR
 	return body
 }
 
-// NewMonitorRequestNotImplementedResponseBody builds the HTTP response body
-// from the result of the "monitor_request" endpoint of the "storage" service.
-func NewMonitorRequestNotImplementedResponseBody(res *goa.ServiceError) *MonitorRequestNotImplementedResponseBody {
-	body := &MonitorRequestNotImplementedResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
 // NewMonitorInternalErrorResponseBody builds the HTTP response body from the
 // result of the "monitor" endpoint of the "storage" service.
 func NewMonitorInternalErrorResponseBody(res *goa.ServiceError) *MonitorInternalErrorResponseBody {
 	body := &MonitorInternalErrorResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewMonitorNotImplementedResponseBody builds the HTTP response body from the
-// result of the "monitor" endpoint of the "storage" service.
-func NewMonitorNotImplementedResponseBody(res *goa.ServiceError) *MonitorNotImplementedResponseBody {
-	body := &MonitorNotImplementedResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,

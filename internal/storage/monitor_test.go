@@ -1,4 +1,4 @@
-package ingest
+package storage
 
 import (
 	"context"
@@ -14,7 +14,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
-	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
@@ -25,7 +25,7 @@ func TestMonitorRequest(t *testing.T) {
 		name    string
 		claims  *auth.Claims
 		mock    func(*authfake.MockTicketProvider, context.Context, *auth.Claims)
-		want    *goaingest.MonitorRequestResult
+		want    *goastorage.MonitorRequestResult
 		wantErr string
 	}{
 		{
@@ -40,7 +40,7 @@ func TestMonitorRequest(t *testing.T) {
 					Request(ctx, claims).
 					Return("ticket", nil)
 			},
-			want: &goaingest.MonitorRequestResult{Ticket: ref.New("ticket")},
+			want: &goastorage.MonitorRequestResult{Ticket: ref.New("ticket")},
 		},
 		{
 			name: "Returns empty result when no ticket is provided",
@@ -49,7 +49,7 @@ func TestMonitorRequest(t *testing.T) {
 					Request(ctx, claims).
 					Return("", nil)
 			},
-			want: &goaingest.MonitorRequestResult{},
+			want: &goastorage.MonitorRequestResult{},
 		},
 		{
 			name: "Fails when ticket request fails",
@@ -65,17 +65,15 @@ func TestMonitorRequest(t *testing.T) {
 			t.Parallel()
 
 			tpMock := authfake.NewMockTicketProvider(gomock.NewController(t))
-			gw := &goaWrapper{
-				ingestImpl: &ingestImpl{
-					logger:         logr.Discard(),
-					ticketProvider: tpMock,
-				},
+			svc := &serviceImpl{
+				logger:         logr.Discard(),
+				ticketProvider: tpMock,
 			}
 
 			ctx := auth.WithUserClaims(t.Context(), tt.claims)
 			tt.mock(tpMock, ctx, tt.claims)
 
-			res, err := gw.MonitorRequest(ctx, &goaingest.MonitorRequestPayload{})
+			res, err := svc.MonitorRequest(ctx, &goastorage.MonitorRequestPayload{})
 			if tt.wantErr != "" {
 				assert.ErrorContains(t, err, tt.wantErr)
 				return
@@ -86,17 +84,17 @@ func TestMonitorRequest(t *testing.T) {
 	}
 }
 
-// mockMonitorServerStream implements goaingest.MonitorServerStream for testing.
+// mockMonitorServerStream implements goastorage.MonitorServerStream for testing.
 type mockMonitorServerStream struct {
 	events []any
 	closed bool
 }
 
-func (m *mockMonitorServerStream) Send(event *goaingest.IngestEvent) error {
+func (m *mockMonitorServerStream) Send(event *goastorage.StorageEvent) error {
 	if m.closed {
 		return fmt.Errorf("stream closed")
 	}
-	m.events = append(m.events, event.IngestValue)
+	m.events = append(m.events, event.StorageValue)
 	return nil
 }
 
@@ -120,31 +118,33 @@ func TestMonitor(t *testing.T) {
 				return nil
 			})
 	}
-	allEvents := []*goaingest.IngestEvent{
-		{IngestValue: &goaingest.SIPCreatedEvent{UUID: testUUID}},
-		{IngestValue: &goaingest.SIPUpdatedEvent{UUID: testUUID}},
-		{IngestValue: &goaingest.SIPStatusUpdatedEvent{UUID: testUUID}},
-		{IngestValue: &goaingest.SIPWorkflowCreatedEvent{UUID: testUUID}},
-		{IngestValue: &goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID}},
-		{IngestValue: &goaingest.SIPTaskCreatedEvent{UUID: testUUID}},
-		{IngestValue: &goaingest.SIPTaskUpdatedEvent{UUID: testUUID}},
+	allEvents := []*goastorage.StorageEvent{
+		{StorageValue: &goastorage.LocationCreatedEvent{UUID: testUUID}},
+		{StorageValue: &goastorage.AIPCreatedEvent{UUID: testUUID}},
+		{StorageValue: &goastorage.AIPStatusUpdatedEvent{UUID: testUUID}},
+		{StorageValue: &goastorage.AIPLocationUpdatedEvent{UUID: testUUID}},
+		{StorageValue: &goastorage.AIPWorkflowCreatedEvent{UUID: testUUID}},
+		{StorageValue: &goastorage.AIPWorkflowUpdatedEvent{UUID: testUUID}},
+		{StorageValue: &goastorage.AIPTaskCreatedEvent{UUID: testUUID}},
+		{StorageValue: &goastorage.AIPTaskUpdatedEvent{UUID: testUUID}},
 	}
 	allWantEvents := []any{
-		&goaingest.IngestPingEvent{Message: ref.New("Hello")},
-		&goaingest.SIPCreatedEvent{UUID: testUUID},
-		&goaingest.SIPUpdatedEvent{UUID: testUUID},
-		&goaingest.SIPStatusUpdatedEvent{UUID: testUUID},
-		&goaingest.SIPWorkflowCreatedEvent{UUID: testUUID},
-		&goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID},
-		&goaingest.SIPTaskCreatedEvent{UUID: testUUID},
-		&goaingest.SIPTaskUpdatedEvent{UUID: testUUID},
+		&goastorage.StoragePingEvent{Message: ref.New("Hello")},
+		&goastorage.LocationCreatedEvent{UUID: testUUID},
+		&goastorage.AIPCreatedEvent{UUID: testUUID},
+		&goastorage.AIPStatusUpdatedEvent{UUID: testUUID},
+		&goastorage.AIPLocationUpdatedEvent{UUID: testUUID},
+		&goastorage.AIPWorkflowCreatedEvent{UUID: testUUID},
+		&goastorage.AIPWorkflowUpdatedEvent{UUID: testUUID},
+		&goastorage.AIPTaskCreatedEvent{UUID: testUUID},
+		&goastorage.AIPTaskUpdatedEvent{UUID: testUUID},
 	}
 
 	for _, tt := range []struct {
 		name       string
 		claims     *auth.Claims
 		mock       func(*authfake.MockTicketProvider, context.Context, *string, *auth.Claims)
-		events     []*goaingest.IngestEvent
+		events     []*goastorage.StorageEvent
 		wantEvents []any
 		wantErr    string
 	}{
@@ -176,7 +176,7 @@ func TestMonitor(t *testing.T) {
 			mock:   successMock,
 			events: allEvents,
 			wantEvents: []any{
-				&goaingest.IngestPingEvent{Message: ref.New("Hello")},
+				&goastorage.StoragePingEvent{Message: ref.New("Hello")},
 			},
 		},
 		{
@@ -184,14 +184,15 @@ func TestMonitor(t *testing.T) {
 			claims: &auth.Claims{
 				Email:         "test@example.com",
 				EmailVerified: true,
-				Attributes:    []string{auth.IngestSIPSReadAttr},
+				Attributes:    []string{auth.StorageLocationsListAttr, auth.StorageAIPSReadAttr},
 			},
 			mock:   successMock,
 			events: allEvents,
 			wantEvents: []any{
-				&goaingest.IngestPingEvent{Message: ref.New("Hello")},
-				&goaingest.SIPUpdatedEvent{UUID: testUUID},
-				&goaingest.SIPStatusUpdatedEvent{UUID: testUUID},
+				&goastorage.StoragePingEvent{Message: ref.New("Hello")},
+				&goastorage.LocationCreatedEvent{UUID: testUUID},
+				&goastorage.AIPStatusUpdatedEvent{UUID: testUUID},
+				&goastorage.AIPLocationUpdatedEvent{UUID: testUUID},
 			},
 		},
 		{
@@ -208,15 +209,13 @@ func TestMonitor(t *testing.T) {
 			t.Parallel()
 
 			tpMock := authfake.NewMockTicketProvider(gomock.NewController(t))
-			evsvc := event.NewIngestEventServiceInMem()
+			evsvc := event.NewStorageEventServiceInMem()
 			stream := &mockMonitorServerStream{}
 
-			gw := &goaWrapper{
-				ingestImpl: &ingestImpl{
-					logger:         logr.Discard(),
-					evsvc:          evsvc,
-					ticketProvider: tpMock,
-				},
+			svc := &serviceImpl{
+				logger:         logr.Discard(),
+				evsvc:          evsvc,
+				ticketProvider: tpMock,
 			}
 
 			// Create a context that will be cancelled to stop the monitor.
@@ -228,7 +227,7 @@ func TestMonitor(t *testing.T) {
 			// Start monitor in a goroutine.
 			errCh := make(chan error, 1)
 			go func() {
-				errCh <- gw.Monitor(ctx, &goaingest.MonitorPayload{Ticket: ticket}, stream)
+				errCh <- svc.Monitor(ctx, &goastorage.MonitorPayload{Ticket: ticket}, stream)
 			}()
 
 			// Send test events after a short delay.

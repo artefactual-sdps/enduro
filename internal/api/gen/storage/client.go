@@ -68,7 +68,6 @@ func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, updateAi
 // MonitorRequest calls the "monitor_request" endpoint of the "storage" service.
 // MonitorRequest may return the following errors:
 //   - "internal_error" (type *goa.ServiceError)
-//   - "not_implemented" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
@@ -84,7 +83,6 @@ func (c *Client) MonitorRequest(ctx context.Context, p *MonitorRequestPayload) (
 // Monitor calls the "monitor" endpoint of the "storage" service.
 // Monitor may return the following errors:
 //   - "internal_error" (type *goa.ServiceError)
-//   - "not_implemented" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
