@@ -38,14 +38,10 @@ few high-level metadata elements about the SIP and its ingest, including:
 * **Status**: The status of the SIP. Uses the [same statuses as those shown on
   the SIP browse page.](search-browse.md#sip-statuses).
 * **Uploaded by**: The user associated with initiating the SIP ingest by
-  uploading the package. If [authentication is enabled][iac], then depending on
-  what user properties are available from the provider, Enduro will first try to
-  show the user name. If a name is not available, an email address will be used
-  instead, and if neither are provided then Enduro will use a locally generated
-  UUID to uniquely identify the uploader. If authentication is not enabled
-  and/or the identity of the uploader cannot be known (for example, ingest is
-  started via a [watched location upload][watched-location]), Enduro will simply
-  show "Unknown" in the  Uploaded by field.
+  uploading the package. How user information displays in this field depends on
+  whether authentication is enabled and what information is available from the
+  provider - for more information, see:
+  [User filters and authentication configuration](../overview.md#user-filters-and-authentication-configuration).
 * **Started**: Timestamp of when the ingest workflow started.
 * **Completed**: Timestamp of when the ingest workflow ended. An estimate of the
   total time of the ingest will also be shown below in parentheses.
@@ -211,9 +207,7 @@ If desired, you can then download the SIP from the [Related packages
 widget](#related-packages) to inspect it.
 
 [content failure]: ../glossary.md#content-failure
-[iac]: ../../admin-manual/iac.md
 [preservation engine]: ../glossary.md#preservation-engine
 [system error]: ../glossary.md#system-error
 [task]: ../glossary.md#task
-[watched-location]: submitting-content.md#initiate-ingest-via-a-watched-location-upload
 [workflow]: ../glossary.md#workflow

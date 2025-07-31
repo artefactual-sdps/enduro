@@ -31,7 +31,7 @@ digital preservation lifecycle. Currently these include:
 
 ## Logging in
 
-Depending on the [installation process][installation], the application can be
+Depending on the [installation process][iac], the application can be
 configured to require no authentication. However, Enduro optionally supports
 external OpenID Connect (OIDC) compatible providers for authentication and
 access control. Users can authenticate against the external provider from the
@@ -45,6 +45,35 @@ After successfully submitting valid credentials, users will then be redirected
 back to Enduro's landing page.
 
 Welcome to Enduro!
+
+### User filters and authentication configuration
+
+There are several places in Enduro where, if user information is available,
+Enduro will display it in the user interface as an "Uploaded by" element.
+Examples include:
+
+* The results column on the
+  [SIP browse page](ingest/search-browse.md#browsing-results)
+* The [user filter](ingest/search-browse.md#filter-by-uploader) on the SIP
+  browse page
+* The user metadata element on the
+  [SIP details page](ingest/managing-ingest-workflows.md#sip-details)
+
+However, _what_ and _how_ information is displayed in these elements depends on
+whether or not authentication is enabled and if so, what user details are
+available from the authentication provider.
+
+If [authentication is enabled][iac], then Enduro will first try to show the user
+name. If a name is not available from the provider, an email address will be
+used instead, and if neither are provided then Enduro will use a locally
+generated UUID to uniquely identify the uploader.
+
+If authentication is **not** enabled and/or the identity of the uploader cannot
+be known (for example, ingest is started via a
+[watched location upload][watched-location]), Enduro will simply show "Unknown"
+in the  Uploaded by field.
+
+![SIP browse results with an unknown uploader](screenshots/unknown-uploaders.png)
 
 ## Landing page and About widget
 
@@ -99,4 +128,5 @@ The logout button is in the user menu at the bottom of the navbar
 [Artefactual Systems]: https://www.artefactual.com
 [automation-tools]: https://github.com/artefactual/automation-tools
 [Enduro]: https://github.com/artefactual-sdps/enduro
-[installation]: ../admin-manual/iac.md
+[iac]: ../admin-manual/iac.md
+[watched-location]: ingest/submitting-content.md#initiate-ingest-via-a-watched-location-upload

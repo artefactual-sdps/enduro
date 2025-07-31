@@ -29,14 +29,10 @@ SIP results are presented in a table with the following columns:
 
 * **Name**: The name of the SIP.
 * **Uploaded by**: The user associated with initiating the SIP ingest by
-  uploading the package. If [authentication is enabled][iac], then depending on
-  what user properties are available from the provider, Enduro will first try to
-  show the user name. If a name is not available, an email address will be used
-  instead, and if neither are provided then Enduro will use a locally generated
-  UUID to uniquely identify the uploader. If authentication is not enabled
-  and/or the identity of the uploader cannot be known (for example, ingest is
-  started via a [watched location upload][watched-location]), Enduro will simply
-  show "Unknown" in the  Uploaded by field.
+  uploading the package. How user information displays in this field depends on
+  whether authentication is enabled and what information is available from the
+  provider - for more information, see:
+  [User filters and authentication configuration](../overview.md#user-filters-and-authentication-configuration)
 * **Started**: The timestamp of when the related ingest workflow began.
   Internally, Enduro will store timestamps in Coordinated Universal Time
   ([UTC]). However, the user interface will then render those timestamps based
@@ -45,8 +41,8 @@ SIP results are presented in a table with the following columns:
 
 ### SIP statuses
 
-Clicking the blue **( i ) info icon** above the "Status" column in the browse
-results will display the SIP status legend:
+Clicking the blue **( i ) info icon** to the right of the "Status" column header
+in the browse results will display the **SIP status legend**:
 
 ![The SIP status legend](../screenshots/sip-status-legend.png)
 
@@ -78,11 +74,11 @@ browse page with more than 20 results.
 An example of a pager on the SIP browse page
 ///
 
-The **current page** will be shown in purple. The pager will always show 6 other
+The **current page** will be shown in purple. The pager will show up to 6 other
 active pages as white with blue hyperlink numbering - click any of these to
 navigate to that page of results.
 
-You can also click on the **< Back** and **> Forward** caret icons on each end
+You can also click on the **< Back** and **> Forward** arrows on each end
 of the pager to navigate to the previous or next page. If either of these icons
 are shown in  grey, this means they are inactive - there are no further results
 in that direction.
@@ -164,11 +160,11 @@ If [authentication is enabled][iac], you can also filter SIP browse results by
 who initiated the ingest. Click the purple "Uploaded by" button to show the
 drop-down menu with available user options.
 
-Options shown in this drop-down may be a mix names, emails, and even UUIDs.
-Depending on what user properties are available from the authentication
-provider, Enduro will first try to show the user name. If a name is not
-available, an email address will be used instead, and if neither are provided
-then Enduro will use a locally generated UUID to uniquely identify the uploader.
+Options shown in this drop-down may be a mix of names, emails, and even UUIDs,
+depending on what user properties are available from the authentication
+provider. For more information on how Enduro tries to display uploader
+information, see:
+[User filters and authentication configuration](../overview.md#user-filters-and-authentication-configuration).
 
 !!! note
 
@@ -217,13 +213,13 @@ In the calendar widget you can click on:
 
 * Any **date** in the calendar to select a day
 * The **month** shown at the top of the calendar, to reveal a month picker
-    * Alternatively, you can use the **< Back** and **> Forward** carets to
+    * Alternatively, you can use the **< Back** and **> Forward** arrows to
       shift the displayed calendar forward or back by one month
 * The **year** shown at the top of the calendar, to reveal a year picker
 * The **hour** or **minutes** shown below the calendar, to show pickers for
   these
     * Alternatively, hovering over the **lines above and below** the time
-      elements reveals them to be up and down carets - click these to increment
+      elements reveals them to be up and down arrows - click these to increment
       the time forward or back
 
 ![The started filter calendar widget](../screenshots/started-filter-calendar-widget.png)
@@ -232,7 +228,7 @@ The calendar widget provides a number of different ways to configure your range
 ///
 
 As you configure your range, a preview is shown in the bottom left corner of the
-calendar widget. You can click "cancel" to clear all previous selections and
+calendar widget. You can click "Cancel" to clear all previous selections and
 close the calendar widget, or click the "Select" button in the bottom right of
 the widget to finalize your range.
 
@@ -250,4 +246,3 @@ filtered immediately.
 [iac]: ../../admin-manual/iac.md
 [navbar]: ../overview.md#navigation
 [UTC]: https://en.wikipedia.org/wiki/Coordinated_Universal_Time
-[watched-location]: submitting-content.md#initiate-ingest-via-a-watched-location-upload
