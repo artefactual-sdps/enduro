@@ -16,6 +16,9 @@ nav:
           - Submitting content: user-manual/ingest/submitting-content.md
           - Managing ingest workflows: user-manual/ingest/managing-ingest-workflows.md
           - Searching and browsing: user-manual/ingest/search-browse.md
+      - Storage:
+          - user-manual/storage/index.md
+          - Browse and manage locations: user-manual/storage/manage-locations.md
       - Components: user-manual/components.md
       - Glossary: user-manual/glossary.md
   - Administrator manual: admin-manual/
