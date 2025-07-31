@@ -20,7 +20,7 @@ redirect you to the Locations browse page:
 
 ![The locations browse page in Enduro](../screenshots/locations-browse.png)
 
-THe browse page will show a list of results in a table, with a count of results
+The browse page will show a list of results in a table, with a count of results
 listed under the page title.
 
 Columns in the results table include:
