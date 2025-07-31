@@ -41,7 +41,7 @@ reload the page and display more details about the selected location:
 
 ![A location view page](../screenshots/location-view.png)
 
-There are two tabs on a Location view page: The location Summary tab, and a tab
+There are two tabs on a Location view page: the location Summary tab, and a tab
 listing related AIPs. By default the Summary tab is shown; click on the tabs to
 swap views.
 
