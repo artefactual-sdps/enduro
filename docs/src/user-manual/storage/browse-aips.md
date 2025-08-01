@@ -27,7 +27,9 @@ same as it does in the Ingest pages - for more information, see:
 AIP results are presented in a table with the following columns:
 
 * **Name**: The name of the AIP. If only 1 AIP was derived from your SIP, then
-  the AIP name will be identical to the original SIP's name.
+  the AIP name will be identical to the original SIP's name. The AIP name will
+  also be shown in the browse results as a hyperlink - click it to go to the
+  related [AIP view page](manage-aips.md#aip-view-pages).
 * **UUID**: The unique identifier generated for the AIP during the preservation
   workflow.
 * **Deposited**: A timestamp of when the AIP was first stored, following the
