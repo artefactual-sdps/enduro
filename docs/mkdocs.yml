@@ -19,6 +19,7 @@ nav:
       - Storage:
           - user-manual/storage/index.md
           - Browse and manage locations: user-manual/storage/manage-locations.md
+          - Search and browse AIPs: user-manual/storage/browse-aips.md
       - Components: user-manual/components.md
       - Glossary: user-manual/glossary.md
   - Administrator manual: admin-manual/
