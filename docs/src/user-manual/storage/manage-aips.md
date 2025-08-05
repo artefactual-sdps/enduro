@@ -31,7 +31,7 @@ URL. The page is then organized into 3 main sections:
 ### AIP details
 
 AIP details are found in the body of the AIP view page. This section provides a
-few high-level metadata elements about the AIP,including:
+few high-level metadata elements about the AIP, including:
 
 * **Name**: Name of the AIP at deposit time. Should match the page title. Also,
   if only one AIP was derived from the original SIP ingested to create it, then
