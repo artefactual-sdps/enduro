@@ -1,6 +1,10 @@
 package storage
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+
+	"github.com/artefactual-sdps/enduro/internal/event"
+)
 
 type Config struct {
 	TaskQueue                  string
@@ -8,6 +12,7 @@ type Config struct {
 	DefaultPermanentLocationID uuid.UUID
 	Internal                   LocationConfig
 	Database                   Database
+	Event                      event.Config
 }
 
 type Database struct {

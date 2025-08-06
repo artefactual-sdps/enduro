@@ -152,14 +152,26 @@ func main() {
 	}
 
 	// Set up the ingest event service.
-	ingestEventSvc, err := event.NewIngestEventServiceRedis(logger.WithName("ingest-events"), tp, &cfg.Event)
+	ingestEventSvc, err := event.NewServiceRedis(
+		logger.WithName("ingest-events"),
+		tp,
+		cfg.Event.RedisAddress,
+		cfg.Event.RedisChannel,
+		&ingest.EventSerializer{},
+	)
 	if err != nil {
 		logger.Error(err, "Error creating Ingest Event service.")
 		os.Exit(1)
 	}
 
 	// Set up the storage event service.
-	storageEventSvc, err := event.NewStorageEventServiceRedis(logger.WithName("storage-events"), tp, &cfg.Event)
+	storageEventSvc, err := event.NewServiceRedis(
+		logger.WithName("storage-events"),
+		tp,
+		cfg.Storage.Event.RedisAddress,
+		cfg.Storage.Event.RedisChannel,
+		&storage.EventSerializer{},
+	)
 	if err != nil {
 		logger.Error(err, "Error creating Storage Event service.")
 		os.Exit(1)

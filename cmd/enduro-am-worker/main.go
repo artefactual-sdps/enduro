@@ -151,7 +151,13 @@ func main() {
 	}
 
 	// Set up the ingest event service.
-	ingestEventSvc, err := event.NewIngestEventServiceRedis(logger.WithName("ingest-events"), tp, &cfg.Event)
+	ingestEventSvc, err := event.NewServiceRedis(
+		logger.WithName("ingest-events"),
+		tp,
+		cfg.Event.RedisAddress,
+		cfg.Event.RedisChannel,
+		&ingest.EventSerializer{},
+	)
 	if err != nil {
 		logger.Error(err, "Error creating Ingest Event service.")
 		os.Exit(1)

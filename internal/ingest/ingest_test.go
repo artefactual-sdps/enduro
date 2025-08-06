@@ -15,6 +15,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -37,7 +38,7 @@ func testSvc(t *testing.T, internalBucket *blob.Bucket, uploadMaxSize int64) (
 		logr.Discard(),
 		&sql.DB{},
 		temporalClient,
-		event.NewIngestEventServiceNop(),
+		event.NewServiceNop[*goaingest.IngestEvent](),
 		psvc,
 		&auth.NoopTokenVerifier{},
 		auth.NewTicketProvider(t.Context(), nil, nil),

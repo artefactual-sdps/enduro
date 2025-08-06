@@ -17,7 +17,6 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
@@ -137,7 +136,7 @@ func (w *goaWrapper) initSIP(
 		return errors.Join(err, w.perSvc.DeleteSIP(ctx, s.ID))
 	}
 
-	event.PublishIngestEvent(ctx, w.evsvc, sipToCreatedEvent(s))
+	PublishEvent(ctx, w.evsvc, sipToCreatedEvent(s))
 
 	return nil
 }

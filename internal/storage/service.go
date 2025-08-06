@@ -63,7 +63,7 @@ type serviceImpl struct {
 	storagePersistence persistence.Storage
 
 	// Storage event service.
-	evsvc event.StorageEventService
+	evsvc event.Service[*goastorage.StorageEvent]
 
 	// Token verifier.
 	tokenVerifier auth.TokenVerifier
@@ -88,7 +88,7 @@ func NewService(
 	config Config,
 	storagePersistence persistence.Storage,
 	tc temporalsdk_client.Client,
-	evsvc event.StorageEventService,
+	evsvc event.Service[*goastorage.StorageEvent],
 	tokenVerifier auth.TokenVerifier,
 	ticketProvider auth.TicketProvider,
 	rander io.Reader,
@@ -181,7 +181,7 @@ func (s *serviceImpl) SubmitAip(
 		return nil, goastorage.MakeNotValid(errors.New("cannot create AIP"))
 	}
 
-	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.AIPCreatedEvent{
+	PublishEvent(ctx, s.evsvc, &goastorage.AIPCreatedEvent{
 		UUID: aipID,
 		Item: aip,
 	})
@@ -231,7 +231,7 @@ func (s *serviceImpl) CreateAip(ctx context.Context, payload *goastorage.CreateA
 		return nil, err
 	}
 
-	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.AIPCreatedEvent{
+	PublishEvent(ctx, s.evsvc, &goastorage.AIPCreatedEvent{
 		UUID: aipID,
 		Item: aip,
 	})
@@ -363,7 +363,7 @@ func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, stat
 		return err
 	}
 
-	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.AIPStatusUpdatedEvent{
+	PublishEvent(ctx, s.evsvc, &goastorage.AIPStatusUpdatedEvent{
 		UUID:   aipID,
 		Status: status.String(),
 	})
@@ -377,7 +377,7 @@ func (s *serviceImpl) UpdateAipLocationID(ctx context.Context, aipID, locationID
 		return err
 	}
 
-	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.AIPLocationUpdatedEvent{
+	PublishEvent(ctx, s.evsvc, &goastorage.AIPLocationUpdatedEvent{
 		UUID:         aipID,
 		LocationUUID: locationID,
 	})
@@ -515,7 +515,7 @@ func (s *serviceImpl) CreateLocation(
 		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
 	}
 
-	event.PublishStorageEvent(ctx, s.evsvc, &goastorage.LocationCreatedEvent{
+	PublishEvent(ctx, s.evsvc, &goastorage.LocationCreatedEvent{
 		UUID: UUID,
 		Item: location,
 	})
@@ -568,7 +568,7 @@ func (svc *serviceImpl) CreateWorkflow(ctx context.Context, w *types.Workflow) e
 		return err
 	}
 
-	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.AIPWorkflowCreatedEvent{
+	PublishEvent(ctx, svc.evsvc, &goastorage.AIPWorkflowCreatedEvent{
 		UUID: w.UUID,
 		Item: svc.workflowToGoa(w),
 	})
@@ -586,7 +586,7 @@ func (svc *serviceImpl) UpdateWorkflow(
 		return nil, err
 	}
 
-	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.AIPWorkflowUpdatedEvent{
+	PublishEvent(ctx, svc.evsvc, &goastorage.AIPWorkflowUpdatedEvent{
 		UUID: workflow.UUID,
 		Item: svc.workflowToGoa(workflow),
 	})
@@ -600,7 +600,7 @@ func (svc *serviceImpl) CreateTask(ctx context.Context, t *types.Task) error {
 		return err
 	}
 
-	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.AIPTaskCreatedEvent{
+	PublishEvent(ctx, svc.evsvc, &goastorage.AIPTaskCreatedEvent{
 		UUID: t.UUID,
 		Item: svc.taskToGoa(t),
 	})
@@ -618,7 +618,7 @@ func (svc *serviceImpl) UpdateTask(
 		return nil, err
 	}
 
-	event.PublishStorageEvent(ctx, svc.evsvc, &goastorage.AIPTaskUpdatedEvent{
+	PublishEvent(ctx, svc.evsvc, &goastorage.AIPTaskUpdatedEvent{
 		UUID: task.UUID,
 		Item: svc.taskToGoa(task),
 	})

@@ -78,8 +78,7 @@ migrate = true
 
 [event]
 redisAddress = "redis://redis.enduro-sdps:6379"
-ingestRedisChannel = "enduro-ingest-events"
-storageRedisChannel = "enduro-storage-events"
+redisChannel = "enduro-ingest-events"
 
 [extractActivity]
 dirMode = "0o700"
@@ -126,6 +125,10 @@ key = "minio"
 secret = "minio123"
 region = "us-west-1"
 bucket = "aips"
+
+[storage.event]
+redisAddress = "redis://redis.enduro-sdps:6379"
+redisChannel = "enduro-storage-events"
 
 # Change the taskqueue setting to your prefered preservation system, by default it is a3m.
 [preservation]

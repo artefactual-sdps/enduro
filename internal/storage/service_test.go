@@ -106,7 +106,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		*params.config,
 		*params.persistence,
 		*params.temporalClient,
-		event.NewStorageEventServiceNop(),
+		event.NewServiceNop[*goastorage.StorageEvent](),
 		params.tokenVerifier,
 		params.ticketProvider,
 		rand.New(rand.NewSource(1)), // #nosec: G404
@@ -138,7 +138,7 @@ func TestNewService(t *testing.T) {
 			storage.Config{},
 			nil,
 			nil,
-			event.NewStorageEventServiceNop(),
+			event.NewServiceNop[*goastorage.StorageEvent](),
 			&auth.OIDCTokenVerifier{},
 			nil,
 			nil,

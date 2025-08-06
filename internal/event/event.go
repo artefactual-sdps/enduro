@@ -29,3 +29,12 @@ type Subscription[T any] interface {
 	// Close closes the event stream channel and disconnects from the event service.
 	Close() error
 }
+
+// Serializer handles serialization/deserialization of events.
+type Serializer[T any] interface {
+	// Marshal serializes an event into a byte slice.
+	Marshal(event T) ([]byte, error)
+
+	// Unmarshal deserializes a byte slice into an event.
+	Unmarshal(data []byte) (T, error)
+}

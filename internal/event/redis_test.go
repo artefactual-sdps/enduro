@@ -6,29 +6,44 @@ import (
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
-	"github.com/go-logr/logr/testr"
+	"github.com/go-logr/logr"
 	"github.com/redis/go-redis/v9"
-	"go.artefactual.dev/tools/ref"
 	"go.opentelemetry.io/otel/trace/noop"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/api/gen/http/ingest/server"
-	storageserver "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
-	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
-	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
-func TestIngestEventServiceRedisPublish(t *testing.T) {
+type TestEvent struct {
+	ID      string `json:"id"`
+	Message string `json:"message"`
+}
+
+type testEventSerializer struct{}
+
+var _ event.Serializer[*TestEvent] = (*testEventSerializer)(nil)
+
+func (s *testEventSerializer) Marshal(e *TestEvent) ([]byte, error) {
+	return json.Marshal(e)
+}
+
+func (s *testEventSerializer) Unmarshal(data []byte) (*TestEvent, error) {
+	var e TestEvent
+	if err := json.Unmarshal(data, &e); err != nil {
+		return nil, err
+	}
+	return &e, nil
+}
+
+func TestRedisServicePublish(t *testing.T) {
 	t.Parallel()
 
 	ctx := t.Context()
 	s := miniredis.RunT(t)
-	channel := "enduro-ingest-events"
+	channel := "test-events"
 
-	c := redis.NewClient(&redis.Options{
-		Addr: s.Addr(),
-	})
+	// Set up Redis client to receive messages.
+	c := redis.NewClient(&redis.Options{Addr: s.Addr()})
 	sub := c.Subscribe(ctx, channel)
 	t.Cleanup(func() {
 		sub.Close()
@@ -49,179 +64,135 @@ func TestIngestEventServiceRedisPublish(t *testing.T) {
 		}
 	}()
 
-	cfg := event.Config{
-		RedisAddress:       "redis://" + s.Addr(),
-		IngestRedisChannel: channel,
-	}
-	svc, err := event.NewIngestEventServiceRedis(testr.New(t), noop.NewTracerProvider(), &cfg)
+	// Create Redis event service.
+	svc, err := event.NewServiceRedis(
+		logr.Discard(),
+		noop.NewTracerProvider(),
+		"redis://"+s.Addr(),
+		channel,
+		&testEventSerializer{},
+	)
 	assert.NilError(t, err)
 
-	event.PublishIngestEvent(ctx, svc, &goaingest.IngestPingEvent{
-		Message: ref.New("hello"),
-	})
+	// Publish test event.
+	svc.PublishEvent(ctx, &TestEvent{ID: "test-123", Message: "hello world"})
 
+	// Verify the message was published correctly.
 	select {
 	case ret := <-input:
-		assert.DeepEqual(
-			t,
-			ret.Payload,
-			`{"ingest_value":{"Type":"ingest_ping_event","Value":"{\"Message\":\"hello\"}"}}`,
-		)
-	case <-time.After(10 * time.Second):
-		t.Fatal("timeout!")
+		assert.Equal(t, ret.Payload, `{"id":"test-123","message":"hello world"}`)
+	case <-time.After(5 * time.Second):
+		t.Fatal("timeout waiting for published message")
 	}
 }
 
-func TestIngestEventServiceRedisSubscribe(t *testing.T) {
+func TestRedisServiceSubscribe(t *testing.T) {
 	t.Parallel()
 
 	ctx := t.Context()
 	s := miniredis.RunT(t)
+	channel := "test-events"
 
-	cfg := event.Config{
-		RedisAddress:       "redis://" + s.Addr(),
-		IngestRedisChannel: "enduro-ingest-events",
-	}
-	svc, err := event.NewIngestEventServiceRedis(testr.New(t), noop.NewTracerProvider(), &cfg)
+	// Create Redis event service.
+	svc, err := event.NewServiceRedis(
+		logr.Discard(),
+		noop.NewTracerProvider(),
+		"redis://"+s.Addr(),
+		channel,
+		&testEventSerializer{},
+	)
 	assert.NilError(t, err)
 
+	// Subscribe to events.
 	sub, err := svc.Subscribe(ctx)
 	assert.NilError(t, err)
 	t.Cleanup(func() {
 		sub.Close()
 	})
 
-	c := redis.NewClient(&redis.Options{
-		Addr: s.Addr(),
-	})
-	ev := goaingest.IngestEvent{
-		IngestValue: &goaingest.IngestPingEvent{
-			Message: ref.New("hello"),
-		},
-	}
-	blob, err := json.Marshal(server.NewMonitorResponseBody(&ev))
+	// Publish message directly to Redis.
+	c := redis.NewClient(&redis.Options{Addr: s.Addr()})
+
+	testEvent := &TestEvent{ID: "test-456", Message: "test message"}
+	blob, err := json.Marshal(testEvent)
 	assert.NilError(t, err)
 
-	err = c.Publish(ctx, cfg.IngestRedisChannel, blob).Err()
+	err = c.Publish(ctx, channel, blob).Err()
 	assert.NilError(t, err)
 
+	// Verify subscription receives the event.
 	select {
 	case ret := <-sub.C():
-		assert.DeepEqual(t, ret, &ev)
-	case <-time.After(10 * time.Second):
-		t.Fatal("timeout!")
+		assert.DeepEqual(t, ret, testEvent)
+	case <-time.After(5 * time.Second):
+		t.Fatal("timeout waiting for subscribed message")
 	}
 }
 
-func TestStorageEventServiceRedisPublish(t *testing.T) {
+func TestRedisServiceSubscribeInvalidMessage(t *testing.T) {
 	t.Parallel()
 
 	ctx := t.Context()
 	s := miniredis.RunT(t)
-	channel := "enduro-storage-events"
+	channel := "test-events"
 
-	c := redis.NewClient(&redis.Options{
-		Addr: s.Addr(),
-	})
-	sub := c.Subscribe(ctx, channel)
-	t.Cleanup(func() {
-		sub.Close()
-	})
-
-	// Call Receive to force the connection to wait a response from
-	// Redis so the subscription is active immediately.
-	_, err := sub.Receive(ctx)
+	// Create Redis event service.
+	svc, err := event.NewServiceRedis(
+		logr.Discard(),
+		noop.NewTracerProvider(),
+		"redis://"+s.Addr(),
+		channel,
+		&testEventSerializer{},
+	)
 	assert.NilError(t, err)
 
-	input := make(chan *redis.Message)
-
-	go func() {
-		ch := sub.Channel()
-		for message := range ch {
-			input <- message
-			break
-		}
-	}()
-
-	cfg := event.Config{
-		RedisAddress:        "redis://" + s.Addr(),
-		StorageRedisChannel: channel,
-	}
-	svc, err := event.NewStorageEventServiceRedis(testr.New(t), noop.NewTracerProvider(), &cfg)
-	assert.NilError(t, err)
-
-	event.PublishStorageEvent(ctx, svc, &goastorage.StoragePingEvent{
-		Message: ref.New("hello"),
-	})
-
-	select {
-	case ret := <-input:
-		assert.DeepEqual(
-			t,
-			ret.Payload,
-			`{"storage_value":{"Type":"storage_ping_event","Value":"{\"Message\":\"hello\"}"}}`,
-		)
-	case <-time.After(10 * time.Second):
-		t.Fatal("timeout!")
-	}
-}
-
-func TestStorageEventServiceRedisSubscribe(t *testing.T) {
-	t.Parallel()
-
-	ctx := t.Context()
-	s := miniredis.RunT(t)
-
-	cfg := event.Config{
-		RedisAddress:        "redis://" + s.Addr(),
-		StorageRedisChannel: "enduro-storage-events",
-	}
-	svc, err := event.NewStorageEventServiceRedis(testr.New(t), noop.NewTracerProvider(), &cfg)
-	assert.NilError(t, err)
-
+	// Subscribe to events.
 	sub, err := svc.Subscribe(ctx)
 	assert.NilError(t, err)
 	t.Cleanup(func() {
 		sub.Close()
 	})
 
-	c := redis.NewClient(&redis.Options{
-		Addr: s.Addr(),
-	})
-
-	ev := goastorage.StorageEvent{
-		StorageValue: &goastorage.StoragePingEvent{
-			Message: ref.New("hello"),
-		},
-	}
-
-	blob, err := json.Marshal(storageserver.NewMonitorResponseBody(&ev))
+	// Publish invalid event to Redis.
+	c := redis.NewClient(&redis.Options{Addr: s.Addr()})
+	err = c.Publish(ctx, channel, "invalid event").Err()
 	assert.NilError(t, err)
 
-	err = c.Publish(ctx, cfg.StorageRedisChannel, blob).Err()
+	// Publish valid event after invalid one.
+	testEvent := &TestEvent{ID: "test-789", Message: "valid message"}
+	blob, err := json.Marshal(testEvent)
 	assert.NilError(t, err)
 
+	err = c.Publish(ctx, channel, blob).Err()
+	assert.NilError(t, err)
+
+	// Should receive the valid message.
 	select {
 	case ret := <-sub.C():
-		assert.DeepEqual(t, ret, &ev)
-	case <-time.After(10 * time.Second):
-		t.Fatal("timeout!")
+		assert.DeepEqual(t, ret, testEvent)
+	case <-time.After(5 * time.Second):
+		t.Fatal("timeout waiting for valid message after invalid one")
 	}
 }
 
-func TestRedisEventBufferOverflow(t *testing.T) {
+func TestRedisServiceBufferOverflow(t *testing.T) {
 	t.Parallel()
 
 	ctx := t.Context()
 	s := miniredis.RunT(t)
+	channel := "test-events"
 
-	cfg := event.Config{
-		RedisAddress:       "redis://" + s.Addr(),
-		IngestRedisChannel: "enduro-ingest-events",
-	}
-	svc, err := event.NewIngestEventServiceRedis(testr.New(t), noop.NewTracerProvider(), &cfg)
+	// Create Redis event service.
+	svc, err := event.NewServiceRedis(
+		logr.Discard(),
+		noop.NewTracerProvider(),
+		"redis://"+s.Addr(),
+		channel,
+		&testEventSerializer{},
+	)
 	assert.NilError(t, err)
 
+	// Subscribe to events.
 	sub, err := svc.Subscribe(ctx)
 	assert.NilError(t, err)
 	t.Cleanup(func() {
@@ -230,8 +201,12 @@ func TestRedisEventBufferOverflow(t *testing.T) {
 
 	// Fill the buffer beyond its capacity without reading from it.
 	// This should not cause the subscription to hang or disconnect.
-	for range event.EventBufferSize + 5 {
-		event.PublishIngestEvent(ctx, svc, &goaingest.IngestPingEvent{})
+	for range event.EventBufferSize + 10 {
+		testEvent := &TestEvent{
+			ID:      "overflow-test",
+			Message: "buffer overflow test",
+		}
+		svc.PublishEvent(ctx, testEvent)
 	}
 
 	// Give some time for events to be processed.
@@ -261,13 +236,71 @@ loop:
 	}
 
 	// Verify subscriber can still receive new events after buffer overflow.
-	event.PublishIngestEvent(ctx, svc, &goaingest.IngestPingEvent{})
+	newEvent := &TestEvent{
+		ID:      "post-overflow",
+		Message: "post overflow test",
+	}
+	svc.PublishEvent(ctx, newEvent)
 
 	// Wait for the new event.
 	select {
-	case <-sub.C():
-		// Successfully received new event after overflow.
-	case <-time.After(1 * time.Second):
+	case ret := <-sub.C():
+		assert.DeepEqual(t, ret, newEvent)
+	case <-time.After(5 * time.Second):
 		t.Fatal("subscriber should still be able to receive events after buffer overflow")
+	}
+}
+
+func TestRedisServiceSubscriptionClosure(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	s := miniredis.RunT(t)
+	channel := "test-events"
+
+	// Create Redis event service.
+	svc, err := event.NewServiceRedis(
+		logr.Discard(),
+		noop.NewTracerProvider(),
+		"redis://"+s.Addr(),
+		channel,
+		&testEventSerializer{},
+	)
+	assert.NilError(t, err)
+
+	// Subscribe to events.
+	sub, err := svc.Subscribe(ctx)
+	assert.NilError(t, err)
+
+	// Verify subscription is active.
+	testEvent := &TestEvent{
+		ID:      "closure-test",
+		Message: "before close",
+	}
+	svc.PublishEvent(ctx, testEvent)
+
+	select {
+	case ret := <-sub.C():
+		assert.DeepEqual(t, ret, testEvent)
+	case <-time.After(5 * time.Second):
+		t.Fatal("timeout waiting for message before close")
+	}
+
+	// Close subscription.
+	err = sub.Close()
+	assert.NilError(t, err)
+
+	// Verify we don't receive any more events after closing.
+	svc.PublishEvent(ctx, &TestEvent{ID: "after-close", Message: "should not receive"})
+
+	// Wait a bit to ensure the message would have been received.
+	time.Sleep(100 * time.Millisecond)
+
+	// Try to read from the channel with a timeout.
+	select {
+	case <-sub.C():
+		t.Fatal("should not receive events after closing subscription")
+	case <-time.After(1 * time.Second):
+		// This is expected - no events should be received after closing.
 	}
 }

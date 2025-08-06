@@ -13,8 +13,10 @@ type serviceInMemImpl[T any] struct {
 	subs map[uuid.UUID]*subscriptionInMemImpl[T]
 }
 
-// newServiceInMem returns a new instance of a generic event service.
-func newServiceInMem[T any]() *serviceInMemImpl[T] {
+var _ Service[any] = (*serviceInMemImpl[any])(nil)
+
+// NewServiceInMem returns a new instance of a generic event service.
+func NewServiceInMem[T any]() Service[T] {
 	return &serviceInMemImpl[T]{
 		subs: map[uuid.UUID]*subscriptionInMemImpl[T]{},
 	}
@@ -83,6 +85,8 @@ type subscriptionInMemImpl[T any] struct {
 	// Subscription identifier.
 	id uuid.UUID
 }
+
+var _ Subscription[any] = (*subscriptionInMemImpl[any])(nil)
 
 // Close disconnects the subscription from the service it was created from.
 func (s *subscriptionInMemImpl[T]) Close() error {

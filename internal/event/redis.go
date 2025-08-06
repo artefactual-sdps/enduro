@@ -16,16 +16,18 @@ type serviceRedisImpl[T any] struct {
 	logger     logr.Logger
 	client     redis.UniversalClient
 	channel    string
-	serializer eventSerializer[T]
+	serializer Serializer[T]
 }
 
-// newServiceRedis returns a new instance of a generic Redis event service.
-func newServiceRedis[T any](
+var _ Service[any] = (*serviceRedisImpl[any])(nil)
+
+// NewServiceRedis returns a new instance of a generic Redis event service.
+func NewServiceRedis[T any](
 	logger logr.Logger,
 	tp trace.TracerProvider,
 	address string,
 	channel string,
-	serializer eventSerializer[T],
+	serializer Serializer[T],
 ) (Service[T], error) {
 	opts, err := redis.ParseURL(address)
 	if err != nil {
@@ -53,7 +55,7 @@ func (s *serviceRedisImpl[T]) PublishEvent(ctx context.Context, event T) {
 	ctx, cancel := context.WithTimeout(ctx, 1*time.Second)
 	defer cancel()
 
-	blob, err := s.serializer.marshal(event)
+	blob, err := s.serializer.Marshal(event)
 	if err != nil {
 		s.logger.Error(err, "Error encoding event.")
 		return
@@ -75,15 +77,17 @@ type subscriptionRedisImpl[T any] struct {
 	pubsub     *redis.PubSub
 	c          chan T
 	stopCh     chan struct{}
-	serializer eventSerializer[T]
+	serializer Serializer[T]
 }
+
+var _ Subscription[any] = (*subscriptionRedisImpl[any])(nil)
 
 func newSubscriptionRedis[T any](
 	ctx context.Context,
 	logger logr.Logger,
 	c redis.UniversalClient,
 	channel string,
-	serializer eventSerializer[T],
+	serializer Serializer[T],
 ) Subscription[T] {
 	pubsub := c.Subscribe(ctx, channel)
 	_, _ = pubsub.Receive(ctx)
@@ -107,7 +111,7 @@ func (s *subscriptionRedisImpl[T]) loop(ctx context.Context) {
 			if !ok || msg == nil {
 				continue
 			}
-			event, err := s.serializer.unmarshal([]byte(msg.Payload))
+			event, err := s.serializer.Unmarshal([]byte(msg.Payload))
 			if err != nil {
 				s.logger.Error(err, "Error decoding event.")
 				continue
