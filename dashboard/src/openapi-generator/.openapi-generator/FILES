@@ -15,6 +15,7 @@ models/AIPWorkflowUpdatedEvent.ts
 models/AIPWorkflows.ts
 models/AIPs.ts
 models/AMSSConfig.ts
+models/AddSipResponseBody.ts
 models/CancelAipDeletionRequestBody.ts
 models/ConfirmSipRequestBody.ts
 models/CreateAipRequestBody.ts
@@ -24,6 +25,7 @@ models/EnduroAbout.ts
 models/EnduroIngestSip.ts
 models/EnduroIngestSipTask.ts
 models/EnduroIngestSipWorkflow.ts
+models/EnduroIngestSipsourceObject.ts
 models/EnduroIngestUser.ts
 models/EnduroPage.ts
 models/EnduroPoststorage.ts
@@ -46,6 +48,7 @@ models/S3Config.ts
 models/SFTPConfig.ts
 models/SIPCreatedEvent.ts
 models/SIPNotFound.ts
+models/SIPSourceObjects.ts
 models/SIPStatusUpdatedEvent.ts
 models/SIPTaskCreatedEvent.ts
 models/SIPTaskUpdatedEvent.ts
@@ -59,7 +62,6 @@ models/StorageEventStorageValue.ts
 models/StoragePingEvent.ts
 models/SubmitAipRequestBody.ts
 models/URLConfig.ts
-models/UploadSipResponseBody.ts
 models/Users.ts
 models/index.ts
 runtime.ts

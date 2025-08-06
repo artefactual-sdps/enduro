@@ -16,32 +16,32 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface UploadSipResponseBody
+ * @interface AddSipResponseBody
  */
-export interface UploadSipResponseBody {
+export interface AddSipResponseBody {
     /**
-     * Identifier of uploaded SIP
+     * Identifier of the ingested SIP
      * @type {string}
-     * @memberof UploadSipResponseBody
+     * @memberof AddSipResponseBody
      */
     uuid: string;
 }
 
 /**
- * Check if a given object implements the UploadSipResponseBody interface.
+ * Check if a given object implements the AddSipResponseBody interface.
  */
-export function instanceOfUploadSipResponseBody(value: object): boolean {
+export function instanceOfAddSipResponseBody(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "uuid" in value;
 
     return isInstance;
 }
 
-export function UploadSipResponseBodyFromJSON(json: any): UploadSipResponseBody {
-    return UploadSipResponseBodyFromJSONTyped(json, false);
+export function AddSipResponseBodyFromJSON(json: any): AddSipResponseBody {
+    return AddSipResponseBodyFromJSONTyped(json, false);
 }
 
-export function UploadSipResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): UploadSipResponseBody {
+export function AddSipResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): AddSipResponseBody {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -51,7 +51,7 @@ export function UploadSipResponseBodyFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function UploadSipResponseBodyToJSON(value?: UploadSipResponseBody | null): any {
+export function AddSipResponseBodyToJSON(value?: AddSipResponseBody | null): any {
     if (value === undefined) {
         return undefined;
     }

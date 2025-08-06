@@ -40,7 +40,12 @@ const menuItems = [
     route: router.resolve("/ingest/upload"),
     icon: IconUpload,
     text: "Upload SIPs",
-    show: authStore.checkAttributes(["ingest:sips:upload"]),
+    show:
+      authStore.checkAttributes(["ingest:sips:upload"]) ||
+      authStore.checkAttributes([
+        "ingest:sipsources:objects:list",
+        "ingest:sips:create",
+      ]),
   },
   {
     text: "STORAGE",

@@ -1,87 +1,88 @@
 <script setup lang="ts">
-import Uppy from "@uppy/core";
-import { Dashboard } from "@uppy/vue";
-import XHR from "@uppy/xhr-upload";
-import { onMounted } from "vue";
-import { useRouter } from "vue-router/auto";
+import { computed, watch } from "vue";
+import { useRoute, useRouter } from "vue-router/auto";
 
-import { getPath } from "@/client";
-import { useAboutStore } from "@/stores/about";
+import SIPUploadLocal from "@/components/SIPUploadLocal.vue";
+import SIPUploadSource from "@/components/SIPUploadSource.vue";
+import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import IconUpload from "~icons/clarity/plus-circle-line";
+import IconUpload from "~icons/clarity/backup-restore-line?raw&font-size=20px";
+import IconAdd from "~icons/clarity/plus-circle-line";
+import IconCloudUpload from "~icons/clarity/upload-cloud-line?raw&font-size=20px";
 
 import "@uppy/core/dist/style.css";
 import "@uppy/dashboard/dist/style.css";
 import "@uppy/progress-bar/dist/style.css";
 
+const route = useRoute();
 const router = useRouter();
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
-const aboutStore = useAboutStore();
-
-const GiB = 1024 ** 3; // 1 GiB in bytes
-const uploadMaxDefault = 4 * GiB;
 
 layoutStore.updateBreadcrumb([{ text: "Ingest" }, { text: "Upload SIPs" }]);
 
-aboutStore.$subscribe((_, state) => {
-  uppy.setOptions({
-    restrictions: { maxFileSize: state.uploadMaxSize },
-  });
-});
-
-onMounted(() => {
-  aboutStore.load();
-});
-
-const uppy = new Uppy({
-  restrictions: { maxFileSize: uploadMaxDefault },
-}).use(XHR, {
-  endpoint: getPath() + "/ingest/sips/upload",
-  allowedMetaFields: false,
-  // Called again for every retry too.
-  async onBeforeRequest(xhr) {
-    if (!authStore.isUserValid) {
-      await authStore.signinSilent();
-    }
-    xhr.setRequestHeader(
-      "Authorization",
-      `Bearer ${authStore.getUserAccessToken}`,
-    );
-  },
-  async onAfterResponse(xhr) {
-    switch (xhr.status) {
-      // "202 Accepted" is returned on successful upload.
-      case 202:
-        setTimeout(() => {
-          router.push({
-            path: "/ingest/sips",
-          });
-        }, 500);
-        break;
-      // "401 Unauthorized" is returned when the auth token has expired.
-      case 401:
-        await authStore.signinSilent();
-        break;
+watch(
+  () => route.query.from,
+  (from) => {
+    if (from === undefined || from === "") {
+      const from = authStore.checkAttributes(["ingest:sips:upload"])
+        ? "local"
+        : "source";
+      router.replace({ path: "/ingest/upload", query: { from } });
     }
   },
-  getResponseData: () => {
-    return { url: "" };
+  { immediate: true },
+);
+
+const tabs = computed(() => [
+  {
+    icon: IconUpload,
+    text: "Local upload",
+    route: router.resolve({
+      name: "/ingest/upload/",
+      query: { ...route.query, from: "local" },
+    }),
+    show: authStore.checkAttributes(["ingest:sips:upload"]),
   },
-});
+  {
+    icon: IconCloudUpload,
+    text: "Select from source",
+    route: router.resolve({
+      name: "/ingest/upload/",
+      query: { ...route.query, from: "source" },
+    }),
+    show: authStore.checkAttributes([
+      "ingest:sipsources:objects:list",
+      "ingest:sips:create",
+    ]),
+  },
+]);
 </script>
 
 <template>
   <div class="container-xxl">
-    <h1 class="d-flex mb-0">
-      <IconUpload class="me-3 text-dark" />Upload SIPs
-    </h1>
+    <h1 class="d-flex mb-3"><IconAdd class="me-3 text-dark" />Upload SIPs</h1>
 
-    <div class="text-muted mb-3">
-      SIPs <strong>must</strong> be zipped. No SIPs larger than
-      {{ aboutStore.formattedUploadMaxSize }}. Ingest will start automatically.
+    <div class="mb-3">
+      <Tabs :tabs="tabs" param="from" />
     </div>
-    <Dashboard :uppy="uppy" />
+
+    <div class="mb-3">
+      <SIPUploadLocal
+        v-if="
+          authStore.checkAttributes(['ingest:sips:upload']) &&
+          route.query.from === 'local'
+        "
+      />
+      <SIPUploadSource
+        v-if="
+          authStore.checkAttributes([
+            'ingest:sipsources:objects:list',
+            'ingest:sips:create',
+          ]) && route.query.from === 'source'
+        "
+      />
+    </div>
   </div>
 </template>

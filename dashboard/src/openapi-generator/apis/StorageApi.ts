@@ -18,6 +18,7 @@ import type {
   AIPResponse,
   AIPWorkflows,
   AIPs,
+  AddSipResponseBody,
   CancelAipDeletionRequestBody,
   ConfirmSipRequestBody,
   CreateAipRequestBody,
@@ -32,7 +33,6 @@ import type {
   StorageEvent,
   SubmitAipRequestBody,
   URLConfig,
-  UploadSipResponseBody,
 } from '../models/index';
 import {
     AIPResponseFromJSON,
@@ -41,6 +41,8 @@ import {
     AIPWorkflowsToJSON,
     AIPsFromJSON,
     AIPsToJSON,
+    AddSipResponseBodyFromJSON,
+    AddSipResponseBodyToJSON,
     CancelAipDeletionRequestBodyFromJSON,
     CancelAipDeletionRequestBodyToJSON,
     ConfirmSipRequestBodyFromJSON,
@@ -69,8 +71,6 @@ import {
     SubmitAipRequestBodyToJSON,
     URLConfigFromJSON,
     URLConfigToJSON,
-    UploadSipResponseBodyFromJSON,
-    UploadSipResponseBodyToJSON,
 } from '../models/index';
 
 export interface StorageCancelAipDeletionRequest {
@@ -206,13 +206,13 @@ export interface StorageApiInterface {
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UploadSipResponseBody>>;
+    storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>>;
 
     /**
      * Create a storage location
      * create_location storage
      */
-    storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadSipResponseBody>;
+    storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody>;
 
     /**
      * Download AIP by AIPID
@@ -596,7 +596,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * Create a storage location
      * create_location storage
      */
-    async storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UploadSipResponseBody>> {
+    async storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
         if (requestParameters.createLocationRequestBody === null || requestParameters.createLocationRequestBody === undefined) {
             throw new runtime.RequiredError('createLocationRequestBody','Required parameter requestParameters.createLocationRequestBody was null or undefined when calling storageCreateLocation.');
         }
@@ -623,14 +623,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             body: CreateLocationRequestBodyToJSON(requestParameters.createLocationRequestBody),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UploadSipResponseBodyFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => AddSipResponseBodyFromJSON(jsonValue));
     }
 
     /**
      * Create a storage location
      * create_location storage
      */
-    async storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadSipResponseBody> {
+    async storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody> {
         const response = await this.storageCreateLocationRaw(requestParameters, initOverrides);
         return await response.value();
     }

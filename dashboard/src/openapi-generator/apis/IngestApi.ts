@@ -15,16 +15,19 @@
 
 import * as runtime from '../runtime';
 import type {
+  AddSipResponseBody,
   ConfirmSipRequestBody,
   EnduroIngestSip,
   IngestEvent,
   SIPNotFound,
+  SIPSourceObjects,
   SIPWorkflows,
   SIPs,
-  UploadSipResponseBody,
   Users,
 } from '../models/index';
 import {
+    AddSipResponseBodyFromJSON,
+    AddSipResponseBodyToJSON,
     ConfirmSipRequestBodyFromJSON,
     ConfirmSipRequestBodyToJSON,
     EnduroIngestSipFromJSON,
@@ -33,15 +36,20 @@ import {
     IngestEventToJSON,
     SIPNotFoundFromJSON,
     SIPNotFoundToJSON,
+    SIPSourceObjectsFromJSON,
+    SIPSourceObjectsToJSON,
     SIPWorkflowsFromJSON,
     SIPWorkflowsToJSON,
     SIPsFromJSON,
     SIPsToJSON,
-    UploadSipResponseBodyFromJSON,
-    UploadSipResponseBodyToJSON,
     UsersFromJSON,
     UsersToJSON,
 } from '../models/index';
+
+export interface IngestAddSipRequest {
+    sourceId: string;
+    key: string;
+}
 
 export interface IngestConfirmSipRequest {
     uuid: string;
@@ -55,6 +63,12 @@ export interface IngestDownloadSipRequest {
 
 export interface IngestDownloadSipRequestRequest {
     uuid: string;
+}
+
+export interface IngestListSipSourceObjectsRequest {
+    uuid: string;
+    limit?: number;
+    cursor?: string;
 }
 
 export interface IngestListSipWorkflowsRequest {
@@ -102,6 +116,23 @@ export interface IngestUploadSipRequest {
  * @interface IngestApiInterface
  */
 export interface IngestApiInterface {
+    /**
+     * Ingest a SIP from a SIP Source
+     * @summary add_sip ingest
+     * @param {string} sourceId Identifier of SIP source -- CURRENTLY NOT USED
+     * @param {string} key Key of the item to ingest
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestAddSipRaw(requestParameters: IngestAddSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>>;
+
+    /**
+     * Ingest a SIP from a SIP Source
+     * add_sip ingest
+     */
+    ingestAddSip(requestParameters: IngestAddSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody>;
+
     /**
      * Signal the SIP has been reviewed and accepted
      * @summary confirm_sip ingest
@@ -151,6 +182,24 @@ export interface IngestApiInterface {
      * download_sip_request ingest
      */
     ingestDownloadSipRequest(requestParameters: IngestDownloadSipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * List the objects in a SIP source
+     * @summary list_sip_source_objects ingest
+     * @param {string} uuid SIP source identifier -- CURRENTLY NOT USED
+     * @param {number} [limit] Limit the number of results to return
+     * @param {string} [cursor] Cursor token to get subsequent pages
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestListSipSourceObjectsRaw(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPSourceObjects>>;
+
+    /**
+     * List the objects in a SIP source
+     * list_sip_source_objects ingest
+     */
+    ingestListSipSourceObjects(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPSourceObjects>;
 
     /**
      * List all workflows for a SIP
@@ -281,13 +330,13 @@ export interface IngestApiInterface {
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
-    ingestUploadSipRaw(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UploadSipResponseBody>>;
+    ingestUploadSipRaw(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>>;
 
     /**
      * Upload a SIP to trigger an ingest workflow
      * upload_sip ingest
      */
-    ingestUploadSip(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadSipResponseBody>;
+    ingestUploadSip(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody>;
 
 }
 
@@ -295,6 +344,58 @@ export interface IngestApiInterface {
  * 
  */
 export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
+
+    /**
+     * Ingest a SIP from a SIP Source
+     * add_sip ingest
+     */
+    async ingestAddSipRaw(requestParameters: IngestAddSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
+        if (requestParameters.sourceId === null || requestParameters.sourceId === undefined) {
+            throw new runtime.RequiredError('sourceId','Required parameter requestParameters.sourceId was null or undefined when calling ingestAddSip.');
+        }
+
+        if (requestParameters.key === null || requestParameters.key === undefined) {
+            throw new runtime.RequiredError('key','Required parameter requestParameters.key was null or undefined when calling ingestAddSip.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.sourceId !== undefined) {
+            queryParameters['source_id'] = requestParameters.sourceId;
+        }
+
+        if (requestParameters.key !== undefined) {
+            queryParameters['key'] = requestParameters.key;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/ingest/sips`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AddSipResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Ingest a SIP from a SIP Source
+     * add_sip ingest
+     */
+    async ingestAddSip(requestParameters: IngestAddSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody> {
+        const response = await this.ingestAddSipRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Signal the SIP has been reviewed and accepted
@@ -411,6 +512,54 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      */
     async ingestDownloadSipRequest(requestParameters: IngestDownloadSipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.ingestDownloadSipRequestRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * List the objects in a SIP source
+     * list_sip_source_objects ingest
+     */
+    async ingestListSipSourceObjectsRaw(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPSourceObjects>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestListSipSourceObjects.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.limit !== undefined) {
+            queryParameters['limit'] = requestParameters.limit;
+        }
+
+        if (requestParameters.cursor !== undefined) {
+            queryParameters['cursor'] = requestParameters.cursor;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/ingest/sip-sources/{uuid}/objects`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => SIPSourceObjectsFromJSON(jsonValue));
+    }
+
+    /**
+     * List the objects in a SIP source
+     * list_sip_source_objects ingest
+     */
+    async ingestListSipSourceObjects(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPSourceObjects> {
+        const response = await this.ingestListSipSourceObjectsRaw(requestParameters, initOverrides);
+        return await response.value();
     }
 
     /**
@@ -718,7 +867,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * Upload a SIP to trigger an ingest workflow
      * upload_sip ingest
      */
-    async ingestUploadSipRaw(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<UploadSipResponseBody>> {
+    async ingestUploadSipRaw(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -742,14 +891,14 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UploadSipResponseBodyFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => AddSipResponseBodyFromJSON(jsonValue));
     }
 
     /**
      * Upload a SIP to trigger an ingest workflow
      * upload_sip ingest
      */
-    async ingestUploadSip(requestParameters: IngestUploadSipRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<UploadSipResponseBody> {
+    async ingestUploadSip(requestParameters: IngestUploadSipRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody> {
         const response = await this.ingestUploadSipRaw(requestParameters, initOverrides);
         return await response.value();
     }
