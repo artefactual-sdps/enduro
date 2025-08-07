@@ -155,23 +155,9 @@ func (sc *SIPCreate) AddWorkflows(w ...*Workflow) *SIPCreate {
 	return sc.AddWorkflowIDs(ids...)
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (sc *SIPCreate) SetUserID(id int) *SIPCreate {
-	sc.mutation.SetUserID(id)
-	return sc
-}
-
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (sc *SIPCreate) SetNillableUserID(id *int) *SIPCreate {
-	if id != nil {
-		sc = sc.SetUserID(*id)
-	}
-	return sc
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (sc *SIPCreate) SetUser(u *User) *SIPCreate {
-	return sc.SetUserID(u.ID)
+// SetUploader sets the "uploader" edge to the User entity.
+func (sc *SIPCreate) SetUploader(u *User) *SIPCreate {
+	return sc.SetUploaderID(u.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -322,12 +308,12 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := sc.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := sc.mutation.UploaderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   sip.UserTable,
-			Columns: []string{sip.UserColumn},
+			Table:   sip.UploaderTable,
+			Columns: []string{sip.UploaderColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),

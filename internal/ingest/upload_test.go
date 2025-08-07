@@ -22,7 +22,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
-	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
 
@@ -50,7 +49,7 @@ func TestUpload(t *testing.T) {
 	t.Parallel()
 
 	uuid0 := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
-	uuid1 := uuid.MustParse("d3b4f8c0-1e2f-4c5a-8b6d-7e8f9a0b1c2d")
+	uuid1 := uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")
 	key := fmt.Sprintf("%sfirst-%s.zip", ingest.SIPPrefix, uuid0.String())
 
 	for _, tt := range []struct {
@@ -149,36 +148,16 @@ func TestUpload(t *testing.T) {
 			wantErr:       "temporal error",
 		},
 		{
-			name: "Uploads a SIP",
-			claims: &auth.Claims{
-				Iss: "http://keycloak:7470/realms/artefactual",
-				Sub: "1234567890",
-			},
+			name:   "Uploads a SIP",
+			claims: nil,
 			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
-				psvc.EXPECT().ReadOIDCUser(
-					mockutil.Context(),
-					"http://keycloak:7470/realms/artefactual",
-					"1234567890",
-				).Return(&datatypes.User{
-					UUID:    uuid1,
-					Name:    "Test User",
-					Email:   "nobody@example.com",
-					OIDCIss: "http://keycloak:7470/realms/artefactual",
-					OIDCSub: "1234567890",
-				}, nil)
-
 				psvc.EXPECT().CreateSIP(
 					mockutil.Context(),
-					&datatypes.SIP{
+					mockutil.Eq(&datatypes.SIP{
 						UUID:   uuid0,
 						Name:   "first.zip",
 						Status: enums.SIPStatusQueued,
-						Uploader: &datatypes.Uploader{
-							UUID:  uuid1,
-							Email: "nobody@example.com",
-							Name:  "Test User",
-						},
-					},
+					}),
 				).Return(nil)
 
 				tc.On(
@@ -213,35 +192,20 @@ func TestUpload(t *testing.T) {
 				Sub:   "1234567890",
 			},
 			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
-				psvc.EXPECT().ReadOIDCUser(
-					mockutil.Context(),
-					"http://keycloak:7470/realms/artefactual",
-					"1234567890",
-				).Return(nil, persistence.ErrNotFound)
-
-				psvc.EXPECT().CreateUser(
-					mockutil.Context(),
-					&datatypes.User{
-						UUID:    uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649"),
-						Name:    "Test User",
-						Email:   "nobody@example.com",
-						OIDCIss: "http://keycloak:7470/realms/artefactual",
-						OIDCSub: "1234567890",
-					},
-				).Return(nil)
-
 				psvc.EXPECT().CreateSIP(
 					mockutil.Context(),
-					&datatypes.SIP{
+					mockutil.Eq(&datatypes.SIP{
 						UUID:   uuid0,
 						Name:   "first.zip",
 						Status: enums.SIPStatusQueued,
-						Uploader: &datatypes.Uploader{
-							UUID:  uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649"),
-							Email: "nobody@example.com",
-							Name:  "Test User",
+						Uploader: &datatypes.User{
+							UUID:    uuid1,
+							Email:   "nobody@example.com",
+							Name:    "Test User",
+							OIDCIss: "http://keycloak:7470/realms/artefactual",
+							OIDCSub: "1234567890",
 						},
-					},
+					}),
 				).Return(nil)
 
 				tc.On(

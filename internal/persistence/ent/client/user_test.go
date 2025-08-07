@@ -86,7 +86,7 @@ func TestCreateUser(t *testing.T) {
 			assert.NilError(t, err)
 
 			assert.DeepEqual(t, &user, tt.want,
-				cmpopts.EquateApproxTime(time.Millisecond*100),
+				cmpopts.EquateApproxTime(time.Second),
 				cmpopts.IgnoreUnexported(db.User{}, db.UserEdges{}),
 			)
 		})

@@ -2,6 +2,7 @@ package entclient
 
 import (
 	"context"
+	"errors"
 
 	"github.com/google/uuid"
 
@@ -15,12 +16,19 @@ import (
 
 // CreateUser creates and persists a new user.
 func (c *client) CreateUser(ctx context.Context, u *datatypes.User) error {
+	_, err := createUser(ctx, c.ent, u)
+	return err
+}
+
+// createUser creates and persists a new user.
+// It allows passing an Ent Client that binds to a running transaction.
+func createUser(ctx context.Context, entc *db.Client, u *datatypes.User) (int, error) {
 	// UUID is a required field.
 	if u.UUID == uuid.Nil {
-		return newRequiredFieldError("UUID")
+		return 0, newRequiredFieldError("UUID")
 	}
 
-	q := c.ent.User.Create().
+	q := entc.User.Create().
 		SetUUID(u.UUID).
 		SetEmail(u.Email).
 		SetName(u.Name).
@@ -35,13 +43,13 @@ func (c *client) CreateUser(ctx context.Context, u *datatypes.User) error {
 	// Save the User.
 	dbu, err := q.Save(ctx)
 	if err != nil {
-		return newDBErrorWithDetails(err, "create user")
+		return 0, newDBErrorWithDetails(err, "create user")
 	}
 
 	// Update User with DB data, to get generated values (e.g. ID).
 	*u = *convertUser(dbu)
 
-	return nil
+	return dbu.ID, nil
 }
 
 // ReadUser retrieves a user by UUID.
@@ -62,24 +70,53 @@ func (c *client) ReadUser(ctx context.Context, id uuid.UUID) (*datatypes.User, e
 
 // ReadOIDCUser retrieves a user by OIDC issuer and subject.
 func (c *client) ReadOIDCUser(ctx context.Context, iss, sub string) (*datatypes.User, error) {
+	_, u, err := readOIDCUser(ctx, c.ent, iss, sub)
+	return u, err
+}
+
+// readOIDCUser retrieves a user by OIDC issuer and subject.
+// It allows passing an Ent Client that binds to a running transaction.
+func readOIDCUser(ctx context.Context, entc *db.Client, iss, sub string) (int, *datatypes.User, error) {
 	// Validate required fields.
 	if iss == "" {
-		return nil, newRequiredFieldError("iss")
+		return 0, nil, newRequiredFieldError("iss")
 	}
 	if sub == "" {
-		return nil, newRequiredFieldError("sub")
+		return 0, nil, newRequiredFieldError("sub")
 	}
 
 	// Query the user by iss and sub.
-	q := c.ent.User.Query()
+	q := entc.User.Query()
 	q.Where(user.And(user.OidcIss(iss), user.OidcSub(sub)))
 
 	dbu, err := q.Only(ctx)
 	if err != nil {
-		return nil, newDBError(err)
+		return 0, nil, newDBError(err)
 	}
 
-	return convertUser(dbu), nil
+	return dbu.ID, convertUser(dbu), nil
+}
+
+// findOrCreateUser finds or creates a user by OIDC issuer and subject.
+// It allows passing an Ent Client that binds to a running transaction.
+func findOrCreateUser(ctx context.Context, entc *db.Client, u *datatypes.User) (int, error) {
+	// Try to find the user by OIDC Iss and Sub.
+	uID, readUser, err := readOIDCUser(ctx, entc, u.OIDCIss, u.OIDCSub)
+	if err != nil {
+		if !errors.Is(err, persistence.ErrNotFound) {
+			return 0, err
+		}
+
+		// The user does not exist, so create a new one.
+		uID, err = createUser(ctx, entc, u)
+		if err != nil {
+			return 0, err
+		}
+	} else {
+		*u = *readUser
+	}
+
+	return uID, nil
 }
 
 func (c *client) ListUsers(ctx context.Context, f *persistence.UserFilter) (

@@ -590,21 +590,21 @@ func HasWorkflowsWith(preds ...predicate.Workflow) predicate.SIP {
 	})
 }
 
-// HasUser applies the HasEdge predicate on the "user" edge.
-func HasUser() predicate.SIP {
+// HasUploader applies the HasEdge predicate on the "uploader" edge.
+func HasUploader() predicate.SIP {
 	return predicate.SIP(func(s *sql.Selector) {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(Table, FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, UploaderTable, UploaderColumn),
 		)
 		sqlgraph.HasNeighbors(s, step)
 	})
 }
 
-// HasUserWith applies the HasEdge predicate on the "user" edge with a given conditions (other predicates).
-func HasUserWith(preds ...predicate.User) predicate.SIP {
+// HasUploaderWith applies the HasEdge predicate on the "uploader" edge with a given conditions (other predicates).
+func HasUploaderWith(preds ...predicate.User) predicate.SIP {
 	return predicate.SIP(func(s *sql.Selector) {
-		step := newUserStep()
+		step := newUploaderStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

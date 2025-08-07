@@ -34,12 +34,8 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 	if sip.AipID != uuid.Nil {
 		s.AIPID = uuid.NullUUID{UUID: sip.AipID, Valid: true}
 	}
-	if sip.UploaderID != 0 && sip.Edges.User != nil {
-		s.Uploader = &datatypes.Uploader{
-			UUID:  sip.Edges.User.UUID,
-			Email: sip.Edges.User.Email,
-			Name:  sip.Edges.User.Name,
-		}
+	if sip.Edges.Uploader != nil {
+		s.Uploader = convertUser(sip.Edges.Uploader)
 	}
 
 	return &s

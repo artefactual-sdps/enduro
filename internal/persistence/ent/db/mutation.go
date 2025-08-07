@@ -54,8 +54,8 @@ type SIPMutation struct {
 	workflows        map[int]struct{}
 	removedworkflows map[int]struct{}
 	clearedworkflows bool
-	user             *int
-	cleareduser      bool
+	uploader         *int
+	cleareduploader  bool
 	done             bool
 	oldValue         func(context.Context) (*SIP, error)
 	predicates       []predicate.SIP
@@ -550,12 +550,12 @@ func (m *SIPMutation) ResetFailedKey() {
 
 // SetUploaderID sets the "uploader_id" field.
 func (m *SIPMutation) SetUploaderID(i int) {
-	m.user = &i
+	m.uploader = &i
 }
 
 // UploaderID returns the value of the "uploader_id" field in the mutation.
 func (m *SIPMutation) UploaderID() (r int, exists bool) {
-	v := m.user
+	v := m.uploader
 	if v == nil {
 		return
 	}
@@ -581,7 +581,7 @@ func (m *SIPMutation) OldUploaderID(ctx context.Context) (v int, err error) {
 
 // ClearUploaderID clears the value of the "uploader_id" field.
 func (m *SIPMutation) ClearUploaderID() {
-	m.user = nil
+	m.uploader = nil
 	m.clearedFields[sip.FieldUploaderID] = struct{}{}
 }
 
@@ -593,7 +593,7 @@ func (m *SIPMutation) UploaderIDCleared() bool {
 
 // ResetUploaderID resets all changes to the "uploader_id" field.
 func (m *SIPMutation) ResetUploaderID() {
-	m.user = nil
+	m.uploader = nil
 	delete(m.clearedFields, sip.FieldUploaderID)
 }
 
@@ -651,44 +651,31 @@ func (m *SIPMutation) ResetWorkflows() {
 	m.removedworkflows = nil
 }
 
-// SetUserID sets the "user" edge to the User entity by id.
-func (m *SIPMutation) SetUserID(id int) {
-	m.user = &id
-}
-
-// ClearUser clears the "user" edge to the User entity.
-func (m *SIPMutation) ClearUser() {
-	m.cleareduser = true
+// ClearUploader clears the "uploader" edge to the User entity.
+func (m *SIPMutation) ClearUploader() {
+	m.cleareduploader = true
 	m.clearedFields[sip.FieldUploaderID] = struct{}{}
 }
 
-// UserCleared reports if the "user" edge to the User entity was cleared.
-func (m *SIPMutation) UserCleared() bool {
-	return m.UploaderIDCleared() || m.cleareduser
+// UploaderCleared reports if the "uploader" edge to the User entity was cleared.
+func (m *SIPMutation) UploaderCleared() bool {
+	return m.UploaderIDCleared() || m.cleareduploader
 }
 
-// UserID returns the "user" edge ID in the mutation.
-func (m *SIPMutation) UserID() (id int, exists bool) {
-	if m.user != nil {
-		return *m.user, true
-	}
-	return
-}
-
-// UserIDs returns the "user" edge IDs in the mutation.
+// UploaderIDs returns the "uploader" edge IDs in the mutation.
 // Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
-// UserID instead. It exists only for internal usage by the builders.
-func (m *SIPMutation) UserIDs() (ids []int) {
-	if id := m.user; id != nil {
+// UploaderID instead. It exists only for internal usage by the builders.
+func (m *SIPMutation) UploaderIDs() (ids []int) {
+	if id := m.uploader; id != nil {
 		ids = append(ids, *id)
 	}
 	return
 }
 
-// ResetUser resets all changes to the "user" edge.
-func (m *SIPMutation) ResetUser() {
-	m.user = nil
-	m.cleareduser = false
+// ResetUploader resets all changes to the "uploader" edge.
+func (m *SIPMutation) ResetUploader() {
+	m.uploader = nil
+	m.cleareduploader = false
 }
 
 // Where appends a list predicates to the SIPMutation builder.
@@ -753,7 +740,7 @@ func (m *SIPMutation) Fields() []string {
 	if m.failed_key != nil {
 		fields = append(fields, sip.FieldFailedKey)
 	}
-	if m.user != nil {
+	if m.uploader != nil {
 		fields = append(fields, sip.FieldUploaderID)
 	}
 	return fields
@@ -1023,8 +1010,8 @@ func (m *SIPMutation) AddedEdges() []string {
 	if m.workflows != nil {
 		edges = append(edges, sip.EdgeWorkflows)
 	}
-	if m.user != nil {
-		edges = append(edges, sip.EdgeUser)
+	if m.uploader != nil {
+		edges = append(edges, sip.EdgeUploader)
 	}
 	return edges
 }
@@ -1039,8 +1026,8 @@ func (m *SIPMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
-	case sip.EdgeUser:
-		if id := m.user; id != nil {
+	case sip.EdgeUploader:
+		if id := m.uploader; id != nil {
 			return []ent.Value{*id}
 		}
 	}
@@ -1076,8 +1063,8 @@ func (m *SIPMutation) ClearedEdges() []string {
 	if m.clearedworkflows {
 		edges = append(edges, sip.EdgeWorkflows)
 	}
-	if m.cleareduser {
-		edges = append(edges, sip.EdgeUser)
+	if m.cleareduploader {
+		edges = append(edges, sip.EdgeUploader)
 	}
 	return edges
 }
@@ -1088,8 +1075,8 @@ func (m *SIPMutation) EdgeCleared(name string) bool {
 	switch name {
 	case sip.EdgeWorkflows:
 		return m.clearedworkflows
-	case sip.EdgeUser:
-		return m.cleareduser
+	case sip.EdgeUploader:
+		return m.cleareduploader
 	}
 	return false
 }
@@ -1098,8 +1085,8 @@ func (m *SIPMutation) EdgeCleared(name string) bool {
 // if that edge is not defined in the schema.
 func (m *SIPMutation) ClearEdge(name string) error {
 	switch name {
-	case sip.EdgeUser:
-		m.ClearUser()
+	case sip.EdgeUploader:
+		m.ClearUploader()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP unique edge %s", name)
@@ -1112,8 +1099,8 @@ func (m *SIPMutation) ResetEdge(name string) error {
 	case sip.EdgeWorkflows:
 		m.ResetWorkflows()
 		return nil
-	case sip.EdgeUser:
-		m.ResetUser()
+	case sip.EdgeUploader:
+		m.ResetUploader()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP edge %s", name)

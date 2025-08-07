@@ -50,8 +50,8 @@ type SIP struct {
 type SIPEdges struct {
 	// Workflows holds the value of the workflows edge.
 	Workflows []*Workflow `json:"workflows,omitempty"`
-	// User holds the value of the user edge.
-	User *User `json:"user,omitempty"`
+	// Uploader holds the value of the uploader edge.
+	Uploader *User `json:"uploader,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
 	loadedTypes [2]bool
@@ -66,15 +66,15 @@ func (e SIPEdges) WorkflowsOrErr() ([]*Workflow, error) {
 	return nil, &NotLoadedError{edge: "workflows"}
 }
 
-// UserOrErr returns the User value or an error if the edge
+// UploaderOrErr returns the Uploader value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e SIPEdges) UserOrErr() (*User, error) {
-	if e.User != nil {
-		return e.User, nil
+func (e SIPEdges) UploaderOrErr() (*User, error) {
+	if e.Uploader != nil {
+		return e.Uploader, nil
 	} else if e.loadedTypes[1] {
 		return nil, &NotFoundError{label: user.Label}
 	}
-	return nil, &NotLoadedError{edge: "user"}
+	return nil, &NotLoadedError{edge: "uploader"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -189,9 +189,9 @@ func (s *SIP) QueryWorkflows() *WorkflowQuery {
 	return NewSIPClient(s.config).QueryWorkflows(s)
 }
 
-// QueryUser queries the "user" edge of the SIP entity.
-func (s *SIP) QueryUser() *UserQuery {
-	return NewSIPClient(s.config).QueryUser(s)
+// QueryUploader queries the "uploader" edge of the SIP entity.
+func (s *SIP) QueryUploader() *UserQuery {
+	return NewSIPClient(s.config).QueryUploader(s)
 }
 
 // Update returns a builder for updating this SIP.

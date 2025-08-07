@@ -17,7 +17,6 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
-	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 type UploadConfig struct {
@@ -30,6 +29,12 @@ func (w *goaWrapper) UploadSip(
 	req io.ReadCloser,
 ) (*goaingest.UploadSipResult, error) {
 	defer req.Close()
+
+	// Check claims before processing the upload.
+	claims, err := checkClaims(ctx)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(err)
+	}
 
 	lr := io.LimitReader(req, int64(w.uploadMaxSize))
 
@@ -82,6 +87,7 @@ func (w *goaWrapper) UploadSip(
 		objectKey,
 		ext,
 		enums.WorkflowTypeCreateAip,
+		claims,
 	); err != nil {
 		// Delete SIP from internal bucket.
 		err := errors.Join(err, w.internalStorage.Delete(ctx, objectKey))
@@ -99,24 +105,22 @@ func (w *goaWrapper) initSIP(
 	key string,
 	extension string,
 	wType enums.WorkflowType,
+	claims *auth.Claims,
 ) error {
-	user, err := w.findOrCreateUser(ctx, w.perSvc)
-	if err != nil {
-		return err
-	}
-
 	s := &datatypes.SIP{
 		UUID:   id,
 		Name:   name,
 		Status: enums.SIPStatusQueued,
 	}
 
-	// If user is nil, it means authentication is not enabled.
-	if user != nil {
-		s.Uploader = &datatypes.Uploader{
-			UUID:  user.UUID,
-			Email: user.Email,
-			Name:  user.Name,
+	// If claims is nil, it means authentication is not enabled.
+	if claims != nil {
+		s.Uploader = &datatypes.User{
+			UUID:    uuid.Must(uuid.NewRandomFromReader(w.rander)),
+			Email:   claims.Email,
+			Name:    claims.Name,
+			OIDCIss: claims.Iss,
+			OIDCSub: claims.Sub,
 		}
 	}
 
@@ -141,10 +145,7 @@ func (w *goaWrapper) initSIP(
 	return nil
 }
 
-func (w *goaWrapper) findOrCreateUser(
-	ctx context.Context,
-	perSvc persistence.Service,
-) (*datatypes.User, error) {
+func checkClaims(ctx context.Context) (*auth.Claims, error) {
 	claims := auth.UserClaimsFromContext(ctx)
 	if claims == nil {
 		return nil, nil
@@ -155,40 +156,5 @@ func (w *goaWrapper) findOrCreateUser(
 	if claims.Sub == "" {
 		return nil, fmt.Errorf("invalid user claims: missing Sub")
 	}
-
-	user, err := perSvc.ReadOIDCUser(ctx, claims.Iss, claims.Sub)
-	if err != nil {
-		if errors.Is(err, persistence.ErrNotFound) {
-			// User does not exist, create a new one.
-			user, err := w.createUser(ctx, perSvc, claims)
-			if err != nil {
-				return nil, fmt.Errorf("failed to create user: %w", err)
-			}
-			return user, nil
-		}
-
-		return nil, err
-	}
-
-	return user, nil
-}
-
-func (w *goaWrapper) createUser(
-	ctx context.Context,
-	perSvc persistence.Service,
-	claims *auth.Claims,
-) (*datatypes.User, error) {
-	u := &datatypes.User{
-		UUID:    uuid.Must(uuid.NewRandomFromReader(w.rander)),
-		Email:   claims.Email,
-		Name:    claims.Name,
-		OIDCIss: claims.Iss,
-		OIDCSub: claims.Sub,
-	}
-
-	if err := perSvc.CreateUser(ctx, u); err != nil {
-		return nil, fmt.Errorf("failed to create user: %w", err)
-	}
-
-	return u, nil
+	return claims, nil
 }

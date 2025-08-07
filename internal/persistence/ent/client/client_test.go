@@ -3,6 +3,7 @@ package entclient_test
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
@@ -58,6 +59,9 @@ func createUser(
 		SetUUID(uuid).
 		SetEmail("nobody@example.com").
 		SetName("Test User").
+		SetCreatedAt(time.Now()).
+		SetOidcIss("https://example.com/oidc").
+		SetOidcSub("1234567890").
 		Save(t.Context())
 }
 

@@ -195,23 +195,9 @@ func (su *SIPUpdate) AddWorkflows(w ...*Workflow) *SIPUpdate {
 	return su.AddWorkflowIDs(ids...)
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (su *SIPUpdate) SetUserID(id int) *SIPUpdate {
-	su.mutation.SetUserID(id)
-	return su
-}
-
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (su *SIPUpdate) SetNillableUserID(id *int) *SIPUpdate {
-	if id != nil {
-		su = su.SetUserID(*id)
-	}
-	return su
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (su *SIPUpdate) SetUser(u *User) *SIPUpdate {
-	return su.SetUserID(u.ID)
+// SetUploader sets the "uploader" edge to the User entity.
+func (su *SIPUpdate) SetUploader(u *User) *SIPUpdate {
+	return su.SetUploaderID(u.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -240,9 +226,9 @@ func (su *SIPUpdate) RemoveWorkflows(w ...*Workflow) *SIPUpdate {
 	return su.RemoveWorkflowIDs(ids...)
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (su *SIPUpdate) ClearUser() *SIPUpdate {
-	su.mutation.ClearUser()
+// ClearUploader clears the "uploader" edge to the User entity.
+func (su *SIPUpdate) ClearUploader() *SIPUpdate {
+	su.mutation.ClearUploader()
 	return su
 }
 
@@ -386,12 +372,12 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if su.mutation.UserCleared() {
+	if su.mutation.UploaderCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   sip.UserTable,
-			Columns: []string{sip.UserColumn},
+			Table:   sip.UploaderTable,
+			Columns: []string{sip.UploaderColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -399,12 +385,12 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := su.mutation.UploaderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   sip.UserTable,
-			Columns: []string{sip.UserColumn},
+			Table:   sip.UploaderTable,
+			Columns: []string{sip.UploaderColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -598,23 +584,9 @@ func (suo *SIPUpdateOne) AddWorkflows(w ...*Workflow) *SIPUpdateOne {
 	return suo.AddWorkflowIDs(ids...)
 }
 
-// SetUserID sets the "user" edge to the User entity by ID.
-func (suo *SIPUpdateOne) SetUserID(id int) *SIPUpdateOne {
-	suo.mutation.SetUserID(id)
-	return suo
-}
-
-// SetNillableUserID sets the "user" edge to the User entity by ID if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableUserID(id *int) *SIPUpdateOne {
-	if id != nil {
-		suo = suo.SetUserID(*id)
-	}
-	return suo
-}
-
-// SetUser sets the "user" edge to the User entity.
-func (suo *SIPUpdateOne) SetUser(u *User) *SIPUpdateOne {
-	return suo.SetUserID(u.ID)
+// SetUploader sets the "uploader" edge to the User entity.
+func (suo *SIPUpdateOne) SetUploader(u *User) *SIPUpdateOne {
+	return suo.SetUploaderID(u.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -643,9 +615,9 @@ func (suo *SIPUpdateOne) RemoveWorkflows(w ...*Workflow) *SIPUpdateOne {
 	return suo.RemoveWorkflowIDs(ids...)
 }
 
-// ClearUser clears the "user" edge to the User entity.
-func (suo *SIPUpdateOne) ClearUser() *SIPUpdateOne {
-	suo.mutation.ClearUser()
+// ClearUploader clears the "uploader" edge to the User entity.
+func (suo *SIPUpdateOne) ClearUploader() *SIPUpdateOne {
+	suo.mutation.ClearUploader()
 	return suo
 }
 
@@ -819,12 +791,12 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if suo.mutation.UserCleared() {
+	if suo.mutation.UploaderCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   sip.UserTable,
-			Columns: []string{sip.UserColumn},
+			Table:   sip.UploaderTable,
+			Columns: []string{sip.UploaderColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
@@ -832,12 +804,12 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.UserIDs(); len(nodes) > 0 {
+	if nodes := suo.mutation.UploaderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
-			Table:   sip.UserTable,
-			Columns: []string{sip.UserColumn},
+			Table:   sip.UploaderTable,
+			Columns: []string{sip.UploaderColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),

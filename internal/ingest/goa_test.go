@@ -148,7 +148,7 @@ var (
 				Time:  time.Date(2024, 9, 25, 9, 31, 12, 0, time.UTC),
 				Valid: true,
 			},
-			Uploader: &datatypes.Uploader{
+			Uploader: &datatypes.User{
 				UUID:  uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9"),
 				Email: "uploader@example.com",
 				Name:  "Test Uploader",

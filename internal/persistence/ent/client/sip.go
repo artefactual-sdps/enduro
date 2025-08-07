@@ -28,6 +28,17 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	if s.Name == "" {
 		return newRequiredFieldError("Name")
 	}
+	if s.Uploader != nil {
+		if s.Uploader.UUID == uuid.Nil {
+			return newRequiredFieldError("Uploader.UUID")
+		}
+		if s.Uploader.OIDCIss == "" {
+			return newRequiredFieldError("Uploader.OIDCIss")
+		}
+		if s.Uploader.OIDCSub == "" {
+			return newRequiredFieldError("Uploader.OIDCSub")
+		}
+	}
 
 	tx, err := c.ent.BeginTx(ctx, nil)
 	if err != nil {
@@ -51,20 +62,14 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 		q.SetCompletedAt(s.CompletedAt.Time)
 	}
 
-	// If Uploader.UUID is set, find the user and link it to the SIP.
-	var uploader *datatypes.Uploader
-	if s.Uploader != nil && s.Uploader.UUID != uuid.Nil {
-		u, err := tx.User.Query().Where(user.UUID(s.Uploader.UUID)).Only(ctx)
+	// If Uploader is set, find or create the user and link it to the SIP.
+	if s.Uploader != nil {
+		uID, err := findOrCreateUser(ctx, tx.Client(), s.Uploader)
 		if err != nil {
-			return rollback(tx, newDBErrorWithDetails(err, "create SIP"))
+			return rollback(tx, err)
 		}
-		q.SetUser(u)
 
-		uploader = &datatypes.Uploader{
-			UUID:  u.UUID,
-			Email: u.Email,
-			Name:  u.Name,
-		}
+		q.SetUploaderID(uID)
 	}
 
 	// Save the SIP.
@@ -76,14 +81,11 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 		return rollback(tx, newDBError(err))
 	}
 
-	// Update SIP with DB data, to get generated values (e.g. ID).
+	// Update SIP with DB data, to get generated values (e.g. ID). Manually set
+	// the uploader data because the dbs result doesn't include the user edge.
+	uploader := s.Uploader
 	*s = *convertSIP(dbs)
-
-	// Manually set the uploader data because the dbs result doesn't include the
-	// user edge.
-	if uploader != nil {
-		s.Uploader = uploader
-	}
+	s.Uploader = uploader
 
 	return nil
 }
@@ -106,11 +108,7 @@ func (c *client) UpdateSIP(
 	// Get the current SIP data from the database.
 	dbs, err := tx.SIP.Query().
 		Where(sip.UUID(id)).
-		WithUser(func(q *db.UserQuery) {
-			q.Select(user.FieldUUID)
-			q.Select(user.FieldEmail)
-			q.Select(user.FieldName)
-		}).
+		WithUploader().
 		Only(ctx)
 	if err != nil {
 		return nil, rollback(tx, newDBError(err))
@@ -120,13 +118,9 @@ func (c *client) UpdateSIP(
 	dbID := dbs.ID
 
 	// Get the uploader data so we can set it on the returned SIP later.
-	var uploader *datatypes.Uploader
-	if dbs.Edges.User != nil {
-		uploader = &datatypes.Uploader{
-			UUID:  dbs.Edges.User.UUID,
-			Email: dbs.Edges.User.Email,
-			Name:  dbs.Edges.User.Name,
-		}
+	var uploader *datatypes.User
+	if dbs.Edges.Uploader != nil {
+		uploader = convertUser(dbs.Edges.Uploader)
 	}
 
 	// Get an updated datatypes.SIP from the updater function.
@@ -172,9 +166,7 @@ func (c *client) UpdateSIP(
 	s := convertSIP(dbs)
 
 	// Set the uploader data on the returned SIP.
-	if uploader != nil {
-		s.Uploader = uploader
-	}
+	s.Uploader = uploader
 
 	return s, nil
 }
@@ -192,11 +184,7 @@ func (c *client) DeleteSIP(ctx context.Context, id int) error {
 func (c *client) ReadSIP(ctx context.Context, id uuid.UUID) (*datatypes.SIP, error) {
 	s, err := c.ent.SIP.Query().
 		Where(sip.UUID(id)).
-		WithUser(func(q *db.UserQuery) {
-			q.Select(user.FieldUUID)
-			q.Select(user.FieldEmail)
-			q.Select(user.FieldName)
-		}).
+		WithUploader().
 		Only(ctx)
 	if err != nil {
 		return nil, newDBError(err)
@@ -215,14 +203,10 @@ func (c *client) ListSIPs(ctx context.Context, f *persistence.SIPFilter) (
 		f = &persistence.SIPFilter{}
 	}
 
-	q := c.ent.SIP.Query().WithUser(func(q *db.UserQuery) {
-		q.Select(user.FieldUUID)
-		q.Select(user.FieldEmail)
-		q.Select(user.FieldName)
-	})
+	q := c.ent.SIP.Query().WithUploader()
 
 	if f.UploaderID != nil {
-		q.Where(sip.HasUserWith(user.UUID(*f.UploaderID)))
+		q.Where(sip.HasUploaderWith(user.UUID(*f.UploaderID)))
 	}
 
 	page, whole := filterSIPs(q, f)

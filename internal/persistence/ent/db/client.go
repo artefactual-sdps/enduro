@@ -351,15 +351,15 @@ func (c *SIPClient) QueryWorkflows(s *SIP) *WorkflowQuery {
 	return query
 }
 
-// QueryUser queries the user edge of a SIP.
-func (c *SIPClient) QueryUser(s *SIP) *UserQuery {
+// QueryUploader queries the uploader edge of a SIP.
+func (c *SIPClient) QueryUploader(s *SIP) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
 		id := s.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(sip.Table, sip.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, sip.UserTable, sip.UserColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, sip.UploaderTable, sip.UploaderColumn),
 		)
 		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
 		return fromV, nil

@@ -26,7 +26,7 @@ type SIPQuery struct {
 	inters        []Interceptor
 	predicates    []predicate.SIP
 	withWorkflows *WorkflowQuery
-	withUser      *UserQuery
+	withUploader  *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -85,8 +85,8 @@ func (sq *SIPQuery) QueryWorkflows() *WorkflowQuery {
 	return query
 }
 
-// QueryUser chains the current query on the "user" edge.
-func (sq *SIPQuery) QueryUser() *UserQuery {
+// QueryUploader chains the current query on the "uploader" edge.
+func (sq *SIPQuery) QueryUploader() *UserQuery {
 	query := (&UserClient{config: sq.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := sq.prepareQuery(ctx); err != nil {
@@ -99,7 +99,7 @@ func (sq *SIPQuery) QueryUser() *UserQuery {
 		step := sqlgraph.NewStep(
 			sqlgraph.From(sip.Table, sip.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, sip.UserTable, sip.UserColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, sip.UploaderTable, sip.UploaderColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(sq.driver.Dialect(), step)
 		return fromU, nil
@@ -300,7 +300,7 @@ func (sq *SIPQuery) Clone() *SIPQuery {
 		inters:        append([]Interceptor{}, sq.inters...),
 		predicates:    append([]predicate.SIP{}, sq.predicates...),
 		withWorkflows: sq.withWorkflows.Clone(),
-		withUser:      sq.withUser.Clone(),
+		withUploader:  sq.withUploader.Clone(),
 		// clone intermediate query.
 		sql:  sq.sql.Clone(),
 		path: sq.path,
@@ -318,14 +318,14 @@ func (sq *SIPQuery) WithWorkflows(opts ...func(*WorkflowQuery)) *SIPQuery {
 	return sq
 }
 
-// WithUser tells the query-builder to eager-load the nodes that are connected to
-// the "user" edge. The optional arguments are used to configure the query builder of the edge.
-func (sq *SIPQuery) WithUser(opts ...func(*UserQuery)) *SIPQuery {
+// WithUploader tells the query-builder to eager-load the nodes that are connected to
+// the "uploader" edge. The optional arguments are used to configure the query builder of the edge.
+func (sq *SIPQuery) WithUploader(opts ...func(*UserQuery)) *SIPQuery {
 	query := (&UserClient{config: sq.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	sq.withUser = query
+	sq.withUploader = query
 	return sq
 }
 
@@ -409,7 +409,7 @@ func (sq *SIPQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SIP, err
 		_spec       = sq.querySpec()
 		loadedTypes = [2]bool{
 			sq.withWorkflows != nil,
-			sq.withUser != nil,
+			sq.withUploader != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -437,9 +437,9 @@ func (sq *SIPQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SIP, err
 			return nil, err
 		}
 	}
-	if query := sq.withUser; query != nil {
-		if err := sq.loadUser(ctx, query, nodes, nil,
-			func(n *SIP, e *User) { n.Edges.User = e }); err != nil {
+	if query := sq.withUploader; query != nil {
+		if err := sq.loadUploader(ctx, query, nodes, nil,
+			func(n *SIP, e *User) { n.Edges.Uploader = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -476,7 +476,7 @@ func (sq *SIPQuery) loadWorkflows(ctx context.Context, query *WorkflowQuery, nod
 	}
 	return nil
 }
-func (sq *SIPQuery) loadUser(ctx context.Context, query *UserQuery, nodes []*SIP, init func(*SIP), assign func(*SIP, *User)) error {
+func (sq *SIPQuery) loadUploader(ctx context.Context, query *UserQuery, nodes []*SIP, init func(*SIP), assign func(*SIP, *User)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*SIP)
 	for i := range nodes {
@@ -531,7 +531,7 @@ func (sq *SIPQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if sq.withUser != nil {
+		if sq.withUploader != nil {
 			_spec.Node.AddColumnOnce(sip.FieldUploaderID)
 		}
 	}

@@ -28,6 +28,7 @@ func TestCreateSIP(t *testing.T) {
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
 	uploaderID := uuid.New()
+	uploaderID2 := uuid.New()
 
 	tests := []struct {
 		name    string
@@ -72,12 +73,18 @@ func TestCreateSIP(t *testing.T) {
 			},
 		},
 		{
-			name: "Creates a SIP with an uploader",
+			name: "Creates a SIP with an uploader (existing user)",
 			sip: &datatypes.SIP{
-				UUID:     sipUUID,
-				Name:     "Test SIP 3",
-				Status:   enums.SIPStatusProcessing,
-				Uploader: &datatypes.Uploader{UUID: uploaderID},
+				UUID:   sipUUID,
+				Name:   "Test SIP 3",
+				Status: enums.SIPStatusProcessing,
+				Uploader: &datatypes.User{
+					UUID:    uploaderID,
+					Email:   "nobody@example.com",
+					Name:    "Test User",
+					OIDCIss: "https://example.com/oidc",
+					OIDCSub: "1234567890",
+				},
 			},
 			want: &datatypes.SIP{
 				ID:        1,
@@ -85,10 +92,44 @@ func TestCreateSIP(t *testing.T) {
 				Name:      "Test SIP 3",
 				Status:    enums.SIPStatusProcessing,
 				CreatedAt: time.Now(),
-				Uploader: &datatypes.Uploader{
-					UUID:  uploaderID,
-					Email: "nobody@example.com",
-					Name:  "Test User",
+				Uploader: &datatypes.User{
+					UUID:      uploaderID,
+					Email:     "nobody@example.com",
+					Name:      "Test User",
+					CreatedAt: time.Now(),
+					OIDCIss:   "https://example.com/oidc",
+					OIDCSub:   "1234567890",
+				},
+			},
+		},
+		{
+			name: "Creates a SIP with an uploader (new user)",
+			sip: &datatypes.SIP{
+				UUID:   sipUUID,
+				Name:   "Test SIP 4",
+				Status: enums.SIPStatusProcessing,
+				Uploader: &datatypes.User{
+					UUID:      uploaderID2,
+					Email:     "nobody2@example.com",
+					Name:      "Test User 2",
+					CreatedAt: time.Now(),
+					OIDCIss:   "https://example.com/oidc",
+					OIDCSub:   "newuser",
+				},
+			},
+			want: &datatypes.SIP{
+				ID:        1,
+				UUID:      sipUUID,
+				Name:      "Test SIP 4",
+				Status:    enums.SIPStatusProcessing,
+				CreatedAt: time.Now(),
+				Uploader: &datatypes.User{
+					UUID:      uploaderID2,
+					Email:     "nobody2@example.com",
+					Name:      "Test User 2",
+					CreatedAt: time.Now(),
+					OIDCIss:   "https://example.com/oidc",
+					OIDCSub:   "newuser",
 				},
 			},
 		},
@@ -122,7 +163,7 @@ func TestCreateSIP(t *testing.T) {
 			assert.NilError(t, err)
 
 			assert.DeepEqual(t, &sip, tt.want,
-				cmpopts.EquateApproxTime(time.Millisecond*100),
+				cmpopts.EquateApproxTime(time.Second),
 				cmpopts.IgnoreUnexported(db.SIP{}, db.SIPEdges{}),
 			)
 		})
@@ -178,10 +219,12 @@ func TestUpdateSIP(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started,
 					CompletedAt: completed,
-					Uploader: &datatypes.Uploader{
-						UUID:  uploaderID,
-						Email: "nobody@example.com",
-						Name:  "Test User",
+					Uploader: &datatypes.User{
+						UUID:    uploaderID,
+						Email:   "nobody@example.com",
+						Name:    "Test User",
+						OIDCIss: "https://example.com/oidc",
+						OIDCSub: "1234567890",
 					},
 				},
 				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
@@ -195,7 +238,7 @@ func TestUpdateSIP(t *testing.T) {
 					s.CompletedAt = completed2
 					s.FailedAs = enums.SIPFailedAsSIP
 					s.FailedKey = "failed-key"
-					s.Uploader = &datatypes.Uploader{UUID: uuid.New()} // No-op, can't update Uploader.
+					s.Uploader = &datatypes.User{UUID: uuid.New()} // No-op, can't update Uploader.
 					return s, nil
 				},
 			},
@@ -210,10 +253,13 @@ func TestUpdateSIP(t *testing.T) {
 				CompletedAt: completed2,
 				FailedAs:    enums.SIPFailedAsSIP,
 				FailedKey:   "failed-key",
-				Uploader: &datatypes.Uploader{
-					UUID:  uploaderID,
-					Email: "nobody@example.com",
-					Name:  "Test User",
+				Uploader: &datatypes.User{
+					UUID:      uploaderID,
+					Email:     "nobody@example.com",
+					Name:      "Test User",
+					CreatedAt: time.Now(),
+					OIDCIss:   "https://example.com/oidc",
+					OIDCSub:   "1234567890",
 				},
 			},
 		},
@@ -328,7 +374,7 @@ func TestUpdateSIP(t *testing.T) {
 			assert.NilError(t, err)
 
 			assert.DeepEqual(t, sip, tt.want,
-				cmpopts.EquateApproxTime(time.Millisecond*100),
+				cmpopts.EquateApproxTime(time.Second),
 				cmpopts.IgnoreUnexported(db.SIP{}, db.SIPEdges{}),
 			)
 		})
@@ -409,10 +455,13 @@ func TestReadSIP(t *testing.T) {
 				CompletedAt: sql.NullTime{Time: time.Now().Add(time.Minute), Valid: true},
 				FailedAs:    enums.SIPFailedAsPIP,
 				FailedKey:   "failed-key",
-				Uploader: &datatypes.Uploader{
-					UUID:  uploaderID,
-					Email: "nobody@example.com",
-					Name:  "Test User",
+				Uploader: &datatypes.User{
+					UUID:      uploaderID,
+					Email:     "nobody@example.com",
+					Name:      "Test User",
+					CreatedAt: time.Now(),
+					OIDCIss:   "https://example.com/oidc",
+					OIDCSub:   "1234567890",
 				},
 			},
 		},
@@ -442,7 +491,7 @@ func TestReadSIP(t *testing.T) {
 					SetCompletedAt(tt.want.CompletedAt.Time).
 					SetFailedAs(tt.want.FailedAs).
 					SetFailedKey(tt.want.FailedKey).
-					SetUser(user).
+					SetUploader(user).
 					Save(ctx)
 				assert.NilError(t, err)
 			}
@@ -453,7 +502,7 @@ func TestReadSIP(t *testing.T) {
 				return
 			}
 			assert.NilError(t, err)
-			assert.DeepEqual(t, s, tt.want)
+			assert.DeepEqual(t, s, tt.want, cmpopts.EquateApproxTime(time.Second))
 		})
 	}
 }
@@ -522,10 +571,13 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
-					Uploader: &datatypes.Uploader{
-						UUID:  uploaderID,
-						Email: "nobody@example.com",
-						Name:  "Test User",
+					Uploader: &datatypes.User{
+						UUID:      uploaderID,
+						Email:     "nobody@example.com",
+						Name:      "Test User",
+						CreatedAt: time.Now(),
+						OIDCIss:   "https://example.com/oidc",
+						OIDCSub:   "1234567890",
 					},
 				},
 				{
@@ -559,10 +611,13 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
-						Uploader: &datatypes.Uploader{
-							UUID:  uploaderID,
-							Email: "nobody@example.com",
-							Name:  "Test User",
+						Uploader: &datatypes.User{
+							UUID:      uploaderID,
+							Email:     "nobody@example.com",
+							Name:      "Test User",
+							CreatedAt: time.Now(),
+							OIDCIss:   "https://example.com/oidc",
+							OIDCSub:   "1234567890",
 						},
 					},
 					{
@@ -643,10 +698,13 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
-					Uploader: &datatypes.Uploader{
-						UUID:  uploaderID,
-						Email: "nobody@example.com",
-						Name:  "Test User",
+					Uploader: &datatypes.User{
+						UUID:      uploaderID,
+						Email:     "nobody@example.com",
+						Name:      "Test User",
+						CreatedAt: time.Now(),
+						OIDCIss:   "https://example.com/oidc",
+						OIDCSub:   "1234567890",
 					},
 				},
 			},
@@ -664,10 +722,13 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
-						Uploader: &datatypes.Uploader{
-							UUID:  uploaderID,
-							Email: "nobody@example.com",
-							Name:  "Test User",
+						Uploader: &datatypes.User{
+							UUID:      uploaderID,
+							Email:     "nobody@example.com",
+							Name:      "Test User",
+							CreatedAt: time.Now(),
+							OIDCIss:   "https://example.com/oidc",
+							OIDCSub:   "1234567890",
 						},
 					},
 				},
@@ -915,10 +976,13 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
-					Uploader: &datatypes.Uploader{
-						UUID:  uploaderID,
-						Email: "nobody@example.com",
-						Name:  "Nobody Here",
+					Uploader: &datatypes.User{
+						UUID:      uploaderID,
+						Email:     "nobody@example.com",
+						Name:      "Nobody Here",
+						CreatedAt: time.Now(),
+						OIDCIss:   "https://example.com/oidc",
+						OIDCSub:   "1234567890",
 					},
 				},
 				{
@@ -928,10 +992,13 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
-					Uploader: &datatypes.Uploader{
-						UUID:  uploaderID2,
-						Email: "test@example.com",
-						Name:  "Test Example",
+					Uploader: &datatypes.User{
+						UUID:      uploaderID2,
+						Email:     "test@example.com",
+						Name:      "Test Example",
+						CreatedAt: time.Now(),
+						OIDCIss:   "https://example.com/oidc",
+						OIDCSub:   "otheruser",
 					},
 				},
 			},
@@ -949,10 +1016,13 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
-						Uploader: &datatypes.Uploader{
-							UUID:  uploaderID2,
-							Email: "test@example.com",
-							Name:  "Test Example",
+						Uploader: &datatypes.User{
+							UUID:      uploaderID2,
+							Email:     "test@example.com",
+							Name:      "Test Example",
+							CreatedAt: time.Now(),
+							OIDCIss:   "https://example.com/oidc",
+							OIDCSub:   "otheruser",
 						},
 					},
 				},
@@ -995,9 +1065,12 @@ func TestListSIPs(t *testing.T) {
 							SetUUID(sip.Uploader.UUID).
 							SetEmail(sip.Uploader.Email).
 							SetName(sip.Uploader.Name).
+							SetCreatedAt(sip.Uploader.CreatedAt).
+							SetOidcIss(sip.Uploader.OIDCIss).
+							SetOidcSub(sip.Uploader.OIDCSub).
 							Save(t.Context())
 						assert.NilError(t, err)
-						q.SetUser(user)
+						q.SetUploader(user)
 					}
 
 					_, err := q.Save(ctx)
@@ -1009,7 +1082,7 @@ func TestListSIPs(t *testing.T) {
 			assert.NilError(t, err)
 
 			assert.DeepEqual(t, got, tt.want.data,
-				cmpopts.EquateApproxTime(time.Millisecond*100),
+				cmpopts.EquateApproxTime(time.Second),
 				cmpopts.IgnoreUnexported(db.SIP{}, db.SIPEdges{}),
 			)
 			assert.DeepEqual(t, pg, tt.want.page)

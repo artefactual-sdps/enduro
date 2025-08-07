@@ -66,7 +66,7 @@ func (SIP) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("workflows", Workflow.Type).
 			Annotations(entsql.OnDelete(entsql.Cascade)),
-		edge.From("user", User.Type).
+		edge.From("uploader", User.Type).
 			Field("uploader_id").
 			Ref("uploaded_sips").
 			Unique(),

@@ -38,8 +38,8 @@ const (
 	FieldUploaderID = "uploader_id"
 	// EdgeWorkflows holds the string denoting the workflows edge name in mutations.
 	EdgeWorkflows = "workflows"
-	// EdgeUser holds the string denoting the user edge name in mutations.
-	EdgeUser = "user"
+	// EdgeUploader holds the string denoting the uploader edge name in mutations.
+	EdgeUploader = "uploader"
 	// Table holds the table name of the sip in the database.
 	Table = "sip"
 	// WorkflowsTable is the table that holds the workflows relation/edge.
@@ -49,13 +49,13 @@ const (
 	WorkflowsInverseTable = "workflow"
 	// WorkflowsColumn is the table column denoting the workflows relation/edge.
 	WorkflowsColumn = "sip_id"
-	// UserTable is the table that holds the user relation/edge.
-	UserTable = "sip"
-	// UserInverseTable is the table name for the User entity.
+	// UploaderTable is the table that holds the uploader relation/edge.
+	UploaderTable = "sip"
+	// UploaderInverseTable is the table name for the User entity.
 	// It exists in this package in order to avoid circular dependency with the "user" package.
-	UserInverseTable = "user"
-	// UserColumn is the table column denoting the user relation/edge.
-	UserColumn = "uploader_id"
+	UploaderInverseTable = "user"
+	// UploaderColumn is the table column denoting the uploader relation/edge.
+	UploaderColumn = "uploader_id"
 )
 
 // Columns holds all SQL columns for sip fields.
@@ -182,10 +182,10 @@ func ByWorkflows(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 	}
 }
 
-// ByUserField orders the results by user field.
-func ByUserField(field string, opts ...sql.OrderTermOption) OrderOption {
+// ByUploaderField orders the results by uploader field.
+func ByUploaderField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newUserStep(), sql.OrderByField(field, opts...))
+		sqlgraph.OrderByNeighborTerms(s, newUploaderStep(), sql.OrderByField(field, opts...))
 	}
 }
 func newWorkflowsStep() *sqlgraph.Step {
@@ -195,10 +195,10 @@ func newWorkflowsStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.O2M, false, WorkflowsTable, WorkflowsColumn),
 	)
 }
-func newUserStep() *sqlgraph.Step {
+func newUploaderStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UserInverseTable, FieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, UserTable, UserColumn),
+		sqlgraph.To(UploaderInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, UploaderTable, UploaderColumn),
 	)
 }
