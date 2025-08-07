@@ -177,6 +177,34 @@ var _ = Service("ingest", func() {
 			Response("not_valid", StatusBadRequest)
 		})
 	})
+	Method("add_sip", func() {
+		Description("Ingest a SIP from a SIP Source")
+		Security(JWTAuth, func() {
+			Scope(auth.IngestSIPSCreateAttr)
+		})
+		Payload(func() {
+			AttributeUUID("source_id", "Identifier of SIP source -- CURRENTLY NOT USED")
+			Attribute("key", String, "Key of the item to ingest")
+			Token("token", String)
+			Required("source_id", "key")
+		})
+		Result(func() {
+			AttributeUUID("uuid", "Identifier of the ingested SIP")
+			Required("uuid")
+		})
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			POST("/sips")
+			Response(StatusCreated)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+			Params(func() {
+				Param("source_id")
+				Param("key")
+			})
+		})
+	})
 	Method("upload_sip", func() {
 		Description("Upload a SIP to trigger an ingest workflow")
 		Security(JWTAuth, func() {

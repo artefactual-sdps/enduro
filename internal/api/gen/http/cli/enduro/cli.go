@@ -26,7 +26,7 @@ import (
 //	command (subcommand1|subcommand2|...)
 func UsageCommands() string {
 	return `about about
-ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects)
+ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects)
 storage (monitor-request|monitor|list-aips|create-aip|submit-aip|update-aip|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)
 `
 }
@@ -92,6 +92,11 @@ func ParseEndpoint(
 		ingestRejectSipFlags     = flag.NewFlagSet("reject-sip", flag.ExitOnError)
 		ingestRejectSipUUIDFlag  = ingestRejectSipFlags.String("uuid", "REQUIRED", "Identifier of SIP to look up")
 		ingestRejectSipTokenFlag = ingestRejectSipFlags.String("token", "", "")
+
+		ingestAddSipFlags        = flag.NewFlagSet("add-sip", flag.ExitOnError)
+		ingestAddSipSourceIDFlag = ingestAddSipFlags.String("source-id", "REQUIRED", "")
+		ingestAddSipKeyFlag      = ingestAddSipFlags.String("key", "REQUIRED", "")
+		ingestAddSipTokenFlag    = ingestAddSipFlags.String("token", "", "")
 
 		ingestUploadSipFlags           = flag.NewFlagSet("upload-sip", flag.ExitOnError)
 		ingestUploadSipContentTypeFlag = ingestUploadSipFlags.String("content-type", "multipart/form-data; boundary=goa", "")
@@ -221,6 +226,7 @@ func ParseEndpoint(
 	ingestListSipWorkflowsFlags.Usage = ingestListSipWorkflowsUsage
 	ingestConfirmSipFlags.Usage = ingestConfirmSipUsage
 	ingestRejectSipFlags.Usage = ingestRejectSipUsage
+	ingestAddSipFlags.Usage = ingestAddSipUsage
 	ingestUploadSipFlags.Usage = ingestUploadSipUsage
 	ingestDownloadSipRequestFlags.Usage = ingestDownloadSipRequestUsage
 	ingestDownloadSipFlags.Usage = ingestDownloadSipUsage
@@ -314,6 +320,9 @@ func ParseEndpoint(
 
 			case "reject-sip":
 				epf = ingestRejectSipFlags
+
+			case "add-sip":
+				epf = ingestAddSipFlags
 
 			case "upload-sip":
 				epf = ingestUploadSipFlags
@@ -447,6 +456,9 @@ func ParseEndpoint(
 			case "reject-sip":
 				endpoint = c.RejectSip()
 				data, err = ingestc.BuildRejectSipPayload(*ingestRejectSipUUIDFlag, *ingestRejectSipTokenFlag)
+			case "add-sip":
+				endpoint = c.AddSip()
+				data, err = ingestc.BuildAddSipPayload(*ingestAddSipSourceIDFlag, *ingestAddSipKeyFlag, *ingestAddSipTokenFlag)
 			case "upload-sip":
 				endpoint = c.UploadSip()
 				data, err = ingestc.BuildUploadSipPayload(*ingestUploadSipContentTypeFlag, *ingestUploadSipTokenFlag)
@@ -577,6 +589,7 @@ COMMAND:
     list-sip-workflows: List all workflows for a SIP
     confirm-sip: Signal the SIP has been reviewed and accepted
     reject-sip: Signal the SIP has been reviewed and rejected
+    add-sip: Ingest a SIP from a SIP Source
     upload-sip: Upload a SIP to trigger an ingest workflow
     download-sip-request: Request access to SIP download
     download-sip: Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP's `+"`"+`failed_as`+"`"+` value.
@@ -676,6 +689,19 @@ Signal the SIP has been reviewed and rejected
 
 Example:
     %[1]s ingest reject-sip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"
+`, os.Args[0])
+}
+
+func ingestAddSipUsage() {
+	fmt.Fprintf(os.Stderr, `%[1]s [flags] ingest add-sip -source-id STRING -key STRING -token STRING
+
+Ingest a SIP from a SIP Source
+    -source-id STRING: 
+    -key STRING: 
+    -token STRING: 
+
+Example:
+    %[1]s ingest add-sip --source-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --key "abc123" --token "abc123"
 `, os.Args[0])
 }
 

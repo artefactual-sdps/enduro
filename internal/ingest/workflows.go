@@ -38,6 +38,9 @@ type ProcessingWorkflowRequest struct {
 	// The name of the watcher that received this blob.
 	WatcherName string
 
+	// The ID of the SIP source.
+	SIPSourceID uuid.UUID
+
 	// The period of time to schedule the deletion of the original blob from the
 	// watched data source, nil means no deletion.
 	RetentionPeriod *time.Duration

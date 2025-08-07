@@ -1,6 +1,7 @@
 package auth
 
 const (
+	IngestSIPSCreateAttr            = "ingest:sips:create"
 	IngestSIPSDownloadAttr          = "ingest:sips:download"
 	IngestSIPSListAttr              = "ingest:sips:list"
 	IngestSIPSReadAttr              = "ingest:sips:read"

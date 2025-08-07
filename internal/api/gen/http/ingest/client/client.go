@@ -49,6 +49,9 @@ type Client struct {
 	// endpoint.
 	RejectSipDoer goahttp.Doer
 
+	// AddSip Doer is the HTTP client used to make requests to the add_sip endpoint.
+	AddSipDoer goahttp.Doer
+
 	// UploadSip Doer is the HTTP client used to make requests to the upload_sip
 	// endpoint.
 	UploadSipDoer goahttp.Doer
@@ -106,6 +109,7 @@ func NewClient(
 		ListSipWorkflowsDoer:     doer,
 		ConfirmSipDoer:           doer,
 		RejectSipDoer:            doer,
+		AddSipDoer:               doer,
 		UploadSipDoer:            doer,
 		DownloadSipRequestDoer:   doer,
 		DownloadSipDoer:          doer,
@@ -303,6 +307,30 @@ func (c *Client) RejectSip() goa.Endpoint {
 		resp, err := c.RejectSipDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("ingest", "reject_sip", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// AddSip returns an endpoint that makes HTTP requests to the ingest service
+// add_sip server.
+func (c *Client) AddSip() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeAddSipRequest(c.encoder)
+		decodeResponse = DecodeAddSipResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildAddSipRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.AddSipDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("ingest", "add_sip", err)
 		}
 		return decodeResponse(resp)
 	}

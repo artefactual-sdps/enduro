@@ -91,7 +91,7 @@ func (w *goaWrapper) UploadSip(
 	); err != nil {
 		// Delete SIP from internal bucket.
 		err := errors.Join(err, w.internalStorage.Delete(ctx, objectKey))
-		w.logger.Error(err, "Error initializing SIP ingest workflow after upload.")
+		w.logger.Error(err, "failed to init SIP ingest workflow after upload")
 		return nil, err
 	}
 

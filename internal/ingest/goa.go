@@ -13,6 +13,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/sipsource"
 )
@@ -52,6 +53,72 @@ func (w *goaWrapper) JWTAuth(
 	ctx = auth.WithUserClaims(ctx, claims)
 
 	return ctx, nil
+}
+
+// AddSip ingests a new SIP from a SIP source.
+func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayload) (*goaingest.AddSipResult, error) {
+	if payload == nil {
+		return nil, goaingest.MakeNotValid(errors.New("missing payload"))
+	}
+
+	sourceID, err := uuid.Parse(payload.SourceID)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(errors.New("invalid SourceID"))
+	}
+
+	claims, err := checkClaims(ctx)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(err)
+	}
+
+	// Add a new SIP to the persistence layer.
+	s := &datatypes.SIP{
+		UUID:   uuid.Must(uuid.NewRandomFromReader(w.rander)),
+		Name:   payload.Key,
+		Status: enums.SIPStatusQueued,
+	}
+
+	// If claims is nil, it means authentication is not enabled.
+	if claims != nil {
+		s.Uploader = &datatypes.User{
+			UUID:    uuid.Must(uuid.NewRandomFromReader(w.rander)),
+			Email:   claims.Email,
+			Name:    claims.Name,
+			OIDCIss: claims.Iss,
+			OIDCSub: claims.Sub,
+		}
+	}
+
+	if err := w.perSvc.CreateSIP(ctx, s); err != nil {
+		w.logger.Error(err, "add SIP")
+		return nil, ErrInternalError
+	}
+
+	// Initialize the processing workflow.
+	req := ProcessingWorkflowRequest{
+		SIPUUID:     s.UUID,
+		SIPSourceID: sourceID,
+		SIPName:     s.Name,
+		Type:        enums.WorkflowTypeCreateAip,
+		Key:         payload.Key,
+	}
+	if err := InitProcessingWorkflow(ctx, w.tc, w.taskQueue, &req); err != nil {
+		// Delete SIP from persistence.
+		err = errors.Join(err, w.perSvc.DeleteSIP(ctx, s.ID))
+		w.logger.Error(err, "add SIP")
+		return nil, ErrInternalError
+	}
+
+	PublishEvent(ctx, w.evsvc, sipToCreatedEvent(s))
+
+	w.logger.V(1).Info(
+		"Add SIP: started processing workflow from SIP source.",
+		"object_key", payload.Key,
+		"source_id", sourceID,
+		"sip_id", s.UUID,
+	)
+
+	return &goaingest.AddSipResult{UUID: s.UUID.String()}, nil
 }
 
 // List all SIPs. It implements goaingest.Service.

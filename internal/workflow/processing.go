@@ -85,7 +85,7 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 		state.sip.status = enums.SIPStatusError
 	}
 
-	// Determine if it failed as a SIP or as a PIP
+	// Determine if it failed as a SIP or as a PIP.
 	var failedAs enums.SIPFailedAs
 	if state.sip.failed_key != "" {
 		failedAs = enums.SIPFailedAsSIP
@@ -132,7 +132,7 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 }
 
 func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, state *workflowState) {
-	if state.status != enums.WorkflowStatusDone {
+	if state.status != enums.WorkflowStatusDone && state.initialPath != "" {
 		if err := w.sendFailedToInternalBucket(ctx, state); err != nil {
 			w.logger.Error(
 				"session cleanup: error sending failed SIP/PIP to internal bucket",
@@ -347,7 +347,8 @@ func (w *ProcessingWorkflow) SessionHandler(
 		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
 
 		if state.req.WatcherName != "" {
-			// Watcher request, use watcher bucket.
+			// Watcher request, use watcher bucket. The download activity
+			// will create a temporary directory to download the file to.
 			var downloadResult activities.DownloadActivityResult
 			err := temporalsdk_workflow.ExecuteActivity(
 				activityOpts,
@@ -363,18 +364,29 @@ func (w *ProcessingWorkflow) SessionHandler(
 			}
 			state.sip.path = downloadResult.Path
 		} else {
-			// API upload request, use internal bucket. If the destination path
-			// is set, the bucketdownload activity will download directly there.
-			// We will create an extra directory with the SIP UUID to avoid
-			// collisions and normalize the deletion of the original SIP from
-			// the parent directory.
+			// If the destination path is set, the bucketdownload activity
+			// will download directly there. We will create an extra directory
+			// with the SIP UUID to avoid collisions and normalize the deletion
+			// of the original SIP from the parent directory.
 			if destinationPath != "" {
 				destinationPath = filepath.Join(destinationPath, state.sip.uuid.String())
 			}
+
+			var activityName string
+			if state.req.SIPSourceID != uuid.Nil {
+				// SIP source request, use SIP source bucket.
+				// TODO: At some point there may be multiple SIP sources, so we
+				// should use the source ID to determine which bucket to use.
+				activityName = activities.DownloadFromSIPSourceActivityName
+			} else {
+				// API upload request, use internal bucket.
+				activityName = activities.DownloadFromInternalBucketActivityName
+			}
+
 			var re bucketdownload.Result
 			err := temporalsdk_workflow.ExecuteActivity(
 				activityOpts,
-				bucketdownload.Name,
+				activityName,
 				&bucketdownload.Params{
 					DirPath: destinationPath,
 					Key:     state.req.Key,
@@ -1226,7 +1238,7 @@ func (w *ProcessingWorkflow) sendFailedToInternalBucket(
 	)
 
 	// The SIP is already in the internal bucket.
-	if state.req.WatcherName == "" && !state.sip.transformed {
+	if state.req.WatcherName == "" && state.req.SIPSourceID == uuid.Nil && !state.sip.transformed {
 		// Copy the SIP.
 		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
 		err := temporalsdk_workflow.ExecuteActivity(

@@ -262,6 +262,36 @@ func BuildRejectSipPayload(ingestRejectSipUUID string, ingestRejectSipToken stri
 	return v, nil
 }
 
+// BuildAddSipPayload builds the payload for the ingest add_sip endpoint from
+// CLI flags.
+func BuildAddSipPayload(ingestAddSipSourceID string, ingestAddSipKey string, ingestAddSipToken string) (*ingest.AddSipPayload, error) {
+	var err error
+	var sourceID string
+	{
+		sourceID = ingestAddSipSourceID
+		err = goa.MergeErrors(err, goa.ValidateFormat("source_id", sourceID, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var key string
+	{
+		key = ingestAddSipKey
+	}
+	var token *string
+	{
+		if ingestAddSipToken != "" {
+			token = &ingestAddSipToken
+		}
+	}
+	v := &ingest.AddSipPayload{}
+	v.SourceID = sourceID
+	v.Key = key
+	v.Token = token
+
+	return v, nil
+}
+
 // BuildUploadSipPayload builds the payload for the ingest upload_sip endpoint
 // from CLI flags.
 func BuildUploadSipPayload(ingestUploadSipContentType string, ingestUploadSipToken string) (*ingest.UploadSipPayload, error) {

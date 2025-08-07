@@ -481,6 +481,130 @@
       "title": "Mediatype identifier: application/vnd.enduro.preprocessing; view=default",
       "type": "object"
     },
+    "IngestAddSipInternalErrorResponseBody": {
+      "description": "add_sip_internal_error_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestAddSipNotValidResponseBody": {
+      "description": "add_sip_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestAddSipResponseBody": {
+      "example": {
+        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "uuid": {
+          "description": "Identifier of the ingested SIP",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "format": "uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid"
+      ],
+      "title": "IngestAddSipResponseBody",
+      "type": "object"
+    },
     "IngestConfirmSipNotAvailableResponseBody": {
       "description": "confirm_sip_not_available_response_body result type (default view)",
       "example": {
@@ -4746,6 +4870,80 @@
         "tags": [
           "ingest"
         ]
+      },
+      "post": {
+        "description": "Ingest a SIP from a SIP Source\n\n**Required security scopes for jwt**:\n  * `ingest:sips:create`",
+        "operationId": "ingest#add_sip",
+        "parameters": [
+          {
+            "description": "Identifier of SIP source -- CURRENTLY NOT USED",
+            "format": "uuid",
+            "in": "query",
+            "name": "source_id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "description": "Key of the item to ingest",
+            "in": "query",
+            "name": "key",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created response.",
+            "schema": {
+              "$ref": "#/definitions/IngestAddSipResponseBody",
+              "required": [
+                "uuid"
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/IngestAddSipNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestAddSipInternalErrorResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": []
+          }
+        ],
+        "summary": "add_sip ingest",
+        "tags": [
+          "ingest"
+        ]
       }
     },
     "/ingest/sips/upload": {
@@ -6725,7 +6923,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:create`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

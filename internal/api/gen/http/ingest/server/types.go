@@ -85,6 +85,13 @@ type ListSipWorkflowsResponseBody struct {
 	Workflows SIPWorkflowResponseBodyCollection `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
 }
 
+// AddSipResponseBody is the type of the "ingest" service "add_sip" endpoint
+// HTTP response body.
+type AddSipResponseBody struct {
+	// Identifier of the ingested SIP
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
 // UploadSipResponseBody is the type of the "ingest" service "upload_sip"
 // endpoint HTTP response body.
 type UploadSipResponseBody struct {
@@ -287,6 +294,42 @@ type RejectSipNotFoundResponseBody struct {
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing SIP
 	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// AddSipNotValidResponseBody is the type of the "ingest" service "add_sip"
+// endpoint HTTP response body for the "not_valid" error.
+type AddSipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// AddSipInternalErrorResponseBody is the type of the "ingest" service
+// "add_sip" endpoint HTTP response body for the "internal_error" error.
+type AddSipInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
 // UploadSipInvalidMediaTypeResponseBody is the type of the "ingest" service
@@ -714,6 +757,15 @@ func NewListSipWorkflowsResponseBody(res *ingestviews.SIPWorkflowsView) *ListSip
 	return body
 }
 
+// NewAddSipResponseBody builds the HTTP response body from the result of the
+// "add_sip" endpoint of the "ingest" service.
+func NewAddSipResponseBody(res *ingest.AddSipResult) *AddSipResponseBody {
+	body := &AddSipResponseBody{
+		UUID: res.UUID,
+	}
+	return body
+}
+
 // NewUploadSipResponseBody builds the HTTP response body from the result of
 // the "upload_sip" endpoint of the "ingest" service.
 func NewUploadSipResponseBody(res *ingest.UploadSipResult) *UploadSipResponseBody {
@@ -907,6 +959,34 @@ func NewRejectSipNotFoundResponseBody(res *ingest.SIPNotFound) *RejectSipNotFoun
 	body := &RejectSipNotFoundResponseBody{
 		Message: res.Message,
 		UUID:    res.UUID,
+	}
+	return body
+}
+
+// NewAddSipNotValidResponseBody builds the HTTP response body from the result
+// of the "add_sip" endpoint of the "ingest" service.
+func NewAddSipNotValidResponseBody(res *goa.ServiceError) *AddSipNotValidResponseBody {
+	body := &AddSipNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewAddSipInternalErrorResponseBody builds the HTTP response body from the
+// result of the "add_sip" endpoint of the "ingest" service.
+func NewAddSipInternalErrorResponseBody(res *goa.ServiceError) *AddSipInternalErrorResponseBody {
+	body := &AddSipInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
 	}
 	return body
 }
@@ -1156,6 +1236,16 @@ func NewConfirmSipPayload(body *ConfirmSipRequestBody, uuid string, token *strin
 func NewRejectSipPayload(uuid string, token *string) *ingest.RejectSipPayload {
 	v := &ingest.RejectSipPayload{}
 	v.UUID = uuid
+	v.Token = token
+
+	return v
+}
+
+// NewAddSipPayload builds a ingest service add_sip endpoint payload.
+func NewAddSipPayload(sourceID string, key string, token *string) *ingest.AddSipPayload {
+	v := &ingest.AddSipPayload{}
+	v.SourceID = sourceID
+	v.Key = key
 	v.Token = token
 
 	return v

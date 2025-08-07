@@ -32,6 +32,7 @@ type Server struct {
 	ListSipWorkflows     http.Handler
 	ConfirmSip           http.Handler
 	RejectSip            http.Handler
+	AddSip               http.Handler
 	UploadSip            http.Handler
 	DownloadSipRequest   http.Handler
 	DownloadSip          http.Handler
@@ -79,6 +80,7 @@ func New(
 			{"ListSipWorkflows", "GET", "/ingest/sips/{uuid}/workflows"},
 			{"ConfirmSip", "POST", "/ingest/sips/{uuid}/confirm"},
 			{"RejectSip", "POST", "/ingest/sips/{uuid}/reject"},
+			{"AddSip", "POST", "/ingest/sips"},
 			{"UploadSip", "POST", "/ingest/sips/upload"},
 			{"DownloadSipRequest", "POST", "/ingest/sips/{uuid}/download"},
 			{"DownloadSip", "GET", "/ingest/sips/{uuid}/download"},
@@ -102,6 +104,7 @@ func New(
 		ListSipWorkflows:     NewListSipWorkflowsHandler(e.ListSipWorkflows, mux, decoder, encoder, errhandler, formatter),
 		ConfirmSip:           NewConfirmSipHandler(e.ConfirmSip, mux, decoder, encoder, errhandler, formatter),
 		RejectSip:            NewRejectSipHandler(e.RejectSip, mux, decoder, encoder, errhandler, formatter),
+		AddSip:               NewAddSipHandler(e.AddSip, mux, decoder, encoder, errhandler, formatter),
 		UploadSip:            NewUploadSipHandler(e.UploadSip, mux, decoder, encoder, errhandler, formatter),
 		DownloadSipRequest:   NewDownloadSipRequestHandler(e.DownloadSipRequest, mux, decoder, encoder, errhandler, formatter),
 		DownloadSip:          NewDownloadSipHandler(e.DownloadSip, mux, decoder, encoder, errhandler, formatter),
@@ -123,6 +126,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.ListSipWorkflows = m(s.ListSipWorkflows)
 	s.ConfirmSip = m(s.ConfirmSip)
 	s.RejectSip = m(s.RejectSip)
+	s.AddSip = m(s.AddSip)
 	s.UploadSip = m(s.UploadSip)
 	s.DownloadSipRequest = m(s.DownloadSipRequest)
 	s.DownloadSip = m(s.DownloadSip)
@@ -143,6 +147,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountListSipWorkflowsHandler(mux, h.ListSipWorkflows)
 	MountConfirmSipHandler(mux, h.ConfirmSip)
 	MountRejectSipHandler(mux, h.RejectSip)
+	MountAddSipHandler(mux, h.AddSip)
 	MountUploadSipHandler(mux, h.UploadSip)
 	MountDownloadSipRequestHandler(mux, h.DownloadSipRequest)
 	MountDownloadSipHandler(mux, h.DownloadSip)
@@ -507,6 +512,57 @@ func NewRejectSipHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "reject_sip")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountAddSipHandler configures the mux to serve the "ingest" service
+// "add_sip" endpoint.
+func MountAddSipHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/ingest/sips", otelhttp.WithRouteTag("/ingest/sips", f).ServeHTTP)
+}
+
+// NewAddSipHandler creates a HTTP handler which loads the HTTP request and
+// calls the "ingest" service "add_sip" endpoint.
+func NewAddSipHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeAddSipRequest(mux, decoder)
+		encodeResponse = EncodeAddSipResponse(encoder)
+		encodeError    = EncodeAddSipError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "add_sip")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
 		payload, err := decodeRequest(r)
 		if err != nil {

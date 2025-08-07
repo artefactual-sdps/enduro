@@ -3,6 +3,8 @@ package activities
 
 const (
 	DownloadActivityName                   = "download-activity"
+	DownloadFromInternalBucketActivityName = "download-from-internal-bucket-activity"
+	DownloadFromSIPSourceActivityName      = "download-from-sip-source-activity"
 	BundleActivityName                     = "bundle-activity"
 	CleanUpActivityName                    = "clean-up-activity"
 	DeleteOriginalActivityName             = "delete-original-activity"
@@ -12,5 +14,4 @@ const (
 	PollMoveToPermanentStorageActivityName = "poll-move-to-permanent-storage-activity"
 	RejectSIPActivityName                  = "reject-sip-activity"
 	UploadActivityName                     = "upload-activity"
-	SendToFailedName                       = "send-to-failed"
 )

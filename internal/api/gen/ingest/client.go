@@ -24,6 +24,7 @@ type Client struct {
 	ListSipWorkflowsEndpoint     goa.Endpoint
 	ConfirmSipEndpoint           goa.Endpoint
 	RejectSipEndpoint            goa.Endpoint
+	AddSipEndpoint               goa.Endpoint
 	UploadSipEndpoint            goa.Endpoint
 	DownloadSipRequestEndpoint   goa.Endpoint
 	DownloadSipEndpoint          goa.Endpoint
@@ -32,7 +33,7 @@ type Client struct {
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, uploadSip, downloadSipRequest, downloadSip, listUsers, listSipSourceObjects goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, addSip, uploadSip, downloadSipRequest, downloadSip, listUsers, listSipSourceObjects goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:       monitorRequest,
 		MonitorEndpoint:              monitor,
@@ -41,6 +42,7 @@ func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, con
 		ListSipWorkflowsEndpoint:     listSipWorkflows,
 		ConfirmSipEndpoint:           confirmSip,
 		RejectSipEndpoint:            rejectSip,
+		AddSipEndpoint:               addSip,
 		UploadSipEndpoint:            uploadSip,
 		DownloadSipRequestEndpoint:   downloadSipRequest,
 		DownloadSipEndpoint:          downloadSip,
@@ -150,6 +152,22 @@ func (c *Client) ConfirmSip(ctx context.Context, p *ConfirmSipPayload) (err erro
 func (c *Client) RejectSip(ctx context.Context, p *RejectSipPayload) (err error) {
 	_, err = c.RejectSipEndpoint(ctx, p)
 	return
+}
+
+// AddSip calls the "add_sip" endpoint of the "ingest" service.
+// AddSip may return the following errors:
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) AddSip(ctx context.Context, p *AddSipPayload) (res *AddSipResult, err error) {
+	var ires any
+	ires, err = c.AddSipEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*AddSipResult), nil
 }
 
 // UploadSip calls the "upload_sip" endpoint of the "ingest" service.

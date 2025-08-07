@@ -236,6 +236,59 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
+        post:
+            tags:
+                - ingest
+            summary: add_sip ingest
+            description: |-
+                Ingest a SIP from a SIP Source
+
+                **Required security scopes for jwt**:
+                  * `ingest:sips:create`
+            operationId: ingest#add_sip
+            parameters:
+                - name: source_id
+                  in: query
+                  description: Identifier of SIP source -- CURRENTLY NOT USED
+                  required: true
+                  type: string
+                  format: uuid
+                - name: key
+                  in: query
+                  description: Key of the item to ingest
+                  required: true
+                  type: string
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "201":
+                    description: Created response.
+                    schema:
+                        $ref: '#/definitions/IngestAddSipResponseBody'
+                        required:
+                            - uuid
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/IngestAddSipNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/IngestAddSipInternalErrorResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
     /ingest/sips/{uuid}:
         get:
             tags:
@@ -2002,6 +2055,105 @@ definitions:
             - enabled
             - workflow_name
             - task_queue
+    IngestAddSipInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: add_sip_internal_error_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestAddSipNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: add_sip_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestAddSipResponseBody:
+        title: IngestAddSipResponseBody
+        type: object
+        properties:
+            uuid:
+                type: string
+                description: Identifier of the ingested SIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+        example:
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - uuid
     IngestConfirmSipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -5143,6 +5295,7 @@ securityDefinitions:
             Secures endpoint by requiring a valid JWT token.
 
             **Security Scopes**:
+              * `ingest:sips:create`: no description
               * `ingest:sips:download`: no description
               * `ingest:sips:list`: no description
               * `ingest:sips:read`: no description

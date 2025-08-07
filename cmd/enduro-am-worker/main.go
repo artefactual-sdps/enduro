@@ -252,9 +252,16 @@ func main() {
 			activities.NewDownloadActivity(tp.Tracer(activities.DownloadActivityName), wsvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
 		)
+		// TODO: At some point there may be multiple SIP sources, this activity should
+		// work similar to the watched bucket download activity and use the source ID
+		// to determine which bucket to use.
+		w.RegisterActivityWithOptions(
+			bucketdownload.New(sipSource.Bucket).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.DownloadFromSIPSourceActivityName},
+		)
 		w.RegisterActivityWithOptions(
 			bucketdownload.New(internalStorage).Execute,
-			temporalsdk_activity.RegisterOptions{Name: bucketdownload.Name},
+			temporalsdk_activity.RegisterOptions{Name: activities.DownloadFromInternalBucketActivityName},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewGetSIPExtensionActivity().Execute,

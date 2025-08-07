@@ -120,7 +120,11 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	)
 	s.env.RegisterActivityWithOptions(
 		bucketdownload.New(nil).Execute,
-		temporalsdk_activity.RegisterOptions{Name: bucketdownload.Name},
+		temporalsdk_activity.RegisterOptions{Name: activities.DownloadFromSIPSourceActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
+		bucketdownload.New(nil).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.DownloadFromInternalBucketActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
 		activities.NewGetSIPExtensionActivity().Execute,
@@ -1934,7 +1938,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 	).Return(1, nil)
 
 	s.env.OnActivity(
-		bucketdownload.Name,
+		activities.DownloadFromInternalBucketActivityName,
 		sessionCtx,
 		&bucketdownload.Params{
 			Key:     key,
