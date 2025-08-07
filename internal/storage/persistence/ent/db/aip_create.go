@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
@@ -23,6 +24,7 @@ type AIPCreate struct {
 	config
 	mutation *AIPMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetName sets the "name" field.
@@ -201,6 +203,7 @@ func (ac *AIPCreate) createSpec() (*AIP, *sqlgraph.CreateSpec) {
 		_node = &AIP{config: ac.config}
 		_spec = sqlgraph.NewCreateSpec(aip.Table, sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = ac.conflict
 	if value, ok := ac.mutation.Name(); ok {
 		_spec.SetField(aip.FieldName, field.TypeString, value)
 		_node.Name = value
@@ -273,11 +276,282 @@ func (ac *AIPCreate) createSpec() (*AIP, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.AIP.Create().
+//		SetName(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.AIPUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+func (ac *AIPCreate) OnConflict(opts ...sql.ConflictOption) *AIPUpsertOne {
+	ac.conflict = opts
+	return &AIPUpsertOne{
+		create: ac,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.AIP.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (ac *AIPCreate) OnConflictColumns(columns ...string) *AIPUpsertOne {
+	ac.conflict = append(ac.conflict, sql.ConflictColumns(columns...))
+	return &AIPUpsertOne{
+		create: ac,
+	}
+}
+
+type (
+	// AIPUpsertOne is the builder for "upsert"-ing
+	//  one AIP node.
+	AIPUpsertOne struct {
+		create *AIPCreate
+	}
+
+	// AIPUpsert is the "OnConflict" setter.
+	AIPUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetName sets the "name" field.
+func (u *AIPUpsert) SetName(v string) *AIPUpsert {
+	u.Set(aip.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *AIPUpsert) UpdateName() *AIPUpsert {
+	u.SetExcluded(aip.FieldName)
+	return u
+}
+
+// SetAipID sets the "aip_id" field.
+func (u *AIPUpsert) SetAipID(v uuid.UUID) *AIPUpsert {
+	u.Set(aip.FieldAipID, v)
+	return u
+}
+
+// UpdateAipID sets the "aip_id" field to the value that was provided on create.
+func (u *AIPUpsert) UpdateAipID() *AIPUpsert {
+	u.SetExcluded(aip.FieldAipID)
+	return u
+}
+
+// SetLocationID sets the "location_id" field.
+func (u *AIPUpsert) SetLocationID(v int) *AIPUpsert {
+	u.Set(aip.FieldLocationID, v)
+	return u
+}
+
+// UpdateLocationID sets the "location_id" field to the value that was provided on create.
+func (u *AIPUpsert) UpdateLocationID() *AIPUpsert {
+	u.SetExcluded(aip.FieldLocationID)
+	return u
+}
+
+// ClearLocationID clears the value of the "location_id" field.
+func (u *AIPUpsert) ClearLocationID() *AIPUpsert {
+	u.SetNull(aip.FieldLocationID)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *AIPUpsert) SetStatus(v enums.AIPStatus) *AIPUpsert {
+	u.Set(aip.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *AIPUpsert) UpdateStatus() *AIPUpsert {
+	u.SetExcluded(aip.FieldStatus)
+	return u
+}
+
+// SetObjectKey sets the "object_key" field.
+func (u *AIPUpsert) SetObjectKey(v uuid.UUID) *AIPUpsert {
+	u.Set(aip.FieldObjectKey, v)
+	return u
+}
+
+// UpdateObjectKey sets the "object_key" field to the value that was provided on create.
+func (u *AIPUpsert) UpdateObjectKey() *AIPUpsert {
+	u.SetExcluded(aip.FieldObjectKey)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.AIP.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *AIPUpsertOne) UpdateNewValues() *AIPUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(aip.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.AIP.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *AIPUpsertOne) Ignore() *AIPUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *AIPUpsertOne) DoNothing() *AIPUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the AIPCreate.OnConflict
+// documentation for more info.
+func (u *AIPUpsertOne) Update(set func(*AIPUpsert)) *AIPUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&AIPUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *AIPUpsertOne) SetName(v string) *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *AIPUpsertOne) UpdateName() *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetAipID sets the "aip_id" field.
+func (u *AIPUpsertOne) SetAipID(v uuid.UUID) *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetAipID(v)
+	})
+}
+
+// UpdateAipID sets the "aip_id" field to the value that was provided on create.
+func (u *AIPUpsertOne) UpdateAipID() *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateAipID()
+	})
+}
+
+// SetLocationID sets the "location_id" field.
+func (u *AIPUpsertOne) SetLocationID(v int) *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetLocationID(v)
+	})
+}
+
+// UpdateLocationID sets the "location_id" field to the value that was provided on create.
+func (u *AIPUpsertOne) UpdateLocationID() *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateLocationID()
+	})
+}
+
+// ClearLocationID clears the value of the "location_id" field.
+func (u *AIPUpsertOne) ClearLocationID() *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.ClearLocationID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *AIPUpsertOne) SetStatus(v enums.AIPStatus) *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *AIPUpsertOne) UpdateStatus() *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetObjectKey sets the "object_key" field.
+func (u *AIPUpsertOne) SetObjectKey(v uuid.UUID) *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetObjectKey(v)
+	})
+}
+
+// UpdateObjectKey sets the "object_key" field to the value that was provided on create.
+func (u *AIPUpsertOne) UpdateObjectKey() *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateObjectKey()
+	})
+}
+
+// Exec executes the query.
+func (u *AIPUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("db: missing options for AIPCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *AIPUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *AIPUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *AIPUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // AIPCreateBulk is the builder for creating many AIP entities in bulk.
 type AIPCreateBulk struct {
 	config
 	err      error
 	builders []*AIPCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the AIP entities in the database.
@@ -307,6 +581,7 @@ func (acb *AIPCreateBulk) Save(ctx context.Context) ([]*AIP, error) {
 					_, err = mutators[i+1].Mutate(root, acb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = acb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, acb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -357,6 +632,194 @@ func (acb *AIPCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (acb *AIPCreateBulk) ExecX(ctx context.Context) {
 	if err := acb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.AIP.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.AIPUpsert) {
+//			SetName(v+v).
+//		}).
+//		Exec(ctx)
+func (acb *AIPCreateBulk) OnConflict(opts ...sql.ConflictOption) *AIPUpsertBulk {
+	acb.conflict = opts
+	return &AIPUpsertBulk{
+		create: acb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.AIP.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (acb *AIPCreateBulk) OnConflictColumns(columns ...string) *AIPUpsertBulk {
+	acb.conflict = append(acb.conflict, sql.ConflictColumns(columns...))
+	return &AIPUpsertBulk{
+		create: acb,
+	}
+}
+
+// AIPUpsertBulk is the builder for "upsert"-ing
+// a bulk of AIP nodes.
+type AIPUpsertBulk struct {
+	create *AIPCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.AIP.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *AIPUpsertBulk) UpdateNewValues() *AIPUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(aip.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.AIP.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *AIPUpsertBulk) Ignore() *AIPUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *AIPUpsertBulk) DoNothing() *AIPUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the AIPCreateBulk.OnConflict
+// documentation for more info.
+func (u *AIPUpsertBulk) Update(set func(*AIPUpsert)) *AIPUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&AIPUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *AIPUpsertBulk) SetName(v string) *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *AIPUpsertBulk) UpdateName() *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetAipID sets the "aip_id" field.
+func (u *AIPUpsertBulk) SetAipID(v uuid.UUID) *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetAipID(v)
+	})
+}
+
+// UpdateAipID sets the "aip_id" field to the value that was provided on create.
+func (u *AIPUpsertBulk) UpdateAipID() *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateAipID()
+	})
+}
+
+// SetLocationID sets the "location_id" field.
+func (u *AIPUpsertBulk) SetLocationID(v int) *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetLocationID(v)
+	})
+}
+
+// UpdateLocationID sets the "location_id" field to the value that was provided on create.
+func (u *AIPUpsertBulk) UpdateLocationID() *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateLocationID()
+	})
+}
+
+// ClearLocationID clears the value of the "location_id" field.
+func (u *AIPUpsertBulk) ClearLocationID() *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.ClearLocationID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *AIPUpsertBulk) SetStatus(v enums.AIPStatus) *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *AIPUpsertBulk) UpdateStatus() *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetObjectKey sets the "object_key" field.
+func (u *AIPUpsertBulk) SetObjectKey(v uuid.UUID) *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetObjectKey(v)
+	})
+}
+
+// UpdateObjectKey sets the "object_key" field to the value that was provided on create.
+func (u *AIPUpsertBulk) UpdateObjectKey() *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateObjectKey()
+	})
+}
+
+// Exec executes the query.
+func (u *AIPUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("db: OnConflict was set for builder %d. Set it on the AIPCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("db: missing options for AIPCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *AIPUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

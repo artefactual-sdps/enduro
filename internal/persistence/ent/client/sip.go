@@ -28,17 +28,6 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	if s.Name == "" {
 		return newRequiredFieldError("Name")
 	}
-	if s.Uploader != nil {
-		if s.Uploader.UUID == uuid.Nil {
-			return newRequiredFieldError("Uploader.UUID")
-		}
-		if s.Uploader.OIDCIss == "" {
-			return newRequiredFieldError("Uploader.OIDCIss")
-		}
-		if s.Uploader.OIDCSub == "" {
-			return newRequiredFieldError("Uploader.OIDCSub")
-		}
-	}
 
 	tx, err := c.ent.BeginTx(ctx, nil)
 	if err != nil {
@@ -64,7 +53,7 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 
 	// If Uploader is set, find or create the user and link it to the SIP.
 	if s.Uploader != nil {
-		uID, err := findOrCreateUser(ctx, tx.Client(), s.Uploader)
+		uID, err := findOrCreateOIDCUser(ctx, tx.Client(), s.Uploader)
 		if err != nil {
 			return rollback(tx, err)
 		}

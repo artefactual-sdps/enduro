@@ -82,10 +82,10 @@ gen-dashboard-client:
 gen-ent: # @HELP Generate Ent assets.
 gen-ent: tool-ent
 	ent generate ./internal/persistence/ent/schema \
-		--feature sql/versioned-migration \
+		--feature sql/versioned-migration,sql/upsert \
 		--target=./internal/persistence/ent/db
 	ent generate ./internal/storage/persistence/ent/schema \
-		--feature sql/versioned-migration \
+		--feature sql/versioned-migration,sql/upsert \
 		--target=./internal/storage/persistence/ent/db
 
 gen-enums: # @HELP Generate go-enum assets.

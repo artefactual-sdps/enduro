@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
@@ -22,6 +23,7 @@ type DeletionRequestCreate struct {
 	config
 	mutation *DeletionRequestMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetUUID sets the "uuid" field.
@@ -283,6 +285,7 @@ func (drc *DeletionRequestCreate) createSpec() (*DeletionRequest, *sqlgraph.Crea
 		_node = &DeletionRequest{config: drc.config}
 		_spec = sqlgraph.NewCreateSpec(deletionrequest.Table, sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = drc.conflict
 	if value, ok := drc.mutation.UUID(); ok {
 		_spec.SetField(deletionrequest.FieldUUID, field.TypeUUID, value)
 		_node.UUID = value
@@ -364,11 +367,424 @@ func (drc *DeletionRequestCreate) createSpec() (*DeletionRequest, *sqlgraph.Crea
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.DeletionRequest.Create().
+//		SetUUID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.DeletionRequestUpsert) {
+//			SetUUID(v+v).
+//		}).
+//		Exec(ctx)
+func (drc *DeletionRequestCreate) OnConflict(opts ...sql.ConflictOption) *DeletionRequestUpsertOne {
+	drc.conflict = opts
+	return &DeletionRequestUpsertOne{
+		create: drc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.DeletionRequest.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (drc *DeletionRequestCreate) OnConflictColumns(columns ...string) *DeletionRequestUpsertOne {
+	drc.conflict = append(drc.conflict, sql.ConflictColumns(columns...))
+	return &DeletionRequestUpsertOne{
+		create: drc,
+	}
+}
+
+type (
+	// DeletionRequestUpsertOne is the builder for "upsert"-ing
+	//  one DeletionRequest node.
+	DeletionRequestUpsertOne struct {
+		create *DeletionRequestCreate
+	}
+
+	// DeletionRequestUpsert is the "OnConflict" setter.
+	DeletionRequestUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetUUID sets the "uuid" field.
+func (u *DeletionRequestUpsert) SetUUID(v uuid.UUID) *DeletionRequestUpsert {
+	u.Set(deletionrequest.FieldUUID, v)
+	return u
+}
+
+// UpdateUUID sets the "uuid" field to the value that was provided on create.
+func (u *DeletionRequestUpsert) UpdateUUID() *DeletionRequestUpsert {
+	u.SetExcluded(deletionrequest.FieldUUID)
+	return u
+}
+
+// SetReviewer sets the "reviewer" field.
+func (u *DeletionRequestUpsert) SetReviewer(v string) *DeletionRequestUpsert {
+	u.Set(deletionrequest.FieldReviewer, v)
+	return u
+}
+
+// UpdateReviewer sets the "reviewer" field to the value that was provided on create.
+func (u *DeletionRequestUpsert) UpdateReviewer() *DeletionRequestUpsert {
+	u.SetExcluded(deletionrequest.FieldReviewer)
+	return u
+}
+
+// ClearReviewer clears the value of the "reviewer" field.
+func (u *DeletionRequestUpsert) ClearReviewer() *DeletionRequestUpsert {
+	u.SetNull(deletionrequest.FieldReviewer)
+	return u
+}
+
+// SetReviewerIss sets the "reviewer_iss" field.
+func (u *DeletionRequestUpsert) SetReviewerIss(v string) *DeletionRequestUpsert {
+	u.Set(deletionrequest.FieldReviewerIss, v)
+	return u
+}
+
+// UpdateReviewerIss sets the "reviewer_iss" field to the value that was provided on create.
+func (u *DeletionRequestUpsert) UpdateReviewerIss() *DeletionRequestUpsert {
+	u.SetExcluded(deletionrequest.FieldReviewerIss)
+	return u
+}
+
+// ClearReviewerIss clears the value of the "reviewer_iss" field.
+func (u *DeletionRequestUpsert) ClearReviewerIss() *DeletionRequestUpsert {
+	u.SetNull(deletionrequest.FieldReviewerIss)
+	return u
+}
+
+// SetReviewerSub sets the "reviewer_sub" field.
+func (u *DeletionRequestUpsert) SetReviewerSub(v string) *DeletionRequestUpsert {
+	u.Set(deletionrequest.FieldReviewerSub, v)
+	return u
+}
+
+// UpdateReviewerSub sets the "reviewer_sub" field to the value that was provided on create.
+func (u *DeletionRequestUpsert) UpdateReviewerSub() *DeletionRequestUpsert {
+	u.SetExcluded(deletionrequest.FieldReviewerSub)
+	return u
+}
+
+// ClearReviewerSub clears the value of the "reviewer_sub" field.
+func (u *DeletionRequestUpsert) ClearReviewerSub() *DeletionRequestUpsert {
+	u.SetNull(deletionrequest.FieldReviewerSub)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *DeletionRequestUpsert) SetStatus(v enums.DeletionRequestStatus) *DeletionRequestUpsert {
+	u.Set(deletionrequest.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *DeletionRequestUpsert) UpdateStatus() *DeletionRequestUpsert {
+	u.SetExcluded(deletionrequest.FieldStatus)
+	return u
+}
+
+// SetReviewedAt sets the "reviewed_at" field.
+func (u *DeletionRequestUpsert) SetReviewedAt(v time.Time) *DeletionRequestUpsert {
+	u.Set(deletionrequest.FieldReviewedAt, v)
+	return u
+}
+
+// UpdateReviewedAt sets the "reviewed_at" field to the value that was provided on create.
+func (u *DeletionRequestUpsert) UpdateReviewedAt() *DeletionRequestUpsert {
+	u.SetExcluded(deletionrequest.FieldReviewedAt)
+	return u
+}
+
+// ClearReviewedAt clears the value of the "reviewed_at" field.
+func (u *DeletionRequestUpsert) ClearReviewedAt() *DeletionRequestUpsert {
+	u.SetNull(deletionrequest.FieldReviewedAt)
+	return u
+}
+
+// SetAipID sets the "aip_id" field.
+func (u *DeletionRequestUpsert) SetAipID(v int) *DeletionRequestUpsert {
+	u.Set(deletionrequest.FieldAipID, v)
+	return u
+}
+
+// UpdateAipID sets the "aip_id" field to the value that was provided on create.
+func (u *DeletionRequestUpsert) UpdateAipID() *DeletionRequestUpsert {
+	u.SetExcluded(deletionrequest.FieldAipID)
+	return u
+}
+
+// SetWorkflowID sets the "workflow_id" field.
+func (u *DeletionRequestUpsert) SetWorkflowID(v int) *DeletionRequestUpsert {
+	u.Set(deletionrequest.FieldWorkflowID, v)
+	return u
+}
+
+// UpdateWorkflowID sets the "workflow_id" field to the value that was provided on create.
+func (u *DeletionRequestUpsert) UpdateWorkflowID() *DeletionRequestUpsert {
+	u.SetExcluded(deletionrequest.FieldWorkflowID)
+	return u
+}
+
+// ClearWorkflowID clears the value of the "workflow_id" field.
+func (u *DeletionRequestUpsert) ClearWorkflowID() *DeletionRequestUpsert {
+	u.SetNull(deletionrequest.FieldWorkflowID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.DeletionRequest.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *DeletionRequestUpsertOne) UpdateNewValues() *DeletionRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.Requester(); exists {
+			s.SetIgnore(deletionrequest.FieldRequester)
+		}
+		if _, exists := u.create.mutation.RequesterIss(); exists {
+			s.SetIgnore(deletionrequest.FieldRequesterIss)
+		}
+		if _, exists := u.create.mutation.RequesterSub(); exists {
+			s.SetIgnore(deletionrequest.FieldRequesterSub)
+		}
+		if _, exists := u.create.mutation.Reason(); exists {
+			s.SetIgnore(deletionrequest.FieldReason)
+		}
+		if _, exists := u.create.mutation.RequestedAt(); exists {
+			s.SetIgnore(deletionrequest.FieldRequestedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.DeletionRequest.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *DeletionRequestUpsertOne) Ignore() *DeletionRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *DeletionRequestUpsertOne) DoNothing() *DeletionRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the DeletionRequestCreate.OnConflict
+// documentation for more info.
+func (u *DeletionRequestUpsertOne) Update(set func(*DeletionRequestUpsert)) *DeletionRequestUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&DeletionRequestUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUUID sets the "uuid" field.
+func (u *DeletionRequestUpsertOne) SetUUID(v uuid.UUID) *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetUUID(v)
+	})
+}
+
+// UpdateUUID sets the "uuid" field to the value that was provided on create.
+func (u *DeletionRequestUpsertOne) UpdateUUID() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateUUID()
+	})
+}
+
+// SetReviewer sets the "reviewer" field.
+func (u *DeletionRequestUpsertOne) SetReviewer(v string) *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetReviewer(v)
+	})
+}
+
+// UpdateReviewer sets the "reviewer" field to the value that was provided on create.
+func (u *DeletionRequestUpsertOne) UpdateReviewer() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateReviewer()
+	})
+}
+
+// ClearReviewer clears the value of the "reviewer" field.
+func (u *DeletionRequestUpsertOne) ClearReviewer() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearReviewer()
+	})
+}
+
+// SetReviewerIss sets the "reviewer_iss" field.
+func (u *DeletionRequestUpsertOne) SetReviewerIss(v string) *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetReviewerIss(v)
+	})
+}
+
+// UpdateReviewerIss sets the "reviewer_iss" field to the value that was provided on create.
+func (u *DeletionRequestUpsertOne) UpdateReviewerIss() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateReviewerIss()
+	})
+}
+
+// ClearReviewerIss clears the value of the "reviewer_iss" field.
+func (u *DeletionRequestUpsertOne) ClearReviewerIss() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearReviewerIss()
+	})
+}
+
+// SetReviewerSub sets the "reviewer_sub" field.
+func (u *DeletionRequestUpsertOne) SetReviewerSub(v string) *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetReviewerSub(v)
+	})
+}
+
+// UpdateReviewerSub sets the "reviewer_sub" field to the value that was provided on create.
+func (u *DeletionRequestUpsertOne) UpdateReviewerSub() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateReviewerSub()
+	})
+}
+
+// ClearReviewerSub clears the value of the "reviewer_sub" field.
+func (u *DeletionRequestUpsertOne) ClearReviewerSub() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearReviewerSub()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *DeletionRequestUpsertOne) SetStatus(v enums.DeletionRequestStatus) *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *DeletionRequestUpsertOne) UpdateStatus() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetReviewedAt sets the "reviewed_at" field.
+func (u *DeletionRequestUpsertOne) SetReviewedAt(v time.Time) *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetReviewedAt(v)
+	})
+}
+
+// UpdateReviewedAt sets the "reviewed_at" field to the value that was provided on create.
+func (u *DeletionRequestUpsertOne) UpdateReviewedAt() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateReviewedAt()
+	})
+}
+
+// ClearReviewedAt clears the value of the "reviewed_at" field.
+func (u *DeletionRequestUpsertOne) ClearReviewedAt() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearReviewedAt()
+	})
+}
+
+// SetAipID sets the "aip_id" field.
+func (u *DeletionRequestUpsertOne) SetAipID(v int) *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetAipID(v)
+	})
+}
+
+// UpdateAipID sets the "aip_id" field to the value that was provided on create.
+func (u *DeletionRequestUpsertOne) UpdateAipID() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateAipID()
+	})
+}
+
+// SetWorkflowID sets the "workflow_id" field.
+func (u *DeletionRequestUpsertOne) SetWorkflowID(v int) *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetWorkflowID(v)
+	})
+}
+
+// UpdateWorkflowID sets the "workflow_id" field to the value that was provided on create.
+func (u *DeletionRequestUpsertOne) UpdateWorkflowID() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateWorkflowID()
+	})
+}
+
+// ClearWorkflowID clears the value of the "workflow_id" field.
+func (u *DeletionRequestUpsertOne) ClearWorkflowID() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearWorkflowID()
+	})
+}
+
+// Exec executes the query.
+func (u *DeletionRequestUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("db: missing options for DeletionRequestCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *DeletionRequestUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *DeletionRequestUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *DeletionRequestUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // DeletionRequestCreateBulk is the builder for creating many DeletionRequest entities in bulk.
 type DeletionRequestCreateBulk struct {
 	config
 	err      error
 	builders []*DeletionRequestCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the DeletionRequest entities in the database.
@@ -398,6 +814,7 @@ func (drcb *DeletionRequestCreateBulk) Save(ctx context.Context) ([]*DeletionReq
 					_, err = mutators[i+1].Mutate(root, drcb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = drcb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, drcb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -448,6 +865,276 @@ func (drcb *DeletionRequestCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (drcb *DeletionRequestCreateBulk) ExecX(ctx context.Context) {
 	if err := drcb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.DeletionRequest.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.DeletionRequestUpsert) {
+//			SetUUID(v+v).
+//		}).
+//		Exec(ctx)
+func (drcb *DeletionRequestCreateBulk) OnConflict(opts ...sql.ConflictOption) *DeletionRequestUpsertBulk {
+	drcb.conflict = opts
+	return &DeletionRequestUpsertBulk{
+		create: drcb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.DeletionRequest.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (drcb *DeletionRequestCreateBulk) OnConflictColumns(columns ...string) *DeletionRequestUpsertBulk {
+	drcb.conflict = append(drcb.conflict, sql.ConflictColumns(columns...))
+	return &DeletionRequestUpsertBulk{
+		create: drcb,
+	}
+}
+
+// DeletionRequestUpsertBulk is the builder for "upsert"-ing
+// a bulk of DeletionRequest nodes.
+type DeletionRequestUpsertBulk struct {
+	create *DeletionRequestCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.DeletionRequest.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *DeletionRequestUpsertBulk) UpdateNewValues() *DeletionRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.Requester(); exists {
+				s.SetIgnore(deletionrequest.FieldRequester)
+			}
+			if _, exists := b.mutation.RequesterIss(); exists {
+				s.SetIgnore(deletionrequest.FieldRequesterIss)
+			}
+			if _, exists := b.mutation.RequesterSub(); exists {
+				s.SetIgnore(deletionrequest.FieldRequesterSub)
+			}
+			if _, exists := b.mutation.Reason(); exists {
+				s.SetIgnore(deletionrequest.FieldReason)
+			}
+			if _, exists := b.mutation.RequestedAt(); exists {
+				s.SetIgnore(deletionrequest.FieldRequestedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.DeletionRequest.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *DeletionRequestUpsertBulk) Ignore() *DeletionRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *DeletionRequestUpsertBulk) DoNothing() *DeletionRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the DeletionRequestCreateBulk.OnConflict
+// documentation for more info.
+func (u *DeletionRequestUpsertBulk) Update(set func(*DeletionRequestUpsert)) *DeletionRequestUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&DeletionRequestUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetUUID sets the "uuid" field.
+func (u *DeletionRequestUpsertBulk) SetUUID(v uuid.UUID) *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetUUID(v)
+	})
+}
+
+// UpdateUUID sets the "uuid" field to the value that was provided on create.
+func (u *DeletionRequestUpsertBulk) UpdateUUID() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateUUID()
+	})
+}
+
+// SetReviewer sets the "reviewer" field.
+func (u *DeletionRequestUpsertBulk) SetReviewer(v string) *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetReviewer(v)
+	})
+}
+
+// UpdateReviewer sets the "reviewer" field to the value that was provided on create.
+func (u *DeletionRequestUpsertBulk) UpdateReviewer() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateReviewer()
+	})
+}
+
+// ClearReviewer clears the value of the "reviewer" field.
+func (u *DeletionRequestUpsertBulk) ClearReviewer() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearReviewer()
+	})
+}
+
+// SetReviewerIss sets the "reviewer_iss" field.
+func (u *DeletionRequestUpsertBulk) SetReviewerIss(v string) *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetReviewerIss(v)
+	})
+}
+
+// UpdateReviewerIss sets the "reviewer_iss" field to the value that was provided on create.
+func (u *DeletionRequestUpsertBulk) UpdateReviewerIss() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateReviewerIss()
+	})
+}
+
+// ClearReviewerIss clears the value of the "reviewer_iss" field.
+func (u *DeletionRequestUpsertBulk) ClearReviewerIss() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearReviewerIss()
+	})
+}
+
+// SetReviewerSub sets the "reviewer_sub" field.
+func (u *DeletionRequestUpsertBulk) SetReviewerSub(v string) *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetReviewerSub(v)
+	})
+}
+
+// UpdateReviewerSub sets the "reviewer_sub" field to the value that was provided on create.
+func (u *DeletionRequestUpsertBulk) UpdateReviewerSub() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateReviewerSub()
+	})
+}
+
+// ClearReviewerSub clears the value of the "reviewer_sub" field.
+func (u *DeletionRequestUpsertBulk) ClearReviewerSub() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearReviewerSub()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *DeletionRequestUpsertBulk) SetStatus(v enums.DeletionRequestStatus) *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *DeletionRequestUpsertBulk) UpdateStatus() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetReviewedAt sets the "reviewed_at" field.
+func (u *DeletionRequestUpsertBulk) SetReviewedAt(v time.Time) *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetReviewedAt(v)
+	})
+}
+
+// UpdateReviewedAt sets the "reviewed_at" field to the value that was provided on create.
+func (u *DeletionRequestUpsertBulk) UpdateReviewedAt() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateReviewedAt()
+	})
+}
+
+// ClearReviewedAt clears the value of the "reviewed_at" field.
+func (u *DeletionRequestUpsertBulk) ClearReviewedAt() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearReviewedAt()
+	})
+}
+
+// SetAipID sets the "aip_id" field.
+func (u *DeletionRequestUpsertBulk) SetAipID(v int) *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetAipID(v)
+	})
+}
+
+// UpdateAipID sets the "aip_id" field to the value that was provided on create.
+func (u *DeletionRequestUpsertBulk) UpdateAipID() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateAipID()
+	})
+}
+
+// SetWorkflowID sets the "workflow_id" field.
+func (u *DeletionRequestUpsertBulk) SetWorkflowID(v int) *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetWorkflowID(v)
+	})
+}
+
+// UpdateWorkflowID sets the "workflow_id" field to the value that was provided on create.
+func (u *DeletionRequestUpsertBulk) UpdateWorkflowID() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateWorkflowID()
+	})
+}
+
+// ClearWorkflowID clears the value of the "workflow_id" field.
+func (u *DeletionRequestUpsertBulk) ClearWorkflowID() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearWorkflowID()
+	})
+}
+
+// Exec executes the query.
+func (u *DeletionRequestUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("db: OnConflict was set for builder %d. Set it on the DeletionRequestCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("db: missing options for DeletionRequestCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *DeletionRequestUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

@@ -2,8 +2,9 @@ package entclient
 
 import (
 	"context"
-	"errors"
+	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
@@ -97,24 +98,54 @@ func readOIDCUser(ctx context.Context, entc *db.Client, iss, sub string) (int, *
 	return dbu.ID, convertUser(dbu), nil
 }
 
-// findOrCreateUser finds or creates a user by OIDC issuer and subject.
+// findOrCreateOIDCUser finds or creates a user by OIDC issuer and subject.
+// If the user exists, it will only update the user email and name to the given values.
+// The user sent as the u parameter will be updated with the final database values.
 // It allows passing an Ent Client that binds to a running transaction.
-func findOrCreateUser(ctx context.Context, entc *db.Client, u *datatypes.User) (int, error) {
-	// Try to find the user by OIDC Iss and Sub.
-	uID, readUser, err := readOIDCUser(ctx, entc, u.OIDCIss, u.OIDCSub)
-	if err != nil {
-		if !errors.Is(err, persistence.ErrNotFound) {
-			return 0, err
-		}
-
-		// The user does not exist, so create a new one.
-		uID, err = createUser(ctx, entc, u)
-		if err != nil {
-			return 0, err
-		}
-	} else {
-		*u = *readUser
+func findOrCreateOIDCUser(ctx context.Context, entc *db.Client, u *datatypes.User) (int, error) {
+	// Required fields.
+	if u.UUID == uuid.Nil {
+		return 0, newRequiredFieldError("UUID")
 	}
+	if u.OIDCIss == "" {
+		return 0, newRequiredFieldError("OIDCIss")
+	}
+	if u.OIDCSub == "" {
+		return 0, newRequiredFieldError("OIDCSub")
+	}
+
+	// If CreatedAt is not set, use the current time.
+	if u.CreatedAt.IsZero() {
+		u.CreatedAt = time.Now()
+	}
+
+	// Create or update the user. There is no save method for
+	// upsert queries so we can't get the DB user directly.
+	uID, err := entc.User.Create().
+		SetUUID(u.UUID).
+		SetEmail(u.Email).
+		SetName(u.Name).
+		SetOidcIss(u.OIDCIss).
+		SetOidcSub(u.OIDCSub).
+		SetCreatedAt(u.CreatedAt).
+		OnConflict(sql.ConflictColumns(user.FieldOidcIss, user.FieldOidcSub)).
+		Update(func(upsert *db.UserUpsert) {
+			upsert.SetEmail(u.Email)
+			upsert.SetName(u.Name)
+		}).
+		ID(ctx)
+	if err != nil {
+		return 0, newDBErrorWithDetails(err, "findOrCreateOIDCUser")
+	}
+
+	// Read the user after the create/upsert operation to get the actual database values.
+	dbu, err := entc.User.Get(ctx, uID)
+	if err != nil {
+		return 0, newDBErrorWithDetails(err, "findOrCreateOIDCUser")
+	}
+
+	// Update the user with the actual database data.
+	*u = *convertUser(dbu)
 
 	return uID, nil
 }

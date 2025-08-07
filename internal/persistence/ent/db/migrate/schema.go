@@ -104,8 +104,8 @@ var (
 		{Name: "created_at", Type: field.TypeTime, Default: "CURRENT_TIMESTAMP"},
 		{Name: "email", Type: field.TypeString, Nullable: true, Size: 1024},
 		{Name: "name", Type: field.TypeString, Nullable: true, Size: 1024},
-		{Name: "oidc_iss", Type: field.TypeString, Nullable: true, Size: 1024},
-		{Name: "oidc_sub", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "oidc_iss", Type: field.TypeString, Nullable: true, Size: 255},
+		{Name: "oidc_sub", Type: field.TypeString, Nullable: true, Size: 255},
 	}
 	// UserTable holds the schema information for the "user" table.
 	UserTable = &schema.Table{
@@ -128,6 +128,11 @@ var (
 				Annotation: &entsql.IndexAnnotation{
 					Prefix: 50,
 				},
+			},
+			{
+				Name:    "user_oidc_iss_sub_unique_idx",
+				Unique:  true,
+				Columns: []*schema.Column{UserColumns[5], UserColumns[6]},
 			},
 		},
 	}

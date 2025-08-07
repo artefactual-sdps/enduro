@@ -44,12 +44,12 @@ func (User) Fields() []ent.Field {
 			Optional(),
 		field.String("oidc_iss").
 			Annotations(entsql.Annotation{
-				Size: 1024,
+				Size: 255,
 			}).
 			Optional(),
 		field.String("oidc_sub").
 			Annotations(entsql.Annotation{
-				Size: 1024,
+				Size: 255,
 			}).
 			Optional(),
 	}
@@ -70,5 +70,9 @@ func (User) Indexes() []ent.Index {
 		index.Fields("oidc_sub").
 			StorageKey("user_oidc_sub_idx").
 			Annotations(entsql.Prefix(50)),
+		// Add unique constraint on the combination.
+		index.Fields("oidc_iss", "oidc_sub").
+			StorageKey("user_oidc_iss_sub_unique_idx").
+			Unique(),
 	}
 }

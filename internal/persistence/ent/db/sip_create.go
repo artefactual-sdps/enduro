@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"time"
 
+	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -22,6 +23,7 @@ type SIPCreate struct {
 	config
 	mutation *SIPMutation
 	hooks    []Hook
+	conflict []sql.ConflictOption
 }
 
 // SetUUID sets the "uuid" field.
@@ -256,6 +258,7 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 		_node = &SIP{config: sc.config}
 		_spec = sqlgraph.NewCreateSpec(sip.Table, sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt))
 	)
+	_spec.OnConflict = sc.conflict
 	if value, ok := sc.mutation.UUID(); ok {
 		_spec.SetField(sip.FieldUUID, field.TypeUUID, value)
 		_node.UUID = value
@@ -328,11 +331,428 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 	return _node, _spec
 }
 
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.SIP.Create().
+//		SetUUID(v).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.SIPUpsert) {
+//			SetUUID(v+v).
+//		}).
+//		Exec(ctx)
+func (sc *SIPCreate) OnConflict(opts ...sql.ConflictOption) *SIPUpsertOne {
+	sc.conflict = opts
+	return &SIPUpsertOne{
+		create: sc,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.SIP.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (sc *SIPCreate) OnConflictColumns(columns ...string) *SIPUpsertOne {
+	sc.conflict = append(sc.conflict, sql.ConflictColumns(columns...))
+	return &SIPUpsertOne{
+		create: sc,
+	}
+}
+
+type (
+	// SIPUpsertOne is the builder for "upsert"-ing
+	//  one SIP node.
+	SIPUpsertOne struct {
+		create *SIPCreate
+	}
+
+	// SIPUpsert is the "OnConflict" setter.
+	SIPUpsert struct {
+		*sql.UpdateSet
+	}
+)
+
+// SetName sets the "name" field.
+func (u *SIPUpsert) SetName(v string) *SIPUpsert {
+	u.Set(sip.FieldName, v)
+	return u
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateName() *SIPUpsert {
+	u.SetExcluded(sip.FieldName)
+	return u
+}
+
+// SetAipID sets the "aip_id" field.
+func (u *SIPUpsert) SetAipID(v uuid.UUID) *SIPUpsert {
+	u.Set(sip.FieldAipID, v)
+	return u
+}
+
+// UpdateAipID sets the "aip_id" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateAipID() *SIPUpsert {
+	u.SetExcluded(sip.FieldAipID)
+	return u
+}
+
+// ClearAipID clears the value of the "aip_id" field.
+func (u *SIPUpsert) ClearAipID() *SIPUpsert {
+	u.SetNull(sip.FieldAipID)
+	return u
+}
+
+// SetStatus sets the "status" field.
+func (u *SIPUpsert) SetStatus(v enums.SIPStatus) *SIPUpsert {
+	u.Set(sip.FieldStatus, v)
+	return u
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateStatus() *SIPUpsert {
+	u.SetExcluded(sip.FieldStatus)
+	return u
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *SIPUpsert) SetStartedAt(v time.Time) *SIPUpsert {
+	u.Set(sip.FieldStartedAt, v)
+	return u
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateStartedAt() *SIPUpsert {
+	u.SetExcluded(sip.FieldStartedAt)
+	return u
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (u *SIPUpsert) ClearStartedAt() *SIPUpsert {
+	u.SetNull(sip.FieldStartedAt)
+	return u
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (u *SIPUpsert) SetCompletedAt(v time.Time) *SIPUpsert {
+	u.Set(sip.FieldCompletedAt, v)
+	return u
+}
+
+// UpdateCompletedAt sets the "completed_at" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateCompletedAt() *SIPUpsert {
+	u.SetExcluded(sip.FieldCompletedAt)
+	return u
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (u *SIPUpsert) ClearCompletedAt() *SIPUpsert {
+	u.SetNull(sip.FieldCompletedAt)
+	return u
+}
+
+// SetFailedAs sets the "failed_as" field.
+func (u *SIPUpsert) SetFailedAs(v enums.SIPFailedAs) *SIPUpsert {
+	u.Set(sip.FieldFailedAs, v)
+	return u
+}
+
+// UpdateFailedAs sets the "failed_as" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateFailedAs() *SIPUpsert {
+	u.SetExcluded(sip.FieldFailedAs)
+	return u
+}
+
+// ClearFailedAs clears the value of the "failed_as" field.
+func (u *SIPUpsert) ClearFailedAs() *SIPUpsert {
+	u.SetNull(sip.FieldFailedAs)
+	return u
+}
+
+// SetFailedKey sets the "failed_key" field.
+func (u *SIPUpsert) SetFailedKey(v string) *SIPUpsert {
+	u.Set(sip.FieldFailedKey, v)
+	return u
+}
+
+// UpdateFailedKey sets the "failed_key" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateFailedKey() *SIPUpsert {
+	u.SetExcluded(sip.FieldFailedKey)
+	return u
+}
+
+// ClearFailedKey clears the value of the "failed_key" field.
+func (u *SIPUpsert) ClearFailedKey() *SIPUpsert {
+	u.SetNull(sip.FieldFailedKey)
+	return u
+}
+
+// SetUploaderID sets the "uploader_id" field.
+func (u *SIPUpsert) SetUploaderID(v int) *SIPUpsert {
+	u.Set(sip.FieldUploaderID, v)
+	return u
+}
+
+// UpdateUploaderID sets the "uploader_id" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateUploaderID() *SIPUpsert {
+	u.SetExcluded(sip.FieldUploaderID)
+	return u
+}
+
+// ClearUploaderID clears the value of the "uploader_id" field.
+func (u *SIPUpsert) ClearUploaderID() *SIPUpsert {
+	u.SetNull(sip.FieldUploaderID)
+	return u
+}
+
+// UpdateNewValues updates the mutable fields using the new values that were set on create.
+// Using this option is equivalent to using:
+//
+//	client.SIP.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *SIPUpsertOne) UpdateNewValues() *SIPUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		if _, exists := u.create.mutation.UUID(); exists {
+			s.SetIgnore(sip.FieldUUID)
+		}
+		if _, exists := u.create.mutation.CreatedAt(); exists {
+			s.SetIgnore(sip.FieldCreatedAt)
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.SIP.Create().
+//	    OnConflict(sql.ResolveWithIgnore()).
+//	    Exec(ctx)
+func (u *SIPUpsertOne) Ignore() *SIPUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *SIPUpsertOne) DoNothing() *SIPUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the SIPCreate.OnConflict
+// documentation for more info.
+func (u *SIPUpsertOne) Update(set func(*SIPUpsert)) *SIPUpsertOne {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&SIPUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *SIPUpsertOne) SetName(v string) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateName() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetAipID sets the "aip_id" field.
+func (u *SIPUpsertOne) SetAipID(v uuid.UUID) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetAipID(v)
+	})
+}
+
+// UpdateAipID sets the "aip_id" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateAipID() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateAipID()
+	})
+}
+
+// ClearAipID clears the value of the "aip_id" field.
+func (u *SIPUpsertOne) ClearAipID() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearAipID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *SIPUpsertOne) SetStatus(v enums.SIPStatus) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateStatus() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *SIPUpsertOne) SetStartedAt(v time.Time) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetStartedAt(v)
+	})
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateStartedAt() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateStartedAt()
+	})
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (u *SIPUpsertOne) ClearStartedAt() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearStartedAt()
+	})
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (u *SIPUpsertOne) SetCompletedAt(v time.Time) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetCompletedAt(v)
+	})
+}
+
+// UpdateCompletedAt sets the "completed_at" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateCompletedAt() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateCompletedAt()
+	})
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (u *SIPUpsertOne) ClearCompletedAt() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearCompletedAt()
+	})
+}
+
+// SetFailedAs sets the "failed_as" field.
+func (u *SIPUpsertOne) SetFailedAs(v enums.SIPFailedAs) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetFailedAs(v)
+	})
+}
+
+// UpdateFailedAs sets the "failed_as" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateFailedAs() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateFailedAs()
+	})
+}
+
+// ClearFailedAs clears the value of the "failed_as" field.
+func (u *SIPUpsertOne) ClearFailedAs() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearFailedAs()
+	})
+}
+
+// SetFailedKey sets the "failed_key" field.
+func (u *SIPUpsertOne) SetFailedKey(v string) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetFailedKey(v)
+	})
+}
+
+// UpdateFailedKey sets the "failed_key" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateFailedKey() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateFailedKey()
+	})
+}
+
+// ClearFailedKey clears the value of the "failed_key" field.
+func (u *SIPUpsertOne) ClearFailedKey() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearFailedKey()
+	})
+}
+
+// SetUploaderID sets the "uploader_id" field.
+func (u *SIPUpsertOne) SetUploaderID(v int) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetUploaderID(v)
+	})
+}
+
+// UpdateUploaderID sets the "uploader_id" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateUploaderID() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateUploaderID()
+	})
+}
+
+// ClearUploaderID clears the value of the "uploader_id" field.
+func (u *SIPUpsertOne) ClearUploaderID() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearUploaderID()
+	})
+}
+
+// Exec executes the query.
+func (u *SIPUpsertOne) Exec(ctx context.Context) error {
+	if len(u.create.conflict) == 0 {
+		return errors.New("db: missing options for SIPCreate.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *SIPUpsertOne) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// Exec executes the UPSERT query and returns the inserted/updated ID.
+func (u *SIPUpsertOne) ID(ctx context.Context) (id int, err error) {
+	node, err := u.create.Save(ctx)
+	if err != nil {
+		return id, err
+	}
+	return node.ID, nil
+}
+
+// IDX is like ID, but panics if an error occurs.
+func (u *SIPUpsertOne) IDX(ctx context.Context) int {
+	id, err := u.ID(ctx)
+	if err != nil {
+		panic(err)
+	}
+	return id
+}
+
 // SIPCreateBulk is the builder for creating many SIP entities in bulk.
 type SIPCreateBulk struct {
 	config
 	err      error
 	builders []*SIPCreate
+	conflict []sql.ConflictOption
 }
 
 // Save creates the SIP entities in the database.
@@ -362,6 +782,7 @@ func (scb *SIPCreateBulk) Save(ctx context.Context) ([]*SIP, error) {
 					_, err = mutators[i+1].Mutate(root, scb.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
+					spec.OnConflict = scb.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
 					if err = sqlgraph.BatchCreate(ctx, scb.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
@@ -412,6 +833,274 @@ func (scb *SIPCreateBulk) Exec(ctx context.Context) error {
 // ExecX is like Exec, but panics if an error occurs.
 func (scb *SIPCreateBulk) ExecX(ctx context.Context) {
 	if err := scb.Exec(ctx); err != nil {
+		panic(err)
+	}
+}
+
+// OnConflict allows configuring the `ON CONFLICT` / `ON DUPLICATE KEY` clause
+// of the `INSERT` statement. For example:
+//
+//	client.SIP.CreateBulk(builders...).
+//		OnConflict(
+//			// Update the row with the new values
+//			// the was proposed for insertion.
+//			sql.ResolveWithNewValues(),
+//		).
+//		// Override some of the fields with custom
+//		// update values.
+//		Update(func(u *ent.SIPUpsert) {
+//			SetUUID(v+v).
+//		}).
+//		Exec(ctx)
+func (scb *SIPCreateBulk) OnConflict(opts ...sql.ConflictOption) *SIPUpsertBulk {
+	scb.conflict = opts
+	return &SIPUpsertBulk{
+		create: scb,
+	}
+}
+
+// OnConflictColumns calls `OnConflict` and configures the columns
+// as conflict target. Using this option is equivalent to using:
+//
+//	client.SIP.Create().
+//		OnConflict(sql.ConflictColumns(columns...)).
+//		Exec(ctx)
+func (scb *SIPCreateBulk) OnConflictColumns(columns ...string) *SIPUpsertBulk {
+	scb.conflict = append(scb.conflict, sql.ConflictColumns(columns...))
+	return &SIPUpsertBulk{
+		create: scb,
+	}
+}
+
+// SIPUpsertBulk is the builder for "upsert"-ing
+// a bulk of SIP nodes.
+type SIPUpsertBulk struct {
+	create *SIPCreateBulk
+}
+
+// UpdateNewValues updates the mutable fields using the new values that
+// were set on create. Using this option is equivalent to using:
+//
+//	client.SIP.Create().
+//		OnConflict(
+//			sql.ResolveWithNewValues(),
+//		).
+//		Exec(ctx)
+func (u *SIPUpsertBulk) UpdateNewValues() *SIPUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithNewValues())
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(s *sql.UpdateSet) {
+		for _, b := range u.create.builders {
+			if _, exists := b.mutation.UUID(); exists {
+				s.SetIgnore(sip.FieldUUID)
+			}
+			if _, exists := b.mutation.CreatedAt(); exists {
+				s.SetIgnore(sip.FieldCreatedAt)
+			}
+		}
+	}))
+	return u
+}
+
+// Ignore sets each column to itself in case of conflict.
+// Using this option is equivalent to using:
+//
+//	client.SIP.Create().
+//		OnConflict(sql.ResolveWithIgnore()).
+//		Exec(ctx)
+func (u *SIPUpsertBulk) Ignore() *SIPUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWithIgnore())
+	return u
+}
+
+// DoNothing configures the conflict_action to `DO NOTHING`.
+// Supported only by SQLite and PostgreSQL.
+func (u *SIPUpsertBulk) DoNothing() *SIPUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.DoNothing())
+	return u
+}
+
+// Update allows overriding fields `UPDATE` values. See the SIPCreateBulk.OnConflict
+// documentation for more info.
+func (u *SIPUpsertBulk) Update(set func(*SIPUpsert)) *SIPUpsertBulk {
+	u.create.conflict = append(u.create.conflict, sql.ResolveWith(func(update *sql.UpdateSet) {
+		set(&SIPUpsert{UpdateSet: update})
+	}))
+	return u
+}
+
+// SetName sets the "name" field.
+func (u *SIPUpsertBulk) SetName(v string) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetName(v)
+	})
+}
+
+// UpdateName sets the "name" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateName() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateName()
+	})
+}
+
+// SetAipID sets the "aip_id" field.
+func (u *SIPUpsertBulk) SetAipID(v uuid.UUID) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetAipID(v)
+	})
+}
+
+// UpdateAipID sets the "aip_id" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateAipID() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateAipID()
+	})
+}
+
+// ClearAipID clears the value of the "aip_id" field.
+func (u *SIPUpsertBulk) ClearAipID() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearAipID()
+	})
+}
+
+// SetStatus sets the "status" field.
+func (u *SIPUpsertBulk) SetStatus(v enums.SIPStatus) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetStatus(v)
+	})
+}
+
+// UpdateStatus sets the "status" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateStatus() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateStatus()
+	})
+}
+
+// SetStartedAt sets the "started_at" field.
+func (u *SIPUpsertBulk) SetStartedAt(v time.Time) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetStartedAt(v)
+	})
+}
+
+// UpdateStartedAt sets the "started_at" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateStartedAt() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateStartedAt()
+	})
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (u *SIPUpsertBulk) ClearStartedAt() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearStartedAt()
+	})
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (u *SIPUpsertBulk) SetCompletedAt(v time.Time) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetCompletedAt(v)
+	})
+}
+
+// UpdateCompletedAt sets the "completed_at" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateCompletedAt() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateCompletedAt()
+	})
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (u *SIPUpsertBulk) ClearCompletedAt() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearCompletedAt()
+	})
+}
+
+// SetFailedAs sets the "failed_as" field.
+func (u *SIPUpsertBulk) SetFailedAs(v enums.SIPFailedAs) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetFailedAs(v)
+	})
+}
+
+// UpdateFailedAs sets the "failed_as" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateFailedAs() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateFailedAs()
+	})
+}
+
+// ClearFailedAs clears the value of the "failed_as" field.
+func (u *SIPUpsertBulk) ClearFailedAs() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearFailedAs()
+	})
+}
+
+// SetFailedKey sets the "failed_key" field.
+func (u *SIPUpsertBulk) SetFailedKey(v string) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetFailedKey(v)
+	})
+}
+
+// UpdateFailedKey sets the "failed_key" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateFailedKey() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateFailedKey()
+	})
+}
+
+// ClearFailedKey clears the value of the "failed_key" field.
+func (u *SIPUpsertBulk) ClearFailedKey() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearFailedKey()
+	})
+}
+
+// SetUploaderID sets the "uploader_id" field.
+func (u *SIPUpsertBulk) SetUploaderID(v int) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetUploaderID(v)
+	})
+}
+
+// UpdateUploaderID sets the "uploader_id" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateUploaderID() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateUploaderID()
+	})
+}
+
+// ClearUploaderID clears the value of the "uploader_id" field.
+func (u *SIPUpsertBulk) ClearUploaderID() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearUploaderID()
+	})
+}
+
+// Exec executes the query.
+func (u *SIPUpsertBulk) Exec(ctx context.Context) error {
+	if u.create.err != nil {
+		return u.create.err
+	}
+	for i, b := range u.create.builders {
+		if len(b.conflict) != 0 {
+			return fmt.Errorf("db: OnConflict was set for builder %d. Set it on the SIPCreateBulk instead", i)
+		}
+	}
+	if len(u.create.conflict) == 0 {
+		return errors.New("db: missing options for SIPCreateBulk.OnConflict")
+	}
+	return u.create.Exec(ctx)
+}
+
+// ExecX is like Exec, but panics if an error occurs.
+func (u *SIPUpsertBulk) ExecX(ctx context.Context) {
+	if err := u.create.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
