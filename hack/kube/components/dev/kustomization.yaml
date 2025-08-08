@@ -10,5 +10,6 @@ resources:
   - temporal-ui-secret.yaml
   - prometheus.yaml
   - grafana-alloy.yaml
+  - grafana-loki.yaml
   - grafana-tempo.yaml
   - grafana.yaml
