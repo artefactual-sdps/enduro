@@ -8,6 +8,13 @@ requests.
 
 ## [Unreleased]
 
+## [0.17.0] - 2025-08-08
+
+### Added
+
+- Automatic updates for the storage domain in the dashboard ([#1222])
+- SIP ingest from a configurable S3/MinIO bucket source ([#1291])
+
 ## [0.16.0] - 2025-07-17
 
 ### Fixed
@@ -202,7 +209,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.16.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/artefactual-sdps/enduro/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/artefactual-sdps/enduro/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/artefactual-sdps/enduro/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/artefactual-sdps/enduro/compare/v0.13.0...v0.14.0
@@ -219,6 +227,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1291]: https://github.com/artefactual-sdps/enduro/issues/1291
 [#1276]: https://github.com/artefactual-sdps/enduro/issues/1276
 [#1265]: https://github.com/artefactual-sdps/enduro/issues/1265
 [#1262]: https://github.com/artefactual-sdps/enduro/issues/1262
@@ -226,6 +235,7 @@ Initial release.
 [#1238]: https://github.com/artefactual-sdps/enduro/issues/1238
 [#1237]: https://github.com/artefactual-sdps/enduro/issues/1237
 [#1231]: https://github.com/artefactual-sdps/enduro/issues/1231
+[#1222]: https://github.com/artefactual-sdps/enduro/issues/1222
 [#1221]: https://github.com/artefactual-sdps/enduro/issues/1221
 [#1218]: https://github.com/artefactual-sdps/enduro/issues/1218
 [#1210]: https://github.com/artefactual-sdps/enduro/issues/1210
