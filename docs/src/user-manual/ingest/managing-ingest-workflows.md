@@ -247,15 +247,16 @@ at installation time with no added child workflow activities configured.
 There are multiple ways that Enduro can be configured to receive SIPs - see
 [Submitting content for ingest] for more information.
 
-If a SIP is uploaded via the user interface, Enduro will use the
-[bucketdownload] Temporal activity to retrieve the SIP. If the SIP is added via
-a watched location or selected from a staging location, Enduro instead uses an
-internal download function to fetch the SIP for internal processing.
+If a SIP ingest is initiated via the user interface, either via
+[user interface upload] or selected from a [SIP source location], Enduro will
+use the [bucketdownload] Temporal activity to retrieve the SIP. Otherwise, if
+the SIP is ingested via [watched location], Enduro instead uses an internal
+download activity to fetch the SIP for internal processing.
 
-### Check for child workflow activities
+### Check for child workflow
 
-Immediately after initial receipt, Enduro next checks to see if any [child
-workflow] activities have been configured. This happens before even attempting
+Immediately after initial receipt, Enduro next checks to see if a preprocessing
+[child workflow] has been configured. This happens before even attempting
 to [determine the SIP type](#classify-sip-type) because Enduro's SIP types are
 very high-level and generic, and therefore not suitable for the level of
 validation that most organizations using Enduro would want. Instead, we
@@ -264,20 +265,22 @@ profiles that SIP-submitting producers can use, and then implement custom child
 workflow activities to validate SIPs based on these defined SIP profile
 criteria.
 
-If child workflow activities *are* registered, these will be run next in their
-configured order.
+If a preprocessing child workflow *is* registered, its activities will be run
+next in their configured order. Enduro is not aware of what activities are
+included in a child workflow - it merely waits for the child workflow outcome
+before proceeding.
 
 !!! important
 
     Currently, to ensure integrity through all transfers, Enduro requires that
     the [PIP](../glossary.md#processing-information-package-pip) passed to the
     [preservation engine](../glossary.md#preservation-engine) be a valid BagIt
-    bag. This means that if any child workflow activities are configured, then
+    bag. This means that if a preprocessing child workflow is configured, then
     Enduro will expect the [Classify SIP type](#classify-sip-type) activity to
     return "Bag" as the SIP type.
 
-    If you are adding custom child workflow activities to Enduro, please ensure
-    that the last activity run is to **bag your SIP** - the
+    If you are adding a custom ingest child workflow to Enduro, please **ensure
+    that the PIP is a valid Bag before it ends** - the
     [Temporal activities](https://github.com/artefactual-sdps/temporal-activities)
     repo has a `bagcreate` activity you can repurpose in your custom child
     activities workflow.
@@ -295,8 +298,8 @@ This is a high-level identification of the SIP type into 3 possible types:
 If the type is "Unknown," Enduro will fail the ingest workflow.
 
 If any child worklow activities are configured and the type is **not** "BagIt
-bag," Enduro will also fail the workflow (see
-[above](#check-for-child-workflow-activities) for an explanation why).
+bag," Enduro will also fail the workflow (see [above](#check-for-child-workflow)
+for an explanation why).
 
 If the type found *is* a bag, Enduro will then validate the bag against the
 [BagIt specification][bag], using the [bagvalidate] Temporal activity. If the
@@ -340,8 +343,8 @@ preservation processing and how operators can customize preservation workflows,
 consult the [Archivematica documentation].
 
 While this occurs, Enduro will regularly poll the preservation engine for
-updates, waiting for a "COMPLETE" status update to be returned. If the status
-returned is "ERROR", Enduro will update both the
+updates, waiting for a completed status update to be returned. If the status
+returned is an error, Enduro will update both the
 [SIP status](search-browse.md#sip-statuses) and the ingest
 [workflow status](#workflow-task-status-legend) to **ERROR** and then terminate
 the workflow.
@@ -360,7 +363,7 @@ the workflow.
 
 ### Record storage location
 
-Once Enduro receives a "COMPLETE" status update from the [preservation engine],
+Once Enduro receives a "completed" status update from the [preservation engine],
 the application will then register a storage location in Enduro's storage
 component.
 
@@ -373,10 +376,10 @@ AIP storage.
 ### Check for post-storage tasks
 
 Enduro's primary configuration file also includes an optional section to
-configure one or more [post-storage] child workflow activities. Example
-activities in this phase might include sending ingest or package metadata to an
-external system (such as an archival information system or similar), delivering
-email notifications, etc.
+configure one or more [post-storage] child workflows. Example activities in this
+phase might include sending ingest or package metadata to an external system
+(such as an archival information system or similar), delivering email
+notifications, etc.
 
 This step is bypassed if nothing has been configured. No post-storage workflow
 tasks are included in the default ingest workflow at installation time.
@@ -388,8 +391,8 @@ will update the SIP, AIP, and workflow statuses as the workflow finishes.
 
 Any copy of the [PIP] left in the preservation engine's transfer source location
 is deleted, and Enduro's own internal processing directories are also purged. If
-a retention period has been configured, Enduro will start a workflow to clean up
-the related object stores when the configured time period expires.
+a retention period has been configured, Enduro will start a workflow activity to
+clean up the related object stores when the configured time period expires.
 
 If the ingest workflow encountered a [content failure] or [system error], this
 is when a copy of the failed SIP or PIP is uploaded to the configured failed
@@ -415,9 +418,12 @@ the workflow.
 [preprocessing-base]: https://github.com/artefactual-sdps/preprocessing-base
 [preprocessing-sfa]: https://github.com/artefactual-sdps/preprocessing-sfa
 [preservation engine]: ../glossary.md#preservation-engine
+[SIP source location]: submitting-content.md#add-sips-via-a-source-location
 [Submitting content for ingest]: submitting-content.md
 [system error]: ../glossary.md#system-error
 [task]: ../glossary.md#task
 [temporal-activities]: https://github.com/artefactual-sdps/temporal-activities
+[user interface upload]: submitting-content.md#upload-sips-via-the-user-interface
+[watched location]: submitting-content.md#initiate-ingest-via-a-watched-location-upload
 [workflow]: ../glossary.md#workflow
 [xmlvalidate]: https://github.com/artefactual-sdps/temporal-activities/blob/main/xmlvalidate/README.md
