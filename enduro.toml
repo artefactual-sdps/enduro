@@ -277,3 +277,6 @@ workflowName = "preprocessing"
 # namespace = "default"
 # taskQueue = "poststorage"
 # workflowName = "poststorage"
+
+[auditlog]
+filePath = "/home/enduro/logs/enduro_audit.log"

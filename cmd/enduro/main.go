@@ -252,6 +252,7 @@ func main() {
 		if err != nil {
 			logger.Error(err, "Error opening audit log file.")
 		} else {
+			logger.V(1).Info("Starting audit log", "path", cfg.AuditLog.Filepath)
 			auditLogger = slog.New(slog.NewJSONHandler(f, &slog.HandlerOptions{
 				Level: slog.Level(cfg.AuditLog.Verbosity),
 			}))
