@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -244,6 +245,19 @@ func main() {
 	}
 	defer sipSource.Close()
 
+	// Set up the audit log, if one is configured.
+	var auditLogger *slog.Logger
+	if cfg.AuditLog.Filepath != "" {
+		f, err := os.OpenFile(cfg.AuditLog.Filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
+		if err != nil {
+			logger.Error(err, "Error opening audit log file.")
+		} else {
+			auditLogger = slog.New(slog.NewJSONHandler(f, &slog.HandlerOptions{
+				Level: slog.Level(cfg.AuditLog.Verbosity),
+			}))
+		}
+	}
+
 	// Set up the ingest service.
 	var ingestsvc ingest.Service
 	{
@@ -261,6 +275,7 @@ func main() {
 			rand.Reader,
 			sipSource,
 		)
+		ingestsvc.WithAuditLogger(ctx, auditLogger)
 	}
 
 	// Set up the storage persistence layer.

@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -57,6 +58,7 @@ type Service interface {
 		completedAt time.Time,
 		note *string,
 	) error
+	WithAuditLogger(ctx context.Context, logger *slog.Logger)
 }
 
 type ingestImpl struct {
@@ -72,6 +74,10 @@ type ingestImpl struct {
 	uploadMaxSize   int64
 	rander          io.Reader
 	sipSource       sipsource.SIPSource
+
+	// auditLogger configures an audit event logger. By default audit logging is
+	// disabled, use WithAuditLogger() to enable it.
+	auditLogger *slog.Logger
 }
 
 var _ Service = (*ingestImpl)(nil)

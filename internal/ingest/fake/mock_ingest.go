@@ -11,6 +11,7 @@ package fake
 
 import (
 	context "context"
+	slog "log/slog"
 	reflect "reflect"
 	time "time"
 
@@ -422,6 +423,42 @@ func (c *MockServiceUpdateSIPCall) Do(f func(context.Context, uuid.UUID, persist
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockServiceUpdateSIPCall) DoAndReturn(f func(context.Context, uuid.UUID, persistence.SIPUpdater) (*datatypes.SIP, error)) *MockServiceUpdateSIPCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// WithAuditLogger mocks base method.
+func (m *MockService) WithAuditLogger(arg0 context.Context, arg1 *slog.Logger) {
+	m.ctrl.T.Helper()
+	m.ctrl.Call(m, "WithAuditLogger", arg0, arg1)
+}
+
+// WithAuditLogger indicates an expected call of WithAuditLogger.
+func (mr *MockServiceMockRecorder) WithAuditLogger(arg0, arg1 any) *MockServiceWithAuditLoggerCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WithAuditLogger", reflect.TypeOf((*MockService)(nil).WithAuditLogger), arg0, arg1)
+	return &MockServiceWithAuditLoggerCall{Call: call}
+}
+
+// MockServiceWithAuditLoggerCall wrap *gomock.Call
+type MockServiceWithAuditLoggerCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceWithAuditLoggerCall) Return() *MockServiceWithAuditLoggerCall {
+	c.Call = c.Call.Return()
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceWithAuditLoggerCall) Do(f func(context.Context, *slog.Logger)) *MockServiceWithAuditLoggerCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceWithAuditLoggerCall) DoAndReturn(f func(context.Context, *slog.Logger)) *MockServiceWithAuditLoggerCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
