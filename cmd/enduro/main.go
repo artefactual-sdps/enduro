@@ -32,6 +32,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/about"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -245,18 +246,13 @@ func main() {
 	}
 	defer sipSource.Close()
 
-	// Set up the audit log, if one is configured.
+	// Start audit logging, if a log file is is configured.
 	var auditLogger *slog.Logger
 	if cfg.AuditLog.Filepath != "" {
-		f, err := os.OpenFile(cfg.AuditLog.Filepath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o600)
-		if err != nil {
-			logger.Error(err, "Error opening audit log file.")
-		} else {
-			logger.V(1).Info("Starting audit log", "path", cfg.AuditLog.Filepath)
-			auditLogger = slog.New(slog.NewJSONHandler(f, &slog.HandlerOptions{
-				Level: slog.Level(cfg.AuditLog.Verbosity),
-			}))
-		}
+		logger.V(1).Info("Starting audit log", "path", cfg.AuditLog.Filepath)
+		auditLogger = auditlog.NewFromConfig(cfg.AuditLog)
+	} else {
+		logger.V(2).Info("Audit logging is disabled")
 	}
 
 	// Set up the ingest service.

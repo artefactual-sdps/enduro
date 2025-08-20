@@ -279,4 +279,18 @@ workflowName = "preprocessing"
 # workflowName = "poststorage"
 
 [auditlog]
+# filePath is the absolute path where the audit log will be written. The enduro
+# user will need write access to the given directory. Rotated logs will use the 
+# same directory and filename, but with a timestamp appended. If filePath is not
+# set, or set to an empty string, audit logging will be disabled.
 filePath = "/home/enduro/logs/enduro_audit.log"
+# maxSize is the maximum size in megabytes of the audit log file before it gets 
+# rotated (default: 100 MB). 
+maxSize = 100
+# compress determines if the rotated log files are compressed using gzip
+# (default: false).
+compress = false
+# verbosity determines the minimum level threshold for a log message to be 
+# recorded (default: INFO). Current levels are: -4 = DEBUG, 0 = INFO, 4 = WARN, 
+# 8 = ERROR.
+verbosity = 0
