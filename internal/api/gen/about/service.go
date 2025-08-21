@@ -63,6 +63,28 @@ type AIPCreatedEvent struct {
 	Item *AIP
 }
 
+// AIPDeletionRequest describes a request to delete an AIP.
+type AIPDeletionRequest struct {
+	// Identifier of deletion request
+	UUID uuid.UUID
+	// Identifier of related AIP
+	AipUUID uuid.UUID
+	// Reason for deletion
+	Reason string
+	// Status of request
+	Status string
+	// Time request was made
+	RequestedAt string
+	// Time request was reviewed
+	ReviewedAt *string
+}
+
+type AIPDeletionRequestCreatedEvent struct {
+	// Identifier of deletion request
+	UUID uuid.UUID
+	Item *AIPDeletionRequest
+}
+
 type AIPLocationUpdatedEvent struct {
 	// Identifier of AIP
 	UUID uuid.UUID

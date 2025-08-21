@@ -27,6 +27,7 @@ func TestPublishEventTypes(t *testing.T) {
 	storage.PublishEvent(ctx, svc, &goastorage.AIPWorkflowUpdatedEvent{})
 	storage.PublishEvent(ctx, svc, &goastorage.AIPTaskCreatedEvent{})
 	storage.PublishEvent(ctx, svc, &goastorage.AIPTaskUpdatedEvent{})
+	storage.PublishEvent(ctx, svc, &goastorage.AIPDeletionRequestCreatedEvent{})
 }
 
 func TestEventSerializer(t *testing.T) {

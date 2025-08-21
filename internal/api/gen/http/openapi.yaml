@@ -4534,6 +4534,7 @@ definitions:
                             - "aip_workflow_updated_event"
                             - "aip_task_created_event"
                             - "aip_task_updated_event"
+                            - "aip_deletion_request_created_event"
                         example: location_created_event
                         enum:
                             - storage_ping_event
@@ -4545,6 +4546,7 @@ definitions:
                             - aip_workflow_updated_event
                             - aip_task_created_event
                             - aip_task_updated_event
+                            - aip_deletion_request_created_event
                     Value:
                         type: string
                         description: JSON encoded union value

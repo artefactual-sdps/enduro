@@ -98,6 +98,7 @@ type MonitorResponseBody struct {
 		// - "aip_workflow_updated_event"
 		// - "aip_task_created_event"
 		// - "aip_task_updated_event"
+		// - "aip_deletion_request_created_event"
 		Type string `form:"Type" json:"Type" xml:"Type"`
 		// JSON encoded union value
 		Value string `form:"Value" json:"Value" xml:"Value"`
@@ -768,6 +769,8 @@ func NewMonitorResponseBody(res *storage.StorageEvent) *MonitorResponseBody {
 			name = "aip_task_created_event"
 		case *storage.AIPTaskUpdatedEvent:
 			name = "aip_task_updated_event"
+		case *storage.AIPDeletionRequestCreatedEvent:
+			name = "aip_deletion_request_created_event"
 		}
 		body.StorageValue = &struct {
 			// Union type name, one of:
@@ -780,6 +783,7 @@ func NewMonitorResponseBody(res *storage.StorageEvent) *MonitorResponseBody {
 			// - "aip_workflow_updated_event"
 			// - "aip_task_created_event"
 			// - "aip_task_updated_event"
+			// - "aip_deletion_request_created_event"
 			Type string `form:"Type" json:"Type" xml:"Type"`
 			// JSON encoded union value
 			Value string `form:"Value" json:"Value" xml:"Value"`

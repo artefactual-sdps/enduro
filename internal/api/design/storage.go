@@ -729,3 +729,25 @@ var AIPTask = ResultType("application/vnd.enduro.storage.aip.task", func() {
 	})
 	Required("uuid", "name", "status", "workflow_uuid")
 })
+
+var EnumDeletionRequestStatus = func() {
+	Enum(enums.DeletionRequestStatusInterfaces()...)
+}
+
+var AIPDeletionRequest = ResultType("application/vnd.enduro.storage.aip.deletion_request", func() {
+	Description("AIPDeletionRequest describes a request to delete an AIP.")
+	TypeName("AIPDeletionRequest")
+	TypedAttributeUUID("uuid", "Identifier of deletion request")
+	TypedAttributeUUID("aip_uuid", "Identifier of related AIP")
+	Attribute("reason", String, "Reason for deletion")
+	Attribute("status", String, "Status of request", func() {
+		EnumDeletionRequestStatus()
+	})
+	Attribute("requested_at", String, "Time request was made", func() {
+		Format(FormatDateTime)
+	})
+	Attribute("reviewed_at", String, "Time request was reviewed", func() {
+		Format(FormatDateTime)
+	})
+	Required("uuid", "aip_uuid", "reason", "status", "requested_at")
+})
