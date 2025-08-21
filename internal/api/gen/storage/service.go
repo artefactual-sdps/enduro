@@ -123,6 +123,28 @@ type AIPCreatedEvent struct {
 	Item *AIP
 }
 
+// AIPDeletionRequest describes a request to delete an AIP.
+type AIPDeletionRequest struct {
+	// Identifier of deletion request
+	UUID uuid.UUID
+	// Identifier of related AIP
+	AipUUID uuid.UUID
+	// Reason for deletion
+	Reason string
+	// Status of request
+	Status string
+	// Time request was made
+	RequestedAt string
+	// Time request was reviewed
+	ReviewedAt *string
+}
+
+type AIPDeletionRequestCreatedEvent struct {
+	// Identifier of deletion request
+	UUID uuid.UUID
+	Item *AIPDeletionRequest
+}
+
 type AIPLocationUpdatedEvent struct {
 	// Identifier of AIP
 	UUID uuid.UUID
@@ -685,19 +707,20 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
-func (*AIPCreatedEvent) storageValueVal()         {}
-func (*AIPLocationUpdatedEvent) storageValueVal() {}
-func (*AIPStatusUpdatedEvent) storageValueVal()   {}
-func (*AIPTaskCreatedEvent) storageValueVal()     {}
-func (*AIPTaskUpdatedEvent) storageValueVal()     {}
-func (*AIPWorkflowCreatedEvent) storageValueVal() {}
-func (*AIPWorkflowUpdatedEvent) storageValueVal() {}
-func (*AMSSConfig) configVal()                    {}
-func (*LocationCreatedEvent) storageValueVal()    {}
-func (*S3Config) configVal()                      {}
-func (*SFTPConfig) configVal()                    {}
-func (*StoragePingEvent) storageValueVal()        {}
-func (*URLConfig) configVal()                     {}
+func (*AIPCreatedEvent) storageValueVal()                {}
+func (*AIPDeletionRequestCreatedEvent) storageValueVal() {}
+func (*AIPLocationUpdatedEvent) storageValueVal()        {}
+func (*AIPStatusUpdatedEvent) storageValueVal()          {}
+func (*AIPTaskCreatedEvent) storageValueVal()            {}
+func (*AIPTaskUpdatedEvent) storageValueVal()            {}
+func (*AIPWorkflowCreatedEvent) storageValueVal()        {}
+func (*AIPWorkflowUpdatedEvent) storageValueVal()        {}
+func (*AMSSConfig) configVal()                           {}
+func (*LocationCreatedEvent) storageValueVal()           {}
+func (*S3Config) configVal()                             {}
+func (*SFTPConfig) configVal()                           {}
+func (*StoragePingEvent) storageValueVal()               {}
+func (*URLConfig) configVal()                            {}
 
 // MakeInternalError builds a goa.ServiceError from an error.
 func MakeInternalError(err error) *goa.ServiceError {

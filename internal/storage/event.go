@@ -40,7 +40,8 @@ type Event interface {
 		*goastorage.AIPWorkflowCreatedEvent |
 		*goastorage.AIPWorkflowUpdatedEvent |
 		*goastorage.AIPTaskCreatedEvent |
-		*goastorage.AIPTaskUpdatedEvent
+		*goastorage.AIPTaskUpdatedEvent |
+		*goastorage.AIPDeletionRequestCreatedEvent
 }
 
 // PublishEvent publishes a storage event with type safety.

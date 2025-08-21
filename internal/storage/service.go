@@ -627,7 +627,16 @@ func (svc *serviceImpl) UpdateTask(
 }
 
 func (svc *serviceImpl) CreateDeletionRequest(ctx context.Context, dr *types.DeletionRequest) error {
-	return svc.storagePersistence.CreateDeletionRequest(ctx, dr)
+	if err := svc.storagePersistence.CreateDeletionRequest(ctx, dr); err != nil {
+		return err
+	}
+
+	PublishEvent(ctx, svc.evsvc, &goastorage.AIPDeletionRequestCreatedEvent{
+		UUID: dr.UUID,
+		Item: svc.deletionRequestToGoa(dr),
+	})
+
+	return nil
 }
 
 func (svc *serviceImpl) UpdateDeletionRequest(
