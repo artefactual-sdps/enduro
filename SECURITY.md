@@ -83,6 +83,6 @@ publicly.
 
 ## Reporting general bugs
 
-If you have discovered an issue in Archivematica that is **not related to a
+If you have discovered an issue in Enduro that is **not related to a
 security vulnerability**, we welcome you to file an issue in the
 [Enduro repository](https://github.com/artefactual-sdps/enduro).
