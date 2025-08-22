@@ -9,6 +9,7 @@ import (
 	"go.artefactual.dev/tools/ref"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
@@ -176,4 +177,23 @@ func sipSourceObjectsToGoa(objects []*sipsource.Object) goaingest.SIPSourceObjec
 	}
 
 	return r
+}
+
+func HandleAuditEvent(ev *goaingest.IngestEvent) *auditlog.Event {
+	switch e := ev.IngestValue.(type) {
+	case *goaingest.SIPCreatedEvent:
+		var userID string
+		if e.Item.UploaderUUID != nil {
+			userID = e.Item.UploaderUUID.String()
+		}
+		return &auditlog.Event{
+			Msg:      "SIP created",
+			Type:     "sip.created",
+			ObjectID: e.UUID.String(),
+			UserID:   userID,
+		}
+	default:
+		// Ignore unsupported event types.
+		return nil
+	}
 }

@@ -31,6 +31,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/about"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -162,6 +163,20 @@ func main() {
 	if err != nil {
 		logger.Error(err, "Error creating Ingest Event service.")
 		os.Exit(1)
+	}
+
+	// Set up the ingest audit logger, if one is configured.
+	if cfg.AuditLog.Filepath != "" {
+		al := auditlog.NewFromConfig(cfg.AuditLog, ingest.HandleAuditEvent)
+		err := al.Listen(ctx, ingestEventSvc)
+		if err != nil {
+			logger.Error(err, "Error starting ingest audit logger.")
+			os.Exit(1)
+		}
+		defer al.Close()
+		logger.V(1).Info("Starting audit logger", "path", cfg.AuditLog.Filepath)
+	} else {
+		logger.V(2).Info("Audit logging is disabled.")
 	}
 
 	// Set up the storage event service.
