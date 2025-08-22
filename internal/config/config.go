@@ -18,6 +18,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/api"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -58,6 +59,7 @@ type Configuration struct {
 
 	A3m             a3m.Config
 	AM              am.Config
+	AuditLog        auditlog.Config
 	InternalAPI     api.Config
 	API             api.Config
 	BagIt           bagcreate.Config
