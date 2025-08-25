@@ -116,8 +116,12 @@ type AIPDeletionRequest struct {
 	Reason string
 	// Status of request
 	Status string
+	// User who made the request
+	Requester string
 	// Time request was made
 	RequestedAt string
+	// User who reviewed the request
+	Reviewer *string
 	// Time request was reviewed
 	ReviewedAt *string
 }
