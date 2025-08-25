@@ -25,6 +25,8 @@ const handlers: {
     handleAipWorkflowUpdated,
   [StorageEventStorageValueTypeEnum.AipTaskCreatedEvent]: handleAipTaskCreated,
   [StorageEventStorageValueTypeEnum.AipTaskUpdatedEvent]: handleAipTaskUpdated,
+  [StorageEventStorageValueTypeEnum.AipDeletionRequestCreatedEvent]:
+    handleAipDeletionRequestCreated,
 };
 
 function handleLocationCreated() {
@@ -107,4 +109,9 @@ function handleAipTaskUpdated(data: unknown) {
   const task = aipStore.getTaskById(event.item.workflowUuid, event.uuid);
   if (!task) return;
   Object.assign(task, event.item);
+}
+
+function handleAipDeletionRequestCreated() {
+  // We aren't directly showing deletion requests in the UI, so there's nothing
+  // to update yet.
 }

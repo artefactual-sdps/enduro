@@ -61,17 +61,22 @@ func (svc *serviceImpl) taskToGoa(t *types.Task) *goastorage.AIPTask {
 }
 
 func (svc *serviceImpl) deletionRequestToGoa(dr *types.DeletionRequest) *goastorage.AIPDeletionRequest {
-	var reviewedAt *string
-	if !dr.ReviewedAt.IsZero() {
-		reviewedAt = ref.New(dr.ReviewedAt.Format(time.RFC3339))
-	}
-
-	return &goastorage.AIPDeletionRequest{
+	r := &goastorage.AIPDeletionRequest{
 		UUID:        dr.UUID,
 		AipUUID:     dr.AIPUUID,
 		Reason:      dr.Reason,
 		Status:      dr.Status.String(),
+		Requester:   dr.Requester,
 		RequestedAt: dr.RequestedAt.Format(time.RFC3339),
-		ReviewedAt:  reviewedAt,
 	}
+
+	// Add optional fields.
+	if dr.Reviewer != "" {
+		r.Reviewer = &dr.Reviewer
+	}
+	if !dr.ReviewedAt.IsZero() {
+		r.ReviewedAt = ref.New(dr.ReviewedAt.Format(time.RFC3339))
+	}
+
+	return r
 }

@@ -1,6 +1,7 @@
 /* tslint:disable */
 /* eslint-disable */
 export * from './AIPCreatedEvent';
+export * from './AIPDeletionRequestCreatedEvent';
 export * from './AIPLocationUpdatedEvent';
 export * from './AIPResponse';
 export * from './AIPStatusUpdatedEvent';
@@ -27,6 +28,7 @@ export * from './EnduroPage';
 export * from './EnduroPoststorage';
 export * from './EnduroPreprocessing';
 export * from './EnduroStorageAip';
+export * from './EnduroStorageAipDeletionRequest';
 export * from './EnduroStorageAipTask';
 export * from './EnduroStorageAipWorkflow';
 export * from './EnduroStorageLocation';
