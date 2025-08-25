@@ -182,15 +182,15 @@ func sipSourceObjectsToGoa(objects []*sipsource.Object) goaingest.SIPSourceObjec
 func HandleAuditEvent(ev *goaingest.IngestEvent) *auditlog.Event {
 	switch e := ev.IngestValue.(type) {
 	case *goaingest.SIPCreatedEvent:
-		var userID string
-		if e.Item.UploaderUUID != nil {
-			userID = e.Item.UploaderUUID.String()
+		var user string
+		if e.Item.UploaderEmail != nil {
+			user = *e.Item.UploaderEmail
 		}
 		return &auditlog.Event{
 			Msg:      "SIP created",
 			Type:     "sip.created",
 			ObjectID: e.UUID.String(),
-			UserID:   userID,
+			User:     user,
 		}
 	default:
 		// Ignore unsupported event types.

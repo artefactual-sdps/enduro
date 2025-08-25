@@ -38,7 +38,7 @@ func TestHandleAuditEvent(t *testing.T) {
 				Msg:      "SIP created",
 				Type:     "sip.created",
 				ObjectID: "6592dbe2-a2db-4cfb-a73b-0e620da1053f",
-				UserID:   userID.String(),
+				User:     userID.String(),
 			},
 		},
 		{
@@ -54,7 +54,7 @@ func TestHandleAuditEvent(t *testing.T) {
 				Msg:      "SIP created",
 				Type:     "sip.created",
 				ObjectID: "6592dbe2-a2db-4cfb-a73b-0e620da1053f",
-				UserID:   "",
+				User:     "",
 			},
 		},
 		{

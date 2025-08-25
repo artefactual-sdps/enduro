@@ -6,8 +6,24 @@ import (
 	"go.artefactual.dev/tools/ref"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
+
+func HandleAuditEvent(ev *goastorage.StorageEvent) *auditlog.Event {
+	switch e := ev.StorageValue.(type) {
+	case *goastorage.AIPDeletionRequestCreatedEvent:
+		return &auditlog.Event{
+			Msg:      "AIP deletion request created",
+			Type:     "AIP.deletion.request",
+			ObjectID: e.UUID.String(),
+			User:     e.Item.Requester,
+		}
+	default:
+		// Ignore unsupported event types.
+		return nil
+	}
+}
 
 // workflowToGoa converts a storage Workflow to a Goa AIPWorkflow.
 func (svc *serviceImpl) workflowToGoa(w *types.Workflow) *goastorage.AIPWorkflow {

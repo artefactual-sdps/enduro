@@ -13,7 +13,7 @@ func TestEvent(t *testing.T) {
 		Msg:      "SIP created",
 		Type:     "sip.created",
 		ObjectID: "sip-123",
-		UserID:   "user-456",
+		User:     "user-456",
 	}
 
 	got := ev.Args()

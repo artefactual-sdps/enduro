@@ -3,6 +3,7 @@ package storage
 import (
 	"github.com/google/uuid"
 
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
@@ -13,6 +14,7 @@ type Config struct {
 	Internal                   LocationConfig
 	Database                   Database
 	Event                      event.Config
+	AuditLog                   auditlog.Config
 }
 
 type Database struct {

@@ -78,7 +78,7 @@ func TestAuditLog(t *testing.T) {
 				Msg:      "SIP created",
 				Type:     "sip.created",
 				ObjectID: "sip-123",
-				UserID:   "user-456",
+				User:     "user-456",
 			})
 
 			// Wait 10ms for the event to publish, then close the writer end of

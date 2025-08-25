@@ -7,13 +7,13 @@ type Event struct {
 	Msg      string
 	Type     string
 	ObjectID string
-	UserID   string
+	User     string
 }
 
 func (e Event) Args() []any {
 	return []any{
 		"type", e.Type,
 		"objectID", e.ObjectID,
-		"userID", e.UserID,
+		"user", e.User,
 	}
 }

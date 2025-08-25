@@ -174,9 +174,9 @@ func main() {
 			os.Exit(1)
 		}
 		defer al.Close()
-		logger.V(1).Info("Starting audit logger", "path", cfg.AuditLog.Filepath)
+		logger.V(1).Info("Starting ingest audit logger", "path", cfg.AuditLog.Filepath)
 	} else {
-		logger.V(2).Info("Audit logging is disabled.")
+		logger.V(2).Info("Ingest audit logging is disabled.")
 	}
 
 	// Set up the storage event service.
@@ -190,6 +190,20 @@ func main() {
 	if err != nil {
 		logger.Error(err, "Error creating Storage Event service.")
 		os.Exit(1)
+	}
+
+	// Set up the storage audit logger, if one is configured.
+	if cfg.Storage.AuditLog.Filepath != "" {
+		al := auditlog.NewFromConfig(cfg.Storage.AuditLog, storage.HandleAuditEvent)
+		err := al.Listen(ctx, storageEventSvc)
+		if err != nil {
+			logger.Error(err, "Error starting storage audit logger.")
+			os.Exit(1)
+		}
+		defer al.Close()
+		logger.V(1).Info("Starting storage audit logger", "path", cfg.Storage.AuditLog.Filepath)
+	} else {
+		logger.V(2).Info("Storage audit logging is disabled.")
 	}
 
 	// Set up the OIDC token verifier.
