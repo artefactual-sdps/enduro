@@ -3,9 +3,6 @@
 ARG TARGET=enduro
 ARG GO_VERSION
 
-FROM alpine:3.20 AS build-libxml
-RUN apk add --no-cache libxml2-utils
-
 FROM golang:${GO_VERSION}-alpine AS build-go
 WORKDIR /src
 ENV CGO_ENABLED=0
@@ -52,32 +49,26 @@ RUN --mount=type=cache,target=/go/pkg/mod \
 	-o /out/enduro-am-worker \
 	./cmd/enduro-am-worker
 
-FROM gcr.io/distroless/base-debian12:latest AS base
-USER 1000
+FROM debian:13-slim AS base
+RUN apt-get update && apt-get install -y --no-install-recommends libxml2-utils
+RUN groupadd --gid 1000 enduro \
+	&& useradd --uid 1000 --gid 1000 -m enduro
+USER enduro
 
 FROM base AS enduro
 COPY --link --from=build-enduro /out/enduro /home/enduro/bin/enduro
 COPY --link --from=build-enduro /src/enduro.toml /home/enduro/.config/enduro.toml
 COPY --link hack/xsd/premis.xsd /home/enduro/premis.xsd
+RUN ["mkdir", "-m", "700", "-p", "/home/enduro/logs"]
 CMD ["/home/enduro/bin/enduro", "--config", "/home/enduro/.config/enduro.toml"]
 
 FROM base AS enduro-a3m-worker
-COPY --link --from=build-libxml /usr/bin/xmllint /usr/bin/xmllint
-COPY --link --from=build-libxml /usr/lib/libxml2.so.2 /usr/lib/libxml2.so.2
-COPY --link --from=build-libxml /lib/ld-musl-*.so.1 /lib/
-COPY --link --from=build-libxml /lib/libz.so.1 /lib/libz.so.1
-COPY --link --from=build-libxml /usr/lib/liblzma.so.5 /usr/lib/liblzma.so.5
 COPY --link --from=build-enduro-a3m-worker /out/enduro-a3m-worker /home/enduro/bin/enduro-a3m-worker
 COPY --link --from=build-enduro-a3m-worker /src/enduro.toml /home/enduro/.config/enduro.toml
 COPY --link hack/xsd/premis.xsd /home/enduro/premis.xsd
 CMD ["/home/enduro/bin/enduro-a3m-worker", "--config", "/home/enduro/.config/enduro.toml"]
 
 FROM base AS enduro-am-worker
-COPY --link --from=build-libxml /usr/bin/xmllint /usr/bin/xmllint
-COPY --link --from=build-libxml /usr/lib/libxml2.so.2 /usr/lib/libxml2.so.2
-COPY --link --from=build-libxml /lib/ld-musl-*.so.1 /lib/
-COPY --link --from=build-libxml /lib/libz.so.1 /lib/libz.so.1
-COPY --link --from=build-libxml /usr/lib/liblzma.so.5 /usr/lib/liblzma.so.5
 COPY --link --from=build-enduro-am-worker /out/enduro-am-worker /home/enduro/bin/enduro-am-worker
 COPY --link --from=build-enduro-am-worker /src/enduro.toml /home/enduro/.config/enduro.toml
 COPY --link hack/xsd/premis.xsd /home/enduro/premis.xsd
