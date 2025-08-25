@@ -5,6 +5,7 @@ apis/StorageApi.ts
 apis/index.ts
 index.ts
 models/AIPCreatedEvent.ts
+models/AIPDeletionRequestCreatedEvent.ts
 models/AIPLocationUpdatedEvent.ts
 models/AIPResponse.ts
 models/AIPStatusUpdatedEvent.ts
@@ -31,6 +32,7 @@ models/EnduroPage.ts
 models/EnduroPoststorage.ts
 models/EnduroPreprocessing.ts
 models/EnduroStorageAip.ts
+models/EnduroStorageAipDeletionRequest.ts
 models/EnduroStorageAipTask.ts
 models/EnduroStorageAipWorkflow.ts
 models/EnduroStorageLocation.ts

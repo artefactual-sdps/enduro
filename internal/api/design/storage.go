@@ -743,11 +743,13 @@ var AIPDeletionRequest = ResultType("application/vnd.enduro.storage.aip.deletion
 	Attribute("status", String, "Status of request", func() {
 		EnumDeletionRequestStatus()
 	})
+	Attribute("requester", String, "User who made the request")
 	Attribute("requested_at", String, "Time request was made", func() {
 		Format(FormatDateTime)
 	})
+	Attribute("reviewer", String, "User who reviewed the request")
 	Attribute("reviewed_at", String, "Time request was reviewed", func() {
 		Format(FormatDateTime)
 	})
-	Required("uuid", "aip_uuid", "reason", "status", "requested_at")
+	Required("uuid", "aip_uuid", "reason", "status", "requester", "requested_at")
 })

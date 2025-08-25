@@ -30,6 +30,7 @@ export interface StorageEventStorageValue {
      * - "aip_workflow_updated_event"
      * - "aip_task_created_event"
      * - "aip_task_updated_event"
+     * - "aip_deletion_request_created_event"
      * @type {string}
      * @memberof StorageEventStorageValue
      */
@@ -55,7 +56,8 @@ export const StorageEventStorageValueTypeEnum = {
     AipWorkflowCreatedEvent: 'aip_workflow_created_event',
     AipWorkflowUpdatedEvent: 'aip_workflow_updated_event',
     AipTaskCreatedEvent: 'aip_task_created_event',
-    AipTaskUpdatedEvent: 'aip_task_updated_event'
+    AipTaskUpdatedEvent: 'aip_task_updated_event',
+    AipDeletionRequestCreatedEvent: 'aip_deletion_request_created_event'
 } as const;
 export type StorageEventStorageValueTypeEnum = typeof StorageEventStorageValueTypeEnum[keyof typeof StorageEventStorageValueTypeEnum];
 
