@@ -27,7 +27,7 @@ export const useSipStore = defineStore("sip", {
       status: "" as IngestListSipsStatusEnum | undefined,
       earliestCreatedTime: undefined as Date | undefined,
       latestCreatedTime: undefined as Date | undefined,
-      uploaderId: "" as string,
+      uploaderId: undefined as string | undefined,
     },
     downloadError: null as string | null,
   }),

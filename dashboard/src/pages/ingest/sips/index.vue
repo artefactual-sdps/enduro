@@ -280,6 +280,8 @@ const { execute, error } = useAsyncState(() => {
 
   if (route.query.uploaderId) {
     sipStore.filters.uploaderId = <string>route.query.uploaderId;
+  } else {
+    delete sipStore.filters.uploaderId;
   }
 
   return sipStore.fetchSips(
