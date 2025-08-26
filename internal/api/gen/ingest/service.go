@@ -132,6 +132,12 @@ type AIPDeletionRequestCreatedEvent struct {
 	Item *AIPDeletionRequest
 }
 
+type AIPDeletionRequestUpdatedEvent struct {
+	// Identifier of deletion request
+	UUID uuid.UUID
+	Item *AIPDeletionRequest
+}
+
 type AIPLocationUpdatedEvent struct {
 	// Identifier of AIP
 	UUID uuid.UUID

@@ -644,7 +644,17 @@ func (svc *serviceImpl) UpdateDeletionRequest(
 	id int,
 	upd persistence.DeletionRequestUpdater,
 ) (*types.DeletionRequest, error) {
-	return svc.storagePersistence.UpdateDeletionRequest(ctx, id, upd)
+	dr, err := svc.storagePersistence.UpdateDeletionRequest(ctx, id, upd)
+	if err != nil {
+		return nil, err
+	}
+
+	PublishEvent(ctx, svc.evsvc, &goastorage.AIPDeletionRequestUpdatedEvent{
+		UUID: dr.UUID,
+		Item: svc.deletionRequestToGoa(dr),
+	})
+
+	return dr, nil
 }
 
 func (svc *serviceImpl) ReadAipPendingDeletionRequest(

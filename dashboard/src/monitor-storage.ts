@@ -27,6 +27,8 @@ const handlers: {
   [StorageEventStorageValueTypeEnum.AipTaskUpdatedEvent]: handleAipTaskUpdated,
   [StorageEventStorageValueTypeEnum.AipDeletionRequestCreatedEvent]:
     handleAipDeletionRequestCreated,
+  [StorageEventStorageValueTypeEnum.AipDeletionRequestUpdatedEvent]:
+    handleAipDeletionRequestUpdated,
 };
 
 function handleLocationCreated() {
@@ -112,6 +114,11 @@ function handleAipTaskUpdated(data: unknown) {
 }
 
 function handleAipDeletionRequestCreated() {
+  // We aren't directly showing deletion requests in the UI, so there's nothing
+  // to update yet.
+}
+
+function handleAipDeletionRequestUpdated() {
   // We aren't directly showing deletion requests in the UI, so there's nothing
   // to update yet.
 }

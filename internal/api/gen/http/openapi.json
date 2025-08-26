@@ -3579,7 +3579,7 @@
           },
           "properties": {
             "Type": {
-              "description": "Union type name, one of:\n- \"storage_ping_event\"\n- \"location_created_event\"\n- \"aip_created_event\"\n- \"aip_status_updated_event\"\n- \"aip_location_updated_event\"\n- \"aip_workflow_created_event\"\n- \"aip_workflow_updated_event\"\n- \"aip_task_created_event\"\n- \"aip_task_updated_event\"\n- \"aip_deletion_request_created_event\"",
+              "description": "Union type name, one of:\n- \"storage_ping_event\"\n- \"location_created_event\"\n- \"aip_created_event\"\n- \"aip_status_updated_event\"\n- \"aip_location_updated_event\"\n- \"aip_workflow_created_event\"\n- \"aip_workflow_updated_event\"\n- \"aip_task_created_event\"\n- \"aip_task_updated_event\"\n- \"aip_deletion_request_created_event\"\n- \"aip_deletion_request_updated_event\"",
               "enum": [
                 "storage_ping_event",
                 "location_created_event",
@@ -3590,7 +3590,8 @@
                 "aip_workflow_updated_event",
                 "aip_task_created_event",
                 "aip_task_updated_event",
-                "aip_deletion_request_created_event"
+                "aip_deletion_request_created_event",
+                "aip_deletion_request_updated_event"
               ],
               "example": "location_created_event",
               "type": "string"

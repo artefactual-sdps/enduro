@@ -6,6 +6,7 @@ apis/index.ts
 index.ts
 models/AIPCreatedEvent.ts
 models/AIPDeletionRequestCreatedEvent.ts
+models/AIPDeletionRequestUpdatedEvent.ts
 models/AIPLocationUpdatedEvent.ts
 models/AIPResponse.ts
 models/AIPStatusUpdatedEvent.ts
