@@ -75,6 +75,36 @@
         ],
         "type": "object"
       },
+      "AIPDeletionRequestUpdatedEvent": {
+        "example": {
+          "item": {
+            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "reason": "abc123",
+            "requested_at": "1970-01-01T00:00:01Z",
+            "requester": "abc123",
+            "reviewed_at": "1970-01-01T00:00:01Z",
+            "reviewer": "abc123",
+            "status": "approved",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/EnduroStorageAipDeletionRequest"
+          },
+          "uuid": {
+            "description": "Identifier of deletion request",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "item"
+        ],
+        "type": "object"
+      },
       "AIPLocationUpdatedEvent": {
         "example": {
           "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
@@ -2301,7 +2331,7 @@
             },
             "properties": {
               "Type": {
-                "description": "Union type name, one of:\n- \"storage_ping_event\"\n- \"location_created_event\"\n- \"aip_created_event\"\n- \"aip_status_updated_event\"\n- \"aip_location_updated_event\"\n- \"aip_workflow_created_event\"\n- \"aip_workflow_updated_event\"\n- \"aip_task_created_event\"\n- \"aip_task_updated_event\"\n- \"aip_deletion_request_created_event\"",
+                "description": "Union type name, one of:\n- \"storage_ping_event\"\n- \"location_created_event\"\n- \"aip_created_event\"\n- \"aip_status_updated_event\"\n- \"aip_location_updated_event\"\n- \"aip_workflow_created_event\"\n- \"aip_workflow_updated_event\"\n- \"aip_task_created_event\"\n- \"aip_task_updated_event\"\n- \"aip_deletion_request_created_event\"\n- \"aip_deletion_request_updated_event\"",
                 "enum": [
                   "storage_ping_event",
                   "location_created_event",
@@ -2312,7 +2342,8 @@
                   "aip_workflow_updated_event",
                   "aip_task_created_event",
                   "aip_task_updated_event",
-                  "aip_deletion_request_created_event"
+                  "aip_deletion_request_created_event",
+                  "aip_deletion_request_updated_event"
                 ],
                 "example": "location_created_event",
                 "type": "string"

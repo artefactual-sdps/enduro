@@ -2,6 +2,7 @@
 /* eslint-disable */
 export * from './AIPCreatedEvent';
 export * from './AIPDeletionRequestCreatedEvent';
+export * from './AIPDeletionRequestUpdatedEvent';
 export * from './AIPLocationUpdatedEvent';
 export * from './AIPResponse';
 export * from './AIPStatusUpdatedEvent';
