@@ -718,20 +718,11 @@ func TestListSIPSourceObjects(t *testing.T) {
 				tt.mockRecorder(src.EXPECT())
 			}
 
-			svc := NewService(
-				logr.Discard(),
-				nil,               // SQL DB
-				nil,               // Temporal client
-				nil,               // Event service
-				nil,               // Persistence service
-				nil,               // Token verifier
-				nil,               // Ticket provider
-				"test-task-queue", // Task queue
-				nil,               // Internal storage bucket
-				1000000,           // Upload max size
-				nil,               // Mocked random reader
-				src,               // Mocked SIP source
-			)
+			svc := NewService(ServiceParams{
+				Logger:        logr.Discard(),
+				UploadMaxSize: 1000000,
+				SIPSource:     src,
+			})
 
 			got, err := svc.Goa().ListSipSourceObjects(t.Context(), tt.payload)
 			if tt.wantErr != "" {

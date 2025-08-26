@@ -153,20 +153,12 @@ func TestDownloadSipRequest(t *testing.T) {
 
 			rander := rand.New(rand.NewSource(1)) // #nosec
 			ticketProvider := auth.NewTicketProvider(ctx, ticketStoreMock, rander)
-			svc := ingest.NewService(
-				logr.Discard(),
-				nil,
-				nil,
-				nil,
-				psvcMock,
-				nil,
-				ticketProvider,
-				"",
-				bucket,
-				0,
-				nil,
-				nil,
-			)
+			svc := ingest.NewService(ingest.ServiceParams{
+				Logger:             logr.Discard(),
+				PersistenceService: psvcMock,
+				TicketProvider:     ticketProvider,
+				InternalStorage:    bucket,
+			})
 
 			res, err := svc.Goa().DownloadSipRequest(ctx, tt.payload)
 			if tt.wantErr != "" {
@@ -304,20 +296,12 @@ func TestDownloadSip(t *testing.T) {
 			}
 
 			ticketProvider := auth.NewTicketProvider(ctx, ticketStoreMock, nil)
-			svc := ingest.NewService(
-				logr.Discard(),
-				nil,
-				nil,
-				nil,
-				psvcMock,
-				nil,
-				ticketProvider,
-				"",
-				bucket,
-				0,
-				nil,
-				nil,
-			)
+			svc := ingest.NewService(ingest.ServiceParams{
+				Logger:             logr.Discard(),
+				PersistenceService: psvcMock,
+				TicketProvider:     ticketProvider,
+				InternalStorage:    bucket,
+			})
 
 			res, body, err := svc.Goa().DownloadSip(ctx, tt.payload)
 			if tt.wantErr != "" {

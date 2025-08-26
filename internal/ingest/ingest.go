@@ -76,33 +76,35 @@ type ingestImpl struct {
 
 var _ Service = (*ingestImpl)(nil)
 
-func NewService(
-	logger logr.Logger,
-	db *sql.DB,
-	tc temporalsdk_client.Client,
-	evsvc event.Service[*goaingest.IngestEvent],
-	psvc persistence.Service,
-	tokenVerifier auth.TokenVerifier,
-	ticketProvider auth.TicketProvider,
-	taskQueue string,
-	internalBucket *blob.Bucket,
-	uploadMaxSize int64,
-	rander io.Reader,
-	sipSource sipsource.SIPSource,
-) *ingestImpl {
+type ServiceParams struct {
+	Logger             logr.Logger
+	DB                 *sql.DB
+	TemporalClient     temporalsdk_client.Client
+	EventService       event.Service[*goaingest.IngestEvent]
+	PersistenceService persistence.Service
+	TokenVerifier      auth.TokenVerifier
+	TicketProvider     auth.TicketProvider
+	TaskQueue          string
+	InternalStorage    *blob.Bucket
+	UploadMaxSize      int64
+	Rander             io.Reader
+	SIPSource          sipsource.SIPSource
+}
+
+func NewService(params ServiceParams) *ingestImpl {
 	return &ingestImpl{
-		logger:          logger,
-		db:              sqlx.NewDb(db, "mysql"),
-		tc:              tc,
-		evsvc:           evsvc,
-		perSvc:          psvc,
-		tokenVerifier:   tokenVerifier,
-		ticketProvider:  ticketProvider,
-		taskQueue:       taskQueue,
-		internalStorage: internalBucket,
-		uploadMaxSize:   uploadMaxSize,
-		rander:          rander,
-		sipSource:       sipSource,
+		logger:          params.Logger,
+		db:              sqlx.NewDb(params.DB, "mysql"),
+		tc:              params.TemporalClient,
+		evsvc:           params.EventService,
+		perSvc:          params.PersistenceService,
+		tokenVerifier:   params.TokenVerifier,
+		ticketProvider:  params.TicketProvider,
+		taskQueue:       params.TaskQueue,
+		internalStorage: params.InternalStorage,
+		uploadMaxSize:   params.UploadMaxSize,
+		rander:          params.Rander,
+		sipSource:       params.SIPSource,
 	}
 }
 
