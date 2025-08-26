@@ -199,20 +199,20 @@ func main() {
 	// Set up the ingest service.
 	var ingestsvc ingest.Service
 	{
-		ingestsvc = ingest.NewService(
-			logger.WithName("ingest"),
-			enduroDatabase,
-			temporalClient,
-			ingestEventSvc,
-			perSvc,
-			&auth.NoopTokenVerifier{},
-			nil,
-			cfg.Temporal.TaskQueue,
-			internalStorage,
-			0,
-			rand.Reader,
-			sipSource,
-		)
+		ingestsvc = ingest.NewService(ingest.ServiceParams{
+			Logger:             logger.WithName("ingest"),
+			DB:                 enduroDatabase,
+			TemporalClient:     temporalClient,
+			EventService:       ingestEventSvc,
+			PersistenceService: perSvc,
+			TokenVerifier:      &auth.NoopTokenVerifier{},
+			TicketProvider:     nil,
+			TaskQueue:          cfg.Temporal.TaskQueue,
+			InternalStorage:    internalStorage,
+			UploadMaxSize:      0,
+			Rander:             rand.Reader,
+			SIPSource:          sipSource,
+		})
 	}
 
 	var g run.Group

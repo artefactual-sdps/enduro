@@ -34,20 +34,20 @@ func testSvc(t *testing.T, internalBucket *blob.Bucket, uploadMaxSize int64) (
 	psvc := persistence_fake.NewMockService(gomock.NewController(t))
 	temporalClient := new(temporalsdk_mocks.Client)
 	taskQueue := "test"
-	ingestsvc := ingest.NewService(
-		logr.Discard(),
-		&sql.DB{},
-		temporalClient,
-		event.NewServiceNop[*goaingest.IngestEvent](),
-		psvc,
-		&auth.NoopTokenVerifier{},
-		auth.NewTicketProvider(t.Context(), nil, nil),
-		taskQueue,
-		internalBucket,
-		uploadMaxSize,
-		rand.New(rand.NewSource(1)), // #nosec: G404
-		&sipsource.BucketSource{},
-	)
+	ingestsvc := ingest.NewService(ingest.ServiceParams{
+		Logger:             logr.Discard(),
+		DB:                 &sql.DB{},
+		TemporalClient:     temporalClient,
+		EventService:       event.NewServiceNop[*goaingest.IngestEvent](),
+		PersistenceService: psvc,
+		TokenVerifier:      &auth.NoopTokenVerifier{},
+		TicketProvider:     auth.NewTicketProvider(t.Context(), nil, nil),
+		TaskQueue:          taskQueue,
+		InternalStorage:    internalBucket,
+		UploadMaxSize:      uploadMaxSize,
+		Rander:             rand.New(rand.NewSource(1)), // #nosec: G404
+		SIPSource:          &sipsource.BucketSource{},
+	})
 
 	return ingestsvc, psvc, temporalClient
 }

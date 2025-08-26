@@ -247,20 +247,20 @@ func main() {
 	// Set up the ingest service.
 	var ingestsvc ingest.Service
 	{
-		ingestsvc = ingest.NewService(
-			logger.WithName("ingest"),
-			enduroDatabase,
-			temporalClient,
-			ingestEventSvc,
-			perSvc,
-			tokenVerifier,
-			ticketProvider,
-			cfg.Temporal.TaskQueue,
-			internalStorage,
-			cfg.Upload.MaxSize,
-			rand.Reader,
-			sipSource,
-		)
+		ingestsvc = ingest.NewService(ingest.ServiceParams{
+			Logger:             logger.WithName("ingest"),
+			DB:                 enduroDatabase,
+			TemporalClient:     temporalClient,
+			EventService:       ingestEventSvc,
+			PersistenceService: perSvc,
+			TokenVerifier:      tokenVerifier,
+			TicketProvider:     ticketProvider,
+			TaskQueue:          cfg.Temporal.TaskQueue,
+			InternalStorage:    internalStorage,
+			UploadMaxSize:      cfg.Upload.MaxSize,
+			Rander:             rand.Reader,
+			SIPSource:          sipSource,
+		})
 	}
 
 	// Set up the storage persistence layer.
@@ -341,20 +341,20 @@ func main() {
 	// Recreate ingest and storage services with different
 	// logger names and using &auth.NoopTokenVerifier{}.
 	{
-		ips := ingest.NewService(
-			logger.WithName("internal-ingest"),
-			enduroDatabase,
-			temporalClient,
-			ingestEventSvc,
-			perSvc,
-			&auth.NoopTokenVerifier{},
-			ticketProvider,
-			cfg.Temporal.TaskQueue,
-			internalStorage,
-			cfg.Upload.MaxSize,
-			rand.Reader,
-			sipSource,
-		)
+		ips := ingest.NewService(ingest.ServiceParams{
+			Logger:             logger.WithName("internal-ingest"),
+			DB:                 enduroDatabase,
+			TemporalClient:     temporalClient,
+			EventService:       ingestEventSvc,
+			PersistenceService: perSvc,
+			TokenVerifier:      &auth.NoopTokenVerifier{},
+			TicketProvider:     ticketProvider,
+			TaskQueue:          cfg.Temporal.TaskQueue,
+			InternalStorage:    internalStorage,
+			UploadMaxSize:      cfg.Upload.MaxSize,
+			Rander:             rand.Reader,
+			SIPSource:          sipSource,
+		})
 
 		iss, err := storage.NewService(
 			logger.WithName("internal-storage"),
