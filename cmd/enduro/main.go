@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"net/http/pprof"
 	"os"
@@ -31,6 +32,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/about"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -93,6 +95,17 @@ func main() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
+
+	// Set up the audit logger early on so is closed after most other services
+	// close. Deferred functions run in "first in, last out" order.
+	auditLogger := auditlog.NewFromConfig(cfg.Auditlog)
+	defer auditLogger.Close()
+
+	if cfg.Auditlog.Filepath != "" {
+		logger.V(1).Info("Audit logging enabled.", "path", cfg.Auditlog.Filepath)
+	} else {
+		logger.V(1).Info("Audit logging disabled.")
+	}
 
 	// Set up the tracer provider.
 	tp, shutdown, err := telemetry.TracerProvider(ctx, logger, cfg.Telemetry, appName, version.Long)
@@ -260,6 +273,7 @@ func main() {
 			UploadMaxSize:      cfg.Upload.MaxSize,
 			Rander:             rand.Reader,
 			SIPSource:          sipSource,
+			AuditLogger:        auditLogger,
 		})
 	}
 
@@ -354,6 +368,7 @@ func main() {
 			UploadMaxSize:      cfg.Upload.MaxSize,
 			Rander:             rand.Reader,
 			SIPSource:          sipSource,
+			AuditLogger:        auditLogger,
 		})
 
 		iss, err := storage.NewService(
@@ -503,6 +518,12 @@ func main() {
 
 		g.Add(
 			func() error {
+				auditLogger.Log(ctx, &auditlog.Event{
+					Level: slog.LevelInfo,
+					Msg:   "Enduro starting",
+					Type:  "system",
+				})
+
 				if err := w.Start(); err != nil {
 					return err
 				}
@@ -510,6 +531,12 @@ func main() {
 				return nil
 			},
 			func(err error) {
+				auditLogger.Log(ctx, &auditlog.Event{
+					Level: slog.LevelInfo,
+					Msg:   "Enduro stopping",
+					Type:  "system",
+				})
+
 				w.Stop()
 				close(done)
 			},
@@ -588,6 +615,7 @@ func main() {
 	err = g.Run()
 	if err != nil {
 		logger.Error(err, "Application failure.")
+		log.Sync(logger)
 		os.Exit(1)
 	}
 	logger.Info("Bye!")

@@ -18,6 +18,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/api"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -75,6 +76,7 @@ type Configuration struct {
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
 	ValidatePREMIS  premis.Config
+	Auditlog        auditlog.Config
 }
 
 func (c *Configuration) Validate() error {

@@ -110,6 +110,7 @@ func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayloa
 	}
 
 	PublishEvent(ctx, w.evsvc, sipToCreatedEvent(s))
+	w.auditLogger.Log(ctx, sipIngestAuditEvent(s))
 
 	w.logger.V(1).Info(
 		"Add SIP: started processing workflow from SIP source.",

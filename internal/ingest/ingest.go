@@ -16,6 +16,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -72,6 +73,7 @@ type ingestImpl struct {
 	uploadMaxSize   int64
 	rander          io.Reader
 	sipSource       sipsource.SIPSource
+	auditLogger     *auditlog.Logger
 }
 
 var _ Service = (*ingestImpl)(nil)
@@ -89,6 +91,7 @@ type ServiceParams struct {
 	UploadMaxSize      int64
 	Rander             io.Reader
 	SIPSource          sipsource.SIPSource
+	AuditLogger        *auditlog.Logger
 }
 
 func NewService(params ServiceParams) *ingestImpl {
@@ -105,6 +108,7 @@ func NewService(params ServiceParams) *ingestImpl {
 		uploadMaxSize:   params.UploadMaxSize,
 		rander:          params.Rander,
 		sipSource:       params.SIPSource,
+		auditLogger:     params.AuditLogger,
 	}
 }
 
@@ -123,6 +127,7 @@ func (svc *ingestImpl) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	}
 
 	PublishEvent(ctx, svc.evsvc, sipToCreatedEvent(s))
+	svc.auditLogger.Log(ctx, sipIngestAuditEvent(s))
 
 	return nil
 }
