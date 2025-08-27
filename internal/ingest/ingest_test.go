@@ -1,13 +1,19 @@
 package ingest_test
 
 import (
+	"bytes"
 	"context"
 	"database/sql"
+	"fmt"
+	"log/slog"
 	"math/rand"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
 	"go.uber.org/mock/gomock"
@@ -16,6 +22,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/event"
@@ -47,6 +54,9 @@ func testSvc(t *testing.T, internalBucket *blob.Bucket, uploadMaxSize int64) (
 		UploadMaxSize:      uploadMaxSize,
 		Rander:             rand.New(rand.NewSource(1)), // #nosec: G404
 		SIPSource:          &sipsource.BucketSource{},
+		AuditLogger: auditlog.NewFromConfig(auditlog.Config{
+			Filepath: filepath.Join(t.TempDir(), "audit.log"),
+		}),
 	})
 
 	return ingestsvc, psvc, temporalClient
@@ -101,4 +111,65 @@ func TestCreateSIP(t *testing.T) {
 			assert.NilError(t, err)
 		})
 	}
+}
+
+type bufCloser struct {
+	*bytes.Buffer
+}
+
+func (b *bufCloser) Close() error {
+	return nil
+}
+
+func TestCreateSIP_AuditLog(t *testing.T) {
+	t.Parallel()
+
+	sipID := uuid.MustParse("e8d32bd5-faa4-4ce1-bb50-55d9c28b306d")
+	psvc := persistence_fake.NewMockService(gomock.NewController(t))
+	temporalClient := new(temporalsdk_mocks.Client)
+
+	buf := &bufCloser{new(bytes.Buffer)}
+	auditLogger := auditlog.New(buf, slog.New(slog.NewJSONHandler(buf, &slog.HandlerOptions{})))
+
+	ingestsvc := ingest.NewService(ingest.ServiceParams{
+		Logger:             logr.Discard(),
+		DB:                 &sql.DB{},
+		TemporalClient:     temporalClient,
+		EventService:       event.NewServiceNop[*goaingest.IngestEvent](),
+		PersistenceService: psvc,
+		TokenVerifier:      &auth.NoopTokenVerifier{},
+		TicketProvider:     auth.NewTicketProvider(t.Context(), nil, nil),
+		TaskQueue:          "test",
+		Rander:             rand.New(rand.NewSource(1)), // #nosec: G404
+		SIPSource:          &sipsource.BucketSource{},
+		AuditLogger:        auditLogger,
+	})
+
+	s := datatypes.SIP{
+		UUID: sipID,
+		Uploader: &datatypes.User{
+			Email: "test@example.com",
+		},
+	}
+
+	psvc.EXPECT().
+		CreateSIP(mockutil.Context(), &s).
+		DoAndReturn(
+			func(ctx context.Context, s *datatypes.SIP) error {
+				s.ID = 1
+				s.CreatedAt = time.Date(2024, 3, 14, 15, 57, 25, 0, time.UTC)
+				return nil
+			},
+		)
+
+	err := ingestsvc.CreateSIP(context.Background(), &s)
+	assert.NilError(t, err)
+
+	want := `"level":"INFO","msg":"SIP ingest started","type":"SIP.ingest","resourceID":"e8d32bd5-faa4-4ce1-bb50-55d9c28b306d","user":"test@example.com"`
+	got := buf.String()
+
+	assert.Assert(t,
+		strings.Contains(got, want),
+		fmt.Sprintf("expected: %s, got: %s", want, got),
+	)
 }

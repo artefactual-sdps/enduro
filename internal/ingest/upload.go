@@ -141,6 +141,7 @@ func (w *goaWrapper) initSIP(
 	}
 
 	PublishEvent(ctx, w.evsvc, sipToCreatedEvent(s))
+	w.auditLogger.Log(ctx, sipIngestAuditEvent(s))
 
 	return nil
 }

@@ -3,12 +3,14 @@ package ingest
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
@@ -24,6 +26,21 @@ func sipToCreatedEvent(s *datatypes.SIP) *goaingest.SIPCreatedEvent {
 		UUID: s.UUID,
 		Item: s.Goa(),
 	}
+}
+
+// sipIngestAuditEvent returns a SIP ingest audit log event for SIP s.
+func sipIngestAuditEvent(s *datatypes.SIP) *auditlog.Event {
+	e := &auditlog.Event{
+		Level:      slog.LevelInfo,
+		Msg:        "SIP ingest started",
+		Type:       "SIP.ingest",
+		ResourceID: s.UUID.String(),
+	}
+	if s.Uploader != nil {
+		e.User = s.Uploader.Email
+	}
+
+	return e
 }
 
 // workflowToGoa returns the API representation of a workflow.
