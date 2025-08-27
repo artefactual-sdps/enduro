@@ -285,7 +285,8 @@ before proceeding.
     repo has a `bagcreate` activity you can repurpose in your custom child
     activities workflow.
 
-    If you don't do this, the ingest workflow will fail on the next activity!
+    If you don't do this, the ingest workflow will fail after the "Classify SIP
+    type" activity!
 
 ### Classify SIP type
 
@@ -295,9 +296,7 @@ This is a high-level identification of the SIP type into 3 possible types:
 * Standard Archivematica transfer
 * BagIt bag
 
-If the type is "Unknown," Enduro will fail the ingest workflow.
-
-If any child worklow activities are configured and the type is **not** "BagIt
+If any child worklow is configured and the SIP type is **not** "BagIt
 bag," Enduro will also fail the workflow (see [above](#check-for-child-workflow)
 for an explanation why).
 
@@ -328,11 +327,11 @@ transfer. If the SIP type is **not already a bag**, then Enduro will use the
 [bagcreate] Temporal activity to bag the SIP following the
 [BagIt specification][bag].
 
-Then, regardless of SIP type, Enduro will ZIP the package using the [archivezip]
-activity. Finally, an internal function is used to upload the PIP to the
-configured transfer source location in the preservation storage service (i.e.
-the Archivematica Storage Service or [AMSS]), and Enduro sends an API request to
-the preservation engine to initiate the preservation workflow.
+Then, depending on your configuration settings, Enduro may ZIP the package using
+the [archivezip] activity. Finally, another activity is used to upload the
+PIP to the configured transfer source location in the preservation storage
+service (i.e. the Archivematica Storage Service or [AMSS]), and Enduro sends an
+API request to the preservation engine to initiate preservation processing.
 
 ### Poll preservation for updates
 
@@ -364,14 +363,13 @@ the workflow.
 ### Record storage location
 
 Once Enduro receives a "completed" status update from the [preservation engine],
-the application will then register a storage location in Enduro's storage
-component.
+the application will then register the AIP in Enduro's storage component. The
+process is a bit different depending on the preservation engine used.
 
-If [Archivematica] is being used as the preservation engine, then Enduro creates
-a record linking the location in Enduro to the AM Storage Service ([AMSS]). If
-instead [a3m] is being used, then Enduro will create and register the AIP
-storage location locally, using whatever object store has been configured for
-AIP storage.
+If [Archivematica] is being used, then Enduro simply records the storage details
+locally for display in the Enduro interface. Alternatively, if [a3m] is being
+used, then Enduro will first upload the AIP to the configured storage location
+and then records the AIP storage details.
 
 ### Check for post-storage tasks
 
@@ -379,10 +377,11 @@ Enduro's primary configuration file also includes an optional section to
 configure one or more [post-storage] child workflows. Example activities in this
 phase might include sending ingest or package metadata to an external system
 (such as an archival information system or similar), delivering email
-notifications, etc.
+notifications, etc. When configured, the activities are triggered but Enduro
+does not currently wait to determine the final outcome of the post-storage
+worfklow.
 
-This step is bypassed if nothing has been configured. No post-storage workflow
-tasks are included in the default ingest workflow at installation time.
+This step is bypassed if nothing has been configured.
 
 ### Perform final cleanup
 
