@@ -3,7 +3,6 @@ package ingest
 import (
 	"errors"
 	"fmt"
-	"log/slog"
 	"time"
 
 	"github.com/google/uuid"
@@ -31,7 +30,7 @@ func sipToCreatedEvent(s *datatypes.SIP) *goaingest.SIPCreatedEvent {
 // sipIngestAuditEvent returns a SIP ingest audit log event for SIP s.
 func sipIngestAuditEvent(s *datatypes.SIP) *auditlog.Event {
 	e := &auditlog.Event{
-		Level:      slog.LevelInfo,
+		Level:      auditlog.LevelInfo,
 		Msg:        "SIP ingest started",
 		Type:       "SIP.ingest",
 		ResourceID: s.UUID.String(),

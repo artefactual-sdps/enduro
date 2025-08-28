@@ -8,6 +8,13 @@ import (
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 
+const (
+	LevelDebug = slog.LevelDebug
+	LevelInfo  = slog.LevelInfo
+	LevelWarn  = slog.LevelWarn
+	LevelError = slog.LevelError
+)
+
 // Logger represents a structured audit event logger.
 type Logger struct {
 	l *slog.Logger
@@ -30,6 +37,11 @@ func NewFromConfig(cfg Config) *Logger {
 	w := rotatingWriter(cfg)
 
 	return New(w, slog.New(slog.NewJSONHandler(w, &slog.HandlerOptions{})))
+}
+
+// Discard returns a logger that discards all log entries.
+func Discard() *Logger {
+	return &Logger{}
 }
 
 // Close releases any resources held by the logger.

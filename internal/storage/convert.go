@@ -6,6 +6,8 @@ import (
 	"go.artefactual.dev/tools/ref"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
+	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -74,4 +76,31 @@ func (svc *serviceImpl) deletionRequestToGoa(dr *types.DeletionRequest) *goastor
 		RequestedAt: dr.RequestedAt.Format(time.RFC3339),
 		ReviewedAt:  reviewedAt,
 	}
+}
+
+func deletionRequestAuditEvent(dr *types.DeletionRequest) *auditlog.Event {
+	ev := auditlog.Event{
+		Level:      auditlog.LevelInfo,
+		Type:       "AIP.deletion.request",
+		ResourceID: dr.AIPUUID.String(),
+	}
+
+	switch dr.Status {
+	case enums.DeletionRequestStatusPending:
+		ev.Msg = "AIP deletion requested"
+		ev.User = dr.Requester
+	case enums.DeletionRequestStatusCanceled:
+		ev.Msg = "AIP deletion request canceled"
+		ev.User = dr.Requester
+	case enums.DeletionRequestStatusApproved:
+		ev.Msg = "AIP deletion request approved"
+		ev.User = dr.Reviewer
+	case enums.DeletionRequestStatusRejected:
+		ev.Msg = "AIP deletion request rejected"
+		ev.User = dr.Reviewer
+	default:
+		return nil
+	}
+
+	return &ev
 }
