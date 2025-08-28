@@ -639,11 +639,6 @@ func (svc *serviceImpl) CreateDeletionRequest(ctx context.Context, dr *types.Del
 	if err := svc.storagePersistence.CreateDeletionRequest(ctx, dr); err != nil {
 		return err
 	}
-
-	PublishEvent(ctx, svc.evsvc, &goastorage.AIPDeletionRequestCreatedEvent{
-		UUID: dr.UUID,
-		Item: svc.deletionRequestToGoa(dr),
-	})
 	svc.auditLogger.Log(ctx, deletionRequestAuditEvent(dr))
 
 	return nil

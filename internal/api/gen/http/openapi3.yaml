@@ -2296,27 +2296,6 @@ components:
             required:
                 - uuid
                 - item
-        AIPDeletionRequestCreatedEvent:
-            type: object
-            properties:
-                item:
-                    $ref: '#/components/schemas/EnduroStorageAipDeletionRequest'
-                uuid:
-                    type: string
-                    description: Identifier of deletion request
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            example:
-                item:
-                    aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    reason: abc123
-                    requested_at: "1970-01-01T00:00:01Z"
-                    reviewed_at: "1970-01-01T00:00:01Z"
-                    status: approved
-                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            required:
-                - uuid
-                - item
         AIPLocationUpdatedEvent:
             type: object
             properties:
@@ -3162,54 +3141,6 @@ components:
                 - status
                 - object_key
                 - created_at
-        EnduroStorageAipDeletionRequest:
-            type: object
-            properties:
-                aip_uuid:
-                    type: string
-                    description: Identifier of related AIP
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                reason:
-                    type: string
-                    description: Reason for deletion
-                    example: abc123
-                requested_at:
-                    type: string
-                    description: Time request was made
-                    example: "1970-01-01T00:00:01Z"
-                    format: date-time
-                reviewed_at:
-                    type: string
-                    description: Time request was reviewed
-                    example: "1970-01-01T00:00:01Z"
-                    format: date-time
-                status:
-                    type: string
-                    description: Status of request
-                    example: approved
-                    enum:
-                        - pending
-                        - approved
-                        - rejected
-                        - canceled
-                uuid:
-                    type: string
-                    description: Identifier of deletion request
-                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            description: AIPDeletionRequest describes a request to delete an AIP.
-            example:
-                aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                reason: abc123
-                requested_at: "1970-01-01T00:00:01Z"
-                reviewed_at: "1970-01-01T00:00:01Z"
-                status: approved
-                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            required:
-                - uuid
-                - aip_uuid
-                - reason
-                - status
-                - requested_at
         EnduroStorageAipTask:
             type: object
             properties:
@@ -4028,7 +3959,6 @@ components:
                                 - "aip_workflow_updated_event"
                                 - "aip_task_created_event"
                                 - "aip_task_updated_event"
-                                - "aip_deletion_request_created_event"
                             example: location_created_event
                             enum:
                                 - storage_ping_event
@@ -4040,7 +3970,6 @@ components:
                                 - aip_workflow_updated_event
                                 - aip_task_created_event
                                 - aip_task_updated_event
-                                - aip_deletion_request_created_event
                         Value:
                             type: string
                             description: JSON encoded union value
