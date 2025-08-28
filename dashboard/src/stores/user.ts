@@ -3,7 +3,7 @@ import { acceptHMRUpdate, defineStore } from "pinia";
 import { api, client } from "@/client";
 import { logError } from "@/helpers/logs";
 
-// TODO: Reduce the default page size once we have an "uploaded by" filter that
+// TODO: Reduce the default page size once we have an "ingested by" filter that
 // allows us to filter the user list with an autocomplete or search box.
 const defaultPageSize = 100;
 

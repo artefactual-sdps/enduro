@@ -39,7 +39,7 @@ const userStore = useUserStore();
 
 const uploaderEl = ref<HTMLElement | null>(null);
 const uploaderDD = ref<Dropdown | null>(null);
-const uploaderDDLabel = ref("Uploaded by");
+const uploaderDDLabel = ref("Ingested by");
 
 const route = useRoute();
 const router = useRouter();
@@ -369,7 +369,7 @@ onMounted(() => {
             class="btn btn-primary dropdown-toggle"
             type="button"
             data-bs-toggle="dropdown"
-            aria-label="Toggle 'Uploaded by' filter dropdown"
+            aria-label="Toggle 'Ingested by' filter dropdown"
             aria-expanded="false"
           >
             {{ uploaderDDLabel }}
@@ -378,12 +378,12 @@ onMounted(() => {
             id="dd-uploader-reset"
             @click="
               sipStore.filters.uploaderId = '';
-              uploaderDDLabel = 'Uploaded by';
+              uploaderDDLabel = 'Ingested by';
               updateUploaderFilter();
             "
             class="btn btn-secondary"
             type="reset"
-            aria-label="Reset 'Uploaded by' filter"
+            aria-label="Reset 'Ingested by' filter"
             v-show="sipStore.filters.uploaderId !== ''"
           >
             <IconClose />
@@ -437,7 +437,7 @@ onMounted(() => {
         <thead>
           <tr>
             <th scope="col">Name</th>
-            <th scope="col">Uploaded by</th>
+            <th scope="col">Ingested by</th>
             <th scope="col">Started</th>
             <th scope="col">
               <span class="d-flex gap-2">

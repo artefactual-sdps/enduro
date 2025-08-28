@@ -28,10 +28,10 @@ The SIP browse page includes a count of results at the top and bottom of the pag
 SIP results are presented in a table with the following columns:
 
 * **Name**: The name of the SIP.
-* **Uploaded by**: The user associated with initiating the SIP ingest by
-  uploading the package. How user information displays in this field depends on
-  whether authentication is enabled and what information is available from the
-  provider - for more information, see:
+* **Ingested by**: The user associated with initiating the SIP ingest. How user
+  information displays in this field depends on whether authentication is
+  enabled and what information is available from the provider - for more
+  information, see:
   [User filters and authentication configuration](../overview.md#user-filters-and-authentication-configuration)
 * **Started**: The timestamp of when the related ingest workflow began.
   Internally, Enduro will store timestamps in Coordinated Universal Time
@@ -157,19 +157,19 @@ of the page will also update.
 ### Filter by uploader
 
 If [authentication is enabled][iac], you can also filter SIP browse results by
-who initiated the ingest. Click the purple "Uploaded by" button to show the
+who initiated the ingest. Click the purple "Ingest by" button to show the
 drop-down menu with available user options.
 
 Options shown in this drop-down may be a mix of names, emails, and even UUIDs,
 depending on what user properties are available from the authentication
-provider. For more information on how Enduro tries to display uploader
+provider. For more information on how Enduro tries to display ingest user
 information, see:
 [User filters and authentication configuration](../overview.md#user-filters-and-authentication-configuration).
 
 !!! note
 
     If authentication is not enabled and/or the identity of the uploader cannot
-    be known, Enduro will simply show "Unknown" in the _Uploaded by_ results
+    be known, Enduro will simply show "Unknown" in the _Ingested by_ results
     column.
 
     At this time, "Unknown" is **not** included as a filter option.

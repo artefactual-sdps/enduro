@@ -49,7 +49,7 @@ Welcome to Enduro!
 ### User filters and authentication configuration
 
 There are several places in Enduro where, if user information is available,
-Enduro will display it in the user interface as an "Uploaded by" element.
+Enduro will display it in the user interface as an "Ingested by" element.
 Examples include:
 
 * The results column on the
@@ -71,7 +71,7 @@ generated UUID to uniquely identify the uploader.
 If authentication is **not** enabled and/or the identity of the uploader cannot
 be known (for example, ingest is started via a
 [watched location upload][watched-location]), Enduro will simply show "Unknown"
-in the  Uploaded by field.
+in the  Ingested by field.
 
 ![SIP browse results with an unknown uploader](screenshots/unknown-uploaders.png)
 

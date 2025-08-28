@@ -47,7 +47,7 @@ onMounted(() => {
           <dd>
             <StatusBadge :status="sipStore.current.status" type="package" />
           </dd>
-          <dt>Uploaded by</dt>
+          <dt>Ingested by</dt>
           <dd>
             {{ uploader(sipStore.current) }}
           </dd>

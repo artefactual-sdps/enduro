@@ -37,10 +37,10 @@ few high-level metadata elements about the SIP and its ingest, including:
 
 * **Status**: The status of the SIP. Uses the [same statuses as those shown on
   the SIP browse page.](search-browse.md#sip-statuses).
-* **Uploaded by**: The user associated with initiating the SIP ingest by
-  uploading the package. How user information displays in this field depends on
-  whether authentication is enabled and what information is available from the
-  provider - for more information, see:
+* **Ingested by**: The user associated with initiating the SIP ingest. How user
+  information displays in this field depends on whether authentication is
+  enabled and what information is available from the provider - for more
+  information, see:
   [User filters and authentication configuration](../overview.md#user-filters-and-authentication-configuration).
 * **Started**: Timestamp of when the ingest workflow started.
 * **Completed**: Timestamp of when the ingest workflow ended. An estimate of the
