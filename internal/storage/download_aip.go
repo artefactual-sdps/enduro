@@ -8,7 +8,9 @@ import (
 
 	"gocloud.dev/gcerrors"
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 )
@@ -46,12 +48,27 @@ func (s *serviceImpl) DownloadAipRequest(
 		return nil, goastorage.MakeInternalError(errors.New("ticket request failed"))
 	}
 
+	res := &goastorage.DownloadAipRequestResult{}
+	var userEmail string
+
 	// A ticket is not provided when authentication is disabled.
 	// Do not set the ticket cookie in that case.
-	res := &goastorage.DownloadAipRequestResult{}
 	if ticket != "" {
 		res.Ticket = &ticket
+
+		claims := auth.UserClaimsFromContext(ctx)
+		if claims != nil && claims.Email != "" {
+			userEmail = claims.Email
+		}
 	}
+
+	s.auditLogger.Log(ctx, &auditlog.Event{
+		Level:      auditlog.LevelInfo,
+		Msg:        "AIP download requested",
+		Type:       "AIP.download",
+		ResourceID: aip.UUID.String(),
+		User:       userEmail,
+	})
 
 	return res, nil
 }
