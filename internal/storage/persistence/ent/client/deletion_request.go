@@ -61,10 +61,16 @@ func (c *Client) UpdateDeletionRequest(
 		return nil, fmt.Errorf("update deletion request: %v", err)
 	}
 
-	dr, err := tx.DeletionRequest.Get(ctx, id)
+	dr, err := tx.DeletionRequest.Query().
+		Where(deletionrequest.ID(id)).
+		WithAip().
+		Only(ctx)
 	if err != nil {
 		return nil, rollback(tx, fmt.Errorf("update deletion request: %v", err))
 	}
+
+	// Get the UUID of the related AIP.
+	aipUUID := dr.Edges.Aip.AipID
 
 	up, err := upd(convertDeletionRequest(dr))
 	if err != nil {
@@ -72,7 +78,6 @@ func (c *Client) UpdateDeletionRequest(
 	}
 
 	q := tx.DeletionRequest.UpdateOneID(id).
-		SetUUID(up.UUID).
 		SetReviewer(up.Reviewer).
 		SetReviewerIss(up.ReviewerIss).
 		SetReviewerSub(up.ReviewerSub).
@@ -90,7 +95,12 @@ func (c *Client) UpdateDeletionRequest(
 		return nil, rollback(tx, fmt.Errorf("update deletion request: %v", err))
 	}
 
-	return convertDeletionRequest(dr), nil
+	r := convertDeletionRequest(dr)
+
+	// Add the AIP UUID to the returned deletion request.
+	r.AIPUUID = aipUUID
+
+	return r, nil
 }
 
 func (c *Client) ReadAipPendingDeletionRequest(
@@ -109,7 +119,7 @@ func (c *Client) ReadAipPendingDeletionRequest(
 }
 
 func convertDeletionRequest(dbdr *db.DeletionRequest) *types.DeletionRequest {
-	return &types.DeletionRequest{
+	dr := &types.DeletionRequest{
 		DBID:         dbdr.ID,
 		UUID:         dbdr.UUID,
 		Requester:    dbdr.Requester,
@@ -124,4 +134,10 @@ func convertDeletionRequest(dbdr *db.DeletionRequest) *types.DeletionRequest {
 		ReviewedAt:   dbdr.ReviewedAt,
 		WorkflowDBID: dbdr.WorkflowID,
 	}
+
+	if dbdr.Edges.Aip != nil {
+		dr.AIPUUID = dbdr.Edges.Aip.AipID
+	}
+
+	return dr
 }

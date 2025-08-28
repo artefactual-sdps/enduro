@@ -18,6 +18,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
@@ -73,6 +74,9 @@ type serviceImpl struct {
 
 	// Random number generator
 	rander io.Reader
+
+	// Audit event logger.
+	auditLogger *auditlog.Logger
 }
 
 var _ Service = (*serviceImpl)(nil)
@@ -92,6 +96,7 @@ func NewService(
 	tokenVerifier auth.TokenVerifier,
 	ticketProvider auth.TicketProvider,
 	rander io.Reader,
+	auditLogger *auditlog.Logger,
 ) (s *serviceImpl, err error) {
 	s = &serviceImpl{
 		logger:             logger,
@@ -102,10 +107,14 @@ func NewService(
 		tokenVerifier:      tokenVerifier,
 		ticketProvider:     ticketProvider,
 		rander:             rander,
+		auditLogger:        auditLogger,
 	}
 
 	if s.rander == nil {
 		s.rander = rand.Reader
+	}
+	if s.auditLogger == nil {
+		s.auditLogger = auditlog.Discard()
 	}
 
 	l, err := NewInternalLocation(&config.Internal)
@@ -635,6 +644,7 @@ func (svc *serviceImpl) CreateDeletionRequest(ctx context.Context, dr *types.Del
 		UUID: dr.UUID,
 		Item: svc.deletionRequestToGoa(dr),
 	})
+	svc.auditLogger.Log(ctx, deletionRequestAuditEvent(dr))
 
 	return nil
 }
@@ -644,7 +654,13 @@ func (svc *serviceImpl) UpdateDeletionRequest(
 	id int,
 	upd persistence.DeletionRequestUpdater,
 ) (*types.DeletionRequest, error) {
-	return svc.storagePersistence.UpdateDeletionRequest(ctx, id, upd)
+	dr, err := svc.storagePersistence.UpdateDeletionRequest(ctx, id, upd)
+	if err != nil {
+		return nil, err
+	}
+	svc.auditLogger.Log(ctx, deletionRequestAuditEvent(dr))
+
+	return dr, nil
 }
 
 func (svc *serviceImpl) ReadAipPendingDeletionRequest(

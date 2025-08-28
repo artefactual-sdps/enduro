@@ -306,6 +306,7 @@ func main() {
 			tokenVerifier,
 			ticketProvider,
 			rand.Reader,
+			auditLogger,
 		)
 		if err != nil {
 			logger.Error(err, "Error setting up storage service.")
@@ -380,6 +381,7 @@ func main() {
 			&auth.NoopTokenVerifier{},
 			ticketProvider,
 			rand.Reader,
+			auditLogger,
 		)
 		if err != nil {
 			logger.Error(err, "Error setting up internal storage service.")

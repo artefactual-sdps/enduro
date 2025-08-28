@@ -3,7 +3,6 @@ package auditlog_test
 import (
 	"context"
 	"fmt"
-	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -32,7 +31,7 @@ func TestNewFromConfig(t *testing.T) {
 			name: "audit log disabled when no filepath is configured",
 			cfg:  auditlog.Config{},
 			event: &auditlog.Event{
-				Level:      slog.LevelInfo,
+				Level:      auditlog.LevelInfo,
 				Msg:        "SIP ingest started",
 				Type:       "SIP.ingest",
 				ResourceID: resID.String(),
@@ -49,7 +48,7 @@ func TestNewFromConfig(t *testing.T) {
 				Compress: true,
 			},
 			event: &auditlog.Event{
-				Level:      slog.LevelInfo,
+				Level:      auditlog.LevelInfo,
 				Msg:        "SIP ingest started",
 				Type:       "SIP.ingest",
 				ResourceID: resID.String(),
