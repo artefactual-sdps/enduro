@@ -34,7 +34,6 @@ var StorageEvent = Type("StorageEvent", func() {
 		Attribute("aip_workflow_updated_event", AIPWorkflowUpdatedEvent)
 		Attribute("aip_task_created_event", AIPTaskCreatedEvent)
 		Attribute("aip_task_updated_event", AIPTaskUpdatedEvent)
-		Attribute("aip_deletion_request_created_event", AIPDeletionRequestCreatedEvent)
 	})
 })
 
@@ -117,13 +116,4 @@ var AIPTaskUpdatedEvent = Type("AIPTaskUpdatedEvent", func() {
 
 	Meta("type:generate:force")
 	Meta("openapi:typename", "AIPTaskUpdatedEvent")
-})
-
-var AIPDeletionRequestCreatedEvent = Type("AIPDeletionRequestCreatedEvent", func() {
-	TypedAttributeUUID("uuid", "Identifier of deletion request")
-	Attribute("item", AIPDeletionRequest)
-	Required("uuid", "item")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "AIPDeletionRequestCreatedEvent")
 })

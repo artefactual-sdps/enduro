@@ -62,22 +62,6 @@ func (svc *serviceImpl) taskToGoa(t *types.Task) *goastorage.AIPTask {
 	}
 }
 
-func (svc *serviceImpl) deletionRequestToGoa(dr *types.DeletionRequest) *goastorage.AIPDeletionRequest {
-	var reviewedAt *string
-	if !dr.ReviewedAt.IsZero() {
-		reviewedAt = ref.New(dr.ReviewedAt.Format(time.RFC3339))
-	}
-
-	return &goastorage.AIPDeletionRequest{
-		UUID:        dr.UUID,
-		AipUUID:     dr.AIPUUID,
-		Reason:      dr.Reason,
-		Status:      dr.Status.String(),
-		RequestedAt: dr.RequestedAt.Format(time.RFC3339),
-		ReviewedAt:  reviewedAt,
-	}
-}
-
 func deletionRequestAuditEvent(dr *types.DeletionRequest) *auditlog.Event {
 	ev := auditlog.Event{
 		Level:      auditlog.LevelInfo,
