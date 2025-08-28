@@ -54,13 +54,19 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        // Bootstrap v5.3.3 doesn't support the SASS modern API
-        // (https://github.com/twbs/bootstrap/issues/40962), so we need to use
-        // legacy mode.
+        // Bootstrap v5.3 doesn't support the SASS modern API
+        // (https://github.com/twbs/bootstrap/issues/40962),
+        // so we need to use legacy mode. This has been removed
+        // in Vite v7, which may require to upgrade Bootstrap v6
+        // (https://github.com/twbs/bootstrap/pull/41512).
         api: "legacy",
         additionalData: `@import "src/styles/bootstrap-base.scss";`,
-        // TODO: remove this line once bootstrap v5.3.4 is released.
-        silenceDeprecations: ["mixed-decls"],
+        silenceDeprecations: [
+          "color-functions",
+          "global-builtin",
+          "import",
+          "legacy-js-api",
+        ],
       },
     },
   },
