@@ -222,15 +222,14 @@ A package will contain one or more **objects**, zero or more **files**, and
 An instance of a **preservation engine** configured with specific **preservation
 policies**, through which **packages** pass as part of a **workflow**.
 
-## Post-ingest
+## Post-storage
 
-Post-ingest is a phase in a **preservation workflow** describing all the
+Post-storage is a phase in a **preservation workflow** describing all the
 **preservation policy**-defined tasks performed on an **AIP** following
-preservation processing. Post-ingest task examples include: compression and/or
-encryption of AIPs, sending any **metadata** to an external system (such as an
-archival management system), **DIP** generation and delivery, geo-redundant
-**replication**, as well as the transfer of the AIP to its final storage
-location.
+preservation processing and AIP storage. Post-storage task examples include:
+additional compression and/or encryption of AIPs, sending any **metadata** to an
+external system (such as an archival management system), **DIP** generation and
+delivery, geo-redundant **replication**, etc.
 
 ## Pre-ingest
 
