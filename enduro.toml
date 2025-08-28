@@ -2,6 +2,8 @@
 
 debug = true
 debugListen = "127.0.0.1:9001"
+# verbosity supports values from 0-128, with 0 as least verbose and 128
+# capturing all possible log events.
 verbosity = 2
 
 [temporal]
@@ -10,6 +12,8 @@ address = "temporal.enduro-sdps:7233"
 taskQueue = "global"
 
 [internalapi]
+# Used for internal component communication. Does NOT support authentication -
+# for security, do not expose this port publicly.
 listen = "0.0.0.0:9002"
 debug = false
 
@@ -87,6 +91,7 @@ compress = false
 [database]
 driver = "mysql"
 dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro"
+# migrate determines whether schema migrations are run during db upgrades.
 migrate = true
 
 [event]
@@ -94,14 +99,21 @@ redisAddress = "redis://redis.enduro-sdps:6379"
 redisChannel = "enduro-ingest-events"
 
 [extractActivity]
+# Sets the default unix filesystem permissions applied to directories and files
+# after package extraction.
 dirMode = "0o700"
 fileMode = "0o600"
 
 [validatePremis]
+# When enabled, Enduro will check for a premis.xml file in the metadata
+# directory of a package during ingest, and if found, attempt to validate it
+# against the schema found at the configured xsdPath.
 enabled = true
 xsdPath = "/home/enduro/premis.xsd"
 
 [watcher.embedded]
+# Defines a given location or object store  as a watched location, where zipped
+# packages will be ingested automatically when deposited.
 name = "dev-minio"
 redisAddress = "redis://redis.enduro-sdps:6379"
 redisList = "minio-events"
@@ -143,7 +155,8 @@ bucket = "aips"
 redisAddress = "redis://redis.enduro-sdps:6379"
 redisChannel = "enduro-storage-events"
 
-# Change the taskqueue setting to your prefered preservation system, by default it is a3m.
+# Change the taskqueue setting to your prefered preservation system, by default
+# it is a3m. Use 'am' to configure Archivematica instead.
 [preservation]
 taskqueue = "a3m"
 
