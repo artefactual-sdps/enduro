@@ -348,7 +348,7 @@ and communicate with Redis.
 
 **Default values**:
 
-```
+```toml
 [event]
 redisAddress = "redis://redis.enduro-sdps:6379"
 redisChannel = "enduro-ingest-events"
@@ -516,7 +516,7 @@ AMSS. Otherwise, this configures the primary local storage service when using
 
 **Default values**:
 
-```
+```toml
 [storage]
 enduroAddress = "enduro.enduro-sdps:9002"
 defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
@@ -711,7 +711,6 @@ users are asked to submit the configuration as part of each SIP submission.
 To avoid that redundancy, these settings define the default processing
 configuration settings that a3m will use when configured as a
 [preservation engine] for Enduro.
-
 
 **Default values**:
 
