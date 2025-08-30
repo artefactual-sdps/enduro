@@ -3,6 +3,7 @@ import { openDialog } from "vue3-promise-dialog";
 
 import AboutDialogVue from "@/components/AboutDialog.vue";
 import Breadcrumb from "@/components/Breadcrumb.vue";
+import InstitutionLogo from "@/components/InstitutionLogo.vue";
 import { useLayoutStore } from "@/stores/layout";
 import IconInfo from "~icons/clarity/info-standard-solid";
 import IconMenu from "~icons/clarity/menu-line";
@@ -10,6 +11,12 @@ import IconMenu from "~icons/clarity/menu-line";
 const layoutStore = useLayoutStore();
 
 const showAbout = async () => await openDialog(AboutDialogVue);
+
+const institution: { logo: string; name: string; url: string } = {
+  logo: import.meta.env.VITE_INSTITUTION_LOGO,
+  name: import.meta.env.VITE_INSTITUTION_NAME,
+  url: import.meta.env.VITE_INSTITUTION_URL,
+};
 </script>
 
 <template>
@@ -60,6 +67,12 @@ const showAbout = async () => await openDialog(AboutDialogVue);
       <div class="flex-grow-1 d-none d-md-block">
         <Breadcrumb />
       </div>
+
+      <InstitutionLogo
+        :logo="institution.logo"
+        :name="institution.name"
+        :url="institution.url"
+      />
 
       <button
         type="button"
