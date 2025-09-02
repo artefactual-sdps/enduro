@@ -1,4 +1,7 @@
-# This is the configuration file valid for the development environment.
+# This is the configuration file valid for the development environment. For
+# increased security it is possible to encrypt this file. Additionally, any
+# parameter can be turned into an environment variable. See the Enduro
+# Administrator's manual for further guidance.
 
 debug = true
 debugListen = "127.0.0.1:9001"
@@ -64,8 +67,8 @@ useRoles = false
 # A JSON formatted string specifying a mapping from expected roles to Enduro
 # attributes. JSON format:
 # {
-#   "role1": ["attribute1", "atrribute2"],
-#   "role2": ["attribute1", "atrribute2", "attribute3", "atrribute4"]
+#   "role1": ["attribute1", "attribute2"],
+#   "role2": ["attribute1", "attribute2", "attribute3", "atrribute4"]
 # }
 # Example:
 # rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"], "readonly": ["ingest:sips:list", "ingest:sips:read", "ingest:sips:workflows:list"]}'
@@ -91,7 +94,8 @@ compress = false
 [database]
 driver = "mysql"
 dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro"
-# migrate determines whether schema migrations are run during db upgrades.
+# migrate determines whether schema migrations are run during Enduro worker
+# startup.
 migrate = true
 
 [event]
@@ -99,7 +103,7 @@ redisAddress = "redis://redis.enduro-sdps:6379"
 redisChannel = "enduro-ingest-events"
 
 [extractActivity]
-# Sets the default unix filesystem permissions applied to directories and files
+# Sets the default POSIX filesystem permissions applied to directories and files
 # after package extraction.
 dirMode = "0o700"
 fileMode = "0o600"
@@ -112,7 +116,7 @@ enabled = true
 xsdPath = "/home/enduro/premis.xsd"
 
 [watcher.embedded]
-# Defines a given location or object store  as a watched location, where zipped
+# Defines a given location or object store as a watched location, where zipped
 # packages will be ingested automatically when deposited.
 name = "dev-minio"
 redisAddress = "redis://redis.enduro-sdps:6379"
@@ -187,8 +191,8 @@ AipCompressionAlgorithm = 6
 
 [am]
 address = ""
-user = ""                      # Secret: set with env var ENDURO_AM_USER.
-apiKey = ""                    # Secret: set with env var ENDURO_AM_APIKEY.
+user = ""
+apiKey = ""
 processingConfig = "automated"
 
 # capacity limits the number of transfers a worker can process at one time
@@ -233,7 +237,7 @@ remoteDir = ""
 
 [am.sftp.privateKey]
 path = ""
-passphrase = "" # Secret: set (if required) with env var ENDURO_AM_SFTP_PRIVATEKEY_PASSPHRASE.
+passphrase = ""
 
 [upload]
 # maxSize is the maximum upload size allowed by the server in bytes.
@@ -263,7 +267,7 @@ storageKey = ""
 # id uniquely identifies the SIP Source and must be a valid Version 4 UUID.
 id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
 # name is a human-readable name for the SIP Source.
-name = "Minio SIP Source"
+name = "MinIO SIP Source"
 
 # sipsource.bucket is a bucket where SIPs can be put for ingest — make sure it
 # doesn't match any of the watched buckets.

@@ -3,6 +3,26 @@
 This page describes the various configuration files and settings that Enduro
 supports.
 
+!!! important
+
+    Some of the information in Enduro's configuration files includes connection
+    information that should not be publicly exposed. To increase the security of
+    your deployment, you can encrypt the configuration files.
+
+    Additionally, it is possible to set any / all configuration value(s) using
+    [environment variables](https://linuxize.com/post/how-to-set-and-list-environment-variables-in-linux/).
+    The naming convention rules are as follows:
+
+    * Each variable must begin with `ENDURO_`
+    * Use all upppercase
+    * Change any periods in the configuration section headers to underscores,
+      and do the same for any parameters within a section
+
+    For example, to create an environment variable of the `claimPath` parameter
+    in the `[api.auth.oidc.abac]` configuration section, its name should be:
+
+    * `ENDURO_API_AUTH_OIDC_ABAC_CLAIMPATH`
+
 ## The enduro.toml file
 
 The `enduro.toml` is Enduro's primary configuration file. This file defines
@@ -50,10 +70,10 @@ packages in the `internal` directory have configurable settings found here.
 
 ### Debug mode for development
 
-Logs are a type of telemetry data that capture records of discrete events in
-Enduro. These settings control the format and verbosity of the logging
-information emitted by Enduro, which can be useful to increase during
-development.
+The application log captures a record of discrete Enduro events to aid in
+diagnosing system errors and bugs These settings control the format and
+verbosity of the logging information emitted by Enduro, which can be useful to
+increase during development.
 
 !!! tip
 
@@ -74,8 +94,9 @@ verbosity = 2
 * `debug`: Enables or disables debug mode. Accepted values are `true` or
   `false`. When set to true, Enduro will log to the console using a
   human-readable text output, and key elements are colorized (e.g. using red to
-  make ERROR more visible, etc). When set to false, logs are captured in JSON.
-* `debugListen`: the IP and port to use if configuring an observability server
+  make ERROR more visible, etc). When set to false, logs are captured in JSON
+  format to support machine parsing and analysis.
+* `debugListen`: the IP and port to use if configuring an observability server.
 * `verbosity`: Sets the verbosity of the log output. Note that errors are
   **always** logged - this setting will control the verbosity of other log
   events. Values can range from 0-128, with 0 being the least verbose and
@@ -84,7 +105,7 @@ verbosity = 2
 
 !!! note
 
-    Artefacutal developers have not tested or used the observability server
+    Artefactual developers have not tested or used the observability server
     configuration - it may not work as expected out of the box.
 
     At present, the highest configured log verbosity value used is around 3.
@@ -109,8 +130,8 @@ taskQueue = "global"
   needs to be changed if you expect to be running multiple different workflows
   running at once, so they don't clash.
 * `address`: Tells Enduro where to find Temporal - address and port connection
-  information
-* `taskQueue`: In Temporal, a [Task Queue] is  a lightweight, dynamically
+  information.
+* `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
   allocated queue that one or more workers can poll for tasks. Temporal supports
   all kinds of parallelization for a distributed application architecture, and
   and task queues can be namespaced to support such a set-up. At present
@@ -133,7 +154,7 @@ debug = false
 ```
 
 * `listen`: tells Enduro what IP address and port to use for internal API
-  communication across components
+  communication across components.
 * `debug`: Enables (set to `true`) or disables (set to `false`) debug mode for
   the internal API. When enabled, debug prints detailed information about
   incoming requests and outgoing responses, including all headers, parameters,
@@ -160,7 +181,7 @@ corsOrigin = "http://localhost"
 ```
 
 * `listen`: Specifies the address and port the API will bind to for
-  communication
+  communication.
 * `debug`: Enables (set to `true`) or disables (set to `false`) debug mode for
   the API. When enabled, debug prints detailed information about incoming
   requests and outgoing responses, including all headers, parameters,
@@ -271,8 +292,8 @@ rolesMapping =
 
     ```json
     {
-      "role1": ["attribute1", "atrribute2"],
-      "role2": ["attribute1", "atrribute2", "attribute3", "atrribute4"]
+      "role1": ["attribute1", "attribute2"],
+      "role2": ["attribute1", "attribute2", "attribute3", "atrribute4"]
     }
     ```
 
@@ -324,8 +345,8 @@ migrate = true
 * `dsn`: Data Source Name. Specifies the database connection information,
   including username, password, Transmission Control Protocol (TCP) information
   for host-to-host communication, and database name.
-* `migrate`: Determines whether database schema migrations are run during
-  upgrades. Set to `true` (enabled) by default.
+* `migrate`: Determines whether database schema migrations are run when the
+  Enduro worker starts. Set to `true` (enabled) by default.
 
     This _could_ be set to `false` (disabled) in a production database to
     protect against the risk of data loss from faulty migrations, but an
@@ -368,11 +389,11 @@ redisChannel = "enduro-ingest-events"
 
 ### Extract activity unix permissions
 
-These settings define the unix filesystem permissions that are applied to
+These settings define the POSIX filesystem permissions that are applied to
 extracted files and directories when a compressed package is received and the
 internal extract activity is executed. For security purposes to protect the
 integrity of the received content, the default permissions are somewhat more
-restrictive than the defaults used by many linux systems.
+restrictive than the defaults used by many Linux systems.
 
 **Default values**:
 
@@ -384,8 +405,8 @@ fileMode = "0o600"
 
 * `dirMode`: Defines the permissions assigned to directories in extracted
   packages. The default value is `0o700`, which ensures that only the owner (in
-  this case, Enduro) and the `sudo` superuser can read, write to the directory
-  contents, and that anyone else is locked out.
+  this case, Enduro) and the `sudo` superuser can can view, access, or modify
+  the directory and its contents, and that anyone else is locked out.
 * `fileMode`: Defines permissions assigned to files in extracted packages.The
   default value is `0o600`, which grants the owner (now Enduro) permissions to
   read and write to the files, but not execute them.
@@ -411,6 +432,9 @@ the configured path.
 
     For the PREMIS validation activity to succeed when enabled:
 
+    * The [libxml2](https://en.wikipedia.org/wiki/Libxml2) library must be
+      installed. Note that the project's Docker configuration automatically
+      installs this dependency in the Enduro Docker image.
     * The file **MUST** be named `premis.xml`
     * The file **MUST** be found in a `metadata` directory
     * The metadata directory **must not** be nested inside any other directories
@@ -449,7 +473,7 @@ At this time, [Redis] is the only supported watcher - as such, the
 All other default parameters are S3-specific, and might not be needed for other
 watched location types. The default configuration included uses a [MinIO] bucket
 as the example watched location. MinIO uses Amazon [S3] syntax for its
-confiugration properties. Different object stores may have different parameters
+configuration properties. Different object stores may have different parameters
 to be configured. Consult the corresponding object store provider's
 documentation for more information.
 
@@ -484,8 +508,8 @@ workflowType = "create aip"
   if you are configuring more than one watched location.
 * `redisAddress`: Binds Redis to a specific address and port.
 * `redisList`:  = "minio-events"
-* `endpoint`: API endpoint for the target minIO instance. Used by Enduro to read
-  contents of a watched bucket, or for any other minIO interactions.
+* `endpoint`: API endpoint for the target MinIO instance. Used by Enduro to read
+  contents of a watched bucket, or for any other MinIO interactions.
 * `pathStyle`: Currently Amazon Web Services support two different URL
   construction methods when interacting with an object store bucket via API. The
   "path-style" method constructs the bucket's access URL using the configured
@@ -501,7 +525,7 @@ workflowType = "create aip"
 * `bucket`: A configured object store may have more than 1 bucket. This
   parameter specifies the target bucket name to be used for the watched
   location.
-* `workflowtype`: Specifies the name of the Enduro workflow type to be run when
+* `workflowType`: Specifies the name of the Enduro workflow type to be run when
   SIPs are deposited in the watched location. Currently the only supported
   values are "create aip" and "create and review aip". The latter review
   workflow also only works if [a3m] is the configured [preservation engine]
@@ -553,8 +577,8 @@ migrate = true
 * `dsn`: Data Source Name. Specifies the database connection information,
   including username, password, Transmission Control Protocol (TCP) information
   for host-to-host communication, and database name
-* `migrate`: Determines whether database schema migrations are run during
-  upgrades. Set to `true` (enabled) by default.
+* `migrate`: Determines whether database schema migrations are run on Enduro
+  start up. Set to `true` (enabled) by default.
 
     This _could_ be set to `false` (disabled) in a production database to
     protect against the risk of data loss from faulty migrations, but an
@@ -577,7 +601,7 @@ derivative, a3m does not.
 
 The defaults included below use Amazon [S3] syntax to configure a [MinIO]
 bucket. Other third-party object store providers (such as Azure) will have their
-own syntax - consult the provider's documentation fopr more information.
+own syntax - consult the provider's documentation for more information.
 
 For **local filesystems**, the only other required field is a `url` parameter
 pointing to the target location - for example:
@@ -598,8 +622,8 @@ region = "us-west-1"
 bucket = "aips"
 ```
 
-* `endpoint`: API endpoint for the target minIO instance. Used by Enduro to read
-  contents of a watched bucket, or for any other minIO interactions.
+* `endpoint`: API endpoint for the target MinIO instance. Used by Enduro to read
+  contents of a watched bucket, or for any other MinIO interactions.
 * `pathStyle`: Currently Amazon Web Services support two different URL
   construction methods when interacting with an object store bucket via API. The
   "path-style" method constructs the bucket's access URL using the configured
@@ -613,8 +637,8 @@ bucket = "aips"
   a full list of available regions and the syntax to specify them, consult the
   [AWS S3 documentation][S3-regions].
 * `bucket`: A configured object store may have more than 1 bucket. This
-  parameter specifies the target bucket name to be used for the watched
-  location.
+  parameter specifies the target bucket name to be used for the internal AIP
+  store location.
 
 #### Storage event listener
 
@@ -656,7 +680,7 @@ used - either [a3m] or [Archivematica].
 taskqueue = "a3m"
 ```
 
-* `taskQueue`: In Temporal, a [Task Queue] is  a lightweight, dynamically
+* `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
   allocated queue that one or more workers can poll for tasks. Temporal supports
   all kinds of parallelization for a distributed application architecture, and
   and task queues can be namespaced to support such a set-up.
@@ -700,7 +724,7 @@ capacity = 1
         └── tmp
     ```
 
-* `capacity`: Limits the number of SIPs a worker and process at one time.
+* `capacity`: Limits the number of SIPs a worker can process at one time.
 
 #### a3m processing configuration
 
@@ -743,7 +767,7 @@ consult the Archivematica documentation:
     Some of the options in the Archivematica documentation indicate that a given
     setting can be left blank to prompt a user for a decision. **This will not
     work with Enduro** - instead, the ingest workflow will eventually time out
-    while polling the perservation engine for updates, causing the workflow to
+    while polling the preservation engine for updates, causing the workflow to
     fail. For all but the last two configuration options listed above,
     acceptable values are either `true` (i.e. "Yes" in the AM documentation) or
     `false` (i.e. "No").
@@ -786,17 +810,13 @@ transferSourcePath = ""
 zipPIP = false
 ```
 
-* `address`: Binds a3m to a specific address and port for communication. Because
-  [a3m] is the installation default preservation engine, this is blank until
-  configured.
+* `address`: Binds Archivematica to a specific address and port for
+  communication. Because [a3m] is the installation default preservation engine,
+  this is blank until configured.
 * `user`: Defines the username associated with the Archivematica instance. Blank
-  by default. For increased security, we recommend leaving this blank and
-  instead defining a persistent [environment variable] named `ENDURO_AM_USER`
-  with the chosen username.
+  by default.
 * `apiKey`: Defines the API key associated with the Archivematica instance.
-  Blank by default. For increased security, we recommend leaving this blank and
-  instead defining a persistent [environment variable] named `ENDURO_AM_APIKEY`
-  with the chosen key.
+  Blank by default.
 * `processingConfig`: Set the name of the processing configuration file in
   Archivematica to use for the preservation workflow. Archivematica can have
   several different processing configuration files defined, and users can create
@@ -816,15 +836,15 @@ zipPIP = false
   GoLang `time` package - valid time units are "ns", "us" (or "µs"), "ms", "s",
   "m", and "h".
 * `transferDeadline`: The maximum amount of time that Enduro should wait for
-  Archivematica to finish processessing a submitted package. Interval values
+  Archivematica to finish processing a submitted package. Interval values
   should be compatible with what the [ParseDuration] function's values of the
   GoLang `time` package - valid time units are "ns", "us" (or "µs"), "ms", "s",
   "m", and "h". The default value is one hour (`1h`).
 * `transferSourcePath`: The path to an Archivematica transfer source directory.
   Used in the API call to Archivematica to start processing the submitted [PIP].
-  TransferSourcePath must be prefixed with the UUID of an AM [Storage Service]
+  transferSourcePath must be prefixed with the UUID of an AM [Storage Service]
   transfer source directory, optionally followed by a relative path from the
-  specified source direectory (e.g.
+  specified source directory (e.g.
   `749ef452-fbed-4d50-9072-5f98bc01e52e:sftp_upload`). If no `transferSourcPath`
   is specified, the default transfer source path will be used. See the
   [AMSS documentation] for more information.
@@ -839,8 +859,10 @@ zipPIP = false
 
 These settings allow Enduro and Archivematica to use the Secure Shell File
 Transfer Protocol (SFTP) for the transfer of [PIPs][PIP] to Archivematica for
-preservation processing. Requires setting up an SFTP server in advance, and
-then configuring the connection information in the settings described here.
+preservation processing. This requires setting up an SFTP server on the target
+Archivematica host first with permission to write to an
+[AMSS][AMSS documentation] transfer directory, and then configuring the
+connection information in the settings described here.
 
 **Default values**:
 
@@ -884,16 +906,15 @@ passphrase = ""
 * `path`: Filesystem path to where the private key file is stored.
 * `passphrase`: Pass phrase to unlock the private key. Note: while it is
   possible to store the passphrase here as plain text, we **do not recommend
-  this**. For increased security, we recommend leaving this blank and
-  instead defining a persistent [environment variable] named
-  `ENDURO_AM_SFTP_PRIVATEKEY_PASSPHRASE`.
+  this**.
 
 ### User interface SIP upload filesize limit
 
 These settings define the maximum size of a SIP that Enduro will allow
 when uploading via the user interface. The setting is configured in bytes, but
-will be shown in the user interface in [Gibibytes] (GiB). For more information,
-see:
+will be shown in the user interface using the largest [SI prefix] (up to TiB)
+that will display a unit value larger than one. Possible units values are:
+bytes, KiB, MiB, GiB, and TiB. For more information, see:
 
 * [Upload SIPs via the user interface][upload-ui]
 
@@ -905,7 +926,7 @@ maxSize = 4294967296
 ```
 
 * `maxSize`: The maximum SIP size allowed for upload via the user interface,
-  configured in bytes. Default value is 4294967296, i.e. 4GiB.
+  configured in bytes. Default value is 4294967296, i.e. 4 [Gibibytes] (GiB).
 
 ### Internal storage configuration
 
@@ -921,7 +942,7 @@ sections below must be configured.
 This subsection allows either an S3-like object store bucket or a local
 filesystem location to be configured for UI uploads and failed packages. The
 default configuration included uses a [MinIO] bucket as the example location.
-MinIO uses Amazon [S3] syntax for its confiugration properties. Different object
+MinIO uses Amazon [S3] syntax for its configuration properties. Different object
 stores may have different parameters to be configured. Consult the corresponding
 object store provider's documentation for more information, or, if using [Azure]
 blob storage, use the subsection
@@ -946,8 +967,8 @@ region = "us-west-1"
 bucket = "internal"
 ```
 
-* `endpoint`: API endpoint for the target minIO instance. Used by Enduro to read
-  contents of a bucket, or for any other minIO interactions.
+* `endpoint`: API endpoint for the target MinIO instance. Used by Enduro to read
+  contents of a bucket, or for any other MinIO interactions.
 * `pathStyle`: Currently Amazon Web Services support two different URL
   construction methods when interacting with an object store bucket via API. The
   "path-style" method constructs the bucket's access URL using the configured
@@ -995,6 +1016,7 @@ needed to access packages in the target Azure blob store.
 **Default values**:
 
 ```toml
+[internalStorage.azure]
 storageAccount = ""
 storageKey = ""
 ```
@@ -1022,8 +1044,9 @@ while the bucket subsection links the specified location.
 **Default values**:
 
 ```toml
+[sipsource]
 id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
-name = "Minio SIP Source"
+name = "MinIO SIP Source"
 ```
 
 * `id`: A UUID that unique identifies the SIP source location. Must be a valid
@@ -1035,7 +1058,7 @@ name = "Minio SIP Source"
 This subsection allows either an S3-like object store bucket or a local
 filesystem location to be configured as a SIP source location. The
 default configuration included uses a [MinIO] bucket as the example location.
-MinIO uses Amazon [S3] syntax for its confiugration properties. Different object
+MinIO uses Amazon [S3] syntax for its configuration properties. Different object
 stores may have different parameters to be configured. Consult the corresponding
 object store provider's documentation for more information.
 
@@ -1058,8 +1081,8 @@ region = "us-west-1"
 bucket = "sipsource"
 ```
 
-* `endpoint`: API endpoint for the target minIO instance. Used by Enduro to read
-  contents of a bucket, or for any other minIO interactions.
+* `endpoint`: API endpoint for the target MinIO instance. Used by Enduro to read
+  contents of a bucket, or for any other MinIO interactions.
 * `pathStyle`: Currently Amazon Web Services support two different URL
   construction methods when interacting with an object store bucket via API. The
   "path-style" method constructs the bucket's access URL using the configured
@@ -1073,9 +1096,9 @@ bucket = "sipsource"
   a full list of available regions and the syntax to specify them, consult the
   [AWS S3 documentation][S3-regions].
 * `bucket`: A configured object store may have more than 1 bucket. This
-  parameter specifies the target bucket name to be used for the uploaded SIPs
-  and failed packages location. Because the default configuration uses MinIO
-  buckets elsewhere as well, ensure that this bucket name is unique.
+  parameter specifies the target bucket name to be used for the SIP source
+  location. Because the default configuration uses MinIO buckets elsewhere as
+  well, ensure that this bucket name is unique.
 
 ### Telemetry configuration
 
@@ -1084,7 +1107,7 @@ gain insights into system performance, user behavior, resource usage, and more.
 
 Enduro includes a GoLang [OpenTelemetry] package, which when enabled and
 properly configured, can support the generation, collection, and export of
-telemetry data from Enduro for debugging, optmization, and development purposes.
+telemetry data from Enduro for debugging, optimization, and development purposes.
 At this time, no user data is reviewed or collected by the Enduro telemetry
 package.
 
@@ -1144,7 +1167,7 @@ sharedPath = "/home/enduro/preprocessing"
   whether SIP extraction happens as part of the child workflow or not. When set
   to false, SIP extraction will occur at the beginning of the workflow. In some
   cases, you may wish to design custom child workflow activities that perform
-  operatons on the SIP before it is extracted - for example, calculating a
+  operations on the SIP before it is extracted - for example, calculating a
   checksum of the zipped package to check for prior duplicate ingests before
   proceeding. When this value is set to `true` Enduro will skip the extraction
   task at the beginning of the ingest workflow, allowing you to define when and
@@ -1171,16 +1194,16 @@ workflowName = "preprocessing"
 * `namespace`: An internal namespace label for the temporal workflows. This only
   needs to be changed if you expect to be running multiple different workflows
   running at once, so they don't clash.
-* `taskQueue`: In Temporal, a [Task Queue] is  a lightweight, dynamically
+* `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
   allocated queue that one or more workers can poll for tasks. Temporal supports
-  all kinds of parallelization for a distributed application architecture, and
+  many kinds of parallelization for a distributed application architecture, and
   and task queues can be namespaced to support such a set-up. The default value
   of `preprocessing` here differentiates it from the general `global` task queue
   used by Enduro, and ensures that Enduro looks for child workflow tasks in a
   dedicated queue.
 * `workflowName`: The name of the configured [child workflow] in Temporal.
 
-### Post-storage worfklow configuration
+### Post-storage workflow configuration
 
 In addition to configuring a [child workflow] for custom ingest processing
 tasks, Enduro can also run an additional child workflow for [post-storage]
@@ -1210,7 +1233,7 @@ enable this section as you configure the values.
 * `namespace`: An internal namespace label for the temporal workflows. This only
   needs to be changed if you expect to be running multiple different workflows
   running at once, so they don't clash.
-* `taskQueue`: In Temporal, a [Task Queue] is  a lightweight, dynamically
+* `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
   allocated queue that one or more workers can poll for tasks. Temporal supports
   all kinds of parallelization for a distributed application architecture, and
   and task queues can be namespaced to support such a set-up. The default value
@@ -1222,7 +1245,7 @@ enable this section as you configure the values.
 * `workflowName`: The name of the configured [child workflow] in Temporal.
 
 [a3m]: https://github.com/artefactual-labs/a3m
-[ABAC]:https://en.wikipedia.org/wiki/Attribute-based_access_control
+[ABAC]: https://en.wikipedia.org/wiki/Attribute-based_access_control
 [AIP]: ../user-manual/glossary.md#archival-information-package-aip
 [AMSS documentation]: https://www.archivematica.org/docs/storage-service-latest/administrators
 [API]: ../dev-manual/api.md
@@ -1234,7 +1257,6 @@ enable this section as you configure the values.
 [components]: ../user-manual/components.md
 [content failures]: ../user-manual/glossary.md#content-failure
 [CORS]: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
-[environment variable]: https://linuxize.com/post/how-to-set-and-list-environment-variables-in-linux/
 [Gibibytes]: https://www.difference.wiki/gigabyte-vs-gibibyte/
 [Keycloak]: https://www.keycloak.org/
 [METS]: https://www.loc.gov/standards/mets/
@@ -1251,6 +1273,7 @@ enable this section as you configure the values.
 [Redis]: https://redis.io/
 [S3]: https://aws.amazon.com/s3/
 [S3-regions]: https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-tables-regions-quotas.html#s3-tables-regions
+[SI prefix]: https://en.wikipedia.org/wiki/Metric_prefix
 [sip-source]: ../user-manual/ingest/submitting-content.md#add-sips-via-a-source-location
 [Storage Service]: https://archivematica.org/docs/storage-service-latest/
 [system errors]: ../user-manual/glossary.md#system-error
