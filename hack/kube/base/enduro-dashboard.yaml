@@ -20,6 +20,8 @@ spec:
           env:
             - name: ENDURO_API_ADDRESS
               value: enduro.enduro-sdps:9000
+            - name: ENDURO_API_PROTOCOL
+              value: http
             - name: VITE_OIDC_ENABLED
               valueFrom:
                 secretKeyRef:

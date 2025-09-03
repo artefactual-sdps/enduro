@@ -31,7 +31,7 @@ server {
     root /usr/share/nginx/html;
     absolute_redirect off;
     location /api/ingest/monitor {
-        proxy_pass http://backend/ingest/monitor;
+        proxy_pass \${ENDURO_API_PROTOCOL:-http}://backend/ingest/monitor;
         proxy_http_version 1.1;
         proxy_set_header Connection "Upgrade";
         proxy_set_header Upgrade \$http_upgrade;
@@ -39,20 +39,20 @@ server {
     }
     location /api/ingest/sips/upload {
         client_max_body_size 4096M;
-        proxy_pass http://backend/ingest/sips/upload;
+        proxy_pass \${ENDURO_API_PROTOCOL:-http}://backend/ingest/sips/upload;
         proxy_request_buffering off;
         proxy_read_timeout 24h;
         proxy_send_timeout 24h;
     }
     location /api/storage/monitor {
-        proxy_pass http://backend/storage/monitor;
+        proxy_pass \${ENDURO_API_PROTOCOL:-http}://backend/storage/monitor;
         proxy_http_version 1.1;
         proxy_set_header Connection "Upgrade";
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Host \$http_host;
     }
     location /api/ {
-        proxy_pass http://backend/;
+        proxy_pass \${ENDURO_API_PROTOCOL:-http}://backend/;
         proxy_redirect / /api/;
     }
     location / {
