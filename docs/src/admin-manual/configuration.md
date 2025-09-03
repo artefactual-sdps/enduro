@@ -126,14 +126,14 @@ address = "temporal.enduro-sdps:7233"
 taskQueue = "global"
 ```
 
-* `namespace`: An internal namespace label for the temporal workflows. This only
+* `namespace`: An internal namespace label for the Temporal workflows. This only
   needs to be changed if you expect to be running multiple different workflows
   running at once, so they don't clash.
 * `address`: Tells Enduro where to find Temporal - address and port connection
   information.
 * `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
   allocated queue that one or more workers can poll for tasks. Temporal supports
-  all kinds of parallelization for a distributed application architecture, and
+  many kinds of parallelization for a distributed application architecture, and
   and task queues can be namespaced to support such a set-up. At present
   however, Enduro will only support the default `global` value for the general
   ingest workflow queue.
@@ -682,7 +682,7 @@ taskqueue = "a3m"
 
 * `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
   allocated queue that one or more workers can poll for tasks. Temporal supports
-  all kinds of parallelization for a distributed application architecture, and
+  many kinds of parallelization for a distributed application architecture, and
   and task queues can be namespaced to support such a set-up.
 
     In this case, the setting tells Enduro the name of the task queue to expect
@@ -845,9 +845,9 @@ zipPIP = false
   transferSourcePath must be prefixed with the UUID of an AM [Storage Service]
   transfer source directory, optionally followed by a relative path from the
   specified source directory (e.g.
-  `749ef452-fbed-4d50-9072-5f98bc01e52e:sftp_upload`). If no `transferSourcPath`
-  is specified, the default transfer source path will be used. See the
-  [AMSS documentation] for more information.
+  `749ef452-fbed-4d50-9072-5f98bc01e52e:sftp_upload`). If no
+  `transferSourcePath` is specified, the default transfer source path will be
+  used. See the [AMSS documentation] for more information.
 * `zipPIP`: This boolean setting specifies whether or not a [PIP] should be
   zipped before being sent from Enduro to Archivematica. In either case, the
   package will be placed in a [BagIt] conformant bag before being transferred,
@@ -1165,13 +1165,13 @@ sharedPath = "/home/enduro/preprocessing"
   custom child workflow, change to `true`.
 * `extract`: Boolean value, set to `false` by default. This setting determines
   whether SIP extraction happens as part of the child workflow or not. When set
-  to false, SIP extraction will occur at the beginning of the workflow. In some
-  cases, you may wish to design custom child workflow activities that perform
-  operations on the SIP before it is extracted - for example, calculating a
-  checksum of the zipped package to check for prior duplicate ingests before
-  proceeding. When this value is set to `true` Enduro will skip the extraction
-  task at the beginning of the ingest workflow, allowing you to define when and
-  how extraction occurs in the child workflow.
+  to false, SIP extraction will occur in the parent Enduro workflow before the
+  child workflow is run. In some cases, you may wish to design custom child
+  workflow activities that perform operations on the SIP before it is extracted:
+  for example, calculating a checksum of the zipped package to check for prior
+  duplicate ingests before proceeding. When this value is set to `true` Enduro
+  will skip the extraction task at the beginning of the ingest workflow,
+  allowing you to define when and how extraction occurs in the child workflow.
 * `sharedPath`: The absolute path to the directory that Enduro should use to
   share the SIP between the primary ingest workflow and the configured
   preprocessing child workflow. This path is required when `enabled` is set to
@@ -1191,7 +1191,7 @@ taskQueue = "preprocessing"
 workflowName = "preprocessing"
 ```
 
-* `namespace`: An internal namespace label for the temporal workflows. This only
+* `namespace`: An internal namespace label for the Temporal workflows. This only
   needs to be changed if you expect to be running multiple different workflows
   running at once, so they don't clash.
 * `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
@@ -1213,13 +1213,20 @@ Post-storage is a phase in an ingest or preservation workflow describing all the
 preservation policy-defined tasks performed on an [AIP] following
 preservation processing and AIP storage. Post-storage task examples might
 include metadata extraction and delivery to an external system (such as an
-archival management system), AIP encrpyption or replication, and more.
+archival management system), AIP encryption or replication, and more.
 
 These settings can be used to enable and configure a post-storage child workflow
 for Enduro, which will be run after AIP creation and storage following a
 successful ingest. By default at installation this section is commented out to
 render it inactive - remove the `#` hash symbol from the start of each line to
 enable this section as you configure the values.
+
+!!! note
+
+    The post-storage configuration block can be repeated more than once to add
+    multiple post-storage child workflows. This is why the `poststorage` header
+    is in double brackets rather than single brackets like other configuration
+    blocks.
 
 **Default values**:
 
@@ -1230,12 +1237,12 @@ enable this section as you configure the values.
 # workflowName = "poststorage"
 ```
 
-* `namespace`: An internal namespace label for the temporal workflows. This only
+* `namespace`: An internal namespace label for the Temporal workflows. This only
   needs to be changed if you expect to be running multiple different workflows
   running at once, so they don't clash.
 * `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
   allocated queue that one or more workers can poll for tasks. Temporal supports
-  all kinds of parallelization for a distributed application architecture, and
+  many kinds of parallelization for a distributed application architecture, and
   and task queues can be namespaced to support such a set-up. The default value
   of `poststorage` here differentiates it from the general `global` task queue
   used by Enduro and the `preprocessing` task queue default used for custom
