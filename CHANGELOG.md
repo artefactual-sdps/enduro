@@ -8,6 +8,20 @@ requests.
 
 ## [Unreleased]
 
+## [0.18.0] - 2025-09-04
+
+### Fixed
+
+- Clear SIPs user filter on page load ([#1321])
+
+### Changed
+
+- Change label for SIPs user filer ([#1322])
+
+### Added
+
+- Audit log for certain user actions ([#1282])
+
 ## [0.17.0] - 2025-08-08
 
 ### Added
@@ -209,7 +223,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.17.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/artefactual-sdps/enduro/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/artefactual-sdps/enduro/compare/v0.16.0...v0.17.0
 [0.16.0]: https://github.com/artefactual-sdps/enduro/compare/v0.15.0...v0.16.0
 [0.15.0]: https://github.com/artefactual-sdps/enduro/compare/v0.14.0...v0.15.0
@@ -227,7 +242,10 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1322]: https://github.com/artefactual-sdps/enduro/issues/1322
+[#1321]: https://github.com/artefactual-sdps/enduro/issues/1321
 [#1291]: https://github.com/artefactual-sdps/enduro/issues/1291
+[#1282]: https://github.com/artefactual-sdps/enduro/issues/1282
 [#1276]: https://github.com/artefactual-sdps/enduro/issues/1276
 [#1265]: https://github.com/artefactual-sdps/enduro/issues/1265
 [#1262]: https://github.com/artefactual-sdps/enduro/issues/1262
