@@ -215,8 +215,9 @@ enabled = true
 #### OIDC authentication provider configuration
 
 This setting block is used to configure the OpenID Connect ([OIDC]) provider
-when API authentication is [enabled](#enable-api-authentication). By default
-Enduro uses [Keycloak] for handling OIDC single sign-on requests.
+when API authentication is [enabled](#enable-api-authentication). The default
+value assumes that [Keycloak] will be used for handling OIDC single sign-on
+requests.
 
 For more details on OIDC configuration, consult the [OIDC specification].
 
