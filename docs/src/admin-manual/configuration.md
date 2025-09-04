@@ -71,7 +71,7 @@ packages in the `internal` directory have configurable settings found here.
 ### Debug mode for development
 
 The application log captures a record of discrete Enduro events to aid in
-diagnosing system errors and bugs These settings control the format and
+diagnosing system errors and bugs. These settings control the format and
 verbosity of the logging information emitted by Enduro, which can be useful to
 increase during development.
 
@@ -162,8 +162,8 @@ debug = false
 
 ### API
 
-The next set of 4 configuration blocks all relate to Enduro's primary external
-facing [API]. This first block sets the basic configuration of the API.
+The next set of four configuration blocks all relate to Enduro's primary
+external facing [API]. This first block sets the basic configuration of the API.
 
 !!! tip
 
@@ -262,7 +262,7 @@ useRoles = false
 rolesMapping =
 ```
 
-* `enabled`: Accepts `true` or `false` as values.
+* `enabled`: Set to `true` to enable ABAC, or `false` to disable ABAC.
 * `claimPath`: The claim path of the Enduro attributes within the access token.
   If the claim path is nested, include all fields separated by the
   `claimPathSeparator` defined below. This element is required when `enabled` is
@@ -293,14 +293,14 @@ rolesMapping =
     ```json
     {
       "role1": ["attribute1", "attribute2"],
-      "role2": ["attribute1", "attribute2", "attribute3", "atrribute4"]
+      "role2": ["attribute1", "attribute2", "attribute3", "attribute4"]
     }
     ```
 
     For example:
 
     ```toml
-    rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:read",   "ingest:sips:upload", "ingest:sips:workflows:list"], "readonly": ["ingest:sips:list", "ingest:sips:read",   "ingest:sips:workflows:list"]}'
+    rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"], "readonly": ["ingest:sips:list", "ingest:sips:read", "ingest:sips:workflows:list"]}'
     ```
 
     Because `useRoles` is set to false by default, `rolesMapping` is empty by
@@ -320,7 +320,7 @@ address = "redis://redis.enduro-sdps:6379"
 prefix = "enduro"
 ```
 
-* `address`: Binds Redis to a specific address and port
+* `address`: Binds Redis to a specific address and port.
 * `prefix`: Defines a namespace that can be used as a prefix to differentiate
   instances if you have multiple Enduro installations running. Otherwise, there
   is no reason to change the default "enduro" value.
@@ -375,7 +375,7 @@ redisAddress = "redis://redis.enduro-sdps:6379"
 redisChannel = "enduro-ingest-events"
 ```
 
-* `redisAddress`: Binds Redis to a specific address and port
+* `redisAddress`: Binds Redis to a specific address and port.
 * `redisChannel`: Redis can be configured to use different channels for
   different queues. In this example configuration, we use same Redis
   installation and address for multiple different event listeners (see also
@@ -459,15 +459,19 @@ xsdPath = "/home/enduro/premis.xsd"
 ### Watched location configuration
 
 These configuration settings, when enabled, allow Enduro to initiate SIP ingest
-from a watched location. The configured watched location can either be a local
-filesystem directory or an object store bucket (such as one provided by MinIO,
-S3, or Azure). Once configured, any time a new zipped package is added to the
-location, Enduro's watcher (in this case, [Redis]) will see it and automatically
-initiate an ingest workflow. For more information, see:
+from a watched location. The configured watched location can be an object store
+bucket such as one provided by MinIO, S3, or Azure. Once configured, any time a
+new zipped package is added to the location, it will be configured to publish
+an event to Enduro's message queue (in this case, [Redis], listening for events
+in the queue defined by the `redisList` parameter below). Enduro's internal
+watcher will watch for new deposit events at the configured `redisAddress` and
+queue, and will trigger the ingest workflow when it detects a SIP deposit in
+the configured watched location. For more information on ingests from a watched
+location, see:
 
 * [Initiate ingest via a watched location upload][watched-location]
 
-At this time, [Redis] is the only supported watcher - as such, the
+At this time, [Redis] is the only supported messaging queue - as such, the
 `redisAddress` and `redisList` fields are required.
 
 All other default parameters are S3-specific, and might not be needed for other
@@ -476,17 +480,6 @@ as the example watched location. MinIO uses Amazon [S3] syntax for its
 configuration properties. Different object stores may have different parameters
 to be configured. Consult the corresponding object store provider's
 documentation for more information.
-
-For **local filesystems**, the only other required field is a `url` parameter
-pointing to the target location - for example:
-
-```toml
-url = "file:///home/enduro/watchdir"
-```
-
-Note that when configuring a local filesystem directory as a watched location,
-a watcher must also be installed and configured - simply using the default
-[Redis] values included below will **not work without further set-up**.
 
 **Default values**:
 
@@ -507,7 +500,8 @@ workflowType = "create aip"
 * `name`: Defines a name to be used internally for the watched location. Useful
   if you are configuring more than one watched location.
 * `redisAddress`: Binds Redis to a specific address and port.
-* `redisList`:  = "minio-events"
+* `redisList`: The name of the queue that Redis should use for the watched
+  location SIP deposit events.
 * `endpoint`: API endpoint for the target MinIO instance. Used by Enduro to read
   contents of a watched bucket, or for any other MinIO interactions.
 * `pathStyle`: Currently Amazon Web Services support two different URL
@@ -516,8 +510,8 @@ workflowType = "create aip"
   properties, such as region, bucket name, and object key. For Enduro
   integrations, the second virtual "host-style" method is not currently
   supported so if using an S3-like object store, ensure this is set to `true`.
-* `key`: Username for accessing the configured S3-like bucket
-* `secret`: Password for accessing the configured S3-like bucket
+* `key`: Username for accessing the configured S3-like bucket.
+* `secret`: Password for accessing the configured S3-like bucket.
 * `region`:  = AWS S3 buckets are created in a specific region. When interacting
   with S3, you can specify the region during the bucket creation process. For
   a full list of available regions and the syntax to specify them, consult the
@@ -528,7 +522,7 @@ workflowType = "create aip"
 * `workflowType`: Specifies the name of the Enduro workflow type to be run when
   SIPs are deposited in the watched location. Currently the only supported
   values are "create aip" and "create and review aip". The latter review
-  workflow also only works if [a3m] is the configured [preservation engine]
+  workflow also only works if [a3m] is the configured [preservation engine].
 
 ### Storage endpoint
 
@@ -576,7 +570,7 @@ migrate = true
   value, even if other MySQL distributions are being used.
 * `dsn`: Data Source Name. Specifies the database connection information,
   including username, password, Transmission Control Protocol (TCP) information
-  for host-to-host communication, and database name
+  for host-to-host communication, and database name.
 * `migrate`: Determines whether database schema migrations are run on Enduro
   start up. Set to `true` (enabled) by default.
 
@@ -630,13 +624,13 @@ bucket = "aips"
   properties, such as region, bucket name, and object key. For Enduro
   integrations, the second virtual "host-style" method is not currently
   supported so if using an S3-like object store, ensure this is set to `true`.
-* `key`: Username for accessing the configured S3-like bucket
-* `secret`: Password for accessing the configured S3-like bucket
+* `key`: Username for accessing the configured S3-like bucket.
+* `secret`: Password for accessing the configured S3-like bucket.
 * `region`: AWS S3 buckets are created in a specific region. When interacting
   with S3, you can specify the region during the bucket creation process. For
   a full list of available regions and the syntax to specify them, consult the
   [AWS S3 documentation][S3-regions].
-* `bucket`: A configured object store may have more than 1 bucket. This
+* `bucket`: A configured object store may have more than one bucket. This
   parameter specifies the target bucket name to be used for the internal AIP
   store location.
 
@@ -656,7 +650,7 @@ redisAddress = "redis://redis.enduro-sdps:6379"
 redisChannel = "enduro-storage-events"
 ```
 
-* `redisAddress`: Binds Redis to a specific address and port
+* `redisAddress`: Binds Redis to a specific address and port.
 * `redisChannel`: Redis can be configured to use different channels for
   different queues. In this example configuration, we use same Redis
   installation and address for multiple different event listeners (see also:
@@ -704,7 +698,7 @@ shareDir = "/home/a3m/.local/share/a3m/share"
 capacity = 1
 ```
 
-* `address`: Binds a3m to a specific address and port for communication
+* `address`: Binds a3m to a specific address and port for communication.
 * `shareDir`: a3m uses a `share` directory with a number of predefined
   subdirectories for processing and package management. This parameter defines
   the location the `share` directory and its contents will be created during
@@ -832,14 +826,13 @@ zipPIP = false
   [preservation engine], Enduro will then regularly poll the preservation engine
   for updates. This setting determines how frequently Enduro will poll for
   updates, with the default value being 10 seconds (`10s`). Interval values
-  should be compatible with what the [ParseDuration] function's values of the
-  GoLang `time` package - valid time units are "ns", "us" (or "µs"), "ms", "s",
-  "m", and "h".
+  should be compatible with the [GoLang] [ParseDuration] function — valid values
+  are "ns", "us" (or "µs"), "ms", "s", "m", and "h".
 * `transferDeadline`: The maximum amount of time that Enduro should wait for
-  Archivematica to finish processing a submitted package. Interval values
-  should be compatible with what the [ParseDuration] function's values of the
-  GoLang `time` package - valid time units are "ns", "us" (or "µs"), "ms", "s",
-  "m", and "h". The default value is one hour (`1h`).
+  Archivematica to finish processing a submitted package. Interval values should
+  be compatible with the [GoLang] [ParseDuration] function — valid values are
+  "ns", "us" (or "µs"), "ms", "s", "m", and "h". The default value is one hour
+  (`1h`).
 * `transferSourcePath`: The path to an Archivematica transfer source directory.
   Used in the API call to Archivematica to start processing the submitted [PIP].
   transferSourcePath must be prefixed with the UUID of an AM [Storage Service]
@@ -852,8 +845,8 @@ zipPIP = false
   zipped before being sent from Enduro to Archivematica. In either case, the
   package will be placed in a [BagIt] conformant bag before being transferred,
   so the preservation engine can verify the integrity of the package after
-  receipt before beginning preservation processing. Default value is set to
-  `false`, but can be changed to `true` to zip the bag before delivery.
+  receipt before beginning preservation processing. Default value is `false`,
+  but can be changed to `true` to zip the bag before delivery.
 
 #### Archivematica SFTP settings
 
@@ -937,23 +930,15 @@ failures] or [system errors] during ingest, so they can be downloaded for
 inspection via the user interface by operators if desired. At least one of the
 sections below must be configured.
 
-#### Internal storage configuration - S3-like bucket or filesystem
+#### Internal storage configuration - S3-like bucket
 
-This subsection allows either an S3-like object store bucket or a local
-filesystem location to be configured for UI uploads and failed packages. The
-default configuration included uses a [MinIO] bucket as the example location.
-MinIO uses Amazon [S3] syntax for its configuration properties. Different object
-stores may have different parameters to be configured. Consult the corresponding
-object store provider's documentation for more information, or, if using [Azure]
-blob storage, use the subsection
+This subsection allows an object store bucket to be configured for UI uploads
+and failed packages. The default configuration included uses a [MinIO] bucket as
+the example location. MinIO uses Amazon [S3] syntax for its configuration
+properties. Different object stores may have different parameters to be
+configured. Consult the corresponding object store provider's documentation for
+more information, or, if using [Azure] blob storage, use the subsection
 [below](#internal-storage-configuration---azure-blob-storage) instead.
-
-For **local filesystems**, the only required field is a `url` parameter
-pointing to the target location - for example:
-
-```toml
-url = "file:///home/enduro/upload-dir"
-```
 
 **Default values**:
 
@@ -975,13 +960,13 @@ bucket = "internal"
   properties, such as region, bucket name, and object key. For Enduro
   integrations, the second virtual "host-style" method is not currently
   supported so if using an S3-like object store, ensure this is set to `true`.
-* `accessKey`: Username for accessing the configured S3-like bucket
-* `secretKey`: Password for accessing the configured S3-like bucket
+* `accessKey`: Username for accessing the configured S3-like bucket.
+* `secretKey`: Password for accessing the configured S3-like bucket.
 * `region`:  = AWS S3 buckets are created in a specific region. When interacting
   with S3, you can specify the region during the bucket creation process. For
   a full list of available regions and the syntax to specify them, consult the
   [AWS S3 documentation][S3-regions].
-* `bucket`: A configured object store may have more than 1 bucket. This
+* `bucket`: A configured object store may have more than one bucket. This
   parameter specifies the target bucket name to be used for the uploaded SIPs
   and failed packages location. Because the default configuration uses MinIO
   buckets elsewhere as well, ensure that this bucket name is unique.
@@ -994,7 +979,7 @@ configured above. At installation the values in this subsection are left blank.
 
 If you intend to use Azure for your internal upload space, be sure to remove or
 comment out the S3-like object store parameters in the section
-[above](#internal-storage-configuration---s3-like-bucket-or-filesystem), and
+[above](#internal-storage-configuration---s3-like-bucket), and
 then add the Azure blob URL connection information there instead. For example,
 if your target Azure storage blob is named "sips", your configuration of the
 section above might look like this when configured properly:
@@ -1010,8 +995,8 @@ region = ""
 bucket = ""
 ```
 
-Meanwhile, this subsection provides Enduro with the connection information
-needed to access packages in the target Azure blob store.
+The following subsection provides Enduro with the connection information needed
+to access packages in the target Azure blob store.
 
 **Default values**:
 
@@ -1029,17 +1014,16 @@ storageKey = ""
 ### SIP source location configuration
 
 The following sections configure a location to be used as a SIP source location
-for SIP selection and ingest - for more information, see:
-
-* [Add SIPs via a source location][sip-source]
+for SIP selection and ingest — for more information, see:
+[Add SIPs via a source location][sip-source].
 
 The first set of parameters uniquely identify the source location in Enduro,
 while the bucket subsection links the specified location.
 
 !!! tip
 
-    Once configured, ingests from a package in a configures source location can
-    also be initiated via [API].
+    Once configured, ingests from a package in a configured source location can
+    also be initiated via the [API].
 
 **Default values**:
 
@@ -1051,7 +1035,7 @@ name = "MinIO SIP Source"
 
 * `id`: A UUID that unique identifies the SIP source location. Must be a valid
   [version 4 UUID].
-* `name`: A human-readable name for the SIP source
+* `name`: A human-readable name for the SIP source.
 
 #### SIP source location bucket
 
@@ -1066,6 +1050,7 @@ For **local filesystems**, the only required field is a `url` parameter
 pointing to the target location - for example:
 
 ```toml
+[sipsource.bucket]
 url = "file:///home/enduro/sipsource"
 ```
 
@@ -1089,13 +1074,13 @@ bucket = "sipsource"
   properties, such as region, bucket name, and object key. For Enduro
   integrations, the second virtual "host-style" method is not currently
   supported so if using an S3-like object store, ensure this is set to `true`.
-* `accessKey`: Username for accessing the configured S3-like bucket
-* `secretKey`: Password for accessing the configured S3-like bucket
+* `accessKey`: Username for accessing the configured S3-like bucket.
+* `secretKey`: Password for accessing the configured S3-like bucket.
 * `region`:  = AWS S3 buckets are created in a specific region. When interacting
   with S3, you can specify the region during the bucket creation process. For
   a full list of available regions and the syntax to specify them, consult the
   [AWS S3 documentation][S3-regions].
-* `bucket`: A configured object store may have more than 1 bucket. This
+* `bucket`: A configured object store may have more than one bucket. This
   parameter specifies the target bucket name to be used for the SIP source
   location. Because the default configuration uses MinIO buckets elsewhere as
   well, ensure that this bucket name is unique.
@@ -1105,7 +1090,7 @@ bucket = "sipsource"
 Telemetry is the process of collecting and analyzing application data to
 gain insights into system performance, user behavior, resource usage, and more.
 
-Enduro includes a GoLang [OpenTelemetry] package, which when enabled and
+Enduro includes a [GoLang] [OpenTelemetry] package, which when enabled and
 properly configured, can support the generation, collection, and export of
 telemetry data from Enduro for debugging, optimization, and development purposes.
 At this time, no user data is reviewed or collected by the Enduro telemetry
@@ -1206,7 +1191,7 @@ workflowName = "preprocessing"
 ### Post-storage workflow configuration
 
 In addition to configuring a [child workflow] for custom ingest processing
-tasks, Enduro can also run an additional child workflow for [post-storage]
+tasks, Enduro can also run additional child workflows for [post-storage]
 processing when properly configured.
 
 Post-storage is a phase in an ingest or preservation workflow describing all the
@@ -1217,9 +1202,9 @@ archival management system), AIP encryption or replication, and more.
 
 These settings can be used to enable and configure a post-storage child workflow
 for Enduro, which will be run after AIP creation and storage following a
-successful ingest. By default at installation this section is commented out to
-render it inactive - remove the `#` hash symbol from the start of each line to
-enable this section as you configure the values.
+successful ingest. At installation this section is commented out to render it
+inactive - remove the `#` hash symbol from the start of each line to enable this
+section as you configure the values.
 
 !!! note
 
@@ -1265,6 +1250,7 @@ enable this section as you configure the values.
 [content failures]: ../user-manual/glossary.md#content-failure
 [CORS]: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 [Gibibytes]: https://www.difference.wiki/gigabyte-vs-gibibyte/
+[GoLang]: https://go.dev/
 [Keycloak]: https://www.keycloak.org/
 [METS]: https://www.loc.gov/standards/mets/
 [MinIO]: https://www.min.io

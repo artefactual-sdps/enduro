@@ -68,7 +68,7 @@ useRoles = false
 # attributes. JSON format:
 # {
 #   "role1": ["attribute1", "attribute2"],
-#   "role2": ["attribute1", "attribute2", "attribute3", "atrribute4"]
+#   "role2": ["attribute1", "attribute2", "attribute3", "attribute4"]
 # }
 # Example:
 # rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"], "readonly": ["ingest:sips:list", "ingest:sips:read", "ingest:sips:workflows:list"]}'
