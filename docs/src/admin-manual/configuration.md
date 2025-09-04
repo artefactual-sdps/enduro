@@ -461,14 +461,14 @@ xsdPath = "/home/enduro/premis.xsd"
 
 These configuration settings, when enabled, allow Enduro to initiate SIP ingest
 from a watched location. The configured watched location can be an object store
-bucket such as one provided by MinIO, S3, or Azure. Once configured, any time a
-new zipped package is added to the location, it will be configured to publish
+bucket such as one provided by MinIO, S3, or Azure. Once this section is
+configured, the chosen watched location should then be configured to publish
 an event to Enduro's message queue (in this case, [Redis], listening for events
-in the queue defined by the `redisList` parameter below). Enduro's internal
-watcher will watch for new deposit events at the configured `redisAddress` and
-queue, and will trigger the ingest workflow when it detects a SIP deposit in
-the configured watched location. For more information on ingests from a watched
-location, see:
+in the queue defined by the `redisList` parameter below) any time a new zipped
+package is added to the watched location. Enduro's internal watcher will watch
+for new deposit events at the configured `redisAddress` and queue, and will
+trigger the ingest workflow when it detects a SIP deposit in the configured
+watched location. For more information on ingests from a watched location, see:
 
 * [Initiate ingest via a watched location upload][watched-location]
 
@@ -827,10 +827,10 @@ zipPIP = false
   [preservation engine], Enduro will then regularly poll the preservation engine
   for updates. This setting determines how frequently Enduro will poll for
   updates, with the default value being 10 seconds (`10s`). Interval values
-  should be compatible with the [GoLang] [ParseDuration] function — valid values
+  must be compatible with the [GoLang] [ParseDuration] function — valid values
   are "ns", "us" (or "µs"), "ms", "s", "m", and "h".
 * `transferDeadline`: The maximum amount of time that Enduro should wait for
-  Archivematica to finish processing a submitted package. Interval values should
+  Archivematica to finish processing a submitted package. Interval values must
   be compatible with the [GoLang] [ParseDuration] function — valid values are
   "ns", "us" (or "µs"), "ms", "s", "m", and "h". The default value is one hour
   (`1h`).
@@ -931,15 +931,24 @@ failures] or [system errors] during ingest, so they can be downloaded for
 inspection via the user interface by operators if desired. At least one of the
 sections below must be configured.
 
-#### Internal storage configuration - S3-like bucket
+#### Internal storage configuration - S3-like bucket or filesystem
 
-This subsection allows an object store bucket to be configured for UI uploads
-and failed packages. The default configuration included uses a [MinIO] bucket as
-the example location. MinIO uses Amazon [S3] syntax for its configuration
-properties. Different object stores may have different parameters to be
-configured. Consult the corresponding object store provider's documentation for
-more information, or, if using [Azure] blob storage, use the subsection
+This subsection allows an object store bucket or local filesystem location to be
+configured for UI uploads and failed packages. The default configuration
+included uses a [MinIO] bucket as the example location. MinIO uses Amazon [S3]
+syntax for its configuration properties. Different object stores may have
+different parameters to be configured. Consult the corresponding object store
+provider's documentation for more information, or, if using [Azure] blob
+storage, use the subsection
 [below](#internal-storage-configuration---azure-blob-storage) instead.
+
+For **local filesystems**, the only required field is a `url` parameter
+pointing to the target location - for example:
+
+```toml
+[sipsource.bucket]
+url = "file:///home/enduro/internalstore"
+```
 
 **Default values**:
 
@@ -980,7 +989,7 @@ configured above. At installation the values in this subsection are left blank.
 
 If you intend to use Azure for your internal upload space, be sure to remove or
 comment out the S3-like object store parameters in the section
-[above](#internal-storage-configuration---s3-like-bucket), and
+[above](#internal-storage-configuration---s3-like-bucket-or-filesystem), and
 then add the Azure blob URL connection information there instead. For example,
 if your target Azure storage blob is named "sips", your configuration of the
 section above might look like this when configured properly:
@@ -1201,7 +1210,7 @@ preservation processing and AIP storage. Post-storage task examples might
 include metadata extraction and delivery to an external system (such as an
 archival management system), AIP encryption or replication, and more.
 
-These settings can be used to enable and configure a post-storage child workflow
+These settings can be used to enable and configure post-storage child workflows
 for Enduro, which will be run after AIP creation and storage following a
 successful ingest. At installation this section is commented out to render it
 inactive - remove the `#` hash symbol from the start of each line to enable this
