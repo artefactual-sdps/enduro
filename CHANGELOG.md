@@ -16,7 +16,7 @@ requests.
 
 ### Changed
 
-- Change label for SIPs user filer ([#1322])
+- Change label for SIPs user filter ([#1322])
 
 ### Added
 
