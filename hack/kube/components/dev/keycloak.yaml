@@ -199,6 +199,18 @@ data:
           "protocol": "openid-connect",
           "protocolMappers": [
             {
+              "id": "3c17ae04-4f8f-4507-9032-163eb562b3b3",
+              "name": "sub",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-sub-mapper",
+              "consentRequired": false,
+              "config": {
+                "included.client.audience": "enduro",
+                "introspection.token.claim": "true",
+                "access.token.claim": "true"
+              }
+            },
+            {
               "id": "227b056a-cc39-4209-99b0-bfa929ca892f",
               "name": "access-token-aud",
               "protocol": "openid-connect",
