@@ -3,8 +3,10 @@ import { onMounted, ref } from "vue";
 
 import { addEmailLinks } from "@/composables/addEmailLinks";
 import { useAipStore } from "@/stores/aip";
+import { useAuthStore } from "@/stores/auth";
 
 const aipStore = useAipStore();
+const authStore = useAuthStore();
 
 const { note } = defineProps<{
   note: string;
@@ -32,17 +34,17 @@ onMounted(() => {
   <div class="alert alert-info" role="alert" v-if="aipStore.isPending">
     <h4 class="alert-heading">Task: Review AIP deletion request</h4>
     <p class="line-break" v-html="addEmailLinks(note)"></p>
-    <hr />
     <div class="d-flex flex-wrap gap-2">
-      <button
-        v-if="canCancel"
-        class="btn btn-info"
-        type="button"
-        @click="cancel()"
+      <template v-if="canCancel">
+        <hr />
+        <button class="btn btn-info" type="button" @click="cancel()">
+          Cancel
+        </button>
+      </template>
+      <template
+        v-else-if="authStore.checkAttributes(['storage:aips:deletion:review'])"
       >
-        Cancel
-      </button>
-      <template v-else>
+        <hr />
         <button class="btn btn-success" type="button" @click="review(true)">
           Approve
         </button>
