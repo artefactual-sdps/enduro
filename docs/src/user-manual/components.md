@@ -29,7 +29,7 @@ can be used instead.
 
 The messaging queue acts as a watcher for SIPs deposited for ingest into a
 [watched location]. An internal watcher component monitors the
-[configured queue]so that  any time new content is uploaded to the defined
+[configured queue] so that  any time new content is uploaded to the defined
 watched location, an ingest workflow is started in Enduro.
 
 Enduro Ingest uses [Redis](https://redis.io/) as a messaging queue, to ensure
