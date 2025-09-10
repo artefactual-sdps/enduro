@@ -22,6 +22,9 @@ interface ImportMetaEnv {
   readonly VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX: string;
   readonly VITE_OIDC_ABAC_USE_ROLES: string;
   readonly VITE_OIDC_ABAC_ROLES_MAPPING: string;
+  readonly VITE_INSTITUTION_LOGO: string;
+  readonly VITE_INSTITUTION_NAME: string;
+  readonly VITE_INSTITUTION_URL: string;
 }
 
 interface ImportMeta {
