@@ -98,6 +98,9 @@ Directories may also contain subdirectories, and are typically organized
 hierarchically. Often used in the organization of files in a **package**, such
 as a **SIP** or **AIP**. Sometimes colloquially referred to as a "folder."
 
+Directories may also be configured as **watched locations** or
+**source locations** in Enduro to support the receipt of packages.
+
 ## Dissemination Information Package (DIP)
 
 A type of **package** derived from one or more **AIPs** for delivery to an end
@@ -298,10 +301,24 @@ system and its operators.
 
 ## Replication
 
-A **post-preservation** activity to produce duplicate copies (i.e. replicas) of
+A **post-storage** activity to produce duplicate copies (i.e. replicas) of
 a **package** such as an **AIP**, often in separate geo-redundant locations from
 the original, to mitigate risk and assist in recovery should any issue be found
 with the original package throughout its ongoing preservation.
+
+## Source location
+
+An [object storage] location or filesystem **directory** that can be configured
+for the deposit of **packages** for further action by Enduro operators. Unlike a
+**watched location** where an action is automatically triggered upon receipt, a
+source location is intended for asynchronous manual follow-up.
+
+For example, a **SIP** source location can be configured in Enduro to allow
+**producers** to deposit packages for future ingest. The ingest workflow will
+not be triggered until an Enduro operator initiates the process via the user
+interface by selecting one or more SIPs from the configured location and
+manually starting the workflow. For more information, see:
+[Add SIPs via a source location].
 
 ## Submission Information Package (SIP)
 
@@ -329,17 +346,22 @@ An operation performed on a **file** or **package** in the context of a
 
 See: [Submission Information Package (SIP)](#submission-information-package-sip)
 
-## Watched directory
+## Watched location
 
-A filesystem **directory** used that is monitored for changes (e.g. adding,
-deleting, or renaming a **file**), and where such a change can trigger one or
-more subsequent actions.
+An [object storage] location or filesystem **directory** that is monitored for
+changes (e.g. adding, deleting, or renaming a **file**), and where such a change
+can trigger one or more subsequent actions.
 
-For example, a watched directory may be used to automate the beginning of a
+For example, a watched location may be used to automate the beginning of a
 preservation **workflow** whenever a ZIP file is placed in the watched
-directory. Alternatively, for multi-file uploads, a watcher may wait for a
+location. Alternatively, for multi-file uploads, a watcher may wait for a
 specific filename or extension to be present before grabbing all content in the
-directory for processing.
+location for processing.
+
+For more information on using a watched location for ingest in Enduro, see:
+
+* [Initiate ingest via a watched location upload]
+* [Watched location configuration]
 
 ## Workflow
 
@@ -363,3 +385,8 @@ long-term preservation. See: [Components](components.md).
 
 PREMIS Editorial Committee - "PREMIS Data Dictionary for Preservation Metadata,"
 Version 3.0. June 2015. Glossary, p. 270.
+
+[Add SIPs via a source location]: ../user-manual/ingest/submitting-content.md#add-sips-via-a-source-location
+[Initiate ingest via a watched location upload]: ../user-manual/ingest/submitting-content.md#initiate-ingest-via-a-watched-location-upload
+[object storage]: https://en.wikipedia.org/wiki/Object_storage
+[Watched location configuration]: ../admin-manual/configuration.md#watched-location-configuration
