@@ -1,7 +1,9 @@
 # Configuration
 
 This page describes the various configuration files and settings that Enduro
-supports.
+supports. See also:
+
+* [Dashboard configuration]
 
 !!! important
 
@@ -1259,6 +1261,7 @@ section as you configure the values.
 [components]: ../user-manual/components.md
 [content failures]: ../user-manual/glossary.md#content-failure
 [CORS]: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
+[Dashboard configuration]: ../admin-manual/dashboard-config.md
 [Gibibytes]: https://www.difference.wiki/gigabyte-vs-gibibyte/
 [GoLang]: https://go.dev/
 [Keycloak]: https://www.keycloak.org/
