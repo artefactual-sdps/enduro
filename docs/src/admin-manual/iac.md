@@ -101,6 +101,13 @@ VITE_OIDC_ABAC_USE_ROLES
 VITE_OIDC_ABAC_ROLES_MAPPING
 ```
 
+!!! important
+
+    The `VITE_OIDC_AUTHORITY` environment variable is included in the Content
+    Security Policy's `connect-src` directive. If this URL contains a path,
+    ensure it ends with a slash (`/`) to allow connections to the necessary
+    OIDC endpoints for authentication.
+
 They must match the ones configured in the API. `VITE_OIDC_AUTHORITY` has to be
 the same OIDC provider URL and `VITE_OIDC_CLIENT_ID` needs to be the same or a
 trusted client. This client (or the one used in the API configuration, if they
