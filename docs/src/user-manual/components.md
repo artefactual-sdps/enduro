@@ -5,9 +5,9 @@ ingest and preservation functionality.
 
 ![enduro components diagram](screenshots/enduro-ingest-components.jpg)
 
-## Processing storage service
+## Internal object storage
 
-The processing storage service acts as Enduro's storage back-end for any local
+The internal object storage acts as Enduro's storage back-end for any local
 package interactions that are needed as part of ingest and preservation
 workflows. Examples include:
 
@@ -16,21 +16,21 @@ workflows. Examples include:
 * Passing other package types (such as a search metadata bundle) to external
   systems
 
-If desired, it can also be configured for the long-term storage of Archival
-Information Packages (AIPs) after preservation has completed succesfully.
+If needed when using a3m as the configured
+[preservation engine](#preservation-engine), an additional location can also
+[be configured] for the long-term storage of Archival Information Packages
+(AIPs) after preservation has completed succesfully.
 
-Currently, Enduro uses [MinIO](https://min.io/) as its processing storage
-service. MinIO is a flexible, high performance object storage platform. Material
-intended for preservation can be uploaded to MinIO either through its user
-interface or via command line using the [MinIO
-client](https://min.io/docs/minio/linux/reference/minio-mc.html).
+Currently, Enduro uses [MinIO](https://min.io/) as its default object storage,
+though a local filesystem directory, Azure blob, or other S3-like object store
+can be used instead.
 
 ## Messaging queue
 
-The messaging queue acts as a watcher for SIPs deposited for ingest into the
-[processing storage service](#processing-storage-service). Thanks to this
-watcher, any time new content is uploaded to a designated bucket in MinIO, an
-ingest workflow is started in Enduro.
+The messaging queue acts as a watcher for SIPs deposited for ingest into a
+[watched location]. An internal watcher component monitors the
+[configured queue] so that  any time new content is uploaded to the defined
+watched location, an ingest workflow is started in Enduro.
 
 Enduro Ingest uses [Redis](https://redis.io/) as a messaging queue, to ensure
 reliable communication between the ingest application and the processing storage
@@ -140,4 +140,9 @@ Currently Enduro uses the [Archivematica](https://archivematica.org) Storage
 Service ([AMSS](https://github.com/artefactual/archivematica-storage-service))
 when using Archivematica as the system's preservation engine. When using a3m,
 Enduro uses its own lightweight storage functionality to cover basic storage
-service requirements.
+service requirements, and an S3-like object store or local filesystem directory
+can [be configured] for AIP storage.
+
+[be configured]: ../admin-manual/configuration.md#internal-location-used-for-storing-aips-a3m
+[configured queue]: ../admin-manual/configuration.md#watched-location-configuration
+[watched location]: ../user-manual/ingest/submitting-content.md#initiate-ingest-via-a-watched-location-upload
