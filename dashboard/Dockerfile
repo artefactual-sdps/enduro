@@ -30,6 +30,24 @@ server {
     listen 80;
     root /usr/share/nginx/html;
     absolute_redirect off;
+
+    # Clickjacking protection, not supported via CSP meta.
+    add_header Content-Security-Policy "frame-ancestors 'none'" always;
+
+    # Full CSP via header, if not using the meta tag.
+    # Replace or remove the OIDC provider and institution logo URLs as needed.
+    # add_header Content-Security-Policy "default-src 'self'; script-src-attr 'none'; img-src 'self' data: http://institution.com/logo.png; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; connect-src 'self' http://oidcprovider.com/realms/example/; frame-ancestors 'none'" always;
+
+    # When serving over HTTPS:
+    # (Append to CSP) ... ; upgrade-insecure-requests
+
+    # Reporting:
+    # (Append to CSP) ... ; report-uri https://example.com/csp
+
+    # Reporting (not broadly supported yet):
+    # add_header Reporting-Endpoints 'csp="https://example.com/csp"' always;
+    # (Append to CSP) ... ; report-to csp
+
     location /api/ingest/monitor {
         proxy_pass http://backend/ingest/monitor;
         proxy_http_version 1.1;

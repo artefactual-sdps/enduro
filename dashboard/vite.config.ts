@@ -3,8 +3,38 @@ import { URL, fileURLToPath } from "node:url";
 import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
 import VueRouter from "unplugin-vue-router/vite";
-import { defineConfig } from "vite";
+import { defineConfig, loadEnv } from "vite";
+import csp from "vite-plugin-csp-guard";
 import vueDevTools from "vite-plugin-vue-devtools";
+
+// Load environment variables from .env* files and the current process.
+// The variables from the current process take precedence.
+const fileEnv = loadEnv(process.env.NODE_ENV || "", process.cwd(), "");
+const env = { ...fileEnv, ...process.env };
+
+const cspPolicy: Record<string, string[]> = {
+  "default-src": ["'self'"],
+  "script-src-attr": ["'none'"],
+  "img-src": ["'self'", "data:"],
+  "frame-src": ["'none'"],
+  "object-src": ["'none'"],
+  "base-uri": ["'self'"],
+  "form-action": ["'self'"],
+};
+
+if (env.VITE_OIDC_AUTHORITY) {
+  cspPolicy["connect-src"] = ["'self'", env.VITE_OIDC_AUTHORITY];
+}
+
+if (env.VITE_INSTITUTION_LOGO) {
+  cspPolicy["img-src"].push(env.VITE_INSTITUTION_LOGO);
+}
+
+if (env.NODE_ENV == "development") {
+  cspPolicy["style-src-elem"] = ["'self'", "'unsafe-inline'"];
+  cspPolicy["script-src-elem"] = ["'self'"]; // Needed to avoid SRI in dev.
+  cspPolicy["frame-src"] = ["'self'"];
+}
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -15,6 +45,19 @@ export default defineConfig({
     vue({}),
     vueDevTools(),
     Icons({ compiler: "vue3" }),
+    // Include CSP plugin if not explicitly disabled.
+    ...(env.ENDURO_DISABLE_CSP_META?.trim().toLowerCase() === "true"
+      ? []
+      : [
+          csp({
+            dev: { run: true },
+            // Can't use SRI for local scripts/styles for now because the final
+            // assets may be updated to replace/inject environment variables.
+            // build: { sri: true },
+            policy: cspPolicy,
+            override: true,
+          }),
+        ]),
   ],
   server: {
     host: "127.0.0.1",
@@ -22,23 +65,23 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       "/api": {
-        target: process.env.ENDURO_API_ADDRESS
-          ? "http://" + process.env.ENDURO_API_ADDRESS
+        target: env.ENDURO_API_ADDRESS
+          ? "http://" + env.ENDURO_API_ADDRESS
           : "http://127.0.0.1:9000",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
       "^/api/ingest/monitor": {
-        target: process.env.ENDURO_API_ADDRESS
-          ? "http://" + process.env.ENDURO_API_ADDRESS
+        target: env.ENDURO_API_ADDRESS
+          ? "http://" + env.ENDURO_API_ADDRESS
           : "http://127.0.0.1:9000",
         changeOrigin: false,
         rewrite: (path) => path.replace(/^\/api/, ""),
         ws: true,
       },
       "^/api/storage/monitor": {
-        target: process.env.ENDURO_API_ADDRESS
-          ? "http://" + process.env.ENDURO_API_ADDRESS
+        target: env.ENDURO_API_ADDRESS
+          ? "http://" + env.ENDURO_API_ADDRESS
           : "http://127.0.0.1:9000",
         changeOrigin: false,
         rewrite: (path) => path.replace(/^\/api/, ""),
