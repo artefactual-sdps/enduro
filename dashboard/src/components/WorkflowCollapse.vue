@@ -52,7 +52,6 @@ const showAipDeletionReviewAlert = (
   <div class="accordion-item border-0 mb-2">
     <h4 class="accordion-header" :id="'w-heading-' + index">
       <button
-        v-if="workflow.tasks"
         class="accordion-button collapsed"
         type="button"
         data-bs-toggle="collapse"
