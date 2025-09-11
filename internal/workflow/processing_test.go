@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -360,11 +359,37 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil,
 	)
 
+	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Copy SIP to workspace",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(100, nil)
+
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
 	).Return(
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          100,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("SIP successfully copied"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
 		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
@@ -394,14 +419,10 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		ctx,
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			Task: &datatypes.Task{
-				UUID:   uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72"),
-				Name:   "Validate PREMIS",
-				Status: enums.TaskStatusInProgress,
-				StartedAt: sql.NullTime{
-					Time:  startTime,
-					Valid: true,
-				},
+				Name:         "Validate PREMIS",
+				Status:       enums.TaskStatusInProgress,
 				WorkflowUUID: wUUID,
 			},
 		},
@@ -561,11 +582,37 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		},
 	).Return(&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil)
 
+	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Copy SIP to workspace",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(100, nil)
+
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
 	).Return(
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          100,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("SIP successfully copied"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
 		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
@@ -592,14 +639,10 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		ctx,
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			Task: &datatypes.Task{
-				UUID:   uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72"),
-				Name:   "Validate Bag",
-				Status: enums.TaskStatusInProgress,
-				StartedAt: sql.NullTime{
-					Time:  startTime,
-					Valid: true,
-				},
+				Name:         "Validate Bag",
+				Status:       enums.TaskStatusInProgress,
 				WorkflowUUID: wUUID,
 			},
 		},
@@ -658,11 +701,10 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		ctx,
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			Task: &datatypes.Task{
-				UUID:         uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649"),
 				Name:         "Move AIP",
 				Status:       enums.TaskStatusInProgress,
-				StartedAt:    sql.NullTime{Time: startTime, Valid: true},
 				Note:         "Moving to permanent storage",
 				WorkflowUUID: wUUID,
 			},
@@ -783,11 +825,37 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		ingestsvc, mock.AnythingOfType("*workflow.createWorkflowLocalActivityParams"),
 	).Return(&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil)
 
+	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Copy SIP to workspace",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(100, nil)
+
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
 	).Return(
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          100,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("SIP successfully copied"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
 		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
@@ -821,14 +889,10 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		ctx,
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			Task: &datatypes.Task{
-				UUID:   uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72"),
-				Name:   "Validate PREMIS",
-				Status: enums.TaskStatusInProgress,
-				StartedAt: sql.NullTime{
-					Time:  startTime,
-					Valid: true,
-				},
+				Name:         "Validate PREMIS",
+				Status:       enums.TaskStatusInProgress,
 				WorkflowUUID: wUUID,
 			},
 		},
@@ -986,6 +1050,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	ingestsvc := s.workflow.ingestsvc
+	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
 
 	// Signal handler that mimics SIP/AIP rejection
 	s.env.RegisterDelayedCallback(
@@ -1010,14 +1075,40 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	s.env.OnActivity(
 		createWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything,
 	).Return(
-		&createWorkflowLocalActivityResult{ID: 0, UUID: uuid.Nil}, nil,
+		&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil,
 	)
+
+	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Copy SIP to workspace",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(100, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
 	).Return(
 		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
 	)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          100,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("SIP successfully copied"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
 		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
@@ -1197,6 +1288,20 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil,
 	)
 
+	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Copy SIP to workspace",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(100, nil)
+
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{
 			Key:             key,
@@ -1206,6 +1311,18 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	).Return(
 		&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil,
 	)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          100,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("SIP successfully copied"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
 		&activities.GetSIPExtensionActivityParams{Path: downloadDir + "/" + key},
@@ -1271,14 +1388,10 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		ctx,
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			Task: &datatypes.Task{
-				UUID:   uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72"),
-				Name:   "Validate Bag",
-				Status: enums.TaskStatusInProgress,
-				StartedAt: sql.NullTime{
-					Time:  startTime,
-					Valid: true,
-				},
+				Name:         "Validate Bag",
+				Status:       enums.TaskStatusInProgress,
 				WorkflowUUID: wUUID,
 			},
 		},
@@ -1336,11 +1449,10 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		ctx,
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			Task: &datatypes.Task{
-				UUID:         uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649"),
 				Name:         "Move AIP",
 				Status:       enums.TaskStatusInProgress,
-				StartedAt:    sql.NullTime{Time: startTime, Valid: true},
 				WorkflowUUID: wUUID,
 				Note:         "Moving to permanent storage",
 			},
@@ -1508,6 +1620,20 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	)
 
 	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Copy SIP to workspace",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(100, nil)
+
+	s.env.OnActivity(
 		activities.DownloadActivityName,
 		sessionCtx,
 		&activities.DownloadActivityParams{
@@ -1516,6 +1642,18 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 			DestinationPath: cfg.Preprocessing.SharedPath,
 		},
 	).Return(&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          100,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("SIP successfully copied"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
 		&activities.GetSIPExtensionActivityParams{Path: downloadDir + "/" + key},
@@ -1650,6 +1788,20 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	)
 
 	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Copy SIP to workspace",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(100, nil)
+
+	s.env.OnActivity(
 		activities.DownloadActivityName,
 		sessionCtx,
 		&activities.DownloadActivityParams{
@@ -1658,6 +1810,18 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 			DestinationPath: cfg.Preprocessing.SharedPath,
 		},
 	).Return(&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          100,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("SIP successfully copied"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
 		&activities.GetSIPExtensionActivityParams{Path: downloadDir + "/" + key},
@@ -1682,14 +1846,10 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		ctx,
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
 			Task: &datatypes.Task{
-				UUID:   uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72"),
-				Name:   "Validate Bag",
-				Status: enums.TaskStatusInProgress,
-				StartedAt: sql.NullTime{
-					Time:  startTime,
-					Valid: true,
-				},
+				Name:         "Validate Bag",
+				Status:       enums.TaskStatusInProgress,
 				WorkflowUUID: wUUID,
 			},
 		},
@@ -1834,10 +1994,36 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	).Return(&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil)
 
 	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Copy SIP to workspace",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(100, nil)
+
+	s.env.OnActivity(
 		activities.DownloadActivityName,
 		sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
 	).Return(&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          100,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("SIP successfully copied"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
 		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
@@ -1972,6 +2158,20 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 	).Return(&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil)
 
 	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Copy SIP to workspace",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(100, nil)
+
+	s.env.OnActivity(
 		activities.DownloadFromInternalBucketActivityName,
 		sessionCtx,
 		&bucketdownload.Params{
@@ -1979,6 +2179,18 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 			DirPath: downloadDir,
 		},
 	).Return(&bucketdownload.Result{FilePath: downloadDir + "/" + key}, nil)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          100,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime,
+			Note:        ref.New("SIP successfully copied"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	// Fail the workflow on extraction.
 	s.env.OnActivity(
