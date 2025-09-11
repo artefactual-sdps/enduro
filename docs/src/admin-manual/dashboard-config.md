@@ -1,5 +1,11 @@
 # Dashboard configuration
 
+This page describes how to configure a custom institutional logo to be displayed
+in the page header of the user interface. For additional Enduro configuration,
+see:
+
+* [Configuration]
+
 ## Institution logo
 
 The Enduro dashboard can display an institutional logo in the page header by
@@ -51,5 +57,6 @@ If no `VITE_INSTITUTION_URL` is set, then the institutional logo will not be
 clickable.
 
 [alt]: https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/alt
+[Configuration]: ../admin-manual/configuration.md
 [Vite]: https://vite.dev/
 [Vite environment variables]: https://vite.dev/guide/env-and-mode
