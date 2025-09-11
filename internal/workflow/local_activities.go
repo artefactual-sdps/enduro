@@ -197,6 +197,7 @@ func completeWorkflowLocalActivity(
 
 type createTaskLocalActivityParams struct {
 	Ingestsvc ingest.Service
+	RNG       io.Reader
 	Task      *datatypes.Task
 }
 
@@ -204,6 +205,19 @@ func createTaskLocalActivity(
 	ctx context.Context,
 	params *createTaskLocalActivityParams,
 ) (int, error) {
+	task := params.Task
+
+	uid, err := uuid.NewRandomFromReader(params.RNG)
+	if err != nil {
+		return 0, fmt.Errorf("generate task UUID: %v", err)
+	}
+	task.UUID = uid
+
+	task.StartedAt = sql.NullTime{
+		Time:  time.Now().UTC(),
+		Valid: true,
+	}
+
 	if err := params.Ingestsvc.CreateTask(ctx, params.Task); err != nil {
 		return 0, err
 	}
