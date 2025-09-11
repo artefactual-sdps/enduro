@@ -311,8 +311,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	watcherName := "watcher"
 	retentionPeriod := 1 * time.Second
 	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
-	tUUID := uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")
+	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
 
 	// Signal handler that mimics SIP/AIP confirmation
 	s.env.RegisterDelayedCallback(
@@ -326,23 +325,40 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	)
 
 	// Activity mocks/assertions sequence
-	s.env.OnActivity(createSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(sipID, nil)
-	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
+	s.env.OnActivity(
+		createSIPLocalActivity,
+		ctx,
+		ingestsvc,
+		&createSIPLocalActivityParams{
+			UUID:   sipUUID,
+			Name:   sipName,
+			Status: enums.SIPStatusQueued,
+		},
+	).Return(sipID, nil)
+
+	s.env.OnActivity(
+		setStatusInProgressLocalActivity,
+		ctx,
+		ingestsvc,
+		sipUUID,
+		startTime,
+	).Return(&setStatusInProgressLocalActivityResult{}, nil)
+
 	s.env.OnActivity(
 		createWorkflowLocalActivity,
-		mock.Anything,
-		mock.Anything,
+		ctx,
+		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			UUID:       wUUID,
+			RNG:        s.workflow.rng,
 			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAndReviewAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPUUID:    sipUUID,
 		},
-	).Return(wID, nil)
+	).Return(
+		&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil,
+	)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -379,7 +395,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			Task: &datatypes.Task{
-				UUID:   tUUID,
+				UUID:   uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72"),
 				Name:   "Validate PREMIS",
 				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
@@ -414,8 +430,17 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		},
 	).Return(&completeTaskLocalActivityResult{}, nil)
 
-	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).
-		Return(&a3m.CreateAIPActivityResult{UUID: aipUUID.String()}, nil)
+	s.env.OnActivity(
+		a3m.CreateAIPActivityName,
+		sessionCtx,
+		&a3m.CreateAIPActivityParams{
+			Name:         sipName,
+			Path:         transferPath,
+			WorkflowUUID: wUUID,
+		},
+	).Return(
+		&a3m.CreateAIPActivityResult{UUID: aipUUID.String()}, nil,
+	)
 
 	s.env.OnActivity(
 		updateSIPLocalActivity,
@@ -505,9 +530,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
-	tUUID := uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")
-	tUUID2 := uuid.MustParse("81855ad8-681d-4d86-91e9-1e00167939cb")
+	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
 
 	// Activity mocks/assertions sequence
 	s.env.OnActivity(
@@ -529,14 +552,14 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			UUID:       wUUID,
+			RNG:        s.workflow.rng,
 			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPUUID:    sipUUID,
 		},
-	).Return(wID, nil)
+	).Return(&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -570,7 +593,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			Task: &datatypes.Task{
-				UUID:   tUUID,
+				UUID:   uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72"),
 				Name:   "Validate Bag",
 				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
@@ -636,7 +659,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			Task: &datatypes.Task{
-				UUID:         tUUID2,
+				UUID:         uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649"),
 				Name:         "Move AIP",
 				Status:       enums.TaskStatusInProgress,
 				StartedAt:    sql.NullTime{Time: startTime, Valid: true},
@@ -728,8 +751,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	wUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
-	tUUID := uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")
+	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
 
 	cfg := config.Configuration{
 		A3m: a3m.Config{ShareDir: s.CreateTransferDir()},
@@ -759,7 +781,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	s.env.OnActivity(createWorkflowLocalActivity, ctx,
 		ingestsvc, mock.AnythingOfType("*workflow.createWorkflowLocalActivityParams"),
-	).Return(wID, nil)
+	).Return(&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -800,7 +822,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			Task: &datatypes.Task{
-				UUID:   tUUID,
+				UUID:   uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72"),
 				Name:   "Validate PREMIS",
 				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
@@ -977,12 +999,19 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	)
 
 	// Activity mocks/assertions sequence
-	s.env.OnActivity(createSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(sipID, nil)
-	s.env.OnActivity(setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
-	s.env.OnActivity(createWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(0, nil)
+	s.env.OnActivity(
+		createSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+	).Return(sipID, nil)
+
+	s.env.OnActivity(
+		setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		createWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything,
+	).Return(
+		&createWorkflowLocalActivityResult{ID: 0, UUID: uuid.Nil}, nil,
+	)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -1131,9 +1160,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	ingestsvc := s.workflow.ingestsvc
 	aipUUID := "56eebd45-5600-4768-a8c2-ec0114555a3d"
-	wUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
-	tUUID := uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")
-	tUUID2 := uuid.MustParse("81855ad8-681d-4d86-91e9-1e00167939cb")
+	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
 
 	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
 	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
@@ -1159,14 +1186,16 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			UUID:       wUUID,
+			RNG:        s.workflow.rng,
 			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPUUID:    sipUUID,
 		},
-	).Return(1, nil)
+	).Return(
+		&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil,
+	)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{
@@ -1243,7 +1272,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			Task: &datatypes.Task{
-				UUID:   tUUID,
+				UUID:   uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72"),
 				Name:   "Validate Bag",
 				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
@@ -1308,7 +1337,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			Task: &datatypes.Task{
-				UUID:         tUUID2,
+				UUID:         uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649"),
 				Name:         "Move AIP",
 				Status:       enums.TaskStatusInProgress,
 				StartedAt:    sql.NullTime{Time: startTime, Valid: true},
@@ -1445,7 +1474,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
 	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
 	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
 
 	s.env.OnActivity(
 		createSIPLocalActivity,
@@ -1467,14 +1496,16 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			UUID:       wUUID,
+			RNG:        rand.New(rand.NewSource(1)), // #nosec: G404
 			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPUUID:    sipUUID,
 		},
-	).Return(1, nil)
+	).Return(
+		&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil,
+	)
 
 	s.env.OnActivity(
 		activities.DownloadActivityName,
@@ -1585,8 +1616,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
 	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
-	tUUID := uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")
+	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
 
 	s.env.OnActivity(
 		createSIPLocalActivity,
@@ -1608,14 +1638,16 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			UUID:       wUUID,
+			RNG:        s.workflow.rng,
 			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPUUID:    sipUUID,
 		},
-	).Return(1, nil)
+	).Return(
+		&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil,
+	)
 
 	s.env.OnActivity(
 		activities.DownloadActivityName,
@@ -1651,7 +1683,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		&createTaskLocalActivityParams{
 			Ingestsvc: ingestsvc,
 			Task: &datatypes.Task{
-				UUID:   tUUID,
+				UUID:   uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72"),
 				Name:   "Validate Bag",
 				Status: enums.TaskStatusInProgress,
 				StartedAt: sql.NullTime{
@@ -1775,7 +1807,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
 
 	s.env.OnActivity(
 		createSIPLocalActivity,
@@ -1792,14 +1824,14 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			UUID:       wUUID,
+			RNG:        s.workflow.rng,
 			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPUUID:    sipUUID,
 		},
-	).Return(wID, nil)
+	).Return(&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil)
 
 	s.env.OnActivity(
 		activities.DownloadActivityName,
@@ -1823,7 +1855,9 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		activities.ClassifySIPActivityName,
 		sessionCtx,
 		activities.ClassifySIPActivityParams{Path: extractPath},
-	).Return(&activities.ClassifySIPActivityResult{Type: enums.SIPTypeUnknown}, nil)
+	).Return(
+		&activities.ClassifySIPActivityResult{Type: enums.SIPTypeUnknown}, nil,
+	)
 
 	s.env.OnActivity(bagcreate.Name, sessionCtx, &bagcreate.Params{SourcePath: extractPath}).
 		Return(&bagcreate.Result{BagPath: extractPath}, nil)
@@ -1913,7 +1947,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
 
 	s.env.OnActivity(
 		setStatusInProgressLocalActivity,
@@ -1928,14 +1962,14 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		ctx,
 		ingestsvc,
 		&createWorkflowLocalActivityParams{
-			UUID:       wUUID,
+			RNG:        s.workflow.rng,
 			TemporalID: "default-test-workflow-id",
 			Type:       enums.WorkflowTypeCreateAip,
 			Status:     enums.WorkflowStatusInProgress,
 			StartedAt:  startTime,
 			SIPUUID:    sipUUID,
 		},
-	).Return(1, nil)
+	).Return(&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil)
 
 	s.env.OnActivity(
 		activities.DownloadFromInternalBucketActivityName,

@@ -315,27 +315,30 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
-	// Persist the workflow for the ingest workflow.
+	// Persist the ingest workflow information.
 	{
-		// TODO: Create deterministic UUIDs and make activities idempotent.
-		state.workflowUUID = uuid.Must(uuid.NewRandomFromReader(w.rng))
+		// TODO: make activities idempotent.
+		var res createWorkflowLocalActivityResult
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(
 			ctx,
 			createWorkflowLocalActivity,
 			w.ingestsvc,
 			&createWorkflowLocalActivityParams{
-				UUID:       state.workflowUUID,
+				RNG:        w.rng,
 				TemporalID: temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
 				Type:       state.req.Type,
 				Status:     enums.WorkflowStatusInProgress,
 				StartedAt:  sipStartedAt,
 				SIPUUID:    state.sip.uuid,
 			},
-		).Get(ctx, &state.workflowID)
+		).Get(ctx, &res)
 		if err != nil {
 			return err
 		}
+
+		state.workflowID = res.ID
+		state.workflowUUID = res.UUID
 	}
 
 	// Download.
@@ -1165,8 +1168,12 @@ func (w *ProcessingWorkflow) createTask(
 	ctx temporalsdk_workflow.Context,
 	task *datatypes.Task,
 ) (int, error) {
-	// TODO: Create deterministic UUIDs and make activities idempotent.
-	task.UUID = uuid.Must(uuid.NewRandomFromReader(w.rng))
+	uid, err := uuid.NewRandomFromReader(w.rng)
+	if err != nil {
+		return 0, fmt.Errorf("generate task UUID: %v", err)
+	}
+	task.UUID = uid
+
 	task.StartedAt = sql.NullTime{
 		Time:  temporalsdk_workflow.Now(ctx).UTC(),
 		Valid: true,
@@ -1174,7 +1181,7 @@ func (w *ProcessingWorkflow) createTask(
 
 	var id int
 	ctx = withLocalActivityOpts(ctx)
-	err := temporalsdk_workflow.ExecuteLocalActivity(
+	err = temporalsdk_workflow.ExecuteLocalActivity(
 		ctx,
 		createTaskLocalActivity,
 		&createTaskLocalActivityParams{
