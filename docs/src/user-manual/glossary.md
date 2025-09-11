@@ -354,11 +354,8 @@ can trigger one or more subsequent actions.
 
 For example, a watched location may be used to automate the beginning of a
 preservation **workflow** whenever a ZIP file is placed in the watched
-location. Alternatively, for multi-file uploads, a watcher may wait for a
-specific filename or extension to be present before grabbing all content in the
-location for processing.
-
-For more information on using a watched location for ingest in Enduro, see:
+location. For more information on using a watched location for ingest in Enduro,
+see:
 
 * [Initiate ingest via a watched location upload]
 * [Watched location configuration]
