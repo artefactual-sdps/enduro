@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"io"
 	"time"
 
 	"github.com/google/uuid"
@@ -116,7 +117,8 @@ func setStatusLocalActivity(
 }
 
 type createWorkflowLocalActivityParams struct {
-	UUID        uuid.UUID
+	// RNG is the source of randomness for generating the workflow UUID.
+	RNG         io.Reader
 	TemporalID  string
 	Type        enums.WorkflowType
 	Status      enums.WorkflowStatus
@@ -125,13 +127,23 @@ type createWorkflowLocalActivityParams struct {
 	SIPUUID     uuid.UUID
 }
 
+type createWorkflowLocalActivityResult struct {
+	ID   int
+	UUID uuid.UUID
+}
+
 func createWorkflowLocalActivity(
 	ctx context.Context,
 	ingestsvc ingest.Service,
 	params *createWorkflowLocalActivityParams,
-) (int, error) {
+) (*createWorkflowLocalActivityResult, error) {
+	wfUUID, err := uuid.NewRandomFromReader(params.RNG)
+	if err != nil {
+		return nil, fmt.Errorf("generate workflow UUID: %w", err)
+	}
+
 	w := datatypes.Workflow{
-		UUID:       params.UUID,
+		UUID:       wfUUID,
 		TemporalID: params.TemporalID,
 		Type:       params.Type,
 		Status:     params.Status,
@@ -145,10 +157,10 @@ func createWorkflowLocalActivity(
 	}
 
 	if err := ingestsvc.CreateWorkflow(ctx, &w); err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return w.ID, nil
+	return &createWorkflowLocalActivityResult{ID: w.ID, UUID: w.UUID}, nil
 }
 
 type setWorkflowStatusLocalActivityResult struct{}
@@ -185,6 +197,7 @@ func completeWorkflowLocalActivity(
 
 type createTaskLocalActivityParams struct {
 	Ingestsvc ingest.Service
+	RNG       io.Reader
 	Task      *datatypes.Task
 }
 
@@ -192,6 +205,19 @@ func createTaskLocalActivity(
 	ctx context.Context,
 	params *createTaskLocalActivityParams,
 ) (int, error) {
+	task := params.Task
+
+	uid, err := uuid.NewRandomFromReader(params.RNG)
+	if err != nil {
+		return 0, fmt.Errorf("generate task UUID: %v", err)
+	}
+	task.UUID = uid
+
+	task.StartedAt = sql.NullTime{
+		Time:  time.Now().UTC(),
+		Valid: true,
+	}
+
 	if err := params.Ingestsvc.CreateTask(ctx, params.Task); err != nil {
 		return 0, err
 	}

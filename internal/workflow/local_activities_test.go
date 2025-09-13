@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"math/rand"
 	"testing"
 	"time"
 
@@ -24,7 +25,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 	t.Parallel()
 
 	sipUUID := uuid.New()
-	workflowUUID := uuid.New()
+	workflowUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
 	startedAt := time.Date(2024, 6, 13, 17, 50, 13, 0, time.UTC)
 	completedAt := time.Date(2024, 6, 13, 17, 50, 14, 0, time.UTC)
 
@@ -32,14 +33,14 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 		name      string
 		params    *createWorkflowLocalActivityParams
 		mockCalls func(m *ingest_fake.MockServiceMockRecorder)
-		want      uint
+		want      createWorkflowLocalActivityResult
 		wantErr   string
 	}
 	for _, tt := range []test{
 		{
 			name: "Creates a workflow",
 			params: &createWorkflowLocalActivityParams{
-				UUID:        workflowUUID,
+				RNG:         rand.New(rand.NewSource(1)), // #nosec: G404
 				TemporalID:  "workflow-id",
 				Type:        enums.WorkflowTypeCreateAip,
 				Status:      enums.WorkflowStatusDone,
@@ -61,12 +62,12 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 					return nil
 				})
 			},
-			want: 1,
+			want: createWorkflowLocalActivityResult{ID: 1, UUID: workflowUUID},
 		},
 		{
 			name: "Does not pass zero dates",
 			params: &createWorkflowLocalActivityParams{
-				UUID:       workflowUUID,
+				RNG:        rand.New(rand.NewSource(1)), // #nosec: G404
 				TemporalID: "workflow-id",
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,
@@ -84,12 +85,12 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 					return nil
 				})
 			},
-			want: 1,
+			want: createWorkflowLocalActivityResult{ID: 1, UUID: workflowUUID},
 		},
 		{
 			name: "Fails if there is a persistence error",
 			params: &createWorkflowLocalActivityParams{
-				UUID:       workflowUUID,
+				RNG:        rand.New(rand.NewSource(1)), // #nosec: G404
 				TemporalID: "workflow-id",
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusDone,
@@ -128,7 +129,7 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 			}
 			assert.NilError(t, err)
 
-			var res uint
+			var res createWorkflowLocalActivityResult
 			_ = enc.Get(&res)
 			assert.DeepEqual(t, res, tt.want)
 		})

@@ -3,7 +3,6 @@
 package workflow
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"io"
@@ -17,7 +16,6 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/bucketcopy"
 	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
-	"github.com/artefactual-sdps/temporal-activities/bucketdownload"
 	"github.com/artefactual-sdps/temporal-activities/bucketupload"
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
@@ -315,90 +313,37 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
-	// Persist the workflow for the ingest workflow.
+	// Persist the ingest workflow information.
 	{
-		// TODO: Create deterministic UUIDs and make activities idempotent.
-		state.workflowUUID = uuid.Must(uuid.NewRandomFromReader(w.rng))
+		// TODO: make activities idempotent.
+		var res createWorkflowLocalActivityResult
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(
 			ctx,
 			createWorkflowLocalActivity,
 			w.ingestsvc,
 			&createWorkflowLocalActivityParams{
-				UUID:       state.workflowUUID,
+				RNG:        w.rng,
 				TemporalID: temporalsdk_workflow.GetInfo(ctx).WorkflowExecution.ID,
 				Type:       state.req.Type,
 				Status:     enums.WorkflowStatusInProgress,
 				StartedAt:  sipStartedAt,
 				SIPUUID:    state.sip.uuid,
 			},
-		).Get(ctx, &state.workflowID)
+		).Get(ctx, &res)
 		if err != nil {
 			return err
 		}
+
+		state.workflowID = res.ID
+		state.workflowUUID = res.UUID
 	}
 
-	// Download.
+	// Download the SIP to the worker's local filesystem.
 	{
-		var destinationPath string
-		if w.cfg.Preprocessing.Enabled {
-			destinationPath = w.cfg.Preprocessing.SharedPath
+		if err := w.downloadSIP(sessCtx, state); err != nil {
+			return err
 		}
-		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-
-		if state.req.WatcherName != "" {
-			// Watcher request, use watcher bucket. The download activity
-			// will create a temporary directory to download the file to.
-			var downloadResult activities.DownloadActivityResult
-			err := temporalsdk_workflow.ExecuteActivity(
-				activityOpts,
-				activities.DownloadActivityName,
-				&activities.DownloadActivityParams{
-					Key:             state.req.Key,
-					WatcherName:     state.req.WatcherName,
-					DestinationPath: destinationPath,
-				},
-			).Get(activityOpts, &downloadResult)
-			if err != nil {
-				return err
-			}
-			state.sip.path = downloadResult.Path
-		} else {
-			// If the destination path is set, the bucketdownload activity
-			// will download directly there. We will create an extra directory
-			// with the SIP UUID to avoid collisions and normalize the deletion
-			// of the original SIP from the parent directory.
-			if destinationPath != "" {
-				destinationPath = filepath.Join(destinationPath, state.sip.uuid.String())
-			}
-
-			var activityName string
-			if state.req.SIPSourceID != uuid.Nil {
-				// SIP source request, use SIP source bucket.
-				// TODO: At some point there may be multiple SIP sources, so we
-				// should use the source ID to determine which bucket to use.
-				activityName = activities.DownloadFromSIPSourceActivityName
-			} else {
-				// API upload request, use internal bucket.
-				activityName = activities.DownloadFromInternalBucketActivityName
-			}
-
-			var re bucketdownload.Result
-			err := temporalsdk_workflow.ExecuteActivity(
-				activityOpts,
-				activityName,
-				&bucketdownload.Params{
-					DirPath: destinationPath,
-					Key:     state.req.Key,
-				},
-			).Get(activityOpts, &re)
-			if err != nil {
-				return err
-			}
-			state.sip.path = re.FilePath
-		}
-
-		state.initialPath = state.sip.path
 
 		// Delete download tmp dir when session ends.
 		state.addTempPath(filepath.Dir(state.sip.path))
@@ -1165,13 +1110,6 @@ func (w *ProcessingWorkflow) createTask(
 	ctx temporalsdk_workflow.Context,
 	task *datatypes.Task,
 ) (int, error) {
-	// TODO: Create deterministic UUIDs and make activities idempotent.
-	task.UUID = uuid.Must(uuid.NewRandomFromReader(w.rng))
-	task.StartedAt = sql.NullTime{
-		Time:  temporalsdk_workflow.Now(ctx).UTC(),
-		Valid: true,
-	}
-
 	var id int
 	ctx = withLocalActivityOpts(ctx)
 	err := temporalsdk_workflow.ExecuteLocalActivity(
@@ -1179,6 +1117,7 @@ func (w *ProcessingWorkflow) createTask(
 		createTaskLocalActivity,
 		&createTaskLocalActivityParams{
 			Ingestsvc: w.ingestsvc,
+			RNG:       w.rng,
 			Task:      task,
 		},
 	).Get(ctx, &id)
