@@ -15,10 +15,9 @@ export type StatusEnum = packageEnum | workflowEnum | taskEnum;
 <script setup lang="ts">
 import { computed } from "vue";
 
-import type { api } from "@/client";
+import { api } from "@/client";
 
 type badgeType = "package" | "workflow";
-
 type badgeStyle = string[];
 
 const props = defineProps<{
@@ -78,8 +77,14 @@ const colorClass = computed(() => {
 
 <template>
   <span>
-    <span :class="['badge', colorClass]">
+    <span :class="['badge', colorClass]" id="status-badge">
       {{ props.status.toUpperCase() }}
+      <div
+        v-if="props.status == api.EnduroIngestSipWorkflowStatusEnum.InProgress"
+        class="spinner-border spinner-border-sm text-black"
+        role="progress"
+        aria-hidden="true"
+      ></div>
     </span>
     <span v-if="props.note" class="badge text-dark fw-normal"
       >({{ props.note }})</span
