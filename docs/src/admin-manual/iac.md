@@ -165,41 +165,47 @@ attributes allow a wildcard hierarchical declaration. For example,
 `ingest:sips:read`, etc. The `*` attribute will provide full access to the API.
 
 In order to stablish a Websocket connection from the browser, the
-`GET /ingest/monitor` endpoint requires a cookie obtained from the
-`POST /ingest/monitor` endpoint. User claims are stored internally and the
-attributes are checked before sending events to the connection.
+`GET /ingest/monitor` and `GET /storage/monitor` endpoints require a cookie
+obtained from the `POST /ingest/monitor` and `POST /storage/monitor` endpoints.
+User claims are stored internally and the attributes are checked before sending
+events to the connection.
 
 Similarly, to be able to stream a SIP/AIP download from the browser, the `GET`
 endpoints require a cookie obtained from the `POST` endpoints.
 
-| Method | Endpoint                              | Attributes                      |
-| ------ | ------------------------------------- | ------------------------------- |
-| POST   | /ingest/monitor                       | `-`                             |
-| GET    | /ingest/monitor                       | `-`                             |
-| GET    | /ingest/sips                          | `ingest:sips:list`              |
-| GET    | /ingest/sips/{id}                     | `ingest:sips:read`              |
-| POST   | /ingest/sips/{id}/confirm             | `ingest:sips:review`            |
-| POST   | /ingest/sips/{id}/download            | `ingest:sips:download`          |
-| GET    | /ingest/sips/{id}/download            | `-`                             |
-| POST   | /ingest/sips/{id}/reject              | `ingest:sips:review`            |
-| GET    | /ingest/sips/{id}/workflows           | `ingest:sips:workflows:list`    |
-| POST   | /ingest/sips/upload                   | `ingest:sips:upload`            |
-| GET    | /ingest/users                         | `ingest:users:list`             |
-| GET    | /storage/aips                         | `storage:aips:list`             |
-| POST   | /storage/aips                         | `storage:aips:create`           |
-| GET    | /storage/aips/{uuid}                  | `storage:aips:read`             |
-| POST   | /storage/aips/{uuid}/deletion-cancel  | `storage:aips:deletion:request` |
-| POST   | /storage/aips/{uuid}/deletion-request | `storage:aips:deletion:request` |
-| POST   | /storage/aips/{uuid}/deletion-review  | `storage:aips:deletion:review`  |
-| POST   | /storage/aips/{uuid}/download         | `storage:aips:download`         |
-| GET    | /storage/aips/{uuid}/download         | `-`                             |
-| POST   | /storage/aips/{uuid}/reject           | `storage:aips:review`           |
-| GET    | /storage/aips/{uuid}/store            | `storage:aips:move`             |
-| POST   | /storage/aips/{uuid}/store            | `storage:aips:move`             |
-| POST   | /storage/aips/{uuid}/submit           | `storage:aips:submit`           |
-| POST   | /storage/aips/{uuid}/update           | `storage:aips:submit`           |
-| POST   | /storage/aips/{uuid}/workflows        | `storage:aips:workflows:list`   |
-| GET    | /storage/locations                    | `storage:locations:list`        |
-| POST   | /storage/locations                    | `storage:locations:create`      |
-| GET    | /storage/locations/{uuid}             | `storage:locations:read`        |
-| GET    | /storage/locations/{uuid}/aips        | `storage:locations:aips:list`   |
+| Method | Endpoint                              | Attributes                       |
+| ------ | ------------------------------------- | -------------------------------- |
+| GET    | /about                                | `-`                              |
+| GET    | /ingest/monitor                       | `-`                              |
+| POST   | /ingest/monitor                       | `-`                              |
+| GET    | /ingest/sip-sources/{uuid}/objects    | `ingest:sipsources:objects:list` |
+| GET    | /ingest/sips                          | `ingest:sips:list`               |
+| POST   | /ingest/sips                          | `ingest:sips:create`             |
+| POST   | /ingest/sips/upload                   | `ingest:sips:upload`             |
+| GET    | /ingest/sips/{uuid}                   | `ingest:sips:read`               |
+| POST   | /ingest/sips/{uuid}/confirm           | `ingest:sips:review`             |
+| POST   | /ingest/sips/{uuid}/download          | `ingest:sips:download`           |
+| GET    | /ingest/sips/{uuid}/download          | `-`                              |
+| POST   | /ingest/sips/{uuid}/reject            | `ingest:sips:review`             |
+| GET    | /ingest/sips/{uuid}/workflows         | `ingest:sips:workflows:list`     |
+| GET    | /ingest/users                         | `ingest:users:list`              |
+| GET    | /storage/aips                         | `storage:aips:list`              |
+| POST   | /storage/aips                         | `storage:aips:create`            |
+| GET    | /storage/aips/{uuid}                  | `storage:aips:read`              |
+| POST   | /storage/aips/{uuid}/deletion-cancel  | `storage:aips:deletion:request`  |
+| POST   | /storage/aips/{uuid}/deletion-request | `storage:aips:deletion:request`  |
+| POST   | /storage/aips/{uuid}/deletion-review  | `storage:aips:deletion:review`   |
+| GET    | /storage/aips/{uuid}/download         | `-`                              |
+| POST   | /storage/aips/{uuid}/download         | `storage:aips:download`          |
+| POST   | /storage/aips/{uuid}/reject           | `storage:aips:review`            |
+| GET    | /storage/aips/{uuid}/store            | `storage:aips:move`              |
+| POST   | /storage/aips/{uuid}/store            | `storage:aips:move`              |
+| POST   | /storage/aips/{uuid}/submit           | `storage:aips:submit`            |
+| POST   | /storage/aips/{uuid}/update           | `storage:aips:submit`            |
+| POST   | /storage/aips/{uuid}/workflows        | `storage:aips:workflows:list`    |
+| GET    | /storage/locations                    | `storage:locations:list`         |
+| POST   | /storage/locations                    | `storage:locations:create`       |
+| GET    | /storage/locations/{uuid}             | `storage:locations:read`         |
+| GET    | /storage/locations/{uuid}/aips        | `storage:locations:aips:list`    |
+| GET    | /storage/monitor                      | `-`                              |
+| POST   | /storage/monitor                      | `-`                              |
