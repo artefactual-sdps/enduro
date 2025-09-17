@@ -84,6 +84,7 @@ onMounted(() => {
         <WorkflowCollapse
           :workflow="workflow"
           :index="index"
+          :of="aipStore.currentWorkflows.workflows.length"
           v-for="(workflow, index) in aipStore.currentWorkflows?.workflows"
           v-bind:key="workflow.uuid"
         />
