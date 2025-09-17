@@ -23,42 +23,78 @@ const tasks = computed<api.EnduroIngestSipTask[] | api.EnduroStorageAipTask[]>(
 const props = defineProps<{
   workflow: api.EnduroIngestSipWorkflow | api.EnduroStorageAipWorkflow;
   index: number;
+  of: number;
 }>();
 
 const { workflow, index } = toRefs(props);
 
 let expandCounter = ref<number>(0);
 
-const showSipReviewAlert = (
-  workflow: api.EnduroIngestSipWorkflow | api.EnduroStorageAipWorkflow,
-) => {
+const showSipReviewAlert = () => {
   return (
-    workflow.type == api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip &&
-    workflow.status == api.EnduroIngestSipWorkflowStatusEnum.Pending
+    workflow.value.type ==
+      api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip &&
+    workflow.value.status == api.EnduroIngestSipWorkflowStatusEnum.Pending
   );
 };
 
-const showAipDeletionReviewAlert = (
-  workflow: api.EnduroIngestSipWorkflow | api.EnduroStorageAipWorkflow,
-) => {
+const showAipDeletionReviewAlert = () => {
   return (
-    workflow.type == api.EnduroStorageAipWorkflowTypeEnum.DeleteAip &&
-    workflow.status == api.EnduroStorageAipWorkflowStatusEnum.Pending
+    workflow.value.type == api.EnduroStorageAipWorkflowTypeEnum.DeleteAip &&
+    workflow.value.status == api.EnduroStorageAipWorkflowStatusEnum.Pending
   );
 };
+
+const showTasks = computed(() => {
+  if (!workflow.value.tasks) {
+    return false;
+  }
+
+  // Show tasks if there is only one workflow.
+  if (props.of === 1) {
+    return true;
+  }
+
+  // Show tasks if the workflow is "in progress".
+  if (
+    api.instanceOfEnduroIngestSipWorkflow(workflow.value) &&
+    workflow.value.status === api.EnduroIngestSipWorkflowStatusEnum.InProgress
+  ) {
+    return true;
+  }
+  if (
+    api.instanceOfEnduroStorageAipWorkflow(workflow.value) &&
+    workflow.value.status === api.EnduroStorageAipWorkflowStatusEnum.InProgress
+  ) {
+    return true;
+  }
+
+  // Show tasks if a user decision is required.
+  if (showSipReviewAlert() || showAipDeletionReviewAlert()) {
+    return true;
+  }
+
+  return false;
+});
 </script>
 
 <template>
   <div class="accordion-item border-0 mb-2">
-    <h4 class="accordion-header" :id="'w-heading-' + index">
+    <h4 class="accordion-header" :id="'wf' + index + '-heading'">
       <button
+        ref="wfBtn"
         v-if="workflow.tasks"
-        class="accordion-button collapsed"
+        :class="[
+          'accordion-button',
+          {
+            collapsed: !showTasks,
+          },
+        ]"
         type="button"
         data-bs-toggle="collapse"
-        :data-bs-target="'#w-body-' + index"
-        aria-expanded="false"
-        :aria-controls="'w-body-' + index"
+        :data-bs-target="'#wf' + index + '-tasks'"
+        :aria-expanded="showTasks ? 'true' : 'false'"
+        :aria-controls="'wf' + index + '-tasks'"
       >
         <div class="d-flex flex-column">
           <div class="h4">
@@ -86,21 +122,27 @@ const showAipDeletionReviewAlert = (
     </h4>
     <div
       v-if="workflow.tasks"
-      :id="'w-body-' + index"
-      class="accordion-collapse collapse"
-      :aria-labelledby="'w-heading-' + index"
+      :id="'wf' + index + '-tasks'"
+      :class="[
+        'accordion-collapse',
+        'collapse',
+        {
+          show: showTasks,
+        },
+      ]"
+      :aria-labelledby="'wf' + index + '-heading'"
       data-bs-parent="#workflows"
     >
       <SipReviewAlert
         v-model:expandCounter="expandCounter"
         v-if="
-          showSipReviewAlert(workflow) &&
+          showSipReviewAlert() &&
           authStore.checkAttributes(['ingest:sips:review'])
         "
       />
       <AipDeletionReviewAlert
         v-if="
-          showAipDeletionReviewAlert(workflow) &&
+          showAipDeletionReviewAlert() &&
           (authStore.checkAttributes(['storage:aips:deletion:review']) ||
             authStore.checkAttributes(['storage:aips:deletion:request']))
         "
@@ -108,12 +150,12 @@ const showAipDeletionReviewAlert = (
       />
       <ul class="accordion-body d-flex flex-column gap-1">
         <li
-          v-for="(task, index) of tasks"
-          :id="'task-' + (tasks.length - index)"
-          :key="index"
+          v-for="(task, idx) of tasks"
+          :id="'wf' + index + '-task' + (tasks.length - idx)"
+          :key="idx"
           class="mb-2 card bg-light"
         >
-          <Task :index="tasks.length - index" :task="task" />
+          <Task :index="tasks.length - idx" :task="task" />
         </li>
       </ul>
     </div>
