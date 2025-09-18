@@ -28,7 +28,7 @@ interface Filters {
   [key: string]: (...value: any[]) => string;
 }
 
-declare module "@vue/runtime-core" {
+declare module "vue" {
   interface ComponentCustomProperties {
     $filters: Filters;
   }
