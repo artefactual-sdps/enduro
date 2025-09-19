@@ -131,7 +131,7 @@ const startIngest = async () => {
       </li>
     </ul>
     <div class="form-text text-end">
-      SIPs will each be ingested individually in their own workflow.
+      Each SIP uploaded will be ingested separately in its own workflow.
     </div>
   </div>
 
