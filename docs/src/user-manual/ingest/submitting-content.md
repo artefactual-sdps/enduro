@@ -40,8 +40,8 @@ in the Archivematica documentation.
 ## Upload SIPs via the user interface
 
 Enduro includes an upload page that allows operators to upload SIPs for ingest
-directly via the web browser. A system administrator can define a **package
-upload size limit** [via configuration] - when configured the browser will check
+directly via the web browser. A system administrator can
+[configure a SIP upload size limit] — when configured the browser will check
 the package size upon submission and return an error to the operator if the
 package exceeds the configured limit.
 
@@ -115,13 +115,13 @@ package exceeds the configured limit.
 ## Initiate ingest using SIPs uploaded to a source location
 
 Another method of initiating ingest is by selecting packages previously uploaded
-to a [source location]. A **source location** is an object storage location or
-filesystem directory that [can be configured] for the deposit of packages for
-further action by Enduro operators. Unlike a [watched location] where an action
-is automatically triggered upon deposit, a source location is intended for
-asynchronous manual follow-up. In this case, Enduro operators can select zipped
-packages found in a configured source location and initiate ingest via the user
-interface.
+to a [source location]. A **SIP source location** is an object storage location
+or filesystem directory for the deposit of SIPs that can then be ingested by an
+Enduro operator. The [SIP source configuration] must be set up by a system
+administrator.Unlike a [watched location] where an action is automatically
+triggered upon deposit, a source location is intended for asynchronous manual
+follow-up. In this case, Enduro operators can select zipped packages found in a
+configured source location and initiate ingest via the user interface.
 
 The deposit or upload process will depend on the source location used - to see
 an example of how packages are uploaded to a [MinIO] object store, see the
@@ -140,9 +140,8 @@ watched location [example shown below](#example---upload-via-minio).
 
     !!! warning
 
-        SIPs **must be zipped** to be visible in the configured source location
-        from the Enduro user interface. Other files will not be shown in Enduro
-        to avoid errors during the ingest configuration.
+        SIPs **must be zipped** to be properly ingested into Enduro. You cannot
+        start an ingest workflow from an unzipped directory.
 
         SIPs _may_ be placed in subdirectories, but these subdirectories will
         only be visible as part of the filepath of the ZIP - see for example the
@@ -171,14 +170,14 @@ watched location [example shown below](#example---upload-via-minio).
     After a moment, the page will reload and you will be redirected to the SIP
     browse page, where any new worklfows started by this process  will be
     visible at the top of the browse results. Each SIP uploaded will be ingested
-    separately in its own separate workflow.
+    separately in its own workflow.
 
     ![SIP ingests started from a source location](../screenshots/sip-source-upload-started.png)
 
 ## Initiate ingest via a watched location upload
 
 It is also possible to configure Enduro to use a watched location for ingest.
-This must be [configured by a system administrator] first. The configured
+The [watched location configuration] must be done by a system administrator. The
 watched location can be an object store bucket such as one provided by MinIO,
 S3, or Azure.
 
@@ -213,11 +212,11 @@ type of object store used.
 [a3m]: https://github.com/artefactual-labs/a3m
 [Archivematica]: https://archivematica.org
 [BagIt]: https://tools.ietf.org/html/rfc8493
-[can be configured]: ../../admin-manual/configuration.md#sip-source-location-configuration
-[configured by a system administrator]: ../../admin-manual/configuration.md#watched-location-configuration
+[SIP source configuration]: ../../admin-manual/configuration.md#sip-source-location-configuration
+[watched location configuration]: ../../admin-manual/configuration.md#watched-location-configuration
 [MinIO]: https://min.io/
 [mq]: ../components.md#messaging-queue
 [source location]: ../glossary.md#source-location
 [Unzipped and zipped bags]: https://www.archivematica.org/docs/latest/user-manual/transfer/bags/#bags
-[via configuration]: ../../admin-manual/configuration.md#user-interface-sip-upload-filesize-limit
+[configure a SIP upload size limit]: ../../admin-manual/configuration.md#user-interface-sip-upload-filesize-limit
 [watched location]: ../glossary.md#watched-location
