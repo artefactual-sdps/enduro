@@ -17,7 +17,7 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 	"github.com/prometheus/client_golang/prometheus"
 	"go.opentelemetry.io/otel/codes"
-	semconv "go.opentelemetry.io/otel/semconv/v1.18.0"
+	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
@@ -83,7 +83,7 @@ func ConnectMySQL(tp trace.TracerProvider, dsn string) (db *sql.DB, err error) {
 	}
 
 	db = otelsql.OpenDB(conn,
-		otelsql.WithAttributes(semconv.DBSystemMySQL),
+		otelsql.WithAttributes(semconv.DBSystemNameMySQL),
 		otelsql.WithTracerProvider(tp),
 		otelsql.WithSpanOptions(otelsql.SpanOptions{
 			Ping:           true,
@@ -118,7 +118,7 @@ func ConnectMySQL(tp trace.TracerProvider, dsn string) (db *sql.DB, err error) {
 // concurrent access.
 func ConnectSQLite(tp trace.TracerProvider, dsn string) (db *sql.DB, err error) {
 	db, err = otelsql.Open("sqlite3", dsn,
-		otelsql.WithAttributes(semconv.DBSystemSqlite),
+		otelsql.WithAttributes(semconv.DBSystemNameSQLite),
 		otelsql.WithTracerProvider(tp),
 		otelsql.WithSpanOptions(otelsql.SpanOptions{
 			Ping: true,
