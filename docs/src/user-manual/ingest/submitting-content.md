@@ -118,7 +118,7 @@ Another method of initiating ingest is by selecting packages previously uploaded
 to a [source location]. A **SIP source location** is an object storage location
 or filesystem directory for the deposit of SIPs that can then be ingested by an
 Enduro operator. The [SIP source configuration] must be set up by a system
-administrator.Unlike a [watched location] where an action is automatically
+administrator. Unlike a [watched location] where an action is automatically
 triggered upon deposit, a source location is intended for asynchronous manual
 follow-up. In this case, Enduro operators can select zipped packages found in a
 configured source location and initiate ingest via the user interface.
@@ -144,12 +144,10 @@ watched location [example shown below](#example---upload-via-minio).
         start an ingest workflow from an unzipped directory.
 
         SIPs _may_ be placed in subdirectories, but these subdirectories will
-        only be visible as part of the filepath of the ZIP - see for example the
-        last SIP shown in the screenshot below, which is in a `my-stuff`
-        folder in the configured source location. This means that any
-        subdirectories added to the source location that do **not** have one or
-        more zipped SIPs added to them will also not be shown in the source
-        location picker in the Enduro user interface.
+        only be visible as part of the filepath to a file in the directory
+        (such as a ZIP file) - see for example the last SIP shown in the
+        screenshot below, which is in a `my-stuff` folder in the configured
+        source location.
 
     ![The source location SIP picker](../screenshots/sip-source-upload-selection.png)
 
