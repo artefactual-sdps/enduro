@@ -11,15 +11,6 @@ see:
 The Enduro dashboard can display an institutional logo in the page header by
 setting the following [Vite environment variables].
 
-When running an Enduro Dashboard Docker container, such as when using the Tilt
-development environment, the Vite environment variables can be set via the
-`dashboard/.env` (production), `dashboard/.env.development` (development), or
-`dashboard/.env.test` (test) environment files.
-
-If the Enduro Dashboard is not being run via Docker, but the code is being built
-with [Vite] then the institution logo can be configured in the production
-environment file (`dashboard/.env`) before building the distribution files.
-
 ### Institution logo configuration values
 
 ```bash
@@ -56,7 +47,27 @@ institutional logo will open a new browser tab and load the given URL.
 If no `VITE_INSTITUTION_URL` is set, then the institutional logo will not be
 clickable.
 
+## OIDC settings
+
+The following environment variables can be used to configure an OpenID Connect
+(OIDC) provider for authentication and access control.
+
+```txt
+VITE_OIDC_ENABLED
+VITE_OIDC_BASE_URL
+VITE_OIDC_AUTHORITY
+VITE_OIDC_CLIENT_ID
+VITE_OIDC_SCOPES
+VITE_OIDC_ABAC_ENABLED
+VITE_OIDC_ABAC_CLAIM_PATH
+VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR
+VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX
+VITE_OIDC_ABAC_USE_ROLES
+VITE_OIDC_ABAC_ROLES_MAPPING
+```
+
+Check the [Identity and access control](iac.md) page for more information.
+
 [alt]: https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/alt
 [Configuration]: ../admin-manual/configuration.md
-[Vite]: https://vite.dev/
 [Vite environment variables]: https://vite.dev/guide/env-and-mode
