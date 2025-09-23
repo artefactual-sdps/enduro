@@ -40,8 +40,8 @@ in the Archivematica documentation.
 ## Upload SIPs via the user interface
 
 Enduro includes an upload page that allows operators to upload SIPs for ingest
-directly via the web browser. A system administrator can define a **package
-upload size limit** via configuration - when configured the browser will check
+directly via the web browser. A system administrator can
+[configure a SIP upload size limit] — when configured the browser will check
 the package size upon submission and return an error to the operator if the
 package exceeds the configured limit.
 
@@ -112,23 +112,79 @@ package exceeds the configured limit.
    at the top of the browse results. Each SIP uploaded will be ingested via its
    own separate workflow.
 
-## Add SIPs via a source location
+## Initiate ingest using SIPs uploaded to a source location
 
-Coming soon!
+Another method of initiating ingest is by selecting packages previously uploaded
+to a [source location]. A **SIP source location** is an object storage location
+or filesystem directory for the deposit of SIPs that can then be ingested by an
+Enduro operator. The [SIP source configuration] must be set up by a system
+administrator. Unlike a [watched location] where an action is automatically
+triggered upon deposit, a source location is intended for asynchronous manual
+follow-up. In this case, Enduro operators can select zipped packages found in a
+configured source location and initiate ingest via the user interface.
+
+The deposit or upload process will depend on the source location used - to see
+an example of how packages are uploaded to a [MinIO] object store, see the
+watched location [example shown below](#example---upload-via-minio).
+
+**To initiate ingest using SIPs in a source location**:
+
+1. Using the [navbar](../overview.md#navigation) on the left side of the screen,
+   click on "Upload SIPs." Enduro will redirect you to the SIP upload  page.
+
+    ![The upload SIPs page](../screenshots/local-upload.png)
+
+2. For SIP ingest from a source location, click the "Select from source" tab at
+   the top of the page. Enduro will display a picker interface showing any
+   zipped packages that have been added to the configured source location
+
+    !!! warning
+
+        SIPs **must be zipped** to be properly ingested into Enduro. You cannot
+        start an ingest workflow from an unzipped directory.
+
+        SIPs _may_ be placed in subdirectories, but these subdirectories will
+        only be visible as part of the filepath to a file in the directory
+        (such as a ZIP file) - see for example the last SIP shown in the
+        screenshot below, which is in a `my-stuff` folder in the configured
+        source location.
+
+    ![The source location SIP picker](../screenshots/sip-source-upload-selection.png)
+
+3. The "Start ingest" button at the bottom of the configuration page will be
+   disabled until at least one SIP is selected from the picker. You can use the
+   checkboxes next to the SIPs listed to select one or more SIPs for ingest.
+
+    A count of selected SIPs will be shown above the right side of the picker.
+    You can click the "Select all" link to select all SIPs in the source
+    location, and/or use the "Clear all selections" link to uncheck any
+    previously selected SIPs.
+
+    ![2 SIPs selected from a source location](../screenshots/sip-source-start-upload.png)
+
+4. When you are happy with your SIP selection, click the "Start ingest" button
+   at the bottom of the page.
+
+    After a moment, the page will reload and you will be redirected to the SIP
+    browse page, where any new worklfows started by this process  will be
+    visible at the top of the browse results. Each SIP uploaded will be ingested
+    separately in its own workflow.
+
+    ![SIP ingests started from a source location](../screenshots/sip-source-upload-started.png)
 
 ## Initiate ingest via a watched location upload
 
 It is also possible to configure Enduro to use a watched location for ingest.
-This must be configured by a system administrator first. The configured watched
-location can either be a local filesystem directory or an object store bucket
-(such as one provided by MinIO, S3, or Azure).
+The [watched location configuration] must be done by a system administrator. The
+watched location can be an object store bucket such as one provided by MinIO,
+S3, or Azure.
 
 Once configured, any time a new zipped package is added to the location,
 Enduro's [messaging queue][mq] will see it and automatically initiate an ingest
 workflow.
 
 The example below will use [MinIO][MinIO] - details may vary depending on the
-type of watched location used.
+type of object store used.
 
 !!! note
 
@@ -154,6 +210,11 @@ type of watched location used.
 [a3m]: https://github.com/artefactual-labs/a3m
 [Archivematica]: https://archivematica.org
 [BagIt]: https://tools.ietf.org/html/rfc8493
+[SIP source configuration]: ../../admin-manual/configuration.md#sip-source-location-configuration
+[watched location configuration]: ../../admin-manual/configuration.md#watched-location-configuration
 [MinIO]: https://min.io/
 [mq]: ../components.md#messaging-queue
+[source location]: ../glossary.md#source-location
 [Unzipped and zipped bags]: https://www.archivematica.org/docs/latest/user-manual/transfer/bags/#bags
+[configure a SIP upload size limit]: ../../admin-manual/configuration.md#user-interface-sip-upload-filesize-limit
+[watched location]: ../glossary.md#watched-location
