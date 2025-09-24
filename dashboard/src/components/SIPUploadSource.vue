@@ -4,6 +4,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router/auto";
 
 import { api, client } from "@/client";
+import { humanFileSize } from "@/composables/format";
 import IconBundle from "~icons/clarity/bundle-line";
 
 const router = useRouter();
@@ -12,13 +13,13 @@ const router = useRouter();
 // TODO: Fetch SIP sources from the backend.
 const sourceId = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5";
 const items = ref<api.EnduroIngestSipsourceObject[]>([]);
-const checkedItems = ref<string[]>([]);
+const selectedSips = ref<string[]>([]);
 const nextCursor = ref<string | undefined>(undefined);
 const listContainer = ref<HTMLElement>();
 const errorMessage = ref<string | null>(null);
 
 const { execute, isLoading } = useAsyncState(
-  async (cursor: string | undefined) => {
+  async (cursor?: string | undefined) => {
     // Clear previous error.
     errorMessage.value = null;
     try {
@@ -49,14 +50,14 @@ useInfiniteScroll(
 );
 
 const startIngest = async () => {
-  if (!checkedItems.value.length) return;
+  if (!selectedSips.value.length) return;
 
   // Clear previous error.
   errorMessage.value = null;
 
   try {
     // Group request promises.
-    const ingestPromises = checkedItems.value.map((key) => {
+    const ingestPromises = selectedSips.value.map((key) => {
       return client.ingest.ingestAddSip({ key, sourceId });
     });
     await Promise.all(ingestPromises);
@@ -64,6 +65,14 @@ const startIngest = async () => {
   } catch (error) {
     console.error("Failed to start ingest:", error);
     errorMessage.value = "Failed to start ingest.";
+  }
+};
+
+const clickSip = (key: string) => {
+  if (selectedSips.value.includes(key)) {
+    selectedSips.value = selectedSips.value.filter((i) => i !== key);
+  } else {
+    selectedSips.value.push(key);
   }
 };
 </script>
@@ -84,52 +93,72 @@ const startIngest = async () => {
   </div>
 
   <h2 class="mb-3">1. Select SIPs to Ingest</h2>
-  <div class="mb-3">
+  <div class="mb-3 table">
     <div class="form-text d-flex gap-2 justify-content-end">
-      <span>Selected SIPs: {{ checkedItems.length }}</span>
-      <span>•</span>
-      <a href="#" @click.prevent="checkedItems = items.map((item) => item.key)"
+      <span>Selected SIPs: {{ selectedSips.length }}</span>
+      <span aria-hidden="true">•</span>
+      <a href="#" @click.prevent="selectedSips = items.map((item) => item.key)"
         >Select all</a
       >
-      <span>•</span>
-      <a href="#" @click.prevent="checkedItems = []">Clear selections</a>
+      <span aria-hidden="true">•</span>
+      <a href="#" @click.prevent="selectedSips = []">Clear selections</a>
     </div>
-    <ul
-      ref="listContainer"
-      class="list-group list-group-flush overflow-auto border"
-      style="max-height: 500px"
-    >
-      <li v-if="items.length === 0 && !isLoading" class="list-group-item p-0">
-        <div class="p-2">No SIPs found</div>
-      </li>
-      <li
-        v-for="item in items"
-        :key="item.key"
-        class="list-group-item list-group-item-action p-0"
-        :class="
-          checkedItems.includes(item.key)
-            ? 'list-group-item-primary border border-primary'
-            : ''
-        "
-      >
-        <label class="form-check-label d-flex gap-2 align-items-center p-2">
-          <input
-            class="form-check-input mt-0 mx-1"
-            type="checkbox"
-            v-model="checkedItems"
-            :value="item.key"
-            :id="'cb-' + item.key"
-          />
-          <IconBundle aria-hidden="true" />
-          {{ item.key }}
-        </label>
-      </li>
-      <li v-if="isLoading" class="list-group-item text-center p-3">
-        <div class="spinner-border text-muted" role="status">
-          <span class="visually-hidden">Loading...</span>
-        </div>
-      </li>
-    </ul>
+    <div class="table-responsive overflow-auto" style="max-height: 500px">
+      <table ref="listContainer" class="table table-hover mb-1">
+        <thead>
+          <tr class="sticky-top">
+            <th scope="col">&nbsp;</th>
+            <th scope="col">Name</th>
+            <th scope="col" class="d-none d-sm-table-cell">Size</th>
+            <th scope="col" class="d-none d-sm-table-cell">Deposited</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="items.length === 0 && !isLoading">
+            <td colspan="4">No SIPs found</td>
+          </tr>
+          <tr
+            v-else
+            v-for="item in items"
+            :key="item.key"
+            :class="selectedSips.includes(item.key) ? 'table-primary' : ''"
+            role="button"
+            @click="clickSip(item.key)"
+          >
+            <td>
+              <input
+                class="form-check-input"
+                type="checkbox"
+                v-model="selectedSips"
+                :value="item.key"
+                :id="'cb-' + item.key"
+              />
+            </td>
+            <td>
+              <span class="d-none d-sm-inline-block"
+                ><IconBundle aria-hidden="true"
+              /></span>
+              {{ item.key }}
+            </td>
+            <td class="d-none d-sm-table-cell">
+              {{ item.size ? `${humanFileSize(item.size, 1)}` : "" }}
+            </td>
+            <td class="d-none d-sm-table-cell">
+              {{ $filters.formatDateTime(item.modTime) }}
+            </td>
+          </tr>
+          <tr v-if="isLoading">
+            <td colspan="4" class="text-center">
+              Loading...
+              <div
+                class="spinner-border spinner-border-sm text-muted"
+                role="status"
+              ></div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
     <div class="form-text text-end">
       Each SIP uploaded will be ingested separately in its own workflow.
     </div>
@@ -139,7 +168,7 @@ const startIngest = async () => {
   <button
     class="btn btn-primary"
     @click="startIngest"
-    :disabled="checkedItems.length === 0"
+    :disabled="selectedSips.length === 0"
   >
     Start Ingest
   </button>
