@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/mholt/archiver/v4"
+	"github.com/mholt/archives"
 	"go.artefactual.dev/tools/temporal"
 )
 
@@ -43,15 +43,13 @@ func (a *GetSIPExtensionActivity) Execute(
 	}
 	defer f.Close()
 
-	// TODO: Use github.com/mholt/archives. We still use the archived github.com/mholt/archiver/v4
-	// in some activities, and using both causes a panic registering the same compressors.
-	format, _, err := archiver.Identify(params.Path, f)
+	format, _, err := archives.Identify(ctx, params.Path, f)
 	if err != nil {
-		if errors.Is(err, archiver.ErrNoMatch) {
+		if errors.Is(err, archives.NoMatch) {
 			return nil, ErrInvalidArchive
 		}
 		return nil, fmt.Errorf("%s: identify SIP format: %v", GetSIPExtensionActivityName, err)
 	}
 
-	return &GetSIPExtensionActivityResult{Extension: format.Name()}, nil
+	return &GetSIPExtensionActivityResult{Extension: format.Extension()}, nil
 }

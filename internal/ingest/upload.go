@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	"github.com/google/uuid"
-	"github.com/mholt/archiver/v4"
+	"github.com/mholt/archives"
 	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
@@ -53,15 +53,13 @@ func (w *goaWrapper) UploadSip(
 	}
 
 	// Identify file format to add extension in the object key.
-	// TODO: Use github.com/mholt/archives. We still use the archived github.com/mholt/archiver/v4
-	// in some activities, and using both causes a panic registering the same compressors.
-	format, stream, err := archiver.Identify(part.FileName(), part)
+	format, stream, err := archives.Identify(ctx, part.FileName(), part)
 	if err != nil {
 		return nil, goaingest.MakeInvalidMultipartRequest(errors.New("unable to identify format"))
 	}
 
 	// Remove the format extension from the filename if it is included.
-	ext := format.Name()
+	ext := format.Extension()
 	name := strings.TrimSuffix(part.FileName(), ext)
 	sipUUID := uuid.Must(uuid.NewRandomFromReader(w.rander))
 	objectKey := fmt.Sprintf("%s%s-%s%s", SIPPrefix, name, sipUUID.String(), ext)
