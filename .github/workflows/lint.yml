@@ -7,6 +7,8 @@ name: Lint
 jobs:
   golangci-lint:
     runs-on: ubuntu-latest
+    env:
+      GOLANGCI_LINT_CACHE: ${{ github.workspace }}/.cache/golangci-lint
     steps:
       - name: Checkout code
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
@@ -15,22 +17,23 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Get date
+        id: get_date
         shell: bash
         run: |
-          echo "DATE=$(date -u '+%Y-%m')" >> $GITHUB_ENV
+          echo "date=$(date -u '+%Y-%m')" >> $GITHUB_OUTPUT
+      - name: Ensure golangci-lint cache dir
+        run: mkdir -p "$GOLANGCI_LINT_CACHE"
       - name: Restore golangci-lint cache
         uses: actions/cache@0400d5f644dc74513175e3cd8d07132dd4860809 # v4.2.4
         timeout-minutes: 10
         continue-on-error: true
         with:
-          path: ${{ runner.temp }}/golangci-lint-cache
-          key: ${{ runner.os }}-golangci-lint-cache-${{ env.DATE }}
-          restore-keys: |
-            ${{ runner.os }}-golangci-lint-cache-
+          path: ${{ env.GOLANGCI_LINT_CACHE }}
+          key: ${{ runner.os }}-golangci-lint-cache-${{ steps.get_date.outputs.date }}
+          restore-keys: ${{ runner.os }}-golangci-lint-cache-
       - name: Run golangci-lint
         run: make lint LINT_FLAGS=--fix=0
-        env:
-          GOLANGCI_LINT_CACHE: ${{ runner.temp }}/golangci-lint-cache
+
   shfmt:
     runs-on: ubuntu-latest
     steps:
