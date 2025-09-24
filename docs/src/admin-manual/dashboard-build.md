@@ -67,9 +67,6 @@ npm run build
 The build creates a `dist/` directory with minified JavaScript, CSS, and HTML
 files ready for deployment.
 
-Setting the `ENDURO_DISABLE_CSP_META` environment variable to `true` will
-prevent the addition of the CSP meta tag to the `index.html` file.
-
 ## Serving built assets
 
 ### Using pre-built releases
@@ -168,12 +165,19 @@ server {
     root /usr/share/nginx/html;
     absolute_redirect off;
 
-    # Clickjacking protection, not supported via CSP meta
-    add_header Content-Security-Policy "frame-ancestors 'none'" always;
-
-    # Full CSP via header, if not using the meta tag
+    # Content Security Policy (CSP):
     # Replace or remove the OIDC provider and institution logo URLs as needed
-    # add_header Content-Security-Policy "default-src 'self'; script-src-attr 'none'; img-src 'self' data: http://institution.com/logo.png; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; connect-src 'self' http://oidcprovider.com/realms/example/; frame-ancestors 'none'" always;
+    add_header Content-Security-Policy "default-src 'self'; script-src-attr 'none'; img-src 'self' data: http://institution.com/logo.png; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; connect-src 'self' http://oidcprovider.com; frame-ancestors 'none'" always;
+
+    # When serving over HTTPS:
+    # (Append to CSP) ... ; upgrade-insecure-requests
+
+    # Reporting:
+    # (Append to CSP) ... ; report-uri https://example.com/csp
+
+    # Reporting (not broadly supported yet):
+    # add_header Reporting-Endpoints 'csp="https://example.com/csp"' always;
+    # (Append to CSP) ... ; report-to csp
 
     # WebSocket support for ingest monitoring
     location /api/ingest/monitor {

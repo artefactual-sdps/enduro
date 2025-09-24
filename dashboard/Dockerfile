@@ -31,12 +31,9 @@ server {
     root /usr/share/nginx/html;
     absolute_redirect off;
 
-    # Clickjacking protection, not supported via CSP meta.
-    add_header Content-Security-Policy "frame-ancestors 'none'" always;
-
-    # Full CSP via header, if not using the meta tag.
-    # Replace or remove the OIDC provider and institution logo URLs as needed.
-    # add_header Content-Security-Policy "default-src 'self'; script-src-attr 'none'; img-src 'self' data: http://institution.com/logo.png; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; connect-src 'self' http://oidcprovider.com/realms/example/; frame-ancestors 'none'" always;
+    # Content Security Policy (CSP):
+    # Replace or remove the OIDC provider and add institution logo URL if needed.
+    add_header Content-Security-Policy "default-src 'self'; script-src-attr 'none'; img-src 'self' data:; frame-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'; connect-src 'self' http://keycloak:7470; frame-ancestors 'none'" always;
 
     # When serving over HTTPS:
     # (Append to CSP) ... ; upgrade-insecure-requests
