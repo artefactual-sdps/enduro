@@ -66,6 +66,20 @@ const startIngest = async () => {
     errorMessage.value = "Failed to start ingest.";
   }
 };
+
+const formatSize = (size: number): string => {
+  if (size >= 1024 ** 4) {
+    return `${(size / 1024 ** 4).toFixed(2)} TiB`;
+  } else if (size >= 1024 ** 3) {
+    return `${(size / 1024 ** 3).toFixed(2)} GiB`;
+  } else if (size >= 1024 ** 2) {
+    return `${(size / 1024 ** 2).toFixed(2)} MiB`;
+  } else if (size >= 1024) {
+    return `${(size / 1024).toFixed(2)} KiB`;
+  } else {
+    return `${size} bytes`;
+  }
+};
 </script>
 
 <template>
@@ -122,6 +136,10 @@ const startIngest = async () => {
           />
           <IconBundle aria-hidden="true" />
           {{ item.key }}
+          {{ item.size ? `(${formatSize(item.size)})` : "" }}
+          <span v-if="item.modTime" class="ms-auto">
+            Deposited {{ $filters.formatDateTime(item.modTime) }}
+          </span>
         </label>
       </li>
       <li v-if="isLoading" class="list-group-item text-center p-3">
