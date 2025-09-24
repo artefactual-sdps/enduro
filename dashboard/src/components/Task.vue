@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 
 import StatusBadge from "@/components/StatusBadge.vue";
 import { addEmailLinks } from "@/composables/addEmailLinks";
-import { FormatDateTime } from "@/composables/dateFormat";
+import { FormatDateTime } from "@/composables/format";
 import type {
   EnduroIngestSipTask,
   EnduroStorageAipTask,
