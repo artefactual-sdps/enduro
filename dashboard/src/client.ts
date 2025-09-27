@@ -48,6 +48,18 @@ function connectIngestMonitor() {
       handleIngestEvent(data.ingestValue);
     }
   };
+  socket.onclose = () => {
+    console.error("Ingest monitor socket closed");
+    setTimeout(() => {
+      console.log("Reconnecting ingest monitor socket...");
+      client.ingest.ingestMonitorRequest().then(() => {
+        client.connectIngestMonitor();
+      });
+    }, 1000);
+  };
+  socket.onerror = () => {
+    console.error("Ingest monitor socket error");
+  };
 }
 
 function connectStorageMonitor() {
@@ -59,6 +71,18 @@ function connectStorageMonitor() {
     if (data.storageValue) {
       handleStorageEvent(data.storageValue);
     }
+  };
+  socket.onclose = () => {
+    console.error("Storage monitor socket closed");
+    setTimeout(() => {
+      console.log("Reconnecting storage monitor socket...");
+      client.storage.storageMonitorRequest().then(() => {
+        client.connectStorageMonitor();
+      });
+    }, 1000);
+  };
+  socket.onerror = () => {
+    console.error("Storage monitor socket error");
   };
 }
 
