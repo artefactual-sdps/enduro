@@ -21,6 +21,7 @@ import (
 type MockService struct {
 	ctrl     *gomock.Controller
 	recorder *MockServiceMockRecorder
+	isgomock struct{}
 }
 
 // MockServiceMockRecorder is the mock recorder for MockService.
@@ -41,18 +42,18 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // ByName mocks base method.
-func (m *MockService) ByName(arg0 string) (watcher.Watcher, error) {
+func (m *MockService) ByName(name string) (watcher.Watcher, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ByName", arg0)
+	ret := m.ctrl.Call(m, "ByName", name)
 	ret0, _ := ret[0].(watcher.Watcher)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ByName indicates an expected call of ByName.
-func (mr *MockServiceMockRecorder) ByName(arg0 any) *MockServiceByNameCall {
+func (mr *MockServiceMockRecorder) ByName(name any) *MockServiceByNameCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ByName", reflect.TypeOf((*MockService)(nil).ByName), arg0)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ByName", reflect.TypeOf((*MockService)(nil).ByName), name)
 	return &MockServiceByNameCall{Call: call}
 }
 
@@ -80,17 +81,17 @@ func (c *MockServiceByNameCall) DoAndReturn(f func(string) (watcher.Watcher, err
 }
 
 // Delete mocks base method.
-func (m *MockService) Delete(arg0 context.Context, arg1, arg2 string) error {
+func (m *MockService) Delete(ctx context.Context, watcherName, key string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Delete", ctx, watcherName, key)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockServiceMockRecorder) Delete(arg0, arg1, arg2 any) *MockServiceDeleteCall {
+func (mr *MockServiceMockRecorder) Delete(ctx, watcherName, key any) *MockServiceDeleteCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockService)(nil).Delete), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockService)(nil).Delete), ctx, watcherName, key)
 	return &MockServiceDeleteCall{Call: call}
 }
 
@@ -118,17 +119,17 @@ func (c *MockServiceDeleteCall) DoAndReturn(f func(context.Context, string, stri
 }
 
 // Dispose mocks base method.
-func (m *MockService) Dispose(arg0 context.Context, arg1, arg2 string) error {
+func (m *MockService) Dispose(ctx context.Context, watcherName, key string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Dispose", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Dispose", ctx, watcherName, key)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Dispose indicates an expected call of Dispose.
-func (mr *MockServiceMockRecorder) Dispose(arg0, arg1, arg2 any) *MockServiceDisposeCall {
+func (mr *MockServiceMockRecorder) Dispose(ctx, watcherName, key any) *MockServiceDisposeCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Dispose", reflect.TypeOf((*MockService)(nil).Dispose), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Dispose", reflect.TypeOf((*MockService)(nil).Dispose), ctx, watcherName, key)
 	return &MockServiceDisposeCall{Call: call}
 }
 
@@ -156,17 +157,17 @@ func (c *MockServiceDisposeCall) DoAndReturn(f func(context.Context, string, str
 }
 
 // Download mocks base method.
-func (m *MockService) Download(arg0 context.Context, arg1, arg2, arg3 string) error {
+func (m *MockService) Download(ctx context.Context, dest, watcherName, key string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Download", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "Download", ctx, dest, watcherName, key)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Download indicates an expected call of Download.
-func (mr *MockServiceMockRecorder) Download(arg0, arg1, arg2, arg3 any) *MockServiceDownloadCall {
+func (mr *MockServiceMockRecorder) Download(ctx, dest, watcherName, key any) *MockServiceDownloadCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockService)(nil).Download), arg0, arg1, arg2, arg3)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockService)(nil).Download), ctx, dest, watcherName, key)
 	return &MockServiceDownloadCall{Call: call}
 }
 

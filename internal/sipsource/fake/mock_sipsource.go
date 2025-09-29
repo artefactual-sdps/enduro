@@ -21,6 +21,7 @@ import (
 type MockSIPSource struct {
 	ctrl     *gomock.Controller
 	recorder *MockSIPSourceMockRecorder
+	isgomock struct{}
 }
 
 // MockSIPSourceMockRecorder is the mock recorder for MockSIPSource.
@@ -79,18 +80,18 @@ func (c *MockSIPSourceCloseCall) DoAndReturn(f func() error) *MockSIPSourceClose
 }
 
 // ListObjects mocks base method.
-func (m *MockSIPSource) ListObjects(arg0 context.Context, arg1 []byte, arg2 int) (*sipsource.Page, error) {
+func (m *MockSIPSource) ListObjects(ctx context.Context, token []byte, limit int) (*sipsource.Page, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListObjects", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "ListObjects", ctx, token, limit)
 	ret0, _ := ret[0].(*sipsource.Page)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListObjects indicates an expected call of ListObjects.
-func (mr *MockSIPSourceMockRecorder) ListObjects(arg0, arg1, arg2 any) *MockSIPSourceListObjectsCall {
+func (mr *MockSIPSourceMockRecorder) ListObjects(ctx, token, limit any) *MockSIPSourceListObjectsCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListObjects", reflect.TypeOf((*MockSIPSource)(nil).ListObjects), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListObjects", reflect.TypeOf((*MockSIPSource)(nil).ListObjects), ctx, token, limit)
 	return &MockSIPSourceListObjectsCall{Call: call}
 }
 

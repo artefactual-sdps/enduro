@@ -26,6 +26,7 @@ import (
 type MockService struct {
 	ctrl     *gomock.Controller
 	recorder *MockServiceMockRecorder
+	isgomock struct{}
 }
 
 // MockServiceMockRecorder is the mock recorder for MockService.
@@ -46,17 +47,17 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // CompleteTask mocks base method.
-func (m *MockService) CompleteTask(arg0 context.Context, arg1 int, arg2 enums.TaskStatus, arg3 time.Time, arg4 *string) error {
+func (m *MockService) CompleteTask(ctx context.Context, ID int, status enums.TaskStatus, completedAt time.Time, note *string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CompleteTask", arg0, arg1, arg2, arg3, arg4)
+	ret := m.ctrl.Call(m, "CompleteTask", ctx, ID, status, completedAt, note)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CompleteTask indicates an expected call of CompleteTask.
-func (mr *MockServiceMockRecorder) CompleteTask(arg0, arg1, arg2, arg3, arg4 any) *MockServiceCompleteTaskCall {
+func (mr *MockServiceMockRecorder) CompleteTask(ctx, ID, status, completedAt, note any) *MockServiceCompleteTaskCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompleteTask", reflect.TypeOf((*MockService)(nil).CompleteTask), arg0, arg1, arg2, arg3, arg4)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompleteTask", reflect.TypeOf((*MockService)(nil).CompleteTask), ctx, ID, status, completedAt, note)
 	return &MockServiceCompleteTaskCall{Call: call}
 }
 
@@ -84,17 +85,17 @@ func (c *MockServiceCompleteTaskCall) DoAndReturn(f func(context.Context, int, e
 }
 
 // CompleteWorkflow mocks base method.
-func (m *MockService) CompleteWorkflow(arg0 context.Context, arg1 int, arg2 enums.WorkflowStatus, arg3 time.Time) error {
+func (m *MockService) CompleteWorkflow(ctx context.Context, ID int, status enums.WorkflowStatus, completedAt time.Time) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CompleteWorkflow", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "CompleteWorkflow", ctx, ID, status, completedAt)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CompleteWorkflow indicates an expected call of CompleteWorkflow.
-func (mr *MockServiceMockRecorder) CompleteWorkflow(arg0, arg1, arg2, arg3 any) *MockServiceCompleteWorkflowCall {
+func (mr *MockServiceMockRecorder) CompleteWorkflow(ctx, ID, status, completedAt any) *MockServiceCompleteWorkflowCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompleteWorkflow", reflect.TypeOf((*MockService)(nil).CompleteWorkflow), arg0, arg1, arg2, arg3)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CompleteWorkflow", reflect.TypeOf((*MockService)(nil).CompleteWorkflow), ctx, ID, status, completedAt)
 	return &MockServiceCompleteWorkflowCall{Call: call}
 }
 
@@ -160,17 +161,17 @@ func (c *MockServiceCreateSIPCall) DoAndReturn(f func(context.Context, *datatype
 }
 
 // CreateTask mocks base method.
-func (m *MockService) CreateTask(arg0 context.Context, arg1 *datatypes.Task) error {
+func (m *MockService) CreateTask(ctx context.Context, task *datatypes.Task) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateTask", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateTask", ctx, task)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateTask indicates an expected call of CreateTask.
-func (mr *MockServiceMockRecorder) CreateTask(arg0, arg1 any) *MockServiceCreateTaskCall {
+func (mr *MockServiceMockRecorder) CreateTask(ctx, task any) *MockServiceCreateTaskCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockService)(nil).CreateTask), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockService)(nil).CreateTask), ctx, task)
 	return &MockServiceCreateTaskCall{Call: call}
 }
 
@@ -198,17 +199,17 @@ func (c *MockServiceCreateTaskCall) DoAndReturn(f func(context.Context, *datatyp
 }
 
 // CreateWorkflow mocks base method.
-func (m *MockService) CreateWorkflow(arg0 context.Context, arg1 *datatypes.Workflow) error {
+func (m *MockService) CreateWorkflow(ctx context.Context, w *datatypes.Workflow) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateWorkflow", arg0, arg1)
+	ret := m.ctrl.Call(m, "CreateWorkflow", ctx, w)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // CreateWorkflow indicates an expected call of CreateWorkflow.
-func (mr *MockServiceMockRecorder) CreateWorkflow(arg0, arg1 any) *MockServiceCreateWorkflowCall {
+func (mr *MockServiceMockRecorder) CreateWorkflow(ctx, w any) *MockServiceCreateWorkflowCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWorkflow", reflect.TypeOf((*MockService)(nil).CreateWorkflow), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateWorkflow", reflect.TypeOf((*MockService)(nil).CreateWorkflow), ctx, w)
 	return &MockServiceCreateWorkflowCall{Call: call}
 }
 
@@ -274,17 +275,17 @@ func (c *MockServiceGoaCall) DoAndReturn(f func() ingest.Service) *MockServiceGo
 }
 
 // SetStatus mocks base method.
-func (m *MockService) SetStatus(arg0 context.Context, arg1 uuid.UUID, arg2 enums.SIPStatus) error {
+func (m *MockService) SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetStatus", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SetStatus", ctx, id, status)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetStatus indicates an expected call of SetStatus.
-func (mr *MockServiceMockRecorder) SetStatus(arg0, arg1, arg2 any) *MockServiceSetStatusCall {
+func (mr *MockServiceMockRecorder) SetStatus(ctx, id, status any) *MockServiceSetStatusCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetStatus", reflect.TypeOf((*MockService)(nil).SetStatus), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetStatus", reflect.TypeOf((*MockService)(nil).SetStatus), ctx, id, status)
 	return &MockServiceSetStatusCall{Call: call}
 }
 
@@ -312,17 +313,17 @@ func (c *MockServiceSetStatusCall) DoAndReturn(f func(context.Context, uuid.UUID
 }
 
 // SetStatusInProgress mocks base method.
-func (m *MockService) SetStatusInProgress(arg0 context.Context, arg1 uuid.UUID, arg2 time.Time) error {
+func (m *MockService) SetStatusInProgress(ctx context.Context, id uuid.UUID, startedAt time.Time) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetStatusInProgress", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SetStatusInProgress", ctx, id, startedAt)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetStatusInProgress indicates an expected call of SetStatusInProgress.
-func (mr *MockServiceMockRecorder) SetStatusInProgress(arg0, arg1, arg2 any) *MockServiceSetStatusInProgressCall {
+func (mr *MockServiceMockRecorder) SetStatusInProgress(ctx, id, startedAt any) *MockServiceSetStatusInProgressCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetStatusInProgress", reflect.TypeOf((*MockService)(nil).SetStatusInProgress), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetStatusInProgress", reflect.TypeOf((*MockService)(nil).SetStatusInProgress), ctx, id, startedAt)
 	return &MockServiceSetStatusInProgressCall{Call: call}
 }
 
@@ -350,17 +351,17 @@ func (c *MockServiceSetStatusInProgressCall) DoAndReturn(f func(context.Context,
 }
 
 // SetWorkflowStatus mocks base method.
-func (m *MockService) SetWorkflowStatus(arg0 context.Context, arg1 int, arg2 enums.WorkflowStatus) error {
+func (m *MockService) SetWorkflowStatus(ctx context.Context, ID int, status enums.WorkflowStatus) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetWorkflowStatus", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "SetWorkflowStatus", ctx, ID, status)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetWorkflowStatus indicates an expected call of SetWorkflowStatus.
-func (mr *MockServiceMockRecorder) SetWorkflowStatus(arg0, arg1, arg2 any) *MockServiceSetWorkflowStatusCall {
+func (mr *MockServiceMockRecorder) SetWorkflowStatus(ctx, ID, status any) *MockServiceSetWorkflowStatusCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetWorkflowStatus", reflect.TypeOf((*MockService)(nil).SetWorkflowStatus), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetWorkflowStatus", reflect.TypeOf((*MockService)(nil).SetWorkflowStatus), ctx, ID, status)
 	return &MockServiceSetWorkflowStatusCall{Call: call}
 }
 

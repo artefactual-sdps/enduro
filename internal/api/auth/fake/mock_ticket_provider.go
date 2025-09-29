@@ -20,6 +20,7 @@ import (
 type MockTicketProvider struct {
 	ctrl     *gomock.Controller
 	recorder *MockTicketProviderMockRecorder
+	isgomock struct{}
 }
 
 // MockTicketProviderMockRecorder is the mock recorder for MockTicketProvider.
@@ -40,17 +41,17 @@ func (m *MockTicketProvider) EXPECT() *MockTicketProviderMockRecorder {
 }
 
 // Check mocks base method.
-func (m *MockTicketProvider) Check(arg0 context.Context, arg1 *string, arg2 any) error {
+func (m *MockTicketProvider) Check(ctx context.Context, ticket *string, value any) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Check", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Check", ctx, ticket, value)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Check indicates an expected call of Check.
-func (mr *MockTicketProviderMockRecorder) Check(arg0, arg1, arg2 any) *MockTicketProviderCheckCall {
+func (mr *MockTicketProviderMockRecorder) Check(ctx, ticket, value any) *MockTicketProviderCheckCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockTicketProvider)(nil).Check), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockTicketProvider)(nil).Check), ctx, ticket, value)
 	return &MockTicketProviderCheckCall{Call: call}
 }
 
@@ -116,18 +117,18 @@ func (c *MockTicketProviderCloseCall) DoAndReturn(f func() error) *MockTicketPro
 }
 
 // Request mocks base method.
-func (m *MockTicketProvider) Request(arg0 context.Context, arg1 any) (string, error) {
+func (m *MockTicketProvider) Request(ctx context.Context, value any) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Request", arg0, arg1)
+	ret := m.ctrl.Call(m, "Request", ctx, value)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Request indicates an expected call of Request.
-func (mr *MockTicketProviderMockRecorder) Request(arg0, arg1 any) *MockTicketProviderRequestCall {
+func (mr *MockTicketProviderMockRecorder) Request(ctx, value any) *MockTicketProviderRequestCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Request", reflect.TypeOf((*MockTicketProvider)(nil).Request), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Request", reflect.TypeOf((*MockTicketProvider)(nil).Request), ctx, value)
 	return &MockTicketProviderRequestCall{Call: call}
 }
 

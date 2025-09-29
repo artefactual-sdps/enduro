@@ -28,6 +28,7 @@ import (
 type MockService struct {
 	ctrl     *gomock.Controller
 	recorder *MockServiceMockRecorder
+	isgomock struct{}
 }
 
 // MockServiceMockRecorder is the mock recorder for MockService.
@@ -48,18 +49,18 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 }
 
 // AipReader mocks base method.
-func (m *MockService) AipReader(arg0 context.Context, arg1 *storage.AIP) (*blob.Reader, error) {
+func (m *MockService) AipReader(ctx context.Context, aip *storage.AIP) (*blob.Reader, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AipReader", arg0, arg1)
+	ret := m.ctrl.Call(m, "AipReader", ctx, aip)
 	ret0, _ := ret[0].(*blob.Reader)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // AipReader indicates an expected call of AipReader.
-func (mr *MockServiceMockRecorder) AipReader(arg0, arg1 any) *MockServiceAipReaderCall {
+func (mr *MockServiceMockRecorder) AipReader(ctx, aip any) *MockServiceAipReaderCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AipReader", reflect.TypeOf((*MockService)(nil).AipReader), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AipReader", reflect.TypeOf((*MockService)(nil).AipReader), ctx, aip)
 	return &MockServiceAipReaderCall{Call: call}
 }
 
@@ -107,8 +108,8 @@ type MockServiceCancelAipDeletionCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceCancelAipDeletionCall) Return(arg0 error) *MockServiceCancelAipDeletionCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockServiceCancelAipDeletionCall) Return(err error) *MockServiceCancelAipDeletionCall {
+	c.Call = c.Call.Return(err)
 	return c
 }
 
@@ -146,8 +147,8 @@ type MockServiceCreateAipCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceCreateAipCall) Return(arg0 *storage.AIP, arg1 error) *MockServiceCreateAipCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceCreateAipCall) Return(res *storage.AIP, err error) *MockServiceCreateAipCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -223,8 +224,8 @@ type MockServiceCreateLocationCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceCreateLocationCall) Return(arg0 *storage.CreateLocationResult, arg1 error) *MockServiceCreateLocationCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceCreateLocationCall) Return(res *storage.CreateLocationResult, err error) *MockServiceCreateLocationCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -317,17 +318,17 @@ func (c *MockServiceCreateWorkflowCall) DoAndReturn(f func(context.Context, *typ
 }
 
 // DeleteAip mocks base method.
-func (m *MockService) DeleteAip(arg0 context.Context, arg1 uuid.UUID) error {
+func (m *MockService) DeleteAip(ctx context.Context, aipID uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "DeleteAip", arg0, arg1)
+	ret := m.ctrl.Call(m, "DeleteAip", ctx, aipID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // DeleteAip indicates an expected call of DeleteAip.
-func (mr *MockServiceMockRecorder) DeleteAip(arg0, arg1 any) *MockServiceDeleteAipCall {
+func (mr *MockServiceMockRecorder) DeleteAip(ctx, aipID any) *MockServiceDeleteAipCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAip", reflect.TypeOf((*MockService)(nil).DeleteAip), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteAip", reflect.TypeOf((*MockService)(nil).DeleteAip), ctx, aipID)
 	return &MockServiceDeleteAipCall{Call: call}
 }
 
@@ -337,8 +338,8 @@ type MockServiceDeleteAipCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceDeleteAipCall) Return(arg0 error) *MockServiceDeleteAipCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockServiceDeleteAipCall) Return(err error) *MockServiceDeleteAipCall {
+	c.Call = c.Call.Return(err)
 	return c
 }
 
@@ -377,8 +378,8 @@ type MockServiceDownloadAipCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceDownloadAipCall) Return(arg0 *storage.DownloadAipResult, arg1 io.ReadCloser, arg2 error) *MockServiceDownloadAipCall {
-	c.Call = c.Call.Return(arg0, arg1, arg2)
+func (c *MockServiceDownloadAipCall) Return(res *storage.DownloadAipResult, body io.ReadCloser, err error) *MockServiceDownloadAipCall {
+	c.Call = c.Call.Return(res, body, err)
 	return c
 }
 
@@ -416,8 +417,8 @@ type MockServiceDownloadAipRequestCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceDownloadAipRequestCall) Return(arg0 *storage.DownloadAipRequestResult, arg1 error) *MockServiceDownloadAipRequestCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceDownloadAipRequestCall) Return(res *storage.DownloadAipRequestResult, err error) *MockServiceDownloadAipRequestCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -455,8 +456,8 @@ type MockServiceListAipWorkflowsCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceListAipWorkflowsCall) Return(arg0 *storage.AIPWorkflows, arg1 error) *MockServiceListAipWorkflowsCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceListAipWorkflowsCall) Return(res *storage.AIPWorkflows, err error) *MockServiceListAipWorkflowsCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -494,8 +495,8 @@ type MockServiceListAipsCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceListAipsCall) Return(arg0 *storage.AIPs, arg1 error) *MockServiceListAipsCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceListAipsCall) Return(res *storage.AIPs, err error) *MockServiceListAipsCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -533,8 +534,8 @@ type MockServiceListLocationAipsCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceListLocationAipsCall) Return(arg0 storage.AIPCollection, arg1 error) *MockServiceListLocationAipsCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceListLocationAipsCall) Return(res storage.AIPCollection, err error) *MockServiceListLocationAipsCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -572,8 +573,8 @@ type MockServiceListLocationsCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceListLocationsCall) Return(arg0 storage.LocationCollection, arg1 error) *MockServiceListLocationsCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceListLocationsCall) Return(res storage.LocationCollection, err error) *MockServiceListLocationsCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -590,18 +591,18 @@ func (c *MockServiceListLocationsCall) DoAndReturn(f func(context.Context, *stor
 }
 
 // Location mocks base method.
-func (m *MockService) Location(arg0 context.Context, arg1 uuid.UUID) (storage0.Location, error) {
+func (m *MockService) Location(ctx context.Context, locationID uuid.UUID) (storage0.Location, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Location", arg0, arg1)
+	ret := m.ctrl.Call(m, "Location", ctx, locationID)
 	ret0, _ := ret[0].(storage0.Location)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Location indicates an expected call of Location.
-func (mr *MockServiceMockRecorder) Location(arg0, arg1 any) *MockServiceLocationCall {
+func (mr *MockServiceMockRecorder) Location(ctx, locationID any) *MockServiceLocationCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Location", reflect.TypeOf((*MockService)(nil).Location), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Location", reflect.TypeOf((*MockService)(nil).Location), ctx, locationID)
 	return &MockServiceLocationCall{Call: call}
 }
 
@@ -649,8 +650,8 @@ type MockServiceMonitorCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceMonitorCall) Return(arg0 error) *MockServiceMonitorCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockServiceMonitorCall) Return(err error) *MockServiceMonitorCall {
+	c.Call = c.Call.Return(err)
 	return c
 }
 
@@ -688,8 +689,8 @@ type MockServiceMonitorRequestCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceMonitorRequestCall) Return(arg0 *storage.MonitorRequestResult, arg1 error) *MockServiceMonitorRequestCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceMonitorRequestCall) Return(res *storage.MonitorRequestResult, err error) *MockServiceMonitorRequestCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -726,8 +727,8 @@ type MockServiceMoveAipCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceMoveAipCall) Return(arg0 error) *MockServiceMoveAipCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockServiceMoveAipCall) Return(err error) *MockServiceMoveAipCall {
+	c.Call = c.Call.Return(err)
 	return c
 }
 
@@ -765,8 +766,8 @@ type MockServiceMoveAipStatusCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceMoveAipStatusCall) Return(arg0 *storage.MoveStatusResult, arg1 error) *MockServiceMoveAipStatusCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceMoveAipStatusCall) Return(res *storage.MoveStatusResult, err error) *MockServiceMoveAipStatusCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -783,18 +784,18 @@ func (c *MockServiceMoveAipStatusCall) DoAndReturn(f func(context.Context, *stor
 }
 
 // ReadAip mocks base method.
-func (m *MockService) ReadAip(arg0 context.Context, arg1 uuid.UUID) (*storage.AIP, error) {
+func (m *MockService) ReadAip(ctx context.Context, aipID uuid.UUID) (*storage.AIP, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadAip", arg0, arg1)
+	ret := m.ctrl.Call(m, "ReadAip", ctx, aipID)
 	ret0, _ := ret[0].(*storage.AIP)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReadAip indicates an expected call of ReadAip.
-func (mr *MockServiceMockRecorder) ReadAip(arg0, arg1 any) *MockServiceReadAipCall {
+func (mr *MockServiceMockRecorder) ReadAip(ctx, aipID any) *MockServiceReadAipCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadAip", reflect.TypeOf((*MockService)(nil).ReadAip), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadAip", reflect.TypeOf((*MockService)(nil).ReadAip), ctx, aipID)
 	return &MockServiceReadAipCall{Call: call}
 }
 
@@ -822,18 +823,18 @@ func (c *MockServiceReadAipCall) DoAndReturn(f func(context.Context, uuid.UUID) 
 }
 
 // ReadAipPendingDeletionRequest mocks base method.
-func (m *MockService) ReadAipPendingDeletionRequest(arg0 context.Context, arg1 uuid.UUID) (*types.DeletionRequest, error) {
+func (m *MockService) ReadAipPendingDeletionRequest(ctx context.Context, aipID uuid.UUID) (*types.DeletionRequest, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadAipPendingDeletionRequest", arg0, arg1)
+	ret := m.ctrl.Call(m, "ReadAipPendingDeletionRequest", ctx, aipID)
 	ret0, _ := ret[0].(*types.DeletionRequest)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReadAipPendingDeletionRequest indicates an expected call of ReadAipPendingDeletionRequest.
-func (mr *MockServiceMockRecorder) ReadAipPendingDeletionRequest(arg0, arg1 any) *MockServiceReadAipPendingDeletionRequestCall {
+func (mr *MockServiceMockRecorder) ReadAipPendingDeletionRequest(ctx, aipID any) *MockServiceReadAipPendingDeletionRequestCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadAipPendingDeletionRequest", reflect.TypeOf((*MockService)(nil).ReadAipPendingDeletionRequest), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadAipPendingDeletionRequest", reflect.TypeOf((*MockService)(nil).ReadAipPendingDeletionRequest), ctx, aipID)
 	return &MockServiceReadAipPendingDeletionRequestCall{Call: call}
 }
 
@@ -861,18 +862,18 @@ func (c *MockServiceReadAipPendingDeletionRequestCall) DoAndReturn(f func(contex
 }
 
 // ReadLocation mocks base method.
-func (m *MockService) ReadLocation(arg0 context.Context, arg1 uuid.UUID) (*storage.Location, error) {
+func (m *MockService) ReadLocation(ctx context.Context, locationID uuid.UUID) (*storage.Location, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadLocation", arg0, arg1)
+	ret := m.ctrl.Call(m, "ReadLocation", ctx, locationID)
 	ret0, _ := ret[0].(*storage.Location)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReadLocation indicates an expected call of ReadLocation.
-func (mr *MockServiceMockRecorder) ReadLocation(arg0, arg1 any) *MockServiceReadLocationCall {
+func (mr *MockServiceMockRecorder) ReadLocation(ctx, locationID any) *MockServiceReadLocationCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadLocation", reflect.TypeOf((*MockService)(nil).ReadLocation), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadLocation", reflect.TypeOf((*MockService)(nil).ReadLocation), ctx, locationID)
 	return &MockServiceReadLocationCall{Call: call}
 }
 
@@ -920,8 +921,8 @@ type MockServiceRejectAipCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceRejectAipCall) Return(arg0 error) *MockServiceRejectAipCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockServiceRejectAipCall) Return(err error) *MockServiceRejectAipCall {
+	c.Call = c.Call.Return(err)
 	return c
 }
 
@@ -958,8 +959,8 @@ type MockServiceRequestAipDeletionCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceRequestAipDeletionCall) Return(arg0 error) *MockServiceRequestAipDeletionCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockServiceRequestAipDeletionCall) Return(err error) *MockServiceRequestAipDeletionCall {
+	c.Call = c.Call.Return(err)
 	return c
 }
 
@@ -996,8 +997,8 @@ type MockServiceReviewAipDeletionCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceReviewAipDeletionCall) Return(arg0 error) *MockServiceReviewAipDeletionCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockServiceReviewAipDeletionCall) Return(err error) *MockServiceReviewAipDeletionCall {
+	c.Call = c.Call.Return(err)
 	return c
 }
 
@@ -1035,8 +1036,8 @@ type MockServiceShowAipCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceShowAipCall) Return(arg0 *storage.AIP, arg1 error) *MockServiceShowAipCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceShowAipCall) Return(res *storage.AIP, err error) *MockServiceShowAipCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -1074,8 +1075,8 @@ type MockServiceShowLocationCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceShowLocationCall) Return(arg0 *storage.Location, arg1 error) *MockServiceShowLocationCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceShowLocationCall) Return(res *storage.Location, err error) *MockServiceShowLocationCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -1113,8 +1114,8 @@ type MockServiceSubmitAipCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceSubmitAipCall) Return(arg0 *storage.SubmitAIPResult, arg1 error) *MockServiceSubmitAipCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockServiceSubmitAipCall) Return(res *storage.SubmitAIPResult, err error) *MockServiceSubmitAipCall {
+	c.Call = c.Call.Return(res, err)
 	return c
 }
 
@@ -1151,8 +1152,8 @@ type MockServiceUpdateAipCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceUpdateAipCall) Return(arg0 error) *MockServiceUpdateAipCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockServiceUpdateAipCall) Return(err error) *MockServiceUpdateAipCall {
+	c.Call = c.Call.Return(err)
 	return c
 }
 
@@ -1169,17 +1170,17 @@ func (c *MockServiceUpdateAipCall) DoAndReturn(f func(context.Context, *storage.
 }
 
 // UpdateAipLocationID mocks base method.
-func (m *MockService) UpdateAipLocationID(arg0 context.Context, arg1, arg2 uuid.UUID) error {
+func (m *MockService) UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAipLocationID", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UpdateAipLocationID", ctx, aipID, locationID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateAipLocationID indicates an expected call of UpdateAipLocationID.
-func (mr *MockServiceMockRecorder) UpdateAipLocationID(arg0, arg1, arg2 any) *MockServiceUpdateAipLocationIDCall {
+func (mr *MockServiceMockRecorder) UpdateAipLocationID(ctx, aipID, locationID any) *MockServiceUpdateAipLocationIDCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAipLocationID", reflect.TypeOf((*MockService)(nil).UpdateAipLocationID), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAipLocationID", reflect.TypeOf((*MockService)(nil).UpdateAipLocationID), ctx, aipID, locationID)
 	return &MockServiceUpdateAipLocationIDCall{Call: call}
 }
 
@@ -1207,17 +1208,17 @@ func (c *MockServiceUpdateAipLocationIDCall) DoAndReturn(f func(context.Context,
 }
 
 // UpdateAipStatus mocks base method.
-func (m *MockService) UpdateAipStatus(arg0 context.Context, arg1 uuid.UUID, arg2 enums.AIPStatus) error {
+func (m *MockService) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAipStatus", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UpdateAipStatus", ctx, aipID, status)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateAipStatus indicates an expected call of UpdateAipStatus.
-func (mr *MockServiceMockRecorder) UpdateAipStatus(arg0, arg1, arg2 any) *MockServiceUpdateAipStatusCall {
+func (mr *MockServiceMockRecorder) UpdateAipStatus(ctx, aipID, status any) *MockServiceUpdateAipStatusCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAipStatus", reflect.TypeOf((*MockService)(nil).UpdateAipStatus), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAipStatus", reflect.TypeOf((*MockService)(nil).UpdateAipStatus), ctx, aipID, status)
 	return &MockServiceUpdateAipStatusCall{Call: call}
 }
 
