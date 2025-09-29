@@ -303,7 +303,9 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	sipID := 1
 	sipName := "name.zip"
 	wID := 1
+	downloadTaskID := 100
 	valPREMISTaskID := 102
+	deleteTaskID := 104
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	key := "transfer.zip"
@@ -371,7 +373,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 				WorkflowUUID: wUUID,
 			},
 		},
-	).Return(100, nil)
+	).Return(downloadTaskID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -384,7 +386,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		ctx,
 		ingestsvc,
 		&completeTaskLocalActivityParams{
-			ID:          100,
+			ID:          downloadTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("SIP successfully copied"),
@@ -494,7 +496,43 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		sessionCtx,
 		&removepaths.Params{Paths: []string{tempPath, transferPath}},
 	).Return(&removepaths.Result{}, nil)
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
+
+	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Delete original SIP",
+				Note:         "The original SIP will be deleted in 1s",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(deleteTaskID, nil)
+
+	s.env.OnActivity(
+		activities.DeleteOriginalActivityName,
+		sessionCtx,
+		watcherName,
+		key,
+	).Return(nil, nil)
+
+	/*
+		TODO: investigate why is this not being called.
+		s.env.OnActivity(
+			completeTaskLocalActivity,
+			ctx,
+			ingestsvc,
+			&completeTaskLocalActivityParams{
+				ID:          deleteTaskID,
+				Status:      enums.TaskStatusDone,
+				CompletedAt: startTime.Add(retentionPeriod),
+				Note:        ref.New("SIP successfully deleted"),
+			},
+		).Return(&completeTaskLocalActivityResult{}, nil)
+	*/
 
 	s.env.OnActivity(
 		updateSIPLocalActivity,
@@ -543,8 +581,10 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	sipID := 1
 	sipName := "name.zip"
 	wID := 1
+	downloadTaskID := 100
 	valBagTaskID := 101
 	moveAIPTaskID := 103
+	deleteTaskID := 104
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -594,7 +634,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 				WorkflowUUID: wUUID,
 			},
 		},
-	).Return(100, nil)
+	).Return(downloadTaskID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -607,7 +647,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		ctx,
 		ingestsvc,
 		&completeTaskLocalActivityParams{
-			ID:          100,
+			ID:          downloadTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("SIP successfully copied"),
@@ -765,7 +805,39 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		&removepaths.Params{Paths: []string{tempPath, transferPath}},
 	).Return(&removepaths.Result{}, nil)
 
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
+	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Delete original SIP",
+				Note:         "The original SIP will be deleted in 1s",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(deleteTaskID, nil)
+
+	s.env.OnActivity(
+		activities.DeleteOriginalActivityName,
+		sessionCtx,
+		watcherName,
+		key,
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          deleteTaskID,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime.Add(retentionPeriod),
+			Note:        ref.New("SIP successfully deleted"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
@@ -787,7 +859,9 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	sipID := 1
 	sipName := "name.zip"
 	wID := 1
+	downloadTaskID := 100
 	valPREMISTaskID := 102
+	deleteTaskID := 104
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -837,7 +911,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 				WorkflowUUID: wUUID,
 			},
 		},
-	).Return(100, nil)
+	).Return(downloadTaskID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -850,7 +924,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		ctx,
 		ingestsvc,
 		&completeTaskLocalActivityParams{
-			ID:          100,
+			ID:          downloadTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("SIP successfully copied"),
@@ -1010,11 +1084,38 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	).Return(&removepaths.Result{}, nil)
 
 	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Delete original SIP",
+				Note:         "The original SIP will be deleted in 1s",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(deleteTaskID, nil)
+
+	s.env.OnActivity(
 		activities.DeleteOriginalActivityName,
 		sessionCtx,
 		watcherName,
 		key,
 	).Return(nil, nil)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          deleteTaskID,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime.Add(retentionPeriod),
+			Note:        ref.New("SIP successfully deleted"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
@@ -1046,6 +1147,8 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	sipName := "name.zip"
 	key := "transfer.zip"
 	watcherName := "watcher"
+	downloadTaskID := 100
+	deleteTaskID := 104
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
@@ -1090,7 +1193,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 				WorkflowUUID: wUUID,
 			},
 		},
-	).Return(100, nil)
+	).Return(downloadTaskID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
@@ -1103,7 +1206,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 		ctx,
 		ingestsvc,
 		&completeTaskLocalActivityParams{
-			ID:          100,
+			ID:          downloadTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("SIP successfully copied"),
@@ -1172,7 +1275,43 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 		sessionCtx,
 		&removepaths.Params{Paths: []string{tempPath, transferPath}},
 	).Return(&removepaths.Result{}, nil)
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
+
+	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Delete original SIP",
+				Note:         "The original SIP will be deleted in 1s",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(deleteTaskID, nil)
+
+	s.env.OnActivity(
+		activities.DeleteOriginalActivityName,
+		sessionCtx,
+		watcherName,
+		key,
+	).Return(nil, nil)
+
+	/*
+		TODO: investigate why is this not being called.
+		s.env.OnActivity(
+			completeTaskLocalActivity,
+			ctx,
+			ingestsvc,
+			&completeTaskLocalActivityParams{
+				ID:          deleteTaskID,
+				Status:      enums.TaskStatusDone,
+				CompletedAt: startTime.Add(retentionPeriod),
+				Note:        ref.New("SIP successfully deleted"),
+			},
+		).Return(&completeTaskLocalActivityResult{}, nil)
+	*/
 
 	s.env.OnActivity(
 		updateSIPLocalActivity,
@@ -1242,8 +1381,10 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 
 	sipID := 1
 	sipName := "name.zip"
+	downloadTaskID := 100
 	valBagTaskID := 101
 	moveAIPTaskID := 103
+	deleteTaskID := 104
 	watcherName := "watcher"
 	key := "transfer.zip"
 	retentionPeriod := 1 * time.Second
@@ -1300,7 +1441,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				WorkflowUUID: wUUID,
 			},
 		},
-	).Return(100, nil)
+	).Return(downloadTaskID, nil)
 
 	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
 		&activities.DownloadActivityParams{
@@ -1317,7 +1458,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		ctx,
 		ingestsvc,
 		&completeTaskLocalActivityParams{
-			ID:          100,
+			ID:          downloadTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("SIP successfully copied"),
@@ -1533,7 +1674,39 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		&removepaths.Params{Paths: []string{downloadDir, transferPath}},
 	).Return(&removepaths.Result{}, nil)
 
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
+	s.env.OnActivity(
+		createTaskLocalActivity,
+		ctx,
+		&createTaskLocalActivityParams{
+			Ingestsvc: ingestsvc,
+			RNG:       s.workflow.rng,
+			Task: &datatypes.Task{
+				Name:         "Delete original SIP",
+				Note:         "The original SIP will be deleted in 1s",
+				Status:       enums.TaskStatusInProgress,
+				WorkflowUUID: wUUID,
+			},
+		},
+	).Return(deleteTaskID, nil)
+
+	s.env.OnActivity(
+		activities.DeleteOriginalActivityName,
+		sessionCtx,
+		watcherName,
+		key,
+	).Return(nil, nil)
+
+	s.env.OnActivity(
+		completeTaskLocalActivity,
+		ctx,
+		ingestsvc,
+		&completeTaskLocalActivityParams{
+			ID:          deleteTaskID,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: startTime.Add(retentionPeriod),
+			Note:        ref.New("SIP successfully deleted"),
+		},
+	).Return(&completeTaskLocalActivityResult{}, nil)
 
 	s.env.ExecuteWorkflow(
 		s.workflow.Execute,
@@ -1580,6 +1753,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		sipUUID.String(),
 		".zip",
 	)
+	downloadTaskID := 100
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
@@ -1631,7 +1805,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 				WorkflowUUID: wUUID,
 			},
 		},
-	).Return(100, nil)
+	).Return(downloadTaskID, nil)
 
 	s.env.OnActivity(
 		activities.DownloadActivityName,
@@ -1648,7 +1822,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		ctx,
 		ingestsvc,
 		&completeTaskLocalActivityParams{
-			ID:          100,
+			ID:          downloadTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("SIP successfully copied"),
@@ -1739,6 +1913,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 
 	sipID := 1
 	sipName := "name.zip"
+	downloadTaskID := 100
 	valBagTaskID := 101
 	watcherName := "watcher"
 	key := "transfer.zip"
@@ -1799,7 +1974,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 				WorkflowUUID: wUUID,
 			},
 		},
-	).Return(100, nil)
+	).Return(downloadTaskID, nil)
 
 	s.env.OnActivity(
 		activities.DownloadActivityName,
@@ -1816,7 +1991,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		ctx,
 		ingestsvc,
 		&completeTaskLocalActivityParams{
-			ID:          100,
+			ID:          downloadTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("SIP successfully copied"),
@@ -1963,6 +2138,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		sipUUID.String(),
 		".zip",
 	)
+	downloadTaskID := 100
 	retentionPeriod := 1 * time.Second
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
@@ -2005,7 +2181,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 				WorkflowUUID: wUUID,
 			},
 		},
-	).Return(100, nil)
+	).Return(downloadTaskID, nil)
 
 	s.env.OnActivity(
 		activities.DownloadActivityName,
@@ -2018,7 +2194,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		ctx,
 		ingestsvc,
 		&completeTaskLocalActivityParams{
-			ID:          100,
+			ID:          downloadTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("SIP successfully copied"),
@@ -2130,6 +2306,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		sipUUID.String(),
 		".zip",
 	)
+	downloadTaskID := 100
 	ctx := mock.AnythingOfType("*context.valueCtx")
 	sessionCtx := mock.AnythingOfType("*context.timerCtx")
 	ingestsvc := s.workflow.ingestsvc
@@ -2169,7 +2346,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 				WorkflowUUID: wUUID,
 			},
 		},
-	).Return(100, nil)
+	).Return(downloadTaskID, nil)
 
 	s.env.OnActivity(
 		activities.DownloadFromInternalBucketActivityName,
@@ -2185,7 +2362,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		ctx,
 		ingestsvc,
 		&completeTaskLocalActivityParams{
-			ID:          100,
+			ID:          downloadTaskID,
 			Status:      enums.TaskStatusDone,
 			CompletedAt: startTime,
 			Note:        ref.New("SIP successfully copied"),

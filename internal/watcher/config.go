@@ -84,6 +84,8 @@ type FilesystemConfig struct {
 	Ignore       string
 	Inotify      bool
 
+	// RetentionPeriod is the duration for which SIPs should be retained after
+	// a successful ingest. If nil, SIPs will be retained indefinitely.
 	RetentionPeriod *time.Duration
 
 	// PollInterval sets the length of time between filesystem polls (default:
@@ -118,6 +120,8 @@ type MinioConfig struct {
 	Bucket          string
 	URL             string
 
+	// RetentionPeriod is the duration for which SIPs should be retained after
+	// a successful ingest. If nil, SIPs will be retained indefinitely.
 	RetentionPeriod *time.Duration
 
 	// PollInterval sets the length of time between Redis polls (default: 1s).
