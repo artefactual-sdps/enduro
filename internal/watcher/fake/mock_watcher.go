@@ -24,6 +24,7 @@ import (
 type MockWatcher struct {
 	ctrl     *gomock.Controller
 	recorder *MockWatcherMockRecorder
+	isgomock struct{}
 }
 
 // MockWatcherMockRecorder is the mock recorder for MockWatcher.
@@ -82,17 +83,17 @@ func (c *MockWatcherCompletedDirCall) DoAndReturn(f func() string) *MockWatcherC
 }
 
 // Download mocks base method.
-func (m *MockWatcher) Download(arg0 context.Context, arg1, arg2 string) error {
+func (m *MockWatcher) Download(ctx context.Context, dest, key string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Download", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "Download", ctx, dest, key)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Download indicates an expected call of Download.
-func (mr *MockWatcherMockRecorder) Download(arg0, arg1, arg2 any) *MockWatcherDownloadCall {
+func (mr *MockWatcherMockRecorder) Download(ctx, dest, key any) *MockWatcherDownloadCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockWatcher)(nil).Download), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Download", reflect.TypeOf((*MockWatcher)(nil).Download), ctx, dest, key)
 	return &MockWatcherDownloadCall{Call: call}
 }
 
@@ -120,18 +121,18 @@ func (c *MockWatcherDownloadCall) DoAndReturn(f func(context.Context, string, st
 }
 
 // OpenBucket mocks base method.
-func (m *MockWatcher) OpenBucket(arg0 context.Context) (*blob.Bucket, error) {
+func (m *MockWatcher) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "OpenBucket", arg0)
+	ret := m.ctrl.Call(m, "OpenBucket", ctx)
 	ret0, _ := ret[0].(*blob.Bucket)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // OpenBucket indicates an expected call of OpenBucket.
-func (mr *MockWatcherMockRecorder) OpenBucket(arg0 any) *MockWatcherOpenBucketCall {
+func (mr *MockWatcherMockRecorder) OpenBucket(ctx any) *MockWatcherOpenBucketCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenBucket", reflect.TypeOf((*MockWatcher)(nil).OpenBucket), arg0)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenBucket", reflect.TypeOf((*MockWatcher)(nil).OpenBucket), ctx)
 	return &MockWatcherOpenBucketCall{Call: call}
 }
 
@@ -273,9 +274,9 @@ func (c *MockWatcherStringCall) DoAndReturn(f func() string) *MockWatcherStringC
 }
 
 // Watch mocks base method.
-func (m *MockWatcher) Watch(arg0 context.Context) (*watcher.BlobEvent, watcher.Cleanup, error) {
+func (m *MockWatcher) Watch(ctx context.Context) (*watcher.BlobEvent, watcher.Cleanup, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Watch", arg0)
+	ret := m.ctrl.Call(m, "Watch", ctx)
 	ret0, _ := ret[0].(*watcher.BlobEvent)
 	ret1, _ := ret[1].(watcher.Cleanup)
 	ret2, _ := ret[2].(error)
@@ -283,9 +284,9 @@ func (m *MockWatcher) Watch(arg0 context.Context) (*watcher.BlobEvent, watcher.C
 }
 
 // Watch indicates an expected call of Watch.
-func (mr *MockWatcherMockRecorder) Watch(arg0 any) *MockWatcherWatchCall {
+func (mr *MockWatcherMockRecorder) Watch(ctx any) *MockWatcherWatchCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Watch", reflect.TypeOf((*MockWatcher)(nil).Watch), arg0)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Watch", reflect.TypeOf((*MockWatcher)(nil).Watch), ctx)
 	return &MockWatcherWatchCall{Call: call}
 }
 

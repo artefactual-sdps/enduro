@@ -22,6 +22,7 @@ import (
 type MockClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockClientMockRecorder
+	isgomock struct{}
 }
 
 // MockClientMockRecorder is the mock recorder for MockClient.
@@ -42,17 +43,17 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 }
 
 // Delete mocks base method.
-func (m *MockClient) Delete(arg0 context.Context, arg1 string) error {
+func (m *MockClient) Delete(ctx context.Context, dest string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", arg0, arg1)
+	ret := m.ctrl.Call(m, "Delete", ctx, dest)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockClientMockRecorder) Delete(arg0, arg1 any) *MockClientDeleteCall {
+func (mr *MockClientMockRecorder) Delete(ctx, dest any) *MockClientDeleteCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockClient)(nil).Delete), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockClient)(nil).Delete), ctx, dest)
 	return &MockClientDeleteCall{Call: call}
 }
 
@@ -80,9 +81,9 @@ func (c *MockClientDeleteCall) DoAndReturn(f func(context.Context, string) error
 }
 
 // UploadDirectory mocks base method.
-func (m *MockClient) UploadDirectory(arg0 context.Context, arg1 string) (string, sftp.AsyncUpload, error) {
+func (m *MockClient) UploadDirectory(ctx context.Context, srcPath string) (string, sftp.AsyncUpload, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadDirectory", arg0, arg1)
+	ret := m.ctrl.Call(m, "UploadDirectory", ctx, srcPath)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(sftp.AsyncUpload)
 	ret2, _ := ret[2].(error)
@@ -90,9 +91,9 @@ func (m *MockClient) UploadDirectory(arg0 context.Context, arg1 string) (string,
 }
 
 // UploadDirectory indicates an expected call of UploadDirectory.
-func (mr *MockClientMockRecorder) UploadDirectory(arg0, arg1 any) *MockClientUploadDirectoryCall {
+func (mr *MockClientMockRecorder) UploadDirectory(ctx, srcPath any) *MockClientUploadDirectoryCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadDirectory", reflect.TypeOf((*MockClient)(nil).UploadDirectory), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadDirectory", reflect.TypeOf((*MockClient)(nil).UploadDirectory), ctx, srcPath)
 	return &MockClientUploadDirectoryCall{Call: call}
 }
 
@@ -102,8 +103,8 @@ type MockClientUploadDirectoryCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockClientUploadDirectoryCall) Return(arg0 string, arg1 sftp.AsyncUpload, arg2 error) *MockClientUploadDirectoryCall {
-	c.Call = c.Call.Return(arg0, arg1, arg2)
+func (c *MockClientUploadDirectoryCall) Return(remotePath string, upload sftp.AsyncUpload, err error) *MockClientUploadDirectoryCall {
+	c.Call = c.Call.Return(remotePath, upload, err)
 	return c
 }
 
@@ -120,9 +121,9 @@ func (c *MockClientUploadDirectoryCall) DoAndReturn(f func(context.Context, stri
 }
 
 // UploadFile mocks base method.
-func (m *MockClient) UploadFile(arg0 context.Context, arg1 io.Reader, arg2 string) (string, sftp.AsyncUpload, error) {
+func (m *MockClient) UploadFile(ctx context.Context, src io.Reader, dest string) (string, sftp.AsyncUpload, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UploadFile", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UploadFile", ctx, src, dest)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(sftp.AsyncUpload)
 	ret2, _ := ret[2].(error)
@@ -130,9 +131,9 @@ func (m *MockClient) UploadFile(arg0 context.Context, arg1 io.Reader, arg2 strin
 }
 
 // UploadFile indicates an expected call of UploadFile.
-func (mr *MockClientMockRecorder) UploadFile(arg0, arg1, arg2 any) *MockClientUploadFileCall {
+func (mr *MockClientMockRecorder) UploadFile(ctx, src, dest any) *MockClientUploadFileCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFile", reflect.TypeOf((*MockClient)(nil).UploadFile), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadFile", reflect.TypeOf((*MockClient)(nil).UploadFile), ctx, src, dest)
 	return &MockClientUploadFileCall{Call: call}
 }
 
@@ -142,8 +143,8 @@ type MockClientUploadFileCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockClientUploadFileCall) Return(arg0 string, arg1 sftp.AsyncUpload, arg2 error) *MockClientUploadFileCall {
-	c.Call = c.Call.Return(arg0, arg1, arg2)
+func (c *MockClientUploadFileCall) Return(remotePath string, upload sftp.AsyncUpload, err error) *MockClientUploadFileCall {
+	c.Call = c.Call.Return(remotePath, upload, err)
 	return c
 }
 
@@ -163,6 +164,7 @@ func (c *MockClientUploadFileCall) DoAndReturn(f func(context.Context, io.Reader
 type MockAsyncUpload struct {
 	ctrl     *gomock.Controller
 	recorder *MockAsyncUploadMockRecorder
+	isgomock struct{}
 }
 
 // MockAsyncUploadMockRecorder is the mock recorder for MockAsyncUpload.
@@ -335,18 +337,18 @@ func (c *MockAsyncUploadErrCall) DoAndReturn(f func() chan error) *MockAsyncUplo
 }
 
 // Write mocks base method.
-func (m *MockAsyncUpload) Write(arg0 []byte) (int, error) {
+func (m *MockAsyncUpload) Write(p []byte) (int, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Write", arg0)
+	ret := m.ctrl.Call(m, "Write", p)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Write indicates an expected call of Write.
-func (mr *MockAsyncUploadMockRecorder) Write(arg0 any) *MockAsyncUploadWriteCall {
+func (mr *MockAsyncUploadMockRecorder) Write(p any) *MockAsyncUploadWriteCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Write", reflect.TypeOf((*MockAsyncUpload)(nil).Write), arg0)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Write", reflect.TypeOf((*MockAsyncUpload)(nil).Write), p)
 	return &MockAsyncUploadWriteCall{Call: call}
 }
 
