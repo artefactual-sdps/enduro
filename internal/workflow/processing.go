@@ -246,24 +246,26 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		}
 	}
 
+	if state.status != enums.WorkflowStatusDone {
+		return nil
+	}
+
 	// Schedule deletion or disposal of the original SIP.
-	if state.status == enums.WorkflowStatusDone {
-		if req.RetentionPeriod != nil {
-			if err := w.deleteOriginalSIP(ctx, state); err != nil {
-				w.logger.Error("Failed to delete original SIP", "err", err.Error())
-			}
-		} else if req.CompletedDir != "" {
-			activityOpts := withActivityOptsForLocalAction(ctx)
-			err := temporalsdk_workflow.ExecuteActivity(
-				activityOpts,
-				activities.DisposeOriginalActivityName,
-				req.WatcherName,
-				req.CompletedDir,
-				req.Key,
-			).Get(activityOpts, nil)
-			if err != nil {
-				w.logger.Error("Failed to dispose original SIP", "err", err.Error())
-			}
+	if req.RetentionPeriod != nil {
+		if err := w.deleteOriginalSIP(ctx, state); err != nil {
+			w.logger.Error("Failed to delete original SIP", "err", err.Error())
+		}
+	} else if req.CompletedDir != "" {
+		activityOpts := withActivityOptsForLocalAction(ctx)
+		err := temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			activities.DisposeOriginalActivityName,
+			req.WatcherName,
+			req.CompletedDir,
+			req.Key,
+		).Get(activityOpts, nil)
+		if err != nil {
+			w.logger.Error("Failed to dispose original SIP", "err", err.Error())
 		}
 	}
 
