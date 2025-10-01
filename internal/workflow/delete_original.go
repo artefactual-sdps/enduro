@@ -78,15 +78,8 @@ func (w *ProcessingWorkflow) deleteOriginalSIP(ctx temporalsdk_workflow.Context,
 
 	// Complete the delete original SIP task.
 	if e := w.completeTask(ctx, task); e != nil {
-		return errors.Join(
-			err,
-			fmt.Errorf("complete delete original SIP task: %v", e),
-		)
+		err = errors.Join(err, fmt.Errorf("complete delete original SIP task: %v", e))
 	}
 
-	if err != nil {
-		return fmt.Errorf("delete original SIP: %v", err)
-	}
-
-	return nil
+	return err
 }
