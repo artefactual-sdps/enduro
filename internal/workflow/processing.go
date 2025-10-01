@@ -246,32 +246,26 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		}
 	}
 
-	// Schedule deletion of the original in the watched data source.
-	{
-		if state.status == enums.WorkflowStatusDone {
-			if req.RetentionPeriod != nil {
-				err := temporalsdk_workflow.NewTimer(ctx, *req.RetentionPeriod).Get(ctx, nil)
-				if err != nil {
-					w.logger.Warn("Retention policy timer failed", "err", err.Error())
-				} else {
-					activityOpts := withActivityOptsForRequest(ctx)
-					_ = temporalsdk_workflow.ExecuteActivity(
-						activityOpts,
-						activities.DeleteOriginalActivityName,
-						req.WatcherName,
-						req.Key,
-					).Get(activityOpts, nil)
-				}
-			} else if req.CompletedDir != "" {
-				activityOpts := withActivityOptsForLocalAction(ctx)
-				_ = temporalsdk_workflow.ExecuteActivity(
-					activityOpts,
-					activities.DisposeOriginalActivityName,
-					req.WatcherName,
-					req.CompletedDir,
-					req.Key,
-				).Get(activityOpts, nil)
-			}
+	if state.status != enums.WorkflowStatusDone {
+		return nil
+	}
+
+	// Schedule deletion or disposal of the original SIP.
+	if req.RetentionPeriod != nil {
+		if err := w.deleteOriginalSIP(ctx, state); err != nil {
+			w.logger.Error("Failed to delete original SIP", "err", err.Error())
+		}
+	} else if req.CompletedDir != "" {
+		activityOpts := withActivityOptsForLocalAction(ctx)
+		err := temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			activities.DisposeOriginalActivityName,
+			req.WatcherName,
+			req.CompletedDir,
+			req.Key,
+		).Get(activityOpts, nil)
+		if err != nil {
+			w.logger.Error("Failed to dispose original SIP", "err", err.Error())
 		}
 	}
 

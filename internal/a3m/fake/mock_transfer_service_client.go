@@ -22,6 +22,7 @@ import (
 type MockTransferServiceClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockTransferServiceClientMockRecorder
+	isgomock struct{}
 }
 
 // MockTransferServiceClientMockRecorder is the mock recorder for MockTransferServiceClient.
@@ -42,10 +43,10 @@ func (m *MockTransferServiceClient) EXPECT() *MockTransferServiceClientMockRecor
 }
 
 // Empty mocks base method.
-func (m *MockTransferServiceClient) Empty(arg0 context.Context, arg1 *transferservicev1beta1.EmptyRequest, arg2 ...grpc.CallOption) (*transferservicev1beta1.EmptyResponse, error) {
+func (m *MockTransferServiceClient) Empty(ctx context.Context, in *transferservicev1beta1.EmptyRequest, opts ...grpc.CallOption) (*transferservicev1beta1.EmptyResponse, error) {
 	m.ctrl.T.Helper()
-	varargs := []any{arg0, arg1}
-	for _, a := range arg2 {
+	varargs := []any{ctx, in}
+	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Empty", varargs...)
@@ -55,9 +56,9 @@ func (m *MockTransferServiceClient) Empty(arg0 context.Context, arg1 *transferse
 }
 
 // Empty indicates an expected call of Empty.
-func (mr *MockTransferServiceClientMockRecorder) Empty(arg0, arg1 any, arg2 ...any) *MockTransferServiceClientEmptyCall {
+func (mr *MockTransferServiceClientMockRecorder) Empty(ctx, in any, opts ...any) *MockTransferServiceClientEmptyCall {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{arg0, arg1}, arg2...)
+	varargs := append([]any{ctx, in}, opts...)
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Empty", reflect.TypeOf((*MockTransferServiceClient)(nil).Empty), varargs...)
 	return &MockTransferServiceClientEmptyCall{Call: call}
 }
@@ -86,10 +87,10 @@ func (c *MockTransferServiceClientEmptyCall) DoAndReturn(f func(context.Context,
 }
 
 // ListTasks mocks base method.
-func (m *MockTransferServiceClient) ListTasks(arg0 context.Context, arg1 *transferservicev1beta1.ListTasksRequest, arg2 ...grpc.CallOption) (*transferservicev1beta1.ListTasksResponse, error) {
+func (m *MockTransferServiceClient) ListTasks(ctx context.Context, in *transferservicev1beta1.ListTasksRequest, opts ...grpc.CallOption) (*transferservicev1beta1.ListTasksResponse, error) {
 	m.ctrl.T.Helper()
-	varargs := []any{arg0, arg1}
-	for _, a := range arg2 {
+	varargs := []any{ctx, in}
+	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "ListTasks", varargs...)
@@ -99,9 +100,9 @@ func (m *MockTransferServiceClient) ListTasks(arg0 context.Context, arg1 *transf
 }
 
 // ListTasks indicates an expected call of ListTasks.
-func (mr *MockTransferServiceClientMockRecorder) ListTasks(arg0, arg1 any, arg2 ...any) *MockTransferServiceClientListTasksCall {
+func (mr *MockTransferServiceClientMockRecorder) ListTasks(ctx, in any, opts ...any) *MockTransferServiceClientListTasksCall {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{arg0, arg1}, arg2...)
+	varargs := append([]any{ctx, in}, opts...)
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTasks", reflect.TypeOf((*MockTransferServiceClient)(nil).ListTasks), varargs...)
 	return &MockTransferServiceClientListTasksCall{Call: call}
 }
@@ -130,10 +131,10 @@ func (c *MockTransferServiceClientListTasksCall) DoAndReturn(f func(context.Cont
 }
 
 // Read mocks base method.
-func (m *MockTransferServiceClient) Read(arg0 context.Context, arg1 *transferservicev1beta1.ReadRequest, arg2 ...grpc.CallOption) (*transferservicev1beta1.ReadResponse, error) {
+func (m *MockTransferServiceClient) Read(ctx context.Context, in *transferservicev1beta1.ReadRequest, opts ...grpc.CallOption) (*transferservicev1beta1.ReadResponse, error) {
 	m.ctrl.T.Helper()
-	varargs := []any{arg0, arg1}
-	for _, a := range arg2 {
+	varargs := []any{ctx, in}
+	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Read", varargs...)
@@ -143,9 +144,9 @@ func (m *MockTransferServiceClient) Read(arg0 context.Context, arg1 *transferser
 }
 
 // Read indicates an expected call of Read.
-func (mr *MockTransferServiceClientMockRecorder) Read(arg0, arg1 any, arg2 ...any) *MockTransferServiceClientReadCall {
+func (mr *MockTransferServiceClientMockRecorder) Read(ctx, in any, opts ...any) *MockTransferServiceClientReadCall {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{arg0, arg1}, arg2...)
+	varargs := append([]any{ctx, in}, opts...)
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockTransferServiceClient)(nil).Read), varargs...)
 	return &MockTransferServiceClientReadCall{Call: call}
 }
@@ -174,10 +175,10 @@ func (c *MockTransferServiceClientReadCall) DoAndReturn(f func(context.Context, 
 }
 
 // Submit mocks base method.
-func (m *MockTransferServiceClient) Submit(arg0 context.Context, arg1 *transferservicev1beta1.SubmitRequest, arg2 ...grpc.CallOption) (*transferservicev1beta1.SubmitResponse, error) {
+func (m *MockTransferServiceClient) Submit(ctx context.Context, in *transferservicev1beta1.SubmitRequest, opts ...grpc.CallOption) (*transferservicev1beta1.SubmitResponse, error) {
 	m.ctrl.T.Helper()
-	varargs := []any{arg0, arg1}
-	for _, a := range arg2 {
+	varargs := []any{ctx, in}
+	for _, a := range opts {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "Submit", varargs...)
@@ -187,9 +188,9 @@ func (m *MockTransferServiceClient) Submit(arg0 context.Context, arg1 *transfers
 }
 
 // Submit indicates an expected call of Submit.
-func (mr *MockTransferServiceClientMockRecorder) Submit(arg0, arg1 any, arg2 ...any) *MockTransferServiceClientSubmitCall {
+func (mr *MockTransferServiceClientMockRecorder) Submit(ctx, in any, opts ...any) *MockTransferServiceClientSubmitCall {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{arg0, arg1}, arg2...)
+	varargs := append([]any{ctx, in}, opts...)
 	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Submit", reflect.TypeOf((*MockTransferServiceClient)(nil).Submit), varargs...)
 	return &MockTransferServiceClientSubmitCall{Call: call}
 }

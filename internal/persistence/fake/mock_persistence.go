@@ -23,6 +23,7 @@ import (
 type MockService struct {
 	ctrl     *gomock.Controller
 	recorder *MockServiceMockRecorder
+	isgomock struct{}
 }
 
 // MockServiceMockRecorder is the mock recorder for MockService.
@@ -313,18 +314,18 @@ func (c *MockServiceListUsersCall) DoAndReturn(f func(context.Context, *persiste
 }
 
 // ReadOIDCUser mocks base method.
-func (m *MockService) ReadOIDCUser(arg0 context.Context, arg1, arg2 string) (*datatypes.User, error) {
+func (m *MockService) ReadOIDCUser(ctx context.Context, iss, sub string) (*datatypes.User, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ReadOIDCUser", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "ReadOIDCUser", ctx, iss, sub)
 	ret0, _ := ret[0].(*datatypes.User)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ReadOIDCUser indicates an expected call of ReadOIDCUser.
-func (mr *MockServiceMockRecorder) ReadOIDCUser(arg0, arg1, arg2 any) *MockServiceReadOIDCUserCall {
+func (mr *MockServiceMockRecorder) ReadOIDCUser(ctx, iss, sub any) *MockServiceReadOIDCUserCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadOIDCUser", reflect.TypeOf((*MockService)(nil).ReadOIDCUser), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadOIDCUser", reflect.TypeOf((*MockService)(nil).ReadOIDCUser), ctx, iss, sub)
 	return &MockServiceReadOIDCUserCall{Call: call}
 }
 
@@ -469,18 +470,18 @@ func (c *MockServiceUpdateSIPCall) DoAndReturn(f func(context.Context, uuid.UUID
 }
 
 // UpdateTask mocks base method.
-func (m *MockService) UpdateTask(arg0 context.Context, arg1 int, arg2 persistence.TaskUpdater) (*datatypes.Task, error) {
+func (m *MockService) UpdateTask(ctx context.Context, id int, updater persistence.TaskUpdater) (*datatypes.Task, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateTask", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "UpdateTask", ctx, id, updater)
 	ret0, _ := ret[0].(*datatypes.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // UpdateTask indicates an expected call of UpdateTask.
-func (mr *MockServiceMockRecorder) UpdateTask(arg0, arg1, arg2 any) *MockServiceUpdateTaskCall {
+func (mr *MockServiceMockRecorder) UpdateTask(ctx, id, updater any) *MockServiceUpdateTaskCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTask", reflect.TypeOf((*MockService)(nil).UpdateTask), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTask", reflect.TypeOf((*MockService)(nil).UpdateTask), ctx, id, updater)
 	return &MockServiceUpdateTaskCall{Call: call}
 }
 

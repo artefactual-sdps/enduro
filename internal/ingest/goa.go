@@ -96,11 +96,12 @@ func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayloa
 
 	// Initialize the processing workflow.
 	req := ProcessingWorkflowRequest{
-		SIPUUID:     s.UUID,
-		SIPSourceID: sourceID,
-		SIPName:     s.Name,
-		Type:        enums.WorkflowTypeCreateAip,
-		Key:         payload.Key,
+		SIPUUID:         s.UUID,
+		SIPSourceID:     sourceID,
+		SIPName:         s.Name,
+		Type:            enums.WorkflowTypeCreateAip,
+		Key:             payload.Key,
+		RetentionPeriod: w.sipSource.RetentionPeriod(),
 	}
 	if err := InitProcessingWorkflow(ctx, w.tc, w.taskQueue, &req); err != nil {
 		// Delete SIP from persistence.

@@ -21,6 +21,7 @@ import (
 type MockTokenVerifier struct {
 	ctrl     *gomock.Controller
 	recorder *MockTokenVerifierMockRecorder
+	isgomock struct{}
 }
 
 // MockTokenVerifierMockRecorder is the mock recorder for MockTokenVerifier.
@@ -41,18 +42,18 @@ func (m *MockTokenVerifier) EXPECT() *MockTokenVerifierMockRecorder {
 }
 
 // Verify mocks base method.
-func (m *MockTokenVerifier) Verify(arg0 context.Context, arg1 string) (*auth.Claims, error) {
+func (m *MockTokenVerifier) Verify(ctx context.Context, token string) (*auth.Claims, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Verify", arg0, arg1)
+	ret := m.ctrl.Call(m, "Verify", ctx, token)
 	ret0, _ := ret[0].(*auth.Claims)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Verify indicates an expected call of Verify.
-func (mr *MockTokenVerifierMockRecorder) Verify(arg0, arg1 any) *MockTokenVerifierVerifyCall {
+func (mr *MockTokenVerifierMockRecorder) Verify(ctx, token any) *MockTokenVerifierVerifyCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Verify", reflect.TypeOf((*MockTokenVerifier)(nil).Verify), arg0, arg1)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Verify", reflect.TypeOf((*MockTokenVerifier)(nil).Verify), ctx, token)
 	return &MockTokenVerifierVerifyCall{Call: call}
 }
 

@@ -12,6 +12,7 @@ package fake
 import (
 	context "context"
 	reflect "reflect"
+	time "time"
 
 	sipsource "github.com/artefactual-sdps/enduro/internal/sipsource"
 	gomock "go.uber.org/mock/gomock"
@@ -21,6 +22,7 @@ import (
 type MockSIPSource struct {
 	ctrl     *gomock.Controller
 	recorder *MockSIPSourceMockRecorder
+	isgomock struct{}
 }
 
 // MockSIPSourceMockRecorder is the mock recorder for MockSIPSource.
@@ -79,18 +81,18 @@ func (c *MockSIPSourceCloseCall) DoAndReturn(f func() error) *MockSIPSourceClose
 }
 
 // ListObjects mocks base method.
-func (m *MockSIPSource) ListObjects(arg0 context.Context, arg1 []byte, arg2 int) (*sipsource.Page, error) {
+func (m *MockSIPSource) ListObjects(ctx context.Context, token []byte, limit int) (*sipsource.Page, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListObjects", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "ListObjects", ctx, token, limit)
 	ret0, _ := ret[0].(*sipsource.Page)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListObjects indicates an expected call of ListObjects.
-func (mr *MockSIPSourceMockRecorder) ListObjects(arg0, arg1, arg2 any) *MockSIPSourceListObjectsCall {
+func (mr *MockSIPSourceMockRecorder) ListObjects(ctx, token, limit any) *MockSIPSourceListObjectsCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListObjects", reflect.TypeOf((*MockSIPSource)(nil).ListObjects), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListObjects", reflect.TypeOf((*MockSIPSource)(nil).ListObjects), ctx, token, limit)
 	return &MockSIPSourceListObjectsCall{Call: call}
 }
 
@@ -113,6 +115,44 @@ func (c *MockSIPSourceListObjectsCall) Do(f func(context.Context, []byte, int) (
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockSIPSourceListObjectsCall) DoAndReturn(f func(context.Context, []byte, int) (*sipsource.Page, error)) *MockSIPSourceListObjectsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// RetentionPeriod mocks base method.
+func (m *MockSIPSource) RetentionPeriod() *time.Duration {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RetentionPeriod")
+	ret0, _ := ret[0].(*time.Duration)
+	return ret0
+}
+
+// RetentionPeriod indicates an expected call of RetentionPeriod.
+func (mr *MockSIPSourceMockRecorder) RetentionPeriod() *MockSIPSourceRetentionPeriodCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RetentionPeriod", reflect.TypeOf((*MockSIPSource)(nil).RetentionPeriod))
+	return &MockSIPSourceRetentionPeriodCall{Call: call}
+}
+
+// MockSIPSourceRetentionPeriodCall wrap *gomock.Call
+type MockSIPSourceRetentionPeriodCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockSIPSourceRetentionPeriodCall) Return(arg0 *time.Duration) *MockSIPSourceRetentionPeriodCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockSIPSourceRetentionPeriodCall) Do(f func() *time.Duration) *MockSIPSourceRetentionPeriodCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockSIPSourceRetentionPeriodCall) DoAndReturn(f func() *time.Duration) *MockSIPSourceRetentionPeriodCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

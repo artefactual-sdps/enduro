@@ -21,6 +21,7 @@ import (
 type MockTicketStore struct {
 	ctrl     *gomock.Controller
 	recorder *MockTicketStoreMockRecorder
+	isgomock struct{}
 }
 
 // MockTicketStoreMockRecorder is the mock recorder for MockTicketStore.
@@ -79,17 +80,17 @@ func (c *MockTicketStoreCloseCall) DoAndReturn(f func() error) *MockTicketStoreC
 }
 
 // GetDel mocks base method.
-func (m *MockTicketStore) GetDel(arg0 context.Context, arg1 string, arg2 any) error {
+func (m *MockTicketStore) GetDel(ctx context.Context, key string, value any) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetDel", arg0, arg1, arg2)
+	ret := m.ctrl.Call(m, "GetDel", ctx, key, value)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // GetDel indicates an expected call of GetDel.
-func (mr *MockTicketStoreMockRecorder) GetDel(arg0, arg1, arg2 any) *MockTicketStoreGetDelCall {
+func (mr *MockTicketStoreMockRecorder) GetDel(ctx, key, value any) *MockTicketStoreGetDelCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDel", reflect.TypeOf((*MockTicketStore)(nil).GetDel), arg0, arg1, arg2)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetDel", reflect.TypeOf((*MockTicketStore)(nil).GetDel), ctx, key, value)
 	return &MockTicketStoreGetDelCall{Call: call}
 }
 
@@ -117,17 +118,17 @@ func (c *MockTicketStoreGetDelCall) DoAndReturn(f func(context.Context, string, 
 }
 
 // SetEx mocks base method.
-func (m *MockTicketStore) SetEx(arg0 context.Context, arg1 string, arg2 any, arg3 time.Duration) error {
+func (m *MockTicketStore) SetEx(ctx context.Context, key string, value any, ttl time.Duration) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "SetEx", arg0, arg1, arg2, arg3)
+	ret := m.ctrl.Call(m, "SetEx", ctx, key, value, ttl)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetEx indicates an expected call of SetEx.
-func (mr *MockTicketStoreMockRecorder) SetEx(arg0, arg1, arg2, arg3 any) *MockTicketStoreSetExCall {
+func (mr *MockTicketStoreMockRecorder) SetEx(ctx, key, value, ttl any) *MockTicketStoreSetExCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEx", reflect.TypeOf((*MockTicketStore)(nil).SetEx), arg0, arg1, arg2, arg3)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetEx", reflect.TypeOf((*MockTicketStore)(nil).SetEx), ctx, key, value, ttl)
 	return &MockTicketStoreSetExCall{Call: call}
 }
 
