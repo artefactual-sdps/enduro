@@ -41,7 +41,7 @@ func (w *ProcessingWorkflow) deleteOriginalSIP(ctx temporalsdk_workflow.Context,
 	}
 
 	// Set a timer for the retention period.
-	if err := temporalsdk_workflow.NewTimer(ctx, *state.req.RetentionPeriod).Get(ctx, nil); err != nil {
+	if err := temporalsdk_workflow.Sleep(ctx, *state.req.RetentionPeriod); err != nil {
 		return fmt.Errorf("retention period timer failed: %v", err)
 	}
 
