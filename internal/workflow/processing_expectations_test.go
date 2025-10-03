@@ -39,7 +39,9 @@ const (
 	copySIPTaskID    = 100
 	valBagTaskID     = 101
 	valPREMISTaskID  = 102
-	moveAIPTaskID    = 103
+	uploadTaskID     = 103
+	reviewAIPTaskID  = 104
+	moveAIPTaskID    = 105
 	sipName          = "name.zip"
 	key              = "transfer.zip"
 	watcherName      = "watcher"
@@ -48,6 +50,7 @@ const (
 var (
 	ctx             = mock.AnythingOfType("*context.valueCtx")
 	sessionCtx      = mock.AnythingOfType("*context.timerCtx")
+	internalCtx     = mock.AnythingOfType("*internal.valueCtx")
 	sipUUID         = uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54")
 	locationID      = uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1")
 	amssLocationID  = uuid.MustParse("e0ed8b2a-8ae2-4546-b5d8-f0090919df04")
@@ -65,7 +68,8 @@ type expectationParams struct {
 	TaskID        int                // Task ID for create/complete task activities.
 	TaskName      string             // Task name for create/complete task activities.
 	TaskNote      string             // Task note for create/complete task activities.
-	Status        enums.SIPStatus    // SIP status for failed update.
+	TaskStatus    *enums.TaskStatus  // Task status for create task activity (defaults to enums.TaskStatusInProgress).
+	SIPStatus     enums.SIPStatus    // SIP status for failed update.
 	FailedAs      enums.SIPFailedAs  // Failure type for failed update.
 	FailedKey     string             // Failed key for failed update and bucket uploads.
 	RemovePaths   []string           // Cleanup paths (defaults to tempPath, transferPath).
@@ -129,6 +133,10 @@ var expectations = map[string]expectationFunc{
 		).Return(nil, nil)
 	},
 	"createTask": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
+		taskStatus := enums.TaskStatusInProgress
+		if params.TaskStatus != nil {
+			taskStatus = *params.TaskStatus
+		}
 		s.env.OnActivity(
 			createTaskLocalActivity,
 			ctx,
@@ -137,7 +145,7 @@ var expectations = map[string]expectationFunc{
 				RNG:       s.workflow.rng,
 				Task: &datatypes.Task{
 					Name:         params.TaskName,
-					Status:       enums.TaskStatusInProgress,
+					Status:       taskStatus,
 					WorkflowUUID: wUUID,
 					Note:         params.TaskNote,
 				},
@@ -234,7 +242,7 @@ var expectations = map[string]expectationFunc{
 				return updateParams.UUID == sipUUID &&
 					updateParams.Name == sipName &&
 					updateParams.AIPUUID == "" &&
-					updateParams.Status == params.Status &&
+					updateParams.Status == params.SIPStatus &&
 					updateParams.FailedAs == params.FailedAs &&
 					updateParams.FailedKey == params.FailedKey &&
 					!updateParams.CompletedAt.IsZero()
@@ -426,5 +434,15 @@ var expectations = map[string]expectationFunc{
 				WorkflowUUID: wUUID,
 			},
 		).Return(&a3m.CreateAIPActivityResult{UUID: aipUUID.String()}, nil)
+	},
+	"uploadAIP": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
+		s.env.OnActivity(
+			activities.UploadActivityName,
+			sessionCtx,
+			&activities.UploadActivityParams{
+				Name:  sipName,
+				AIPID: aipUUID.String(),
+			},
+		).Return(nil, nil)
 	},
 }
