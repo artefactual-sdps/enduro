@@ -2,13 +2,17 @@
 import { watch } from "vue";
 import { DialogWrapper } from "vue3-promise-dialog";
 
-import { client } from "@/client";
 import Header from "@/components/Header.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { useAuthStore } from "@/stores/auth";
+import { useIngestMonitorStore } from "@/stores/ingestMonitor";
+import { useStorageMonitorStore } from "@/stores/storageMonitor";
 
 const authStore = useAuthStore();
 authStore.loadConfig();
+
+const ingestMonitor = useIngestMonitorStore();
+const storageMonitor = useStorageMonitorStore();
 
 // Connect to the monitor APIs when the user is loaded
 // successfully or if authentication is disabled.
@@ -16,12 +20,8 @@ watch(
   () => authStore.isUserValid,
   (valid) => {
     if (valid) {
-      client.ingest.ingestMonitorRequest().then(() => {
-        client.connectIngestMonitor();
-      });
-      client.storage.storageMonitorRequest().then(() => {
-        client.connectStorageMonitor();
-      });
+      ingestMonitor.connect();
+      storageMonitor.connect();
     }
   },
   { immediate: true },
