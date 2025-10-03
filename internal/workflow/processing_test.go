@@ -3,7 +3,6 @@ package workflow
 import (
 	"errors"
 	"fmt"
-	"math/rand"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -11,308 +10,43 @@ import (
 
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
 	"github.com/artefactual-sdps/temporal-activities/archivezip"
-	"github.com/artefactual-sdps/temporal-activities/bagcreate"
-	"github.com/artefactual-sdps/temporal-activities/bagvalidate"
 	"github.com/artefactual-sdps/temporal-activities/bucketcopy"
 	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/artefactual-sdps/temporal-activities/bucketdownload"
-	"github.com/artefactual-sdps/temporal-activities/bucketupload"
-	"github.com/artefactual-sdps/temporal-activities/removepaths"
-	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
-	"github.com/google/uuid"
-	"github.com/jonboulle/clockwork"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
-	"go.artefactual.dev/amclient/amclienttest"
-	"go.artefactual.dev/tools/ref"
-	"go.opentelemetry.io/otel/trace/noop"
-	temporalsdk_activity "go.temporal.io/sdk/activity"
-	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
-	temporalsdk_worker "go.temporal.io/sdk/worker"
-	temporalsdk_workflow "go.temporal.io/sdk/workflow"
-	"go.uber.org/mock/gomock"
-	"gocloud.dev/blob/memblob"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
-	a3mfake "github.com/artefactual-sdps/enduro/internal/a3m/fake"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/config"
-	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
-	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	"github.com/artefactual-sdps/enduro/internal/poststorage"
 	"github.com/artefactual-sdps/enduro/internal/premis"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
-	sftp_fake "github.com/artefactual-sdps/enduro/internal/sftp/fake"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
-	watcherfake "github.com/artefactual-sdps/enduro/internal/watcher/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
 )
-
-const (
-	tempPath     string = "/tmp/enduro123456"
-	extractPath  string = "/tmp/enduro123456/extract"
-	transferPath string = "/home/a3m/.local/share/a3m/share/enduro2985726865"
-)
-
-var (
-	sipUUID        = uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54")
-	locationID     = uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1")
-	amssLocationID = uuid.MustParse("e0ed8b2a-8ae2-4546-b5d8-f0090919df04")
-	transferID     = uuid.MustParse("65233405-771e-4f7e-b2d9-b08439570ba2")
-	aipUUID        = uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
-
-	startTime time.Time = time.Date(2024, 7, 9, 16, 55, 13, 50, time.UTC)
-)
-
-type ProcessingWorkflowTestSuite struct {
-	suite.Suite
-	temporalsdk_testsuite.WorkflowTestSuite
-
-	env *temporalsdk_testsuite.TestWorkflowEnvironment
-
-	// Each test creates its own temporary transfer directory.
-	transferDir string
-
-	// Each test registers the workflow with a different name to avoid
-	// duplicates.
-	workflow *ProcessingWorkflow
-}
-
-func preprocessingChildWorkflow(
-	ctx temporalsdk_workflow.Context,
-	params *preprocessing.WorkflowParams,
-) (*preprocessing.WorkflowResult, error) {
-	return nil, nil
-}
-
-func poststorageChildWorkflow(
-	ctx temporalsdk_workflow.Context,
-	params *poststorage.WorkflowParams,
-) (*any, error) {
-	return nil, nil
-}
-
-func (s *ProcessingWorkflowTestSuite) CreateTransferDir() string {
-	s.transferDir = s.T().TempDir()
-
-	return s.transferDir
-}
-
-func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration) {
-	s.env = s.NewTestWorkflowEnvironment()
-	s.env.SetWorkerOptions(temporalsdk_worker.Options{EnableSessionWorker: true})
-	s.env.SetStartTime(startTime)
-
-	ctrl := gomock.NewController(s.T())
-	ingestsvc := ingest_fake.NewMockService(ctrl)
-	wsvc := watcherfake.NewMockService(ctrl)
-	rng := rand.New(rand.NewSource(1)) // #nosec: G404
-
-	s.env.RegisterActivityWithOptions(
-		activities.NewDownloadActivity(noop.Tracer{}, wsvc).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.DownloadActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		bucketdownload.New(nil).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.DownloadFromSIPSourceActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		bucketdownload.New(nil).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.DownloadFromInternalBucketActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		activities.NewGetSIPExtensionActivity().Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.GetSIPExtensionActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		archiveextract.New(cfg.ExtractActivity).Execute,
-		temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
-	)
-	s.env.RegisterActivityWithOptions(
-		xmlvalidate.New(xmlvalidate.NewXMLLintValidator()).Execute,
-		temporalsdk_activity.RegisterOptions{Name: xmlvalidate.Name},
-	)
-	s.env.RegisterActivityWithOptions(
-		bagvalidate.New(bagvalidate.NewNoopValidator()).Execute,
-		temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
-	)
-	s.env.RegisterActivityWithOptions(
-		activities.NewClassifySIPActivity().Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.ClassifySIPActivityName},
-	)
-
-	// Set up AM taskqueue.
-	if cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
-		s.setupAMWorkflowTest(&cfg.AM, ctrl, ingestsvc)
-	} else {
-		s.setupA3mWorkflowTest(ctrl, ingestsvc)
-	}
-
-	s.env.RegisterActivityWithOptions(
-		removepaths.New().Execute,
-		temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
-	)
-	s.env.RegisterActivityWithOptions(
-		activities.NewDeleteOriginalActivity(wsvc).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		archivezip.New().Execute,
-		temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
-	)
-	s.env.RegisterActivityWithOptions(
-		bucketcopy.New(memblob.OpenBucket(nil)).Execute,
-		temporalsdk_activity.RegisterOptions{Name: bucketcopy.Name},
-	)
-	s.env.RegisterActivityWithOptions(
-		bucketdelete.New(memblob.OpenBucket(nil)).Execute,
-		temporalsdk_activity.RegisterOptions{Name: bucketdelete.Name},
-	)
-	s.env.RegisterActivityWithOptions(
-		bucketupload.New(memblob.OpenBucket(nil)).Execute,
-		temporalsdk_activity.RegisterOptions{Name: bucketupload.Name},
-	)
-
-	s.env.RegisterWorkflowWithOptions(
-		preprocessingChildWorkflow,
-		temporalsdk_workflow.RegisterOptions{Name: "preprocessing"},
-	)
-	s.env.RegisterWorkflowWithOptions(
-		poststorageChildWorkflow,
-		temporalsdk_workflow.RegisterOptions{Name: "poststorage_1"},
-	)
-	s.env.RegisterWorkflowWithOptions(
-		poststorageChildWorkflow,
-		temporalsdk_workflow.RegisterOptions{Name: "poststorage_2"},
-	)
-
-	s.workflow = NewProcessingWorkflow(cfg, rng, ingestsvc, wsvc)
-}
-
-func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
-	cfg *am.Config,
-	ctrl *gomock.Controller,
-	ingestsvc ingest.Service,
-) {
-	clock := clockwork.NewFakeClock()
-	sftpc := sftp_fake.NewMockClient(ctrl)
-
-	s.env.RegisterActivityWithOptions(
-		bagcreate.New(bagcreate.Config{}).Execute,
-		temporalsdk_activity.RegisterOptions{Name: bagcreate.Name},
-	)
-	s.env.RegisterActivityWithOptions(
-		am.NewUploadTransferActivity(sftpc, 10*time.Second).Execute,
-		temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		am.NewStartTransferActivity(&am.Config{}, amclienttest.NewMockPackageService(ctrl)).Execute,
-		temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		am.NewPollTransferActivity(
-			cfg,
-			clock,
-			amclienttest.NewMockTransferService(ctrl),
-			amclienttest.NewMockJobsService(ctrl),
-			ingestsvc,
-		).Execute,
-		temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		am.NewPollIngestActivity(
-			cfg,
-			clock,
-			amclienttest.NewMockIngestService(ctrl),
-			amclienttest.NewMockJobsService(ctrl),
-			ingestsvc,
-		).Execute,
-		temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		activities.NewCreateStorageAIPActivity(nil).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.CreateStorageAIPActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		am.NewDeleteTransferActivity(sftpc).Execute,
-		temporalsdk_activity.RegisterOptions{
-			Name: am.DeleteTransferActivityName,
-		},
-	)
-}
-
-func (s *ProcessingWorkflowTestSuite) setupA3mWorkflowTest(
-	ctrl *gomock.Controller,
-	ingestsvc ingest.Service,
-) {
-	tsvc := a3mfake.NewMockTransferServiceClient(ctrl)
-
-	s.env.RegisterActivityWithOptions(
-		activities.NewBundleActivity().Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		a3m.NewCreateAIPActivity(noop.Tracer{}, tsvc, &a3m.Config{}, ingestsvc).Execute,
-		temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		activities.NewUploadActivity(nil).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		activities.NewMoveToPermanentStorageActivity(nil).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		activities.NewPollMoveToPermanentStorageActivity(nil).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.PollMoveToPermanentStorageActivityName},
-	)
-	s.env.RegisterActivityWithOptions(
-		activities.NewRejectSIPActivity(nil).Execute,
-		temporalsdk_activity.RegisterOptions{Name: activities.RejectSIPActivityName},
-	)
-}
-
-func (s *ProcessingWorkflowTestSuite) AfterTest(suiteName, testName string) {
-	s.env.AssertExpectations(s.T())
-}
 
 func TestProcessingWorkflow(t *testing.T) {
 	suite.Run(t, new(ProcessingWorkflowTestSuite))
 }
 
+// TestConfirmation tests:
+// - a3m as preservation system.
+// - The "create and review AIP" workflow type.
+// - The user accepting the AIP in the review step.
+// - Watched bucket download.
 func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
-	cfg := config.Configuration{
+	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage: storage.Config{
-			DefaultPermanentLocationID: locationID,
-		},
-		ValidatePREMIS: premis.Config{
-			Enabled: true,
-			XSDPath: "/home/enduro/premis.xsd",
-		},
-	}
-	s.SetupWorkflowTest(cfg)
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+	})
 
-	sipID := 1
-	sipName := "name.zip"
-	wID := 1
-	valPREMISTaskID := 102
-	ctx := mock.AnythingOfType("*context.valueCtx")
-	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	key := "transfer.zip"
-	watcherName := "watcher"
-	retentionPeriod := 1 * time.Second
-	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
-
-	// Signal handler that mimics SIP/AIP confirmation
+	// Signal handler that mimics SIP/AIP confirmation.
 	s.env.RegisterDelayedCallback(
 		func() {
 			s.env.SignalWorkflow(
@@ -323,736 +57,50 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		0,
 	)
 
-	// Activity mocks/assertions sequence
-	s.env.OnActivity(
-		createSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&createSIPLocalActivityParams{
-			UUID:   sipUUID,
-			Name:   sipName,
-			Status: enums.SIPStatusQueued,
-		},
-	).Return(sipID, nil)
-
-	s.env.OnActivity(
-		setStatusInProgressLocalActivity,
-		ctx,
-		ingestsvc,
-		sipUUID,
-		startTime,
-	).Return(&setStatusInProgressLocalActivityResult{}, nil)
-
-	s.env.OnActivity(
-		createWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		&createWorkflowLocalActivityParams{
-			RNG:        s.workflow.rng,
-			TemporalID: "default-test-workflow-id",
-			Type:       enums.WorkflowTypeCreateAndReviewAip,
-			Status:     enums.WorkflowStatusInProgress,
-			StartedAt:  startTime,
-			SIPUUID:    sipUUID,
-		},
-	).Return(
-		&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil,
+	params := defaultParams()
+	params.workflowType = enums.WorkflowTypeCreateAndReviewAip
+	downloadExpectations(s, params)
+	expectations["archiveExtract"](s, params)
+	expectations["classifySIP"](s, params)
+	reviewA3mExpectations(s, params)
+	params.updateTaskParams(reviewAIPTaskID, enums.TaskStatusDone, "", "Reviewed and accepted")
+	expectations["completeTask"](s, params)
+	params.updateTaskParams(moveAIPTaskID, enums.TaskStatusInProgress, "Move AIP", "Moving to permanent storage")
+	expectations["createTask"](s, params)
+	expectations["moveAIP"](s, params)
+	expectations["pollMoveAIP"](s, params)
+	params.updateTaskParams(
+		moveAIPTaskID,
+		enums.TaskStatusDone,
+		"",
+		"Moved to location f2cc963f-c14d-4eaa-b950-bd207189a1f1",
 	)
+	expectations["completeTask"](s, params)
+	cleanupExpectations(s, params)
 
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Copy SIP to workspace",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(100, nil)
-
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
-		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
-	).Return(
-		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
-	)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          100,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("SIP successfully copied"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
-		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
-	).Return(
-		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
-	)
-
-	s.env.OnActivity(archiveextract.Name, sessionCtx,
-		&archiveextract.Params{SourcePath: tempPath + "/" + key},
-	).Return(
-		&archiveextract.Result{ExtractPath: extractPath}, nil,
-	)
-
-	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
-		&activities.BundleActivityParams{
-			SourcePath:  extractPath,
-			TransferDir: s.transferDir,
-			IsDir:       true,
-		},
-	).Return(
-		&activities.BundleActivityResult{FullPath: transferPath},
-		nil,
-	)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Validate PREMIS",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(valPREMISTaskID, nil)
-
-	s.env.OnActivity(
-		xmlvalidate.Name,
-		sessionCtx,
-		&xmlvalidate.Params{
-			XMLPath: filepath.Join(transferPath, "metadata", "premis.xml"),
-			XSDPath: cfg.ValidatePREMIS.XSDPath,
-		},
-	).Return(
-		&xmlvalidate.Result{Failures: []string{}}, nil,
-	)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          valPREMISTaskID,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("PREMIS is valid"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(
-		a3m.CreateAIPActivityName,
-		sessionCtx,
-		&a3m.CreateAIPActivityParams{
-			Name:         sipName,
-			Path:         transferPath,
-			WorkflowUUID: wUUID,
-		},
-	).Return(
-		&a3m.CreateAIPActivityResult{UUID: aipUUID.String()}, nil,
-	)
-
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&updateSIPLocalActivityParams{
-			UUID:    sipUUID,
-			Name:    sipName,
-			AIPUUID: aipUUID.String(),
-			Status:  enums.SIPStatusProcessing,
-		},
-	).Return(nil, nil).Once()
-
-	s.env.OnActivity(createTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(0, nil)
-	s.env.OnActivity(activities.UploadActivityName, mock.Anything, mock.Anything).Return(nil, nil)
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
-	s.env.OnActivity(setWorkflowStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
-	s.env.OnActivity(completeTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
-	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil, nil)
-	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, mock.Anything, mock.Anything).Return(nil, nil)
-	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
-		Return(nil, nil).
-		Once()
-	s.env.OnActivity(
-		removepaths.Name,
-		sessionCtx,
-		&removepaths.Params{Paths: []string{tempPath, transferPath}},
-	).Return(&removepaths.Result{}, nil)
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
-
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
-			return params.UUID == sipUUID &&
-				params.Name == sipName &&
-				params.AIPUUID == aipUUID.String() &&
-				params.Status == enums.SIPStatusIngested &&
-				params.FailedAs == "" &&
-				params.FailedKey == "" &&
-				!params.CompletedAt.IsZero()
-		}),
-	).Return(nil, nil).Once()
-
-	s.env.OnActivity(completeWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
-
-	s.env.ExecuteWorkflow(
-		s.workflow.Execute,
-		&ingest.ProcessingWorkflowRequest{
-			Key:             key,
-			WatcherName:     watcherName,
-			RetentionPeriod: &retentionPeriod,
-			Type:            enums.WorkflowTypeCreateAndReviewAip,
-			SIPUUID:         sipUUID,
-			SIPName:         sipName,
-		},
-	)
-
-	s.True(s.env.IsWorkflowCompleted())
-	s.NoError(s.env.GetWorkflowResult(nil))
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		WatcherName:     watcherName,
+		RetentionPeriod: retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAndReviewAip,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, false)
 }
 
-func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
-	cfg := config.Configuration{
-		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
-		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage: storage.Config{
-			DefaultPermanentLocationID: locationID,
-		},
-	}
-	s.SetupWorkflowTest(cfg)
-
-	sipID := 1
-	sipName := "name.zip"
-	wID := 1
-	valBagTaskID := 101
-	moveAIPTaskID := 103
-	watcherName := "watcher"
-	key := "transfer.zip"
-	retentionPeriod := 1 * time.Second
-	ctx := mock.AnythingOfType("*context.valueCtx")
-	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
-
-	// Activity mocks/assertions sequence
-	s.env.OnActivity(
-		createSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
-	).Return(sipID, nil).Once()
-	s.env.OnActivity(
-		setStatusInProgressLocalActivity,
-		ctx,
-		ingestsvc,
-		sipUUID,
-		mock.AnythingOfType("time.Time"),
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		createWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		&createWorkflowLocalActivityParams{
-			RNG:        s.workflow.rng,
-			TemporalID: "default-test-workflow-id",
-			Type:       enums.WorkflowTypeCreateAip,
-			Status:     enums.WorkflowStatusInProgress,
-			StartedAt:  startTime,
-			SIPUUID:    sipUUID,
-		},
-	).Return(&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Copy SIP to workspace",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(100, nil)
-
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
-		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
-	).Return(
-		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
-	)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          100,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("SIP successfully copied"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
-		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
-	).Return(
-		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
-	)
-
-	s.env.OnActivity(archiveextract.Name, sessionCtx,
-		&archiveextract.Params{SourcePath: tempPath + "/" + key},
-	).Return(
-		&archiveextract.Result{ExtractPath: extractPath}, nil,
-	)
-
-	s.env.OnActivity(
-		activities.ClassifySIPActivityName,
-		sessionCtx,
-		activities.ClassifySIPActivityParams{Path: extractPath},
-	).Return(
-		&activities.ClassifySIPActivityResult{Type: enums.SIPTypeBagIt}, nil,
-	)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Validate Bag",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(valBagTaskID, nil)
-
-	s.env.OnActivity(
-		bagvalidate.Name,
-		sessionCtx,
-		&bagvalidate.Params{Path: extractPath},
-	).Return(
-		&bagvalidate.Result{Valid: true},
-		nil,
-	)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          valBagTaskID,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("Bag successfully validated"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
-		&activities.BundleActivityParams{
-			SourcePath:  extractPath,
-			TransferDir: s.transferDir,
-			IsDir:       true,
-		},
-	).Return(
-		&activities.BundleActivityResult{FullPath: transferPath},
-		nil,
-	)
-
-	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
-		Return(&a3m.CreateAIPActivityResult{UUID: aipUUID.String()}, nil).
-		Once()
-
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&updateSIPLocalActivityParams{
-			UUID:    sipUUID,
-			Name:    sipName,
-			AIPUUID: aipUUID.String(),
-			Status:  enums.SIPStatusProcessing,
-		},
-	).Return(nil, nil).Once()
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Move AIP",
-				Status:       enums.TaskStatusInProgress,
-				Note:         "Moving to permanent storage",
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(moveAIPTaskID, nil)
-
-	s.env.OnActivity(activities.UploadActivityName, sessionCtx, mock.AnythingOfType("*activities.UploadActivityParams")).
-		Return(nil, nil).
-		Once()
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil).
-		Never()
-	s.env.OnActivity(setWorkflowStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil).
-		Never()
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          moveAIPTaskID,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("Moved to location f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.MoveToPermanentStorageActivityParams")).
-		Return(nil, nil).
-		Once()
-	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.PollMoveToPermanentStorageActivityParams")).
-		Return(nil, nil).
-		Once()
-
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
-			return params.UUID == sipUUID &&
-				params.Name == sipName &&
-				params.AIPUUID == aipUUID.String() &&
-				params.Status == enums.SIPStatusIngested &&
-				params.FailedAs == "" &&
-				params.FailedKey == "" &&
-				!params.CompletedAt.IsZero()
-		}),
-	).Return(nil, nil).Once()
-
-	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
-		Return(nil, nil).
-		Once()
-
-	s.env.OnActivity(
-		removepaths.Name,
-		sessionCtx,
-		&removepaths.Params{Paths: []string{tempPath, transferPath}},
-	).Return(&removepaths.Result{}, nil)
-
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
-
-	s.env.ExecuteWorkflow(
-		s.workflow.Execute,
-		&ingest.ProcessingWorkflowRequest{
-			Key:             key,
-			WatcherName:     watcherName,
-			RetentionPeriod: &retentionPeriod,
-			Type:            enums.WorkflowTypeCreateAip,
-			SIPUUID:         sipUUID,
-			SIPName:         sipName,
-		},
-	)
-
-	s.True(s.env.IsWorkflowCompleted())
-	s.NoError(s.env.GetWorkflowResult(nil))
-}
-
-func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
-	sipID := 1
-	sipName := "name.zip"
-	wID := 1
-	valPREMISTaskID := 102
-	watcherName := "watcher"
-	key := "transfer.zip"
-	retentionPeriod := 1 * time.Second
-	ctx := mock.AnythingOfType("*context.valueCtx")
-	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
-
-	cfg := config.Configuration{
-		A3m: a3m.Config{ShareDir: s.CreateTransferDir()},
-		AM: am.Config{
-			ZipPIP:           true,
-			TransferDeadline: time.Second,
-		},
-		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: amssLocationID},
-		ValidatePREMIS: premis.Config{
-			Enabled: true,
-			XSDPath: "/home/enduro/premis.xsd",
-		},
-	}
-	s.SetupWorkflowTest(cfg)
-
-	ingestsvc := s.workflow.ingestsvc
-
-	// Activity mocks/assertions sequence
-	s.env.OnActivity(createSIPLocalActivity, ctx,
-		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
-	).Return(sipID, nil)
-
-	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipUUID, mock.AnythingOfType("time.Time")).
-		Return(nil, nil)
-
-	s.env.OnActivity(createWorkflowLocalActivity, ctx,
-		ingestsvc, mock.AnythingOfType("*workflow.createWorkflowLocalActivityParams"),
-	).Return(&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Copy SIP to workspace",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(100, nil)
-
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
-		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
-	).Return(
-		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
-	)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          100,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("SIP successfully copied"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
-		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
-	).Return(
-		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
-	)
-
-	s.env.OnActivity(archiveextract.Name, sessionCtx,
-		&archiveextract.Params{SourcePath: tempPath + "/" + key},
-	).Return(
-		&archiveextract.Result{ExtractPath: extractPath}, nil,
-	)
-
-	s.env.OnActivity(
-		activities.ClassifySIPActivityName,
-		sessionCtx,
-		activities.ClassifySIPActivityParams{Path: extractPath},
-	).Return(
-		&activities.ClassifySIPActivityResult{Type: enums.SIPTypeUnknown}, nil,
-	)
-
-	// Archivematica specific activities.
-	s.env.OnActivity(bagcreate.Name, sessionCtx,
-		&bagcreate.Params{SourcePath: extractPath},
-	).Return(
-		&bagcreate.Result{BagPath: extractPath}, nil,
-	)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Validate PREMIS",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(valPREMISTaskID, nil)
-
-	s.env.OnActivity(
-		xmlvalidate.Name,
-		sessionCtx,
-		&xmlvalidate.Params{
-			XMLPath: filepath.Join(extractPath, "data", "metadata", "premis.xml"),
-			XSDPath: "/home/enduro/premis.xsd",
-		},
-	).Return(
-		&xmlvalidate.Result{Failures: []string{}}, nil,
-	)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          valPREMISTaskID,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("PREMIS is valid"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(archivezip.Name, sessionCtx,
-		&archivezip.Params{SourceDir: extractPath},
-	).Return(
-		&archivezip.Result{Path: extractPath + "/transfer.zip"}, nil,
-	)
-
-	s.env.OnActivity(am.UploadTransferActivityName, sessionCtx,
-		&am.UploadTransferActivityParams{SourcePath: extractPath + "/transfer.zip"},
-	).Return(
-		&am.UploadTransferActivityResult{
-			RemoteFullPath:     "transfer.zip",
-			RemoteRelativePath: "transfer.zip",
-		}, nil,
-	)
-
-	s.env.OnActivity(am.StartTransferActivityName, sessionCtx,
-		&am.StartTransferActivityParams{Name: sipName, RelativePath: "transfer.zip", ZipPIP: true},
-	).Return(
-		&am.StartTransferActivityResult{TransferID: transferID.String()}, nil,
-	)
-
-	s.env.OnActivity(am.PollTransferActivityName, sessionCtx,
-		&am.PollTransferActivityParams{TransferID: transferID.String(), WorkflowUUID: wUUID},
-	).Return(
-		&am.PollTransferActivityResult{SIPID: aipUUID.String()}, nil,
-	)
-
-	s.env.OnActivity(am.PollIngestActivityName, sessionCtx,
-		&am.PollIngestActivityParams{SIPID: aipUUID.String(), WorkflowUUID: wUUID},
-	).Return(
-		&am.PollIngestActivityResult{Status: "COMPLETE"}, nil,
-	)
-
-	s.env.OnActivity(activities.CreateStorageAIPActivityName, sessionCtx,
-		&activities.CreateStorageAIPActivityParams{
-			Name:       sipName,
-			AIPID:      aipUUID.String(),
-			ObjectKey:  aipUUID.String(),
-			Status:     "stored",
-			LocationID: &amssLocationID,
-		},
-	).Return(&activities.CreateStorageAIPActivityResult{}, nil)
-
-	s.env.OnActivity(am.DeleteTransferActivityName, sessionCtx,
-		&am.DeleteTransferActivityParams{Destination: "transfer.zip"},
-	).Return(nil, nil)
-
-	// Post-preservation activities.
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&updateSIPLocalActivityParams{
-			UUID:    sipUUID,
-			Name:    sipName,
-			AIPUUID: aipUUID.String(),
-			Status:  enums.SIPStatusProcessing,
-		},
-	).Return(nil, nil).Once()
-
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
-			return params.UUID == sipUUID &&
-				params.Name == sipName &&
-				params.AIPUUID == aipUUID.String() &&
-				params.Status == enums.SIPStatusIngested &&
-				params.FailedAs == "" &&
-				params.FailedKey == "" &&
-				!params.CompletedAt.IsZero()
-		}),
-	).Return(nil, nil).Once()
-
-	s.env.OnActivity(
-		completeWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		removepaths.Name,
-		sessionCtx,
-		&removepaths.Params{Paths: []string{tempPath, extractPath + "/transfer.zip"}},
-	).Return(&removepaths.Result{}, nil)
-
-	s.env.OnActivity(
-		activities.DeleteOriginalActivityName,
-		sessionCtx,
-		watcherName,
-		key,
-	).Return(nil, nil)
-
-	s.env.ExecuteWorkflow(
-		s.workflow.Execute,
-		&ingest.ProcessingWorkflowRequest{
-			WatcherName:     watcherName,
-			RetentionPeriod: &retentionPeriod,
-			Type:            enums.WorkflowTypeCreateAip,
-			Key:             key,
-			SIPUUID:         sipUUID,
-			SIPName:         sipName,
-		},
-	)
-
-	s.True(s.env.IsWorkflowCompleted())
-	s.NoError(s.env.GetWorkflowResult(nil))
-}
-
+// TestRejection tests:
+// - a3m as preservation system.
+// - The "create and review AIP" workflow type.
+// - The user rejecting the AIP in the review step.
+// - Watched bucket download.
 func (s *ProcessingWorkflowTestSuite) TestRejection() {
-	cfg := config.Configuration{
+	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage: storage.Config{
-			DefaultPermanentLocationID: locationID,
-		},
-	}
-	s.SetupWorkflowTest(cfg)
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+	})
 
-	sipID := 1
-	sipName := "name.zip"
-	key := "transfer.zip"
-	watcherName := "watcher"
-	retentionPeriod := 1 * time.Second
-	ctx := mock.AnythingOfType("*context.valueCtx")
-	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
-
-	// Signal handler that mimics SIP/AIP rejection
+	// Signal handler that mimics SIP/AIP rejection.
 	s.env.RegisterDelayedCallback(
 		func() {
 			s.env.SignalWorkflow(
@@ -1063,159 +111,166 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 		0,
 	)
 
-	// Activity mocks/assertions sequence
-	s.env.OnActivity(
-		createSIPLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
-	).Return(sipID, nil)
+	params := defaultParams()
+	params.workflowType = enums.WorkflowTypeCreateAndReviewAip
+	downloadExpectations(s, params)
+	expectations["archiveExtract"](s, params)
+	expectations["classifySIP"](s, params)
+	reviewA3mExpectations(s, params)
+	params.updateTaskParams(reviewAIPTaskID, enums.TaskStatusDone, "", "Reviewed and rejected")
+	expectations["completeTask"](s, params)
 
 	s.env.OnActivity(
-		setStatusInProgressLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything,
+		activities.RejectSIPActivityName,
+		sessionCtx,
+		&activities.RejectSIPActivityParams{AIPID: aipUUID.String()},
 	).Return(nil, nil)
 
-	s.env.OnActivity(
-		createWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything,
-	).Return(
-		&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil,
-	)
+	cleanupExpectations(s, params)
 
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Copy SIP to workspace",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(100, nil)
-
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
-		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
-	).Return(
-		&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil,
-	)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          100,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("SIP successfully copied"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
-		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
-	).Return(
-		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
-	)
-
-	s.env.OnActivity(archiveextract.Name, sessionCtx,
-		&archiveextract.Params{SourcePath: tempPath + "/" + key},
-	).Return(
-		&archiveextract.Result{ExtractPath: extractPath}, nil,
-	)
-
-	s.env.OnActivity(
-		activities.ClassifySIPActivityName,
-		sessionCtx,
-		activities.ClassifySIPActivityParams{Path: extractPath},
-	).Return(
-		&activities.ClassifySIPActivityResult{Type: enums.SIPTypeUnknown}, nil,
-	)
-
-	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
-		&activities.BundleActivityParams{
-			SourcePath:  extractPath,
-			TransferDir: s.transferDir,
-			IsDir:       true,
-		},
-	).Return(
-		&activities.BundleActivityResult{FullPath: transferPath},
-		nil,
-	)
-
-	s.env.OnActivity(a3m.CreateAIPActivityName, mock.Anything, mock.Anything).
-		Return(&a3m.CreateAIPActivityResult{UUID: aipUUID.String()}, nil)
-
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&updateSIPLocalActivityParams{
-			UUID:    sipUUID,
-			Name:    sipName,
-			AIPUUID: aipUUID.String(),
-			Status:  enums.SIPStatusProcessing,
-		},
-	).Return(nil, nil).Once()
-
-	s.env.OnActivity(completeTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
-	s.env.OnActivity(activities.UploadActivityName, mock.Anything, mock.Anything).Return(nil, nil)
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
-	s.env.OnActivity(setWorkflowStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
-	s.env.OnActivity(createTaskLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(0, nil)
-	s.env.OnActivity(activities.RejectSIPActivityName, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
-	s.env.OnActivity(
-		removepaths.Name,
-		sessionCtx,
-		&removepaths.Params{Paths: []string{tempPath, transferPath}},
-	).Return(&removepaths.Result{}, nil)
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
-
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
-			return params.UUID == sipUUID &&
-				params.Name == sipName &&
-				params.AIPUUID == aipUUID.String() &&
-				params.Status == enums.SIPStatusIngested &&
-				params.FailedAs == "" &&
-				params.FailedKey == "" &&
-				!params.CompletedAt.IsZero()
-		}),
-	).Return(nil, nil).Once()
-
-	s.env.OnActivity(completeWorkflowLocalActivity, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil)
-
-	s.env.ExecuteWorkflow(
-		s.workflow.Execute,
-		&ingest.ProcessingWorkflowRequest{
-			Key:             key,
-			WatcherName:     watcherName,
-			RetentionPeriod: &retentionPeriod,
-			Type:            enums.WorkflowTypeCreateAndReviewAip,
-			SIPUUID:         sipUUID,
-			SIPName:         sipName,
-		},
-	)
-
-	s.True(s.env.IsWorkflowCompleted())
-	s.NoError(s.env.GetWorkflowResult(nil))
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		WatcherName:     watcherName,
+		RetentionPeriod: retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAndReviewAip,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, false)
 }
 
-func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
-	cfg := config.Configuration{
+// TestAutoApprovedAIP tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - Watched bucket download.
+func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
+	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+	})
+
+	params := defaultParams()
+	downloadExpectations(s, params)
+	expectations["archiveExtract"](s, params)
+	expectations["classifySIP"](s, params)
+	autoApproveA3mExpectations(s, params)
+	cleanupExpectations(s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		WatcherName:     watcherName,
+		RetentionPeriod: retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAip,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, false)
+}
+
+// TestAMWorkflow tests:
+// - Archivematica as preservation system.
+// - The "create AIP" workflow type.
+// - Bag creation.
+// - PREMIS validation in the AM branch.
+// - Watched bucket download.
+func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
+	s.SetupWorkflowTest(config.Configuration{
+		AM:             am.Config{ZipPIP: true, TransferDeadline: time.Second},
+		Preservation:   pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
+		Storage:        storage.Config{DefaultPermanentLocationID: amssLocationID},
+		ValidatePREMIS: premis.Config{Enabled: true, XSDPath: "/home/enduro/premis.xsd"},
+	})
+
+	params := defaultParams()
+	downloadExpectations(s, params)
+	expectations["archiveExtract"](s, params)
+	expectations["classifySIP"](s, params)
+	expectations["createBag"](s, params)
+	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusInProgress, "Validate PREMIS", "")
+	expectations["createTask"](s, params)
+	params.premisXMLPath = filepath.Join(extractPath, "data", "metadata", "premis.xml")
+	expectations["validatePREMIS"](s, params)
+	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusDone, "", "PREMIS is valid")
+	expectations["completeTask"](s, params)
+	expectations["zipArchive"](s, params)
+
+	// Archivematica specific expectations.
+	s.env.OnActivity(
+		am.UploadTransferActivityName,
+		sessionCtx,
+		&am.UploadTransferActivityParams{SourcePath: extractPath + "/" + key},
+	).Return(&am.UploadTransferActivityResult{RemoteRelativePath: key}, nil)
+	s.env.OnActivity(
+		am.StartTransferActivityName,
+		sessionCtx,
+		&am.StartTransferActivityParams{
+			Name:         sipName,
+			RelativePath: key,
+			ZipPIP:       true,
+		},
+	).Return(&am.StartTransferActivityResult{TransferID: transferID.String()}, nil)
+	s.env.OnActivity(
+		am.PollTransferActivityName,
+		sessionCtx,
+		&am.PollTransferActivityParams{
+			TransferID:   transferID.String(),
+			WorkflowUUID: workflowUUID,
+		},
+	).Return(&am.PollTransferActivityResult{SIPID: aipUUID.String()}, nil)
+	s.env.OnActivity(
+		am.PollIngestActivityName,
+		sessionCtx,
+		&am.PollIngestActivityParams{
+			SIPID:        aipUUID.String(),
+			WorkflowUUID: workflowUUID,
+		},
+	).Return(&am.PollIngestActivityResult{Status: "COMPLETE"}, nil)
+	s.env.OnActivity(
+		activities.CreateStorageAIPActivityName,
+		sessionCtx,
+		&activities.CreateStorageAIPActivityParams{
+			Name:       sipName,
+			AIPID:      aipUUID.String(),
+			ObjectKey:  aipUUID.String(),
+			Status:     "stored",
+			LocationID: &amssLocationID,
+		},
+	).Return(&activities.CreateStorageAIPActivityResult{}, nil)
+	s.env.OnActivity(
+		am.DeleteTransferActivityName,
+		sessionCtx,
+		&am.DeleteTransferActivityParams{Destination: key},
+	).Return(nil, nil)
+
+	expectations["updateSIPProcessing"](s, params)
+	params.removePaths = []string{tempPath, extractPath + "/transfer.zip"}
+	cleanupExpectations(s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		WatcherName:     watcherName,
+		RetentionPeriod: retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAip,
+		Key:             key,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, false)
+}
+
+// TestChildWorkflows tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - preprocessing child workflow.
+// - poststorage child workflows.
+// - Bag validation.
+// - Watched bucket download.
+func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
 		Preprocessing: preprocessing.Config{
 			Enabled:    true,
 			Extract:    true,
-			SharedPath: "/home/enduro/preprocessing/",
+			SharedPath: prepSharedPath,
 			Temporal: preprocessing.Temporal{
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
@@ -1234,112 +289,24 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				WorkflowName: "poststorage_2",
 			},
 		},
-		Storage: storage.Config{
-			DefaultPermanentLocationID: locationID,
-		},
-	}
-	s.SetupWorkflowTest(cfg)
+	})
 
-	sipID := 1
-	sipName := "name.zip"
-	valBagTaskID := 101
-	moveAIPTaskID := 103
-	watcherName := "watcher"
-	key := "transfer.zip"
-	retentionPeriod := 1 * time.Second
-	ctx := mock.AnythingOfType("*context.valueCtx")
-	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	ingestsvc := s.workflow.ingestsvc
-	aipUUID := "56eebd45-5600-4768-a8c2-ec0114555a3d"
-	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
-
-	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
-	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
-
-	// Activity mocks/assertions sequence
-	s.env.OnActivity(
-		createSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
-	).Return(sipID, nil)
-
-	s.env.OnActivity(
-		setStatusInProgressLocalActivity,
-		ctx,
-		ingestsvc,
-		sipUUID,
-		startTime,
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		createWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		&createWorkflowLocalActivityParams{
-			RNG:        s.workflow.rng,
-			TemporalID: "default-test-workflow-id",
-			Type:       enums.WorkflowTypeCreateAip,
-			Status:     enums.WorkflowStatusInProgress,
-			StartedAt:  startTime,
-			SIPUUID:    sipUUID,
-		},
-	).Return(
-		&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil,
-	)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Copy SIP to workspace",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(100, nil)
-
-	s.env.OnActivity(activities.DownloadActivityName, sessionCtx,
-		&activities.DownloadActivityParams{
-			Key:             key,
-			WatcherName:     watcherName,
-			DestinationPath: cfg.Preprocessing.SharedPath,
-		},
-	).Return(
-		&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil,
-	)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          100,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("SIP successfully copied"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
-		&activities.GetSIPExtensionActivityParams{Path: downloadDir + "/" + key},
-	).Return(
-		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
-	)
+	params := defaultParams()
+	params.downloadDestPath = prepSharedPath
+	params.downloadPath = prepDownloadPath + "/" + key
+	params.extractPath = prepExtractPath
+	downloadExpectations(s, params)
 
 	s.env.OnWorkflow(
 		preprocessingChildWorkflow,
-		mock.AnythingOfType("*internal.valueCtx"),
+		internalCtx,
 		&preprocessing.WorkflowParams{
-			RelativePath: strings.TrimPrefix(downloadDir+"/"+key, cfg.Preprocessing.SharedPath),
+			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
 		},
 	).Return(
 		&preprocessing.WorkflowResult{
 			Outcome:      preprocessing.OutcomeSuccess,
-			RelativePath: strings.TrimPrefix(prepDest, cfg.Preprocessing.SharedPath),
+			RelativePath: strings.TrimPrefix(prepExtractPath, prepSharedPath),
 			PreservationTasks: []preprocessing.Task{
 				{
 					Name:        "Identify SIP structure",
@@ -1357,9 +324,9 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		localact.SavePreprocessingTasksActivity,
 		ctx,
 		localact.SavePreprocessingTasksActivityParams{
-			Ingestsvc:    ingestsvc,
+			Ingestsvc:    s.workflow.ingestsvc,
 			RNG:          s.workflow.rng,
-			WorkflowUUID: wUUID,
+			WorkflowUUID: workflowUUID,
 			Tasks: []preprocessing.Task{
 				{
 					Name:        "Identify SIP structure",
@@ -1370,806 +337,240 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				},
 			},
 		},
-	).Return(
-		&localact.SavePreprocessingTasksActivityResult{Count: 1},
-		nil,
-	)
+	).Return(&localact.SavePreprocessingTasksActivityResult{Count: 1}, nil)
 
-	s.env.OnActivity(
-		activities.ClassifySIPActivityName,
-		sessionCtx,
-		activities.ClassifySIPActivityParams{Path: prepDest},
-	).Return(
-		&activities.ClassifySIPActivityResult{Type: enums.SIPTypeBagIt}, nil,
-	)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Validate Bag",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(valBagTaskID, nil)
-
-	s.env.OnActivity(
-		bagvalidate.Name,
-		sessionCtx,
-		&bagvalidate.Params{Path: prepDest},
-	).Return(
-		&bagvalidate.Result{Valid: true},
-		nil,
-	)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          valBagTaskID,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("Bag successfully validated"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.BundleActivityName, sessionCtx,
-		&activities.BundleActivityParams{
-			SourcePath:  prepDest,
-			TransferDir: s.transferDir,
-			IsDir:       true,
-		},
-	).Return(
-		&activities.BundleActivityResult{FullPath: transferPath},
-		nil,
-	)
-
-	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
-		Return(&a3m.CreateAIPActivityResult{UUID: aipUUID}, nil)
-
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&updateSIPLocalActivityParams{
-			UUID:    sipUUID,
-			Name:    sipName,
-			AIPUUID: aipUUID,
-			Status:  enums.SIPStatusProcessing,
-		},
-	).Return(nil, nil).Once()
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Move AIP",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-				Note:         "Moving to permanent storage",
-			},
-		},
-	).Return(moveAIPTaskID, nil)
-
-	s.env.OnActivity(
-		activities.UploadActivityName,
-		sessionCtx,
-		mock.AnythingOfType("*activities.UploadActivityParams"),
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          moveAIPTaskID,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("Moved to location f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(setStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil).
-		Never()
-	s.env.OnActivity(setWorkflowStatusLocalActivity, mock.Anything, mock.Anything, mock.Anything, mock.Anything).
-		Return(nil, nil).
-		Never()
-
-	s.env.OnActivity(activities.MoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.MoveToPermanentStorageActivityParams")).
-		Return(nil, nil).
-		Once()
-
-	s.env.OnActivity(activities.PollMoveToPermanentStorageActivityName, sessionCtx, mock.AnythingOfType("*activities.PollMoveToPermanentStorageActivityParams")).
-		Return(nil, nil).
-		Once()
-
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
-			return params.UUID == sipUUID &&
-				params.Name == sipName &&
-				params.AIPUUID == aipUUID &&
-				params.Status == enums.SIPStatusIngested &&
-				params.FailedAs == "" &&
-				params.FailedKey == "" &&
-				!params.CompletedAt.IsZero()
-		}),
-	).Return(nil, nil).Once()
-
-	s.env.OnActivity(completeWorkflowLocalActivity, ctx, ingestsvc, mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams")).
-		Return(nil, nil).
-		Once()
+	params.sipType = enums.SIPTypeBagIt
+	expectations["classifySIP"](s, params)
+	params.updateTaskParams(valBagTaskID, enums.TaskStatusInProgress, "Validate Bag", "")
+	expectations["createTask"](s, params)
+	expectations["validateBag"](s, params)
+	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
+	expectations["completeTask"](s, params)
+	autoApproveA3mExpectations(s, params)
 
 	s.env.OnWorkflow(
 		"poststorage_1",
-		mock.AnythingOfType("*internal.valueCtx"),
-		&poststorage.WorkflowParams{
-			AIPUUID: aipUUID,
-		},
+		internalCtx,
+		&poststorage.WorkflowParams{AIPUUID: aipUUID.String()},
 	).Return(nil, nil)
 
 	s.env.OnWorkflow(
 		"poststorage_2",
-		mock.AnythingOfType("*internal.valueCtx"),
-		&poststorage.WorkflowParams{
-			AIPUUID: aipUUID,
-		},
+		internalCtx,
+		&poststorage.WorkflowParams{AIPUUID: aipUUID.String()},
 	).Return(nil, nil)
 
-	s.env.OnActivity(
-		removepaths.Name,
-		sessionCtx,
-		&removepaths.Params{Paths: []string{downloadDir, transferPath}},
-	).Return(&removepaths.Result{}, nil)
+	params.removePaths = []string{prepDownloadPath, transferPath}
+	cleanupExpectations(s, params)
 
-	s.env.OnActivity(activities.DeleteOriginalActivityName, sessionCtx, watcherName, key).Return(nil, nil).Once()
-
-	s.env.ExecuteWorkflow(
-		s.workflow.Execute,
-		&ingest.ProcessingWorkflowRequest{
-			Key:             key,
-			WatcherName:     watcherName,
-			RetentionPeriod: &retentionPeriod,
-			Type:            enums.WorkflowTypeCreateAip,
-			SIPUUID:         sipUUID,
-			SIPName:         sipName,
-		},
-	)
-
-	s.True(s.env.IsWorkflowCompleted())
-	s.NoError(s.env.GetWorkflowResult(nil))
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		WatcherName:     watcherName,
+		RetentionPeriod: retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAip,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, false)
 }
 
+// TestFailedSIP tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - preprocessing child workflow error.
+// - Move to failed SIP.
+// - Watched bucket download.
 func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
-	cfg := config.Configuration{
+	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
 		Preprocessing: preprocessing.Config{
 			Enabled:    true,
 			Extract:    true,
-			SharedPath: "/home/enduro/preprocessing/",
+			SharedPath: prepSharedPath,
 			Temporal: preprocessing.Temporal{
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
 			},
 		},
-		Storage: storage.Config{DefaultPermanentLocationID: locationID},
-	}
-	s.SetupWorkflowTest(cfg)
+	})
 
-	sipID := 1
-	sipName := "name.zip"
-	watcherName := "watcher"
-	key := "transfer.zip"
-	failedKey := fmt.Sprintf(
-		"%s%s-%s%s",
-		ingest.FailedSIPPrefix,
-		strings.TrimSuffix(sipName, ".zip"),
-		sipUUID.String(),
-		".zip",
-	)
-	retentionPeriod := 1 * time.Second
-	ctx := mock.AnythingOfType("*context.valueCtx")
-	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
-	prepDest := strings.Replace(extractPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
-	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
+	params := defaultParams()
+	params.downloadDestPath = prepSharedPath
+	params.downloadPath = prepDownloadPath + "/" + key
+	downloadExpectations(s, params)
 
-	s.env.OnActivity(
-		createSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
-	).Return(sipID, nil)
-
-	s.env.OnActivity(
-		setStatusInProgressLocalActivity,
-		ctx,
-		ingestsvc,
-		sipUUID,
-		startTime,
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		createWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		&createWorkflowLocalActivityParams{
-			RNG:        rand.New(rand.NewSource(1)), // #nosec: G404
-			TemporalID: "default-test-workflow-id",
-			Type:       enums.WorkflowTypeCreateAip,
-			Status:     enums.WorkflowStatusInProgress,
-			StartedAt:  startTime,
-			SIPUUID:    sipUUID,
-		},
-	).Return(
-		&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil,
-	)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Copy SIP to workspace",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(100, nil)
-
-	s.env.OnActivity(
-		activities.DownloadActivityName,
-		sessionCtx,
-		&activities.DownloadActivityParams{
-			Key:             key,
-			WatcherName:     watcherName,
-			DestinationPath: cfg.Preprocessing.SharedPath,
-		},
-	).Return(&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          100,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("SIP successfully copied"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
-		&activities.GetSIPExtensionActivityParams{Path: downloadDir + "/" + key},
-	).Return(
-		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
-	)
-
+	// Fail the workflow on preprocessing.
 	s.env.OnWorkflow(
 		preprocessingChildWorkflow,
-		mock.AnythingOfType("*internal.valueCtx"),
+		internalCtx,
 		&preprocessing.WorkflowParams{
-			RelativePath: strings.TrimPrefix(downloadDir+"/"+key, cfg.Preprocessing.SharedPath),
+			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
 		},
 	).Return(
 		&preprocessing.WorkflowResult{
 			Outcome:      preprocessing.OutcomeContentError,
-			RelativePath: strings.TrimPrefix(prepDest, cfg.Preprocessing.SharedPath),
+			RelativePath: strings.TrimPrefix(prepExtractPath, prepSharedPath),
 		},
 		nil,
 	)
 
-	s.env.OnActivity(
-		bucketupload.Name,
-		sessionCtx,
-		&bucketupload.Params{
-			Path:       downloadDir + "/" + key,
-			Key:        failedKey,
-			BufferSize: 100_000_000,
-		},
-	).Return(&bucketupload.Result{}, nil)
+	params.sipStatus = enums.SIPStatusFailed
+	params.failedAs = enums.SIPFailedAsSIP
+	params.failedKey = failedSIPKey
+	params.failedPath = prepDownloadPath + "/" + key
+	params.removePaths = []string{prepDownloadPath}
+	expectations["uploadToFailed"](s, params)
+	expectations["removePaths"](s, params)
+	expectations["updateSIPFailed"](s, params)
+	expectations["completeWorkflow"](s, params)
 
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
-			return params.UUID == sipUUID &&
-				params.Name == sipName &&
-				params.AIPUUID == "" &&
-				params.Status == enums.SIPStatusFailed &&
-				params.FailedAs == enums.SIPFailedAsSIP &&
-				params.FailedKey == failedKey &&
-				!params.CompletedAt.IsZero()
-		}),
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		completeWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		removepaths.Name,
-		sessionCtx,
-		&removepaths.Params{Paths: []string{downloadDir}},
-	).Return(&removepaths.Result{}, nil)
-
-	s.env.ExecuteWorkflow(
-		s.workflow.Execute,
-		&ingest.ProcessingWorkflowRequest{
-			Key:             key,
-			WatcherName:     watcherName,
-			RetentionPeriod: &retentionPeriod,
-			Type:            enums.WorkflowTypeCreateAip,
-			SIPUUID:         sipUUID,
-			SIPName:         sipName,
-		},
-	)
-
-	s.True(s.env.IsWorkflowCompleted())
-	s.Error(s.env.GetWorkflowResult(nil))
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		WatcherName:     watcherName,
+		RetentionPeriod: retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAip,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, true)
 }
 
+// TestFailedSIP tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - PREMIS validation in the a3m branch.
+// - a3m error.
+// - Move to failed PIP.
+// - Watched bucket download.
 func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
-	cfg := config.Configuration{
-		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
-		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
-	}
-	s.SetupWorkflowTest(cfg)
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:            a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation:   pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:        storage.Config{DefaultPermanentLocationID: locationID},
+		ValidatePREMIS: premis.Config{Enabled: true, XSDPath: "/home/enduro/premis.xsd"},
+	})
 
-	sipID := 1
-	sipName := "name.zip"
-	valBagTaskID := 101
-	watcherName := "watcher"
-	key := "transfer.zip"
-	failedKey := fmt.Sprintf(
-		"%s%s-%s%s",
-		ingest.FailedPIPPrefix,
-		strings.TrimSuffix(sipName, ".zip"),
-		sipUUID.String(),
-		".zip",
-	)
-	retentionPeriod := 1 * time.Second
-	ctx := mock.AnythingOfType("*context.valueCtx")
-	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	downloadDir := strings.Replace(tempPath, "/tmp/", cfg.Preprocessing.SharedPath, 1)
-	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
+	params := defaultParams()
+	downloadExpectations(s, params)
+	expectations["archiveExtract"](s, params)
+	params.sipType = enums.SIPTypeBagIt
+	expectations["classifySIP"](s, params)
+	params.updateTaskParams(valBagTaskID, enums.TaskStatusInProgress, "Validate Bag", "")
+	expectations["createTask"](s, params)
+	expectations["validateBag"](s, params)
+	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
+	expectations["completeTask"](s, params)
+	expectations["bundle"](s, params)
+	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusInProgress, "Validate PREMIS", "")
+	expectations["createTask"](s, params)
+	expectations["validatePREMIS"](s, params)
+	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusDone, "", "PREMIS is valid")
+	expectations["completeTask"](s, params)
 
+	// Fail the workflow on a3m AIP creation.
 	s.env.OnActivity(
-		createSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
-	).Return(sipID, nil)
-
-	s.env.OnActivity(
-		setStatusInProgressLocalActivity,
-		ctx,
-		ingestsvc,
-		sipUUID,
-		startTime,
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		createWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		&createWorkflowLocalActivityParams{
-			RNG:        s.workflow.rng,
-			TemporalID: "default-test-workflow-id",
-			Type:       enums.WorkflowTypeCreateAip,
-			Status:     enums.WorkflowStatusInProgress,
-			StartedAt:  startTime,
-			SIPUUID:    sipUUID,
-		},
-	).Return(
-		&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil,
-	)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Copy SIP to workspace",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(100, nil)
-
-	s.env.OnActivity(
-		activities.DownloadActivityName,
+		a3m.CreateAIPActivityName,
 		sessionCtx,
-		&activities.DownloadActivityParams{
-			Key:             key,
-			WatcherName:     watcherName,
-			DestinationPath: cfg.Preprocessing.SharedPath,
+		&a3m.CreateAIPActivityParams{
+			Name:         sipName,
+			Path:         transferPath,
+			WorkflowUUID: workflowUUID,
 		},
-	).Return(&activities.DownloadActivityResult{Path: downloadDir + "/" + key}, nil)
+	).Return(nil, fmt.Errorf("a3m error"))
 
 	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          100,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("SIP successfully copied"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
-		&activities.GetSIPExtensionActivityParams{Path: downloadDir + "/" + key},
-	).Return(
-		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
-	)
-
-	s.env.OnActivity(
-		archiveextract.Name,
+		archivezip.Name,
 		sessionCtx,
-		&archiveextract.Params{SourcePath: downloadDir + "/" + key},
-	).Return(&archiveextract.Result{ExtractPath: extractPath}, nil)
+		&archivezip.Params{SourceDir: transferPath},
+	).Return(&archivezip.Result{Path: transferPath + ".zip"}, nil)
 
-	s.env.OnActivity(
-		activities.ClassifySIPActivityName,
-		sessionCtx,
-		activities.ClassifySIPActivityParams{Path: extractPath},
-	).Return(&activities.ClassifySIPActivityResult{Type: enums.SIPTypeBagIt}, nil)
+	params.sipStatus = enums.SIPStatusError
+	params.failedAs = enums.SIPFailedAsPIP
+	params.failedKey = failedPIPKey
+	params.failedPath = transferPath + ".zip"
+	expectations["uploadToFailed"](s, params)
+	expectations["removePaths"](s, params)
+	expectations["updateSIPFailed"](s, params)
+	expectations["completeWorkflow"](s, params)
 
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Validate Bag",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(valBagTaskID, nil)
-
-	s.env.OnActivity(
-		bagvalidate.Name,
-		sessionCtx,
-		&bagvalidate.Params{Path: extractPath},
-	).Return(&bagvalidate.Result{Valid: true}, nil)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          valBagTaskID,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("Bag successfully validated"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(
-		activities.BundleActivityName,
-		sessionCtx,
-		&activities.BundleActivityParams{
-			SourcePath:  extractPath,
-			TransferDir: s.transferDir,
-			IsDir:       true,
-		},
-	).Return(&activities.BundleActivityResult{FullPath: transferPath}, nil)
-
-	s.env.OnActivity(a3m.CreateAIPActivityName, sessionCtx, mock.AnythingOfType("*a3m.CreateAIPActivityParams")).
-		Return(nil, fmt.Errorf("a3m error"))
-
-	s.env.OnActivity(archivezip.Name, sessionCtx, &archivezip.Params{SourceDir: transferPath}).
-		Return(&archivezip.Result{Path: transferPath + ".zip"}, nil)
-
-	s.env.OnActivity(
-		bucketupload.Name,
-		sessionCtx,
-		&bucketupload.Params{
-			Path:       transferPath + ".zip",
-			Key:        failedKey,
-			BufferSize: 100_000_000,
-		},
-	).Return(&bucketupload.Result{}, nil)
-
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
-			return params.UUID == sipUUID &&
-				params.Name == sipName &&
-				params.AIPUUID == "" &&
-				params.Status == enums.SIPStatusError &&
-				params.FailedAs == enums.SIPFailedAsPIP &&
-				params.FailedKey == failedKey &&
-				!params.CompletedAt.IsZero()
-		}),
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		completeWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		removepaths.Name,
-		sessionCtx,
-		&removepaths.Params{Paths: []string{downloadDir, transferPath}},
-	).Return(&removepaths.Result{}, nil)
-
-	s.env.ExecuteWorkflow(
-		s.workflow.Execute,
-		&ingest.ProcessingWorkflowRequest{
-			Key:             key,
-			WatcherName:     watcherName,
-			RetentionPeriod: &retentionPeriod,
-			Type:            enums.WorkflowTypeCreateAip,
-			SIPUUID:         sipUUID,
-			SIPName:         sipName,
-		},
-	)
-
-	s.True(s.env.IsWorkflowCompleted())
-	s.Error(s.env.GetWorkflowResult(nil))
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		WatcherName:     watcherName,
+		RetentionPeriod: retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAip,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, true)
 }
 
+// TestFailedPIPAM tests:
+// - Archivematica as preservation system.
+// - The "create AIP" workflow type.
+// - Archivematica error.
+// - Move to failed PIP.
+// - Watched bucket download.
 func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
-	cfg := config.Configuration{
+	s.SetupWorkflowTest(config.Configuration{
 		AM:           am.Config{ZipPIP: true},
 		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
 		Storage:      storage.Config{DefaultPermanentLocationID: amssLocationID},
-	}
-	s.SetupWorkflowTest(cfg)
+	})
 
-	sipID := 1
-	sipName := "name.zip"
-	wID := 1
-	watcherName := "watcher"
-	key := "transfer.zip"
-	failedKey := fmt.Sprintf(
-		"%s%s-%s%s",
-		ingest.FailedPIPPrefix,
-		strings.TrimSuffix(sipName, ".zip"),
-		sipUUID.String(),
-		".zip",
-	)
-	retentionPeriod := 1 * time.Second
-	ctx := mock.AnythingOfType("*context.valueCtx")
-	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
+	params := defaultParams()
+	downloadExpectations(s, params)
+	expectations["archiveExtract"](s, params)
+	expectations["classifySIP"](s, params)
+	expectations["createBag"](s, params)
+	expectations["zipArchive"](s, params)
 
-	s.env.OnActivity(
-		createSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		&createSIPLocalActivityParams{UUID: sipUUID, Name: sipName, Status: enums.SIPStatusQueued},
-	).Return(sipID, nil)
-
-	s.env.OnActivity(setStatusInProgressLocalActivity, ctx, ingestsvc, sipUUID, mock.AnythingOfType("time.Time")).
-		Return(nil, nil)
-
-	s.env.OnActivity(
-		createWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		&createWorkflowLocalActivityParams{
-			RNG:        s.workflow.rng,
-			TemporalID: "default-test-workflow-id",
-			Type:       enums.WorkflowTypeCreateAip,
-			Status:     enums.WorkflowStatusInProgress,
-			StartedAt:  startTime,
-			SIPUUID:    sipUUID,
-		},
-	).Return(&createWorkflowLocalActivityResult{ID: wID, UUID: wUUID}, nil)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Copy SIP to workspace",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(100, nil)
-
-	s.env.OnActivity(
-		activities.DownloadActivityName,
-		sessionCtx,
-		&activities.DownloadActivityParams{Key: key, WatcherName: watcherName},
-	).Return(&activities.DownloadActivityResult{Path: tempPath + "/" + key}, nil)
-
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          100,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("SIP successfully copied"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
-
-	s.env.OnActivity(activities.GetSIPExtensionActivityName, sessionCtx,
-		&activities.GetSIPExtensionActivityParams{Path: tempPath + "/" + key},
-	).Return(
-		&activities.GetSIPExtensionActivityResult{Extension: ".zip"}, nil,
-	)
-
-	s.env.OnActivity(
-		archiveextract.Name,
-		sessionCtx,
-		&archiveextract.Params{SourcePath: tempPath + "/" + key},
-	).Return(&archiveextract.Result{ExtractPath: extractPath}, nil)
-
-	s.env.OnActivity(
-		activities.ClassifySIPActivityName,
-		sessionCtx,
-		activities.ClassifySIPActivityParams{Path: extractPath},
-	).Return(
-		&activities.ClassifySIPActivityResult{Type: enums.SIPTypeUnknown}, nil,
-	)
-
-	s.env.OnActivity(bagcreate.Name, sessionCtx, &bagcreate.Params{SourcePath: extractPath}).
-		Return(&bagcreate.Result{BagPath: extractPath}, nil)
-
-	s.env.OnActivity(archivezip.Name, sessionCtx, &archivezip.Params{SourceDir: extractPath}).
-		Return(&archivezip.Result{Path: extractPath + "/transfer.zip"}, nil)
-
+	// Fail the workflow on AM upload.
 	s.env.OnActivity(
 		am.UploadTransferActivityName,
 		sessionCtx,
 		&am.UploadTransferActivityParams{SourcePath: extractPath + "/transfer.zip"},
 	).Return(nil, fmt.Errorf("AM error"))
 
-	s.env.OnActivity(
-		bucketupload.Name,
-		sessionCtx,
-		&bucketupload.Params{
-			Path:       extractPath + "/transfer.zip",
-			Key:        failedKey,
-			BufferSize: 100_000_000,
-		},
-	).Return(&bucketupload.Result{}, nil)
+	params.removePaths = []string{tempPath, extractPath + "/transfer.zip"}
+	params.sipStatus = enums.SIPStatusError
+	params.failedAs = enums.SIPFailedAsPIP
+	params.failedKey = failedPIPKey
+	params.failedPath = extractPath + "/transfer.zip"
+	expectations["uploadToFailed"](s, params)
+	expectations["removePaths"](s, params)
+	expectations["updateSIPFailed"](s, params)
+	expectations["completeWorkflow"](s, params)
 
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
-			return params.UUID == sipUUID &&
-				params.Name == sipName &&
-				params.AIPUUID == "" &&
-				params.Status == enums.SIPStatusError &&
-				params.FailedAs == enums.SIPFailedAsPIP &&
-				params.FailedKey == failedKey &&
-				!params.CompletedAt.IsZero()
-		}),
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		completeWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		removepaths.Name,
-		sessionCtx,
-		&removepaths.Params{Paths: []string{tempPath, extractPath + "/transfer.zip"}},
-	).Return(&removepaths.Result{}, nil)
-
-	s.env.ExecuteWorkflow(
-		s.workflow.Execute,
-		&ingest.ProcessingWorkflowRequest{
-			WatcherName:     watcherName,
-			RetentionPeriod: &retentionPeriod,
-			Type:            enums.WorkflowTypeCreateAip,
-			Key:             key,
-			SIPUUID:         sipUUID,
-			SIPName:         sipName,
-		},
-	)
-
-	s.True(s.env.IsWorkflowCompleted())
-	s.Error(s.env.GetWorkflowResult(nil))
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		WatcherName:     watcherName,
+		RetentionPeriod: retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAip,
+		Key:             key,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, true)
 }
 
+// TestInternalUpload tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - Extraction error.
+// - Move to failed SIP (internal bucket).
+// - Internal bucket download (with preprocessing).
 func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
-	cfg := config.Configuration{
+	s.SetupWorkflowTest(config.Configuration{
 		A3m:           a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation:  pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Storage:       storage.Config{DefaultPermanentLocationID: locationID},
-		Preprocessing: preprocessing.Config{Enabled: true, SharedPath: "/shared/path"},
-	}
-	s.SetupWorkflowTest(cfg)
+		Preprocessing: preprocessing.Config{Enabled: true, SharedPath: prepSharedPath},
+	})
 
-	sipName := "name.zip"
-	key := "transfer.zip"
-	downloadDir := filepath.Join(cfg.Preprocessing.SharedPath, sipUUID.String())
-	failedKey := fmt.Sprintf(
-		"%s%s-%s%s",
-		ingest.FailedSIPPrefix,
-		strings.TrimSuffix(sipName, ".zip"),
-		sipUUID.String(),
-		".zip",
-	)
-	ctx := mock.AnythingOfType("*context.valueCtx")
-	sessionCtx := mock.AnythingOfType("*context.timerCtx")
-	ingestsvc := s.workflow.ingestsvc
-	wUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
-
-	s.env.OnActivity(
-		setStatusInProgressLocalActivity,
-		ctx,
-		ingestsvc,
-		sipUUID,
-		startTime,
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		createWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		&createWorkflowLocalActivityParams{
-			RNG:        s.workflow.rng,
-			TemporalID: "default-test-workflow-id",
-			Type:       enums.WorkflowTypeCreateAip,
-			Status:     enums.WorkflowStatusInProgress,
-			StartedAt:  startTime,
-			SIPUUID:    sipUUID,
-		},
-	).Return(&createWorkflowLocalActivityResult{ID: 1, UUID: wUUID}, nil)
-
-	s.env.OnActivity(
-		createTaskLocalActivity,
-		ctx,
-		&createTaskLocalActivityParams{
-			Ingestsvc: ingestsvc,
-			RNG:       s.workflow.rng,
-			Task: &datatypes.Task{
-				Name:         "Copy SIP to workspace",
-				Status:       enums.TaskStatusInProgress,
-				WorkflowUUID: wUUID,
-			},
-		},
-	).Return(100, nil)
+	downloadDir := filepath.Join(prepSharedPath, sipUUID.String())
+	params := defaultParams()
+	expectations["setStatusInProgress"](s, params)
+	expectations["createWorkflow"](s, params)
+	params.updateTaskParams(copySIPTaskID, enums.TaskStatusInProgress, "Copy SIP to workspace", "")
+	expectations["createTask"](s, params)
 
 	s.env.OnActivity(
 		activities.DownloadFromInternalBucketActivityName,
@@ -2180,17 +581,8 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		},
 	).Return(&bucketdownload.Result{FilePath: downloadDir + "/" + key}, nil)
 
-	s.env.OnActivity(
-		completeTaskLocalActivity,
-		ctx,
-		ingestsvc,
-		&completeTaskLocalActivityParams{
-			ID:          100,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: startTime,
-			Note:        ref.New("SIP successfully copied"),
-		},
-	).Return(&completeTaskLocalActivityResult{}, nil)
+	params.updateTaskParams(copySIPTaskID, enums.TaskStatusDone, "", "SIP successfully copied")
+	expectations["completeTask"](s, params)
 
 	// Fail the workflow on extraction.
 	s.env.OnActivity(
@@ -2198,62 +590,33 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		sessionCtx,
 		&archiveextract.Params{SourcePath: downloadDir + "/" + key},
 	).Return(nil, errors.New("extract error"))
-
-	// Check failed SIP rename within internal bucket (copy/delete).
 	s.env.OnActivity(
 		bucketcopy.Name,
 		sessionCtx,
 		&bucketcopy.Params{
 			SourceKey: key,
-			DestKey:   failedKey,
+			DestKey:   failedSIPKey,
 		},
 	).Return(&bucketcopy.Result{}, nil)
-
 	s.env.OnActivity(
 		bucketdelete.Name,
 		sessionCtx,
 		&bucketdelete.Params{Key: key},
 	).Return(&bucketdelete.Result{}, nil)
 
-	s.env.OnActivity(
-		updateSIPLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.MatchedBy(func(params *updateSIPLocalActivityParams) bool {
-			return params.UUID == sipUUID &&
-				params.Name == sipName &&
-				params.AIPUUID == "" &&
-				params.Status == enums.SIPStatusError &&
-				params.FailedAs == enums.SIPFailedAsSIP &&
-				params.FailedKey == failedKey &&
-				!params.CompletedAt.IsZero()
-		}),
-	).Return(nil, nil)
+	params.removePaths = []string{downloadDir}
+	params.sipStatus = enums.SIPStatusError
+	params.failedAs = enums.SIPFailedAsSIP
+	params.failedKey = failedSIPKey
+	expectations["removePaths"](s, params)
+	expectations["updateSIPFailed"](s, params)
+	expectations["completeWorkflow"](s, params)
 
-	s.env.OnActivity(
-		completeWorkflowLocalActivity,
-		ctx,
-		ingestsvc,
-		mock.AnythingOfType("*workflow.completeWorkflowLocalActivityParams"),
-	).Return(nil, nil)
-
-	s.env.OnActivity(
-		removepaths.Name,
-		sessionCtx,
-		&removepaths.Params{Paths: []string{downloadDir}},
-	).Return(&removepaths.Result{}, nil)
-
-	s.env.ExecuteWorkflow(
-		s.workflow.Execute,
-		&ingest.ProcessingWorkflowRequest{
-			Key:       key,
-			Type:      enums.WorkflowTypeCreateAip,
-			SIPUUID:   sipUUID,
-			SIPName:   sipName,
-			Extension: ".zip",
-		},
-	)
-
-	s.True(s.env.IsWorkflowCompleted())
-	s.Error(s.env.GetWorkflowResult(nil))
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:       key,
+		Type:      enums.WorkflowTypeCreateAip,
+		SIPUUID:   sipUUID,
+		SIPName:   sipName,
+		Extension: ".zip",
+	}, true)
 }
