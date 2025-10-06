@@ -413,9 +413,9 @@ func (w *ProcessingWorkflow) SessionHandler(
 		state.sip.sipType = result.Type
 	}
 
-	// Stop the workflow if preprocessing returned a SIP path that is not a valid bag.
+	// Stop the workflow if preprocessing returned a SIP path that is not a BagIt Bag.
 	if state.sip.sipType != enums.SIPTypeBagIt && w.cfg.Preprocessing.Enabled {
-		return errors.New("preprocessing returned a path that is not a valid bag")
+		return errors.New("preprocessing returned a path that is not a BagIt Bag")
 	}
 
 	// If the SIP is a BagIt Bag, validate it.
@@ -492,257 +492,6 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 		if err != nil {
 			return err
-		}
-	}
-
-	// Persist the SIP adding the AIP UUID.
-	{
-		activityOpts := withLocalActivityOpts(sessCtx)
-		_ = temporalsdk_workflow.ExecuteLocalActivity(activityOpts, updateSIPLocalActivity, w.ingestsvc, &updateSIPLocalActivityParams{
-			UUID:    state.sip.uuid,
-			Name:    state.sip.name,
-			AIPUUID: state.aip.id,
-			Status:  enums.SIPStatusProcessing,
-		}).
-			Get(activityOpts, nil)
-	}
-
-	// Stop here for the Archivematica workflow.
-	if w.cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
-		// Set status to done so it's considered in the session cleanup.
-		state.status = enums.WorkflowStatusDone
-
-		return nil
-	}
-
-	// Identifier of the task for upload to AIPs bucket.
-	var uploadTaskID int
-
-	// Add task for upload to review bucket.
-	if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
-		id, err := w.createTask(
-			sessCtx,
-			&datatypes.Task{
-				Name:         "Move AIP",
-				Status:       enums.TaskStatusInProgress,
-				Note:         "Moving to review bucket",
-				WorkflowUUID: state.workflowUUID,
-			},
-		)
-		if err != nil {
-			return err
-		}
-		uploadTaskID = id
-	}
-
-	// Upload AIP to MinIO.
-	{
-		activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
-			StartToCloseTimeout: time.Hour * 24,
-			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
-				InitialInterval:    time.Second,
-				BackoffCoefficient: 2,
-				MaximumAttempts:    3,
-			},
-		})
-		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.UploadActivityName, &activities.UploadActivityParams{
-			AIPPath: state.aip.path,
-			AIPID:   state.aip.id,
-			Name:    state.sip.name,
-		}).
-			Get(activityOpts, nil)
-		if err != nil {
-			return err
-		}
-	}
-
-	// Complete task for upload to review bucket.
-	if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
-		ctx := withLocalActivityOpts(sessCtx)
-		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
-			ID:          uploadTaskID,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
-			Note:        ref.New("Moved to review bucket"),
-		}).
-			Get(ctx, nil)
-		if err != nil {
-			return err
-		}
-	}
-
-	var reviewResult *ingest.ReviewPerformedSignal
-
-	// Identifier of the task for SIP/AIP review
-	var reviewTaskID int
-
-	if state.req.Type == enums.WorkflowTypeCreateAip {
-		reviewResult = &ingest.ReviewPerformedSignal{
-			Accepted:   true,
-			LocationID: &w.cfg.Storage.DefaultPermanentLocationID,
-		}
-	} else {
-		// Set SIP to pending status.
-		{
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusPending).Get(ctx, nil)
-			if err != nil {
-				return err
-			}
-		}
-
-		// Set workflow to pending status.
-		{
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, state.workflowID, enums.WorkflowStatusPending).Get(ctx, nil)
-			if err != nil {
-				return err
-			}
-		}
-
-		// Add task for SIP/AIP review
-		{
-			id, err := w.createTask(
-				sessCtx,
-				&datatypes.Task{
-					Name:         "Review AIP",
-					Status:       enums.TaskStatusPending,
-					Note:         "Awaiting user decision",
-					WorkflowUUID: state.workflowUUID,
-				},
-			)
-			if err != nil {
-				return err
-			}
-			reviewTaskID = id
-		}
-
-		reviewResult = w.waitForReview(sessCtx)
-
-		// Set SIP to in progress status.
-		{
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusProcessing).Get(ctx, nil)
-			if err != nil {
-				return err
-			}
-		}
-
-		// Set workflow to in progress status.
-		{
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, state.workflowID, enums.WorkflowStatusInProgress).Get(ctx, nil)
-			if err != nil {
-				return err
-			}
-		}
-	}
-
-	reviewCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
-
-	if reviewResult.Accepted {
-		// Record SIP/AIP confirmation in review task.
-		if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
-				ID:          reviewTaskID,
-				Status:      enums.TaskStatusDone,
-				CompletedAt: reviewCompletedAt,
-				Note:        ref.New("Reviewed and accepted"),
-			}).
-				Get(ctx, nil)
-			if err != nil {
-				return err
-			}
-		}
-
-		// Identifier of the task for permanent storage move.
-		var moveTaskID int
-
-		// Add task for permanent storage move.
-		{
-			id, err := w.createTask(
-				sessCtx,
-				&datatypes.Task{
-					Name:         "Move AIP",
-					Status:       enums.TaskStatusInProgress,
-					Note:         "Moving to permanent storage",
-					WorkflowUUID: state.workflowUUID,
-				},
-			)
-			if err != nil {
-				return err
-			}
-			moveTaskID = id
-		}
-
-		// Move AIP to permanent storage
-		{
-			activityOpts := withActivityOptsForRequest(sessCtx)
-			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
-				AIPID:      state.aip.id,
-				LocationID: *reviewResult.LocationID,
-			}).
-				Get(activityOpts, nil)
-			if err != nil {
-				return err
-			}
-		}
-
-		// Poll AIP move to permanent storage
-		{
-			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
-			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
-				AIPID: state.aip.id,
-			}).
-				Get(activityOpts, nil)
-			if err != nil {
-				return err
-			}
-		}
-
-		// Complete task for permanent storage move.
-		{
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
-				ID:          moveTaskID,
-				Status:      enums.TaskStatusDone,
-				CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
-				Note:        ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
-			}).
-				Get(ctx, nil)
-			if err != nil {
-				return err
-			}
-		}
-
-		if err := w.poststorage(sessCtx, state.aip.id); err != nil {
-			return err
-		}
-	} else if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
-		// Record SIP/AIP rejection in review task
-		{
-			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
-				ID:          reviewTaskID,
-				Status:      enums.TaskStatusDone,
-				CompletedAt: reviewCompletedAt,
-				Note:        ref.New("Reviewed and rejected"),
-			}).Get(ctx, nil)
-			if err != nil {
-				return err
-			}
-		}
-
-		// Reject SIP
-		{
-			activityOpts := withActivityOptsForRequest(sessCtx)
-			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.RejectSIPActivityName, &activities.RejectSIPActivityParams{
-				AIPID: state.aip.id,
-			}).Get(activityOpts, nil)
-			if err != nil {
-				return err
-			}
 		}
 	}
 
@@ -828,6 +577,242 @@ func (w *ProcessingWorkflow) transferA3m(
 		state.aip = &aipInfo{
 			id:   result.UUID,
 			path: result.Path,
+		}
+	}
+
+	// Persist the SIP adding the AIP UUID.
+	if err := w.updateSIPProcessing(sessCtx, state); err != nil {
+		return fmt.Errorf("update SIP: %v", err)
+	}
+
+	// Identifier of the task for upload to AIPs bucket.
+	var uploadTaskID int
+
+	// Add task for upload to review bucket.
+	if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
+		id, err := w.createTask(
+			sessCtx,
+			&datatypes.Task{
+				Name:         "Move AIP",
+				Status:       enums.TaskStatusInProgress,
+				Note:         "Moving to review bucket",
+				WorkflowUUID: state.workflowUUID,
+			},
+		)
+		if err != nil {
+			return err
+		}
+		uploadTaskID = id
+	}
+
+	// Upload AIP to MinIO.
+	{
+		activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
+			StartToCloseTimeout: time.Hour * 24,
+			RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+				InitialInterval:    time.Second,
+				BackoffCoefficient: 2,
+				MaximumAttempts:    3,
+			},
+		})
+		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.UploadActivityName, &activities.UploadActivityParams{
+			AIPPath: state.aip.path,
+			AIPID:   state.aip.id,
+			Name:    state.sip.name,
+		}).
+			Get(activityOpts, nil)
+		if err != nil {
+			return err
+		}
+	}
+
+	// Complete task for upload to review bucket.
+	if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
+		ctx := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
+			ID:          uploadTaskID,
+			Status:      enums.TaskStatusDone,
+			CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
+			Note:        ref.New("Moved to review bucket"),
+		}).
+			Get(ctx, nil)
+		if err != nil {
+			return err
+		}
+	}
+
+	var reviewResult *ingest.ReviewPerformedSignal
+
+	// Identifier of the task for SIP/AIP review.
+	var reviewTaskID int
+
+	if state.req.Type == enums.WorkflowTypeCreateAip {
+		reviewResult = &ingest.ReviewPerformedSignal{
+			Accepted:   true,
+			LocationID: &w.cfg.Storage.DefaultPermanentLocationID,
+		}
+	} else {
+		// Set SIP to pending status.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusPending).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Set workflow to pending status.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, state.workflowID, enums.WorkflowStatusPending).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Add task for SIP/AIP review.
+		{
+			id, err := w.createTask(
+				sessCtx,
+				&datatypes.Task{
+					Name:         "Review AIP",
+					Status:       enums.TaskStatusPending,
+					Note:         "Awaiting user decision",
+					WorkflowUUID: state.workflowUUID,
+				},
+			)
+			if err != nil {
+				return err
+			}
+			reviewTaskID = id
+		}
+
+		reviewResult = w.waitForReview(sessCtx)
+
+		// Set SIP to in progress status.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusProcessing).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Set workflow to in progress status.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, state.workflowID, enums.WorkflowStatusInProgress).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	reviewCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
+
+	if reviewResult.Accepted {
+		// Record SIP/AIP confirmation in review task.
+		if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
+				ID:          reviewTaskID,
+				Status:      enums.TaskStatusDone,
+				CompletedAt: reviewCompletedAt,
+				Note:        ref.New("Reviewed and accepted"),
+			}).
+				Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Identifier of the task for permanent storage move.
+		var moveTaskID int
+
+		// Add task for permanent storage move.
+		{
+			id, err := w.createTask(
+				sessCtx,
+				&datatypes.Task{
+					Name:         "Move AIP",
+					Status:       enums.TaskStatusInProgress,
+					Note:         "Moving to permanent storage",
+					WorkflowUUID: state.workflowUUID,
+				},
+			)
+			if err != nil {
+				return err
+			}
+			moveTaskID = id
+		}
+
+		// Move AIP to permanent storage.
+		{
+			activityOpts := withActivityOptsForRequest(sessCtx)
+			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.MoveToPermanentStorageActivityName, &activities.MoveToPermanentStorageActivityParams{
+				AIPID:      state.aip.id,
+				LocationID: *reviewResult.LocationID,
+			}).
+				Get(activityOpts, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Poll AIP move to permanent storage.
+		{
+			activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
+			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.PollMoveToPermanentStorageActivityName, &activities.PollMoveToPermanentStorageActivityParams{
+				AIPID: state.aip.id,
+			}).
+				Get(activityOpts, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Complete task for permanent storage move.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
+				ID:          moveTaskID,
+				Status:      enums.TaskStatusDone,
+				CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
+				Note:        ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
+			}).
+				Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		if err := w.poststorage(sessCtx, state.aip.id); err != nil {
+			return err
+		}
+	} else if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
+		// Record SIP/AIP rejection in review task.
+		{
+			ctx := withLocalActivityOpts(sessCtx)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
+				ID:          reviewTaskID,
+				Status:      enums.TaskStatusDone,
+				CompletedAt: reviewCompletedAt,
+				Note:        ref.New("Reviewed and rejected"),
+			}).Get(ctx, nil)
+			if err != nil {
+				return err
+			}
+		}
+
+		// Reject SIP.
+		{
+			activityOpts := withActivityOptsForRequest(sessCtx)
+			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.RejectSIPActivityName, &activities.RejectSIPActivityParams{
+				AIPID: state.aip.id,
+			}).Get(activityOpts, nil)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -1003,6 +988,11 @@ func (w *ProcessingWorkflow) transferAM(
 		Get(activityOpts, nil)
 	if err != nil {
 		return err
+	}
+
+	// Persist the SIP adding the AIP UUID.
+	if err := w.updateSIPProcessing(ctx, state); err != nil {
+		return fmt.Errorf("update SIP: %v", err)
 	}
 
 	return nil
@@ -1308,4 +1298,18 @@ func (w *ProcessingWorkflow) validatePREMIS(
 	}
 
 	return nil
+}
+
+func (w *ProcessingWorkflow) updateSIPProcessing(ctx temporalsdk_workflow.Context, state *workflowState) error {
+	activityOpts := withLocalActivityOpts(ctx)
+	return temporalsdk_workflow.ExecuteLocalActivity(
+		activityOpts, updateSIPLocalActivity,
+		w.ingestsvc,
+		&updateSIPLocalActivityParams{
+			UUID:    state.sip.uuid,
+			Name:    state.sip.name,
+			AIPUUID: state.aip.id,
+			Status:  enums.SIPStatusProcessing,
+		},
+	).Get(activityOpts, nil)
 }
