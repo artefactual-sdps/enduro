@@ -10,7 +10,7 @@ export const useStorageMonitorStore = defineStore("storageMonitor", {
   actions: {
     async connect() {
       if (this.conn.isConnected()) return Promise.resolve();
-      return this.conn.connect();
+      return this.conn.dial();
     },
   },
 });

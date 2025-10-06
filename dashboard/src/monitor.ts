@@ -11,9 +11,10 @@ export type RetryOptions = {
 };
 
 export interface MonitorConnector {
-  connect(): Promise<void>;
+  dial(): Promise<void>;
   isConnected(): boolean;
   getWebSocketURL(url: string): string;
+  close(): void;
 }
 
 export class MonitorConnection {
@@ -78,6 +79,14 @@ export class MonitorConnection {
     return this.socket !== null && this.socket.readyState === WebSocket.OPEN;
   }
 
+  close(): void {
+    if (this.socket) {
+      this.socket.onclose = null; // Disable reconnection on close.
+      this.socket.close();
+      this.socket = null;
+    }
+  }
+
   async connectSocket(url: string): Promise<void> {
     this.socket = new WebSocket(url);
 
@@ -98,28 +107,34 @@ export class IngestMonitorConnection
     super("ingest", baseUrl, retry);
   }
 
-  async connect(): Promise<void> {
+  async dial(): Promise<void> {
     return this.retryBackoff(async () => {
-      return client.ingest.ingestMonitorRequest().then(async () => {
-        return this.connectSocket(this.url).then(() => {
-          if (this.socket) {
-            // Reconnect on close.
-            this.socket.onclose = () => {
-              console.error("ingest monitor socket closed, reconnecting...");
-              this.connect();
-            };
+      return client.ingest
+        .ingestMonitorRequest()
+        .then(async () => {
+          return this.connectSocket(this.url).then(() => {
+            if (this.socket) {
+              // Reconnect on close.
+              this.socket.onclose = () => {
+                console.error("ingest monitor socket closed, reconnecting...");
+                this.dial();
+              };
 
-            // Handle incoming messages.
-            this.socket.onmessage = (ev: MessageEvent) => {
-              const body = JSON.parse(ev.data);
-              const data = api.IngestEventFromJSON(body);
-              if (data.ingestValue) {
-                handleIngestEvent(data.ingestValue);
-              }
-            };
-          }
+              // Handle incoming messages.
+              this.socket.onmessage = (ev: MessageEvent) => {
+                const body = JSON.parse(ev.data);
+                const data = api.IngestEventFromJSON(body);
+                if (data.ingestValue) {
+                  handleIngestEvent(data.ingestValue);
+                }
+              };
+            }
+          });
+        })
+        .catch((err) => {
+          console.error("Ingest monitor request failed:", err);
+          throw err;
         });
-      });
     });
   }
 }
@@ -132,28 +147,34 @@ export class StorageMonitorConnection
     super("storage", baseUrl, retry);
   }
 
-  async connect(): Promise<void> {
+  async dial(): Promise<void> {
     return this.retryBackoff(async () => {
-      return client.storage.storageMonitorRequest().then(async () => {
-        return this.connectSocket(this.url).then(() => {
-          if (this.socket) {
-            // Reconnect on close.
-            this.socket.onclose = () => {
-              console.error("storage monitor socket closed, reconnecting...");
-              this.connect();
-            };
+      return client.storage
+        .storageMonitorRequest()
+        .then(async () => {
+          return this.connectSocket(this.url).then(() => {
+            if (this.socket) {
+              // Reconnect on close.
+              this.socket.onclose = () => {
+                console.error("storage monitor socket closed, reconnecting...");
+                this.dial();
+              };
 
-            // Handle incoming messages.
-            this.socket.onmessage = (ev: MessageEvent) => {
-              const body = JSON.parse(ev.data);
-              const data = api.StorageEventFromJSON(body);
-              if (data.storageValue) {
-                handleStorageEvent(data.storageValue);
-              }
-            };
-          }
+              // Handle incoming messages.
+              this.socket.onmessage = (ev: MessageEvent) => {
+                const body = JSON.parse(ev.data);
+                const data = api.StorageEventFromJSON(body);
+                if (data.storageValue) {
+                  handleStorageEvent(data.storageValue);
+                }
+              };
+            }
+          });
+        })
+        .catch((err) => {
+          console.error("Storage monitor request failed:", err);
+          throw err;
         });
-      });
     });
   }
 }
