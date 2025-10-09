@@ -70,6 +70,8 @@ spec:
                 secretKeyRef:
                   name: enduro-dashboard-secret
                   key: oidc-abac-claim-value-prefix
+            - name: VITE_CUSTOM_HOME_URL
+              value: /custom/home.html
           ports:
             - containerPort: 80
           resources: {}
