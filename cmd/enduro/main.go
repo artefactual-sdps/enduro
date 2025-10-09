@@ -15,6 +15,7 @@ import (
 
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/google/uuid"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -261,19 +262,20 @@ func main() {
 	var ingestsvc ingest.Service
 	{
 		ingestsvc = ingest.NewService(ingest.ServiceParams{
-			Logger:             logger.WithName("ingest"),
-			DB:                 enduroDatabase,
-			TemporalClient:     temporalClient,
-			EventService:       ingestEventSvc,
-			PersistenceService: perSvc,
-			TokenVerifier:      tokenVerifier,
-			TicketProvider:     ticketProvider,
-			TaskQueue:          cfg.Temporal.TaskQueue,
-			InternalStorage:    internalStorage,
-			UploadMaxSize:      cfg.Upload.MaxSize,
-			Rander:             rand.Reader,
-			SIPSource:          sipSource,
-			AuditLogger:        auditLogger,
+			Logger:                logger.WithName("ingest"),
+			DB:                    enduroDatabase,
+			TemporalClient:        temporalClient,
+			EventService:          ingestEventSvc,
+			PersistenceService:    perSvc,
+			TokenVerifier:         tokenVerifier,
+			TicketProvider:        ticketProvider,
+			TaskQueue:             cfg.Temporal.TaskQueue,
+			InternalStorage:       internalStorage,
+			UploadMaxSize:         cfg.Upload.MaxSize,
+			UploadRetentionPeriod: cfg.Upload.RetentionPeriod,
+			Rander:                rand.Reader,
+			SIPSource:             sipSource,
+			AuditLogger:           auditLogger,
 		})
 	}
 
@@ -357,19 +359,20 @@ func main() {
 	// logger names and using &auth.NoopTokenVerifier{}.
 	{
 		ips := ingest.NewService(ingest.ServiceParams{
-			Logger:             logger.WithName("internal-ingest"),
-			DB:                 enduroDatabase,
-			TemporalClient:     temporalClient,
-			EventService:       ingestEventSvc,
-			PersistenceService: perSvc,
-			TokenVerifier:      &auth.NoopTokenVerifier{},
-			TicketProvider:     ticketProvider,
-			TaskQueue:          cfg.Temporal.TaskQueue,
-			InternalStorage:    internalStorage,
-			UploadMaxSize:      cfg.Upload.MaxSize,
-			Rander:             rand.Reader,
-			SIPSource:          sipSource,
-			AuditLogger:        auditLogger,
+			Logger:                logger.WithName("internal-ingest"),
+			DB:                    enduroDatabase,
+			TemporalClient:        temporalClient,
+			EventService:          ingestEventSvc,
+			PersistenceService:    perSvc,
+			TokenVerifier:         &auth.NoopTokenVerifier{},
+			TicketProvider:        ticketProvider,
+			TaskQueue:             cfg.Temporal.TaskQueue,
+			InternalStorage:       internalStorage,
+			UploadMaxSize:         cfg.Upload.MaxSize,
+			UploadRetentionPeriod: cfg.Upload.RetentionPeriod,
+			Rander:                rand.Reader,
+			SIPSource:             sipSource,
+			AuditLogger:           auditLogger,
 		})
 
 		iss, err := storage.NewService(
@@ -490,6 +493,18 @@ func main() {
 		w.RegisterActivityWithOptions(
 			activities.NewDeleteOriginalActivity(wsvc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName},
+		)
+		// TODO: At some point there may be multiple SIP sources, this activity should
+		// work similar to the watched bucket delete original activity and use the
+		// source ID to determine which bucket to use. Alternatively, we could register
+		// multiple copies of this activity, one per source.
+		w.RegisterActivityWithOptions(
+			bucketdelete.New(sipSource.Bucket).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalFromSIPSourceActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			bucketdelete.New(internalStorage).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalFromInternalBucketActivityName},
 		)
 		w.RegisterActivityWithOptions(
 			activities.NewDisposeOriginalActivity(wsvc).Execute,

@@ -3,6 +3,7 @@ package sipsource
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/bucket"
@@ -20,6 +21,9 @@ type BucketSource struct {
 	Bucket *blob.Bucket
 	// Name is the human-readable name of the SIP source.
 	Name string
+	// retentionPeriod is the duration for which SIPs should be retained after
+	// a successful ingest. If negative, SIPs will be retained indefinitely.
+	retentionPeriod time.Duration
 }
 
 var _ SIPSource = (*BucketSource)(nil)
@@ -37,9 +41,10 @@ func NewBucketSource(ctx context.Context, cfg *Config) (*BucketSource, error) {
 	}
 
 	return &BucketSource{
-		ID:     cfg.ID,
-		Bucket: bucket,
-		Name:   cfg.Name,
+		ID:              cfg.ID,
+		Bucket:          bucket,
+		Name:            cfg.Name,
+		retentionPeriod: cfg.RetentionPeriod,
 	}, nil
 }
 
@@ -95,4 +100,8 @@ func (s *BucketSource) ListObjects(ctx context.Context, token []byte, limit int)
 	}
 
 	return &Page{Objects: objects, Limit: limit, NextToken: next}, nil
+}
+
+func (s *BucketSource) RetentionPeriod() time.Duration {
+	return s.retentionPeriod
 }

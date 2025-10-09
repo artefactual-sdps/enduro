@@ -13,6 +13,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bucketcopy"
 	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/artefactual-sdps/temporal-activities/bucketdownload"
+	"github.com/google/uuid"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
@@ -39,6 +40,7 @@ func TestProcessingWorkflow(t *testing.T) {
 // - The "create and review AIP" workflow type.
 // - The user accepting the AIP in the review step.
 // - Watched bucket download.
+// - Watched bucket retention period.
 func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
@@ -93,6 +95,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 // - The "create and review AIP" workflow type.
 // - The user rejecting the AIP in the review step.
 // - Watched bucket download.
+// - Watched bucket retention period.
 func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
@@ -142,6 +145,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 // - a3m as preservation system.
 // - The "create AIP" workflow type.
 // - Watched bucket download.
+// - Watched bucket negative retention period.
 func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
@@ -154,12 +158,13 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	autoApproveA3mExpectations(s, params)
+	params.retentionPeriod = -1 * time.Second
 	cleanupExpectations(s, params)
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
 		Key:             key,
 		WatcherName:     watcherName,
-		RetentionPeriod: retentionPeriod,
+		RetentionPeriod: params.retentionPeriod,
 		Type:            enums.WorkflowTypeCreateAip,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
@@ -172,6 +177,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 // - Bag creation.
 // - PREMIS validation in the AM branch.
 // - Watched bucket download.
+// - Watched bucket retention period.
 func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.SetupWorkflowTest(config.Configuration{
 		AM:             am.Config{ZipPIP: true, TransferDeadline: time.Second},
@@ -262,6 +268,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 // - poststorage child workflows.
 // - Bag validation.
 // - Watched bucket download.
+// - Watched bucket custom retention period.
 func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
@@ -361,12 +368,13 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	).Return(nil, nil)
 
 	params.removePaths = []string{prepDownloadPath, transferPath}
+	params.retentionPeriod = 48 * time.Hour
 	cleanupExpectations(s, params)
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
 		Key:             key,
 		WatcherName:     watcherName,
-		RetentionPeriod: retentionPeriod,
+		RetentionPeriod: params.retentionPeriod,
 		Type:            enums.WorkflowTypeCreateAip,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
@@ -427,12 +435,11 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	expectations["completeWorkflow"](s, params)
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
-		Key:             key,
-		WatcherName:     watcherName,
-		RetentionPeriod: retentionPeriod,
-		Type:            enums.WorkflowTypeCreateAip,
-		SIPUUID:         sipUUID,
-		SIPName:         sipName,
+		Key:         key,
+		WatcherName: watcherName,
+		Type:        enums.WorkflowTypeCreateAip,
+		SIPUUID:     sipUUID,
+		SIPName:     sipName,
 	}, true)
 }
 
@@ -495,12 +502,11 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	expectations["completeWorkflow"](s, params)
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
-		Key:             key,
-		WatcherName:     watcherName,
-		RetentionPeriod: retentionPeriod,
-		Type:            enums.WorkflowTypeCreateAip,
-		SIPUUID:         sipUUID,
-		SIPName:         sipName,
+		Key:         key,
+		WatcherName: watcherName,
+		Type:        enums.WorkflowTypeCreateAip,
+		SIPUUID:     sipUUID,
+		SIPName:     sipName,
 	}, true)
 }
 
@@ -542,22 +548,81 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	expectations["completeWorkflow"](s, params)
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
-		WatcherName:     watcherName,
-		RetentionPeriod: retentionPeriod,
-		Type:            enums.WorkflowTypeCreateAip,
-		Key:             key,
-		SIPUUID:         sipUUID,
-		SIPName:         sipName,
+		WatcherName: watcherName,
+		Type:        enums.WorkflowTypeCreateAip,
+		Key:         key,
+		SIPUUID:     sipUUID,
+		SIPName:     sipName,
 	}, true)
 }
 
 // TestInternalUpload tests:
 // - a3m as preservation system.
 // - The "create AIP" workflow type.
+// - Internal bucket download.
+// - Internal upload retention period.
+func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+	})
+
+	params := defaultParams()
+	expectations["setStatusInProgress"](s, params)
+	expectations["createWorkflow"](s, params)
+	params.updateTaskParams(copySIPTaskID, enums.TaskStatusInProgress, "Copy SIP to workspace", "")
+	expectations["createTask"](s, params)
+
+	s.env.OnActivity(
+		activities.DownloadFromInternalBucketActivityName,
+		sessionCtx,
+		&bucketdownload.Params{Key: key},
+	).Return(&bucketdownload.Result{FilePath: tempPath + "/" + key}, nil)
+
+	params.updateTaskParams(copySIPTaskID, enums.TaskStatusDone, "", "SIP successfully copied")
+	expectations["completeTask"](s, params)
+	expectations["archiveExtract"](s, params)
+	expectations["classifySIP"](s, params)
+	autoApproveA3mExpectations(s, params)
+
+	expectations["removePaths"](s, params)
+	params.updateTaskParams(
+		deleteSIPTaskID,
+		enums.TaskStatusInProgress,
+		"Delete original SIP",
+		fmt.Sprintf("The original SIP will be deleted in %s", retentionPeriod),
+	)
+	expectations["createTask"](s, params)
+
+	s.env.OnActivity(
+		activities.DeleteOriginalFromInternalBucketActivityName,
+		sessionCtx,
+		&bucketdelete.Params{Key: key},
+	).Return(&bucketdelete.Result{}, nil)
+
+	params.updateTaskParams(deleteSIPTaskID, enums.TaskStatusDone, "", "SIP successfully deleted")
+	expectations["completeTask"](s, params)
+	expectations["updateSIPIngested"](s, params)
+	expectations["completeWorkflow"](s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		Type:            enums.WorkflowTypeCreateAip,
+		RetentionPeriod: retentionPeriod,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+		Extension:       ".zip",
+	}, false)
+}
+
+// TestInternalUploadError tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
 // - Extraction error.
 // - Move to failed SIP (internal bucket).
 // - Internal bucket download (with preprocessing).
-func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
+func (s *ProcessingWorkflowTestSuite) TestInternalUploadError() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:           a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation:  pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
@@ -619,4 +684,119 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		SIPName:   sipName,
 		Extension: ".zip",
 	}, true)
+}
+
+// TestSIPSourceUpload tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - SIP source bucket download.
+// - SIP source retention period.
+func (s *ProcessingWorkflowTestSuite) TestSIPSourceUpload() {
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+	})
+
+	params := defaultParams()
+	expectations["setStatusInProgress"](s, params)
+	expectations["createWorkflow"](s, params)
+	params.updateTaskParams(copySIPTaskID, enums.TaskStatusInProgress, "Copy SIP to workspace", "")
+	expectations["createTask"](s, params)
+
+	s.env.OnActivity(
+		activities.DownloadFromSIPSourceActivityName,
+		sessionCtx,
+		&bucketdownload.Params{Key: key},
+	).Return(&bucketdownload.Result{FilePath: tempPath + "/" + key}, nil)
+
+	params.updateTaskParams(copySIPTaskID, enums.TaskStatusDone, "", "SIP successfully copied")
+	expectations["completeTask"](s, params)
+	expectations["getSIPExtension"](s, params)
+	expectations["archiveExtract"](s, params)
+	expectations["classifySIP"](s, params)
+	autoApproveA3mExpectations(s, params)
+
+	expectations["removePaths"](s, params)
+	params.updateTaskParams(
+		deleteSIPTaskID,
+		enums.TaskStatusInProgress,
+		"Delete original SIP",
+		fmt.Sprintf("The original SIP will be deleted in %s", retentionPeriod),
+	)
+	expectations["createTask"](s, params)
+
+	s.env.OnActivity(
+		activities.DeleteOriginalFromSIPSourceActivityName,
+		sessionCtx,
+		&bucketdelete.Params{Key: key},
+	).Return(&bucketdelete.Result{}, nil)
+
+	params.updateTaskParams(deleteSIPTaskID, enums.TaskStatusDone, "", "SIP successfully deleted")
+	expectations["completeTask"](s, params)
+	expectations["updateSIPIngested"](s, params)
+	expectations["completeWorkflow"](s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		Type:            enums.WorkflowTypeCreateAip,
+		RetentionPeriod: retentionPeriod,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+		SIPSourceID:     uuid.New(),
+	}, false)
+}
+
+// TestSIPDeletionError tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - Watched bucket download.
+// - Watched bucket original SIP deletion error.
+func (s *ProcessingWorkflowTestSuite) TestSIPDeletionError() {
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+	})
+
+	params := defaultParams()
+	downloadExpectations(s, params)
+	expectations["archiveExtract"](s, params)
+	expectations["classifySIP"](s, params)
+	autoApproveA3mExpectations(s, params)
+	expectations["removePaths"](s, params)
+	params.updateTaskParams(
+		deleteSIPTaskID,
+		enums.TaskStatusInProgress,
+		"Delete original SIP",
+		fmt.Sprintf("The original SIP will be deleted in %s", retentionPeriod),
+	)
+	expectations["createTask"](s, params)
+
+	// Fail the deletion of the original SIP.
+	s.env.OnActivity(
+		activities.DeleteOriginalActivityName,
+		sessionCtx,
+		watcherName,
+		key,
+	).Return(nil, errors.New("deletion error"))
+
+	params.updateTaskParams(
+		deleteSIPTaskID,
+		enums.TaskStatusError,
+		"",
+		"System error: Original SIP deletion has failed.\n\nAn error has occurred while attempting to delete the original SIP.",
+	)
+	expectations["completeTask"](s, params)
+	expectations["updateSIPIngested"](s, params)
+	expectations["completeWorkflow"](s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		WatcherName:     watcherName,
+		RetentionPeriod: retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAip,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, false)
 }

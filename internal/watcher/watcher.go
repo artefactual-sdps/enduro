@@ -39,7 +39,7 @@ type Watcher interface {
 	// OpenBucket returns the bucket where the blobs can be found.
 	OpenBucket(ctx context.Context) (*blob.Bucket, error)
 
-	RetentionPeriod() *time.Duration
+	RetentionPeriod() time.Duration
 	CompletedDir() string
 	WorkflowType() enums.WorkflowType
 
@@ -51,7 +51,7 @@ type Watcher interface {
 
 type commonWatcherImpl struct {
 	name            string
-	retentionPeriod *time.Duration
+	retentionPeriod time.Duration
 	completedDir    string
 	workflowType    enums.WorkflowType
 }
@@ -60,7 +60,7 @@ func (w *commonWatcherImpl) String() string {
 	return w.name
 }
 
-func (w *commonWatcherImpl) RetentionPeriod() *time.Duration {
+func (w *commonWatcherImpl) RetentionPeriod() time.Duration {
 	return w.retentionPeriod
 }
 

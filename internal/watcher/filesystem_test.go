@@ -149,9 +149,10 @@ func TestFileSystemWatcher(t *testing.T) {
 		ctx := t.Context()
 
 		w, err := watcher.NewFilesystemWatcher(ctx, &watcher.FilesystemConfig{
-			Name:         "filesystem",
-			Path:         src.Path(),
-			CompletedDir: dest.Path(),
+			Name:            "filesystem",
+			Path:            src.Path(),
+			CompletedDir:    dest.Path(),
+			RetentionPeriod: -1 * time.Second,
 		})
 		assert.NilError(t, err)
 

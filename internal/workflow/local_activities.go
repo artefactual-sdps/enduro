@@ -226,10 +226,9 @@ func createTaskLocalActivity(
 }
 
 type completeTaskLocalActivityParams struct {
-	ID          int
-	Status      enums.TaskStatus
-	CompletedAt time.Time
-	Note        *string
+	ID     int
+	Status enums.TaskStatus
+	Note   *string
 }
 
 type completeTaskLocalActivityResult struct{}
@@ -243,7 +242,7 @@ func completeTaskLocalActivity(
 		ctx,
 		params.ID,
 		params.Status,
-		params.CompletedAt,
+		time.Now().UTC(),
 		params.Note,
 	)
 }

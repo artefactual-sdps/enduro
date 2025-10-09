@@ -70,8 +70,8 @@ func TestNewBucketSource(t *testing.T) {
 
 			assert.NilError(t, err)
 			assert.DeepEqual(t, got, tt.want,
-				// We can't compare the bucket directly, so ignore it.
-				cmpopts.IgnoreFields(sipsource.BucketSource{}, "Bucket"),
+				// We can't compare the Bucket and retentionPeriod directly, so ignore them.
+				cmpopts.IgnoreFields(sipsource.BucketSource{}, "Bucket", "retentionPeriod"),
 			)
 		})
 	}
@@ -202,6 +202,79 @@ func TestListItems(t *testing.T) {
 				cmpopts.EquateApproxTime(1*time.Second),
 				cmpopts.IgnoreUnexported(blob.ListObject{}),
 			)
+		})
+	}
+}
+
+func TestRetentionPeriod(t *testing.T) {
+	t.Parallel()
+
+	sourceID := uuid.New()
+	negativeDuration := -1 * time.Second
+	zeroDuration := 0 * time.Second
+	oneHour := 1 * time.Hour
+
+	for _, tt := range []struct {
+		name string
+		cfg  *sipsource.Config
+		want time.Duration
+	}{
+		{
+			name: "Returns zero retention period when not configured",
+			cfg: &sipsource.Config{
+				ID:   sourceID,
+				Name: "Test SIP Source",
+				Bucket: &bucket.Config{
+					URL: "mem://",
+				},
+			},
+			want: 0,
+		},
+		{
+			name: "Returns zero retention period when configured as 0",
+			cfg: &sipsource.Config{
+				ID:   sourceID,
+				Name: "Test SIP Source",
+				Bucket: &bucket.Config{
+					URL: "mem://",
+				},
+				RetentionPeriod: zeroDuration,
+			},
+			want: zeroDuration,
+		},
+		{
+			name: "Returns configured retention period of 1 hour",
+			cfg: &sipsource.Config{
+				ID:   sourceID,
+				Name: "Test SIP Source",
+				Bucket: &bucket.Config{
+					URL: "mem://",
+				},
+				RetentionPeriod: oneHour,
+			},
+			want: oneHour,
+		},
+		{
+			name: "Returns configured negative retention period",
+			cfg: &sipsource.Config{
+				ID:   sourceID,
+				Name: "Test SIP Source",
+				Bucket: &bucket.Config{
+					URL: "mem://",
+				},
+				RetentionPeriod: negativeDuration,
+			},
+			want: negativeDuration,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			source, err := sipsource.NewBucketSource(context.Background(), tt.cfg)
+			assert.NilError(t, err)
+			defer source.Close()
+
+			assert.Equal(t, source.RetentionPeriod(), tt.want)
 		})
 	}
 }

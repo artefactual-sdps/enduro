@@ -41,9 +41,9 @@ type ProcessingWorkflowRequest struct {
 	// The ID of the SIP source.
 	SIPSourceID uuid.UUID
 
-	// The period of time to schedule the deletion of the original blob from the
-	// watched data source, nil means no deletion.
-	RetentionPeriod *time.Duration
+	// RetentionPeriod is the duration for which SIPs should be retained after
+	// a successful ingest. If negative, SIPs will be retained indefinitely.
+	RetentionPeriod time.Duration
 
 	// The directory where the transfer is moved to once processing has completed
 	// successfully.

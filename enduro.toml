@@ -132,6 +132,11 @@ bucket = "sips"
 # the later only works properly when the preservation system is "a3m".
 # Default: "create aip".
 workflowType = "create aip"
+# retentionPeriod is the duration to retain SIPs before they are deleted after a
+# successful ingest. Set to a negative value to disable automatic deletion of SIPs.
+# Set to "0" (default) to delete SIPs immediately after they have been ingested.
+# It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
+retentionPeriod = "0"
 
 [storage]
 enduroAddress = "enduro.enduro-sdps:9002"
@@ -243,6 +248,11 @@ passphrase = ""
 # maxSize is the maximum upload size allowed by the server in bytes.
 # Default: 4294967296 (4 GiB).
 maxSize = 4294967296
+# retentionPeriod is the duration to retain SIPs before they are deleted after a
+# successful ingest. Set to a negative value to disable automatic deletion of SIPs.
+# Set to "0" (default) to delete SIPs immediately after they have been ingested.
+# It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
+retentionPeriod = "0"
 
 # internalStorage section configures a bucket where Enduro will place uploaded
 # SIPs and failed SIPs/PIPs. Make sure it doesn't match any of the watched buckets.
@@ -268,6 +278,11 @@ storageKey = ""
 id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
 # name is a human-readable name for the SIP Source.
 name = "MinIO SIP Source"
+# retentionPeriod is the duration to retain SIPs before they are deleted after a
+# successful ingest. Set to a negative value to disable automatic deletion of SIPs.
+# Set to "0" (default) to delete SIPs immediately after they have been ingested.
+# It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
+retentionPeriod = "0"
 
 # sipsource.bucket is a bucket where SIPs can be put for ingest — make sure it
 # doesn't match any of the watched buckets.

@@ -147,6 +147,14 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		bucketupload.New(memblob.OpenBucket(nil)).Execute,
 		temporalsdk_activity.RegisterOptions{Name: bucketupload.Name},
 	)
+	s.env.RegisterActivityWithOptions(
+		bucketdelete.New(nil).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalFromSIPSourceActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
+		bucketdelete.New(nil).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalFromInternalBucketActivityName},
+	)
 
 	s.env.RegisterWorkflowWithOptions(
 		preprocessingChildWorkflow,

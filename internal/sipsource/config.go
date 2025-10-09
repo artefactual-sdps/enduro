@@ -3,6 +3,7 @@ package sipsource
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/bucket"
@@ -28,6 +29,10 @@ type Config struct {
 
 	// Bucket is the configuration for the bucket to be used as the SIP source.
 	Bucket *bucket.Config
+
+	// RetentionPeriod is the duration for which SIPs should be retained after
+	// a successful ingest. If negative, SIPs will be retained indefinitely.
+	RetentionPeriod time.Duration
 }
 
 func (c *Config) Validate() error {

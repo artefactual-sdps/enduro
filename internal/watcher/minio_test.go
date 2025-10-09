@@ -41,7 +41,7 @@ func newWatcher(t *testing.T, updateCfg func(c *watcher.MinioConfig)) (*miniredi
 		Secret:          "secret",
 		Token:           "token",
 		Bucket:          "bucket",
-		RetentionPeriod: &dur,
+		RetentionPeriod: dur,
 	}
 
 	// Modify default config.

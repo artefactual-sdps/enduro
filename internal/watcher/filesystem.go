@@ -54,7 +54,7 @@ func NewFilesystemWatcher(ctx context.Context, config *FilesystemConfig) (*files
 		}
 	}
 
-	if config.CompletedDir != "" && config.RetentionPeriod != nil {
+	if config.CompletedDir != "" && config.RetentionPeriod >= 0 {
 		return nil, errors.New("cannot use completedDir and retentionPeriod simultaneously")
 	}
 

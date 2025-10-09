@@ -246,32 +246,26 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		}
 	}
 
-	// Schedule deletion of the original in the watched data source.
-	{
-		if state.status == enums.WorkflowStatusDone {
-			if req.RetentionPeriod != nil {
-				err := temporalsdk_workflow.NewTimer(ctx, *req.RetentionPeriod).Get(ctx, nil)
-				if err != nil {
-					w.logger.Warn("Retention policy timer failed", "err", err.Error())
-				} else {
-					activityOpts := withActivityOptsForRequest(ctx)
-					_ = temporalsdk_workflow.ExecuteActivity(
-						activityOpts,
-						activities.DeleteOriginalActivityName,
-						req.WatcherName,
-						req.Key,
-					).Get(activityOpts, nil)
-				}
-			} else if req.CompletedDir != "" {
-				activityOpts := withActivityOptsForLocalAction(ctx)
-				_ = temporalsdk_workflow.ExecuteActivity(
-					activityOpts,
-					activities.DisposeOriginalActivityName,
-					req.WatcherName,
-					req.CompletedDir,
-					req.Key,
-				).Get(activityOpts, nil)
-			}
+	if state.status != enums.WorkflowStatusDone {
+		return nil
+	}
+
+	// Schedule deletion or disposal of the original SIP.
+	if req.RetentionPeriod >= 0 {
+		if err := w.deleteOriginalSIP(ctx, state); err != nil {
+			w.logger.Error("Failed to delete original SIP", "err", err.Error())
+		}
+	} else if req.CompletedDir != "" {
+		activityOpts := withActivityOptsForLocalAction(ctx)
+		err := temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			activities.DisposeOriginalActivityName,
+			req.WatcherName,
+			req.CompletedDir,
+			req.Key,
+		).Get(activityOpts, nil)
+		if err != nil {
+			w.logger.Error("Failed to dispose original SIP", "err", err.Error())
 		}
 	}
 
@@ -630,10 +624,9 @@ func (w *ProcessingWorkflow) transferA3m(
 	if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
 		ctx := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
-			ID:          uploadTaskID,
-			Status:      enums.TaskStatusDone,
-			CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
-			Note:        ref.New("Moved to review bucket"),
+			ID:     uploadTaskID,
+			Status: enums.TaskStatusDone,
+			Note:   ref.New("Moved to review bucket"),
 		}).
 			Get(ctx, nil)
 		if err != nil {
@@ -708,17 +701,14 @@ func (w *ProcessingWorkflow) transferA3m(
 		}
 	}
 
-	reviewCompletedAt := temporalsdk_workflow.Now(sessCtx).UTC()
-
 	if reviewResult.Accepted {
 		// Record SIP/AIP confirmation in review task.
 		if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
-				ID:          reviewTaskID,
-				Status:      enums.TaskStatusDone,
-				CompletedAt: reviewCompletedAt,
-				Note:        ref.New("Reviewed and accepted"),
+				ID:     reviewTaskID,
+				Status: enums.TaskStatusDone,
+				Note:   ref.New("Reviewed and accepted"),
 			}).
 				Get(ctx, nil)
 			if err != nil {
@@ -775,10 +765,9 @@ func (w *ProcessingWorkflow) transferA3m(
 		{
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
-				ID:          moveTaskID,
-				Status:      enums.TaskStatusDone,
-				CompletedAt: temporalsdk_workflow.Now(sessCtx).UTC(),
-				Note:        ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
+				ID:     moveTaskID,
+				Status: enums.TaskStatusDone,
+				Note:   ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
 			}).
 				Get(ctx, nil)
 			if err != nil {
@@ -794,10 +783,9 @@ func (w *ProcessingWorkflow) transferA3m(
 		{
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
-				ID:          reviewTaskID,
-				Status:      enums.TaskStatusDone,
-				CompletedAt: reviewCompletedAt,
-				Note:        ref.New("Reviewed and rejected"),
+				ID:     reviewTaskID,
+				Status: enums.TaskStatusDone,
+				Note:   ref.New("Reviewed and rejected"),
 			}).Get(ctx, nil)
 			if err != nil {
 				return err
@@ -1128,10 +1116,9 @@ func (w *ProcessingWorkflow) completeTask(
 		completeTaskLocalActivity,
 		w.ingestsvc,
 		&completeTaskLocalActivityParams{
-			ID:          task.ID,
-			Status:      task.Status,
-			CompletedAt: temporalsdk_workflow.Now(ctx).UTC(),
-			Note:        ref.New(task.Note),
+			ID:     task.ID,
+			Status: task.Status,
+			Note:   ref.New(task.Note),
 		},
 	).Get(ctx, nil)
 	if err != nil {

@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"fmt"
 	"path/filepath"
 	"time"
 
@@ -13,7 +14,6 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
-	"go.artefactual.dev/tools/ref"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
@@ -38,6 +38,7 @@ const (
 	uploadTaskID     = 103
 	reviewAIPTaskID  = 104
 	moveAIPTaskID    = 105
+	deleteSIPTaskID  = 106
 	sipName          = "name.zip"
 	key              = "transfer.zip"
 	watcherName      = "watcher"
@@ -54,7 +55,7 @@ var (
 	aipUUID         = uuid.MustParse("9e8161cc-2815-4d6f-8a75-f003c41b257b")
 	workflowUUID    = uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
 	startTime       = time.Date(2024, 7, 9, 16, 55, 13, 50, time.UTC)
-	retentionPeriod = ref.New(time.Second)
+	retentionPeriod = time.Second
 )
 
 // expectationParams holds configurable parameters for setting up activity expectations.
@@ -106,6 +107,9 @@ type expectationParams struct {
 
 	// PREMIS XML file path for validation.
 	premisXMLPath string
+
+	// Retention period for original SIP deletion.
+	retentionPeriod time.Duration
 }
 
 // defaultParams returns a new expectationParams instance with sensible defaults.
@@ -113,14 +117,15 @@ type expectationParams struct {
 // on each expectation (like taskID, taskName, etc.) are left as zero values.
 func defaultParams() expectationParams {
 	return expectationParams{
-		sipType:        enums.SIPTypeUnknown,
-		workflowType:   enums.WorkflowTypeCreateAip,
-		workflowStatus: enums.WorkflowStatusPending,
-		removePaths:    []string{tempPath, transferPath},
-		extractPath:    extractPath,
-		downloadPath:   tempPath + "/" + key,
-		failedPath:     tempPath + "/" + key,
-		premisXMLPath:  filepath.Join(transferPath, "metadata", "premis.xml"),
+		sipType:         enums.SIPTypeUnknown,
+		workflowType:    enums.WorkflowTypeCreateAip,
+		workflowStatus:  enums.WorkflowStatusPending,
+		removePaths:     []string{tempPath, transferPath},
+		extractPath:     extractPath,
+		downloadPath:    tempPath + "/" + key,
+		failedPath:      tempPath + "/" + key,
+		premisXMLPath:   filepath.Join(transferPath, "metadata", "premis.xml"),
+		retentionPeriod: retentionPeriod,
 	}
 }
 
@@ -228,10 +233,9 @@ var expectations = map[string]expectationFunc{
 			ctx,
 			s.workflow.ingestsvc,
 			&completeTaskLocalActivityParams{
-				ID:          params.taskID,
-				Status:      params.taskStatus,
-				CompletedAt: startTime,
-				Note:        taskNote,
+				ID:     params.taskID,
+				Status: params.taskStatus,
+				Note:   taskNote,
 			},
 		).Return(&completeTaskLocalActivityResult{}, nil)
 	},
@@ -473,7 +477,18 @@ func autoApproveA3mExpectations(s *ProcessingWorkflowTestSuite, params expectati
 
 func cleanupExpectations(s *ProcessingWorkflowTestSuite, params expectationParams) {
 	expectations["removePaths"](s, params)
-	expectations["deleteOriginal"](s, params)
+	if params.retentionPeriod >= 0 {
+		params.updateTaskParams(
+			deleteSIPTaskID,
+			enums.TaskStatusInProgress,
+			"Delete original SIP",
+			fmt.Sprintf("The original SIP will be deleted in %s", params.retentionPeriod),
+		)
+		expectations["createTask"](s, params)
+		expectations["deleteOriginal"](s, params)
+		params.updateTaskParams(deleteSIPTaskID, enums.TaskStatusDone, "", "SIP successfully deleted")
+		expectations["completeTask"](s, params)
+	}
 	expectations["updateSIPIngested"](s, params)
 	expectations["completeWorkflow"](s, params)
 }

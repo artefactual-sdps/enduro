@@ -18,8 +18,9 @@ type BlobEvent struct {
 	// Name of the watcher that received this blob.
 	WatcherName string
 
-	// Retention period for this blob.
-	RetentionPeriod *time.Duration
+	// RetentionPeriod is the duration for which SIPs should be retained after
+	// a successful ingest. If negative, SIPs will be retained indefinitely.
+	RetentionPeriod time.Duration
 
 	// Directory where the transfer is moved to once processing has completed
 	// successfully.

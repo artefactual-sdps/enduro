@@ -198,10 +198,10 @@ func (c *MockWatcherPathCall) DoAndReturn(f func() string) *MockWatcherPathCall 
 }
 
 // RetentionPeriod mocks base method.
-func (m *MockWatcher) RetentionPeriod() *time.Duration {
+func (m *MockWatcher) RetentionPeriod() time.Duration {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "RetentionPeriod")
-	ret0, _ := ret[0].(*time.Duration)
+	ret0, _ := ret[0].(time.Duration)
 	return ret0
 }
 
@@ -218,19 +218,19 @@ type MockWatcherRetentionPeriodCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockWatcherRetentionPeriodCall) Return(arg0 *time.Duration) *MockWatcherRetentionPeriodCall {
+func (c *MockWatcherRetentionPeriodCall) Return(arg0 time.Duration) *MockWatcherRetentionPeriodCall {
 	c.Call = c.Call.Return(arg0)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockWatcherRetentionPeriodCall) Do(f func() *time.Duration) *MockWatcherRetentionPeriodCall {
+func (c *MockWatcherRetentionPeriodCall) Do(f func() time.Duration) *MockWatcherRetentionPeriodCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockWatcherRetentionPeriodCall) DoAndReturn(f func() *time.Duration) *MockWatcherRetentionPeriodCall {
+func (c *MockWatcherRetentionPeriodCall) DoAndReturn(f func() time.Duration) *MockWatcherRetentionPeriodCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

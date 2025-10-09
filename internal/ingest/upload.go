@@ -8,6 +8,7 @@ import (
 	"mime"
 	"mime/multipart"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/mholt/archives"
@@ -21,6 +22,10 @@ import (
 
 type UploadConfig struct {
 	MaxSize int64
+
+	// RetentionPeriod is the duration for which SIPs should be retained after
+	// a successful ingest. If negative, SIPs will be retained indefinitely.
+	RetentionPeriod time.Duration
 }
 
 func (w *goaWrapper) UploadSip(
@@ -127,11 +132,12 @@ func (w *goaWrapper) initSIP(
 	}
 
 	req := ProcessingWorkflowRequest{
-		SIPUUID:   id,
-		SIPName:   name,
-		Type:      wType,
-		Key:       key,
-		Extension: extension,
+		SIPUUID:         id,
+		SIPName:         name,
+		Type:            wType,
+		Key:             key,
+		Extension:       extension,
+		RetentionPeriod: w.uploadRetentionPeriod,
 	}
 	if err := InitProcessingWorkflow(ctx, w.tc, w.taskQueue, &req); err != nil {
 		// Delete SIP from persistence.

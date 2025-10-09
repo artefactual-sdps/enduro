@@ -254,7 +254,8 @@ func main() {
 		)
 		// TODO: At some point there may be multiple SIP sources, this activity should
 		// work similar to the watched bucket download activity and use the source ID
-		// to determine which bucket to use.
+		// to determine which bucket to use. Alternatively, we could register multiple
+		// copies of this activity, one per source.
 		w.RegisterActivityWithOptions(
 			bucketdownload.New(sipSource.Bucket).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.DownloadFromSIPSourceActivityName},

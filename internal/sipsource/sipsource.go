@@ -12,6 +12,10 @@ type SIPSource interface {
 
 	// Close releases resources associated with the SIP source.
 	Close() error
+
+	// RetentionPeriod returns the duration for which SIPs should be retained
+	// after a successful ingest. If negative, SIPs will be retained indefinitely.
+	RetentionPeriod() time.Duration
 }
 
 // Page is a paginated list of SIP source objects.

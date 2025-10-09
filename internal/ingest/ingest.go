@@ -61,37 +61,39 @@ type Service interface {
 }
 
 type ingestImpl struct {
-	logger          logr.Logger
-	db              *sqlx.DB
-	tc              temporalsdk_client.Client
-	evsvc           event.Service[*goaingest.IngestEvent]
-	perSvc          persistence.Service
-	tokenVerifier   auth.TokenVerifier
-	ticketProvider  auth.TicketProvider
-	taskQueue       string
-	internalStorage *blob.Bucket
-	uploadMaxSize   int64
-	rander          io.Reader
-	sipSource       sipsource.SIPSource
-	auditLogger     *auditlog.Logger
+	logger                logr.Logger
+	db                    *sqlx.DB
+	tc                    temporalsdk_client.Client
+	evsvc                 event.Service[*goaingest.IngestEvent]
+	perSvc                persistence.Service
+	tokenVerifier         auth.TokenVerifier
+	ticketProvider        auth.TicketProvider
+	taskQueue             string
+	internalStorage       *blob.Bucket
+	uploadMaxSize         int64
+	uploadRetentionPeriod time.Duration
+	rander                io.Reader
+	sipSource             sipsource.SIPSource
+	auditLogger           *auditlog.Logger
 }
 
 var _ Service = (*ingestImpl)(nil)
 
 type ServiceParams struct {
-	Logger             logr.Logger
-	DB                 *sql.DB
-	TemporalClient     temporalsdk_client.Client
-	EventService       event.Service[*goaingest.IngestEvent]
-	PersistenceService persistence.Service
-	TokenVerifier      auth.TokenVerifier
-	TicketProvider     auth.TicketProvider
-	TaskQueue          string
-	InternalStorage    *blob.Bucket
-	UploadMaxSize      int64
-	Rander             io.Reader
-	SIPSource          sipsource.SIPSource
-	AuditLogger        *auditlog.Logger
+	Logger                logr.Logger
+	DB                    *sql.DB
+	TemporalClient        temporalsdk_client.Client
+	EventService          event.Service[*goaingest.IngestEvent]
+	PersistenceService    persistence.Service
+	TokenVerifier         auth.TokenVerifier
+	TicketProvider        auth.TicketProvider
+	TaskQueue             string
+	InternalStorage       *blob.Bucket
+	UploadMaxSize         int64
+	UploadRetentionPeriod time.Duration
+	Rander                io.Reader
+	SIPSource             sipsource.SIPSource
+	AuditLogger           *auditlog.Logger
 }
 
 func NewService(params ServiceParams) *ingestImpl {
