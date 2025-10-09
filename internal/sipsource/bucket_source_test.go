@@ -83,8 +83,7 @@ func TestListItems(t *testing.T) {
 	type test struct {
 		name    string
 		cfg     *sipsource.Config
-		token   []byte
-		limit   int
+		opts    sipsource.ListOptions
 		want    *sipsource.Page
 		wantErr string
 	}
@@ -114,7 +113,7 @@ func TestListItems(t *testing.T) {
 					},
 				},
 				Limit:     100, // Default limit.
-				NextToken: nil,
+				NextToken: []byte("sip2"),
 			},
 		},
 		{
@@ -126,7 +125,9 @@ func TestListItems(t *testing.T) {
 					URL: "mem://",
 				},
 			},
-			limit: 1,
+			opts: sipsource.ListOptions{
+				Limit: 1,
+			},
 			want: &sipsource.Page{
 				Objects: []*sipsource.Object{
 					{
@@ -149,8 +150,10 @@ func TestListItems(t *testing.T) {
 					URL: "mem://",
 				},
 			},
-			token: []byte("sip1"),
-			limit: 1,
+			opts: sipsource.ListOptions{
+				Token: []byte("sip1"),
+				Limit: 1,
+			},
 			want: &sipsource.Page{
 				Objects: []*sipsource.Object{
 					{
@@ -161,12 +164,73 @@ func TestListItems(t *testing.T) {
 					},
 				},
 				Limit:     1,
-				NextToken: nil,
+				NextToken: []byte("sip2"),
+			},
+		},
+		{
+			name: "Returns a nil page if the token is the last object",
+			cfg: &sipsource.Config{
+				ID:   uuid.New(),
+				Name: "Test bucket source",
+				Bucket: &bucket.Config{
+					URL: "mem://",
+				},
+			},
+			opts: sipsource.ListOptions{
+				Token: []byte("sip2"),
+				Limit: 1,
+			},
+		},
+		{
+			// Test sort by key because the ModTime values are the same for both
+			// objects.
+			name: "Sorts by key descending",
+			cfg: &sipsource.Config{
+				ID:   uuid.New(),
+				Name: "Test bucket source",
+				Bucket: &bucket.Config{
+					URL: "mem://",
+				},
+			},
+			opts: sipsource.ListOptions{
+				Sort: sipsource.SortByKey().Desc(),
+			},
+			want: &sipsource.Page{
+				Objects: []*sipsource.Object{
+					{
+						Key:     "sip2",
+						ModTime: time.Now(),
+						Size:    int64(len("SIP 2 content")),
+						IsDir:   false,
+					},
+					{
+						Key:     "sip1",
+						ModTime: time.Now(),
+						Size:    int64(len("SIP 1 content")),
+						IsDir:   false,
+					},
+				},
+				Limit:     100,
+				NextToken: []byte("sip1"),
 			},
 		},
 		{
 			name:    "Returns an error if the bucket is not configured",
-			wantErr: "SIP source: missing bucket",
+			wantErr: "invalid SIP source",
+		},
+		{
+			name: "Returns an error if the token is invalid",
+			cfg: &sipsource.Config{
+				ID:   uuid.New(),
+				Name: "Test bucket source",
+				Bucket: &bucket.Config{
+					URL: "mem://",
+				},
+			},
+			opts: sipsource.ListOptions{
+				Token: []byte("nonexistent"),
+			},
+			wantErr: "invalid token",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -192,7 +256,7 @@ func TestListItems(t *testing.T) {
 				}
 			}
 
-			got, err := source.ListObjects(ctx, tt.token, tt.limit)
+			got, err := source.ListObjects(ctx, tt.opts)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

@@ -321,10 +321,20 @@ func (w *goaWrapper) ListSipSourceObjects(
 		cursor = []byte(*payload.Cursor)
 	}
 
-	page, err := w.sipSource.ListObjects(ctx, cursor, ref.DerefZero(payload.Limit))
+	page, err := w.sipSource.ListObjects(
+		ctx,
+		sipsource.ListOptions{
+			Token: cursor,
+			Limit: ref.DerefZero(payload.Limit),
+			Sort:  sipsource.SortByModTime().Desc(),
+		},
+	)
 	if err != nil {
-		if errors.Is(err, sipsource.ErrMissingBucket) {
-			return nil, goaingest.MakeNotFound(errors.New("SIP source not found"))
+		if errors.Is(err, sipsource.ErrInvalidSource) {
+			return nil, goaingest.MakeNotFound(errors.New("SIP Source not found"))
+		}
+		if errors.Is(err, sipsource.ErrInvalidToken) {
+			return nil, goaingest.MakeNotValid(errors.New("invalid cursor"))
 		}
 
 		w.logger.Error(err, "Listing SIP source objects")

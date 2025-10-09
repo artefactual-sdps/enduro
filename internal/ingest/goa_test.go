@@ -602,8 +602,10 @@ func TestListSIPSourceObjects(t *testing.T) {
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
 				mr.ListObjects(
 					mockutil.Context(),
-					nil,
-					10,
+					sipsource.ListOptions{
+						Limit: 10,
+						Sort:  sipsource.SortByModTime().Desc(),
+					},
 				).Return(
 					&sipsource.Page{
 						Objects: []*sipsource.Object{
@@ -637,8 +639,11 @@ func TestListSIPSourceObjects(t *testing.T) {
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
 				mr.ListObjects(
 					mockutil.Context(),
-					[]byte("page-token"),
-					10,
+					sipsource.ListOptions{
+						Limit: 10,
+						Token: []byte("page-token"),
+						Sort:  sipsource.SortByModTime().Desc(),
+					},
 				).Return(
 					&sipsource.Page{
 						Objects: []*sipsource.Object{
@@ -661,26 +666,50 @@ func TestListSIPSourceObjects(t *testing.T) {
 			},
 		},
 		{
-			name: "Returns an not found error when SIP source does not exist",
+			name: "Returns a not found error when SIP source does not exist",
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
 				mr.ListObjects(
 					mockutil.Context(),
-					nil,
-					0,
+					sipsource.ListOptions{
+						Sort: sipsource.SortByModTime().Desc(),
+					},
 				).Return(
 					nil,
-					sipsource.ErrMissingBucket,
+					sipsource.ErrInvalidSource,
 				)
 			},
-			wantErr: "SIP source not found",
+			wantErr: "SIP Source not found",
+		},
+		{
+			name: "Returns an error when a bad cursor token is provided",
+			payload: &goaingest.ListSipSourceObjectsPayload{
+				UUID:   sourceID.String(),
+				Limit:  ref.New(10),
+				Cursor: ref.New("bad-token"),
+			},
+			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
+				mr.ListObjects(
+					mockutil.Context(),
+					sipsource.ListOptions{
+						Limit: 10,
+						Token: []byte("bad-token"),
+						Sort:  sipsource.SortByModTime().Desc(),
+					},
+				).Return(
+					nil,
+					sipsource.ErrInvalidToken,
+				)
+			},
+			wantErr: "invalid cursor",
 		},
 		{
 			name: "Returns an internal error",
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
 				mr.ListObjects(
 					mockutil.Context(),
-					nil,
-					0,
+					sipsource.ListOptions{
+						Sort: sipsource.SortByModTime().Desc(),
+					},
 				).Return(
 					nil,
 					errors.New("internal error"),
@@ -693,8 +722,9 @@ func TestListSIPSourceObjects(t *testing.T) {
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
 				mr.ListObjects(
 					mockutil.Context(),
-					nil,
-					0,
+					sipsource.ListOptions{
+						Sort: sipsource.SortByModTime().Desc(),
+					},
 				).Return(
 					&sipsource.Page{
 						Objects: []*sipsource.Object{},
