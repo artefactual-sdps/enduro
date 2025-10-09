@@ -3,14 +3,14 @@ package sipsource
 import (
 	"context"
 	"fmt"
+	"io"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/bucket"
 	"gocloud.dev/blob"
 )
-
-const defaultLimit = 100
 
 // BucketSource represents a SIP source that uses a cloud storage bucket
 // to store SIPs. It implements the SIPSource interface.
@@ -59,47 +59,84 @@ func (s *BucketSource) Close() error {
 	return nil
 }
 
-// ListObjects returns a paged list of items in the SIP source bucket.
+// ListObjects returns a paged list of items in the SIP source bucket with the
+// provided options.
 //
-// If the token parameter is nil, the first page of items will be returned.
-// Subsequent calls to ListObjects should provide the NextToken from the previous
-// response to retrieve the next page.
-//
-// The limit parameter specifies the maximum number of items to return. If limit
-// is less than or equal to zero, the page limit will be set to defaultLimit.
-//
-// If the paged query returns no items (e.g. the items were deleted) ListObjects
-// returns a nil Page.
+// See the sipsource.ListOptions comments for details on how to use the options.
 //
 // If the source bucket is not configured properly or can not be accessed,
-// ListObjects returns an ErrInvalidBucket error.
-func (s *BucketSource) ListObjects(ctx context.Context, token []byte, limit int) (*Page, error) {
+// ListObjects returns an ErrInvalidSource error. If an invalid page token is
+// provided, ListObjects returns an ErrInvalidToken error. If the query returns
+// no items (e.g. there are no more results) ListObjects returns a nil Page.
+//
+// The current implementation retrieves all objects from the bucket, sorts them
+// in memory, and then paginates the results. This solution will not scale for
+// buckets with a very large number of objects, but it is sufficient for the
+// current use cases.
+func (s *BucketSource) ListObjects(ctx context.Context, opts ListOptions) (*Page, error) {
 	if s.Bucket == nil {
-		return nil, ErrMissingBucket
+		return nil, ErrInvalidSource
 	}
-	if token == nil {
-		token = blob.FirstPageToken
-	}
-	if limit <= 0 {
-		limit = defaultLimit
+	if opts.Limit <= 0 {
+		opts.Limit = defaultLimit
 	}
 
-	r, next, err := s.Bucket.ListPage(ctx, token, limit, nil)
-	if err != nil {
-		return nil, fmt.Errorf("SIP bucket source: list items: %w", err)
-	}
-
-	objects := make([]*Object, len(r))
-	for i, obj := range r {
-		objects[i] = &Object{
-			Key:     obj.Key,
-			ModTime: obj.ModTime,
-			Size:    obj.Size,
-			IsDir:   obj.IsDir,
+	// Get all the objects in the bucket.
+	var objects []*Object
+	iter := s.Bucket.List(nil)
+	for {
+		i, err := iter.Next(ctx)
+		if err == io.EOF {
+			break
 		}
+		if err != nil {
+			return nil, fmt.Errorf("SIP bucket source: list objects: %w", err)
+		}
+		objects = append(objects, &Object{
+			Key:     i.Key,
+			ModTime: i.ModTime,
+			Size:    i.Size,
+			IsDir:   i.IsDir,
+		})
 	}
 
-	return &Page{Objects: objects, Limit: limit, NextToken: next}, nil
+	// Sort the objects if a sort is specified.
+	if opts.Sort != nil {
+		slices.SortFunc(objects, opts.Sort.Compare)
+	}
+
+	// Find the index of the first object after the token object.
+	first := 0
+	if opts.Token != nil {
+		index := slices.IndexFunc(objects, func(o *Object) bool {
+			return o.Key == string(opts.Token)
+		})
+
+		// If the token is not found return an error.
+		if index == -1 {
+			return nil, ErrInvalidToken
+		}
+
+		// If the token is the last object, return a nil page (no more results).
+		if index == len(objects)-1 {
+			return nil, nil
+		}
+
+		first = index + 1
+	}
+
+	// Limit the results to the max page size.
+	var page []*Object
+	if first+opts.Limit > len(objects) {
+		page = objects[first:]
+	} else {
+		page = objects[first : first+opts.Limit]
+	}
+
+	// The next token is the key of the last object of the page.
+	next := []byte(page[len(page)-1].Key)
+
+	return &Page{Objects: page, Limit: opts.Limit, NextToken: next}, nil
 }
 
 func (s *BucketSource) RetentionPeriod() time.Duration {
