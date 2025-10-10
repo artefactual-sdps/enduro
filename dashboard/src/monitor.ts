@@ -10,17 +10,11 @@ export type RetryOptions = {
   jitterFn: () => number;
 };
 
-export interface MonitorConnector {
-  dial(): Promise<void>;
-  isConnected(): boolean;
-  getWebSocketURL(url: string): string;
-  close(): void;
-}
-
-export class MonitorConnection {
+abstract class MonitorConnection {
   type: "ingest" | "storage";
   url: string;
   socket: WebSocket | null = null;
+  isConnected: boolean = false;
   retry: RetryOptions;
 
   constructor(
@@ -38,6 +32,8 @@ export class MonitorConnection {
       jitterFn: () => Math.random() * 500, // add up to 500ms of jitter.
     };
   }
+
+  abstract dial(): Promise<void>;
 
   getWebSocketURL(url: string): string {
     if (url.startsWith("https")) {
@@ -75,34 +71,35 @@ export class MonitorConnection {
     }
   }
 
-  isConnected(): boolean {
-    return this.socket !== null && this.socket.readyState === WebSocket.OPEN;
-  }
-
   close(): void {
     if (this.socket) {
-      this.socket.onclose = null; // Disable reconnection on close.
+      this.socket.onclose = null; // Disable reconnect on close.
       this.socket.close();
       this.socket = null;
     }
   }
 
-  async connectSocket(url: string): Promise<void> {
-    this.socket = new WebSocket(url);
+  setupEventHandlers(): void {
+    if (this.socket === null) {
+      return;
+    }
 
     this.socket.onopen = () => {
+      this.isConnected = true;
       console.log(`${this.type} monitor socket connected`);
     };
     this.socket.onerror = () => {
       console.error(`${this.type} monitor socket error`);
     };
+    this.socket.onclose = () => {
+      this.isConnected = false;
+      console.error(`${this.type} monitor socket closed, reconnecting...`);
+      this.dial();
+    };
   }
 }
 
-export class IngestMonitorConnection
-  extends MonitorConnection
-  implements MonitorConnector
-{
+export class IngestMonitorConnection extends MonitorConnection {
   constructor(baseUrl: string, retry?: RetryOptions) {
     super("ingest", baseUrl, retry);
   }
@@ -111,25 +108,14 @@ export class IngestMonitorConnection
     return this.retryBackoff(async () => {
       return client.ingest
         .ingestMonitorRequest()
-        .then(async () => {
-          return this.connectSocket(this.url).then(() => {
-            if (this.socket) {
-              // Reconnect on close.
-              this.socket.onclose = () => {
-                console.error("ingest monitor socket closed, reconnecting...");
-                this.dial();
-              };
-
-              // Handle incoming messages.
-              this.socket.onmessage = (ev: MessageEvent) => {
-                const body = JSON.parse(ev.data);
-                const data = api.IngestEventFromJSON(body);
-                if (data.ingestValue) {
-                  handleIngestEvent(data.ingestValue);
-                }
-              };
-            }
-          });
+        .then(() => {
+          try {
+            this.socket = new WebSocket(this.url);
+            this.setupEventHandlers();
+          } catch (err) {
+            console.error("Failed to create Web Socket:", err);
+            this.dial(); // Retry on failure.
+          }
         })
         .catch((err) => {
           console.error("Ingest monitor request failed:", err);
@@ -137,12 +123,26 @@ export class IngestMonitorConnection
         });
     });
   }
+
+  setupEventHandlers(): void {
+    if (this.socket === null) {
+      return;
+    }
+
+    super.setupEventHandlers();
+
+    // Handle incoming messages.
+    this.socket.onmessage = (ev: MessageEvent) => {
+      const body = JSON.parse(ev.data);
+      const data = api.IngestEventFromJSON(body);
+      if (data.ingestValue) {
+        handleIngestEvent(data.ingestValue);
+      }
+    };
+  }
 }
 
-export class StorageMonitorConnection
-  extends MonitorConnection
-  implements MonitorConnector
-{
+export class StorageMonitorConnection extends MonitorConnection {
   constructor(baseUrl: string, retry?: RetryOptions) {
     super("storage", baseUrl, retry);
   }
@@ -151,30 +151,36 @@ export class StorageMonitorConnection
     return this.retryBackoff(async () => {
       return client.storage
         .storageMonitorRequest()
-        .then(async () => {
-          return this.connectSocket(this.url).then(() => {
-            if (this.socket) {
-              // Reconnect on close.
-              this.socket.onclose = () => {
-                console.error("storage monitor socket closed, reconnecting...");
-                this.dial();
-              };
-
-              // Handle incoming messages.
-              this.socket.onmessage = (ev: MessageEvent) => {
-                const body = JSON.parse(ev.data);
-                const data = api.StorageEventFromJSON(body);
-                if (data.storageValue) {
-                  handleStorageEvent(data.storageValue);
-                }
-              };
-            }
-          });
+        .then(() => {
+          try {
+            this.socket = new WebSocket(this.url);
+            this.setupEventHandlers();
+          } catch (err) {
+            console.error("Failed to create Web Socket:", err);
+            this.dial(); // Retry on failure.
+          }
         })
         .catch((err) => {
           console.error("Storage monitor request failed:", err);
           throw err;
         });
     });
+  }
+
+  setupEventHandlers(): void {
+    if (this.socket === null) {
+      return;
+    }
+
+    super.setupEventHandlers();
+
+    // Handle incoming messages.
+    this.socket.onmessage = (ev: MessageEvent) => {
+      const body = JSON.parse(ev.data);
+      const data = api.StorageEventFromJSON(body);
+      if (data.storageValue) {
+        handleStorageEvent(data.storageValue);
+      }
+    };
   }
 }

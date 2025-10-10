@@ -32,12 +32,12 @@ describe("useIngestMonitorStore", () => {
     store.connect();
     await vi.runAllTimersAsync();
 
-    expect(store.conn.isConnected()).toBe(true);
+    expect(store.conn.isConnected).toBe(true);
 
     store.connect(); // second call, should be no-op
     await vi.runAllTimersAsync();
 
-    expect(store.conn.isConnected()).toBe(true);
+    expect(store.conn.isConnected).toBe(true);
 
     store.conn.close();
     server.close();

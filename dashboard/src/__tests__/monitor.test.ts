@@ -3,11 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import WS from "vitest-websocket-mock";
 
 import { client } from "@/client";
-import {
-  IngestMonitorConnection,
-  MonitorConnection,
-  StorageMonitorConnection,
-} from "@/monitor";
+import { IngestMonitorConnection, StorageMonitorConnection } from "@/monitor";
 
 vi.mock("@/client", async () => {
   const api = await vi.importActual("@/openapi-generator");
@@ -44,14 +40,14 @@ afterEach(() => {
 describe("MonitorConnection", () => {
   describe("getWebSocketURL", () => {
     it("converts http to ws", () => {
-      const connection = new MonitorConnection("ingest", "http://example.com");
+      const connection = new IngestMonitorConnection("http://example.com");
       expect(connection.getWebSocketURL("http://example.com/path")).toBe(
         "ws://example.com/path",
       );
     });
 
     it("converts https to wss", () => {
-      const connection = new MonitorConnection("ingest", "https://example.com");
+      const connection = new IngestMonitorConnection("https://example.com");
       expect(connection.getWebSocketURL("https://example.com/path")).toBe(
         "wss://example.com/path",
       );
@@ -61,7 +57,7 @@ describe("MonitorConnection", () => {
   describe("isConnected", () => {
     it("returns false when socket is null", () => {
       const connection = new IngestMonitorConnection("http://example.com");
-      expect(connection.isConnected()).toBe(false);
+      expect(connection.isConnected).toBe(false);
     });
 
     it("returns true when socket is in OPEN state", async () => {
@@ -72,7 +68,7 @@ describe("MonitorConnection", () => {
       await vi.runAllTimersAsync();
 
       expect(client.ingest.ingestMonitorRequest).toHaveBeenCalledTimes(1);
-      expect(conn.isConnected()).toBe(true);
+      expect(conn.isConnected).toBe(true);
 
       conn.close();
       server.close();
@@ -81,7 +77,7 @@ describe("MonitorConnection", () => {
 
   describe("retryBackoff", () => {
     it("retries with exponential backoff until success", async () => {
-      const connection = new MonitorConnection("ingest", "http://example.com", {
+      const connection = new IngestMonitorConnection("http://example.com", {
         initialDelay: 100,
         maxDelay: 500,
         backoff: 2,
@@ -101,7 +97,7 @@ describe("MonitorConnection", () => {
     });
 
     it("throws after max attempts", async () => {
-      const connection = new MonitorConnection("ingest", "http://example.com", {
+      const connection = new IngestMonitorConnection("http://example.com", {
         initialDelay: 100,
         maxDelay: 500,
         backoff: 2,

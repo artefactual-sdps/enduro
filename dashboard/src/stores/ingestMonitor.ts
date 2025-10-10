@@ -9,7 +9,7 @@ export const useIngestMonitorStore = defineStore("ingestMonitor", {
   }),
   actions: {
     async connect() {
-      if (this.conn.isConnected()) return;
+      if (this.conn.isConnected) return;
       return this.conn.dial();
     },
   },
