@@ -81,18 +81,18 @@ func (c *MockSIPSourceCloseCall) DoAndReturn(f func() error) *MockSIPSourceClose
 }
 
 // ListObjects mocks base method.
-func (m *MockSIPSource) ListObjects(ctx context.Context, token []byte, limit int) (*sipsource.Page, error) {
+func (m *MockSIPSource) ListObjects(arg0 context.Context, arg1 sipsource.ListOptions) (*sipsource.Page, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListObjects", ctx, token, limit)
+	ret := m.ctrl.Call(m, "ListObjects", arg0, arg1)
 	ret0, _ := ret[0].(*sipsource.Page)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // ListObjects indicates an expected call of ListObjects.
-func (mr *MockSIPSourceMockRecorder) ListObjects(ctx, token, limit any) *MockSIPSourceListObjectsCall {
+func (mr *MockSIPSourceMockRecorder) ListObjects(arg0, arg1 any) *MockSIPSourceListObjectsCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListObjects", reflect.TypeOf((*MockSIPSource)(nil).ListObjects), ctx, token, limit)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListObjects", reflect.TypeOf((*MockSIPSource)(nil).ListObjects), arg0, arg1)
 	return &MockSIPSourceListObjectsCall{Call: call}
 }
 
@@ -108,13 +108,13 @@ func (c *MockSIPSourceListObjectsCall) Return(arg0 *sipsource.Page, arg1 error) 
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockSIPSourceListObjectsCall) Do(f func(context.Context, []byte, int) (*sipsource.Page, error)) *MockSIPSourceListObjectsCall {
+func (c *MockSIPSourceListObjectsCall) Do(f func(context.Context, sipsource.ListOptions) (*sipsource.Page, error)) *MockSIPSourceListObjectsCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockSIPSourceListObjectsCall) DoAndReturn(f func(context.Context, []byte, int) (*sipsource.Page, error)) *MockSIPSourceListObjectsCall {
+func (c *MockSIPSourceListObjectsCall) DoAndReturn(f func(context.Context, sipsource.ListOptions) (*sipsource.Page, error)) *MockSIPSourceListObjectsCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
