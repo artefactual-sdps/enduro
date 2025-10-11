@@ -4,6 +4,7 @@ import { ref } from "vue";
 import { useRouter } from "vue-router/auto";
 
 import { api, client } from "@/client";
+import { HumanFileSize } from "@/composables/format";
 import IconBundle from "~icons/clarity/bundle-line";
 
 const router = useRouter();
@@ -122,6 +123,10 @@ const startIngest = async () => {
           />
           <IconBundle aria-hidden="true" />
           {{ item.key }}
+          {{ item.size ? `(${HumanFileSize(item.size, 1)})` : "" }}
+          <span v-if="item.modTime" class="ms-auto">
+            Deposited {{ $filters.formatDateTime(item.modTime) }}
+          </span>
         </label>
       </li>
       <li v-if="isLoading" class="list-group-item text-center p-3">
