@@ -29,7 +29,7 @@ require (
 	github.com/jmoiron/sqlx v1.3.5
 	github.com/jonboulle/clockwork v0.4.0
 	github.com/mattn/go-sqlite3 v1.14.28
-	github.com/mholt/archives v0.1.4
+	github.com/mholt/archives v0.1.5
 	github.com/mitchellh/mapstructure v1.5.0
 	github.com/nyudlts/go-bagit v0.3.0-alpha.0.20240515212815-8dab411c23af
 	github.com/oklog/run v1.1.0
@@ -40,7 +40,7 @@ require (
 	github.com/redis/go-redis/extra/redisotel/v9 v9.14.0
 	github.com/redis/go-redis/v9 v9.14.0
 	github.com/rukavina/sftpblob v0.0.0-20201030103652-e8e9601e6511
-	github.com/spf13/afero v1.11.0
+	github.com/spf13/afero v1.15.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.11.1
@@ -146,7 +146,7 @@ require (
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/hashicorp/hcl/v2 v2.19.1 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
-	github.com/klauspost/compress v1.17.11 // indirect
+	github.com/klauspost/compress v1.18.0 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
 	github.com/kluctl/go-embed-python v0.0.0-3.12.3-20240415-1 // indirect
 	github.com/kr/fs v0.1.0 // indirect
@@ -157,7 +157,7 @@ require (
 	github.com/minio/minlz v1.0.1 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.1 // indirect
 	github.com/nexus-rpc/sdk-go v0.3.0 // indirect
-	github.com/nwaples/rardecode/v2 v2.1.1 // indirect
+	github.com/nwaples/rardecode/v2 v2.2.0 // indirect
 	github.com/pborman/uuid v1.2.1 // indirect
 	github.com/pelletier/go-toml/v2 v2.1.1 // indirect
 	github.com/peterbourgon/ff/v4 v4.0.0-alpha.4 // indirect
