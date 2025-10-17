@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 
 import StatusBadge from "@/components/StatusBadge.vue";
 import { addEmailLinks } from "@/composables/addEmailLinks";
-import { FormatDateTime } from "@/composables/format";
+import { formatDateTime } from "@/composables/format";
 import type {
   EnduroIngestSipTask,
   EnduroStorageAipTask,
@@ -63,13 +63,13 @@ const toggle = () => {
             {{ task.name }}
           </div>
           <div :id="'pt-' + index + '-time'" class="me-3">
-            <span v-if="!isComplete(task) && FormatDateTime(task.startedAt)">
+            <span v-if="!isComplete(task) && formatDateTime(task.startedAt)">
               Started:
-              {{ FormatDateTime(task.startedAt) }}
+              {{ formatDateTime(task.startedAt) }}
             </span>
-            <span v-if="isComplete(task) && FormatDateTime(task.completedAt)">
+            <span v-if="isComplete(task) && formatDateTime(task.completedAt)">
               Completed:
-              {{ FormatDateTime(task.completedAt) }}
+              {{ formatDateTime(task.completedAt) }}
             </span>
           </div>
         </div>
@@ -77,7 +77,7 @@ const toggle = () => {
           <span
             :id="'pt-' + index + '-note'"
             v-html="addEmailLinks(noteData.note)"
-          ></span>
+          />
           <span v-if="noteData.more">
             <span v-show="!isOpen">... </span>
             <Transition name="fade">
@@ -86,14 +86,14 @@ const toggle = () => {
                 :id="'pt-' + index + '-note-more'"
                 class="line-break"
                 v-html="addEmailLinks(noteData.more)"
-              ></p>
+              />
             </Transition>
             <a
               :id="'pt-' + index + '-note-toggle'"
               :aria-controls="'pt-' + index + '-note-more'"
               aria-label="Toggle display of additional notes"
-              @click.prevent="toggle"
               href="#"
+              @click.prevent="toggle"
             >
               {{ isOpen ? "Show less" : "Show more" }}
             </a>

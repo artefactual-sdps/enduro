@@ -17,8 +17,8 @@ const authStore = useAuthStore();
 const aboutStore = useAboutStore();
 const router = useRouter();
 
-const GiB = 1024 ** 3; // 1 GiB in bytes
-const uploadMaxDefault = 4 * GiB;
+const gib = 1024 ** 3; // 1 GiB in bytes
+const uploadMaxDefault = 4 * gib;
 
 aboutStore.$subscribe((_, state) => {
   uppy.setOptions({

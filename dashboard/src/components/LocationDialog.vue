@@ -7,7 +7,7 @@ import useEventListener from "@/composables/useEventListener";
 import { useLocationStore } from "@/stores/location";
 
 const props = defineProps({
-  currentLocationId: { type: String, required: false },
+  currentLocationId: { type: String, required: false, default: undefined },
 });
 
 const locationStore = useLocationStore();
@@ -36,7 +36,7 @@ const onChoose = (locationId: string) => {
 </script>
 
 <template>
-  <div class="modal" tabindex="-1" ref="el">
+  <div ref="el" class="modal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -49,7 +49,7 @@ const onChoose = (locationId: string) => {
                 <tr>
                   <th>Location name</th>
                   <th>Status</th>
-                  <th></th>
+                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -77,7 +77,7 @@ const onChoose = (locationId: string) => {
               </tbody>
             </table>
           </div>
-          <small class="text-muted" v-if="props.currentLocationId">
+          <small v-if="props.currentLocationId" class="text-muted">
             The current location is {{ props.currentLocationId }}.
           </small>
         </div>

@@ -31,9 +31,9 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="alert alert-info" role="alert" v-if="aipStore.isPending">
+  <div v-if="aipStore.isPending" class="alert alert-info" role="alert">
     <h4 class="alert-heading">Task: Review AIP deletion request</h4>
-    <p class="line-break" v-html="addEmailLinks(note)"></p>
+    <p class="line-break" v-html="addEmailLinks(note)" />
     <div class="d-flex flex-wrap gap-2">
       <template v-if="canCancel">
         <hr />

@@ -46,12 +46,12 @@ const tabs = [
 
     <SipPendingAlert v-if="sipStore.current" />
 
-    <h1 class="d-flex mb-3" v-if="sipStore.current">
+    <h1 v-if="sipStore.current" class="d-flex mb-3">
       <IconSIPs class="me-3 text-dark" />{{ sipStore.current.name }}
     </h1>
 
     <Tabs :tabs="tabs" param="id" />
 
-    <router-view></router-view>
+    <RouterView />
   </div>
 </template>

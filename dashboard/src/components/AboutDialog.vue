@@ -26,7 +26,7 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
 </script>
 
 <template>
-  <div class="modal" tabindex="-1" ref="el">
+  <div ref="el" class="modal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -38,7 +38,7 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
             class="btn-close"
             data-bs-dismiss="modal"
             aria-label="Close"
-          ></button>
+          />
         </div>
         <div class="modal-body">
           <div class="mb-3">
@@ -62,7 +62,7 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
                 {{ aboutStore.preservationSystem }}
               </div>
             </div>
-            <div class="row" v-if="aboutStore.preprocessing.enabled">
+            <div v-if="aboutStore.preprocessing.enabled" class="row">
               <div
                 class="col-12 col-sm-6 text-primary fw-bold text-sm-end text-truncate"
               >
@@ -73,8 +73,8 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
               </div>
             </div>
             <div
-              class="row"
               v-if="aboutStore.poststorage && aboutStore.poststorage.length > 0"
+              class="row"
             >
               <div
                 class="col-12 col-sm-6 text-primary fw-bold text-sm-end text-truncate"

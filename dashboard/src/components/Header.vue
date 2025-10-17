@@ -55,14 +55,14 @@ const institution: { logo: string; name: string; url: string } = {
         />
       </button>
 
-      <router-link
+      <RouterLink
         class="navbar-brand h1 mb-0 me-auto p-3 px-2 text-primary text-decoration-none d-flex align-items-center fw-bold"
         :class="layoutStore.sidebarCollapsed ? '' : 'ms-2'"
         :to="{ name: '/' }"
       >
         <img src="/logo.png" alt="" height="30" class="me-2" />
         Enduro
-      </router-link>
+      </RouterLink>
 
       <div class="flex-grow-1 d-none d-md-block">
         <Breadcrumb />

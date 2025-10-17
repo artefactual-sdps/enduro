@@ -6,10 +6,14 @@ import type { runtime } from "@/client";
 interface Props {
   title?: string;
   error?: unknown;
-  execute?: (delay?: number, ...args: unknown[]) => Promise<unknown>;
+  execute?: ((delay?: number, ...args: unknown[]) => Promise<unknown>) | null;
 }
 
-const { title = "Page loading error", error, execute } = defineProps<Props>();
+const {
+  title = "Page loading error",
+  error = undefined,
+  execute = null,
+} = defineProps<Props>();
 
 const retry = () => {
   if (execute) execute();
@@ -29,18 +33,20 @@ const is404 = computed(() => {
 
 <template>
   <!-- Not found. -->
-  <div class="alert alert-warning" role="alert" v-if="error && is404">
+  <div v-if="error && is404" class="alert alert-warning" role="alert">
     <h4 class="alert-heading">Page not found!</h4>
     <p>We can't find the page you're looking for.</p>
     <hr />
-    <router-link class="btn btn-warning" :to="{ name: '/' }"
-      >Take me home</router-link
-    >
+    <RouterLink class="btn btn-warning" :to="{ name: '/' }">
+      Take me home
+    </RouterLink>
   </div>
 
   <!-- Other errors. -->
-  <div class="alert alert-danger" role="alert" v-if="error && !is404">
-    <h4 class="alert-heading">{{ title }}</h4>
+  <div v-if="error && !is404" class="alert alert-danger" role="alert">
+    <h4 class="alert-heading">
+      {{ title }}
+    </h4>
     <slot>
       <p>It was not possible to load this page.</p>
     </slot>

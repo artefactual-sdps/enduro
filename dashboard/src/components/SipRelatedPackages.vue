@@ -10,11 +10,11 @@ const sipStore = useSipStore();
 
 <template>
   <div
-    class="card mb-3"
     v-if="
       sipStore.current?.aipUuid ||
       (sipStore.current?.failedAs && sipStore.current?.failedKey)
     "
+    class="card mb-3"
   >
     <div class="card-body">
       <h4 class="card-title">Related Packages</h4>
@@ -23,15 +23,16 @@ const sipStore = useSipStore();
           <strong>AIP</strong>
           <UUID :id="sipStore.current.aipUuid" />
         </p>
-        <router-link
+        <RouterLink
           v-if="authStore.checkAttributes(['storage:aips:read'])"
           class="btn btn-primary btn-sm"
           :to="{
             name: '/storage/aips/[id]/',
             params: { id: sipStore.current.aipUuid },
           }"
-          >View</router-link
         >
+          View
+        </RouterLink>
       </template>
       <template
         v-else-if="sipStore.current?.failedAs && sipStore.current?.failedKey"
@@ -53,8 +54,8 @@ const sipStore = useSipStore();
           {{ sipStore.current.failedKey }}
         </p>
         <Transition
-          mode="out-in"
           v-if="authStore.checkAttributes(['ingest:sips:download'])"
+          mode="out-in"
         >
           <div
             v-if="sipStore.downloadError"

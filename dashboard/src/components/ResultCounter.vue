@@ -22,7 +22,7 @@ const last = computed(() => {
 </script>
 
 <template>
-  <template v-if="props.total === 0">No results found</template>
+  <template v-if="props.total === 0"> No results found </template>
   <template v-else-if="props.total === 1">
     Found {{ props.total }} result
   </template>

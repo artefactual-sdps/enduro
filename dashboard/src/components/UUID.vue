@@ -33,10 +33,10 @@ watch(copied, (val) => {
     <template v-if="isSupported">
       <button
         ref="el"
-        @click="copy()"
         class="btn btn-sm btn-link link-secondary p-0"
         data-bs-toggle="tooltip"
         data-bs-title="Copy to clipboard"
+        @click="copy()"
       >
         <!-- Copied visual hint. -->
         <span v-if="copied">

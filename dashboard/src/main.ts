@@ -8,9 +8,9 @@ import { PromiseDialog } from "vue3-promise-dialog";
 import App from "./App.vue";
 import { api } from "./client";
 import {
-  FormatDateTime,
-  FormatDateTimeString,
-  FormatDuration,
+  formatDateTime,
+  formatDateTimeString,
+  formatDuration,
 } from "./composables/format";
 import router from "./router";
 
@@ -36,13 +36,13 @@ declare module "@vue/runtime-core" {
 
 app.config.globalProperties.$filters = {
   formatDateTimeString(value: string) {
-    return FormatDateTimeString(value);
+    return formatDateTimeString(value);
   },
   formatDateTime(value: Date | undefined) {
-    return FormatDateTime(value);
+    return formatDateTime(value);
   },
   formatDuration(from: Date, to: Date) {
-    return FormatDuration(from, to);
+    return formatDuration(from, to);
   },
   getWorkflowLabel(
     value:

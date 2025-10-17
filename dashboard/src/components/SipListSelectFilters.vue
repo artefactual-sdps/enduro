@@ -13,8 +13,8 @@ const sipStore = useSipStore();
       <select
         id="filter-status"
         v-model="sipStore.filters.status"
-        @change="sipStore.fetchSips(1)"
         class="form-select"
+        @change="sipStore.fetchSips(1)"
       >
         <option value="">any</option>
         <option

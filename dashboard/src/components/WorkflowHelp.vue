@@ -29,7 +29,7 @@ const statuses = [
 ];
 
 const { show = false } = defineProps<{
-  show: boolean;
+  show?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -60,22 +60,22 @@ const emit = defineEmits<{
                 id="workflow-help-close"
                 type="button"
                 class="btn-close align-middle"
-                @click="() => emit('update:show', false)"
                 aria-label="Close"
-              ></button>
+                @click="() => emit('update:show', false)"
+              />
             </div>
           </div>
           <span class="h5">Task status legend</span>
           <div id="task-status-legend" class="container-fluid border p-2 mb-3">
             <div
-              class="row"
               v-for="(item, index) in statuses"
               :key="item.status"
+              class="row"
             >
               <div class="col col-md-2 py-2 text-end">
                 <StatusBadge :status="item.status" type="workflow" />
               </div>
-              <div class="col col-md-10 py-2" :id="`badge-${index}-desc`">
+              <div :id="`badge-${index}-desc`" class="col col-md-10 py-2">
                 {{ item.description }}
               </div>
             </div>

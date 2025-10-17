@@ -77,9 +77,9 @@ const goToPage = (page: number) => {
           id="prev-page"
           class="page-link"
           href="#"
-          @click.prevent="goToPage(currentPage - 1)"
           aria-label="Go to previous page"
           title="Previous page"
+          @click.prevent="goToPage(currentPage - 1)"
         >
           <IconPrev />
         </a>
@@ -112,8 +112,8 @@ const goToPage = (page: number) => {
           :id="`page-${page}`"
           class="page-link"
           href="#"
-          @click.prevent="goToPage(page)"
           :aria-label="`Go to page ${page}`"
+          @click.prevent="goToPage(page)"
           >{{ page }}</a
         >
       </li>
@@ -144,9 +144,9 @@ const goToPage = (page: number) => {
           id="next-page"
           class="page-link"
           href="#"
-          @click.prevent="goToPage(currentPage + 1)"
           aria-label="Go to next page"
           title="Next page"
+          @click.prevent="goToPage(currentPage + 1)"
         >
           <IconNext />
         </a>

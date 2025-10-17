@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { defineProps } from "vue";
-
 const props = defineProps<{
   logo: string;
   name: string;
@@ -18,11 +16,7 @@ const imgTag = `<img
 
 <template>
   <div v-if="props.logo && props.url" class="d-none d-sm-block mx-3">
-    <a :href="props.url" target="_blank" rel="external" v-html="imgTag"></a>
+    <a :href="props.url" target="_blank" rel="external" v-html="imgTag" />
   </div>
-  <div
-    v-else-if="props.logo"
-    v-html="imgTag"
-    class="d-none d-sm-block mx-3"
-  ></div>
+  <div v-else-if="props.logo" class="d-none d-sm-block mx-3" v-html="imgTag" />
 </template>

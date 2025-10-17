@@ -60,8 +60,8 @@ onMounted(() => {
         <h2 class="mb-0">
           Workflows
           <a
-            ref="el"
             id="workflowHelpToggle"
+            ref="el"
             href="#workflowHelp"
             role="button"
             aria-expanded="false"
@@ -80,13 +80,13 @@ onMounted(() => {
 
       <hr />
 
-      <div class="accordion mb-2" id="workflows">
+      <div id="workflows" class="accordion mb-2">
         <WorkflowCollapse
+          v-for="(workflow, index) in aipStore.currentWorkflows?.workflows"
+          :key="workflow.uuid"
           :workflow="workflow"
           :index="index"
           :of="aipStore.currentWorkflows.workflows.length"
-          v-for="(workflow, index) in aipStore.currentWorkflows?.workflows"
-          v-bind:key="workflow.uuid"
         />
       </div>
     </div>

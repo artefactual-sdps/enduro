@@ -87,9 +87,9 @@ const clickSip = (key: string) => {
     <button
       type="button"
       class="btn-close"
-      @click="errorMessage = null"
       aria-label="Close"
-    ></button>
+      @click="errorMessage = null"
+    />
   </div>
 
   <h2 class="mb-3">1. Select SIPs to Ingest</h2>
@@ -118,8 +118,8 @@ const clickSip = (key: string) => {
             <td colspan="4">No SIPs found</td>
           </tr>
           <tr
-            v-else
             v-for="item in items"
+            v-else
             :key="item.key"
             :class="selectedSips.includes(item.key) ? 'table-primary' : ''"
             role="button"
@@ -127,11 +127,11 @@ const clickSip = (key: string) => {
           >
             <td>
               <input
+                :id="'cb-' + item.key"
+                v-model="selectedSips"
                 class="form-check-input"
                 type="checkbox"
-                v-model="selectedSips"
                 :value="item.key"
-                :id="'cb-' + item.key"
               />
             </td>
             <td>
@@ -153,7 +153,7 @@ const clickSip = (key: string) => {
               <div
                 class="spinner-border spinner-border-sm text-muted"
                 role="status"
-              ></div>
+              />
             </td>
           </tr>
         </tbody>
@@ -167,8 +167,8 @@ const clickSip = (key: string) => {
   <h2 class="mb-3">2. Launch Ingest</h2>
   <button
     class="btn btn-primary"
-    @click="startIngest"
     :disabled="selectedSips.length === 0"
+    @click="startIngest"
   >
     Start Ingest
   </button>

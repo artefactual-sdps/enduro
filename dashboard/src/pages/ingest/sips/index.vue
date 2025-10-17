@@ -330,8 +330,8 @@ onMounted(() => {
         <form id="sipSearch" @submit.prevent="searchByName">
           <div class="input-group">
             <input
-              type="text"
               v-model.trim="sipStore.filters.name"
+              type="text"
               class="form-control"
               name="name"
               placeholder="Search by name"
@@ -339,12 +339,12 @@ onMounted(() => {
             />
             <button
               class="btn btn-secondary"
+              type="reset"
+              aria-label="Reset search"
               @click="
                 sipStore.filters.name = '';
                 searchByName();
               "
-              type="reset"
-              aria-label="Reset search"
             >
               <IconClose />
             </button>
@@ -363,7 +363,7 @@ onMounted(() => {
           authStore.checkAttributes(['ingest:users:list']) && userStore.hasUsers
         "
       >
-        <div class="dropdown" ref="uploaderEl">
+        <div ref="uploaderEl" class="dropdown">
           <button
             id="dd-uploader-button"
             class="btn btn-primary dropdown-toggle"
@@ -375,16 +375,16 @@ onMounted(() => {
             {{ uploaderDDLabel }}
           </button>
           <button
+            v-show="sipStore.filters.uploaderId !== ''"
             id="dd-uploader-reset"
+            class="btn btn-secondary"
+            type="reset"
+            aria-label="Reset 'Ingested by' filter"
             @click="
               sipStore.filters.uploaderId = '';
               uploaderDDLabel = 'Ingested by';
               updateUploaderFilter();
             "
-            class="btn btn-secondary"
-            type="reset"
-            aria-label="Reset 'Ingested by' filter"
-            v-show="sipStore.filters.uploaderId !== ''"
           >
             <IconClose />
           </button>
@@ -396,12 +396,12 @@ onMounted(() => {
             >
               <a
                 class="dropdown-item"
+                href="#"
                 @click.prevent="
                   sipStore.filters.uploaderId = user.uuid;
                   uploaderDDLabel = userStore.getHandle(user);
                   updateUploaderFilter();
                 "
-                href="#"
                 >{{ userStore.getHandle(user) }}</a
               >
             </li>
@@ -446,9 +446,9 @@ onMounted(() => {
                   ref="el"
                   class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
                   type="button"
-                  @click="toggleLegend"
                   data-bs-toggle="tooltip"
                   data-bs-title="Toggle legend"
+                  @click="toggleLegend"
                 >
                   <IconInfo style="font-size: 1.2em" aria-hidden="true" />
                   <span class="visually-hidden">Toggle SIP status legend</span>
@@ -460,16 +460,19 @@ onMounted(() => {
         <tbody>
           <tr v-for="sip in sipStore.sips" :key="sip.uuid">
             <td>
-              <router-link
+              <RouterLink
                 v-if="authStore.checkAttributes(['ingest:sips:read'])"
                 :to="{ name: '/ingest/sips/[id]/', params: { id: sip.uuid } }"
-                >{{ sip.name }}</router-link
               >
+                {{ sip.name }}
+              </RouterLink>
               <span v-else>{{ sip.name }}</span>
             </td>
             <td>{{ uploader(sip) }}</td>
             <td>{{ $filters.formatDateTime(sip.startedAt) }}</td>
-            <td><StatusBadge :status="sip.status" type="package" /></td>
+            <td>
+              <StatusBadge :status="sip.status" type="package" />
+            </td>
           </tr>
         </tbody>
       </table>

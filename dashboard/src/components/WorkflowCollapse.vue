@@ -80,10 +80,10 @@ const showTasks = computed(() => {
 
 <template>
   <div class="accordion-item border-0 mb-2">
-    <h4 class="accordion-header" :id="'wf' + index + '-heading'">
+    <h4 :id="'wf' + index + '-heading'" class="accordion-header">
       <button
-        ref="wfBtn"
         v-if="workflow.tasks"
+        ref="wfBtn"
         :class="[
           'accordion-button',
           {
@@ -134,11 +134,11 @@ const showTasks = computed(() => {
       data-bs-parent="#workflows"
     >
       <SipReviewAlert
-        v-model:expandCounter="expandCounter"
         v-if="
           showSipReviewAlert() &&
           authStore.checkAttributes(['ingest:sips:review'])
         "
+        v-model:expand-counter="expandCounter"
       />
       <AipDeletionReviewAlert
         v-if="

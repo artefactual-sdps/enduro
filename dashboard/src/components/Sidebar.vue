@@ -83,22 +83,22 @@ const closeOffcanvas = () => {
 
 <template>
   <div
+    id="menu-offcanvas"
+    ref="offcanvas"
     class="sidebar offcanvas-md offcanvas-start d-flex bg-light"
     :class="layoutStore.sidebarCollapsed ? 'collapsed' : ''"
     tabindex="-1"
-    id="menu-offcanvas"
     aria-labelledby="offcanvasLabel"
-    ref="offcanvas"
   >
     <div class="offcanvas-header">
-      <h5 class="offcanvas-title" id="offcanvasLabel">Navigation</h5>
+      <h5 id="offcanvasLabel" class="offcanvas-title">Navigation</h5>
       <button
         type="button"
         class="btn-close"
         data-bs-dismiss="offcanvas"
         data-bs-target="#menu-offcanvas"
         aria-label="Close"
-      ></button>
+      />
     </div>
     <div class="offcanvas-body d-flex flex-grow-1 p-0">
       <nav
@@ -106,10 +106,7 @@ const closeOffcanvas = () => {
         class="flex-grow-1 d-flex flex-column"
       >
         <ul class="list-unstyled flex-grow-1 mb-0">
-          <li
-            v-for="(item, i) in menuItems.filter((it) => it.show)"
-            v-bind:key="i"
-          >
+          <li v-for="(item, i) in menuItems.filter((it) => it.show)" :key="i">
             <div
               v-if="!item.route"
               class="py-2 text-muted small"
@@ -117,7 +114,7 @@ const closeOffcanvas = () => {
             >
               {{ item.text }}
             </div>
-            <router-link
+            <RouterLink
               v-else
               class="d-block py-3 text-decoration-none sidebar-link"
               active-class="active"
@@ -135,7 +132,7 @@ const closeOffcanvas = () => {
                         : ''
                     "
                   >
-                    <span v-html="item.icon" aria-hidden="true" />
+                    <span aria-hidden="true" v-html="item.icon" />
                   </div>
                   <div
                     class="col-9 d-flex align-items-center"
@@ -148,15 +145,15 @@ const closeOffcanvas = () => {
                     {{ item.text }}
                   </div>
                 </div>
-              </div></router-link
-            >
+              </div>
+            </RouterLink>
           </li>
         </ul>
         <button
           v-if="authStore.isEnabled"
+          id="user-menu-button"
           ref="collapse"
           type="button"
-          id="user-menu-button"
           class="btn btn-link d-block p-0 py-3 text-decoration-none text-dark sidebar-link rounded-0 collapsed border-top"
           data-bs-toggle="collapse"
           data-bs-target="#user-menu"
@@ -174,9 +171,9 @@ const closeOffcanvas = () => {
                 "
               >
                 <span
-                  v-html="IconUser"
                   class="text-primary"
                   aria-hidden="true"
+                  v-html="IconUser"
                 />
               </div>
               <div
@@ -195,11 +192,11 @@ const closeOffcanvas = () => {
             </div>
           </div>
         </button>
-        <div class="collapse" id="user-menu">
+        <div id="user-menu" class="collapse">
           <a
             class="d-block py-3 text-decoration-none text-dark sidebar-link"
-            @click="authStore.signoutRedirect()"
             href="#"
+            @click="authStore.signoutRedirect()"
           >
             <div class="container-fluid">
               <div class="row">
@@ -211,7 +208,7 @@ const closeOffcanvas = () => {
                       : ''
                   "
                 >
-                  <span v-html="IconLogout" aria-hidden="true" />
+                  <span aria-hidden="true" v-html="IconLogout" />
                 </div>
                 <div
                   class="col-9 d-flex align-items-center"

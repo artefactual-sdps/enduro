@@ -17,10 +17,12 @@ const layoutStore = useLayoutStore();
           i == layoutStore.breadcrumb.length - 1 ? 'page' : undefined
         "
       >
-        <router-link :to="item.route" v-if="item.route" class="text-primary">{{
-          item.text
-        }}</router-link>
-        <template v-else>{{ item.text }}</template>
+        <RouterLink v-if="item.route" :to="item.route" class="text-primary">
+          {{ item.text }}
+        </RouterLink>
+        <template v-else>
+          {{ item.text }}
+        </template>
       </li>
     </ol>
   </nav>
