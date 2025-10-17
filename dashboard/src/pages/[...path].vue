@@ -10,9 +10,9 @@ useLayoutStore().updateBreadcrumb([{ text: "Not found" }]);
       <h4 class="alert-heading">Page not found!</h4>
       <p>We can't find the page you're looking for.</p>
       <hr />
-      <router-link class="btn btn-warning" :to="{ name: '/' }"
-        >Take me home</router-link
-      >
+      <RouterLink class="btn btn-warning" :to="{ name: '/' }">
+        Take me home
+      </RouterLink>
     </div>
   </div>
 </template>

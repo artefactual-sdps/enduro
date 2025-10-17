@@ -35,7 +35,7 @@ const request = () => {
 </script>
 
 <template>
-  <div class="modal" tabindex="-1" ref="el">
+  <div ref="el" class="modal" tabindex="-1">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -57,14 +57,14 @@ const request = () => {
             <div>
               <label for="reason" class="form-label">Reason:</label>
               <textarea
-                class="form-control"
                 id="reason"
-                rows="3"
                 v-model="reason"
+                class="form-control"
+                rows="3"
                 required
                 minlength="10"
                 maxlength="500"
-              ></textarea>
+              />
               <div class="form-text text-end">
                 Reason must be between 10 and 500 characters.
               </div>

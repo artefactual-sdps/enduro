@@ -27,17 +27,17 @@ function isActive(tab: Tab): boolean {
 <template>
   <nav aria-label="Tabs" class="mb-3">
     <ul class="nav nav-tabs d-flex flex-nowrap">
-      <li class="nav-item d-flex" v-for="tab in tabs" :key="tab.text">
-        <router-link
+      <li v-for="tab in tabs" :key="tab.text" class="nav-item d-flex">
+        <RouterLink
           v-if="tab.show"
           :to="tab.route"
           class="nav-link text-primary text-nowrap d-flex align-items-center"
           :class="{ active: isActive(tab) }"
         >
-          <span v-html="tab.icon" class="me-2 text-dark" aria-hidden="true" />{{
+          <span class="me-2 text-dark" aria-hidden="true" v-html="tab.icon" />{{
             tab.text
           }}
-        </router-link>
+        </RouterLink>
       </li>
     </ul>
   </nav>

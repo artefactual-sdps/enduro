@@ -272,8 +272,8 @@ const statuses = [
         <form id="sipSearch" @submit.prevent="searchByName">
           <div class="input-group">
             <input
-              type="text"
               v-model.trim="aipStore.filters.name"
+              type="text"
               class="form-control"
               name="name"
               placeholder="Search by name"
@@ -281,12 +281,12 @@ const statuses = [
             />
             <button
               class="btn btn-secondary"
+              type="reset"
+              aria-label="Reset search"
               @click="
                 aipStore.filters.name = '';
                 searchByName();
               "
-              type="reset"
-              aria-label="Reset search"
             >
               <IconClose />
             </button>
@@ -339,9 +339,9 @@ const statuses = [
                   ref="el"
                   class="btn btn-sm btn-link text-decoration-none ms-auto p-0"
                   type="button"
-                  @click="toggleLegend"
                   data-bs-toggle="tooltip"
                   data-bs-title="Toggle legend"
+                  @click="toggleLegend"
                 >
                   <IconInfo style="font-size: 1.2em" aria-hidden="true" />
                   <span class="visually-hidden">Toggle AIP status legend</span>
@@ -353,17 +353,20 @@ const statuses = [
         <tbody>
           <tr v-for="aip in aipStore.aips" :key="aip.uuid">
             <td>
-              <router-link
+              <RouterLink
                 v-if="authStore.checkAttributes(['storage:aips:read'])"
                 :to="{ name: '/storage/aips/[id]/', params: { id: aip.uuid } }"
-                >{{ aip.name }}</router-link
               >
+                {{ aip.name }}
+              </RouterLink>
               <span v-else>{{ aip.name }}</span>
             </td>
             <td><UUID :id="aip.uuid" /></td>
             <td>{{ $filters.formatDateTime(aip.createdAt) }}</td>
             <td><UUID :id="aip.locationUuid" /></td>
-            <td><StatusBadge :status="aip.status" type="package" /></td>
+            <td>
+              <StatusBadge :status="aip.status" type="package" />
+            </td>
           </tr>
         </tbody>
       </table>

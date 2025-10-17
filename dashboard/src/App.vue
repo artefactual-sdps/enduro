@@ -31,8 +31,8 @@ watch(
 <template>
   <div class="d-flex flex-column min-vh-100">
     <div
-      class="visually-hidden-focusable p-3 border-bottom"
       v-if="authStore.isUserValid"
+      class="visually-hidden-focusable p-3 border-bottom"
     >
       <a class="btn btn-sm btn-outline-primary" href="#main"
         >Skip to main content</a
@@ -41,8 +41,8 @@ watch(
     <Header v-if="authStore.isUserValid" />
     <div class="flex-grow-1 d-flex">
       <Sidebar v-if="authStore.isUserValid" />
-      <main class="flex-grow-1 d-flex px-2 pt-3" id="main">
-        <router-view></router-view>
+      <main id="main" class="flex-grow-1 d-flex px-2 pt-3">
+        <RouterView />
       </main>
     </div>
     <DialogWrapper v-if="authStore.isUserValid" />

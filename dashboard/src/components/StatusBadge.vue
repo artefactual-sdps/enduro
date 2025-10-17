@@ -1,15 +1,15 @@
 <script lang="ts">
-type packageEnum =
+type PackageEnum =
   | api.EnduroIngestSipStatusEnum
   | api.EnduroStorageAipStatusEnum;
-type workflowEnum =
+type WorkflowEnum =
   | api.EnduroIngestSipWorkflowStatusEnum
   | api.EnduroStorageAipWorkflowStatusEnum;
-type taskEnum =
+type TaskEnum =
   | api.EnduroIngestSipTaskStatusEnum
   | api.EnduroStorageAipTaskStatusEnum;
 
-export type StatusEnum = packageEnum | workflowEnum | taskEnum;
+export type StatusEnum = PackageEnum | WorkflowEnum | TaskEnum;
 </script>
 
 <script setup lang="ts">
@@ -17,17 +17,17 @@ import { computed } from "vue";
 
 import { api } from "@/client";
 
-type badgeType = "package" | "workflow";
-type badgeStyle = string[];
+type BadgeType = "package" | "workflow";
+type BadgeStyle = string[];
 
 const props = defineProps<{
   status: StatusEnum;
-  type: badgeType;
+  type: BadgeType;
   note?: string;
 }>();
 
 const packageStyle: {
-  [key in packageEnum]: badgeStyle;
+  [key in PackageEnum]: BadgeStyle;
 } = {
   ingested: [
     "text-dark",
@@ -49,7 +49,7 @@ const packageStyle: {
 };
 
 const workflowStyle: {
-  [key in workflowEnum | taskEnum]: badgeStyle;
+  [key in WorkflowEnum | TaskEnum]: BadgeStyle;
 } = {
   done: ["text-bg-success"],
   failed: ["text-bg-danger"],
@@ -62,12 +62,12 @@ const workflowStyle: {
 };
 
 const colorClass = computed(() => {
-  function getBadgeStyle(type: badgeType): badgeStyle {
+  function getBadgeStyle(type: BadgeType): BadgeStyle {
     switch (type) {
       case "package":
-        return packageStyle[props.status as packageEnum];
+        return packageStyle[props.status as PackageEnum];
       case "workflow":
-        return workflowStyle[props.status as workflowEnum];
+        return workflowStyle[props.status as WorkflowEnum];
     }
   }
 
@@ -84,7 +84,7 @@ const colorClass = computed(() => {
         class="spinner-border spinner-border-sm text-black"
         role="progress"
         aria-hidden="true"
-      ></div>
+      />
     </span>
     <span v-if="props.note" class="badge text-dark fw-normal"
       >({{ props.note }})</span

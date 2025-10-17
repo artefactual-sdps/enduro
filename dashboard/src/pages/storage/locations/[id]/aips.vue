@@ -26,11 +26,12 @@ const locationStore = useLocationStore();
         <tbody>
           <tr v-for="aip in locationStore.currentAips" :key="aip.uuid">
             <td>
-              <router-link
+              <RouterLink
                 v-if="authStore.checkAttributes(['storage:aips:read'])"
                 :to="{ name: '/storage/aips/[id]/', params: { id: aip.uuid } }"
-                >{{ aip.name }}</router-link
               >
+                {{ aip.name }}
+              </RouterLink>
               <span v-else>{{ aip.name }}</span>
             </td>
             <td><UUID :id="aip.uuid" /></td>

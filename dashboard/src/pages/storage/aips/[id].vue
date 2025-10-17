@@ -48,7 +48,7 @@ const tabs = [
 
       <Tabs :tabs="tabs" param="id" />
 
-      <router-view></router-view>
+      <RouterView />
     </template>
   </div>
 </template>

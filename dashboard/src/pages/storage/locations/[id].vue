@@ -46,12 +46,12 @@ const tabs = [
   <div class="container-xxl">
     <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
 
-    <h1 class="d-flex mb-3" v-if="locationStore.current">
+    <h1 v-if="locationStore.current" class="d-flex mb-3">
       <IconLocations class="me-3 text-dark" />{{ locationStore.current.name }}
     </h1>
 
     <Tabs :tabs="tabs" param="id" />
 
-    <router-view></router-view>
+    <RouterView />
   </div>
 </template>

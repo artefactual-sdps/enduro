@@ -10,7 +10,7 @@ export type LegendItem = {
 };
 
 const { show = false } = defineProps<{
-  show: boolean;
+  show?: boolean;
   items: LegendItem[];
 }>();
 
@@ -27,9 +27,9 @@ const visible = computed(() => show);
 
 <template>
   <Transition>
-    <div class="alert alert-secondary alert-dismissible" v-if="visible">
+    <div v-if="visible" class="alert alert-secondary alert-dismissible">
       <div class="container-fluid">
-        <div class="row" v-for="(item, index) in items" :key="item.status">
+        <div v-for="(item, index) in items" :key="item.status" class="row">
           <div class="col-12 col-md-2 py-2 text-end">
             <StatusBadge
               :status="item.status"
@@ -37,7 +37,7 @@ const visible = computed(() => show);
               :aria-describedby="`badge-${index}-desc`"
             />
           </div>
-          <div class="col-12 col-md-10 py-2" :id="`badge-${index}-desc`">
+          <div :id="`badge-${index}-desc`" class="col-12 col-md-10 py-2">
             {{ item.description }}
           </div>
         </div>
@@ -46,9 +46,9 @@ const visible = computed(() => show);
       <button
         type="button"
         class="btn-close"
-        @click="dismiss"
         aria-label="Close"
-      ></button>
+        @click="dismiss"
+      />
     </div>
   </Transition>
 </template>

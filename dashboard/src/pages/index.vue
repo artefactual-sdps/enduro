@@ -44,7 +44,7 @@ onMounted(async () => {
       <div v-else-if="error" class="alert alert-warning" role="alert">
         {{ error }}
       </div>
-      <div v-else-if="content" v-html="content"></div>
+      <div v-else-if="content" v-html="content" />
     </template>
 
     <!-- Default content -->

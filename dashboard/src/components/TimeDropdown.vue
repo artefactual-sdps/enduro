@@ -13,12 +13,12 @@ const emit = defineEmits<{
   change: [name: string, start: string, end: string];
 }>();
 
-type option = {
+type Option = {
   value: string;
   label: string;
 };
 
-const options: option[] = [
+const options: Option[] = [
   { value: "", label: "Select a time range" },
   { value: "3h", label: "The last 3 hours" },
   { value: "6h", label: "The last 6 hours" },
@@ -144,7 +144,7 @@ const earliestTimeFromOption = (value: string) => {
 </script>
 
 <template>
-  <div class="dropdown" ref="el">
+  <div ref="el" class="dropdown">
     <button
       :id="'tdd-' + props.name + '-toggle'"
       class="btn btn-primary dropdown-toggle"
@@ -155,12 +155,12 @@ const earliestTimeFromOption = (value: string) => {
       {{ btnLabel }}
     </button>
     <button
+      v-show="startTime !== null || endTime !== null"
       :id="'tdd-' + props.name + '-reset'"
-      @click="reset()"
       class="btn btn-secondary"
       type="reset"
       aria-label="Reset time filter"
-      v-show="startTime !== null || endTime !== null"
+      @click="reset()"
     >
       <IconClose />
     </button>
@@ -168,10 +168,10 @@ const earliestTimeFromOption = (value: string) => {
       <h5>Preset range</h5>
       <select
         :id="'tdd-' + props.name + '-preset'"
+        v-model="selectedPreset"
         name="preset-times"
         class="form-select"
         aria-label="Select a time range"
-        v-model="selectedPreset"
       >
         <option
           v-for="item in options"
@@ -188,11 +188,11 @@ const earliestTimeFromOption = (value: string) => {
       <div>
         <label :for="'tdd-' + props.name + '-start-input'">From</label>
         <VueDatePicker
-          time-picker-inline
           :id="'tdd-' + props.name + '-start'"
+          v-model="startTime"
+          time-picker-inline
           :name="'tdd-' + props.name + '-start-input'"
           :format="dateFormat"
-          v-model="startTime"
           placeholder="Start time"
           @update:model-value="handleStartChange"
         />
@@ -200,11 +200,11 @@ const earliestTimeFromOption = (value: string) => {
       <div>
         <label :for="'tdd-' + props.name + '-end-input'">To</label>
         <VueDatePicker
-          time-picker-inline
           :id="'tdd-' + props.name + '-end'"
+          v-model="endTime"
+          time-picker-inline
           :name="'tdd-' + props.name + '-end-input'"
           :format="dateFormat"
-          v-model="endTime"
           placeholder="End time"
           @update:model-value="handleEndChange"
         />

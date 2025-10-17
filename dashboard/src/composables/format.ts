@@ -1,18 +1,18 @@
 import moment from "moment";
 
-export function FormatDateTime(value: Date | undefined) {
+export function formatDateTime(value: Date | undefined) {
   if (!value || Number.isNaN(value.getTime())) {
     return "";
   }
   return moment(value).format("YYYY-MM-DD HH:mm:ss");
 }
 
-export function FormatDateTimeString(value: string) {
+export function formatDateTimeString(value: string) {
   const date = new Date(value);
   return moment(date).format("YYYY-MM-DD HH:mm:ss");
 }
 
-export function FormatDuration(from: Date, to: Date) {
+export function formatDuration(from: Date, to: Date) {
   const diff = moment(to).diff(from);
   return moment.duration(diff).humanize();
 }

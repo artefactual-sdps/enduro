@@ -28,7 +28,7 @@ const confirm = async () => {
 </script>
 
 <template>
-  <div class="alert alert-info" role="alert" v-if="sipStore.isPending">
+  <div v-if="sipStore.isPending" class="alert alert-info" role="alert">
     <h4 class="alert-heading">Task: Review AIP</h4>
     <p>
       Please review the output and decide if you would like to keep the AIP or

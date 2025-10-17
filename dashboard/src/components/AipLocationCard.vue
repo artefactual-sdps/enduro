@@ -78,18 +78,18 @@ const requestDeletion = async () => {
               "
               type="button"
               class="btn btn-primary btn-sm"
-              @click="choose"
               :disabled="!aipStore.isMovable"
+              @click="choose"
             >
               <template v-if="aipStore.isMoving">
                 <span
                   class="spinner-grow spinner-grow-sm me-2"
                   role="status"
                   aria-hidden="true"
-                ></span>
+                />
                 Moving...
               </template>
-              <template v-else>Move</template>
+              <template v-else> Move </template>
             </button>
             <button
               v-if="
