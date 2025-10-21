@@ -15,6 +15,7 @@ import (
 	"gotest.tools/v3/fs"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/fake"
 )
 
@@ -45,7 +46,12 @@ func TestUploadActivity(t *testing.T) {
 					Name: aipName,
 				},
 			).
-			Return(&goastorage.SubmitAIPResult{URL: minioTestServer.URL + "/aips/foobar.7z"}, nil)
+			Return(
+				&goastorage.SubmitAIPResult{
+					URL: minioTestServer.URL + "/" + storage.AIPPrefix + "foobar.7z",
+				},
+				nil,
+			)
 		mockClient.EXPECT().
 			UpdateAip(
 				mockutil.Context(),
@@ -82,7 +88,12 @@ func TestUploadActivity(t *testing.T) {
 					Name: aipName,
 				},
 			).
-			Return(&goastorage.SubmitAIPResult{URL: minioTestServer.URL + "/aips/foobar.7z"}, nil)
+			Return(
+				&goastorage.SubmitAIPResult{
+					URL: minioTestServer.URL + "/" + storage.AIPPrefix + "foobar.7z",
+				},
+				nil,
+			)
 		mockClient.EXPECT().
 			UpdateAip(
 				mockutil.Context(),

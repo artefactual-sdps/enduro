@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jonboulle/clockwork"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"go.artefactual.dev/tools/ref"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
+	_ "gocloud.dev/blob/memblob"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
@@ -48,20 +50,25 @@ func NewStorageDeleteWorkflowTestSuite(
 	s.env = ts.NewTestWorkflowEnvironment()
 	s.mockCtrl = gomock.NewController(t)
 	s.storagesvc = fake.NewMockService(s.mockCtrl)
-
 	s.req = req
 	s.aip = &goastorage.AIP{
 		UUID:         s.req.AIPID,
 		LocationUUID: ref.New(uuid.New()),
 		Status:       enums.AIPStatusStored.String(),
 	}
-	s.reviewTask = &datatypes.Task{
-		ID: 1,
-	}
+	s.reviewTask = &datatypes.Task{ID: 1}
 
 	s.env.RegisterActivityWithOptions(
 		activities.NewDeleteFromAMSSLocationActivity(false, time.Microsecond*1).Execute,
 		temporalsdk_activity.RegisterOptions{Name: storage.DeleteFromAMSSLocationActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
+		activities.NewAIPDeletionReportActivity(
+			clockwork.NewFakeClock(),
+			storage.AIPDeletionConfig{ReportTemplatePath: "../../../assets/Enduro_AIP_deletion_report_v3.tmpl.pdf"},
+			s.storagesvc,
+		).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.AIPDeletionReportActivityName},
 	)
 
 	return &s
@@ -275,6 +282,20 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 		).Return(nil)
 
 		s.env.OnActivity(
+			activities.AIPDeletionReportActivityName,
+			mock.AnythingOfType("*context.timerCtx"),
+			&activities.AIPDeletionReportActivityParams{
+				AIPID:          s.aip.UUID,
+				LocationSource: enums.LocationSourceAmss,
+			},
+		).Return(
+			&activities.AIPDeletionReportActivityResult{
+				Key: fmt.Sprintf("aip_deletion_report_%s.pdf", s.aip.UUID),
+			},
+			nil,
+		)
+
+		s.env.OnActivity(
 			storage.CompleteWorkflowLocalActivity,
 			mock.AnythingOfType("*context.valueCtx"),
 			s.storagesvc,
@@ -294,7 +315,15 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 			},
 		).Return(nil)
 
-		s.env.ExecuteWorkflow(NewStorageDeleteWorkflow(s.storagesvc).Execute, req)
+		s.env.ExecuteWorkflow(
+			NewStorageDeleteWorkflow(
+				storage.AIPDeletionConfig{
+					ReportTemplatePath: "../../../assets/Enduro_AIP_deletion_report_v3.tmpl.pdf",
+				},
+				s.storagesvc,
+			).Execute,
+			req,
+		)
 
 		require.True(t, s.env.IsWorkflowCompleted())
 		err := s.env.GetWorkflowResult(nil)
@@ -390,7 +419,15 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 			},
 		).Return(nil)
 
-		s.env.ExecuteWorkflow(NewStorageDeleteWorkflow(s.storagesvc).Execute, req)
+		s.env.ExecuteWorkflow(
+			NewStorageDeleteWorkflow(
+				storage.AIPDeletionConfig{
+					ReportTemplatePath: "../../../assets/Enduro_AIP_deletion_report_v3.tmpl.pdf",
+				},
+				s.storagesvc,
+			).Execute,
+			req,
+		)
 
 		require.True(t, s.env.IsWorkflowCompleted())
 		err := s.env.GetWorkflowResult(nil)

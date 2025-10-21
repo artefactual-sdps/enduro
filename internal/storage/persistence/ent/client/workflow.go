@@ -51,6 +51,19 @@ func (c *Client) CreateWorkflow(ctx context.Context, w *types.Workflow) error {
 	return nil
 }
 
+func (c *Client) ReadWorkflow(ctx context.Context, dbID int) (*types.Workflow, error) {
+	dbw, err := c.c.Workflow.Query().
+		Where(workflow.ID(dbID)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("read workflow: %v", err)
+	}
+
+	w := convertWorkflow(dbw)
+
+	return w, nil
+}
+
 func (c *Client) UpdateWorkflow(ctx context.Context, id int, upd persistence.WorkflowUpdater) (*types.Workflow, error) {
 	tx, err := c.c.BeginTx(ctx, nil)
 	if err != nil {

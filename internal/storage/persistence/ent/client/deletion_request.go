@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
@@ -49,6 +48,34 @@ func (c *Client) CreateDeletionRequest(ctx context.Context, dr *types.DeletionRe
 	dr.DBID = dbdr.ID
 
 	return nil
+}
+
+func (c *Client) ListDeletionRequests(
+	ctx context.Context,
+	f *persistence.DeletionRequestFilter,
+) ([]*types.DeletionRequest, error) {
+	query := c.c.DeletionRequest.Query().WithAip()
+
+	if f != nil {
+		if f.AIPUUID != nil {
+			query = query.Where(deletionrequest.HasAipWith(aip.AipID(*f.AIPUUID)))
+		}
+		if f.Status != nil {
+			query = query.Where(deletionrequest.StatusEQ(*f.Status))
+		}
+	}
+
+	r, err := query.All(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("list deletion requests: %v", err)
+	}
+
+	drs := make([]*types.DeletionRequest, len(r))
+	for i, dr := range r {
+		drs[i] = convertDeletionRequest(dr)
+	}
+
+	return drs, nil
 }
 
 func (c *Client) UpdateDeletionRequest(
@@ -103,16 +130,15 @@ func (c *Client) UpdateDeletionRequest(
 	return r, nil
 }
 
-func (c *Client) ReadAipPendingDeletionRequest(
+func (c *Client) ReadDeletionRequest(
 	ctx context.Context,
-	aipID uuid.UUID,
+	id uuid.UUID,
 ) (*types.DeletionRequest, error) {
 	dr, err := c.c.DeletionRequest.Query().
-		Where(deletionrequest.HasAipWith(aip.AipID(aipID))).
-		Where(deletionrequest.StatusEQ(enums.DeletionRequestStatusPending)).
+		Where(deletionrequest.UUID(id)).
 		Only(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("read AIP pending deletion request: %v", err)
+		return nil, fmt.Errorf("read deletion request: %v", err)
 	}
 
 	return convertDeletionRequest(dr), nil

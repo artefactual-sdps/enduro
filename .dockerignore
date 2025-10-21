@@ -5,4 +5,5 @@
 !go.mod
 !go.sum
 !main.go
+!assets/Enduro_AIP_deletion_report_v3.tmpl.pdf
 !hack/xsd/premis.xsd

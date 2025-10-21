@@ -150,7 +150,7 @@ func TestNewService(t *testing.T) {
 	})
 }
 
-func TestServiceSubmit(t *testing.T) {
+func TestServiceSubmitAip(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Returns not_valid if AIP ID is invalid", func(t *testing.T) {
@@ -719,18 +719,18 @@ func TestServiceUpdateAipLocationUUID(t *testing.T) {
 	})
 }
 
-func TestServiceDelete(t *testing.T) {
+func TestServiceDeleteAip(t *testing.T) {
 	t.Parallel()
 
-	t.Run("From internal location", func(t *testing.T) {
+	t.Run("Delete AIP from an internal location", func(t *testing.T) {
 		t.Parallel()
 
 		var attrs setUpAttrs
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 
-		// Write a test blob to the internal bucket.
-		writeTestBlob(ctx, t, "file://"+attrs.config.Internal.URL, aipID.String())
+		// Write a test blob to the internal bucket with an AIP prefix.
+		writeTestBlob(ctx, t, "file://"+attrs.config.Internal.URL, storage.AIPPrefix+aipID.String())
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -751,7 +751,7 @@ func TestServiceDelete(t *testing.T) {
 		assert.NilError(t, err)
 	})
 
-	t.Run("From perma location", func(t *testing.T) {
+	t.Run("Delete AIP from a perma location", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
@@ -798,7 +798,7 @@ func TestServiceDelete(t *testing.T) {
 		assert.NilError(t, err)
 	})
 
-	t.Run("Fails if object does not exist", func(t *testing.T) {
+	t.Run("Delete AIP fails if object does not exist", func(t *testing.T) {
 		t.Parallel()
 
 		ctx := context.Background()
@@ -1996,6 +1996,35 @@ func TestCreateWorkflow(t *testing.T) {
 	})
 }
 
+func TestReadWorkflow(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Reads a Workflow", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		workflow := &types.Workflow{
+			DBID:       1,
+			UUID:       uuid.New(),
+			TemporalID: "temporal-id",
+			Type:       enums.WorkflowTypeMoveAip,
+			Status:     enums.WorkflowStatusInProgress,
+		}
+
+		attrs.persistenceMock.
+			EXPECT().
+			ReadWorkflow(ctx, workflow.DBID).
+			Return(workflow, nil)
+
+		re, err := svc.ReadWorkflow(ctx, workflow.DBID)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, re, workflow)
+	})
+}
+
 func TestUpdateWorkflow(t *testing.T) {
 	t.Parallel()
 
@@ -2189,6 +2218,80 @@ func TestCreateDeletionRequest(t *testing.T) {
 	})
 }
 
+func TestListDeletionRequests(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Lists DeletionRequests", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := setUpAttrs{}
+		svc := setUpService(t, &attrs)
+		ctx := context.Background()
+
+		drs := []*types.DeletionRequest{
+			{
+				DBID:        1,
+				UUID:        uuid.New(),
+				AIPUUID:     uuid.New(),
+				Reason:      "Reason 1",
+				Status:      enums.DeletionRequestStatusCanceled,
+				RequestedAt: time.Now(),
+			},
+			{
+				DBID:        2,
+				UUID:        uuid.New(),
+				AIPUUID:     uuid.New(),
+				Reason:      "Reason 2",
+				Status:      enums.DeletionRequestStatusApproved,
+				RequestedAt: time.Now(),
+			},
+		}
+
+		attrs.persistenceMock.
+			EXPECT().
+			ListDeletionRequests(ctx, nil).
+			Return(drs, nil)
+
+		re, err := svc.ListDeletionRequests(ctx, nil)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, re, drs)
+	})
+}
+
+func TestReadDeletionRequest(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Reads a DeletionRequest", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := &setUpAttrs{}
+		svc := setUpService(t, attrs)
+		ctx := context.Background()
+
+		dr := &types.DeletionRequest{
+			DBID:        1,
+			UUID:        uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
+			AIPUUID:     uuid.New(),
+			Reason:      "Updated reason",
+			Status:      enums.DeletionRequestStatusApproved,
+			RequestedAt: time.Now(),
+			ReviewedAt:  time.Now(),
+			Reviewer:    "reviewer@example.com",
+			ReviewerIss: "issuer",
+			ReviewerSub: "subject",
+		}
+
+		attrs.persistenceMock.
+			EXPECT().
+			ReadDeletionRequest(ctx, dr.UUID).
+			Return(dr, nil)
+
+		re, err := svc.ReadDeletionRequest(ctx, dr.UUID)
+		assert.NilError(t, err)
+		assert.DeepEqual(t, re, dr)
+	})
+}
+
 func TestUpdateDeletionRequest(t *testing.T) {
 	t.Parallel()
 
@@ -2232,54 +2335,5 @@ func TestUpdateDeletionRequest(t *testing.T) {
 		re, err := svc.UpdateDeletionRequest(ctx, drID, updater)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, re, dr)
-	})
-}
-
-func TestReadAipPendingDeletionRequest(t *testing.T) {
-	t.Parallel()
-
-	t.Run("Returns pending DeletionRequest", func(t *testing.T) {
-		t.Parallel()
-
-		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
-
-		aipUUID := uuid.New()
-		dr := &types.DeletionRequest{
-			UUID:        uuid.New(),
-			AIPUUID:     aipUUID,
-			Reason:      "Pending deletion request",
-			Status:      enums.DeletionRequestStatusPending,
-			RequestedAt: time.Now(),
-		}
-
-		attrs.persistenceMock.
-			EXPECT().
-			ReadAipPendingDeletionRequest(ctx, aipUUID).
-			Return(dr, nil)
-
-		re, err := svc.ReadAipPendingDeletionRequest(ctx, aipUUID)
-		assert.NilError(t, err)
-		assert.DeepEqual(t, re, dr)
-	})
-
-	t.Run("Returns a persistence error", func(t *testing.T) {
-		t.Parallel()
-
-		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
-
-		aipUUID := uuid.New()
-		perErr := errors.New("persistence error")
-
-		attrs.persistenceMock.
-			EXPECT().
-			ReadAipPendingDeletionRequest(ctx, aipUUID).
-			Return(nil, perErr)
-
-		_, err := svc.ReadAipPendingDeletionRequest(ctx, aipUUID)
-		assert.ErrorIs(t, err, perErr)
 	})
 }

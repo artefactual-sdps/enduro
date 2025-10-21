@@ -19,22 +19,33 @@ import (
 )
 
 type StorageDeleteWorkflow struct {
+	cfg        storage.AIPDeletionConfig
 	storagesvc storage.Service
 }
 
-func NewStorageDeleteWorkflow(storagesvc storage.Service) *StorageDeleteWorkflow {
-	return &StorageDeleteWorkflow{storagesvc: storagesvc}
+func NewStorageDeleteWorkflow(
+	cfg storage.AIPDeletionConfig,
+	ss storage.Service,
+) *StorageDeleteWorkflow {
+	return &StorageDeleteWorkflow{
+		cfg:        cfg,
+		storagesvc: ss,
+	}
 }
 
 func (w *StorageDeleteWorkflow) Execute(
 	ctx temporalsdk_workflow.Context,
 	req storage.StorageDeleteWorkflowRequest,
 ) (e error) {
+	var (
+		aip            goastorage.AIP
+		locationSource enums.LocationSource
+	)
+
 	logger := temporalsdk_workflow.GetLogger(ctx)
 	logger.Info("Started AIP deletion workflow", "request", req)
 
 	// Fail workflow if the AIP is no longer stored.
-	var aip goastorage.AIP
 	activityOpts := localActivityOptions(ctx)
 	err := temporalsdk_workflow.ExecuteLocalActivity(
 		activityOpts,
@@ -81,6 +92,13 @@ func (w *StorageDeleteWorkflow) Execute(
 		// Set AIP status to stored/deleted.
 		if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, aipStatus); err != nil {
 			e = errors.Join(e, err)
+		}
+
+		// Generate AIP deletion report.
+		if aipStatus == enums.AIPStatusDeleted && workflowStatus == enums.WorkflowStatusDone {
+			if err := w.generateAIPDeletionReport(ctx, req.AIPID, locationSource); err != nil {
+				e = errors.Join(e, err)
+			}
 		}
 	}()
 
@@ -157,6 +175,7 @@ func (w *StorageDeleteWorkflow) Execute(
 			fmt.Sprintf("Failed to get location information:\n%v", err),
 		))
 	}
+	locationSource = locationInfo.Source
 
 	// Delete AIP based on location source.
 	deleted := true
@@ -314,4 +333,38 @@ func (w *StorageDeleteWorkflow) deleteAIPFromAMSSLocation(
 	}
 
 	return re.Deleted, nil
+}
+
+func (w *StorageDeleteWorkflow) generateAIPDeletionReport(
+	ctx temporalsdk_workflow.Context,
+	aipID uuid.UUID,
+	locationSource enums.LocationSource,
+) error {
+	if w.cfg.ReportTemplatePath == "" {
+		logger := temporalsdk_workflow.GetLogger(ctx)
+		logger.Info("Skipping AIP deletion report generation as no template path is configured")
+		return nil
+	}
+
+	opts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
+		StartToCloseTimeout: time.Minute,
+		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+			InitialInterval:    time.Second * 5,
+			BackoffCoefficient: 2,
+			MaximumInterval:    time.Minute,
+			MaximumAttempts:    3,
+		},
+	})
+
+	var res activities.AIPDeletionReportActivityResult
+	err := temporalsdk_workflow.ExecuteActivity(
+		opts,
+		activities.AIPDeletionReportActivityName,
+		&activities.AIPDeletionReportActivityParams{
+			AIPID:          aipID,
+			LocationSource: locationSource,
+		},
+	).Get(opts, &res)
+
+	return err
 }
