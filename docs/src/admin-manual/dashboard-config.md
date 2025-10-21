@@ -47,6 +47,26 @@ institutional logo will open a new browser tab and load the given URL.
 If no `VITE_INSTITUTION_URL` is set, then the institutional logo will not be
 clickable.
 
+## Custom home page HTML
+
+The Enduro dashboard can display custom HTML content on the home page by
+setting the following environment variable:
+
+```bash
+VITE_CUSTOM_HOME_URL=/custom/home.html
+```
+
+`VITE_CUSTOM_HOME_URL` sets a URL for a custom HTML file to be displayed on the
+home page. If it's not set, or set to an empty string, then the default home
+page content will be displayed.
+
+The custom HTML content is sanitized using [DOMPurify] before being rendered.
+If the custom HTML file cannot be loaded, an error message will be displayed
+and the default home page content will be shown instead. Due to Content
+Security Policy restrictions, inline CSS styles are not permitted by default.
+Use Bootstrap CSS classes instead, or modify the CSP header. Local files can be
+served from the `/custom/` directory (see the [nginx configuration example]).
+
 ## OIDC settings
 
 The following environment variables can be used to configure an OpenID Connect
@@ -69,5 +89,7 @@ VITE_OIDC_ABAC_ROLES_MAPPING
 Check the [Identity and access control](iac.md) page for more information.
 
 [alt]: https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/alt
-[Configuration]: ../admin-manual/configuration.md
+[Configuration]: configuration.md
+[DOMPurify]: https://github.com/cure53/DOMPurify
+[nginx configuration example]: dashboard-build.md#nginx-example
 [Vite environment variables]: https://vite.dev/guide/env-and-mode
