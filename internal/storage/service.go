@@ -44,6 +44,7 @@ type Service interface {
 	UpdateTask(context.Context, int, persistence.TaskUpdater) (*types.Task, error)
 	CreateDeletionRequest(context.Context, *types.DeletionRequest) error
 	UpdateDeletionRequest(context.Context, int, persistence.DeletionRequestUpdater) (*types.DeletionRequest, error)
+	ReadDeletionRequest(ctx context.Context, drID uuid.UUID) (*types.DeletionRequest, error)
 	ReadAipPendingDeletionRequest(ctx context.Context, aipID uuid.UUID) (*types.DeletionRequest, error)
 
 	// Both.
@@ -656,6 +657,13 @@ func (svc *serviceImpl) UpdateDeletionRequest(
 	svc.auditLogger.Log(ctx, deletionRequestAuditEvent(dr))
 
 	return dr, nil
+}
+
+func (svc *serviceImpl) ReadDeletionRequest(
+	ctx context.Context,
+	id uuid.UUID,
+) (*types.DeletionRequest, error) {
+	return svc.storagePersistence.ReadDeletionRequest(ctx, id)
 }
 
 func (svc *serviceImpl) ReadAipPendingDeletionRequest(

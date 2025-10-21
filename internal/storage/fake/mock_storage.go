@@ -861,6 +861,45 @@ func (c *MockServiceReadAipPendingDeletionRequestCall) DoAndReturn(f func(contex
 	return c
 }
 
+// ReadDeletionRequest mocks base method.
+func (m *MockService) ReadDeletionRequest(ctx context.Context, drID uuid.UUID) (*types.DeletionRequest, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadDeletionRequest", ctx, drID)
+	ret0, _ := ret[0].(*types.DeletionRequest)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadDeletionRequest indicates an expected call of ReadDeletionRequest.
+func (mr *MockServiceMockRecorder) ReadDeletionRequest(ctx, drID any) *MockServiceReadDeletionRequestCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadDeletionRequest", reflect.TypeOf((*MockService)(nil).ReadDeletionRequest), ctx, drID)
+	return &MockServiceReadDeletionRequestCall{Call: call}
+}
+
+// MockServiceReadDeletionRequestCall wrap *gomock.Call
+type MockServiceReadDeletionRequestCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceReadDeletionRequestCall) Return(arg0 *types.DeletionRequest, arg1 error) *MockServiceReadDeletionRequestCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceReadDeletionRequestCall) Do(f func(context.Context, uuid.UUID) (*types.DeletionRequest, error)) *MockServiceReadDeletionRequestCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceReadDeletionRequestCall) DoAndReturn(f func(context.Context, uuid.UUID) (*types.DeletionRequest, error)) *MockServiceReadDeletionRequestCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ReadLocation mocks base method.
 func (m *MockService) ReadLocation(ctx context.Context, locationID uuid.UUID) (*storage.Location, error) {
 	m.ctrl.T.Helper()

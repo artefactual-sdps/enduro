@@ -249,6 +249,22 @@ func (w *wrapper) UpdateDeletionRequest(
 	return r, nil
 }
 
+func (w *wrapper) ReadDeletionRequest(
+	ctx context.Context,
+	id uuid.UUID,
+) (*types.DeletionRequest, error) {
+	ctx, span := w.tracer.Start(ctx, "ReadDeletionRequest")
+	defer span.End()
+
+	r, err := w.wrapped.ReadDeletionRequest(ctx, id)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ReadDeletionRequest")
+	}
+
+	return r, nil
+}
+
 func (w *wrapper) ReadAipPendingDeletionRequest(
 	ctx context.Context,
 	aipID uuid.UUID,

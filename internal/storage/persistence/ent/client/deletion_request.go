@@ -103,6 +103,20 @@ func (c *Client) UpdateDeletionRequest(
 	return r, nil
 }
 
+func (c *Client) ReadDeletionRequest(
+	ctx context.Context,
+	id uuid.UUID,
+) (*types.DeletionRequest, error) {
+	dr, err := c.c.DeletionRequest.Query().
+		Where(deletionrequest.UUID(id)).
+		Only(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("read deletion request: %v", err)
+	}
+
+	return convertDeletionRequest(dr), nil
+}
+
 func (c *Client) ReadAipPendingDeletionRequest(
 	ctx context.Context,
 	aipID uuid.UUID,

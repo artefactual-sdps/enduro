@@ -46,6 +46,7 @@ type Storage interface {
 	// DeletionRequest.
 	CreateDeletionRequest(context.Context, *types.DeletionRequest) error
 	UpdateDeletionRequest(context.Context, int, DeletionRequestUpdater) (*types.DeletionRequest, error)
+	ReadDeletionRequest(context.Context, uuid.UUID) (*types.DeletionRequest, error)
 	ReadAipPendingDeletionRequest(context.Context, uuid.UUID) (*types.DeletionRequest, error)
 }
 
