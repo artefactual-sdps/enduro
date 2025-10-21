@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
@@ -19,7 +20,28 @@ import (
 func initialDataForDeletionRequestTests(t *testing.T, ctx context.Context, entc *db.Client) {
 	t.Helper()
 
-	initialDataForTaskTests(t, ctx, entc)
+	aip := entc.AIP.Create().
+		SetName("AIP 1").
+		SetAipID(aipID).
+		SetObjectKey(objectKey).
+		SetStatus(enums.AIPStatusStored).
+		SaveX(ctx)
+
+	entc.Workflow.Create().
+		SetUUID(wUUID).
+		SetTemporalID("temporal-id").
+		SetType(enums.WorkflowTypeDeleteAip).
+		SetStatus(enums.WorkflowStatusCanceled).
+		SetAipID(aip.ID).
+		SaveX(ctx)
+
+	entc.Workflow.Create().
+		SetUUID(uuid.New()).
+		SetTemporalID("temporal-id").
+		SetType(enums.WorkflowTypeDeleteAip).
+		SetStatus(enums.WorkflowStatusDone).
+		SetAipID(aip.ID).
+		SaveX(ctx)
 }
 
 func TestCreateDeletionRequest(t *testing.T) {
@@ -96,6 +118,149 @@ func TestCreateDeletionRequest(t *testing.T) {
 				tt.want,
 				cmpopts.IgnoreFields(db.DeletionRequest{}, "config", "Edges", "selectValues"),
 			)
+		})
+	}
+}
+
+func TestListDeletionRequests(t *testing.T) {
+	t.Parallel()
+
+	drUUID1 := uuid.New()
+	drUUID2 := uuid.New()
+	requestedAt1 := time.Date(2025, 10, 29, 10, 10, 10, 0, time.UTC)
+	requestedAt2 := time.Date(2025, 10, 29, 11, 11, 11, 0, time.UTC)
+
+	type test struct {
+		name   string
+		filter *persistence.DeletionRequestFilter
+		want   []*types.DeletionRequest
+	}
+
+	for _, tc := range []test{
+		{
+			name: "Lists all Deletion Requests when filter is nil",
+			want: []*types.DeletionRequest{
+				{
+					DBID:         1,
+					UUID:         drUUID1,
+					Reason:       "Reason 1",
+					Requester:    "requester@example.com",
+					RequesterIss: "issuer",
+					RequesterSub: "sub",
+					RequestedAt:  requestedAt1,
+					Status:       enums.DeletionRequestStatusPending,
+					AIPUUID:      aipID,
+					WorkflowDBID: 1,
+				},
+				{
+					DBID:         2,
+					UUID:         drUUID2,
+					Reason:       "Reason 2",
+					Requester:    "requester@example.com",
+					RequesterIss: "issuer",
+					RequesterSub: "sub",
+					RequestedAt:  requestedAt2,
+					Status:       enums.DeletionRequestStatusApproved,
+					AIPUUID:      aipID,
+					WorkflowDBID: 2,
+				},
+			},
+		},
+		{
+			name: "Lists Deletion Requests by Status",
+			filter: &persistence.DeletionRequestFilter{
+				Status: ref.New(enums.DeletionRequestStatusPending),
+			},
+			want: []*types.DeletionRequest{
+				{
+					DBID:         1,
+					UUID:         drUUID1,
+					Reason:       "Reason 1",
+					Requester:    "requester@example.com",
+					RequesterIss: "issuer",
+					RequesterSub: "sub",
+					RequestedAt:  requestedAt1,
+					Status:       enums.DeletionRequestStatusPending,
+					AIPUUID:      aipID,
+					WorkflowDBID: 1,
+				},
+			},
+		},
+		{
+			name: "Lists Deletion Requests by AIP UUID",
+			filter: &persistence.DeletionRequestFilter{
+				AIPUUID: ref.New(aipID),
+			},
+			want: []*types.DeletionRequest{
+				{
+					DBID:         1,
+					UUID:         drUUID1,
+					Reason:       "Reason 1",
+					Requester:    "requester@example.com",
+					RequesterIss: "issuer",
+					RequesterSub: "sub",
+					RequestedAt:  requestedAt1,
+					Status:       enums.DeletionRequestStatusPending,
+					AIPUUID:      aipID,
+					WorkflowDBID: 1,
+				},
+				{
+					DBID:         2,
+					UUID:         drUUID2,
+					Reason:       "Reason 2",
+					Requester:    "requester@example.com",
+					RequesterIss: "issuer",
+					RequesterSub: "sub",
+					RequestedAt:  requestedAt2,
+					Status:       enums.DeletionRequestStatusApproved,
+					AIPUUID:      aipID,
+					WorkflowDBID: 2,
+				},
+			},
+		},
+		{
+			name: "Returns no results for non-matching filter",
+			filter: &persistence.DeletionRequestFilter{
+				AIPUUID: ref.New(uuid.New()),
+			},
+			want: []*types.DeletionRequest{},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := context.Background()
+			entc, c := setUpClient(t)
+			initialDataForDeletionRequestTests(t, ctx, entc)
+
+			entc.DeletionRequest.Create().
+				SetUUID(drUUID1).
+				SetRequester("requester@example.com").
+				SetRequesterIss("issuer").
+				SetRequesterSub("sub").
+				SetRequestedAt(requestedAt1).
+				SetReason("Reason 1").
+				SetStatus(enums.DeletionRequestStatusPending).
+				SetAipID(1).
+				SetWorkflowID(1).
+				SaveX(ctx)
+
+			entc.DeletionRequest.Create().
+				SetUUID(drUUID2).
+				SetRequester("requester@example.com").
+				SetRequesterIss("issuer").
+				SetRequesterSub("sub").
+				SetRequestedAt(requestedAt2).
+				SetReason("Reason 2").
+				SetStatus(enums.DeletionRequestStatusApproved).
+				SetAipID(1).
+				SetWorkflowID(2).
+				SaveX(ctx)
+
+			r, err := c.ListDeletionRequests(ctx, tc.filter)
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, r, tc.want)
 		})
 	}
 }
@@ -203,77 +368,6 @@ func TestUpdateDeletionRequest(t *testing.T) {
 			}
 
 			dr, err := c.UpdateDeletionRequest(ctx, tt.dbID, tt.updater)
-			if tt.wantErr != "" {
-				assert.Error(t, err, tt.wantErr)
-				return
-			}
-
-			assert.NilError(t, err)
-			assert.DeepEqual(t, dr, tt.want)
-		})
-	}
-}
-
-func TestReadAipPendingDeletionRequest(t *testing.T) {
-	t.Parallel()
-
-	drUUID := uuid.New()
-	requestedAt := time.Now()
-
-	type test struct {
-		name    string
-		aipID   uuid.UUID
-		setup   func(ctx context.Context, entc *db.Client)
-		want    *types.DeletionRequest
-		wantErr string
-	}
-
-	for _, tt := range []test{
-		{
-			name:  "Finds pending deletion request",
-			aipID: aipID,
-			setup: func(ctx context.Context, entc *db.Client) {
-				entc.DeletionRequest.Create().
-					SetUUID(drUUID).
-					SetRequester("requester@example.com").
-					SetRequesterIss("issuer").
-					SetRequesterSub("sub").
-					SetRequestedAt(requestedAt).
-					SetReason("Reason").
-					SetAipID(1).
-					SetWorkflowID(1).
-					SaveX(ctx)
-			},
-			want: &types.DeletionRequest{
-				DBID:         1,
-				UUID:         drUUID,
-				Reason:       "Reason",
-				Requester:    "requester@example.com",
-				RequesterIss: "issuer",
-				RequesterSub: "sub",
-				RequestedAt:  requestedAt,
-				Status:       enums.DeletionRequestStatusPending,
-				WorkflowDBID: 1,
-			},
-		},
-		{
-			name:    "No pending deletion request found",
-			aipID:   aipID,
-			wantErr: "read AIP pending deletion request: db: deletion_request not found",
-		},
-	} {
-		t.Run(tt.name, func(t *testing.T) {
-			t.Parallel()
-
-			ctx := context.Background()
-			entc, c := setUpClient(t)
-			initialDataForDeletionRequestTests(t, ctx, entc)
-
-			if tt.setup != nil {
-				tt.setup(ctx, entc)
-			}
-
-			dr, err := c.ReadAipPendingDeletionRequest(ctx, tt.aipID)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

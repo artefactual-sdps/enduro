@@ -17,6 +17,7 @@ import (
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/fake"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -295,7 +296,10 @@ func TestReviewAipDeletion(t *testing.T) {
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
-				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(nil, errors.New("persistence error"))
+				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+					AIPUUID: ref.New(aipID),
+					Status:  ref.New(enums.DeletionRequestStatusPending),
+				}).Return(nil, errors.New("persistence error"))
 			},
 			wantErr: "cannot perform operation",
 		},
@@ -312,9 +316,14 @@ func TestReviewAipDeletion(t *testing.T) {
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
-				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterIss: "issuer",
-					RequesterSub: "subject",
+				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+					AIPUUID: ref.New(aipID),
+					Status:  ref.New(enums.DeletionRequestStatusPending),
+				}).Return([]*types.DeletionRequest{
+					{
+						RequesterIss: "issuer",
+						RequesterSub: "subject",
+					},
 				}, nil)
 			},
 			wantErr: "requester cannot review their own request",
@@ -332,9 +341,14 @@ func TestReviewAipDeletion(t *testing.T) {
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
-				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterIss: "issuer",
-					RequesterSub: "subject",
+				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+					AIPUUID: ref.New(aipID),
+					Status:  ref.New(enums.DeletionRequestStatusPending),
+				}).Return([]*types.DeletionRequest{
+					{
+						RequesterIss: "issuer",
+						RequesterSub: "subject",
+					},
 				}, nil)
 				tc.On(
 					"SignalWorkflow",
@@ -365,9 +379,14 @@ func TestReviewAipDeletion(t *testing.T) {
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
-				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterIss: "issuer",
-					RequesterSub: "subject",
+				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+					AIPUUID: ref.New(aipID),
+					Status:  ref.New(enums.DeletionRequestStatusPending),
+				}).Return([]*types.DeletionRequest{
+					{
+						RequesterIss: "issuer",
+						RequesterSub: "subject",
+					},
 				}, nil)
 				tc.On(
 					"SignalWorkflow",
@@ -448,7 +467,12 @@ func TestCancelAipDeletion(t *testing.T) {
 				UUID: aipID.String(),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
-				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(nil, errors.New("db: deletion_request not found"))
+				s.EXPECT().
+					ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+						AIPUUID: &aipID,
+						Status:  ref.New(enums.DeletionRequestStatusPending),
+					}).
+					Return(nil, errors.New("db: deletion_request not found"))
 			},
 			wantErr: "db: deletion_request not found",
 		},
@@ -463,9 +487,34 @@ func TestCancelAipDeletion(t *testing.T) {
 				UUID: aipID.String(),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
-				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(nil, errors.New("db: persistence error"))
+				s.EXPECT().
+					ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+						AIPUUID: &aipID,
+						Status:  ref.New(enums.DeletionRequestStatusPending),
+					}).
+					Return(nil, errors.New("db: persistence error"))
 			},
 			wantErr: "db: persistence error",
+		},
+		{
+			name: "Fails if no valid deletion request is found",
+			claims: &auth.Claims{
+				Email: "reviewer@example.com",
+				Iss:   "issuer",
+				Sub:   "subject-2",
+			},
+			payload: &goastorage.CancelAipDeletionPayload{
+				UUID: aipID.String(),
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().
+					ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+						AIPUUID: &aipID,
+						Status:  ref.New(enums.DeletionRequestStatusPending),
+					}).
+					Return([]*types.DeletionRequest{}, nil)
+			},
+			wantErr: "no valid deletion requests",
 		},
 		{
 			name: "Fails if auth user is not the requester",
@@ -478,10 +527,17 @@ func TestCancelAipDeletion(t *testing.T) {
 				UUID: aipID.String(),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
-				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterIss: "issuer",
-					RequesterSub: "subject-2",
-				}, nil)
+				s.EXPECT().
+					ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+						AIPUUID: &aipID,
+						Status:  ref.New(enums.DeletionRequestStatusPending),
+					}).
+					Return([]*types.DeletionRequest{
+						{
+							RequesterIss: "issuer",
+							RequesterSub: "subject-2",
+						},
+					}, nil)
 			},
 			wantErr: "Forbidden",
 		},
@@ -496,12 +552,19 @@ func TestCancelAipDeletion(t *testing.T) {
 				UUID: aipID.String(),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
-				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(
-					&types.DeletionRequest{
-						RequesterIss: "issuer",
-						RequesterSub: "subject",
-					}, nil,
-				)
+				s.EXPECT().
+					ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+						AIPUUID: &aipID,
+						Status:  ref.New(enums.DeletionRequestStatusPending),
+					}).
+					Return(
+						[]*types.DeletionRequest{
+							{
+								RequesterIss: "issuer",
+								RequesterSub: "subject",
+							},
+						}, nil,
+					)
 				tc.On(
 					"SignalWorkflow",
 					mock.AnythingOfType("*context.valueCtx"),
@@ -529,10 +592,17 @@ func TestCancelAipDeletion(t *testing.T) {
 				UUID: aipID.String(),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
-				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterIss: "issuer",
-					RequesterSub: "subject",
-				}, nil)
+				s.EXPECT().
+					ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+						AIPUUID: &aipID,
+						Status:  ref.New(enums.DeletionRequestStatusPending),
+					}).
+					Return([]*types.DeletionRequest{
+						{
+							RequesterIss: "issuer",
+							RequesterSub: "subject",
+						},
+					}, nil)
 				tc.On(
 					"SignalWorkflow",
 					mock.AnythingOfType("*context.valueCtx"),
@@ -560,10 +630,17 @@ func TestCancelAipDeletion(t *testing.T) {
 				Check: ref.New(true),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
-				s.EXPECT().ReadAipPendingDeletionRequest(ctx, aipID).Return(&types.DeletionRequest{
-					RequesterIss: "issuer",
-					RequesterSub: "subject",
-				}, nil)
+				s.EXPECT().
+					ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+						AIPUUID: &aipID,
+						Status:  ref.New(enums.DeletionRequestStatusPending),
+					}).
+					Return([]*types.DeletionRequest{
+						{
+							RequesterIss: "issuer",
+							RequesterSub: "subject",
+						},
+					}, nil)
 			},
 		},
 	} {

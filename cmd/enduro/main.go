@@ -17,6 +17,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/google/uuid"
+	"github.com/jonboulle/clockwork"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
@@ -512,7 +513,10 @@ func main() {
 		)
 
 		w.RegisterWorkflowWithOptions(
-			storage_workflows.NewStorageDeleteWorkflow(storagesvc).Execute,
+			storage_workflows.NewStorageDeleteWorkflow(
+				cfg.Storage.AIPDeletion,
+				storagesvc,
+			).Execute,
 			temporalsdk_workflow.RegisterOptions{Name: storage.StorageDeleteWorkflowName},
 		)
 		w.RegisterWorkflowWithOptions(
@@ -534,6 +538,16 @@ func main() {
 				time.Second*60,
 			).Execute,
 			temporalsdk_activity.RegisterOptions{Name: storage.DeleteFromAMSSLocationActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			storage_activities.NewAIPDeletionReportActivity(
+				clockwork.NewRealClock(),
+				cfg.Storage.AIPDeletion,
+				storagesvc,
+			).Execute,
+			temporalsdk_activity.RegisterOptions{
+				Name: storage_activities.AIPDeletionReportActivityName,
+			},
 		)
 
 		g.Add(

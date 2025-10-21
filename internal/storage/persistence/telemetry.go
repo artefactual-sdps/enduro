@@ -180,6 +180,19 @@ func (w *wrapper) CreateWorkflow(ctx context.Context, workflow *types.Workflow) 
 	return nil
 }
 
+func (w *wrapper) ReadWorkflow(ctx context.Context, dbID int) (*types.Workflow, error) {
+	ctx, span := w.tracer.Start(ctx, "ReadWorkflow")
+	defer span.End()
+
+	r, err := w.wrapped.ReadWorkflow(ctx, dbID)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ReadWorkflow")
+	}
+
+	return r, nil
+}
+
 func (w *wrapper) UpdateWorkflow(ctx context.Context, id int, upd WorkflowUpdater) (*types.Workflow, error) {
 	ctx, span := w.tracer.Start(ctx, "UpdateWorkflow")
 	defer span.End()
@@ -232,6 +245,22 @@ func (w *wrapper) CreateDeletionRequest(ctx context.Context, dr *types.DeletionR
 	return nil
 }
 
+func (w *wrapper) ListDeletionRequests(
+	ctx context.Context,
+	f *DeletionRequestFilter,
+) ([]*types.DeletionRequest, error) {
+	ctx, span := w.tracer.Start(ctx, "ListDeletionRequests")
+	defer span.End()
+
+	r, err := w.wrapped.ListDeletionRequests(ctx, f)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ListDeletionRequests")
+	}
+
+	return r, nil
+}
+
 func (w *wrapper) UpdateDeletionRequest(
 	ctx context.Context,
 	id int,
@@ -249,17 +278,17 @@ func (w *wrapper) UpdateDeletionRequest(
 	return r, nil
 }
 
-func (w *wrapper) ReadAipPendingDeletionRequest(
+func (w *wrapper) ReadDeletionRequest(
 	ctx context.Context,
-	aipID uuid.UUID,
+	id uuid.UUID,
 ) (*types.DeletionRequest, error) {
-	ctx, span := w.tracer.Start(ctx, "ReadAipPendingDeletionRequest")
+	ctx, span := w.tracer.Start(ctx, "ReadDeletionRequest")
 	defer span.End()
 
-	r, err := w.wrapped.ReadAipPendingDeletionRequest(ctx, aipID)
+	r, err := w.wrapped.ReadDeletionRequest(ctx, id)
 	if err != nil {
 		telemetry.RecordError(span, err)
-		return nil, updateError(err, "ReadAipPendingDeletionRequest")
+		return nil, updateError(err, "ReadDeletionRequest")
 	}
 
 	return r, nil

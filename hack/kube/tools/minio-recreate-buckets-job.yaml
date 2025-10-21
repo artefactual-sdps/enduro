@@ -27,11 +27,11 @@ spec:
               "-c",
               "mc alias set enduro http://minio.enduro-sdps:9000 ${MINIO_USER} ${MINIO_PASSWORD};
               mc rb --force --dangerous enduro;
+              mc mb enduro/enduro-ingest --ignore-existing;
+              mc mb enduro/enduro-storage --ignore-existing;
               mc mb enduro/sips --ignore-existing;
-              mc mb enduro/aips --ignore-existing;
+              mc mb enduro/sipsource --ignore-existing;
               mc mb enduro/perma-aips-1 --ignore-existing;
               mc mb enduro/perma-aips-2 --ignore-existing;
-              mc mb enduro/sipsource --ignore-existing;
-              mc mb enduro/internal --ignore-existing;
               mc event add enduro/sips arn:minio:sqs::PRIMARY:redis --event put --ignore-existing",
             ]

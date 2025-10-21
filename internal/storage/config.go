@@ -52,4 +52,9 @@ type AIPDeletionConfig struct {
 	// AIP deletions in AMSS locations require manual approval in AMSS. When set to true,
 	// they are automatically approved by Enduro, this requires AMSS v0.25.0 or later.
 	ApproveAMSS bool
+
+	// ReportTemplatePath specifies the path to the template file used to
+	// generate AIP deletion reports. If ReportTemplatePath is empty, AIP
+	// deletion reports will not be generated.
+	ReportTemplatePath string
 }

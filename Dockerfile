@@ -56,9 +56,10 @@ RUN groupadd --gid 1000 enduro \
 USER enduro
 
 FROM base AS enduro
-COPY --link --from=build-enduro /out/enduro /home/enduro/bin/enduro
-COPY --link --from=build-enduro /src/enduro.toml /home/enduro/.config/enduro.toml
-COPY --link hack/xsd/premis.xsd /home/enduro/premis.xsd
+COPY --link --chown=enduro:enduro --from=build-enduro /out/enduro /home/enduro/bin/enduro
+COPY --link --chown=enduro:enduro --from=build-enduro /src/enduro.toml /home/enduro/.config/enduro.toml
+COPY --link --chown=enduro:enduro assets/Enduro_AIP_deletion_report_v3.tmpl.pdf /home/enduro/Enduro_AIP_deletion_report_v3.tmpl.pdf
+COPY --link --chown=enduro:enduro hack/xsd/premis.xsd /home/enduro/premis.xsd
 RUN ["mkdir", "-m", "700", "-p", "/home/enduro/logs"]
 CMD ["/home/enduro/bin/enduro", "--config", "/home/enduro/.config/enduro.toml"]
 

@@ -239,7 +239,7 @@ pathStyle = true
 accessKey = "minio"
 secretKey = "minio123"
 region = "us-west-1"
-bucket = "internal"
+bucket = "enduro-ingest"
 
 [internalStorage.azure]
 storageAccount = ""
@@ -325,7 +325,7 @@ pathStyle = true
 key = "minio"
 secret = "minio123"
 region = "us-west-1"
-bucket = "aips"
+bucket = "enduro-storage"
 
 [storage.event]
 redisAddress = "redis://redis.enduro-sdps:6379"
@@ -337,3 +337,8 @@ redisChannel = "enduro-storage-events"
 # AIP deletions in AMSS locations require manual approval in AMSS. When set to true,
 # they are automatically approved by Enduro, this requires AMSS v0.25.0 or later.
 approveAMSS = false
+
+# reportTemplatePath specifies the path to the template file used to generate
+# AIP deletion reports. If reportTemplatePath is empty or omitted, AIP deletion 
+# reports will not be generated.
+reportTemplatePath = "/home/enduro/Enduro_AIP_deletion_report_v3.tmpl.pdf"

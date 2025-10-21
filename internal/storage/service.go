@@ -25,29 +25,43 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
+const (
+	AIPPrefix    = "aips/"
+	ReportPrefix = "reports/"
+)
+
 var SubmitURLExpirationTime = 15 * time.Minute
 
 // Service provides an interface for persisting storage data.
 type Service interface {
 	goastorage.Service
 
-	// Used from workflow activities.
+	// AipReader returns a blob stream reader on the contents of requested AIP.
+	AipReader(ctx context.Context, aip *goastorage.AIP) (*blob.Reader, error)
+
+	// Location returns a Location implementation that provides access to the
+	// location UUID and the underlying blob.OpenBucket() method.
 	Location(ctx context.Context, locationID uuid.UUID) (Location, error)
+
+	// ReadLocation loads a location's metadata from persistence.
+	ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.Location, error)
+
+	DeleteAip(ctx context.Context, aipID uuid.UUID) (err error)
 	ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
 	UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
-	DeleteAip(ctx context.Context, aipID uuid.UUID) (err error)
-	ReadLocation(ctx context.Context, locationID uuid.UUID) (*goastorage.Location, error)
+
 	CreateWorkflow(context.Context, *types.Workflow) error
+	ReadWorkflow(ctx context.Context, dbID int) (*types.Workflow, error)
 	UpdateWorkflow(context.Context, int, persistence.WorkflowUpdater) (*types.Workflow, error)
+
 	CreateTask(context.Context, *types.Task) error
 	UpdateTask(context.Context, int, persistence.TaskUpdater) (*types.Task, error)
-	CreateDeletionRequest(context.Context, *types.DeletionRequest) error
-	UpdateDeletionRequest(context.Context, int, persistence.DeletionRequestUpdater) (*types.DeletionRequest, error)
-	ReadAipPendingDeletionRequest(ctx context.Context, aipID uuid.UUID) (*types.DeletionRequest, error)
 
-	// Both.
-	AipReader(ctx context.Context, aip *goastorage.AIP) (*blob.Reader, error)
+	CreateDeletionRequest(context.Context, *types.DeletionRequest) error
+	ListDeletionRequests(context.Context, *persistence.DeletionRequestFilter) ([]*types.DeletionRequest, error)
+	ReadDeletionRequest(ctx context.Context, drID uuid.UUID) (*types.DeletionRequest, error)
+	UpdateDeletionRequest(context.Context, int, persistence.DeletionRequestUpdater) (*types.DeletionRequest, error)
 }
 
 type serviceImpl struct {
@@ -199,6 +213,7 @@ func (s *serviceImpl) SubmitAip(
 	if err != nil {
 		return nil, err
 	}
+	bucket = blob.PrefixedBucket(bucket, AIPPrefix)
 	defer bucket.Close()
 
 	opts := &blob.SignedURLOptions{
@@ -423,6 +438,11 @@ func (s *serviceImpl) DeleteAip(ctx context.Context, aipID uuid.UUID) error {
 	if err != nil {
 		return err
 	}
+
+	// If the location is the internal processing location, use the AIP prefix.
+	if location.UUID() == uuid.Nil {
+		bucket = blob.PrefixedBucket(bucket, AIPPrefix)
+	}
 	defer bucket.Close()
 
 	return bucket.Delete(ctx, key)
@@ -437,6 +457,11 @@ func (s *serviceImpl) AipReader(ctx context.Context, a *goastorage.AIP) (*blob.R
 	bucket, err := location.OpenBucket(ctx)
 	if err != nil {
 		return nil, err
+	}
+
+	// If the location is the internal processing location, use the AIP prefix.
+	if location.UUID() == uuid.Nil {
+		bucket = blob.PrefixedBucket(bucket, AIPPrefix)
 	}
 	defer bucket.Close()
 
@@ -585,6 +610,10 @@ func (svc *serviceImpl) CreateWorkflow(ctx context.Context, w *types.Workflow) e
 	return nil
 }
 
+func (svc *serviceImpl) ReadWorkflow(ctx context.Context, dbID int) (*types.Workflow, error) {
+	return svc.storagePersistence.ReadWorkflow(ctx, dbID)
+}
+
 func (svc *serviceImpl) UpdateWorkflow(
 	ctx context.Context,
 	id int,
@@ -644,6 +673,20 @@ func (svc *serviceImpl) CreateDeletionRequest(ctx context.Context, dr *types.Del
 	return nil
 }
 
+func (svc *serviceImpl) ListDeletionRequests(
+	ctx context.Context,
+	f *persistence.DeletionRequestFilter,
+) ([]*types.DeletionRequest, error) {
+	return svc.storagePersistence.ListDeletionRequests(ctx, f)
+}
+
+func (svc *serviceImpl) ReadDeletionRequest(
+	ctx context.Context,
+	id uuid.UUID,
+) (*types.DeletionRequest, error) {
+	return svc.storagePersistence.ReadDeletionRequest(ctx, id)
+}
+
 func (svc *serviceImpl) UpdateDeletionRequest(
 	ctx context.Context,
 	id int,
@@ -656,11 +699,4 @@ func (svc *serviceImpl) UpdateDeletionRequest(
 	svc.auditLogger.Log(ctx, deletionRequestAuditEvent(dr))
 
 	return dr, nil
-}
-
-func (svc *serviceImpl) ReadAipPendingDeletionRequest(
-	ctx context.Context,
-	aipID uuid.UUID,
-) (*types.DeletionRequest, error) {
-	return svc.storagePersistence.ReadAipPendingDeletionRequest(ctx, aipID)
 }

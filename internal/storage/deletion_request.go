@@ -5,10 +5,12 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/ref"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 )
 
 func checkClaims(claims *auth.Claims) error {
@@ -87,12 +89,16 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 		return goastorage.MakeNotValid(errors.New("AIP is not awaiting user review"))
 	}
 
-	dr, err := s.ReadAipPendingDeletionRequest(ctx, aipID)
-	if err != nil {
+	// Ensure there is a pending deletion request for the AIP.
+	drs, err := s.ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+		AIPUUID: &aipID,
+		Status:  ref.New(enums.DeletionRequestStatusPending),
+	})
+	if err != nil || len(drs) == 0 {
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	if dr.RequesterIss == claims.Iss && dr.RequesterSub == claims.Sub {
+	if drs[0].RequesterIss == claims.Iss && drs[0].RequesterSub == claims.Sub {
 		return goastorage.MakeNotValid(errors.New("requester cannot review their own request"))
 	}
 
@@ -130,13 +136,19 @@ func (s *serviceImpl) CancelAipDeletion(
 		return goastorage.MakeNotValid(errors.New("invalid UUID"))
 	}
 
-	dr, err := s.storagePersistence.ReadAipPendingDeletionRequest(ctx, aipID)
+	drs, err := s.ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+		AIPUUID: &aipID,
+		Status:  ref.New(enums.DeletionRequestStatusPending),
+	})
 	if err != nil {
 		return err
 	}
+	if len(drs) == 0 {
+		return goastorage.MakeNotValid(errors.New("no valid deletion requests"))
+	}
 
 	// Check that the user is authorized to cancel the deletion request.
-	if claims.Iss != dr.RequesterIss || claims.Sub != dr.RequesterSub {
+	if claims.Iss != drs[0].RequesterIss || claims.Sub != drs[0].RequesterSub {
 		return ErrForbidden
 	}
 
