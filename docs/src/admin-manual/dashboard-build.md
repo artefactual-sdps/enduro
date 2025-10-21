@@ -212,6 +212,11 @@ server {
         proxy_redirect / /api/;
     }
 
+    # Custom content
+    location /custom/ {
+        try_files \$uri =404;
+    }
+
     # Handle client-side routing for SPA
     location / {
         try_files $uri $uri/ /index.html;

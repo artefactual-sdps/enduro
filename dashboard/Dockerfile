@@ -70,6 +70,9 @@ server {
         proxy_pass http://backend/;
         proxy_redirect / /api/;
     }
+    location /custom/ {
+        try_files \$uri =404;
+    }
     location / {
         try_files \$uri \$uri/ /index.html;
     }

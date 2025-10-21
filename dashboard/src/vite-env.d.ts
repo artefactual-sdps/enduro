@@ -25,6 +25,7 @@ interface ImportMetaEnv {
   readonly VITE_INSTITUTION_LOGO: string;
   readonly VITE_INSTITUTION_NAME: string;
   readonly VITE_INSTITUTION_URL: string;
+  readonly VITE_CUSTOM_HOME_URL: string;
 }
 
 interface ImportMeta {
