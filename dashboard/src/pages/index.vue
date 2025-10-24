@@ -34,7 +34,7 @@ onMounted(async () => {
 <template>
   <div class="container-xxl">
     <!-- Custom HTML content -->
-    <div v-if="url">
+    <template v-if="url">
       <div v-if="loading" class="text-center p-3">
         <div class="spinner-border text-muted" role="status">
           <span class="visually-hidden">Loading...</span>
@@ -44,7 +44,7 @@ onMounted(async () => {
         {{ error }}
       </div>
       <div v-else-if="content" v-html="content"></div>
-    </div>
+    </template>
 
     <!-- Default content -->
     <div v-if="!url || error">
