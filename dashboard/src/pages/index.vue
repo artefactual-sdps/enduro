@@ -21,8 +21,9 @@ onMounted(async () => {
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Response status: ${response.status}`);
-    const data = await response.text();
-    content.value = DOMPurify.sanitize(data);
+    const data = DOMPurify.sanitize(await response.text());
+    if (!data) throw new Error("Sanitized content is empty.");
+    content.value = data;
   } catch (err) {
     console.error("Error loading custom home HTML:", err);
     error.value = "Failed to load custom home content.";
