@@ -363,7 +363,7 @@ onMounted(() => {
           authStore.checkAttributes(['ingest:users:list']) && userStore.hasUsers
         "
       >
-        <div class="dropdown" ref="uploaderEl">
+        <div class="input-group" ref="uploaderEl">
           <button
             id="dd-uploader-button"
             class="btn btn-primary dropdown-toggle"
@@ -373,20 +373,6 @@ onMounted(() => {
             aria-expanded="false"
           >
             {{ uploaderDDLabel }}
-          </button>
-          <button
-            id="dd-uploader-reset"
-            @click="
-              sipStore.filters.uploaderId = '';
-              uploaderDDLabel = 'Ingested by';
-              updateUploaderFilter();
-            "
-            class="btn btn-secondary"
-            type="reset"
-            aria-label="Reset 'Ingested by' filter"
-            v-show="sipStore.filters.uploaderId !== ''"
-          >
-            <IconClose />
           </button>
           <ul class="dropdown-menu">
             <li
@@ -406,6 +392,20 @@ onMounted(() => {
               >
             </li>
           </ul>
+          <button
+            id="dd-uploader-reset"
+            @click="
+              sipStore.filters.uploaderId = '';
+              uploaderDDLabel = 'Ingested by';
+              updateUploaderFilter();
+            "
+            class="btn btn-secondary"
+            type="reset"
+            aria-label="Reset 'Ingested by' filter"
+            v-show="sipStore.filters.uploaderId !== ''"
+          >
+            <IconClose />
+          </button>
         </div>
       </div>
       <div>

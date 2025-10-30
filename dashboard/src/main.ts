@@ -13,6 +13,7 @@ import {
   FormatDuration,
 } from "./composables/format";
 import router from "./router";
+import { useCustomStore } from "./stores/custom";
 
 const pinia = createPinia();
 pinia.use(PiniaDebounce(debounce));
@@ -21,7 +22,15 @@ const app = createApp(App);
 app.use(router);
 app.use(pinia);
 app.use(PromiseDialog);
-app.mount("#app");
+
+// Load custom manifest and styles before mounting the app
+// to prevent flash of default styles.
+(async () => {
+  const customStore = useCustomStore();
+  await customStore.loadManifest();
+
+  app.mount("#app");
+})();
 
 interface Filters {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

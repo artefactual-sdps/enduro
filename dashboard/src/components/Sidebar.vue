@@ -234,39 +234,47 @@ const closeOffcanvas = () => {
 
 <style lang="scss" scoped>
 .sidebar-link {
-  color: $dark;
+  color: var(--bs-dark);
 
   &.active {
-    color: $primary;
+    color: var(--bs-primary);
   }
 
   &.exact-active {
-    color: $white;
-    background-color: $primary;
+    color: var(--bs-white);
+    background-color: var(--bs-primary);
   }
 
   &:hover,
   &:focus {
-    background-color: shade-color($light, 25%) !important;
+    background-color: var(--bs-secondary-bg) !important;
 
     &.exact-active {
-      background-color: shade-color($primary, 25%) !important;
+      background-color: color-mix(
+        in srgb,
+        var(--bs-primary) 75%,
+        black
+      ) !important;
     }
   }
 }
 
 #user-menu-button {
   &:not(.collapsed) {
-    background-color: $primary !important;
-    color: $white !important;
+    background-color: var(--bs-primary) !important;
+    color: var(--bs-white) !important;
 
     &:hover,
     &:focus {
-      background-color: shade-color($primary, 25%) !important;
+      background-color: color-mix(
+        in srgb,
+        var(--bs-primary) 75%,
+        black
+      ) !important;
     }
 
     .col-3 span {
-      color: $white !important;
+      color: var(--bs-white) !important;
     }
 
     .col-9 svg {
@@ -282,7 +290,8 @@ const closeOffcanvas = () => {
     height: calc(100vh - $header-height);
     overflow-y: auto;
     overflow-x: hidden;
-    border-right: $border-width $border-style $border-color;
+    border-right: var(--bs-border-width) var(--bs-border-style)
+      var(--bs-border-color);
     width: $sidebar-width;
     min-width: $sidebar-width;
 

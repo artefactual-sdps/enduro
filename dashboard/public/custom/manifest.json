@@ -1,0 +1,9 @@
+{
+  "homeUrl": "/custom/home.html",
+  "stylesheets": ["/custom/assets/custom.css"],
+  "scripts": ["/custom/assets/custom.js"],
+  "routes": [
+    { "name": "About", "path": "/about", "url": "/custom/about.html" },
+    { "name": "Help", "path": "/help", "url": "/custom/help.html" }
+  ]
+}

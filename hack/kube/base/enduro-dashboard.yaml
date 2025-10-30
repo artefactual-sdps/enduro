@@ -70,6 +70,8 @@ spec:
                 secretKeyRef:
                   name: enduro-dashboard-secret
                   key: oidc-abac-claim-value-prefix
+            - name: VITE_CUSTOM_MANIFEST
+              value: /custom/manifest.json
           ports:
             - containerPort: 80
           resources: {}
