@@ -8,6 +8,19 @@ requests.
 
 ## [Unreleased]
 
+## [0.20.0] - 2025-10-31
+
+### Changed
+
+- Improve WebSocket connections ([#1057])
+- Order SIP source objects list by deposit date ([#1373])
+
+### Added
+
+- Retention period to all SIP origin configurations ([#1355])
+- File size and deposit date to SIP source list ([#1373])
+- Custom home page HTML support to dashboard ([#1383])
+
 ## [0.19.0] - 2025-10-01
 
 ### Fixed
@@ -240,7 +253,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.19.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.20.0...HEAD
+[0.20.0]: https://github.com/artefactual-sdps/enduro/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/artefactual-sdps/enduro/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/artefactual-sdps/enduro/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/artefactual-sdps/enduro/compare/v0.16.0...v0.17.0
@@ -260,6 +274,9 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1383]: https://github.com/artefactual-sdps/enduro/issues/1383
+[#1373]: https://github.com/artefactual-sdps/enduro/issues/1373
+[#1355]: https://github.com/artefactual-sdps/enduro/issues/1355
 [#1322]: https://github.com/artefactual-sdps/enduro/issues/1322
 [#1321]: https://github.com/artefactual-sdps/enduro/issues/1321
 [#1309]: https://github.com/artefactual-sdps/enduro/issues/1309
@@ -301,6 +318,7 @@ Initial release.
 [#1076]: https://github.com/artefactual-sdps/enduro/issues/1076
 [#1066]: https://github.com/artefactual-sdps/enduro/issues/1066
 [#1062]: https://github.com/artefactual-sdps/enduro/issues/1062
+[#1057]: https://github.com/artefactual-sdps/enduro/issues/1057
 [#1039]: https://github.com/artefactual-sdps/enduro/issues/1039
 [#1037]: https://github.com/artefactual-sdps/enduro/issues/1037
 [#1035]: https://github.com/artefactual-sdps/enduro/issues/1035
