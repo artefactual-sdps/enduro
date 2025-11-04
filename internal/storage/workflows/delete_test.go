@@ -59,7 +59,7 @@ func NewStorageDeleteWorkflowTestSuite(
 	}
 
 	s.env.RegisterActivityWithOptions(
-		activities.NewDeleteFromAMSSLocationActivity().Execute,
+		activities.NewDeleteFromAMSSLocationActivity(false).Execute,
 		temporalsdk_activity.RegisterOptions{Name: storage.DeleteFromAMSSLocationActivityName},
 	)
 

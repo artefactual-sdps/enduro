@@ -138,32 +138,6 @@ workflowType = "create aip"
 # It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
 retentionPeriod = "0"
 
-[storage]
-enduroAddress = "enduro.enduro-sdps:9002"
-
-# defaultPermanentLocationId is the UUID of the storage location used for
-# permanent AIP storage in the "auto-approve" processing workflow. The value of
-# "f2cc963f-c14d-4eaa-b950-bd207189a1f1" represents the first permanent location
-# defined in the mysql-create-locations-job.yaml Kubernetes manifest.
-defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
-
-[storage.database]
-driver = "mysql"
-dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro_storage"
-migrate = true
-
-[storage.internal]
-endpoint = "http://minio.enduro-sdps:9000"
-pathStyle = true
-key = "minio"
-secret = "minio123"
-region = "us-west-1"
-bucket = "aips"
-
-[storage.event]
-redisAddress = "redis://redis.enduro-sdps:6379"
-redisChannel = "enduro-storage-events"
-
 # Change the taskqueue setting to your prefered preservation system, by default
 # it is a3m. Use 'am' to configure Archivematica instead.
 [preservation]
@@ -322,3 +296,44 @@ workflowName = "preprocessing"
 # namespace = "default"
 # taskQueue = "poststorage"
 # workflowName = "poststorage"
+
+#########################################################################
+#                                                                       #
+#                     STORAGE SERVICE CONFIGURATION                     #
+#                                                                       #
+# The configuration settings below are specific to the storage service. #
+#                                                                       #
+#########################################################################
+
+[storage]
+enduroAddress = "enduro.enduro-sdps:9002"
+
+# defaultPermanentLocationId is the UUID of the storage location used for
+# permanent AIP storage in the "auto-approve" processing workflow. The value of
+# "f2cc963f-c14d-4eaa-b950-bd207189a1f1" represents the first permanent location
+# defined in the mysql-create-locations-job.yaml Kubernetes manifest.
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
+
+[storage.database]
+driver = "mysql"
+dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro_storage"
+migrate = true
+
+[storage.internal]
+endpoint = "http://minio.enduro-sdps:9000"
+pathStyle = true
+key = "minio"
+secret = "minio123"
+region = "us-west-1"
+bucket = "aips"
+
+[storage.event]
+redisAddress = "redis://redis.enduro-sdps:6379"
+redisChannel = "enduro-storage-events"
+
+[storage.aipDeletion]
+# approveAMSS determines whether AIP deletions are automatically approved in the
+# Archivematica's Storage Service for AMSS locations. When set to false (default),
+# AIP deletions in AMSS locations require manual approval in AMSS. When set to true,
+# they are automatically approved by Enduro, this requires AMSS v0.25.0 or later.
+approveAMSS = false

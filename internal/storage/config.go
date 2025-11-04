@@ -13,6 +13,7 @@ type Config struct {
 	Internal                   LocationConfig
 	Database                   Database
 	Event                      event.Config
+	AIPDeletion                AIPDeletionConfig
 }
 
 type Database struct {
@@ -43,4 +44,12 @@ type LocationConfig struct {
 	Secret    string
 	Token     string
 	Bucket    string
+}
+
+type AIPDeletionConfig struct {
+	// ApproveAMSS determines whether AIP deletions are automatically approved in the
+	// Archivematica's Storage Service for AMSS locations. When set to false (default),
+	// AIP deletions in AMSS locations require manual approval in AMSS. When set to true,
+	// they are automatically approved by Enduro, this requires AMSS v0.25.0 or later.
+	ApproveAMSS bool
 }
