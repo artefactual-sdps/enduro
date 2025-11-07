@@ -126,6 +126,7 @@ func (a *DeleteFromAMSSLocationActivity) getPipelineUUID(
 	if err != nil {
 		return "", fmt.Errorf("get pipeline UUID: %v", err)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode >= 400 {
 		return "", fmt.Errorf("get pipeline UUID: response code: %d", resp.StatusCode)
 	}
@@ -170,6 +171,7 @@ func (a *DeleteFromAMSSLocationActivity) requestDeletion(
 	if err != nil {
 		return 0, fmt.Errorf("request deletion: %v", err)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode >= 400 {
 		return 0, fmt.Errorf("request deletion: response code: %d", resp.StatusCode)
 	}
@@ -210,6 +212,7 @@ func (a *DeleteFromAMSSLocationActivity) approveDeletion(
 	if err != nil {
 		return fmt.Errorf("approve deletion: %v", err)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode >= 400 {
 		return fmt.Errorf("approve deletion: response code: %d", resp.StatusCode)
 	}
@@ -247,6 +250,7 @@ func (a *DeleteFromAMSSLocationActivity) pollStatus(
 	if err != nil {
 		return "", fmt.Errorf("poll status: %v", err)
 	}
+	defer resp.Body.Close()
 	if resp.StatusCode >= 400 {
 		return "", fmt.Errorf("poll status: response code: %d", resp.StatusCode)
 	}

@@ -65,6 +65,7 @@ func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityPara
 		if err != nil {
 			return &UploadActivityResult{}, err
 		}
+		defer resp.Body.Close()
 		if resp.StatusCode != http.StatusOK {
 			return &UploadActivityResult{}, errors.New("unexpected status code returned")
 		}

@@ -122,6 +122,7 @@ func (b *bucket) NewRangeReader(
 	}
 
 	if resp.StatusCode >= 400 {
+		resp.Body.Close()
 		return nil, &APIError{Status: resp.Status, Code: resp.StatusCode}
 	}
 
