@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -59,7 +60,7 @@ func NewStorageDeleteWorkflowTestSuite(
 	}
 
 	s.env.RegisterActivityWithOptions(
-		activities.NewDeleteFromAMSSLocationActivity(false).Execute,
+		activities.NewDeleteFromAMSSLocationActivity(false, time.Microsecond*1).Execute,
 		temporalsdk_activity.RegisterOptions{Name: storage.DeleteFromAMSSLocationActivityName},
 	)
 

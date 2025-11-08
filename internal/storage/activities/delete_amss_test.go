@@ -301,16 +301,9 @@ func TestDeleteFromAMSSLocationActivity(t *testing.T) {
 			env := ts.NewTestActivityEnvironment()
 			env.SetTestTimeout(5 * time.Second)
 
-			// Set up a ticker channel for polling tests and tick twice.
-			ch := make(chan time.Time, 2)
-			ch <- time.Now()
-			ch <- time.Now()
-
 			env.RegisterActivityWithOptions(
-				activities.NewDeleteFromAMSSLocationActivityWithTicker(tt.approve, ch).Execute,
-				temporalsdk_activity.RegisterOptions{
-					Name: storage.DeleteFromAMSSLocationActivityName,
-				},
+				activities.NewDeleteFromAMSSLocationActivity(tt.approve, time.Microsecond*1).Execute,
+				temporalsdk_activity.RegisterOptions{Name: storage.DeleteFromAMSSLocationActivityName},
 			)
 
 			fut, err := env.ExecuteActivity(

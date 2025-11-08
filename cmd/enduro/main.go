@@ -529,7 +529,10 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: storage.CopyToPermanentLocationActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			storage_activities.NewDeleteFromAMSSLocationActivity(cfg.Storage.AIPDeletion.ApproveAMSS).Execute,
+			storage_activities.NewDeleteFromAMSSLocationActivity(
+				cfg.Storage.AIPDeletion.ApproveAMSS,
+				time.Second*60,
+			).Execute,
 			temporalsdk_activity.RegisterOptions{Name: storage.DeleteFromAMSSLocationActivityName},
 		)
 

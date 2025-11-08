@@ -16,8 +16,8 @@ import (
 )
 
 type DeleteFromAMSSLocationActivity struct {
-	approve  bool
-	tickerCh <-chan time.Time
+	approve      bool
+	pollInterval time.Duration
 }
 
 type DeleteFromAMSSLocationActivityParams struct {
@@ -29,20 +29,11 @@ type DeleteFromAMSSLocationActivityResult struct {
 	Deleted bool
 }
 
-func NewDeleteFromAMSSLocationActivity(approve bool) *DeleteFromAMSSLocationActivity {
-	return &DeleteFromAMSSLocationActivity{approve: approve}
-}
-
-// NewDeleteFromAMSSLocationActivityWithTicker creates an activity
-// with a custom ticker channel. Intended for tests.
-func NewDeleteFromAMSSLocationActivityWithTicker(
-	approve bool,
-	ch <-chan time.Time,
-) *DeleteFromAMSSLocationActivity {
-	return &DeleteFromAMSSLocationActivity{
-		approve:  approve,
-		tickerCh: ch,
+func NewDeleteFromAMSSLocationActivity(approve bool, pollInterval time.Duration) *DeleteFromAMSSLocationActivity {
+	if pollInterval <= 0 {
+		pollInterval = time.Second * 60
 	}
+	return &DeleteFromAMSSLocationActivity{approve: approve, pollInterval: pollInterval}
 }
 
 func (a *DeleteFromAMSSLocationActivity) Execute(
@@ -71,18 +62,14 @@ func (a *DeleteFromAMSSLocationActivity) Execute(
 		return &DeleteFromAMSSLocationActivityResult{Deleted: true}, nil
 	}
 
-	// Set up ticker channel if not provided.
-	if a.tickerCh == nil {
-		ticker := time.NewTicker(time.Second * 60)
-		defer ticker.Stop()
-		a.tickerCh = ticker.C
-	}
+	ticker := time.NewTicker(a.pollInterval)
+	defer ticker.Stop()
 
 	for {
 		select {
 		case <-ctx.Done():
 			return nil, ctx.Err()
-		case <-a.tickerCh:
+		case <-ticker.C:
 			status, err := a.pollStatus(ctx, ssclient, params)
 			if err != nil {
 				return nil, err
