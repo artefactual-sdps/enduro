@@ -14,29 +14,29 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * SIP not found.
+ * Storage location not found.
  * @export
- * @interface SIPNotFound
+ * @interface LocationNotFound
  */
-export interface SIPNotFound {
+export interface LocationNotFound {
     /**
      * Message of error
      * @type {string}
-     * @memberof SIPNotFound
+     * @memberof LocationNotFound
      */
     message: string;
     /**
-     * Identifier of missing SIP
+     * 
      * @type {string}
-     * @memberof SIPNotFound
+     * @memberof LocationNotFound
      */
     uuid: string;
 }
 
 /**
- * Check if a given object implements the SIPNotFound interface.
+ * Check if a given object implements the LocationNotFound interface.
  */
-export function instanceOfSIPNotFound(value: object): boolean {
+export function instanceOfLocationNotFound(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "message" in value;
     isInstance = isInstance && "uuid" in value;
@@ -44,11 +44,11 @@ export function instanceOfSIPNotFound(value: object): boolean {
     return isInstance;
 }
 
-export function SIPNotFoundFromJSON(json: any): SIPNotFound {
-    return SIPNotFoundFromJSONTyped(json, false);
+export function LocationNotFoundFromJSON(json: any): LocationNotFound {
+    return LocationNotFoundFromJSONTyped(json, false);
 }
 
-export function SIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPNotFound {
+export function LocationNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean): LocationNotFound {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -59,7 +59,7 @@ export function SIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean
     };
 }
 
-export function SIPNotFoundToJSON(value?: SIPNotFound | null): any {
+export function LocationNotFoundToJSON(value?: LocationNotFound | null): any {
     if (value === undefined) {
         return undefined;
     }

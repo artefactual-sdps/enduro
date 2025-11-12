@@ -200,7 +200,7 @@ describe("useSipStore", () => {
   });
 
   it("fetches current workflows", async () => {
-    const mockWorkflows: api.SIPWorkflows = {
+    const mockWorkflows: api.EnduroIngestSipWorkflows = {
       workflows: [
         {
           uuid: "workflow-uuid-1",
@@ -260,7 +260,7 @@ describe("useSipStore", () => {
   });
 
   it("fetches SIPs", async () => {
-    const mockSips: api.SIPs = {
+    const mockSips: api.EnduroIngestSips = {
       items: [
         {
           uuid: "a499e8fc-7309-4e26-b39d-d8ab68466c27",

@@ -29,27 +29,27 @@ import {
 /**
  * 
  * @export
- * @interface Users
+ * @interface EnduroIngestUsers
  */
-export interface Users {
+export interface EnduroIngestUsers {
     /**
      * 
      * @type {Array<EnduroIngestUser>}
-     * @memberof Users
+     * @memberof EnduroIngestUsers
      */
     items: Array<EnduroIngestUser>;
     /**
      * 
      * @type {EnduroPage}
-     * @memberof Users
+     * @memberof EnduroIngestUsers
      */
     page: EnduroPage;
 }
 
 /**
- * Check if a given object implements the Users interface.
+ * Check if a given object implements the EnduroIngestUsers interface.
  */
-export function instanceOfUsers(value: object): boolean {
+export function instanceOfEnduroIngestUsers(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "items" in value;
     isInstance = isInstance && "page" in value;
@@ -57,11 +57,11 @@ export function instanceOfUsers(value: object): boolean {
     return isInstance;
 }
 
-export function UsersFromJSON(json: any): Users {
-    return UsersFromJSONTyped(json, false);
+export function EnduroIngestUsersFromJSON(json: any): EnduroIngestUsers {
+    return EnduroIngestUsersFromJSONTyped(json, false);
 }
 
-export function UsersFromJSONTyped(json: any, ignoreDiscriminator: boolean): Users {
+export function EnduroIngestUsersFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestUsers {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -72,7 +72,7 @@ export function UsersFromJSONTyped(json: any, ignoreDiscriminator: boolean): Use
     };
 }
 
-export function UsersToJSON(value?: Users | null): any {
+export function EnduroIngestUsersToJSON(value?: EnduroIngestUsers | null): any {
     if (value === undefined) {
         return undefined;
     }

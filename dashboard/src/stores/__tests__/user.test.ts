@@ -35,7 +35,7 @@ describe("fetchUsers", () => {
 
   it("fetches users", async () => {
     const store = useUserStore();
-    const mockUsers: api.Users = {
+    const mockUsers: api.EnduroIngestUsers = {
       items: [
         {
           createdAt: new Date("2025-01-01T00:00:00Z"),

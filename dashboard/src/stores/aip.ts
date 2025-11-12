@@ -14,7 +14,7 @@ export const useAipStore = defineStore("aip", {
     current: null as api.EnduroStorageAip | null,
 
     // Workflows of the current AIP.
-    currentWorkflows: null as api.AIPWorkflows | null,
+    currentWorkflows: null as api.EnduroStorageAipWorkflows | null,
 
     // The current AIP is being moved into a new location.
     // Set to true by this client when the AIP is moved.

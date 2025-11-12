@@ -15,34 +15,31 @@
 
 import * as runtime from '../runtime';
 import type {
+  AIPNotFound,
   AIPResponse,
-  AIPWorkflows,
-  AIPs,
-  AddSipResponseBody,
   CancelAipDeletionRequestBody,
   ConfirmSipRequestBody,
   CreateAipRequestBody,
   CreateLocationRequestBody,
+  CreateLocationResult,
   EnduroStorageAip,
+  EnduroStorageAipWorkflows,
+  EnduroStorageAips,
   EnduroStorageLocation,
+  LocationNotFound,
   LocationResponse,
   MoveStatusResult,
   RequestAipDeletionRequestBody,
   ReviewAipDeletionRequestBody,
-  SIPNotFound,
-  StorageEvent,
+  StorageEvent2,
+  SubmitAIPResult,
   SubmitAipRequestBody,
-  URLConfig,
 } from '../models/index';
 import {
+    AIPNotFoundFromJSON,
+    AIPNotFoundToJSON,
     AIPResponseFromJSON,
     AIPResponseToJSON,
-    AIPWorkflowsFromJSON,
-    AIPWorkflowsToJSON,
-    AIPsFromJSON,
-    AIPsToJSON,
-    AddSipResponseBodyFromJSON,
-    AddSipResponseBodyToJSON,
     CancelAipDeletionRequestBodyFromJSON,
     CancelAipDeletionRequestBodyToJSON,
     ConfirmSipRequestBodyFromJSON,
@@ -51,10 +48,18 @@ import {
     CreateAipRequestBodyToJSON,
     CreateLocationRequestBodyFromJSON,
     CreateLocationRequestBodyToJSON,
+    CreateLocationResultFromJSON,
+    CreateLocationResultToJSON,
     EnduroStorageAipFromJSON,
     EnduroStorageAipToJSON,
+    EnduroStorageAipWorkflowsFromJSON,
+    EnduroStorageAipWorkflowsToJSON,
+    EnduroStorageAipsFromJSON,
+    EnduroStorageAipsToJSON,
     EnduroStorageLocationFromJSON,
     EnduroStorageLocationToJSON,
+    LocationNotFoundFromJSON,
+    LocationNotFoundToJSON,
     LocationResponseFromJSON,
     LocationResponseToJSON,
     MoveStatusResultFromJSON,
@@ -63,14 +68,12 @@ import {
     RequestAipDeletionRequestBodyToJSON,
     ReviewAipDeletionRequestBodyFromJSON,
     ReviewAipDeletionRequestBodyToJSON,
-    SIPNotFoundFromJSON,
-    SIPNotFoundToJSON,
-    StorageEventFromJSON,
-    StorageEventToJSON,
+    StorageEvent2FromJSON,
+    StorageEvent2ToJSON,
+    SubmitAIPResultFromJSON,
+    SubmitAIPResultToJSON,
     SubmitAipRequestBodyFromJSON,
     SubmitAipRequestBodyToJSON,
-    URLConfigFromJSON,
-    URLConfigToJSON,
 } from '../models/index';
 
 export interface StorageCancelAipDeletionRequest {
@@ -206,13 +209,13 @@ export interface StorageApiInterface {
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>>;
+    storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateLocationResult>>;
 
     /**
      * Create a storage location
      * create_location storage
      */
-    storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody>;
+    storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateLocationResult>;
 
     /**
      * Download AIP by AIPID
@@ -257,13 +260,13 @@ export interface StorageApiInterface {
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageListAipWorkflowsRaw(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIPWorkflows>>;
+    storageListAipWorkflowsRaw(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAipWorkflows>>;
 
     /**
      * List workflows related to an AIP
      * list_aip_workflows storage
      */
-    storageListAipWorkflows(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIPWorkflows>;
+    storageListAipWorkflows(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageAipWorkflows>;
 
     /**
      * List all AIPs
@@ -278,13 +281,13 @@ export interface StorageApiInterface {
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageListAipsRaw(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIPs>>;
+    storageListAipsRaw(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAips>>;
 
     /**
      * List all AIPs
      * list_aips storage
      */
-    storageListAips(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIPs>;
+    storageListAips(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageAips>;
 
     /**
      * List all the AIPs stored in the location with UUID
@@ -472,13 +475,13 @@ export interface StorageApiInterface {
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<URLConfig>>;
+    storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SubmitAIPResult>>;
 
     /**
      * Start the submission of an AIP
      * submit_aip storage
      */
-    storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<URLConfig>;
+    storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SubmitAIPResult>;
 
     /**
      * Signal that an AIP submission is complete
@@ -596,7 +599,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * Create a storage location
      * create_location storage
      */
-    async storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
+    async storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateLocationResult>> {
         if (requestParameters.createLocationRequestBody === null || requestParameters.createLocationRequestBody === undefined) {
             throw new runtime.RequiredError('createLocationRequestBody','Required parameter requestParameters.createLocationRequestBody was null or undefined when calling storageCreateLocation.');
         }
@@ -623,14 +626,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             body: CreateLocationRequestBodyToJSON(requestParameters.createLocationRequestBody),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => AddSipResponseBodyFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => CreateLocationResultFromJSON(jsonValue));
     }
 
     /**
      * Create a storage location
      * create_location storage
      */
-    async storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody> {
+    async storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateLocationResult> {
         const response = await this.storageCreateLocationRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -710,7 +713,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * List workflows related to an AIP
      * list_aip_workflows storage
      */
-    async storageListAipWorkflowsRaw(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIPWorkflows>> {
+    async storageListAipWorkflowsRaw(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAipWorkflows>> {
         if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
             throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageListAipWorkflows.');
         }
@@ -742,14 +745,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => AIPWorkflowsFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroStorageAipWorkflowsFromJSON(jsonValue));
     }
 
     /**
      * List workflows related to an AIP
      * list_aip_workflows storage
      */
-    async storageListAipWorkflows(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIPWorkflows> {
+    async storageListAipWorkflows(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageAipWorkflows> {
         const response = await this.storageListAipWorkflowsRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -758,7 +761,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * List all AIPs
      * list_aips storage
      */
-    async storageListAipsRaw(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AIPs>> {
+    async storageListAipsRaw(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAips>> {
         const queryParameters: any = {};
 
         if (requestParameters.name !== undefined) {
@@ -802,14 +805,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => AIPsFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroStorageAipsFromJSON(jsonValue));
     }
 
     /**
      * List all AIPs
      * list_aips storage
      */
-    async storageListAips(requestParameters: StorageListAipsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AIPs> {
+    async storageListAips(requestParameters: StorageListAipsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageAips> {
         const response = await this.storageListAipsRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -1253,7 +1256,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      * Start the submission of an AIP
      * submit_aip storage
      */
-    async storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<URLConfig>> {
+    async storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SubmitAIPResult>> {
         if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
             throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageSubmitAip.');
         }
@@ -1284,14 +1287,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             body: SubmitAipRequestBodyToJSON(requestParameters.submitAipRequestBody),
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => URLConfigFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => SubmitAIPResultFromJSON(jsonValue));
     }
 
     /**
      * Start the submission of an AIP
      * submit_aip storage
      */
-    async storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<URLConfig> {
+    async storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SubmitAIPResult> {
         const response = await this.storageSubmitAipRaw(requestParameters, initOverrides);
         return await response.value();
     }

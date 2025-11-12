@@ -14,7 +14,7 @@ export const useSipStore = defineStore("sip", {
     current: null as api.EnduroIngestSip | null,
 
     // Workflows of the current SIP.
-    currentWorkflows: null as api.SIPWorkflows | null,
+    currentWorkflows: null as api.EnduroIngestSipWorkflows | null,
 
     // A list of SIPs shown during searches.
     sips: [] as Array<api.EnduroIngestSip>,

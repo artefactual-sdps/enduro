@@ -29,27 +29,27 @@ import {
 /**
  * 
  * @export
- * @interface AIPs
+ * @interface EnduroStorageAips
  */
-export interface AIPs {
+export interface EnduroStorageAips {
     /**
      * 
      * @type {Array<EnduroStorageAip>}
-     * @memberof AIPs
+     * @memberof EnduroStorageAips
      */
     items: Array<EnduroStorageAip>;
     /**
      * 
      * @type {EnduroPage}
-     * @memberof AIPs
+     * @memberof EnduroStorageAips
      */
     page: EnduroPage;
 }
 
 /**
- * Check if a given object implements the AIPs interface.
+ * Check if a given object implements the EnduroStorageAips interface.
  */
-export function instanceOfAIPs(value: object): boolean {
+export function instanceOfEnduroStorageAips(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "items" in value;
     isInstance = isInstance && "page" in value;
@@ -57,11 +57,11 @@ export function instanceOfAIPs(value: object): boolean {
     return isInstance;
 }
 
-export function AIPsFromJSON(json: any): AIPs {
-    return AIPsFromJSONTyped(json, false);
+export function EnduroStorageAipsFromJSON(json: any): EnduroStorageAips {
+    return EnduroStorageAipsFromJSONTyped(json, false);
 }
 
-export function AIPsFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPs {
+export function EnduroStorageAipsFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroStorageAips {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -72,7 +72,7 @@ export function AIPsFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPs
     };
 }
 
-export function AIPsToJSON(value?: AIPs | null): any {
+export function EnduroStorageAipsToJSON(value?: EnduroStorageAips | null): any {
     if (value === undefined) {
         return undefined;
     }

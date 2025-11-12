@@ -21,33 +21,33 @@ import {
 } from './EnduroIngestSipWorkflow';
 
 /**
- * 
+ * SIPWorkflows describes the workflows of a SIP.
  * @export
- * @interface SIPWorkflows
+ * @interface EnduroIngestSipWorkflows
  */
-export interface SIPWorkflows {
+export interface EnduroIngestSipWorkflows {
     /**
      * 
      * @type {Array<EnduroIngestSipWorkflow>}
-     * @memberof SIPWorkflows
+     * @memberof EnduroIngestSipWorkflows
      */
     workflows?: Array<EnduroIngestSipWorkflow>;
 }
 
 /**
- * Check if a given object implements the SIPWorkflows interface.
+ * Check if a given object implements the EnduroIngestSipWorkflows interface.
  */
-export function instanceOfSIPWorkflows(value: object): boolean {
+export function instanceOfEnduroIngestSipWorkflows(value: object): boolean {
     let isInstance = true;
 
     return isInstance;
 }
 
-export function SIPWorkflowsFromJSON(json: any): SIPWorkflows {
-    return SIPWorkflowsFromJSONTyped(json, false);
+export function EnduroIngestSipWorkflowsFromJSON(json: any): EnduroIngestSipWorkflows {
+    return EnduroIngestSipWorkflowsFromJSONTyped(json, false);
 }
 
-export function SIPWorkflowsFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPWorkflows {
+export function EnduroIngestSipWorkflowsFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestSipWorkflows {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -57,7 +57,7 @@ export function SIPWorkflowsFromJSONTyped(json: any, ignoreDiscriminator: boolea
     };
 }
 
-export function SIPWorkflowsToJSON(value?: SIPWorkflows | null): any {
+export function EnduroIngestSipWorkflowsToJSON(value?: EnduroIngestSipWorkflows | null): any {
     if (value === undefined) {
         return undefined;
     }

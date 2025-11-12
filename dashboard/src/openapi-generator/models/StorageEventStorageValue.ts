@@ -13,6 +13,67 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { AIPCreatedEvent } from './AIPCreatedEvent';
+import {
+    AIPCreatedEventFromJSON,
+    AIPCreatedEventFromJSONTyped,
+    AIPCreatedEventToJSON,
+} from './AIPCreatedEvent';
+import type { AIPLocationUpdatedEvent } from './AIPLocationUpdatedEvent';
+import {
+    AIPLocationUpdatedEventFromJSON,
+    AIPLocationUpdatedEventFromJSONTyped,
+    AIPLocationUpdatedEventToJSON,
+} from './AIPLocationUpdatedEvent';
+import type { AIPStatusUpdatedEvent } from './AIPStatusUpdatedEvent';
+import {
+    AIPStatusUpdatedEventFromJSON,
+    AIPStatusUpdatedEventFromJSONTyped,
+    AIPStatusUpdatedEventToJSON,
+} from './AIPStatusUpdatedEvent';
+import type { AIPTaskCreatedEvent } from './AIPTaskCreatedEvent';
+import {
+    AIPTaskCreatedEventFromJSON,
+    AIPTaskCreatedEventFromJSONTyped,
+    AIPTaskCreatedEventToJSON,
+} from './AIPTaskCreatedEvent';
+import type { AIPTaskUpdatedEvent } from './AIPTaskUpdatedEvent';
+import {
+    AIPTaskUpdatedEventFromJSON,
+    AIPTaskUpdatedEventFromJSONTyped,
+    AIPTaskUpdatedEventToJSON,
+} from './AIPTaskUpdatedEvent';
+import type { AIPWorkflowCreatedEvent } from './AIPWorkflowCreatedEvent';
+import {
+    AIPWorkflowCreatedEventFromJSON,
+    AIPWorkflowCreatedEventFromJSONTyped,
+    AIPWorkflowCreatedEventToJSON,
+} from './AIPWorkflowCreatedEvent';
+import type { AIPWorkflowUpdatedEvent } from './AIPWorkflowUpdatedEvent';
+import {
+    AIPWorkflowUpdatedEventFromJSON,
+    AIPWorkflowUpdatedEventFromJSONTyped,
+    AIPWorkflowUpdatedEventToJSON,
+} from './AIPWorkflowUpdatedEvent';
+import type { EnduroStorageAipTask } from './EnduroStorageAipTask';
+import {
+    EnduroStorageAipTaskFromJSON,
+    EnduroStorageAipTaskFromJSONTyped,
+    EnduroStorageAipTaskToJSON,
+} from './EnduroStorageAipTask';
+import type { LocationCreatedEvent } from './LocationCreatedEvent';
+import {
+    LocationCreatedEventFromJSON,
+    LocationCreatedEventFromJSONTyped,
+    LocationCreatedEventToJSON,
+} from './LocationCreatedEvent';
+import type { StoragePingEvent } from './StoragePingEvent';
+import {
+    StoragePingEventFromJSON,
+    StoragePingEventFromJSONTyped,
+    StoragePingEventToJSON,
+} from './StoragePingEvent';
+
 /**
  * 
  * @export
@@ -20,44 +81,50 @@ import { exists, mapValues } from '../runtime';
  */
 export interface StorageEventStorageValue {
     /**
-     * Union type name, one of:
-     * - "storage_ping_event"
-     * - "location_created_event"
-     * - "aip_created_event"
-     * - "aip_status_updated_event"
-     * - "aip_location_updated_event"
-     * - "aip_workflow_created_event"
-     * - "aip_workflow_updated_event"
-     * - "aip_task_created_event"
-     * - "aip_task_updated_event"
+     * 
      * @type {string}
      * @memberof StorageEventStorageValue
      */
-    type: StorageEventStorageValueTypeEnum;
+    message?: string;
     /**
-     * JSON encoded union value
+     * 
+     * @type {EnduroStorageAipTask}
+     * @memberof StorageEventStorageValue
+     */
+    item: EnduroStorageAipTask;
+    /**
+     * Identifier of task
      * @type {string}
      * @memberof StorageEventStorageValue
      */
-    value: string;
+    uuid: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof StorageEventStorageValue
+     */
+    status: StorageEventStorageValueStatusEnum;
+    /**
+     * Identifier of Location
+     * @type {string}
+     * @memberof StorageEventStorageValue
+     */
+    locationUuid: string;
 }
 
 
 /**
  * @export
  */
-export const StorageEventStorageValueTypeEnum = {
-    StoragePingEvent: 'storage_ping_event',
-    LocationCreatedEvent: 'location_created_event',
-    AipCreatedEvent: 'aip_created_event',
-    AipStatusUpdatedEvent: 'aip_status_updated_event',
-    AipLocationUpdatedEvent: 'aip_location_updated_event',
-    AipWorkflowCreatedEvent: 'aip_workflow_created_event',
-    AipWorkflowUpdatedEvent: 'aip_workflow_updated_event',
-    AipTaskCreatedEvent: 'aip_task_created_event',
-    AipTaskUpdatedEvent: 'aip_task_updated_event'
+export const StorageEventStorageValueStatusEnum = {
+    Unspecified: 'unspecified',
+    Stored: 'stored',
+    Pending: 'pending',
+    Processing: 'processing',
+    Deleted: 'deleted',
+    Queued: 'queued'
 } as const;
-export type StorageEventStorageValueTypeEnum = typeof StorageEventStorageValueTypeEnum[keyof typeof StorageEventStorageValueTypeEnum];
+export type StorageEventStorageValueStatusEnum = typeof StorageEventStorageValueStatusEnum[keyof typeof StorageEventStorageValueStatusEnum];
 
 
 /**
@@ -65,8 +132,10 @@ export type StorageEventStorageValueTypeEnum = typeof StorageEventStorageValueTy
  */
 export function instanceOfStorageEventStorageValue(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "type" in value;
-    isInstance = isInstance && "value" in value;
+    isInstance = isInstance && "item" in value;
+    isInstance = isInstance && "uuid" in value;
+    isInstance = isInstance && "status" in value;
+    isInstance = isInstance && "locationUuid" in value;
 
     return isInstance;
 }
@@ -81,8 +150,11 @@ export function StorageEventStorageValueFromJSONTyped(json: any, ignoreDiscrimin
     }
     return {
         
-        'type': json['Type'],
-        'value': json['Value'],
+        'message': !exists(json, 'message') ? undefined : json['message'],
+        'item': EnduroStorageAipTaskFromJSON(json['item']),
+        'uuid': json['uuid'],
+        'status': json['status'],
+        'locationUuid': json['location_uuid'],
     };
 }
 
@@ -95,8 +167,11 @@ export function StorageEventStorageValueToJSON(value?: StorageEventStorageValue 
     }
     return {
         
-        'Type': value.type,
-        'Value': value.value,
+        'message': value.message,
+        'item': EnduroStorageAipTaskToJSON(value.item),
+        'uuid': value.uuid,
+        'status': value.status,
+        'location_uuid': value.locationUuid,
     };
 }
 

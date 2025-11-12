@@ -14,29 +14,29 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * SIP not found.
+ * AIP not found.
  * @export
- * @interface SIPNotFound
+ * @interface AIPNotFound
  */
-export interface SIPNotFound {
+export interface AIPNotFound {
     /**
      * Message of error
      * @type {string}
-     * @memberof SIPNotFound
+     * @memberof AIPNotFound
      */
     message: string;
     /**
-     * Identifier of missing SIP
+     * Identifier of missing AIP
      * @type {string}
-     * @memberof SIPNotFound
+     * @memberof AIPNotFound
      */
     uuid: string;
 }
 
 /**
- * Check if a given object implements the SIPNotFound interface.
+ * Check if a given object implements the AIPNotFound interface.
  */
-export function instanceOfSIPNotFound(value: object): boolean {
+export function instanceOfAIPNotFound(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "message" in value;
     isInstance = isInstance && "uuid" in value;
@@ -44,11 +44,11 @@ export function instanceOfSIPNotFound(value: object): boolean {
     return isInstance;
 }
 
-export function SIPNotFoundFromJSON(json: any): SIPNotFound {
-    return SIPNotFoundFromJSONTyped(json, false);
+export function AIPNotFoundFromJSON(json: any): AIPNotFound {
+    return AIPNotFoundFromJSONTyped(json, false);
 }
 
-export function SIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPNotFound {
+export function AIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPNotFound {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -59,7 +59,7 @@ export function SIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean
     };
 }
 
-export function SIPNotFoundToJSON(value?: SIPNotFound | null): any {
+export function AIPNotFoundToJSON(value?: AIPNotFound | null): any {
     if (value === undefined) {
         return undefined;
     }

@@ -18,12 +18,12 @@ import type {
   AddSipResponseBody,
   ConfirmSipRequestBody,
   EnduroIngestSip,
-  IngestEvent,
+  EnduroIngestSipWorkflows,
+  EnduroIngestSips,
+  EnduroIngestSipsourceObjects,
+  EnduroIngestUsers,
+  IngestEvent2,
   SIPNotFound,
-  SIPSourceObjects,
-  SIPWorkflows,
-  SIPs,
-  Users,
 } from '../models/index';
 import {
     AddSipResponseBodyFromJSON,
@@ -32,18 +32,18 @@ import {
     ConfirmSipRequestBodyToJSON,
     EnduroIngestSipFromJSON,
     EnduroIngestSipToJSON,
-    IngestEventFromJSON,
-    IngestEventToJSON,
+    EnduroIngestSipWorkflowsFromJSON,
+    EnduroIngestSipWorkflowsToJSON,
+    EnduroIngestSipsFromJSON,
+    EnduroIngestSipsToJSON,
+    EnduroIngestSipsourceObjectsFromJSON,
+    EnduroIngestSipsourceObjectsToJSON,
+    EnduroIngestUsersFromJSON,
+    EnduroIngestUsersToJSON,
+    IngestEvent2FromJSON,
+    IngestEvent2ToJSON,
     SIPNotFoundFromJSON,
     SIPNotFoundToJSON,
-    SIPSourceObjectsFromJSON,
-    SIPSourceObjectsToJSON,
-    SIPWorkflowsFromJSON,
-    SIPWorkflowsToJSON,
-    SIPsFromJSON,
-    SIPsToJSON,
-    UsersFromJSON,
-    UsersToJSON,
 } from '../models/index';
 
 export interface IngestAddSipRequest {
@@ -193,13 +193,13 @@ export interface IngestApiInterface {
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
-    ingestListSipSourceObjectsRaw(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPSourceObjects>>;
+    ingestListSipSourceObjectsRaw(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSipsourceObjects>>;
 
     /**
      * List the objects in a SIP source
      * list_sip_source_objects ingest
      */
-    ingestListSipSourceObjects(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPSourceObjects>;
+    ingestListSipSourceObjects(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSipsourceObjects>;
 
     /**
      * List all workflows for a SIP
@@ -209,13 +209,13 @@ export interface IngestApiInterface {
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
-    ingestListSipWorkflowsRaw(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPWorkflows>>;
+    ingestListSipWorkflowsRaw(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSipWorkflows>>;
 
     /**
      * List all workflows for a SIP
      * list_sip_workflows ingest
      */
-    ingestListSipWorkflows(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPWorkflows>;
+    ingestListSipWorkflows(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSipWorkflows>;
 
     /**
      * List all ingested SIPs
@@ -232,13 +232,13 @@ export interface IngestApiInterface {
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
-    ingestListSipsRaw(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPs>>;
+    ingestListSipsRaw(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSips>>;
 
     /**
      * List all ingested SIPs
      * list_sips ingest
      */
-    ingestListSips(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPs>;
+    ingestListSips(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSips>;
 
     /**
      * List all users
@@ -251,13 +251,13 @@ export interface IngestApiInterface {
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
-    ingestListUsersRaw(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Users>>;
+    ingestListUsersRaw(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestUsers>>;
 
     /**
      * List all users
      * list_users ingest
      */
-    ingestListUsers(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Users>;
+    ingestListUsers(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestUsers>;
 
     /**
      * Obtain access to the /monitor WebSocket
@@ -518,7 +518,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * List the objects in a SIP source
      * list_sip_source_objects ingest
      */
-    async ingestListSipSourceObjectsRaw(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPSourceObjects>> {
+    async ingestListSipSourceObjectsRaw(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSipsourceObjects>> {
         if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
             throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestListSipSourceObjects.');
         }
@@ -550,14 +550,14 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => SIPSourceObjectsFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestSipsourceObjectsFromJSON(jsonValue));
     }
 
     /**
      * List the objects in a SIP source
      * list_sip_source_objects ingest
      */
-    async ingestListSipSourceObjects(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPSourceObjects> {
+    async ingestListSipSourceObjects(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSipsourceObjects> {
         const response = await this.ingestListSipSourceObjectsRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -566,7 +566,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * List all workflows for a SIP
      * list_sip_workflows ingest
      */
-    async ingestListSipWorkflowsRaw(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPWorkflows>> {
+    async ingestListSipWorkflowsRaw(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSipWorkflows>> {
         if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
             throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestListSipWorkflows.');
         }
@@ -590,14 +590,14 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => SIPWorkflowsFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestSipWorkflowsFromJSON(jsonValue));
     }
 
     /**
      * List all workflows for a SIP
      * list_sip_workflows ingest
      */
-    async ingestListSipWorkflows(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPWorkflows> {
+    async ingestListSipWorkflows(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSipWorkflows> {
         const response = await this.ingestListSipWorkflowsRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -606,7 +606,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * List all ingested SIPs
      * list_sips ingest
      */
-    async ingestListSipsRaw(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SIPs>> {
+    async ingestListSipsRaw(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSips>> {
         const queryParameters: any = {};
 
         if (requestParameters.name !== undefined) {
@@ -658,14 +658,14 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => SIPsFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestSipsFromJSON(jsonValue));
     }
 
     /**
      * List all ingested SIPs
      * list_sips ingest
      */
-    async ingestListSips(requestParameters: IngestListSipsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SIPs> {
+    async ingestListSips(requestParameters: IngestListSipsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSips> {
         const response = await this.ingestListSipsRaw(requestParameters, initOverrides);
         return await response.value();
     }
@@ -674,7 +674,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * List all users
      * list_users ingest
      */
-    async ingestListUsersRaw(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Users>> {
+    async ingestListUsersRaw(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestUsers>> {
         const queryParameters: any = {};
 
         if (requestParameters.email !== undefined) {
@@ -710,14 +710,14 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             query: queryParameters,
         }, initOverrides);
 
-        return new runtime.JSONApiResponse(response, (jsonValue) => UsersFromJSON(jsonValue));
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestUsersFromJSON(jsonValue));
     }
 
     /**
      * List all users
      * list_users ingest
      */
-    async ingestListUsers(requestParameters: IngestListUsersRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Users> {
+    async ingestListUsers(requestParameters: IngestListUsersRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestUsers> {
         const response = await this.ingestListUsersRaw(requestParameters, initOverrides);
         return await response.value();
     }

@@ -29,27 +29,27 @@ import {
 /**
  * 
  * @export
- * @interface SIPs
+ * @interface EnduroIngestSips
  */
-export interface SIPs {
+export interface EnduroIngestSips {
     /**
      * 
      * @type {Array<EnduroIngestSip>}
-     * @memberof SIPs
+     * @memberof EnduroIngestSips
      */
     items: Array<EnduroIngestSip>;
     /**
      * 
      * @type {EnduroPage}
-     * @memberof SIPs
+     * @memberof EnduroIngestSips
      */
     page: EnduroPage;
 }
 
 /**
- * Check if a given object implements the SIPs interface.
+ * Check if a given object implements the EnduroIngestSips interface.
  */
-export function instanceOfSIPs(value: object): boolean {
+export function instanceOfEnduroIngestSips(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "items" in value;
     isInstance = isInstance && "page" in value;
@@ -57,11 +57,11 @@ export function instanceOfSIPs(value: object): boolean {
     return isInstance;
 }
 
-export function SIPsFromJSON(json: any): SIPs {
-    return SIPsFromJSONTyped(json, false);
+export function EnduroIngestSipsFromJSON(json: any): EnduroIngestSips {
+    return EnduroIngestSipsFromJSONTyped(json, false);
 }
 
-export function SIPsFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPs {
+export function EnduroIngestSipsFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestSips {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -72,7 +72,7 @@ export function SIPsFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPs
     };
 }
 
-export function SIPsToJSON(value?: SIPs | null): any {
+export function EnduroIngestSipsToJSON(value?: EnduroIngestSips | null): any {
     if (value === undefined) {
         return undefined;
     }

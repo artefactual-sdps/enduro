@@ -14,52 +14,44 @@
 
 import { exists, mapValues } from '../runtime';
 /**
- * SIP not found.
+ * 
  * @export
- * @interface SIPNotFound
+ * @interface CreateLocationResult
  */
-export interface SIPNotFound {
+export interface CreateLocationResult {
     /**
-     * Message of error
+     * 
      * @type {string}
-     * @memberof SIPNotFound
-     */
-    message: string;
-    /**
-     * Identifier of missing SIP
-     * @type {string}
-     * @memberof SIPNotFound
+     * @memberof CreateLocationResult
      */
     uuid: string;
 }
 
 /**
- * Check if a given object implements the SIPNotFound interface.
+ * Check if a given object implements the CreateLocationResult interface.
  */
-export function instanceOfSIPNotFound(value: object): boolean {
+export function instanceOfCreateLocationResult(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "message" in value;
     isInstance = isInstance && "uuid" in value;
 
     return isInstance;
 }
 
-export function SIPNotFoundFromJSON(json: any): SIPNotFound {
-    return SIPNotFoundFromJSONTyped(json, false);
+export function CreateLocationResultFromJSON(json: any): CreateLocationResult {
+    return CreateLocationResultFromJSONTyped(json, false);
 }
 
-export function SIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPNotFound {
+export function CreateLocationResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateLocationResult {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
-        'message': json['message'],
         'uuid': json['uuid'],
     };
 }
 
-export function SIPNotFoundToJSON(value?: SIPNotFound | null): any {
+export function CreateLocationResultToJSON(value?: CreateLocationResult | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -68,7 +60,6 @@ export function SIPNotFoundToJSON(value?: SIPNotFound | null): any {
     }
     return {
         
-        'message': value.message,
         'uuid': value.uuid,
     };
 }

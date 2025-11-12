@@ -23,33 +23,33 @@ import {
 /**
  * 
  * @export
- * @interface SIPSourceObjects
+ * @interface EnduroIngestSipsourceObjects
  */
-export interface SIPSourceObjects {
+export interface EnduroIngestSipsourceObjects {
     /**
      * Limit of objects per page
      * @type {number}
-     * @memberof SIPSourceObjects
+     * @memberof EnduroIngestSipsourceObjects
      */
     limit: number;
     /**
      * Token to get the next page of objects
      * @type {string}
-     * @memberof SIPSourceObjects
+     * @memberof EnduroIngestSipsourceObjects
      */
     next?: string;
     /**
      * 
      * @type {Array<EnduroIngestSipsourceObject>}
-     * @memberof SIPSourceObjects
+     * @memberof EnduroIngestSipsourceObjects
      */
     objects: Array<EnduroIngestSipsourceObject>;
 }
 
 /**
- * Check if a given object implements the SIPSourceObjects interface.
+ * Check if a given object implements the EnduroIngestSipsourceObjects interface.
  */
-export function instanceOfSIPSourceObjects(value: object): boolean {
+export function instanceOfEnduroIngestSipsourceObjects(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "limit" in value;
     isInstance = isInstance && "objects" in value;
@@ -57,11 +57,11 @@ export function instanceOfSIPSourceObjects(value: object): boolean {
     return isInstance;
 }
 
-export function SIPSourceObjectsFromJSON(json: any): SIPSourceObjects {
-    return SIPSourceObjectsFromJSONTyped(json, false);
+export function EnduroIngestSipsourceObjectsFromJSON(json: any): EnduroIngestSipsourceObjects {
+    return EnduroIngestSipsourceObjectsFromJSONTyped(json, false);
 }
 
-export function SIPSourceObjectsFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPSourceObjects {
+export function EnduroIngestSipsourceObjectsFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestSipsourceObjects {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -73,7 +73,7 @@ export function SIPSourceObjectsFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function SIPSourceObjectsToJSON(value?: SIPSourceObjects | null): any {
+export function EnduroIngestSipsourceObjectsToJSON(value?: EnduroIngestSipsourceObjects | null): any {
     if (value === undefined) {
         return undefined;
     }

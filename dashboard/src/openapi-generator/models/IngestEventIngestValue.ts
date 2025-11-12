@@ -13,6 +13,61 @@
  */
 
 import { exists, mapValues } from '../runtime';
+import type { EnduroIngestSipTask } from './EnduroIngestSipTask';
+import {
+    EnduroIngestSipTaskFromJSON,
+    EnduroIngestSipTaskFromJSONTyped,
+    EnduroIngestSipTaskToJSON,
+} from './EnduroIngestSipTask';
+import type { IngestPingEvent } from './IngestPingEvent';
+import {
+    IngestPingEventFromJSON,
+    IngestPingEventFromJSONTyped,
+    IngestPingEventToJSON,
+} from './IngestPingEvent';
+import type { SIPCreatedEvent } from './SIPCreatedEvent';
+import {
+    SIPCreatedEventFromJSON,
+    SIPCreatedEventFromJSONTyped,
+    SIPCreatedEventToJSON,
+} from './SIPCreatedEvent';
+import type { SIPStatusUpdatedEvent } from './SIPStatusUpdatedEvent';
+import {
+    SIPStatusUpdatedEventFromJSON,
+    SIPStatusUpdatedEventFromJSONTyped,
+    SIPStatusUpdatedEventToJSON,
+} from './SIPStatusUpdatedEvent';
+import type { SIPTaskCreatedEvent } from './SIPTaskCreatedEvent';
+import {
+    SIPTaskCreatedEventFromJSON,
+    SIPTaskCreatedEventFromJSONTyped,
+    SIPTaskCreatedEventToJSON,
+} from './SIPTaskCreatedEvent';
+import type { SIPTaskUpdatedEvent } from './SIPTaskUpdatedEvent';
+import {
+    SIPTaskUpdatedEventFromJSON,
+    SIPTaskUpdatedEventFromJSONTyped,
+    SIPTaskUpdatedEventToJSON,
+} from './SIPTaskUpdatedEvent';
+import type { SIPUpdatedEvent } from './SIPUpdatedEvent';
+import {
+    SIPUpdatedEventFromJSON,
+    SIPUpdatedEventFromJSONTyped,
+    SIPUpdatedEventToJSON,
+} from './SIPUpdatedEvent';
+import type { SIPWorkflowCreatedEvent } from './SIPWorkflowCreatedEvent';
+import {
+    SIPWorkflowCreatedEventFromJSON,
+    SIPWorkflowCreatedEventFromJSONTyped,
+    SIPWorkflowCreatedEventToJSON,
+} from './SIPWorkflowCreatedEvent';
+import type { SIPWorkflowUpdatedEvent } from './SIPWorkflowUpdatedEvent';
+import {
+    SIPWorkflowUpdatedEventFromJSON,
+    SIPWorkflowUpdatedEventFromJSONTyped,
+    SIPWorkflowUpdatedEventToJSON,
+} from './SIPWorkflowUpdatedEvent';
+
 /**
  * 
  * @export
@@ -20,42 +75,44 @@ import { exists, mapValues } from '../runtime';
  */
 export interface IngestEventIngestValue {
     /**
-     * Union type name, one of:
-     * - "ingest_ping_event"
-     * - "sip_created_event"
-     * - "sip_updated_event"
-     * - "sip_status_updated_event"
-     * - "sip_workflow_created_event"
-     * - "sip_workflow_updated_event"
-     * - "sip_task_created_event"
-     * - "sip_task_updated_event"
+     * 
      * @type {string}
      * @memberof IngestEventIngestValue
      */
-    type: IngestEventIngestValueTypeEnum;
+    message?: string;
     /**
-     * JSON encoded union value
+     * 
+     * @type {EnduroIngestSipTask}
+     * @memberof IngestEventIngestValue
+     */
+    item: EnduroIngestSipTask;
+    /**
+     * Identifier of task
      * @type {string}
      * @memberof IngestEventIngestValue
      */
-    value: string;
+    uuid: string;
+    /**
+     * 
+     * @type {string}
+     * @memberof IngestEventIngestValue
+     */
+    status: IngestEventIngestValueStatusEnum;
 }
 
 
 /**
  * @export
  */
-export const IngestEventIngestValueTypeEnum = {
-    IngestPingEvent: 'ingest_ping_event',
-    SipCreatedEvent: 'sip_created_event',
-    SipUpdatedEvent: 'sip_updated_event',
-    SipStatusUpdatedEvent: 'sip_status_updated_event',
-    SipWorkflowCreatedEvent: 'sip_workflow_created_event',
-    SipWorkflowUpdatedEvent: 'sip_workflow_updated_event',
-    SipTaskCreatedEvent: 'sip_task_created_event',
-    SipTaskUpdatedEvent: 'sip_task_updated_event'
+export const IngestEventIngestValueStatusEnum = {
+    Error: 'error',
+    Failed: 'failed',
+    Queued: 'queued',
+    Processing: 'processing',
+    Pending: 'pending',
+    Ingested: 'ingested'
 } as const;
-export type IngestEventIngestValueTypeEnum = typeof IngestEventIngestValueTypeEnum[keyof typeof IngestEventIngestValueTypeEnum];
+export type IngestEventIngestValueStatusEnum = typeof IngestEventIngestValueStatusEnum[keyof typeof IngestEventIngestValueStatusEnum];
 
 
 /**
@@ -63,8 +120,9 @@ export type IngestEventIngestValueTypeEnum = typeof IngestEventIngestValueTypeEn
  */
 export function instanceOfIngestEventIngestValue(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "type" in value;
-    isInstance = isInstance && "value" in value;
+    isInstance = isInstance && "item" in value;
+    isInstance = isInstance && "uuid" in value;
+    isInstance = isInstance && "status" in value;
 
     return isInstance;
 }
@@ -79,8 +137,10 @@ export function IngestEventIngestValueFromJSONTyped(json: any, ignoreDiscriminat
     }
     return {
         
-        'type': json['Type'],
-        'value': json['Value'],
+        'message': !exists(json, 'message') ? undefined : json['message'],
+        'item': EnduroIngestSipTaskFromJSON(json['item']),
+        'uuid': json['uuid'],
+        'status': json['status'],
     };
 }
 
@@ -93,8 +153,10 @@ export function IngestEventIngestValueToJSON(value?: IngestEventIngestValue | nu
     }
     return {
         
-        'Type': value.type,
-        'Value': value.value,
+        'message': value.message,
+        'item': EnduroIngestSipTaskToJSON(value.item),
+        'uuid': value.uuid,
+        'status': value.status,
     };
 }
 

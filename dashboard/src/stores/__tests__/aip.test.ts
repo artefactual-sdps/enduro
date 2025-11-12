@@ -129,7 +129,7 @@ describe("fetch current", () => {
   });
 
   it("fetches workflows", async () => {
-    const mockWorkflows: api.AIPWorkflows = {
+    const mockWorkflows: api.EnduroStorageAipWorkflows = {
       workflows: [
         {
           uuid: "uuid-1",
@@ -196,7 +196,7 @@ describe("fetch current", () => {
 
 describe("fetch AIPs", () => {
   it("fetches AIPs", async () => {
-    const mockAips: api.AIPs = {
+    const mockAips: api.EnduroStorageAips = {
       items: [
         {
           name: "AIP 1",

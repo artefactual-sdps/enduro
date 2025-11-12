@@ -21,33 +21,33 @@ import {
 } from './EnduroStorageAipWorkflow';
 
 /**
- * 
+ * AIPWorkflows describes the workflows of an AIP.
  * @export
- * @interface AIPWorkflows
+ * @interface EnduroStorageAipWorkflows
  */
-export interface AIPWorkflows {
+export interface EnduroStorageAipWorkflows {
     /**
      * 
      * @type {Array<EnduroStorageAipWorkflow>}
-     * @memberof AIPWorkflows
+     * @memberof EnduroStorageAipWorkflows
      */
     workflows?: Array<EnduroStorageAipWorkflow>;
 }
 
 /**
- * Check if a given object implements the AIPWorkflows interface.
+ * Check if a given object implements the EnduroStorageAipWorkflows interface.
  */
-export function instanceOfAIPWorkflows(value: object): boolean {
+export function instanceOfEnduroStorageAipWorkflows(value: object): boolean {
     let isInstance = true;
 
     return isInstance;
 }
 
-export function AIPWorkflowsFromJSON(json: any): AIPWorkflows {
-    return AIPWorkflowsFromJSONTyped(json, false);
+export function EnduroStorageAipWorkflowsFromJSON(json: any): EnduroStorageAipWorkflows {
+    return EnduroStorageAipWorkflowsFromJSONTyped(json, false);
 }
 
-export function AIPWorkflowsFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPWorkflows {
+export function EnduroStorageAipWorkflowsFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroStorageAipWorkflows {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -57,7 +57,7 @@ export function AIPWorkflowsFromJSONTyped(json: any, ignoreDiscriminator: boolea
     };
 }
 
-export function AIPWorkflowsToJSON(value?: AIPWorkflows | null): any {
+export function EnduroStorageAipWorkflowsToJSON(value?: EnduroStorageAipWorkflows | null): any {
     if (value === undefined) {
         return undefined;
     }
