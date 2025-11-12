@@ -27,219 +27,219 @@ type SIPUpdate struct {
 }
 
 // Where appends a list predicates to the SIPUpdate builder.
-func (su *SIPUpdate) Where(ps ...predicate.SIP) *SIPUpdate {
-	su.mutation.Where(ps...)
-	return su
+func (_u *SIPUpdate) Where(ps ...predicate.SIP) *SIPUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetName sets the "name" field.
-func (su *SIPUpdate) SetName(s string) *SIPUpdate {
-	su.mutation.SetName(s)
-	return su
+func (_u *SIPUpdate) SetName(v string) *SIPUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableName(s *string) *SIPUpdate {
-	if s != nil {
-		su.SetName(*s)
+func (_u *SIPUpdate) SetNillableName(v *string) *SIPUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return su
+	return _u
 }
 
 // SetAipID sets the "aip_id" field.
-func (su *SIPUpdate) SetAipID(u uuid.UUID) *SIPUpdate {
-	su.mutation.SetAipID(u)
-	return su
+func (_u *SIPUpdate) SetAipID(v uuid.UUID) *SIPUpdate {
+	_u.mutation.SetAipID(v)
+	return _u
 }
 
 // SetNillableAipID sets the "aip_id" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableAipID(u *uuid.UUID) *SIPUpdate {
-	if u != nil {
-		su.SetAipID(*u)
+func (_u *SIPUpdate) SetNillableAipID(v *uuid.UUID) *SIPUpdate {
+	if v != nil {
+		_u.SetAipID(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearAipID clears the value of the "aip_id" field.
-func (su *SIPUpdate) ClearAipID() *SIPUpdate {
-	su.mutation.ClearAipID()
-	return su
+func (_u *SIPUpdate) ClearAipID() *SIPUpdate {
+	_u.mutation.ClearAipID()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (su *SIPUpdate) SetStatus(es enums.SIPStatus) *SIPUpdate {
-	su.mutation.SetStatus(es)
-	return su
+func (_u *SIPUpdate) SetStatus(v enums.SIPStatus) *SIPUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableStatus(es *enums.SIPStatus) *SIPUpdate {
-	if es != nil {
-		su.SetStatus(*es)
+func (_u *SIPUpdate) SetNillableStatus(v *enums.SIPStatus) *SIPUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return su
+	return _u
 }
 
 // SetStartedAt sets the "started_at" field.
-func (su *SIPUpdate) SetStartedAt(t time.Time) *SIPUpdate {
-	su.mutation.SetStartedAt(t)
-	return su
+func (_u *SIPUpdate) SetStartedAt(v time.Time) *SIPUpdate {
+	_u.mutation.SetStartedAt(v)
+	return _u
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableStartedAt(t *time.Time) *SIPUpdate {
-	if t != nil {
-		su.SetStartedAt(*t)
+func (_u *SIPUpdate) SetNillableStartedAt(v *time.Time) *SIPUpdate {
+	if v != nil {
+		_u.SetStartedAt(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearStartedAt clears the value of the "started_at" field.
-func (su *SIPUpdate) ClearStartedAt() *SIPUpdate {
-	su.mutation.ClearStartedAt()
-	return su
+func (_u *SIPUpdate) ClearStartedAt() *SIPUpdate {
+	_u.mutation.ClearStartedAt()
+	return _u
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (su *SIPUpdate) SetCompletedAt(t time.Time) *SIPUpdate {
-	su.mutation.SetCompletedAt(t)
-	return su
+func (_u *SIPUpdate) SetCompletedAt(v time.Time) *SIPUpdate {
+	_u.mutation.SetCompletedAt(v)
+	return _u
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableCompletedAt(t *time.Time) *SIPUpdate {
-	if t != nil {
-		su.SetCompletedAt(*t)
+func (_u *SIPUpdate) SetNillableCompletedAt(v *time.Time) *SIPUpdate {
+	if v != nil {
+		_u.SetCompletedAt(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearCompletedAt clears the value of the "completed_at" field.
-func (su *SIPUpdate) ClearCompletedAt() *SIPUpdate {
-	su.mutation.ClearCompletedAt()
-	return su
+func (_u *SIPUpdate) ClearCompletedAt() *SIPUpdate {
+	_u.mutation.ClearCompletedAt()
+	return _u
 }
 
 // SetFailedAs sets the "failed_as" field.
-func (su *SIPUpdate) SetFailedAs(efa enums.SIPFailedAs) *SIPUpdate {
-	su.mutation.SetFailedAs(efa)
-	return su
+func (_u *SIPUpdate) SetFailedAs(v enums.SIPFailedAs) *SIPUpdate {
+	_u.mutation.SetFailedAs(v)
+	return _u
 }
 
 // SetNillableFailedAs sets the "failed_as" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableFailedAs(efa *enums.SIPFailedAs) *SIPUpdate {
-	if efa != nil {
-		su.SetFailedAs(*efa)
+func (_u *SIPUpdate) SetNillableFailedAs(v *enums.SIPFailedAs) *SIPUpdate {
+	if v != nil {
+		_u.SetFailedAs(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearFailedAs clears the value of the "failed_as" field.
-func (su *SIPUpdate) ClearFailedAs() *SIPUpdate {
-	su.mutation.ClearFailedAs()
-	return su
+func (_u *SIPUpdate) ClearFailedAs() *SIPUpdate {
+	_u.mutation.ClearFailedAs()
+	return _u
 }
 
 // SetFailedKey sets the "failed_key" field.
-func (su *SIPUpdate) SetFailedKey(s string) *SIPUpdate {
-	su.mutation.SetFailedKey(s)
-	return su
+func (_u *SIPUpdate) SetFailedKey(v string) *SIPUpdate {
+	_u.mutation.SetFailedKey(v)
+	return _u
 }
 
 // SetNillableFailedKey sets the "failed_key" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableFailedKey(s *string) *SIPUpdate {
-	if s != nil {
-		su.SetFailedKey(*s)
+func (_u *SIPUpdate) SetNillableFailedKey(v *string) *SIPUpdate {
+	if v != nil {
+		_u.SetFailedKey(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearFailedKey clears the value of the "failed_key" field.
-func (su *SIPUpdate) ClearFailedKey() *SIPUpdate {
-	su.mutation.ClearFailedKey()
-	return su
+func (_u *SIPUpdate) ClearFailedKey() *SIPUpdate {
+	_u.mutation.ClearFailedKey()
+	return _u
 }
 
 // SetUploaderID sets the "uploader_id" field.
-func (su *SIPUpdate) SetUploaderID(i int) *SIPUpdate {
-	su.mutation.SetUploaderID(i)
-	return su
+func (_u *SIPUpdate) SetUploaderID(v int) *SIPUpdate {
+	_u.mutation.SetUploaderID(v)
+	return _u
 }
 
 // SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
-func (su *SIPUpdate) SetNillableUploaderID(i *int) *SIPUpdate {
-	if i != nil {
-		su.SetUploaderID(*i)
+func (_u *SIPUpdate) SetNillableUploaderID(v *int) *SIPUpdate {
+	if v != nil {
+		_u.SetUploaderID(*v)
 	}
-	return su
+	return _u
 }
 
 // ClearUploaderID clears the value of the "uploader_id" field.
-func (su *SIPUpdate) ClearUploaderID() *SIPUpdate {
-	su.mutation.ClearUploaderID()
-	return su
+func (_u *SIPUpdate) ClearUploaderID() *SIPUpdate {
+	_u.mutation.ClearUploaderID()
+	return _u
 }
 
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
-func (su *SIPUpdate) AddWorkflowIDs(ids ...int) *SIPUpdate {
-	su.mutation.AddWorkflowIDs(ids...)
-	return su
+func (_u *SIPUpdate) AddWorkflowIDs(ids ...int) *SIPUpdate {
+	_u.mutation.AddWorkflowIDs(ids...)
+	return _u
 }
 
 // AddWorkflows adds the "workflows" edges to the Workflow entity.
-func (su *SIPUpdate) AddWorkflows(w ...*Workflow) *SIPUpdate {
-	ids := make([]int, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
+func (_u *SIPUpdate) AddWorkflows(v ...*Workflow) *SIPUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return su.AddWorkflowIDs(ids...)
+	return _u.AddWorkflowIDs(ids...)
 }
 
 // SetUploader sets the "uploader" edge to the User entity.
-func (su *SIPUpdate) SetUploader(u *User) *SIPUpdate {
-	return su.SetUploaderID(u.ID)
+func (_u *SIPUpdate) SetUploader(v *User) *SIPUpdate {
+	return _u.SetUploaderID(v.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
-func (su *SIPUpdate) Mutation() *SIPMutation {
-	return su.mutation
+func (_u *SIPUpdate) Mutation() *SIPMutation {
+	return _u.mutation
 }
 
 // ClearWorkflows clears all "workflows" edges to the Workflow entity.
-func (su *SIPUpdate) ClearWorkflows() *SIPUpdate {
-	su.mutation.ClearWorkflows()
-	return su
+func (_u *SIPUpdate) ClearWorkflows() *SIPUpdate {
+	_u.mutation.ClearWorkflows()
+	return _u
 }
 
 // RemoveWorkflowIDs removes the "workflows" edge to Workflow entities by IDs.
-func (su *SIPUpdate) RemoveWorkflowIDs(ids ...int) *SIPUpdate {
-	su.mutation.RemoveWorkflowIDs(ids...)
-	return su
+func (_u *SIPUpdate) RemoveWorkflowIDs(ids ...int) *SIPUpdate {
+	_u.mutation.RemoveWorkflowIDs(ids...)
+	return _u
 }
 
 // RemoveWorkflows removes "workflows" edges to Workflow entities.
-func (su *SIPUpdate) RemoveWorkflows(w ...*Workflow) *SIPUpdate {
-	ids := make([]int, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
+func (_u *SIPUpdate) RemoveWorkflows(v ...*Workflow) *SIPUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return su.RemoveWorkflowIDs(ids...)
+	return _u.RemoveWorkflowIDs(ids...)
 }
 
 // ClearUploader clears the "uploader" edge to the User entity.
-func (su *SIPUpdate) ClearUploader() *SIPUpdate {
-	su.mutation.ClearUploader()
-	return su
+func (_u *SIPUpdate) ClearUploader() *SIPUpdate {
+	_u.mutation.ClearUploader()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (su *SIPUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, su.sqlSave, su.mutation, su.hooks)
+func (_u *SIPUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (su *SIPUpdate) SaveX(ctx context.Context) int {
-	affected, err := su.Save(ctx)
+func (_u *SIPUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -247,31 +247,31 @@ func (su *SIPUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (su *SIPUpdate) Exec(ctx context.Context) error {
-	_, err := su.Save(ctx)
+func (_u *SIPUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (su *SIPUpdate) ExecX(ctx context.Context) {
-	if err := su.Exec(ctx); err != nil {
+func (_u *SIPUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (su *SIPUpdate) check() error {
-	if v, ok := su.mutation.Status(); ok {
+func (_u *SIPUpdate) check() error {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := sip.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "SIP.status": %w`, err)}
 		}
 	}
-	if v, ok := su.mutation.FailedAs(); ok {
+	if v, ok := _u.mutation.FailedAs(); ok {
 		if err := sip.FailedAsValidator(v); err != nil {
 			return &ValidationError{Name: "failed_as", err: fmt.Errorf(`db: validator failed for field "SIP.failed_as": %w`, err)}
 		}
 	}
-	if v, ok := su.mutation.UploaderID(); ok {
+	if v, ok := _u.mutation.UploaderID(); ok {
 		if err := sip.UploaderIDValidator(v); err != nil {
 			return &ValidationError{Name: "uploader_id", err: fmt.Errorf(`db: validator failed for field "SIP.uploader_id": %w`, err)}
 		}
@@ -279,55 +279,55 @@ func (su *SIPUpdate) check() error {
 	return nil
 }
 
-func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := su.check(); err != nil {
-		return n, err
+func (_u *SIPUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(sip.Table, sip.Columns, sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt))
-	if ps := su.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := su.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(sip.FieldName, field.TypeString, value)
 	}
-	if value, ok := su.mutation.AipID(); ok {
+	if value, ok := _u.mutation.AipID(); ok {
 		_spec.SetField(sip.FieldAipID, field.TypeUUID, value)
 	}
-	if su.mutation.AipIDCleared() {
+	if _u.mutation.AipIDCleared() {
 		_spec.ClearField(sip.FieldAipID, field.TypeUUID)
 	}
-	if value, ok := su.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(sip.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := su.mutation.StartedAt(); ok {
+	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(sip.FieldStartedAt, field.TypeTime, value)
 	}
-	if su.mutation.StartedAtCleared() {
+	if _u.mutation.StartedAtCleared() {
 		_spec.ClearField(sip.FieldStartedAt, field.TypeTime)
 	}
-	if value, ok := su.mutation.CompletedAt(); ok {
+	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(sip.FieldCompletedAt, field.TypeTime, value)
 	}
-	if su.mutation.CompletedAtCleared() {
+	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(sip.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := su.mutation.FailedAs(); ok {
+	if value, ok := _u.mutation.FailedAs(); ok {
 		_spec.SetField(sip.FieldFailedAs, field.TypeEnum, value)
 	}
-	if su.mutation.FailedAsCleared() {
+	if _u.mutation.FailedAsCleared() {
 		_spec.ClearField(sip.FieldFailedAs, field.TypeEnum)
 	}
-	if value, ok := su.mutation.FailedKey(); ok {
+	if value, ok := _u.mutation.FailedKey(); ok {
 		_spec.SetField(sip.FieldFailedKey, field.TypeString, value)
 	}
-	if su.mutation.FailedKeyCleared() {
+	if _u.mutation.FailedKeyCleared() {
 		_spec.ClearField(sip.FieldFailedKey, field.TypeString)
 	}
-	if su.mutation.WorkflowsCleared() {
+	if _u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -340,7 +340,7 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !su.mutation.WorkflowsCleared() {
+	if nodes := _u.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !_u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -356,7 +356,7 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.WorkflowsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -372,7 +372,7 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if su.mutation.UploaderCleared() {
+	if _u.mutation.UploaderCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -385,7 +385,7 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := su.mutation.UploaderIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UploaderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -401,7 +401,7 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, su.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{sip.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -409,8 +409,8 @@ func (su *SIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	su.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // SIPUpdateOne is the builder for updating a single SIP entity.
@@ -422,226 +422,226 @@ type SIPUpdateOne struct {
 }
 
 // SetName sets the "name" field.
-func (suo *SIPUpdateOne) SetName(s string) *SIPUpdateOne {
-	suo.mutation.SetName(s)
-	return suo
+func (_u *SIPUpdateOne) SetName(v string) *SIPUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableName(s *string) *SIPUpdateOne {
-	if s != nil {
-		suo.SetName(*s)
+func (_u *SIPUpdateOne) SetNillableName(v *string) *SIPUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return suo
+	return _u
 }
 
 // SetAipID sets the "aip_id" field.
-func (suo *SIPUpdateOne) SetAipID(u uuid.UUID) *SIPUpdateOne {
-	suo.mutation.SetAipID(u)
-	return suo
+func (_u *SIPUpdateOne) SetAipID(v uuid.UUID) *SIPUpdateOne {
+	_u.mutation.SetAipID(v)
+	return _u
 }
 
 // SetNillableAipID sets the "aip_id" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableAipID(u *uuid.UUID) *SIPUpdateOne {
-	if u != nil {
-		suo.SetAipID(*u)
+func (_u *SIPUpdateOne) SetNillableAipID(v *uuid.UUID) *SIPUpdateOne {
+	if v != nil {
+		_u.SetAipID(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearAipID clears the value of the "aip_id" field.
-func (suo *SIPUpdateOne) ClearAipID() *SIPUpdateOne {
-	suo.mutation.ClearAipID()
-	return suo
+func (_u *SIPUpdateOne) ClearAipID() *SIPUpdateOne {
+	_u.mutation.ClearAipID()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (suo *SIPUpdateOne) SetStatus(es enums.SIPStatus) *SIPUpdateOne {
-	suo.mutation.SetStatus(es)
-	return suo
+func (_u *SIPUpdateOne) SetStatus(v enums.SIPStatus) *SIPUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableStatus(es *enums.SIPStatus) *SIPUpdateOne {
-	if es != nil {
-		suo.SetStatus(*es)
+func (_u *SIPUpdateOne) SetNillableStatus(v *enums.SIPStatus) *SIPUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return suo
+	return _u
 }
 
 // SetStartedAt sets the "started_at" field.
-func (suo *SIPUpdateOne) SetStartedAt(t time.Time) *SIPUpdateOne {
-	suo.mutation.SetStartedAt(t)
-	return suo
+func (_u *SIPUpdateOne) SetStartedAt(v time.Time) *SIPUpdateOne {
+	_u.mutation.SetStartedAt(v)
+	return _u
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableStartedAt(t *time.Time) *SIPUpdateOne {
-	if t != nil {
-		suo.SetStartedAt(*t)
+func (_u *SIPUpdateOne) SetNillableStartedAt(v *time.Time) *SIPUpdateOne {
+	if v != nil {
+		_u.SetStartedAt(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearStartedAt clears the value of the "started_at" field.
-func (suo *SIPUpdateOne) ClearStartedAt() *SIPUpdateOne {
-	suo.mutation.ClearStartedAt()
-	return suo
+func (_u *SIPUpdateOne) ClearStartedAt() *SIPUpdateOne {
+	_u.mutation.ClearStartedAt()
+	return _u
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (suo *SIPUpdateOne) SetCompletedAt(t time.Time) *SIPUpdateOne {
-	suo.mutation.SetCompletedAt(t)
-	return suo
+func (_u *SIPUpdateOne) SetCompletedAt(v time.Time) *SIPUpdateOne {
+	_u.mutation.SetCompletedAt(v)
+	return _u
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableCompletedAt(t *time.Time) *SIPUpdateOne {
-	if t != nil {
-		suo.SetCompletedAt(*t)
+func (_u *SIPUpdateOne) SetNillableCompletedAt(v *time.Time) *SIPUpdateOne {
+	if v != nil {
+		_u.SetCompletedAt(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearCompletedAt clears the value of the "completed_at" field.
-func (suo *SIPUpdateOne) ClearCompletedAt() *SIPUpdateOne {
-	suo.mutation.ClearCompletedAt()
-	return suo
+func (_u *SIPUpdateOne) ClearCompletedAt() *SIPUpdateOne {
+	_u.mutation.ClearCompletedAt()
+	return _u
 }
 
 // SetFailedAs sets the "failed_as" field.
-func (suo *SIPUpdateOne) SetFailedAs(efa enums.SIPFailedAs) *SIPUpdateOne {
-	suo.mutation.SetFailedAs(efa)
-	return suo
+func (_u *SIPUpdateOne) SetFailedAs(v enums.SIPFailedAs) *SIPUpdateOne {
+	_u.mutation.SetFailedAs(v)
+	return _u
 }
 
 // SetNillableFailedAs sets the "failed_as" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableFailedAs(efa *enums.SIPFailedAs) *SIPUpdateOne {
-	if efa != nil {
-		suo.SetFailedAs(*efa)
+func (_u *SIPUpdateOne) SetNillableFailedAs(v *enums.SIPFailedAs) *SIPUpdateOne {
+	if v != nil {
+		_u.SetFailedAs(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearFailedAs clears the value of the "failed_as" field.
-func (suo *SIPUpdateOne) ClearFailedAs() *SIPUpdateOne {
-	suo.mutation.ClearFailedAs()
-	return suo
+func (_u *SIPUpdateOne) ClearFailedAs() *SIPUpdateOne {
+	_u.mutation.ClearFailedAs()
+	return _u
 }
 
 // SetFailedKey sets the "failed_key" field.
-func (suo *SIPUpdateOne) SetFailedKey(s string) *SIPUpdateOne {
-	suo.mutation.SetFailedKey(s)
-	return suo
+func (_u *SIPUpdateOne) SetFailedKey(v string) *SIPUpdateOne {
+	_u.mutation.SetFailedKey(v)
+	return _u
 }
 
 // SetNillableFailedKey sets the "failed_key" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableFailedKey(s *string) *SIPUpdateOne {
-	if s != nil {
-		suo.SetFailedKey(*s)
+func (_u *SIPUpdateOne) SetNillableFailedKey(v *string) *SIPUpdateOne {
+	if v != nil {
+		_u.SetFailedKey(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearFailedKey clears the value of the "failed_key" field.
-func (suo *SIPUpdateOne) ClearFailedKey() *SIPUpdateOne {
-	suo.mutation.ClearFailedKey()
-	return suo
+func (_u *SIPUpdateOne) ClearFailedKey() *SIPUpdateOne {
+	_u.mutation.ClearFailedKey()
+	return _u
 }
 
 // SetUploaderID sets the "uploader_id" field.
-func (suo *SIPUpdateOne) SetUploaderID(i int) *SIPUpdateOne {
-	suo.mutation.SetUploaderID(i)
-	return suo
+func (_u *SIPUpdateOne) SetUploaderID(v int) *SIPUpdateOne {
+	_u.mutation.SetUploaderID(v)
+	return _u
 }
 
 // SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
-func (suo *SIPUpdateOne) SetNillableUploaderID(i *int) *SIPUpdateOne {
-	if i != nil {
-		suo.SetUploaderID(*i)
+func (_u *SIPUpdateOne) SetNillableUploaderID(v *int) *SIPUpdateOne {
+	if v != nil {
+		_u.SetUploaderID(*v)
 	}
-	return suo
+	return _u
 }
 
 // ClearUploaderID clears the value of the "uploader_id" field.
-func (suo *SIPUpdateOne) ClearUploaderID() *SIPUpdateOne {
-	suo.mutation.ClearUploaderID()
-	return suo
+func (_u *SIPUpdateOne) ClearUploaderID() *SIPUpdateOne {
+	_u.mutation.ClearUploaderID()
+	return _u
 }
 
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
-func (suo *SIPUpdateOne) AddWorkflowIDs(ids ...int) *SIPUpdateOne {
-	suo.mutation.AddWorkflowIDs(ids...)
-	return suo
+func (_u *SIPUpdateOne) AddWorkflowIDs(ids ...int) *SIPUpdateOne {
+	_u.mutation.AddWorkflowIDs(ids...)
+	return _u
 }
 
 // AddWorkflows adds the "workflows" edges to the Workflow entity.
-func (suo *SIPUpdateOne) AddWorkflows(w ...*Workflow) *SIPUpdateOne {
-	ids := make([]int, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
+func (_u *SIPUpdateOne) AddWorkflows(v ...*Workflow) *SIPUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return suo.AddWorkflowIDs(ids...)
+	return _u.AddWorkflowIDs(ids...)
 }
 
 // SetUploader sets the "uploader" edge to the User entity.
-func (suo *SIPUpdateOne) SetUploader(u *User) *SIPUpdateOne {
-	return suo.SetUploaderID(u.ID)
+func (_u *SIPUpdateOne) SetUploader(v *User) *SIPUpdateOne {
+	return _u.SetUploaderID(v.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
-func (suo *SIPUpdateOne) Mutation() *SIPMutation {
-	return suo.mutation
+func (_u *SIPUpdateOne) Mutation() *SIPMutation {
+	return _u.mutation
 }
 
 // ClearWorkflows clears all "workflows" edges to the Workflow entity.
-func (suo *SIPUpdateOne) ClearWorkflows() *SIPUpdateOne {
-	suo.mutation.ClearWorkflows()
-	return suo
+func (_u *SIPUpdateOne) ClearWorkflows() *SIPUpdateOne {
+	_u.mutation.ClearWorkflows()
+	return _u
 }
 
 // RemoveWorkflowIDs removes the "workflows" edge to Workflow entities by IDs.
-func (suo *SIPUpdateOne) RemoveWorkflowIDs(ids ...int) *SIPUpdateOne {
-	suo.mutation.RemoveWorkflowIDs(ids...)
-	return suo
+func (_u *SIPUpdateOne) RemoveWorkflowIDs(ids ...int) *SIPUpdateOne {
+	_u.mutation.RemoveWorkflowIDs(ids...)
+	return _u
 }
 
 // RemoveWorkflows removes "workflows" edges to Workflow entities.
-func (suo *SIPUpdateOne) RemoveWorkflows(w ...*Workflow) *SIPUpdateOne {
-	ids := make([]int, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
+func (_u *SIPUpdateOne) RemoveWorkflows(v ...*Workflow) *SIPUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return suo.RemoveWorkflowIDs(ids...)
+	return _u.RemoveWorkflowIDs(ids...)
 }
 
 // ClearUploader clears the "uploader" edge to the User entity.
-func (suo *SIPUpdateOne) ClearUploader() *SIPUpdateOne {
-	suo.mutation.ClearUploader()
-	return suo
+func (_u *SIPUpdateOne) ClearUploader() *SIPUpdateOne {
+	_u.mutation.ClearUploader()
+	return _u
 }
 
 // Where appends a list predicates to the SIPUpdate builder.
-func (suo *SIPUpdateOne) Where(ps ...predicate.SIP) *SIPUpdateOne {
-	suo.mutation.Where(ps...)
-	return suo
+func (_u *SIPUpdateOne) Where(ps ...predicate.SIP) *SIPUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (suo *SIPUpdateOne) Select(field string, fields ...string) *SIPUpdateOne {
-	suo.fields = append([]string{field}, fields...)
-	return suo
+func (_u *SIPUpdateOne) Select(field string, fields ...string) *SIPUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated SIP entity.
-func (suo *SIPUpdateOne) Save(ctx context.Context) (*SIP, error) {
-	return withHooks(ctx, suo.sqlSave, suo.mutation, suo.hooks)
+func (_u *SIPUpdateOne) Save(ctx context.Context) (*SIP, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (suo *SIPUpdateOne) SaveX(ctx context.Context) *SIP {
-	node, err := suo.Save(ctx)
+func (_u *SIPUpdateOne) SaveX(ctx context.Context) *SIP {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -649,31 +649,31 @@ func (suo *SIPUpdateOne) SaveX(ctx context.Context) *SIP {
 }
 
 // Exec executes the query on the entity.
-func (suo *SIPUpdateOne) Exec(ctx context.Context) error {
-	_, err := suo.Save(ctx)
+func (_u *SIPUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (suo *SIPUpdateOne) ExecX(ctx context.Context) {
-	if err := suo.Exec(ctx); err != nil {
+func (_u *SIPUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (suo *SIPUpdateOne) check() error {
-	if v, ok := suo.mutation.Status(); ok {
+func (_u *SIPUpdateOne) check() error {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := sip.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "SIP.status": %w`, err)}
 		}
 	}
-	if v, ok := suo.mutation.FailedAs(); ok {
+	if v, ok := _u.mutation.FailedAs(); ok {
 		if err := sip.FailedAsValidator(v); err != nil {
 			return &ValidationError{Name: "failed_as", err: fmt.Errorf(`db: validator failed for field "SIP.failed_as": %w`, err)}
 		}
 	}
-	if v, ok := suo.mutation.UploaderID(); ok {
+	if v, ok := _u.mutation.UploaderID(); ok {
 		if err := sip.UploaderIDValidator(v); err != nil {
 			return &ValidationError{Name: "uploader_id", err: fmt.Errorf(`db: validator failed for field "SIP.uploader_id": %w`, err)}
 		}
@@ -681,17 +681,17 @@ func (suo *SIPUpdateOne) check() error {
 	return nil
 }
 
-func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
-	if err := suo.check(); err != nil {
+func (_u *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(sip.Table, sip.Columns, sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt))
-	id, ok := suo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`db: missing "SIP.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := suo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, sip.FieldID)
 		for _, f := range fields {
@@ -703,50 +703,50 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 			}
 		}
 	}
-	if ps := suo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := suo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(sip.FieldName, field.TypeString, value)
 	}
-	if value, ok := suo.mutation.AipID(); ok {
+	if value, ok := _u.mutation.AipID(); ok {
 		_spec.SetField(sip.FieldAipID, field.TypeUUID, value)
 	}
-	if suo.mutation.AipIDCleared() {
+	if _u.mutation.AipIDCleared() {
 		_spec.ClearField(sip.FieldAipID, field.TypeUUID)
 	}
-	if value, ok := suo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(sip.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := suo.mutation.StartedAt(); ok {
+	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(sip.FieldStartedAt, field.TypeTime, value)
 	}
-	if suo.mutation.StartedAtCleared() {
+	if _u.mutation.StartedAtCleared() {
 		_spec.ClearField(sip.FieldStartedAt, field.TypeTime)
 	}
-	if value, ok := suo.mutation.CompletedAt(); ok {
+	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(sip.FieldCompletedAt, field.TypeTime, value)
 	}
-	if suo.mutation.CompletedAtCleared() {
+	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(sip.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := suo.mutation.FailedAs(); ok {
+	if value, ok := _u.mutation.FailedAs(); ok {
 		_spec.SetField(sip.FieldFailedAs, field.TypeEnum, value)
 	}
-	if suo.mutation.FailedAsCleared() {
+	if _u.mutation.FailedAsCleared() {
 		_spec.ClearField(sip.FieldFailedAs, field.TypeEnum)
 	}
-	if value, ok := suo.mutation.FailedKey(); ok {
+	if value, ok := _u.mutation.FailedKey(); ok {
 		_spec.SetField(sip.FieldFailedKey, field.TypeString, value)
 	}
-	if suo.mutation.FailedKeyCleared() {
+	if _u.mutation.FailedKeyCleared() {
 		_spec.ClearField(sip.FieldFailedKey, field.TypeString)
 	}
-	if suo.mutation.WorkflowsCleared() {
+	if _u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -759,7 +759,7 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !suo.mutation.WorkflowsCleared() {
+	if nodes := _u.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !_u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -775,7 +775,7 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.WorkflowsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -791,7 +791,7 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if suo.mutation.UploaderCleared() {
+	if _u.mutation.UploaderCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -804,7 +804,7 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := suo.mutation.UploaderIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UploaderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -820,10 +820,10 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &SIP{config: suo.config}
+	_node = &SIP{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, suo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{sip.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -831,6 +831,6 @@ func (suo *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 		}
 		return nil, err
 	}
-	suo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

@@ -32,44 +32,44 @@ type DeletionRequestQuery struct {
 }
 
 // Where adds a new predicate for the DeletionRequestQuery builder.
-func (drq *DeletionRequestQuery) Where(ps ...predicate.DeletionRequest) *DeletionRequestQuery {
-	drq.predicates = append(drq.predicates, ps...)
-	return drq
+func (_q *DeletionRequestQuery) Where(ps ...predicate.DeletionRequest) *DeletionRequestQuery {
+	_q.predicates = append(_q.predicates, ps...)
+	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (drq *DeletionRequestQuery) Limit(limit int) *DeletionRequestQuery {
-	drq.ctx.Limit = &limit
-	return drq
+func (_q *DeletionRequestQuery) Limit(limit int) *DeletionRequestQuery {
+	_q.ctx.Limit = &limit
+	return _q
 }
 
 // Offset to start from.
-func (drq *DeletionRequestQuery) Offset(offset int) *DeletionRequestQuery {
-	drq.ctx.Offset = &offset
-	return drq
+func (_q *DeletionRequestQuery) Offset(offset int) *DeletionRequestQuery {
+	_q.ctx.Offset = &offset
+	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (drq *DeletionRequestQuery) Unique(unique bool) *DeletionRequestQuery {
-	drq.ctx.Unique = &unique
-	return drq
+func (_q *DeletionRequestQuery) Unique(unique bool) *DeletionRequestQuery {
+	_q.ctx.Unique = &unique
+	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (drq *DeletionRequestQuery) Order(o ...deletionrequest.OrderOption) *DeletionRequestQuery {
-	drq.order = append(drq.order, o...)
-	return drq
+func (_q *DeletionRequestQuery) Order(o ...deletionrequest.OrderOption) *DeletionRequestQuery {
+	_q.order = append(_q.order, o...)
+	return _q
 }
 
 // QueryAip chains the current query on the "aip" edge.
-func (drq *DeletionRequestQuery) QueryAip() *AIPQuery {
-	query := (&AIPClient{config: drq.config}).Query()
+func (_q *DeletionRequestQuery) QueryAip() *AIPQuery {
+	query := (&AIPClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := drq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := drq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -78,20 +78,20 @@ func (drq *DeletionRequestQuery) QueryAip() *AIPQuery {
 			sqlgraph.To(aip.Table, aip.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, deletionrequest.AipTable, deletionrequest.AipColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(drq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
 }
 
 // QueryWorkflow chains the current query on the "workflow" edge.
-func (drq *DeletionRequestQuery) QueryWorkflow() *WorkflowQuery {
-	query := (&WorkflowClient{config: drq.config}).Query()
+func (_q *DeletionRequestQuery) QueryWorkflow() *WorkflowQuery {
+	query := (&WorkflowClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := drq.prepareQuery(ctx); err != nil {
+		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
 		}
-		selector := drq.sqlQuery(ctx)
+		selector := _q.sqlQuery(ctx)
 		if err := selector.Err(); err != nil {
 			return nil, err
 		}
@@ -100,7 +100,7 @@ func (drq *DeletionRequestQuery) QueryWorkflow() *WorkflowQuery {
 			sqlgraph.To(workflow.Table, workflow.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, deletionrequest.WorkflowTable, deletionrequest.WorkflowColumn),
 		)
-		fromU = sqlgraph.SetNeighbors(drq.driver.Dialect(), step)
+		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
 	}
 	return query
@@ -108,8 +108,8 @@ func (drq *DeletionRequestQuery) QueryWorkflow() *WorkflowQuery {
 
 // First returns the first DeletionRequest entity from the query.
 // Returns a *NotFoundError when no DeletionRequest was found.
-func (drq *DeletionRequestQuery) First(ctx context.Context) (*DeletionRequest, error) {
-	nodes, err := drq.Limit(1).All(setContextOp(ctx, drq.ctx, ent.OpQueryFirst))
+func (_q *DeletionRequestQuery) First(ctx context.Context) (*DeletionRequest, error) {
+	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
@@ -120,8 +120,8 @@ func (drq *DeletionRequestQuery) First(ctx context.Context) (*DeletionRequest, e
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (drq *DeletionRequestQuery) FirstX(ctx context.Context) *DeletionRequest {
-	node, err := drq.First(ctx)
+func (_q *DeletionRequestQuery) FirstX(ctx context.Context) *DeletionRequest {
+	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -130,9 +130,9 @@ func (drq *DeletionRequestQuery) FirstX(ctx context.Context) *DeletionRequest {
 
 // FirstID returns the first DeletionRequest ID from the query.
 // Returns a *NotFoundError when no DeletionRequest ID was found.
-func (drq *DeletionRequestQuery) FirstID(ctx context.Context) (id int, err error) {
+func (_q *DeletionRequestQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = drq.Limit(1).IDs(setContextOp(ctx, drq.ctx, ent.OpQueryFirstID)); err != nil {
+	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
@@ -143,8 +143,8 @@ func (drq *DeletionRequestQuery) FirstID(ctx context.Context) (id int, err error
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (drq *DeletionRequestQuery) FirstIDX(ctx context.Context) int {
-	id, err := drq.FirstID(ctx)
+func (_q *DeletionRequestQuery) FirstIDX(ctx context.Context) int {
+	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
 	}
@@ -154,8 +154,8 @@ func (drq *DeletionRequestQuery) FirstIDX(ctx context.Context) int {
 // Only returns a single DeletionRequest entity found by the query, ensuring it only returns one.
 // Returns a *NotSingularError when more than one DeletionRequest entity is found.
 // Returns a *NotFoundError when no DeletionRequest entities are found.
-func (drq *DeletionRequestQuery) Only(ctx context.Context) (*DeletionRequest, error) {
-	nodes, err := drq.Limit(2).All(setContextOp(ctx, drq.ctx, ent.OpQueryOnly))
+func (_q *DeletionRequestQuery) Only(ctx context.Context) (*DeletionRequest, error) {
+	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
 	}
@@ -170,8 +170,8 @@ func (drq *DeletionRequestQuery) Only(ctx context.Context) (*DeletionRequest, er
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (drq *DeletionRequestQuery) OnlyX(ctx context.Context) *DeletionRequest {
-	node, err := drq.Only(ctx)
+func (_q *DeletionRequestQuery) OnlyX(ctx context.Context) *DeletionRequest {
+	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -181,9 +181,9 @@ func (drq *DeletionRequestQuery) OnlyX(ctx context.Context) *DeletionRequest {
 // OnlyID is like Only, but returns the only DeletionRequest ID in the query.
 // Returns a *NotSingularError when more than one DeletionRequest ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (drq *DeletionRequestQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *DeletionRequestQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
-	if ids, err = drq.Limit(2).IDs(setContextOp(ctx, drq.ctx, ent.OpQueryOnlyID)); err != nil {
+	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
 	}
 	switch len(ids) {
@@ -198,8 +198,8 @@ func (drq *DeletionRequestQuery) OnlyID(ctx context.Context) (id int, err error)
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (drq *DeletionRequestQuery) OnlyIDX(ctx context.Context) int {
-	id, err := drq.OnlyID(ctx)
+func (_q *DeletionRequestQuery) OnlyIDX(ctx context.Context) int {
+	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -207,18 +207,18 @@ func (drq *DeletionRequestQuery) OnlyIDX(ctx context.Context) int {
 }
 
 // All executes the query and returns a list of DeletionRequests.
-func (drq *DeletionRequestQuery) All(ctx context.Context) ([]*DeletionRequest, error) {
-	ctx = setContextOp(ctx, drq.ctx, ent.OpQueryAll)
-	if err := drq.prepareQuery(ctx); err != nil {
+func (_q *DeletionRequestQuery) All(ctx context.Context) ([]*DeletionRequest, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
 	qr := querierAll[[]*DeletionRequest, *DeletionRequestQuery]()
-	return withInterceptors[[]*DeletionRequest](ctx, drq, qr, drq.inters)
+	return withInterceptors[[]*DeletionRequest](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (drq *DeletionRequestQuery) AllX(ctx context.Context) []*DeletionRequest {
-	nodes, err := drq.All(ctx)
+func (_q *DeletionRequestQuery) AllX(ctx context.Context) []*DeletionRequest {
+	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -226,20 +226,20 @@ func (drq *DeletionRequestQuery) AllX(ctx context.Context) []*DeletionRequest {
 }
 
 // IDs executes the query and returns a list of DeletionRequest IDs.
-func (drq *DeletionRequestQuery) IDs(ctx context.Context) (ids []int, err error) {
-	if drq.ctx.Unique == nil && drq.path != nil {
-		drq.Unique(true)
+func (_q *DeletionRequestQuery) IDs(ctx context.Context) (ids []int, err error) {
+	if _q.ctx.Unique == nil && _q.path != nil {
+		_q.Unique(true)
 	}
-	ctx = setContextOp(ctx, drq.ctx, ent.OpQueryIDs)
-	if err = drq.Select(deletionrequest.FieldID).Scan(ctx, &ids); err != nil {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
+	if err = _q.Select(deletionrequest.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (drq *DeletionRequestQuery) IDsX(ctx context.Context) []int {
-	ids, err := drq.IDs(ctx)
+func (_q *DeletionRequestQuery) IDsX(ctx context.Context) []int {
+	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -247,17 +247,17 @@ func (drq *DeletionRequestQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (drq *DeletionRequestQuery) Count(ctx context.Context) (int, error) {
-	ctx = setContextOp(ctx, drq.ctx, ent.OpQueryCount)
-	if err := drq.prepareQuery(ctx); err != nil {
+func (_q *DeletionRequestQuery) Count(ctx context.Context) (int, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
+	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, drq, querierCount[*DeletionRequestQuery](), drq.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*DeletionRequestQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (drq *DeletionRequestQuery) CountX(ctx context.Context) int {
-	count, err := drq.Count(ctx)
+func (_q *DeletionRequestQuery) CountX(ctx context.Context) int {
+	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -265,9 +265,9 @@ func (drq *DeletionRequestQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (drq *DeletionRequestQuery) Exist(ctx context.Context) (bool, error) {
-	ctx = setContextOp(ctx, drq.ctx, ent.OpQueryExist)
-	switch _, err := drq.FirstID(ctx); {
+func (_q *DeletionRequestQuery) Exist(ctx context.Context) (bool, error) {
+	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
+	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
 		return false, nil
 	case err != nil:
@@ -278,8 +278,8 @@ func (drq *DeletionRequestQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (drq *DeletionRequestQuery) ExistX(ctx context.Context) bool {
-	exist, err := drq.Exist(ctx)
+func (_q *DeletionRequestQuery) ExistX(ctx context.Context) bool {
+	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -288,44 +288,44 @@ func (drq *DeletionRequestQuery) ExistX(ctx context.Context) bool {
 
 // Clone returns a duplicate of the DeletionRequestQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (drq *DeletionRequestQuery) Clone() *DeletionRequestQuery {
-	if drq == nil {
+func (_q *DeletionRequestQuery) Clone() *DeletionRequestQuery {
+	if _q == nil {
 		return nil
 	}
 	return &DeletionRequestQuery{
-		config:       drq.config,
-		ctx:          drq.ctx.Clone(),
-		order:        append([]deletionrequest.OrderOption{}, drq.order...),
-		inters:       append([]Interceptor{}, drq.inters...),
-		predicates:   append([]predicate.DeletionRequest{}, drq.predicates...),
-		withAip:      drq.withAip.Clone(),
-		withWorkflow: drq.withWorkflow.Clone(),
+		config:       _q.config,
+		ctx:          _q.ctx.Clone(),
+		order:        append([]deletionrequest.OrderOption{}, _q.order...),
+		inters:       append([]Interceptor{}, _q.inters...),
+		predicates:   append([]predicate.DeletionRequest{}, _q.predicates...),
+		withAip:      _q.withAip.Clone(),
+		withWorkflow: _q.withWorkflow.Clone(),
 		// clone intermediate query.
-		sql:  drq.sql.Clone(),
-		path: drq.path,
+		sql:  _q.sql.Clone(),
+		path: _q.path,
 	}
 }
 
 // WithAip tells the query-builder to eager-load the nodes that are connected to
 // the "aip" edge. The optional arguments are used to configure the query builder of the edge.
-func (drq *DeletionRequestQuery) WithAip(opts ...func(*AIPQuery)) *DeletionRequestQuery {
-	query := (&AIPClient{config: drq.config}).Query()
+func (_q *DeletionRequestQuery) WithAip(opts ...func(*AIPQuery)) *DeletionRequestQuery {
+	query := (&AIPClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	drq.withAip = query
-	return drq
+	_q.withAip = query
+	return _q
 }
 
 // WithWorkflow tells the query-builder to eager-load the nodes that are connected to
 // the "workflow" edge. The optional arguments are used to configure the query builder of the edge.
-func (drq *DeletionRequestQuery) WithWorkflow(opts ...func(*WorkflowQuery)) *DeletionRequestQuery {
-	query := (&WorkflowClient{config: drq.config}).Query()
+func (_q *DeletionRequestQuery) WithWorkflow(opts ...func(*WorkflowQuery)) *DeletionRequestQuery {
+	query := (&WorkflowClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	drq.withWorkflow = query
-	return drq
+	_q.withWorkflow = query
+	return _q
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -342,10 +342,10 @@ func (drq *DeletionRequestQuery) WithWorkflow(opts ...func(*WorkflowQuery)) *Del
 //		GroupBy(deletionrequest.FieldUUID).
 //		Aggregate(db.Count()).
 //		Scan(ctx, &v)
-func (drq *DeletionRequestQuery) GroupBy(field string, fields ...string) *DeletionRequestGroupBy {
-	drq.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &DeletionRequestGroupBy{build: drq}
-	grbuild.flds = &drq.ctx.Fields
+func (_q *DeletionRequestQuery) GroupBy(field string, fields ...string) *DeletionRequestGroupBy {
+	_q.ctx.Fields = append([]string{field}, fields...)
+	grbuild := &DeletionRequestGroupBy{build: _q}
+	grbuild.flds = &_q.ctx.Fields
 	grbuild.label = deletionrequest.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
@@ -363,59 +363,59 @@ func (drq *DeletionRequestQuery) GroupBy(field string, fields ...string) *Deleti
 //	client.DeletionRequest.Query().
 //		Select(deletionrequest.FieldUUID).
 //		Scan(ctx, &v)
-func (drq *DeletionRequestQuery) Select(fields ...string) *DeletionRequestSelect {
-	drq.ctx.Fields = append(drq.ctx.Fields, fields...)
-	sbuild := &DeletionRequestSelect{DeletionRequestQuery: drq}
+func (_q *DeletionRequestQuery) Select(fields ...string) *DeletionRequestSelect {
+	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
+	sbuild := &DeletionRequestSelect{DeletionRequestQuery: _q}
 	sbuild.label = deletionrequest.Label
-	sbuild.flds, sbuild.scan = &drq.ctx.Fields, sbuild.Scan
+	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
 // Aggregate returns a DeletionRequestSelect configured with the given aggregations.
-func (drq *DeletionRequestQuery) Aggregate(fns ...AggregateFunc) *DeletionRequestSelect {
-	return drq.Select().Aggregate(fns...)
+func (_q *DeletionRequestQuery) Aggregate(fns ...AggregateFunc) *DeletionRequestSelect {
+	return _q.Select().Aggregate(fns...)
 }
 
-func (drq *DeletionRequestQuery) prepareQuery(ctx context.Context) error {
-	for _, inter := range drq.inters {
+func (_q *DeletionRequestQuery) prepareQuery(ctx context.Context) error {
+	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("db: uninitialized interceptor (forgotten import db/runtime?)")
 		}
 		if trv, ok := inter.(Traverser); ok {
-			if err := trv.Traverse(ctx, drq); err != nil {
+			if err := trv.Traverse(ctx, _q); err != nil {
 				return err
 			}
 		}
 	}
-	for _, f := range drq.ctx.Fields {
+	for _, f := range _q.ctx.Fields {
 		if !deletionrequest.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("db: invalid field %q for query", f)}
 		}
 	}
-	if drq.path != nil {
-		prev, err := drq.path(ctx)
+	if _q.path != nil {
+		prev, err := _q.path(ctx)
 		if err != nil {
 			return err
 		}
-		drq.sql = prev
+		_q.sql = prev
 	}
 	return nil
 }
 
-func (drq *DeletionRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DeletionRequest, error) {
+func (_q *DeletionRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*DeletionRequest, error) {
 	var (
 		nodes       = []*DeletionRequest{}
-		_spec       = drq.querySpec()
+		_spec       = _q.querySpec()
 		loadedTypes = [2]bool{
-			drq.withAip != nil,
-			drq.withWorkflow != nil,
+			_q.withAip != nil,
+			_q.withWorkflow != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*DeletionRequest).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &DeletionRequest{config: drq.config}
+		node := &DeletionRequest{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -423,20 +423,20 @@ func (drq *DeletionRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	for i := range hooks {
 		hooks[i](ctx, _spec)
 	}
-	if err := sqlgraph.QueryNodes(ctx, drq.driver, _spec); err != nil {
+	if err := sqlgraph.QueryNodes(ctx, _q.driver, _spec); err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := drq.withAip; query != nil {
-		if err := drq.loadAip(ctx, query, nodes, nil,
+	if query := _q.withAip; query != nil {
+		if err := _q.loadAip(ctx, query, nodes, nil,
 			func(n *DeletionRequest, e *AIP) { n.Edges.Aip = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := drq.withWorkflow; query != nil {
-		if err := drq.loadWorkflow(ctx, query, nodes, nil,
+	if query := _q.withWorkflow; query != nil {
+		if err := _q.loadWorkflow(ctx, query, nodes, nil,
 			func(n *DeletionRequest, e *Workflow) { n.Edges.Workflow = e }); err != nil {
 			return nil, err
 		}
@@ -444,7 +444,7 @@ func (drq *DeletionRequestQuery) sqlAll(ctx context.Context, hooks ...queryHook)
 	return nodes, nil
 }
 
-func (drq *DeletionRequestQuery) loadAip(ctx context.Context, query *AIPQuery, nodes []*DeletionRequest, init func(*DeletionRequest), assign func(*DeletionRequest, *AIP)) error {
+func (_q *DeletionRequestQuery) loadAip(ctx context.Context, query *AIPQuery, nodes []*DeletionRequest, init func(*DeletionRequest), assign func(*DeletionRequest, *AIP)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*DeletionRequest)
 	for i := range nodes {
@@ -473,7 +473,7 @@ func (drq *DeletionRequestQuery) loadAip(ctx context.Context, query *AIPQuery, n
 	}
 	return nil
 }
-func (drq *DeletionRequestQuery) loadWorkflow(ctx context.Context, query *WorkflowQuery, nodes []*DeletionRequest, init func(*DeletionRequest), assign func(*DeletionRequest, *Workflow)) error {
+func (_q *DeletionRequestQuery) loadWorkflow(ctx context.Context, query *WorkflowQuery, nodes []*DeletionRequest, init func(*DeletionRequest), assign func(*DeletionRequest, *Workflow)) error {
 	ids := make([]int, 0, len(nodes))
 	nodeids := make(map[int][]*DeletionRequest)
 	for i := range nodes {
@@ -503,24 +503,24 @@ func (drq *DeletionRequestQuery) loadWorkflow(ctx context.Context, query *Workfl
 	return nil
 }
 
-func (drq *DeletionRequestQuery) sqlCount(ctx context.Context) (int, error) {
-	_spec := drq.querySpec()
-	_spec.Node.Columns = drq.ctx.Fields
-	if len(drq.ctx.Fields) > 0 {
-		_spec.Unique = drq.ctx.Unique != nil && *drq.ctx.Unique
+func (_q *DeletionRequestQuery) sqlCount(ctx context.Context) (int, error) {
+	_spec := _q.querySpec()
+	_spec.Node.Columns = _q.ctx.Fields
+	if len(_q.ctx.Fields) > 0 {
+		_spec.Unique = _q.ctx.Unique != nil && *_q.ctx.Unique
 	}
-	return sqlgraph.CountNodes(ctx, drq.driver, _spec)
+	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (drq *DeletionRequestQuery) querySpec() *sqlgraph.QuerySpec {
+func (_q *DeletionRequestQuery) querySpec() *sqlgraph.QuerySpec {
 	_spec := sqlgraph.NewQuerySpec(deletionrequest.Table, deletionrequest.Columns, sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt))
-	_spec.From = drq.sql
-	if unique := drq.ctx.Unique; unique != nil {
+	_spec.From = _q.sql
+	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
-	} else if drq.path != nil {
+	} else if _q.path != nil {
 		_spec.Unique = true
 	}
-	if fields := drq.ctx.Fields; len(fields) > 0 {
+	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, deletionrequest.FieldID)
 		for i := range fields {
@@ -528,27 +528,27 @@ func (drq *DeletionRequestQuery) querySpec() *sqlgraph.QuerySpec {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
-		if drq.withAip != nil {
+		if _q.withAip != nil {
 			_spec.Node.AddColumnOnce(deletionrequest.FieldAipID)
 		}
-		if drq.withWorkflow != nil {
+		if _q.withWorkflow != nil {
 			_spec.Node.AddColumnOnce(deletionrequest.FieldWorkflowID)
 		}
 	}
-	if ps := drq.predicates; len(ps) > 0 {
+	if ps := _q.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if limit := drq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		_spec.Limit = *limit
 	}
-	if offset := drq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		_spec.Offset = *offset
 	}
-	if ps := drq.order; len(ps) > 0 {
+	if ps := _q.order; len(ps) > 0 {
 		_spec.Order = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
@@ -558,33 +558,33 @@ func (drq *DeletionRequestQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (drq *DeletionRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
-	builder := sql.Dialect(drq.driver.Dialect())
+func (_q *DeletionRequestQuery) sqlQuery(ctx context.Context) *sql.Selector {
+	builder := sql.Dialect(_q.driver.Dialect())
 	t1 := builder.Table(deletionrequest.Table)
-	columns := drq.ctx.Fields
+	columns := _q.ctx.Fields
 	if len(columns) == 0 {
 		columns = deletionrequest.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
-	if drq.sql != nil {
-		selector = drq.sql
+	if _q.sql != nil {
+		selector = _q.sql
 		selector.Select(selector.Columns(columns...)...)
 	}
-	if drq.ctx.Unique != nil && *drq.ctx.Unique {
+	if _q.ctx.Unique != nil && *_q.ctx.Unique {
 		selector.Distinct()
 	}
-	for _, p := range drq.predicates {
+	for _, p := range _q.predicates {
 		p(selector)
 	}
-	for _, p := range drq.order {
+	for _, p := range _q.order {
 		p(selector)
 	}
-	if offset := drq.ctx.Offset; offset != nil {
+	if offset := _q.ctx.Offset; offset != nil {
 		// limit is mandatory for offset clause. We start
 		// with default value, and override it below if needed.
 		selector.Offset(*offset).Limit(math.MaxInt32)
 	}
-	if limit := drq.ctx.Limit; limit != nil {
+	if limit := _q.ctx.Limit; limit != nil {
 		selector.Limit(*limit)
 	}
 	return selector
@@ -597,41 +597,41 @@ type DeletionRequestGroupBy struct {
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (drgb *DeletionRequestGroupBy) Aggregate(fns ...AggregateFunc) *DeletionRequestGroupBy {
-	drgb.fns = append(drgb.fns, fns...)
-	return drgb
+func (_g *DeletionRequestGroupBy) Aggregate(fns ...AggregateFunc) *DeletionRequestGroupBy {
+	_g.fns = append(_g.fns, fns...)
+	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (drgb *DeletionRequestGroupBy) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, drgb.build.ctx, ent.OpQueryGroupBy)
-	if err := drgb.build.prepareQuery(ctx); err != nil {
+func (_g *DeletionRequestGroupBy) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
+	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*DeletionRequestQuery, *DeletionRequestGroupBy](ctx, drgb.build, drgb, drgb.build.inters, v)
+	return scanWithInterceptors[*DeletionRequestQuery, *DeletionRequestGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (drgb *DeletionRequestGroupBy) sqlScan(ctx context.Context, root *DeletionRequestQuery, v any) error {
+func (_g *DeletionRequestGroupBy) sqlScan(ctx context.Context, root *DeletionRequestQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
-	aggregation := make([]string, 0, len(drgb.fns))
-	for _, fn := range drgb.fns {
+	aggregation := make([]string, 0, len(_g.fns))
+	for _, fn := range _g.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
 	if len(selector.SelectedColumns()) == 0 {
-		columns := make([]string, 0, len(*drgb.flds)+len(drgb.fns))
-		for _, f := range *drgb.flds {
+		columns := make([]string, 0, len(*_g.flds)+len(_g.fns))
+		for _, f := range *_g.flds {
 			columns = append(columns, selector.C(f))
 		}
 		columns = append(columns, aggregation...)
 		selector.Select(columns...)
 	}
-	selector.GroupBy(selector.Columns(*drgb.flds...)...)
+	selector.GroupBy(selector.Columns(*_g.flds...)...)
 	if err := selector.Err(); err != nil {
 		return err
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := drgb.build.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _g.build.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()
@@ -645,27 +645,27 @@ type DeletionRequestSelect struct {
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (drs *DeletionRequestSelect) Aggregate(fns ...AggregateFunc) *DeletionRequestSelect {
-	drs.fns = append(drs.fns, fns...)
-	return drs
+func (_s *DeletionRequestSelect) Aggregate(fns ...AggregateFunc) *DeletionRequestSelect {
+	_s.fns = append(_s.fns, fns...)
+	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (drs *DeletionRequestSelect) Scan(ctx context.Context, v any) error {
-	ctx = setContextOp(ctx, drs.ctx, ent.OpQuerySelect)
-	if err := drs.prepareQuery(ctx); err != nil {
+func (_s *DeletionRequestSelect) Scan(ctx context.Context, v any) error {
+	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
+	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*DeletionRequestQuery, *DeletionRequestSelect](ctx, drs.DeletionRequestQuery, drs, drs.inters, v)
+	return scanWithInterceptors[*DeletionRequestQuery, *DeletionRequestSelect](ctx, _s.DeletionRequestQuery, _s, _s.inters, v)
 }
 
-func (drs *DeletionRequestSelect) sqlScan(ctx context.Context, root *DeletionRequestQuery, v any) error {
+func (_s *DeletionRequestSelect) sqlScan(ctx context.Context, root *DeletionRequestQuery, v any) error {
 	selector := root.sqlQuery(ctx)
-	aggregation := make([]string, 0, len(drs.fns))
-	for _, fn := range drs.fns {
+	aggregation := make([]string, 0, len(_s.fns))
+	for _, fn := range _s.fns {
 		aggregation = append(aggregation, fn(selector))
 	}
-	switch n := len(*drs.selector.flds); {
+	switch n := len(*_s.selector.flds); {
 	case n == 0 && len(aggregation) > 0:
 		selector.Select(aggregation...)
 	case n != 0 && len(aggregation) > 0:
@@ -673,7 +673,7 @@ func (drs *DeletionRequestSelect) sqlScan(ctx context.Context, root *DeletionReq
 	}
 	rows := &sql.Rows{}
 	query, args := selector.Query()
-	if err := drs.driver.Query(ctx, query, args, rows); err != nil {
+	if err := _s.driver.Query(ctx, query, args, rows); err != nil {
 		return err
 	}
 	defer rows.Close()

@@ -20,56 +20,56 @@ type DeletionRequestDelete struct {
 }
 
 // Where appends a list predicates to the DeletionRequestDelete builder.
-func (drd *DeletionRequestDelete) Where(ps ...predicate.DeletionRequest) *DeletionRequestDelete {
-	drd.mutation.Where(ps...)
-	return drd
+func (_d *DeletionRequestDelete) Where(ps ...predicate.DeletionRequest) *DeletionRequestDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (drd *DeletionRequestDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, drd.sqlExec, drd.mutation, drd.hooks)
+func (_d *DeletionRequestDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (drd *DeletionRequestDelete) ExecX(ctx context.Context) int {
-	n, err := drd.Exec(ctx)
+func (_d *DeletionRequestDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (drd *DeletionRequestDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *DeletionRequestDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(deletionrequest.Table, sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt))
-	if ps := drd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, drd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	drd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // DeletionRequestDeleteOne is the builder for deleting a single DeletionRequest entity.
 type DeletionRequestDeleteOne struct {
-	drd *DeletionRequestDelete
+	_d *DeletionRequestDelete
 }
 
 // Where appends a list predicates to the DeletionRequestDelete builder.
-func (drdo *DeletionRequestDeleteOne) Where(ps ...predicate.DeletionRequest) *DeletionRequestDeleteOne {
-	drdo.drd.mutation.Where(ps...)
-	return drdo
+func (_d *DeletionRequestDeleteOne) Where(ps ...predicate.DeletionRequest) *DeletionRequestDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (drdo *DeletionRequestDeleteOne) Exec(ctx context.Context) error {
-	n, err := drdo.drd.Exec(ctx)
+func (_d *DeletionRequestDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (drdo *DeletionRequestDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (drdo *DeletionRequestDeleteOne) ExecX(ctx context.Context) {
-	if err := drdo.Exec(ctx); err != nil {
+func (_d *DeletionRequestDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

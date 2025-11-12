@@ -27,163 +27,163 @@ type DeletionRequestCreate struct {
 }
 
 // SetUUID sets the "uuid" field.
-func (drc *DeletionRequestCreate) SetUUID(u uuid.UUID) *DeletionRequestCreate {
-	drc.mutation.SetUUID(u)
-	return drc
+func (_c *DeletionRequestCreate) SetUUID(v uuid.UUID) *DeletionRequestCreate {
+	_c.mutation.SetUUID(v)
+	return _c
 }
 
 // SetRequester sets the "requester" field.
-func (drc *DeletionRequestCreate) SetRequester(s string) *DeletionRequestCreate {
-	drc.mutation.SetRequester(s)
-	return drc
+func (_c *DeletionRequestCreate) SetRequester(v string) *DeletionRequestCreate {
+	_c.mutation.SetRequester(v)
+	return _c
 }
 
 // SetRequesterIss sets the "requester_iss" field.
-func (drc *DeletionRequestCreate) SetRequesterIss(s string) *DeletionRequestCreate {
-	drc.mutation.SetRequesterIss(s)
-	return drc
+func (_c *DeletionRequestCreate) SetRequesterIss(v string) *DeletionRequestCreate {
+	_c.mutation.SetRequesterIss(v)
+	return _c
 }
 
 // SetRequesterSub sets the "requester_sub" field.
-func (drc *DeletionRequestCreate) SetRequesterSub(s string) *DeletionRequestCreate {
-	drc.mutation.SetRequesterSub(s)
-	return drc
+func (_c *DeletionRequestCreate) SetRequesterSub(v string) *DeletionRequestCreate {
+	_c.mutation.SetRequesterSub(v)
+	return _c
 }
 
 // SetReviewer sets the "reviewer" field.
-func (drc *DeletionRequestCreate) SetReviewer(s string) *DeletionRequestCreate {
-	drc.mutation.SetReviewer(s)
-	return drc
+func (_c *DeletionRequestCreate) SetReviewer(v string) *DeletionRequestCreate {
+	_c.mutation.SetReviewer(v)
+	return _c
 }
 
 // SetNillableReviewer sets the "reviewer" field if the given value is not nil.
-func (drc *DeletionRequestCreate) SetNillableReviewer(s *string) *DeletionRequestCreate {
-	if s != nil {
-		drc.SetReviewer(*s)
+func (_c *DeletionRequestCreate) SetNillableReviewer(v *string) *DeletionRequestCreate {
+	if v != nil {
+		_c.SetReviewer(*v)
 	}
-	return drc
+	return _c
 }
 
 // SetReviewerIss sets the "reviewer_iss" field.
-func (drc *DeletionRequestCreate) SetReviewerIss(s string) *DeletionRequestCreate {
-	drc.mutation.SetReviewerIss(s)
-	return drc
+func (_c *DeletionRequestCreate) SetReviewerIss(v string) *DeletionRequestCreate {
+	_c.mutation.SetReviewerIss(v)
+	return _c
 }
 
 // SetNillableReviewerIss sets the "reviewer_iss" field if the given value is not nil.
-func (drc *DeletionRequestCreate) SetNillableReviewerIss(s *string) *DeletionRequestCreate {
-	if s != nil {
-		drc.SetReviewerIss(*s)
+func (_c *DeletionRequestCreate) SetNillableReviewerIss(v *string) *DeletionRequestCreate {
+	if v != nil {
+		_c.SetReviewerIss(*v)
 	}
-	return drc
+	return _c
 }
 
 // SetReviewerSub sets the "reviewer_sub" field.
-func (drc *DeletionRequestCreate) SetReviewerSub(s string) *DeletionRequestCreate {
-	drc.mutation.SetReviewerSub(s)
-	return drc
+func (_c *DeletionRequestCreate) SetReviewerSub(v string) *DeletionRequestCreate {
+	_c.mutation.SetReviewerSub(v)
+	return _c
 }
 
 // SetNillableReviewerSub sets the "reviewer_sub" field if the given value is not nil.
-func (drc *DeletionRequestCreate) SetNillableReviewerSub(s *string) *DeletionRequestCreate {
-	if s != nil {
-		drc.SetReviewerSub(*s)
+func (_c *DeletionRequestCreate) SetNillableReviewerSub(v *string) *DeletionRequestCreate {
+	if v != nil {
+		_c.SetReviewerSub(*v)
 	}
-	return drc
+	return _c
 }
 
 // SetReason sets the "reason" field.
-func (drc *DeletionRequestCreate) SetReason(s string) *DeletionRequestCreate {
-	drc.mutation.SetReason(s)
-	return drc
+func (_c *DeletionRequestCreate) SetReason(v string) *DeletionRequestCreate {
+	_c.mutation.SetReason(v)
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (drc *DeletionRequestCreate) SetStatus(ers enums.DeletionRequestStatus) *DeletionRequestCreate {
-	drc.mutation.SetStatus(ers)
-	return drc
+func (_c *DeletionRequestCreate) SetStatus(v enums.DeletionRequestStatus) *DeletionRequestCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (drc *DeletionRequestCreate) SetNillableStatus(ers *enums.DeletionRequestStatus) *DeletionRequestCreate {
-	if ers != nil {
-		drc.SetStatus(*ers)
+func (_c *DeletionRequestCreate) SetNillableStatus(v *enums.DeletionRequestStatus) *DeletionRequestCreate {
+	if v != nil {
+		_c.SetStatus(*v)
 	}
-	return drc
+	return _c
 }
 
 // SetRequestedAt sets the "requested_at" field.
-func (drc *DeletionRequestCreate) SetRequestedAt(t time.Time) *DeletionRequestCreate {
-	drc.mutation.SetRequestedAt(t)
-	return drc
+func (_c *DeletionRequestCreate) SetRequestedAt(v time.Time) *DeletionRequestCreate {
+	_c.mutation.SetRequestedAt(v)
+	return _c
 }
 
 // SetNillableRequestedAt sets the "requested_at" field if the given value is not nil.
-func (drc *DeletionRequestCreate) SetNillableRequestedAt(t *time.Time) *DeletionRequestCreate {
-	if t != nil {
-		drc.SetRequestedAt(*t)
+func (_c *DeletionRequestCreate) SetNillableRequestedAt(v *time.Time) *DeletionRequestCreate {
+	if v != nil {
+		_c.SetRequestedAt(*v)
 	}
-	return drc
+	return _c
 }
 
 // SetReviewedAt sets the "reviewed_at" field.
-func (drc *DeletionRequestCreate) SetReviewedAt(t time.Time) *DeletionRequestCreate {
-	drc.mutation.SetReviewedAt(t)
-	return drc
+func (_c *DeletionRequestCreate) SetReviewedAt(v time.Time) *DeletionRequestCreate {
+	_c.mutation.SetReviewedAt(v)
+	return _c
 }
 
 // SetNillableReviewedAt sets the "reviewed_at" field if the given value is not nil.
-func (drc *DeletionRequestCreate) SetNillableReviewedAt(t *time.Time) *DeletionRequestCreate {
-	if t != nil {
-		drc.SetReviewedAt(*t)
+func (_c *DeletionRequestCreate) SetNillableReviewedAt(v *time.Time) *DeletionRequestCreate {
+	if v != nil {
+		_c.SetReviewedAt(*v)
 	}
-	return drc
+	return _c
 }
 
 // SetAipID sets the "aip_id" field.
-func (drc *DeletionRequestCreate) SetAipID(i int) *DeletionRequestCreate {
-	drc.mutation.SetAipID(i)
-	return drc
+func (_c *DeletionRequestCreate) SetAipID(v int) *DeletionRequestCreate {
+	_c.mutation.SetAipID(v)
+	return _c
 }
 
 // SetWorkflowID sets the "workflow_id" field.
-func (drc *DeletionRequestCreate) SetWorkflowID(i int) *DeletionRequestCreate {
-	drc.mutation.SetWorkflowID(i)
-	return drc
+func (_c *DeletionRequestCreate) SetWorkflowID(v int) *DeletionRequestCreate {
+	_c.mutation.SetWorkflowID(v)
+	return _c
 }
 
 // SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
-func (drc *DeletionRequestCreate) SetNillableWorkflowID(i *int) *DeletionRequestCreate {
-	if i != nil {
-		drc.SetWorkflowID(*i)
+func (_c *DeletionRequestCreate) SetNillableWorkflowID(v *int) *DeletionRequestCreate {
+	if v != nil {
+		_c.SetWorkflowID(*v)
 	}
-	return drc
+	return _c
 }
 
 // SetAip sets the "aip" edge to the AIP entity.
-func (drc *DeletionRequestCreate) SetAip(a *AIP) *DeletionRequestCreate {
-	return drc.SetAipID(a.ID)
+func (_c *DeletionRequestCreate) SetAip(v *AIP) *DeletionRequestCreate {
+	return _c.SetAipID(v.ID)
 }
 
 // SetWorkflow sets the "workflow" edge to the Workflow entity.
-func (drc *DeletionRequestCreate) SetWorkflow(w *Workflow) *DeletionRequestCreate {
-	return drc.SetWorkflowID(w.ID)
+func (_c *DeletionRequestCreate) SetWorkflow(v *Workflow) *DeletionRequestCreate {
+	return _c.SetWorkflowID(v.ID)
 }
 
 // Mutation returns the DeletionRequestMutation object of the builder.
-func (drc *DeletionRequestCreate) Mutation() *DeletionRequestMutation {
-	return drc.mutation
+func (_c *DeletionRequestCreate) Mutation() *DeletionRequestMutation {
+	return _c.mutation
 }
 
 // Save creates the DeletionRequest in the database.
-func (drc *DeletionRequestCreate) Save(ctx context.Context) (*DeletionRequest, error) {
-	drc.defaults()
-	return withHooks(ctx, drc.sqlSave, drc.mutation, drc.hooks)
+func (_c *DeletionRequestCreate) Save(ctx context.Context) (*DeletionRequest, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (drc *DeletionRequestCreate) SaveX(ctx context.Context) *DeletionRequest {
-	v, err := drc.Save(ctx)
+func (_c *DeletionRequestCreate) SaveX(ctx context.Context) *DeletionRequest {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -191,83 +191,83 @@ func (drc *DeletionRequestCreate) SaveX(ctx context.Context) *DeletionRequest {
 }
 
 // Exec executes the query.
-func (drc *DeletionRequestCreate) Exec(ctx context.Context) error {
-	_, err := drc.Save(ctx)
+func (_c *DeletionRequestCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (drc *DeletionRequestCreate) ExecX(ctx context.Context) {
-	if err := drc.Exec(ctx); err != nil {
+func (_c *DeletionRequestCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (drc *DeletionRequestCreate) defaults() {
-	if _, ok := drc.mutation.Status(); !ok {
+func (_c *DeletionRequestCreate) defaults() {
+	if _, ok := _c.mutation.Status(); !ok {
 		v := deletionrequest.DefaultStatus
-		drc.mutation.SetStatus(v)
+		_c.mutation.SetStatus(v)
 	}
-	if _, ok := drc.mutation.RequestedAt(); !ok {
+	if _, ok := _c.mutation.RequestedAt(); !ok {
 		v := deletionrequest.DefaultRequestedAt()
-		drc.mutation.SetRequestedAt(v)
+		_c.mutation.SetRequestedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (drc *DeletionRequestCreate) check() error {
-	if _, ok := drc.mutation.UUID(); !ok {
+func (_c *DeletionRequestCreate) check() error {
+	if _, ok := _c.mutation.UUID(); !ok {
 		return &ValidationError{Name: "uuid", err: errors.New(`db: missing required field "DeletionRequest.uuid"`)}
 	}
-	if _, ok := drc.mutation.Requester(); !ok {
+	if _, ok := _c.mutation.Requester(); !ok {
 		return &ValidationError{Name: "requester", err: errors.New(`db: missing required field "DeletionRequest.requester"`)}
 	}
-	if _, ok := drc.mutation.RequesterIss(); !ok {
+	if _, ok := _c.mutation.RequesterIss(); !ok {
 		return &ValidationError{Name: "requester_iss", err: errors.New(`db: missing required field "DeletionRequest.requester_iss"`)}
 	}
-	if _, ok := drc.mutation.RequesterSub(); !ok {
+	if _, ok := _c.mutation.RequesterSub(); !ok {
 		return &ValidationError{Name: "requester_sub", err: errors.New(`db: missing required field "DeletionRequest.requester_sub"`)}
 	}
-	if _, ok := drc.mutation.Reason(); !ok {
+	if _, ok := _c.mutation.Reason(); !ok {
 		return &ValidationError{Name: "reason", err: errors.New(`db: missing required field "DeletionRequest.reason"`)}
 	}
-	if _, ok := drc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "DeletionRequest.status"`)}
 	}
-	if v, ok := drc.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := deletionrequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.status": %w`, err)}
 		}
 	}
-	if _, ok := drc.mutation.RequestedAt(); !ok {
+	if _, ok := _c.mutation.RequestedAt(); !ok {
 		return &ValidationError{Name: "requested_at", err: errors.New(`db: missing required field "DeletionRequest.requested_at"`)}
 	}
-	if _, ok := drc.mutation.AipID(); !ok {
+	if _, ok := _c.mutation.AipID(); !ok {
 		return &ValidationError{Name: "aip_id", err: errors.New(`db: missing required field "DeletionRequest.aip_id"`)}
 	}
-	if v, ok := drc.mutation.AipID(); ok {
+	if v, ok := _c.mutation.AipID(); ok {
 		if err := deletionrequest.AipIDValidator(v); err != nil {
 			return &ValidationError{Name: "aip_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.aip_id": %w`, err)}
 		}
 	}
-	if v, ok := drc.mutation.WorkflowID(); ok {
+	if v, ok := _c.mutation.WorkflowID(); ok {
 		if err := deletionrequest.WorkflowIDValidator(v); err != nil {
 			return &ValidationError{Name: "workflow_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.workflow_id": %w`, err)}
 		}
 	}
-	if len(drc.mutation.AipIDs()) == 0 {
+	if len(_c.mutation.AipIDs()) == 0 {
 		return &ValidationError{Name: "aip", err: errors.New(`db: missing required edge "DeletionRequest.aip"`)}
 	}
 	return nil
 }
 
-func (drc *DeletionRequestCreate) sqlSave(ctx context.Context) (*DeletionRequest, error) {
-	if err := drc.check(); err != nil {
+func (_c *DeletionRequestCreate) sqlSave(ctx context.Context) (*DeletionRequest, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := drc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, drc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -275,62 +275,62 @@ func (drc *DeletionRequestCreate) sqlSave(ctx context.Context) (*DeletionRequest
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	drc.mutation.id = &_node.ID
-	drc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (drc *DeletionRequestCreate) createSpec() (*DeletionRequest, *sqlgraph.CreateSpec) {
+func (_c *DeletionRequestCreate) createSpec() (*DeletionRequest, *sqlgraph.CreateSpec) {
 	var (
-		_node = &DeletionRequest{config: drc.config}
+		_node = &DeletionRequest{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(deletionrequest.Table, sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = drc.conflict
-	if value, ok := drc.mutation.UUID(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.UUID(); ok {
 		_spec.SetField(deletionrequest.FieldUUID, field.TypeUUID, value)
 		_node.UUID = value
 	}
-	if value, ok := drc.mutation.Requester(); ok {
+	if value, ok := _c.mutation.Requester(); ok {
 		_spec.SetField(deletionrequest.FieldRequester, field.TypeString, value)
 		_node.Requester = value
 	}
-	if value, ok := drc.mutation.RequesterIss(); ok {
+	if value, ok := _c.mutation.RequesterIss(); ok {
 		_spec.SetField(deletionrequest.FieldRequesterIss, field.TypeString, value)
 		_node.RequesterIss = value
 	}
-	if value, ok := drc.mutation.RequesterSub(); ok {
+	if value, ok := _c.mutation.RequesterSub(); ok {
 		_spec.SetField(deletionrequest.FieldRequesterSub, field.TypeString, value)
 		_node.RequesterSub = value
 	}
-	if value, ok := drc.mutation.Reviewer(); ok {
+	if value, ok := _c.mutation.Reviewer(); ok {
 		_spec.SetField(deletionrequest.FieldReviewer, field.TypeString, value)
 		_node.Reviewer = value
 	}
-	if value, ok := drc.mutation.ReviewerIss(); ok {
+	if value, ok := _c.mutation.ReviewerIss(); ok {
 		_spec.SetField(deletionrequest.FieldReviewerIss, field.TypeString, value)
 		_node.ReviewerIss = value
 	}
-	if value, ok := drc.mutation.ReviewerSub(); ok {
+	if value, ok := _c.mutation.ReviewerSub(); ok {
 		_spec.SetField(deletionrequest.FieldReviewerSub, field.TypeString, value)
 		_node.ReviewerSub = value
 	}
-	if value, ok := drc.mutation.Reason(); ok {
+	if value, ok := _c.mutation.Reason(); ok {
 		_spec.SetField(deletionrequest.FieldReason, field.TypeString, value)
 		_node.Reason = value
 	}
-	if value, ok := drc.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(deletionrequest.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := drc.mutation.RequestedAt(); ok {
+	if value, ok := _c.mutation.RequestedAt(); ok {
 		_spec.SetField(deletionrequest.FieldRequestedAt, field.TypeTime, value)
 		_node.RequestedAt = value
 	}
-	if value, ok := drc.mutation.ReviewedAt(); ok {
+	if value, ok := _c.mutation.ReviewedAt(); ok {
 		_spec.SetField(deletionrequest.FieldReviewedAt, field.TypeTime, value)
 		_node.ReviewedAt = value
 	}
-	if nodes := drc.mutation.AipIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.AipIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -347,7 +347,7 @@ func (drc *DeletionRequestCreate) createSpec() (*DeletionRequest, *sqlgraph.Crea
 		_node.AipID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := drc.mutation.WorkflowIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.WorkflowIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -383,10 +383,10 @@ func (drc *DeletionRequestCreate) createSpec() (*DeletionRequest, *sqlgraph.Crea
 //			SetUUID(v+v).
 //		}).
 //		Exec(ctx)
-func (drc *DeletionRequestCreate) OnConflict(opts ...sql.ConflictOption) *DeletionRequestUpsertOne {
-	drc.conflict = opts
+func (_c *DeletionRequestCreate) OnConflict(opts ...sql.ConflictOption) *DeletionRequestUpsertOne {
+	_c.conflict = opts
 	return &DeletionRequestUpsertOne{
-		create: drc,
+		create: _c,
 	}
 }
 
@@ -396,10 +396,10 @@ func (drc *DeletionRequestCreate) OnConflict(opts ...sql.ConflictOption) *Deleti
 //	client.DeletionRequest.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (drc *DeletionRequestCreate) OnConflictColumns(columns ...string) *DeletionRequestUpsertOne {
-	drc.conflict = append(drc.conflict, sql.ConflictColumns(columns...))
+func (_c *DeletionRequestCreate) OnConflictColumns(columns ...string) *DeletionRequestUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DeletionRequestUpsertOne{
-		create: drc,
+		create: _c,
 	}
 }
 
@@ -788,16 +788,16 @@ type DeletionRequestCreateBulk struct {
 }
 
 // Save creates the DeletionRequest entities in the database.
-func (drcb *DeletionRequestCreateBulk) Save(ctx context.Context) ([]*DeletionRequest, error) {
-	if drcb.err != nil {
-		return nil, drcb.err
+func (_c *DeletionRequestCreateBulk) Save(ctx context.Context) ([]*DeletionRequest, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(drcb.builders))
-	nodes := make([]*DeletionRequest, len(drcb.builders))
-	mutators := make([]Mutator, len(drcb.builders))
-	for i := range drcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*DeletionRequest, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := drcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*DeletionRequestMutation)
@@ -811,12 +811,12 @@ func (drcb *DeletionRequestCreateBulk) Save(ctx context.Context) ([]*DeletionReq
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, drcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = drcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, drcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -840,7 +840,7 @@ func (drcb *DeletionRequestCreateBulk) Save(ctx context.Context) ([]*DeletionReq
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, drcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -848,8 +848,8 @@ func (drcb *DeletionRequestCreateBulk) Save(ctx context.Context) ([]*DeletionReq
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (drcb *DeletionRequestCreateBulk) SaveX(ctx context.Context) []*DeletionRequest {
-	v, err := drcb.Save(ctx)
+func (_c *DeletionRequestCreateBulk) SaveX(ctx context.Context) []*DeletionRequest {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -857,14 +857,14 @@ func (drcb *DeletionRequestCreateBulk) SaveX(ctx context.Context) []*DeletionReq
 }
 
 // Exec executes the query.
-func (drcb *DeletionRequestCreateBulk) Exec(ctx context.Context) error {
-	_, err := drcb.Save(ctx)
+func (_c *DeletionRequestCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (drcb *DeletionRequestCreateBulk) ExecX(ctx context.Context) {
-	if err := drcb.Exec(ctx); err != nil {
+func (_c *DeletionRequestCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -884,10 +884,10 @@ func (drcb *DeletionRequestCreateBulk) ExecX(ctx context.Context) {
 //			SetUUID(v+v).
 //		}).
 //		Exec(ctx)
-func (drcb *DeletionRequestCreateBulk) OnConflict(opts ...sql.ConflictOption) *DeletionRequestUpsertBulk {
-	drcb.conflict = opts
+func (_c *DeletionRequestCreateBulk) OnConflict(opts ...sql.ConflictOption) *DeletionRequestUpsertBulk {
+	_c.conflict = opts
 	return &DeletionRequestUpsertBulk{
-		create: drcb,
+		create: _c,
 	}
 }
 
@@ -897,10 +897,10 @@ func (drcb *DeletionRequestCreateBulk) OnConflict(opts ...sql.ConflictOption) *D
 //	client.DeletionRequest.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (drcb *DeletionRequestCreateBulk) OnConflictColumns(columns ...string) *DeletionRequestUpsertBulk {
-	drcb.conflict = append(drcb.conflict, sql.ConflictColumns(columns...))
+func (_c *DeletionRequestCreateBulk) OnConflictColumns(columns ...string) *DeletionRequestUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &DeletionRequestUpsertBulk{
-		create: drcb,
+		create: _c,
 	}
 }
 

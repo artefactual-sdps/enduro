@@ -26,144 +26,144 @@ type LocationUpdate struct {
 }
 
 // Where appends a list predicates to the LocationUpdate builder.
-func (lu *LocationUpdate) Where(ps ...predicate.Location) *LocationUpdate {
-	lu.mutation.Where(ps...)
-	return lu
+func (_u *LocationUpdate) Where(ps ...predicate.Location) *LocationUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetName sets the "name" field.
-func (lu *LocationUpdate) SetName(s string) *LocationUpdate {
-	lu.mutation.SetName(s)
-	return lu
+func (_u *LocationUpdate) SetName(v string) *LocationUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (lu *LocationUpdate) SetNillableName(s *string) *LocationUpdate {
-	if s != nil {
-		lu.SetName(*s)
+func (_u *LocationUpdate) SetNillableName(v *string) *LocationUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return lu
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (lu *LocationUpdate) SetDescription(s string) *LocationUpdate {
-	lu.mutation.SetDescription(s)
-	return lu
+func (_u *LocationUpdate) SetDescription(v string) *LocationUpdate {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (lu *LocationUpdate) SetNillableDescription(s *string) *LocationUpdate {
-	if s != nil {
-		lu.SetDescription(*s)
+func (_u *LocationUpdate) SetNillableDescription(v *string) *LocationUpdate {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return lu
+	return _u
 }
 
 // SetSource sets the "source" field.
-func (lu *LocationUpdate) SetSource(es enums.LocationSource) *LocationUpdate {
-	lu.mutation.SetSource(es)
-	return lu
+func (_u *LocationUpdate) SetSource(v enums.LocationSource) *LocationUpdate {
+	_u.mutation.SetSource(v)
+	return _u
 }
 
 // SetNillableSource sets the "source" field if the given value is not nil.
-func (lu *LocationUpdate) SetNillableSource(es *enums.LocationSource) *LocationUpdate {
-	if es != nil {
-		lu.SetSource(*es)
+func (_u *LocationUpdate) SetNillableSource(v *enums.LocationSource) *LocationUpdate {
+	if v != nil {
+		_u.SetSource(*v)
 	}
-	return lu
+	return _u
 }
 
 // SetPurpose sets the "purpose" field.
-func (lu *LocationUpdate) SetPurpose(ep enums.LocationPurpose) *LocationUpdate {
-	lu.mutation.SetPurpose(ep)
-	return lu
+func (_u *LocationUpdate) SetPurpose(v enums.LocationPurpose) *LocationUpdate {
+	_u.mutation.SetPurpose(v)
+	return _u
 }
 
 // SetNillablePurpose sets the "purpose" field if the given value is not nil.
-func (lu *LocationUpdate) SetNillablePurpose(ep *enums.LocationPurpose) *LocationUpdate {
-	if ep != nil {
-		lu.SetPurpose(*ep)
+func (_u *LocationUpdate) SetNillablePurpose(v *enums.LocationPurpose) *LocationUpdate {
+	if v != nil {
+		_u.SetPurpose(*v)
 	}
-	return lu
+	return _u
 }
 
 // SetUUID sets the "uuid" field.
-func (lu *LocationUpdate) SetUUID(u uuid.UUID) *LocationUpdate {
-	lu.mutation.SetUUID(u)
-	return lu
+func (_u *LocationUpdate) SetUUID(v uuid.UUID) *LocationUpdate {
+	_u.mutation.SetUUID(v)
+	return _u
 }
 
 // SetNillableUUID sets the "uuid" field if the given value is not nil.
-func (lu *LocationUpdate) SetNillableUUID(u *uuid.UUID) *LocationUpdate {
-	if u != nil {
-		lu.SetUUID(*u)
+func (_u *LocationUpdate) SetNillableUUID(v *uuid.UUID) *LocationUpdate {
+	if v != nil {
+		_u.SetUUID(*v)
 	}
-	return lu
+	return _u
 }
 
 // SetConfig sets the "config" field.
-func (lu *LocationUpdate) SetConfig(tc types.LocationConfig) *LocationUpdate {
-	lu.mutation.SetConfig(tc)
-	return lu
+func (_u *LocationUpdate) SetConfig(v types.LocationConfig) *LocationUpdate {
+	_u.mutation.SetConfig(v)
+	return _u
 }
 
 // SetNillableConfig sets the "config" field if the given value is not nil.
-func (lu *LocationUpdate) SetNillableConfig(tc *types.LocationConfig) *LocationUpdate {
-	if tc != nil {
-		lu.SetConfig(*tc)
+func (_u *LocationUpdate) SetNillableConfig(v *types.LocationConfig) *LocationUpdate {
+	if v != nil {
+		_u.SetConfig(*v)
 	}
-	return lu
+	return _u
 }
 
 // AddAipIDs adds the "aips" edge to the AIP entity by IDs.
-func (lu *LocationUpdate) AddAipIDs(ids ...int) *LocationUpdate {
-	lu.mutation.AddAipIDs(ids...)
-	return lu
+func (_u *LocationUpdate) AddAipIDs(ids ...int) *LocationUpdate {
+	_u.mutation.AddAipIDs(ids...)
+	return _u
 }
 
 // AddAips adds the "aips" edges to the AIP entity.
-func (lu *LocationUpdate) AddAips(a ...*AIP) *LocationUpdate {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_u *LocationUpdate) AddAips(v ...*AIP) *LocationUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return lu.AddAipIDs(ids...)
+	return _u.AddAipIDs(ids...)
 }
 
 // Mutation returns the LocationMutation object of the builder.
-func (lu *LocationUpdate) Mutation() *LocationMutation {
-	return lu.mutation
+func (_u *LocationUpdate) Mutation() *LocationMutation {
+	return _u.mutation
 }
 
 // ClearAips clears all "aips" edges to the AIP entity.
-func (lu *LocationUpdate) ClearAips() *LocationUpdate {
-	lu.mutation.ClearAips()
-	return lu
+func (_u *LocationUpdate) ClearAips() *LocationUpdate {
+	_u.mutation.ClearAips()
+	return _u
 }
 
 // RemoveAipIDs removes the "aips" edge to AIP entities by IDs.
-func (lu *LocationUpdate) RemoveAipIDs(ids ...int) *LocationUpdate {
-	lu.mutation.RemoveAipIDs(ids...)
-	return lu
+func (_u *LocationUpdate) RemoveAipIDs(ids ...int) *LocationUpdate {
+	_u.mutation.RemoveAipIDs(ids...)
+	return _u
 }
 
 // RemoveAips removes "aips" edges to AIP entities.
-func (lu *LocationUpdate) RemoveAips(a ...*AIP) *LocationUpdate {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_u *LocationUpdate) RemoveAips(v ...*AIP) *LocationUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return lu.RemoveAipIDs(ids...)
+	return _u.RemoveAipIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (lu *LocationUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, lu.sqlSave, lu.mutation, lu.hooks)
+func (_u *LocationUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (lu *LocationUpdate) SaveX(ctx context.Context) int {
-	affected, err := lu.Save(ctx)
+func (_u *LocationUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -171,26 +171,26 @@ func (lu *LocationUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (lu *LocationUpdate) Exec(ctx context.Context) error {
-	_, err := lu.Save(ctx)
+func (_u *LocationUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lu *LocationUpdate) ExecX(ctx context.Context) {
-	if err := lu.Exec(ctx); err != nil {
+func (_u *LocationUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (lu *LocationUpdate) check() error {
-	if v, ok := lu.mutation.Source(); ok {
+func (_u *LocationUpdate) check() error {
+	if v, ok := _u.mutation.Source(); ok {
 		if err := location.SourceValidator(v); err != nil {
 			return &ValidationError{Name: "source", err: fmt.Errorf(`db: validator failed for field "Location.source": %w`, err)}
 		}
 	}
-	if v, ok := lu.mutation.Purpose(); ok {
+	if v, ok := _u.mutation.Purpose(); ok {
 		if err := location.PurposeValidator(v); err != nil {
 			return &ValidationError{Name: "purpose", err: fmt.Errorf(`db: validator failed for field "Location.purpose": %w`, err)}
 		}
@@ -198,37 +198,37 @@ func (lu *LocationUpdate) check() error {
 	return nil
 }
 
-func (lu *LocationUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := lu.check(); err != nil {
-		return n, err
+func (_u *LocationUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(location.Table, location.Columns, sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt))
-	if ps := lu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := lu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(location.FieldName, field.TypeString, value)
 	}
-	if value, ok := lu.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(location.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := lu.mutation.Source(); ok {
+	if value, ok := _u.mutation.Source(); ok {
 		_spec.SetField(location.FieldSource, field.TypeEnum, value)
 	}
-	if value, ok := lu.mutation.Purpose(); ok {
+	if value, ok := _u.mutation.Purpose(); ok {
 		_spec.SetField(location.FieldPurpose, field.TypeEnum, value)
 	}
-	if value, ok := lu.mutation.UUID(); ok {
+	if value, ok := _u.mutation.UUID(); ok {
 		_spec.SetField(location.FieldUUID, field.TypeUUID, value)
 	}
-	if value, ok := lu.mutation.Config(); ok {
+	if value, ok := _u.mutation.Config(); ok {
 		_spec.SetField(location.FieldConfig, field.TypeJSON, value)
 	}
-	if lu.mutation.AipsCleared() {
+	if _u.mutation.AipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -241,7 +241,7 @@ func (lu *LocationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lu.mutation.RemovedAipsIDs(); len(nodes) > 0 && !lu.mutation.AipsCleared() {
+	if nodes := _u.mutation.RemovedAipsIDs(); len(nodes) > 0 && !_u.mutation.AipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -257,7 +257,7 @@ func (lu *LocationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := lu.mutation.AipsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AipsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -273,7 +273,7 @@ func (lu *LocationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, lu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{location.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -281,8 +281,8 @@ func (lu *LocationUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	lu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // LocationUpdateOne is the builder for updating a single Location entity.
@@ -294,151 +294,151 @@ type LocationUpdateOne struct {
 }
 
 // SetName sets the "name" field.
-func (luo *LocationUpdateOne) SetName(s string) *LocationUpdateOne {
-	luo.mutation.SetName(s)
-	return luo
+func (_u *LocationUpdateOne) SetName(v string) *LocationUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (luo *LocationUpdateOne) SetNillableName(s *string) *LocationUpdateOne {
-	if s != nil {
-		luo.SetName(*s)
+func (_u *LocationUpdateOne) SetNillableName(v *string) *LocationUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return luo
+	return _u
 }
 
 // SetDescription sets the "description" field.
-func (luo *LocationUpdateOne) SetDescription(s string) *LocationUpdateOne {
-	luo.mutation.SetDescription(s)
-	return luo
+func (_u *LocationUpdateOne) SetDescription(v string) *LocationUpdateOne {
+	_u.mutation.SetDescription(v)
+	return _u
 }
 
 // SetNillableDescription sets the "description" field if the given value is not nil.
-func (luo *LocationUpdateOne) SetNillableDescription(s *string) *LocationUpdateOne {
-	if s != nil {
-		luo.SetDescription(*s)
+func (_u *LocationUpdateOne) SetNillableDescription(v *string) *LocationUpdateOne {
+	if v != nil {
+		_u.SetDescription(*v)
 	}
-	return luo
+	return _u
 }
 
 // SetSource sets the "source" field.
-func (luo *LocationUpdateOne) SetSource(es enums.LocationSource) *LocationUpdateOne {
-	luo.mutation.SetSource(es)
-	return luo
+func (_u *LocationUpdateOne) SetSource(v enums.LocationSource) *LocationUpdateOne {
+	_u.mutation.SetSource(v)
+	return _u
 }
 
 // SetNillableSource sets the "source" field if the given value is not nil.
-func (luo *LocationUpdateOne) SetNillableSource(es *enums.LocationSource) *LocationUpdateOne {
-	if es != nil {
-		luo.SetSource(*es)
+func (_u *LocationUpdateOne) SetNillableSource(v *enums.LocationSource) *LocationUpdateOne {
+	if v != nil {
+		_u.SetSource(*v)
 	}
-	return luo
+	return _u
 }
 
 // SetPurpose sets the "purpose" field.
-func (luo *LocationUpdateOne) SetPurpose(ep enums.LocationPurpose) *LocationUpdateOne {
-	luo.mutation.SetPurpose(ep)
-	return luo
+func (_u *LocationUpdateOne) SetPurpose(v enums.LocationPurpose) *LocationUpdateOne {
+	_u.mutation.SetPurpose(v)
+	return _u
 }
 
 // SetNillablePurpose sets the "purpose" field if the given value is not nil.
-func (luo *LocationUpdateOne) SetNillablePurpose(ep *enums.LocationPurpose) *LocationUpdateOne {
-	if ep != nil {
-		luo.SetPurpose(*ep)
+func (_u *LocationUpdateOne) SetNillablePurpose(v *enums.LocationPurpose) *LocationUpdateOne {
+	if v != nil {
+		_u.SetPurpose(*v)
 	}
-	return luo
+	return _u
 }
 
 // SetUUID sets the "uuid" field.
-func (luo *LocationUpdateOne) SetUUID(u uuid.UUID) *LocationUpdateOne {
-	luo.mutation.SetUUID(u)
-	return luo
+func (_u *LocationUpdateOne) SetUUID(v uuid.UUID) *LocationUpdateOne {
+	_u.mutation.SetUUID(v)
+	return _u
 }
 
 // SetNillableUUID sets the "uuid" field if the given value is not nil.
-func (luo *LocationUpdateOne) SetNillableUUID(u *uuid.UUID) *LocationUpdateOne {
-	if u != nil {
-		luo.SetUUID(*u)
+func (_u *LocationUpdateOne) SetNillableUUID(v *uuid.UUID) *LocationUpdateOne {
+	if v != nil {
+		_u.SetUUID(*v)
 	}
-	return luo
+	return _u
 }
 
 // SetConfig sets the "config" field.
-func (luo *LocationUpdateOne) SetConfig(tc types.LocationConfig) *LocationUpdateOne {
-	luo.mutation.SetConfig(tc)
-	return luo
+func (_u *LocationUpdateOne) SetConfig(v types.LocationConfig) *LocationUpdateOne {
+	_u.mutation.SetConfig(v)
+	return _u
 }
 
 // SetNillableConfig sets the "config" field if the given value is not nil.
-func (luo *LocationUpdateOne) SetNillableConfig(tc *types.LocationConfig) *LocationUpdateOne {
-	if tc != nil {
-		luo.SetConfig(*tc)
+func (_u *LocationUpdateOne) SetNillableConfig(v *types.LocationConfig) *LocationUpdateOne {
+	if v != nil {
+		_u.SetConfig(*v)
 	}
-	return luo
+	return _u
 }
 
 // AddAipIDs adds the "aips" edge to the AIP entity by IDs.
-func (luo *LocationUpdateOne) AddAipIDs(ids ...int) *LocationUpdateOne {
-	luo.mutation.AddAipIDs(ids...)
-	return luo
+func (_u *LocationUpdateOne) AddAipIDs(ids ...int) *LocationUpdateOne {
+	_u.mutation.AddAipIDs(ids...)
+	return _u
 }
 
 // AddAips adds the "aips" edges to the AIP entity.
-func (luo *LocationUpdateOne) AddAips(a ...*AIP) *LocationUpdateOne {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_u *LocationUpdateOne) AddAips(v ...*AIP) *LocationUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return luo.AddAipIDs(ids...)
+	return _u.AddAipIDs(ids...)
 }
 
 // Mutation returns the LocationMutation object of the builder.
-func (luo *LocationUpdateOne) Mutation() *LocationMutation {
-	return luo.mutation
+func (_u *LocationUpdateOne) Mutation() *LocationMutation {
+	return _u.mutation
 }
 
 // ClearAips clears all "aips" edges to the AIP entity.
-func (luo *LocationUpdateOne) ClearAips() *LocationUpdateOne {
-	luo.mutation.ClearAips()
-	return luo
+func (_u *LocationUpdateOne) ClearAips() *LocationUpdateOne {
+	_u.mutation.ClearAips()
+	return _u
 }
 
 // RemoveAipIDs removes the "aips" edge to AIP entities by IDs.
-func (luo *LocationUpdateOne) RemoveAipIDs(ids ...int) *LocationUpdateOne {
-	luo.mutation.RemoveAipIDs(ids...)
-	return luo
+func (_u *LocationUpdateOne) RemoveAipIDs(ids ...int) *LocationUpdateOne {
+	_u.mutation.RemoveAipIDs(ids...)
+	return _u
 }
 
 // RemoveAips removes "aips" edges to AIP entities.
-func (luo *LocationUpdateOne) RemoveAips(a ...*AIP) *LocationUpdateOne {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_u *LocationUpdateOne) RemoveAips(v ...*AIP) *LocationUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return luo.RemoveAipIDs(ids...)
+	return _u.RemoveAipIDs(ids...)
 }
 
 // Where appends a list predicates to the LocationUpdate builder.
-func (luo *LocationUpdateOne) Where(ps ...predicate.Location) *LocationUpdateOne {
-	luo.mutation.Where(ps...)
-	return luo
+func (_u *LocationUpdateOne) Where(ps ...predicate.Location) *LocationUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (luo *LocationUpdateOne) Select(field string, fields ...string) *LocationUpdateOne {
-	luo.fields = append([]string{field}, fields...)
-	return luo
+func (_u *LocationUpdateOne) Select(field string, fields ...string) *LocationUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Location entity.
-func (luo *LocationUpdateOne) Save(ctx context.Context) (*Location, error) {
-	return withHooks(ctx, luo.sqlSave, luo.mutation, luo.hooks)
+func (_u *LocationUpdateOne) Save(ctx context.Context) (*Location, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (luo *LocationUpdateOne) SaveX(ctx context.Context) *Location {
-	node, err := luo.Save(ctx)
+func (_u *LocationUpdateOne) SaveX(ctx context.Context) *Location {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -446,26 +446,26 @@ func (luo *LocationUpdateOne) SaveX(ctx context.Context) *Location {
 }
 
 // Exec executes the query on the entity.
-func (luo *LocationUpdateOne) Exec(ctx context.Context) error {
-	_, err := luo.Save(ctx)
+func (_u *LocationUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (luo *LocationUpdateOne) ExecX(ctx context.Context) {
-	if err := luo.Exec(ctx); err != nil {
+func (_u *LocationUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (luo *LocationUpdateOne) check() error {
-	if v, ok := luo.mutation.Source(); ok {
+func (_u *LocationUpdateOne) check() error {
+	if v, ok := _u.mutation.Source(); ok {
 		if err := location.SourceValidator(v); err != nil {
 			return &ValidationError{Name: "source", err: fmt.Errorf(`db: validator failed for field "Location.source": %w`, err)}
 		}
 	}
-	if v, ok := luo.mutation.Purpose(); ok {
+	if v, ok := _u.mutation.Purpose(); ok {
 		if err := location.PurposeValidator(v); err != nil {
 			return &ValidationError{Name: "purpose", err: fmt.Errorf(`db: validator failed for field "Location.purpose": %w`, err)}
 		}
@@ -473,17 +473,17 @@ func (luo *LocationUpdateOne) check() error {
 	return nil
 }
 
-func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err error) {
-	if err := luo.check(); err != nil {
+func (_u *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(location.Table, location.Columns, sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt))
-	id, ok := luo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`db: missing "Location.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := luo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, location.FieldID)
 		for _, f := range fields {
@@ -495,32 +495,32 @@ func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err
 			}
 		}
 	}
-	if ps := luo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := luo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(location.FieldName, field.TypeString, value)
 	}
-	if value, ok := luo.mutation.Description(); ok {
+	if value, ok := _u.mutation.Description(); ok {
 		_spec.SetField(location.FieldDescription, field.TypeString, value)
 	}
-	if value, ok := luo.mutation.Source(); ok {
+	if value, ok := _u.mutation.Source(); ok {
 		_spec.SetField(location.FieldSource, field.TypeEnum, value)
 	}
-	if value, ok := luo.mutation.Purpose(); ok {
+	if value, ok := _u.mutation.Purpose(); ok {
 		_spec.SetField(location.FieldPurpose, field.TypeEnum, value)
 	}
-	if value, ok := luo.mutation.UUID(); ok {
+	if value, ok := _u.mutation.UUID(); ok {
 		_spec.SetField(location.FieldUUID, field.TypeUUID, value)
 	}
-	if value, ok := luo.mutation.Config(); ok {
+	if value, ok := _u.mutation.Config(); ok {
 		_spec.SetField(location.FieldConfig, field.TypeJSON, value)
 	}
-	if luo.mutation.AipsCleared() {
+	if _u.mutation.AipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -533,7 +533,7 @@ func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := luo.mutation.RemovedAipsIDs(); len(nodes) > 0 && !luo.mutation.AipsCleared() {
+	if nodes := _u.mutation.RemovedAipsIDs(); len(nodes) > 0 && !_u.mutation.AipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -549,7 +549,7 @@ func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := luo.mutation.AipsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AipsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -565,10 +565,10 @@ func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Location{config: luo.config}
+	_node = &Location{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, luo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{location.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -576,6 +576,6 @@ func (luo *LocationUpdateOne) sqlSave(ctx context.Context) (_node *Location, err
 		}
 		return nil, err
 	}
-	luo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

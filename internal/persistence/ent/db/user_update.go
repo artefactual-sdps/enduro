@@ -23,140 +23,140 @@ type UserUpdate struct {
 }
 
 // Where appends a list predicates to the UserUpdate builder.
-func (uu *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
-	uu.mutation.Where(ps...)
-	return uu
+func (_u *UserUpdate) Where(ps ...predicate.User) *UserUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetEmail sets the "email" field.
-func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
-	uu.mutation.SetEmail(s)
-	return uu
+func (_u *UserUpdate) SetEmail(v string) *UserUpdate {
+	_u.mutation.SetEmail(v)
+	return _u
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableEmail(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetEmail(*s)
+func (_u *UserUpdate) SetNillableEmail(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetEmail(*v)
 	}
-	return uu
+	return _u
 }
 
 // ClearEmail clears the value of the "email" field.
-func (uu *UserUpdate) ClearEmail() *UserUpdate {
-	uu.mutation.ClearEmail()
-	return uu
+func (_u *UserUpdate) ClearEmail() *UserUpdate {
+	_u.mutation.ClearEmail()
+	return _u
 }
 
 // SetName sets the "name" field.
-func (uu *UserUpdate) SetName(s string) *UserUpdate {
-	uu.mutation.SetName(s)
-	return uu
+func (_u *UserUpdate) SetName(v string) *UserUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableName(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetName(*s)
+func (_u *UserUpdate) SetNillableName(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return uu
+	return _u
 }
 
 // ClearName clears the value of the "name" field.
-func (uu *UserUpdate) ClearName() *UserUpdate {
-	uu.mutation.ClearName()
-	return uu
+func (_u *UserUpdate) ClearName() *UserUpdate {
+	_u.mutation.ClearName()
+	return _u
 }
 
 // SetOidcIss sets the "oidc_iss" field.
-func (uu *UserUpdate) SetOidcIss(s string) *UserUpdate {
-	uu.mutation.SetOidcIss(s)
-	return uu
+func (_u *UserUpdate) SetOidcIss(v string) *UserUpdate {
+	_u.mutation.SetOidcIss(v)
+	return _u
 }
 
 // SetNillableOidcIss sets the "oidc_iss" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableOidcIss(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetOidcIss(*s)
+func (_u *UserUpdate) SetNillableOidcIss(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetOidcIss(*v)
 	}
-	return uu
+	return _u
 }
 
 // ClearOidcIss clears the value of the "oidc_iss" field.
-func (uu *UserUpdate) ClearOidcIss() *UserUpdate {
-	uu.mutation.ClearOidcIss()
-	return uu
+func (_u *UserUpdate) ClearOidcIss() *UserUpdate {
+	_u.mutation.ClearOidcIss()
+	return _u
 }
 
 // SetOidcSub sets the "oidc_sub" field.
-func (uu *UserUpdate) SetOidcSub(s string) *UserUpdate {
-	uu.mutation.SetOidcSub(s)
-	return uu
+func (_u *UserUpdate) SetOidcSub(v string) *UserUpdate {
+	_u.mutation.SetOidcSub(v)
+	return _u
 }
 
 // SetNillableOidcSub sets the "oidc_sub" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableOidcSub(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetOidcSub(*s)
+func (_u *UserUpdate) SetNillableOidcSub(v *string) *UserUpdate {
+	if v != nil {
+		_u.SetOidcSub(*v)
 	}
-	return uu
+	return _u
 }
 
 // ClearOidcSub clears the value of the "oidc_sub" field.
-func (uu *UserUpdate) ClearOidcSub() *UserUpdate {
-	uu.mutation.ClearOidcSub()
-	return uu
+func (_u *UserUpdate) ClearOidcSub() *UserUpdate {
+	_u.mutation.ClearOidcSub()
+	return _u
 }
 
 // AddUploadedSipIDs adds the "uploaded_sips" edge to the SIP entity by IDs.
-func (uu *UserUpdate) AddUploadedSipIDs(ids ...int) *UserUpdate {
-	uu.mutation.AddUploadedSipIDs(ids...)
-	return uu
+func (_u *UserUpdate) AddUploadedSipIDs(ids ...int) *UserUpdate {
+	_u.mutation.AddUploadedSipIDs(ids...)
+	return _u
 }
 
 // AddUploadedSips adds the "uploaded_sips" edges to the SIP entity.
-func (uu *UserUpdate) AddUploadedSips(s ...*SIP) *UserUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_u *UserUpdate) AddUploadedSips(v ...*SIP) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uu.AddUploadedSipIDs(ids...)
+	return _u.AddUploadedSipIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
-func (uu *UserUpdate) Mutation() *UserMutation {
-	return uu.mutation
+func (_u *UserUpdate) Mutation() *UserMutation {
+	return _u.mutation
 }
 
 // ClearUploadedSips clears all "uploaded_sips" edges to the SIP entity.
-func (uu *UserUpdate) ClearUploadedSips() *UserUpdate {
-	uu.mutation.ClearUploadedSips()
-	return uu
+func (_u *UserUpdate) ClearUploadedSips() *UserUpdate {
+	_u.mutation.ClearUploadedSips()
+	return _u
 }
 
 // RemoveUploadedSipIDs removes the "uploaded_sips" edge to SIP entities by IDs.
-func (uu *UserUpdate) RemoveUploadedSipIDs(ids ...int) *UserUpdate {
-	uu.mutation.RemoveUploadedSipIDs(ids...)
-	return uu
+func (_u *UserUpdate) RemoveUploadedSipIDs(ids ...int) *UserUpdate {
+	_u.mutation.RemoveUploadedSipIDs(ids...)
+	return _u
 }
 
 // RemoveUploadedSips removes "uploaded_sips" edges to SIP entities.
-func (uu *UserUpdate) RemoveUploadedSips(s ...*SIP) *UserUpdate {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_u *UserUpdate) RemoveUploadedSips(v ...*SIP) *UserUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uu.RemoveUploadedSipIDs(ids...)
+	return _u.RemoveUploadedSipIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (uu *UserUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, uu.sqlSave, uu.mutation, uu.hooks)
+func (_u *UserUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (uu *UserUpdate) SaveX(ctx context.Context) int {
-	affected, err := uu.Save(ctx)
+func (_u *UserUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -164,52 +164,52 @@ func (uu *UserUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (uu *UserUpdate) Exec(ctx context.Context) error {
-	_, err := uu.Save(ctx)
+func (_u *UserUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (uu *UserUpdate) ExecX(ctx context.Context) {
-	if err := uu.Exec(ctx); err != nil {
+func (_u *UserUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
+func (_u *UserUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
-	if ps := uu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := uu.mutation.Email(); ok {
+	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
-	if uu.mutation.EmailCleared() {
+	if _u.mutation.EmailCleared() {
 		_spec.ClearField(user.FieldEmail, field.TypeString)
 	}
-	if value, ok := uu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
 	}
-	if uu.mutation.NameCleared() {
+	if _u.mutation.NameCleared() {
 		_spec.ClearField(user.FieldName, field.TypeString)
 	}
-	if value, ok := uu.mutation.OidcIss(); ok {
+	if value, ok := _u.mutation.OidcIss(); ok {
 		_spec.SetField(user.FieldOidcIss, field.TypeString, value)
 	}
-	if uu.mutation.OidcIssCleared() {
+	if _u.mutation.OidcIssCleared() {
 		_spec.ClearField(user.FieldOidcIss, field.TypeString)
 	}
-	if value, ok := uu.mutation.OidcSub(); ok {
+	if value, ok := _u.mutation.OidcSub(); ok {
 		_spec.SetField(user.FieldOidcSub, field.TypeString, value)
 	}
-	if uu.mutation.OidcSubCleared() {
+	if _u.mutation.OidcSubCleared() {
 		_spec.ClearField(user.FieldOidcSub, field.TypeString)
 	}
-	if uu.mutation.UploadedSipsCleared() {
+	if _u.mutation.UploadedSipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -222,7 +222,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.RemovedUploadedSipsIDs(); len(nodes) > 0 && !uu.mutation.UploadedSipsCleared() {
+	if nodes := _u.mutation.RemovedUploadedSipsIDs(); len(nodes) > 0 && !_u.mutation.UploadedSipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -238,7 +238,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uu.mutation.UploadedSipsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UploadedSipsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -254,7 +254,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -262,8 +262,8 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	uu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // UserUpdateOne is the builder for updating a single User entity.
@@ -275,147 +275,147 @@ type UserUpdateOne struct {
 }
 
 // SetEmail sets the "email" field.
-func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
-	uuo.mutation.SetEmail(s)
-	return uuo
+func (_u *UserUpdateOne) SetEmail(v string) *UserUpdateOne {
+	_u.mutation.SetEmail(v)
+	return _u
 }
 
 // SetNillableEmail sets the "email" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableEmail(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetEmail(*s)
+func (_u *UserUpdateOne) SetNillableEmail(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetEmail(*v)
 	}
-	return uuo
+	return _u
 }
 
 // ClearEmail clears the value of the "email" field.
-func (uuo *UserUpdateOne) ClearEmail() *UserUpdateOne {
-	uuo.mutation.ClearEmail()
-	return uuo
+func (_u *UserUpdateOne) ClearEmail() *UserUpdateOne {
+	_u.mutation.ClearEmail()
+	return _u
 }
 
 // SetName sets the "name" field.
-func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
-	uuo.mutation.SetName(s)
-	return uuo
+func (_u *UserUpdateOne) SetName(v string) *UserUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableName(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetName(*s)
+func (_u *UserUpdateOne) SetNillableName(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return uuo
+	return _u
 }
 
 // ClearName clears the value of the "name" field.
-func (uuo *UserUpdateOne) ClearName() *UserUpdateOne {
-	uuo.mutation.ClearName()
-	return uuo
+func (_u *UserUpdateOne) ClearName() *UserUpdateOne {
+	_u.mutation.ClearName()
+	return _u
 }
 
 // SetOidcIss sets the "oidc_iss" field.
-func (uuo *UserUpdateOne) SetOidcIss(s string) *UserUpdateOne {
-	uuo.mutation.SetOidcIss(s)
-	return uuo
+func (_u *UserUpdateOne) SetOidcIss(v string) *UserUpdateOne {
+	_u.mutation.SetOidcIss(v)
+	return _u
 }
 
 // SetNillableOidcIss sets the "oidc_iss" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableOidcIss(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetOidcIss(*s)
+func (_u *UserUpdateOne) SetNillableOidcIss(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetOidcIss(*v)
 	}
-	return uuo
+	return _u
 }
 
 // ClearOidcIss clears the value of the "oidc_iss" field.
-func (uuo *UserUpdateOne) ClearOidcIss() *UserUpdateOne {
-	uuo.mutation.ClearOidcIss()
-	return uuo
+func (_u *UserUpdateOne) ClearOidcIss() *UserUpdateOne {
+	_u.mutation.ClearOidcIss()
+	return _u
 }
 
 // SetOidcSub sets the "oidc_sub" field.
-func (uuo *UserUpdateOne) SetOidcSub(s string) *UserUpdateOne {
-	uuo.mutation.SetOidcSub(s)
-	return uuo
+func (_u *UserUpdateOne) SetOidcSub(v string) *UserUpdateOne {
+	_u.mutation.SetOidcSub(v)
+	return _u
 }
 
 // SetNillableOidcSub sets the "oidc_sub" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableOidcSub(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetOidcSub(*s)
+func (_u *UserUpdateOne) SetNillableOidcSub(v *string) *UserUpdateOne {
+	if v != nil {
+		_u.SetOidcSub(*v)
 	}
-	return uuo
+	return _u
 }
 
 // ClearOidcSub clears the value of the "oidc_sub" field.
-func (uuo *UserUpdateOne) ClearOidcSub() *UserUpdateOne {
-	uuo.mutation.ClearOidcSub()
-	return uuo
+func (_u *UserUpdateOne) ClearOidcSub() *UserUpdateOne {
+	_u.mutation.ClearOidcSub()
+	return _u
 }
 
 // AddUploadedSipIDs adds the "uploaded_sips" edge to the SIP entity by IDs.
-func (uuo *UserUpdateOne) AddUploadedSipIDs(ids ...int) *UserUpdateOne {
-	uuo.mutation.AddUploadedSipIDs(ids...)
-	return uuo
+func (_u *UserUpdateOne) AddUploadedSipIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.AddUploadedSipIDs(ids...)
+	return _u
 }
 
 // AddUploadedSips adds the "uploaded_sips" edges to the SIP entity.
-func (uuo *UserUpdateOne) AddUploadedSips(s ...*SIP) *UserUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_u *UserUpdateOne) AddUploadedSips(v ...*SIP) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uuo.AddUploadedSipIDs(ids...)
+	return _u.AddUploadedSipIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
-func (uuo *UserUpdateOne) Mutation() *UserMutation {
-	return uuo.mutation
+func (_u *UserUpdateOne) Mutation() *UserMutation {
+	return _u.mutation
 }
 
 // ClearUploadedSips clears all "uploaded_sips" edges to the SIP entity.
-func (uuo *UserUpdateOne) ClearUploadedSips() *UserUpdateOne {
-	uuo.mutation.ClearUploadedSips()
-	return uuo
+func (_u *UserUpdateOne) ClearUploadedSips() *UserUpdateOne {
+	_u.mutation.ClearUploadedSips()
+	return _u
 }
 
 // RemoveUploadedSipIDs removes the "uploaded_sips" edge to SIP entities by IDs.
-func (uuo *UserUpdateOne) RemoveUploadedSipIDs(ids ...int) *UserUpdateOne {
-	uuo.mutation.RemoveUploadedSipIDs(ids...)
-	return uuo
+func (_u *UserUpdateOne) RemoveUploadedSipIDs(ids ...int) *UserUpdateOne {
+	_u.mutation.RemoveUploadedSipIDs(ids...)
+	return _u
 }
 
 // RemoveUploadedSips removes "uploaded_sips" edges to SIP entities.
-func (uuo *UserUpdateOne) RemoveUploadedSips(s ...*SIP) *UserUpdateOne {
-	ids := make([]int, len(s))
-	for i := range s {
-		ids[i] = s[i].ID
+func (_u *UserUpdateOne) RemoveUploadedSips(v ...*SIP) *UserUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return uuo.RemoveUploadedSipIDs(ids...)
+	return _u.RemoveUploadedSipIDs(ids...)
 }
 
 // Where appends a list predicates to the UserUpdate builder.
-func (uuo *UserUpdateOne) Where(ps ...predicate.User) *UserUpdateOne {
-	uuo.mutation.Where(ps...)
-	return uuo
+func (_u *UserUpdateOne) Where(ps ...predicate.User) *UserUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (uuo *UserUpdateOne) Select(field string, fields ...string) *UserUpdateOne {
-	uuo.fields = append([]string{field}, fields...)
-	return uuo
+func (_u *UserUpdateOne) Select(field string, fields ...string) *UserUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated User entity.
-func (uuo *UserUpdateOne) Save(ctx context.Context) (*User, error) {
-	return withHooks(ctx, uuo.sqlSave, uuo.mutation, uuo.hooks)
+func (_u *UserUpdateOne) Save(ctx context.Context) (*User, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (uuo *UserUpdateOne) SaveX(ctx context.Context) *User {
-	node, err := uuo.Save(ctx)
+func (_u *UserUpdateOne) SaveX(ctx context.Context) *User {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -423,26 +423,26 @@ func (uuo *UserUpdateOne) SaveX(ctx context.Context) *User {
 }
 
 // Exec executes the query on the entity.
-func (uuo *UserUpdateOne) Exec(ctx context.Context) error {
-	_, err := uuo.Save(ctx)
+func (_u *UserUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (uuo *UserUpdateOne) ExecX(ctx context.Context) {
-	if err := uuo.Exec(ctx); err != nil {
+func (_u *UserUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
-func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
+func (_u *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) {
 	_spec := sqlgraph.NewUpdateSpec(user.Table, user.Columns, sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt))
-	id, ok := uuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`db: missing "User.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := uuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, user.FieldID)
 		for _, f := range fields {
@@ -454,38 +454,38 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			}
 		}
 	}
-	if ps := uuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := uuo.mutation.Email(); ok {
+	if value, ok := _u.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
-	if uuo.mutation.EmailCleared() {
+	if _u.mutation.EmailCleared() {
 		_spec.ClearField(user.FieldEmail, field.TypeString)
 	}
-	if value, ok := uuo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
 	}
-	if uuo.mutation.NameCleared() {
+	if _u.mutation.NameCleared() {
 		_spec.ClearField(user.FieldName, field.TypeString)
 	}
-	if value, ok := uuo.mutation.OidcIss(); ok {
+	if value, ok := _u.mutation.OidcIss(); ok {
 		_spec.SetField(user.FieldOidcIss, field.TypeString, value)
 	}
-	if uuo.mutation.OidcIssCleared() {
+	if _u.mutation.OidcIssCleared() {
 		_spec.ClearField(user.FieldOidcIss, field.TypeString)
 	}
-	if value, ok := uuo.mutation.OidcSub(); ok {
+	if value, ok := _u.mutation.OidcSub(); ok {
 		_spec.SetField(user.FieldOidcSub, field.TypeString, value)
 	}
-	if uuo.mutation.OidcSubCleared() {
+	if _u.mutation.OidcSubCleared() {
 		_spec.ClearField(user.FieldOidcSub, field.TypeString)
 	}
-	if uuo.mutation.UploadedSipsCleared() {
+	if _u.mutation.UploadedSipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -498,7 +498,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.RemovedUploadedSipsIDs(); len(nodes) > 0 && !uuo.mutation.UploadedSipsCleared() {
+	if nodes := _u.mutation.RemovedUploadedSipsIDs(); len(nodes) > 0 && !_u.mutation.UploadedSipsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -514,7 +514,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := uuo.mutation.UploadedSipsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.UploadedSipsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -530,10 +530,10 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &User{config: uuo.config}
+	_node = &User{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, uuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{user.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -541,6 +541,6 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 		}
 		return nil, err
 	}
-	uuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

@@ -99,7 +99,7 @@ func (*SIP) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the SIP fields.
-func (s *SIP) assignValues(columns []string, values []any) error {
+func (_m *SIP) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -110,69 +110,69 @@ func (s *SIP) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			s.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case sip.FieldUUID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field uuid", values[i])
 			} else if value != nil {
-				s.UUID = *value
+				_m.UUID = *value
 			}
 		case sip.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				s.Name = value.String
+				_m.Name = value.String
 			}
 		case sip.FieldAipID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field aip_id", values[i])
 			} else if value != nil {
-				s.AipID = *value
+				_m.AipID = *value
 			}
 		case sip.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				s.Status = enums.SIPStatus(value.String)
+				_m.Status = enums.SIPStatus(value.String)
 			}
 		case sip.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				s.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		case sip.FieldStartedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field started_at", values[i])
 			} else if value.Valid {
-				s.StartedAt = value.Time
+				_m.StartedAt = value.Time
 			}
 		case sip.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
 			} else if value.Valid {
-				s.CompletedAt = value.Time
+				_m.CompletedAt = value.Time
 			}
 		case sip.FieldFailedAs:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field failed_as", values[i])
 			} else if value.Valid {
-				s.FailedAs = enums.SIPFailedAs(value.String)
+				_m.FailedAs = enums.SIPFailedAs(value.String)
 			}
 		case sip.FieldFailedKey:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field failed_key", values[i])
 			} else if value.Valid {
-				s.FailedKey = value.String
+				_m.FailedKey = value.String
 			}
 		case sip.FieldUploaderID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field uploader_id", values[i])
 			} else if value.Valid {
-				s.UploaderID = int(value.Int64)
+				_m.UploaderID = int(value.Int64)
 			}
 		default:
-			s.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -180,72 +180,72 @@ func (s *SIP) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the SIP.
 // This includes values selected through modifiers, order, etc.
-func (s *SIP) Value(name string) (ent.Value, error) {
-	return s.selectValues.Get(name)
+func (_m *SIP) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryWorkflows queries the "workflows" edge of the SIP entity.
-func (s *SIP) QueryWorkflows() *WorkflowQuery {
-	return NewSIPClient(s.config).QueryWorkflows(s)
+func (_m *SIP) QueryWorkflows() *WorkflowQuery {
+	return NewSIPClient(_m.config).QueryWorkflows(_m)
 }
 
 // QueryUploader queries the "uploader" edge of the SIP entity.
-func (s *SIP) QueryUploader() *UserQuery {
-	return NewSIPClient(s.config).QueryUploader(s)
+func (_m *SIP) QueryUploader() *UserQuery {
+	return NewSIPClient(_m.config).QueryUploader(_m)
 }
 
 // Update returns a builder for updating this SIP.
 // Note that you need to call SIP.Unwrap() before calling this method if this SIP
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (s *SIP) Update() *SIPUpdateOne {
-	return NewSIPClient(s.config).UpdateOne(s)
+func (_m *SIP) Update() *SIPUpdateOne {
+	return NewSIPClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the SIP entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (s *SIP) Unwrap() *SIP {
-	_tx, ok := s.config.driver.(*txDriver)
+func (_m *SIP) Unwrap() *SIP {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("db: SIP is not a transactional entity")
 	}
-	s.config.driver = _tx.drv
-	return s
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (s *SIP) String() string {
+func (_m *SIP) String() string {
 	var builder strings.Builder
 	builder.WriteString("SIP(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", s.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("uuid=")
-	builder.WriteString(fmt.Sprintf("%v", s.UUID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UUID))
 	builder.WriteString(", ")
 	builder.WriteString("name=")
-	builder.WriteString(s.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("aip_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.AipID))
+	builder.WriteString(fmt.Sprintf("%v", _m.AipID))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", s.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(s.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("started_at=")
-	builder.WriteString(s.StartedAt.Format(time.ANSIC))
+	builder.WriteString(_m.StartedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("completed_at=")
-	builder.WriteString(s.CompletedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CompletedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("failed_as=")
-	builder.WriteString(fmt.Sprintf("%v", s.FailedAs))
+	builder.WriteString(fmt.Sprintf("%v", _m.FailedAs))
 	builder.WriteString(", ")
 	builder.WriteString("failed_key=")
-	builder.WriteString(s.FailedKey)
+	builder.WriteString(_m.FailedKey)
 	builder.WriteString(", ")
 	builder.WriteString("uploader_id=")
-	builder.WriteString(fmt.Sprintf("%v", s.UploaderID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UploaderID))
 	builder.WriteByte(')')
 	return builder.String()
 }

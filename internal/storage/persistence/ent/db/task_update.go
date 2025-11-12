@@ -26,145 +26,145 @@ type TaskUpdate struct {
 }
 
 // Where appends a list predicates to the TaskUpdate builder.
-func (tu *TaskUpdate) Where(ps ...predicate.Task) *TaskUpdate {
-	tu.mutation.Where(ps...)
-	return tu
+func (_u *TaskUpdate) Where(ps ...predicate.Task) *TaskUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetUUID sets the "uuid" field.
-func (tu *TaskUpdate) SetUUID(u uuid.UUID) *TaskUpdate {
-	tu.mutation.SetUUID(u)
-	return tu
+func (_u *TaskUpdate) SetUUID(v uuid.UUID) *TaskUpdate {
+	_u.mutation.SetUUID(v)
+	return _u
 }
 
 // SetNillableUUID sets the "uuid" field if the given value is not nil.
-func (tu *TaskUpdate) SetNillableUUID(u *uuid.UUID) *TaskUpdate {
-	if u != nil {
-		tu.SetUUID(*u)
+func (_u *TaskUpdate) SetNillableUUID(v *uuid.UUID) *TaskUpdate {
+	if v != nil {
+		_u.SetUUID(*v)
 	}
-	return tu
+	return _u
 }
 
 // SetName sets the "name" field.
-func (tu *TaskUpdate) SetName(s string) *TaskUpdate {
-	tu.mutation.SetName(s)
-	return tu
+func (_u *TaskUpdate) SetName(v string) *TaskUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (tu *TaskUpdate) SetNillableName(s *string) *TaskUpdate {
-	if s != nil {
-		tu.SetName(*s)
+func (_u *TaskUpdate) SetNillableName(v *string) *TaskUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return tu
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (tu *TaskUpdate) SetStatus(es enums.TaskStatus) *TaskUpdate {
-	tu.mutation.SetStatus(es)
-	return tu
+func (_u *TaskUpdate) SetStatus(v enums.TaskStatus) *TaskUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (tu *TaskUpdate) SetNillableStatus(es *enums.TaskStatus) *TaskUpdate {
-	if es != nil {
-		tu.SetStatus(*es)
+func (_u *TaskUpdate) SetNillableStatus(v *enums.TaskStatus) *TaskUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return tu
+	return _u
 }
 
 // SetStartedAt sets the "started_at" field.
-func (tu *TaskUpdate) SetStartedAt(t time.Time) *TaskUpdate {
-	tu.mutation.SetStartedAt(t)
-	return tu
+func (_u *TaskUpdate) SetStartedAt(v time.Time) *TaskUpdate {
+	_u.mutation.SetStartedAt(v)
+	return _u
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (tu *TaskUpdate) SetNillableStartedAt(t *time.Time) *TaskUpdate {
-	if t != nil {
-		tu.SetStartedAt(*t)
+func (_u *TaskUpdate) SetNillableStartedAt(v *time.Time) *TaskUpdate {
+	if v != nil {
+		_u.SetStartedAt(*v)
 	}
-	return tu
+	return _u
 }
 
 // ClearStartedAt clears the value of the "started_at" field.
-func (tu *TaskUpdate) ClearStartedAt() *TaskUpdate {
-	tu.mutation.ClearStartedAt()
-	return tu
+func (_u *TaskUpdate) ClearStartedAt() *TaskUpdate {
+	_u.mutation.ClearStartedAt()
+	return _u
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (tu *TaskUpdate) SetCompletedAt(t time.Time) *TaskUpdate {
-	tu.mutation.SetCompletedAt(t)
-	return tu
+func (_u *TaskUpdate) SetCompletedAt(v time.Time) *TaskUpdate {
+	_u.mutation.SetCompletedAt(v)
+	return _u
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (tu *TaskUpdate) SetNillableCompletedAt(t *time.Time) *TaskUpdate {
-	if t != nil {
-		tu.SetCompletedAt(*t)
+func (_u *TaskUpdate) SetNillableCompletedAt(v *time.Time) *TaskUpdate {
+	if v != nil {
+		_u.SetCompletedAt(*v)
 	}
-	return tu
+	return _u
 }
 
 // ClearCompletedAt clears the value of the "completed_at" field.
-func (tu *TaskUpdate) ClearCompletedAt() *TaskUpdate {
-	tu.mutation.ClearCompletedAt()
-	return tu
+func (_u *TaskUpdate) ClearCompletedAt() *TaskUpdate {
+	_u.mutation.ClearCompletedAt()
+	return _u
 }
 
 // SetNote sets the "note" field.
-func (tu *TaskUpdate) SetNote(s string) *TaskUpdate {
-	tu.mutation.SetNote(s)
-	return tu
+func (_u *TaskUpdate) SetNote(v string) *TaskUpdate {
+	_u.mutation.SetNote(v)
+	return _u
 }
 
 // SetNillableNote sets the "note" field if the given value is not nil.
-func (tu *TaskUpdate) SetNillableNote(s *string) *TaskUpdate {
-	if s != nil {
-		tu.SetNote(*s)
+func (_u *TaskUpdate) SetNillableNote(v *string) *TaskUpdate {
+	if v != nil {
+		_u.SetNote(*v)
 	}
-	return tu
+	return _u
 }
 
 // SetWorkflowID sets the "workflow_id" field.
-func (tu *TaskUpdate) SetWorkflowID(i int) *TaskUpdate {
-	tu.mutation.SetWorkflowID(i)
-	return tu
+func (_u *TaskUpdate) SetWorkflowID(v int) *TaskUpdate {
+	_u.mutation.SetWorkflowID(v)
+	return _u
 }
 
 // SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
-func (tu *TaskUpdate) SetNillableWorkflowID(i *int) *TaskUpdate {
-	if i != nil {
-		tu.SetWorkflowID(*i)
+func (_u *TaskUpdate) SetNillableWorkflowID(v *int) *TaskUpdate {
+	if v != nil {
+		_u.SetWorkflowID(*v)
 	}
-	return tu
+	return _u
 }
 
 // SetWorkflow sets the "workflow" edge to the Workflow entity.
-func (tu *TaskUpdate) SetWorkflow(w *Workflow) *TaskUpdate {
-	return tu.SetWorkflowID(w.ID)
+func (_u *TaskUpdate) SetWorkflow(v *Workflow) *TaskUpdate {
+	return _u.SetWorkflowID(v.ID)
 }
 
 // Mutation returns the TaskMutation object of the builder.
-func (tu *TaskUpdate) Mutation() *TaskMutation {
-	return tu.mutation
+func (_u *TaskUpdate) Mutation() *TaskMutation {
+	return _u.mutation
 }
 
 // ClearWorkflow clears the "workflow" edge to the Workflow entity.
-func (tu *TaskUpdate) ClearWorkflow() *TaskUpdate {
-	tu.mutation.ClearWorkflow()
-	return tu
+func (_u *TaskUpdate) ClearWorkflow() *TaskUpdate {
+	_u.mutation.ClearWorkflow()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (tu *TaskUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, tu.sqlSave, tu.mutation, tu.hooks)
+func (_u *TaskUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (tu *TaskUpdate) SaveX(ctx context.Context) int {
-	affected, err := tu.Save(ctx)
+func (_u *TaskUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -172,73 +172,73 @@ func (tu *TaskUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (tu *TaskUpdate) Exec(ctx context.Context) error {
-	_, err := tu.Save(ctx)
+func (_u *TaskUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tu *TaskUpdate) ExecX(ctx context.Context) {
-	if err := tu.Exec(ctx); err != nil {
+func (_u *TaskUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (tu *TaskUpdate) check() error {
-	if v, ok := tu.mutation.Status(); ok {
+func (_u *TaskUpdate) check() error {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := task.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "Task.status": %w`, err)}
 		}
 	}
-	if v, ok := tu.mutation.WorkflowID(); ok {
+	if v, ok := _u.mutation.WorkflowID(); ok {
 		if err := task.WorkflowIDValidator(v); err != nil {
 			return &ValidationError{Name: "workflow_id", err: fmt.Errorf(`db: validator failed for field "Task.workflow_id": %w`, err)}
 		}
 	}
-	if tu.mutation.WorkflowCleared() && len(tu.mutation.WorkflowIDs()) > 0 {
+	if _u.mutation.WorkflowCleared() && len(_u.mutation.WorkflowIDs()) > 0 {
 		return errors.New(`db: clearing a required unique edge "Task.workflow"`)
 	}
 	return nil
 }
 
-func (tu *TaskUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := tu.check(); err != nil {
-		return n, err
+func (_u *TaskUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(task.Table, task.Columns, sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt))
-	if ps := tu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := tu.mutation.UUID(); ok {
+	if value, ok := _u.mutation.UUID(); ok {
 		_spec.SetField(task.FieldUUID, field.TypeUUID, value)
 	}
-	if value, ok := tu.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(task.FieldName, field.TypeString, value)
 	}
-	if value, ok := tu.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(task.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := tu.mutation.StartedAt(); ok {
+	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(task.FieldStartedAt, field.TypeTime, value)
 	}
-	if tu.mutation.StartedAtCleared() {
+	if _u.mutation.StartedAtCleared() {
 		_spec.ClearField(task.FieldStartedAt, field.TypeTime)
 	}
-	if value, ok := tu.mutation.CompletedAt(); ok {
+	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(task.FieldCompletedAt, field.TypeTime, value)
 	}
-	if tu.mutation.CompletedAtCleared() {
+	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(task.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := tu.mutation.Note(); ok {
+	if value, ok := _u.mutation.Note(); ok {
 		_spec.SetField(task.FieldNote, field.TypeString, value)
 	}
-	if tu.mutation.WorkflowCleared() {
+	if _u.mutation.WorkflowCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -251,7 +251,7 @@ func (tu *TaskUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tu.mutation.WorkflowIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.WorkflowIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -267,7 +267,7 @@ func (tu *TaskUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, tu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{task.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -275,8 +275,8 @@ func (tu *TaskUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	tu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // TaskUpdateOne is the builder for updating a single Task entity.
@@ -288,152 +288,152 @@ type TaskUpdateOne struct {
 }
 
 // SetUUID sets the "uuid" field.
-func (tuo *TaskUpdateOne) SetUUID(u uuid.UUID) *TaskUpdateOne {
-	tuo.mutation.SetUUID(u)
-	return tuo
+func (_u *TaskUpdateOne) SetUUID(v uuid.UUID) *TaskUpdateOne {
+	_u.mutation.SetUUID(v)
+	return _u
 }
 
 // SetNillableUUID sets the "uuid" field if the given value is not nil.
-func (tuo *TaskUpdateOne) SetNillableUUID(u *uuid.UUID) *TaskUpdateOne {
-	if u != nil {
-		tuo.SetUUID(*u)
+func (_u *TaskUpdateOne) SetNillableUUID(v *uuid.UUID) *TaskUpdateOne {
+	if v != nil {
+		_u.SetUUID(*v)
 	}
-	return tuo
+	return _u
 }
 
 // SetName sets the "name" field.
-func (tuo *TaskUpdateOne) SetName(s string) *TaskUpdateOne {
-	tuo.mutation.SetName(s)
-	return tuo
+func (_u *TaskUpdateOne) SetName(v string) *TaskUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (tuo *TaskUpdateOne) SetNillableName(s *string) *TaskUpdateOne {
-	if s != nil {
-		tuo.SetName(*s)
+func (_u *TaskUpdateOne) SetNillableName(v *string) *TaskUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return tuo
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (tuo *TaskUpdateOne) SetStatus(es enums.TaskStatus) *TaskUpdateOne {
-	tuo.mutation.SetStatus(es)
-	return tuo
+func (_u *TaskUpdateOne) SetStatus(v enums.TaskStatus) *TaskUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (tuo *TaskUpdateOne) SetNillableStatus(es *enums.TaskStatus) *TaskUpdateOne {
-	if es != nil {
-		tuo.SetStatus(*es)
+func (_u *TaskUpdateOne) SetNillableStatus(v *enums.TaskStatus) *TaskUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return tuo
+	return _u
 }
 
 // SetStartedAt sets the "started_at" field.
-func (tuo *TaskUpdateOne) SetStartedAt(t time.Time) *TaskUpdateOne {
-	tuo.mutation.SetStartedAt(t)
-	return tuo
+func (_u *TaskUpdateOne) SetStartedAt(v time.Time) *TaskUpdateOne {
+	_u.mutation.SetStartedAt(v)
+	return _u
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (tuo *TaskUpdateOne) SetNillableStartedAt(t *time.Time) *TaskUpdateOne {
-	if t != nil {
-		tuo.SetStartedAt(*t)
+func (_u *TaskUpdateOne) SetNillableStartedAt(v *time.Time) *TaskUpdateOne {
+	if v != nil {
+		_u.SetStartedAt(*v)
 	}
-	return tuo
+	return _u
 }
 
 // ClearStartedAt clears the value of the "started_at" field.
-func (tuo *TaskUpdateOne) ClearStartedAt() *TaskUpdateOne {
-	tuo.mutation.ClearStartedAt()
-	return tuo
+func (_u *TaskUpdateOne) ClearStartedAt() *TaskUpdateOne {
+	_u.mutation.ClearStartedAt()
+	return _u
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (tuo *TaskUpdateOne) SetCompletedAt(t time.Time) *TaskUpdateOne {
-	tuo.mutation.SetCompletedAt(t)
-	return tuo
+func (_u *TaskUpdateOne) SetCompletedAt(v time.Time) *TaskUpdateOne {
+	_u.mutation.SetCompletedAt(v)
+	return _u
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (tuo *TaskUpdateOne) SetNillableCompletedAt(t *time.Time) *TaskUpdateOne {
-	if t != nil {
-		tuo.SetCompletedAt(*t)
+func (_u *TaskUpdateOne) SetNillableCompletedAt(v *time.Time) *TaskUpdateOne {
+	if v != nil {
+		_u.SetCompletedAt(*v)
 	}
-	return tuo
+	return _u
 }
 
 // ClearCompletedAt clears the value of the "completed_at" field.
-func (tuo *TaskUpdateOne) ClearCompletedAt() *TaskUpdateOne {
-	tuo.mutation.ClearCompletedAt()
-	return tuo
+func (_u *TaskUpdateOne) ClearCompletedAt() *TaskUpdateOne {
+	_u.mutation.ClearCompletedAt()
+	return _u
 }
 
 // SetNote sets the "note" field.
-func (tuo *TaskUpdateOne) SetNote(s string) *TaskUpdateOne {
-	tuo.mutation.SetNote(s)
-	return tuo
+func (_u *TaskUpdateOne) SetNote(v string) *TaskUpdateOne {
+	_u.mutation.SetNote(v)
+	return _u
 }
 
 // SetNillableNote sets the "note" field if the given value is not nil.
-func (tuo *TaskUpdateOne) SetNillableNote(s *string) *TaskUpdateOne {
-	if s != nil {
-		tuo.SetNote(*s)
+func (_u *TaskUpdateOne) SetNillableNote(v *string) *TaskUpdateOne {
+	if v != nil {
+		_u.SetNote(*v)
 	}
-	return tuo
+	return _u
 }
 
 // SetWorkflowID sets the "workflow_id" field.
-func (tuo *TaskUpdateOne) SetWorkflowID(i int) *TaskUpdateOne {
-	tuo.mutation.SetWorkflowID(i)
-	return tuo
+func (_u *TaskUpdateOne) SetWorkflowID(v int) *TaskUpdateOne {
+	_u.mutation.SetWorkflowID(v)
+	return _u
 }
 
 // SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
-func (tuo *TaskUpdateOne) SetNillableWorkflowID(i *int) *TaskUpdateOne {
-	if i != nil {
-		tuo.SetWorkflowID(*i)
+func (_u *TaskUpdateOne) SetNillableWorkflowID(v *int) *TaskUpdateOne {
+	if v != nil {
+		_u.SetWorkflowID(*v)
 	}
-	return tuo
+	return _u
 }
 
 // SetWorkflow sets the "workflow" edge to the Workflow entity.
-func (tuo *TaskUpdateOne) SetWorkflow(w *Workflow) *TaskUpdateOne {
-	return tuo.SetWorkflowID(w.ID)
+func (_u *TaskUpdateOne) SetWorkflow(v *Workflow) *TaskUpdateOne {
+	return _u.SetWorkflowID(v.ID)
 }
 
 // Mutation returns the TaskMutation object of the builder.
-func (tuo *TaskUpdateOne) Mutation() *TaskMutation {
-	return tuo.mutation
+func (_u *TaskUpdateOne) Mutation() *TaskMutation {
+	return _u.mutation
 }
 
 // ClearWorkflow clears the "workflow" edge to the Workflow entity.
-func (tuo *TaskUpdateOne) ClearWorkflow() *TaskUpdateOne {
-	tuo.mutation.ClearWorkflow()
-	return tuo
+func (_u *TaskUpdateOne) ClearWorkflow() *TaskUpdateOne {
+	_u.mutation.ClearWorkflow()
+	return _u
 }
 
 // Where appends a list predicates to the TaskUpdate builder.
-func (tuo *TaskUpdateOne) Where(ps ...predicate.Task) *TaskUpdateOne {
-	tuo.mutation.Where(ps...)
-	return tuo
+func (_u *TaskUpdateOne) Where(ps ...predicate.Task) *TaskUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (tuo *TaskUpdateOne) Select(field string, fields ...string) *TaskUpdateOne {
-	tuo.fields = append([]string{field}, fields...)
-	return tuo
+func (_u *TaskUpdateOne) Select(field string, fields ...string) *TaskUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Task entity.
-func (tuo *TaskUpdateOne) Save(ctx context.Context) (*Task, error) {
-	return withHooks(ctx, tuo.sqlSave, tuo.mutation, tuo.hooks)
+func (_u *TaskUpdateOne) Save(ctx context.Context) (*Task, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (tuo *TaskUpdateOne) SaveX(ctx context.Context) *Task {
-	node, err := tuo.Save(ctx)
+func (_u *TaskUpdateOne) SaveX(ctx context.Context) *Task {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -441,47 +441,47 @@ func (tuo *TaskUpdateOne) SaveX(ctx context.Context) *Task {
 }
 
 // Exec executes the query on the entity.
-func (tuo *TaskUpdateOne) Exec(ctx context.Context) error {
-	_, err := tuo.Save(ctx)
+func (_u *TaskUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (tuo *TaskUpdateOne) ExecX(ctx context.Context) {
-	if err := tuo.Exec(ctx); err != nil {
+func (_u *TaskUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (tuo *TaskUpdateOne) check() error {
-	if v, ok := tuo.mutation.Status(); ok {
+func (_u *TaskUpdateOne) check() error {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := task.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "Task.status": %w`, err)}
 		}
 	}
-	if v, ok := tuo.mutation.WorkflowID(); ok {
+	if v, ok := _u.mutation.WorkflowID(); ok {
 		if err := task.WorkflowIDValidator(v); err != nil {
 			return &ValidationError{Name: "workflow_id", err: fmt.Errorf(`db: validator failed for field "Task.workflow_id": %w`, err)}
 		}
 	}
-	if tuo.mutation.WorkflowCleared() && len(tuo.mutation.WorkflowIDs()) > 0 {
+	if _u.mutation.WorkflowCleared() && len(_u.mutation.WorkflowIDs()) > 0 {
 		return errors.New(`db: clearing a required unique edge "Task.workflow"`)
 	}
 	return nil
 }
 
-func (tuo *TaskUpdateOne) sqlSave(ctx context.Context) (_node *Task, err error) {
-	if err := tuo.check(); err != nil {
+func (_u *TaskUpdateOne) sqlSave(ctx context.Context) (_node *Task, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(task.Table, task.Columns, sqlgraph.NewFieldSpec(task.FieldID, field.TypeInt))
-	id, ok := tuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`db: missing "Task.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := tuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, task.FieldID)
 		for _, f := range fields {
@@ -493,38 +493,38 @@ func (tuo *TaskUpdateOne) sqlSave(ctx context.Context) (_node *Task, err error) 
 			}
 		}
 	}
-	if ps := tuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := tuo.mutation.UUID(); ok {
+	if value, ok := _u.mutation.UUID(); ok {
 		_spec.SetField(task.FieldUUID, field.TypeUUID, value)
 	}
-	if value, ok := tuo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(task.FieldName, field.TypeString, value)
 	}
-	if value, ok := tuo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(task.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := tuo.mutation.StartedAt(); ok {
+	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(task.FieldStartedAt, field.TypeTime, value)
 	}
-	if tuo.mutation.StartedAtCleared() {
+	if _u.mutation.StartedAtCleared() {
 		_spec.ClearField(task.FieldStartedAt, field.TypeTime)
 	}
-	if value, ok := tuo.mutation.CompletedAt(); ok {
+	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(task.FieldCompletedAt, field.TypeTime, value)
 	}
-	if tuo.mutation.CompletedAtCleared() {
+	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(task.FieldCompletedAt, field.TypeTime)
 	}
-	if value, ok := tuo.mutation.Note(); ok {
+	if value, ok := _u.mutation.Note(); ok {
 		_spec.SetField(task.FieldNote, field.TypeString, value)
 	}
-	if tuo.mutation.WorkflowCleared() {
+	if _u.mutation.WorkflowCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -537,7 +537,7 @@ func (tuo *TaskUpdateOne) sqlSave(ctx context.Context) (_node *Task, err error) 
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := tuo.mutation.WorkflowIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.WorkflowIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -553,10 +553,10 @@ func (tuo *TaskUpdateOne) sqlSave(ctx context.Context) (_node *Task, err error) 
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Task{config: tuo.config}
+	_node = &Task{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, tuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{task.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -564,6 +564,6 @@ func (tuo *TaskUpdateOne) sqlSave(ctx context.Context) (_node *Task, err error) 
 		}
 		return nil, err
 	}
-	tuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

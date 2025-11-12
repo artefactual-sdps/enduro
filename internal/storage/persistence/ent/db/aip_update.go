@@ -27,183 +27,183 @@ type AIPUpdate struct {
 }
 
 // Where appends a list predicates to the AIPUpdate builder.
-func (au *AIPUpdate) Where(ps ...predicate.AIP) *AIPUpdate {
-	au.mutation.Where(ps...)
-	return au
+func (_u *AIPUpdate) Where(ps ...predicate.AIP) *AIPUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetName sets the "name" field.
-func (au *AIPUpdate) SetName(s string) *AIPUpdate {
-	au.mutation.SetName(s)
-	return au
+func (_u *AIPUpdate) SetName(v string) *AIPUpdate {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (au *AIPUpdate) SetNillableName(s *string) *AIPUpdate {
-	if s != nil {
-		au.SetName(*s)
+func (_u *AIPUpdate) SetNillableName(v *string) *AIPUpdate {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return au
+	return _u
 }
 
 // SetAipID sets the "aip_id" field.
-func (au *AIPUpdate) SetAipID(u uuid.UUID) *AIPUpdate {
-	au.mutation.SetAipID(u)
-	return au
+func (_u *AIPUpdate) SetAipID(v uuid.UUID) *AIPUpdate {
+	_u.mutation.SetAipID(v)
+	return _u
 }
 
 // SetNillableAipID sets the "aip_id" field if the given value is not nil.
-func (au *AIPUpdate) SetNillableAipID(u *uuid.UUID) *AIPUpdate {
-	if u != nil {
-		au.SetAipID(*u)
+func (_u *AIPUpdate) SetNillableAipID(v *uuid.UUID) *AIPUpdate {
+	if v != nil {
+		_u.SetAipID(*v)
 	}
-	return au
+	return _u
 }
 
 // SetLocationID sets the "location_id" field.
-func (au *AIPUpdate) SetLocationID(i int) *AIPUpdate {
-	au.mutation.SetLocationID(i)
-	return au
+func (_u *AIPUpdate) SetLocationID(v int) *AIPUpdate {
+	_u.mutation.SetLocationID(v)
+	return _u
 }
 
 // SetNillableLocationID sets the "location_id" field if the given value is not nil.
-func (au *AIPUpdate) SetNillableLocationID(i *int) *AIPUpdate {
-	if i != nil {
-		au.SetLocationID(*i)
+func (_u *AIPUpdate) SetNillableLocationID(v *int) *AIPUpdate {
+	if v != nil {
+		_u.SetLocationID(*v)
 	}
-	return au
+	return _u
 }
 
 // ClearLocationID clears the value of the "location_id" field.
-func (au *AIPUpdate) ClearLocationID() *AIPUpdate {
-	au.mutation.ClearLocationID()
-	return au
+func (_u *AIPUpdate) ClearLocationID() *AIPUpdate {
+	_u.mutation.ClearLocationID()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (au *AIPUpdate) SetStatus(es enums.AIPStatus) *AIPUpdate {
-	au.mutation.SetStatus(es)
-	return au
+func (_u *AIPUpdate) SetStatus(v enums.AIPStatus) *AIPUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (au *AIPUpdate) SetNillableStatus(es *enums.AIPStatus) *AIPUpdate {
-	if es != nil {
-		au.SetStatus(*es)
+func (_u *AIPUpdate) SetNillableStatus(v *enums.AIPStatus) *AIPUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return au
+	return _u
 }
 
 // SetObjectKey sets the "object_key" field.
-func (au *AIPUpdate) SetObjectKey(u uuid.UUID) *AIPUpdate {
-	au.mutation.SetObjectKey(u)
-	return au
+func (_u *AIPUpdate) SetObjectKey(v uuid.UUID) *AIPUpdate {
+	_u.mutation.SetObjectKey(v)
+	return _u
 }
 
 // SetNillableObjectKey sets the "object_key" field if the given value is not nil.
-func (au *AIPUpdate) SetNillableObjectKey(u *uuid.UUID) *AIPUpdate {
-	if u != nil {
-		au.SetObjectKey(*u)
+func (_u *AIPUpdate) SetNillableObjectKey(v *uuid.UUID) *AIPUpdate {
+	if v != nil {
+		_u.SetObjectKey(*v)
 	}
-	return au
+	return _u
 }
 
 // SetLocation sets the "location" edge to the Location entity.
-func (au *AIPUpdate) SetLocation(l *Location) *AIPUpdate {
-	return au.SetLocationID(l.ID)
+func (_u *AIPUpdate) SetLocation(v *Location) *AIPUpdate {
+	return _u.SetLocationID(v.ID)
 }
 
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
-func (au *AIPUpdate) AddWorkflowIDs(ids ...int) *AIPUpdate {
-	au.mutation.AddWorkflowIDs(ids...)
-	return au
+func (_u *AIPUpdate) AddWorkflowIDs(ids ...int) *AIPUpdate {
+	_u.mutation.AddWorkflowIDs(ids...)
+	return _u
 }
 
 // AddWorkflows adds the "workflows" edges to the Workflow entity.
-func (au *AIPUpdate) AddWorkflows(w ...*Workflow) *AIPUpdate {
-	ids := make([]int, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
+func (_u *AIPUpdate) AddWorkflows(v ...*Workflow) *AIPUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return au.AddWorkflowIDs(ids...)
+	return _u.AddWorkflowIDs(ids...)
 }
 
 // AddDeletionRequestIDs adds the "deletion_requests" edge to the DeletionRequest entity by IDs.
-func (au *AIPUpdate) AddDeletionRequestIDs(ids ...int) *AIPUpdate {
-	au.mutation.AddDeletionRequestIDs(ids...)
-	return au
+func (_u *AIPUpdate) AddDeletionRequestIDs(ids ...int) *AIPUpdate {
+	_u.mutation.AddDeletionRequestIDs(ids...)
+	return _u
 }
 
 // AddDeletionRequests adds the "deletion_requests" edges to the DeletionRequest entity.
-func (au *AIPUpdate) AddDeletionRequests(d ...*DeletionRequest) *AIPUpdate {
-	ids := make([]int, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *AIPUpdate) AddDeletionRequests(v ...*DeletionRequest) *AIPUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return au.AddDeletionRequestIDs(ids...)
+	return _u.AddDeletionRequestIDs(ids...)
 }
 
 // Mutation returns the AIPMutation object of the builder.
-func (au *AIPUpdate) Mutation() *AIPMutation {
-	return au.mutation
+func (_u *AIPUpdate) Mutation() *AIPMutation {
+	return _u.mutation
 }
 
 // ClearLocation clears the "location" edge to the Location entity.
-func (au *AIPUpdate) ClearLocation() *AIPUpdate {
-	au.mutation.ClearLocation()
-	return au
+func (_u *AIPUpdate) ClearLocation() *AIPUpdate {
+	_u.mutation.ClearLocation()
+	return _u
 }
 
 // ClearWorkflows clears all "workflows" edges to the Workflow entity.
-func (au *AIPUpdate) ClearWorkflows() *AIPUpdate {
-	au.mutation.ClearWorkflows()
-	return au
+func (_u *AIPUpdate) ClearWorkflows() *AIPUpdate {
+	_u.mutation.ClearWorkflows()
+	return _u
 }
 
 // RemoveWorkflowIDs removes the "workflows" edge to Workflow entities by IDs.
-func (au *AIPUpdate) RemoveWorkflowIDs(ids ...int) *AIPUpdate {
-	au.mutation.RemoveWorkflowIDs(ids...)
-	return au
+func (_u *AIPUpdate) RemoveWorkflowIDs(ids ...int) *AIPUpdate {
+	_u.mutation.RemoveWorkflowIDs(ids...)
+	return _u
 }
 
 // RemoveWorkflows removes "workflows" edges to Workflow entities.
-func (au *AIPUpdate) RemoveWorkflows(w ...*Workflow) *AIPUpdate {
-	ids := make([]int, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
+func (_u *AIPUpdate) RemoveWorkflows(v ...*Workflow) *AIPUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return au.RemoveWorkflowIDs(ids...)
+	return _u.RemoveWorkflowIDs(ids...)
 }
 
 // ClearDeletionRequests clears all "deletion_requests" edges to the DeletionRequest entity.
-func (au *AIPUpdate) ClearDeletionRequests() *AIPUpdate {
-	au.mutation.ClearDeletionRequests()
-	return au
+func (_u *AIPUpdate) ClearDeletionRequests() *AIPUpdate {
+	_u.mutation.ClearDeletionRequests()
+	return _u
 }
 
 // RemoveDeletionRequestIDs removes the "deletion_requests" edge to DeletionRequest entities by IDs.
-func (au *AIPUpdate) RemoveDeletionRequestIDs(ids ...int) *AIPUpdate {
-	au.mutation.RemoveDeletionRequestIDs(ids...)
-	return au
+func (_u *AIPUpdate) RemoveDeletionRequestIDs(ids ...int) *AIPUpdate {
+	_u.mutation.RemoveDeletionRequestIDs(ids...)
+	return _u
 }
 
 // RemoveDeletionRequests removes "deletion_requests" edges to DeletionRequest entities.
-func (au *AIPUpdate) RemoveDeletionRequests(d ...*DeletionRequest) *AIPUpdate {
-	ids := make([]int, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *AIPUpdate) RemoveDeletionRequests(v ...*DeletionRequest) *AIPUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return au.RemoveDeletionRequestIDs(ids...)
+	return _u.RemoveDeletionRequestIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (au *AIPUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, au.sqlSave, au.mutation, au.hooks)
+func (_u *AIPUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (au *AIPUpdate) SaveX(ctx context.Context) int {
-	affected, err := au.Save(ctx)
+func (_u *AIPUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -211,21 +211,21 @@ func (au *AIPUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (au *AIPUpdate) Exec(ctx context.Context) error {
-	_, err := au.Save(ctx)
+func (_u *AIPUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (au *AIPUpdate) ExecX(ctx context.Context) {
-	if err := au.Exec(ctx); err != nil {
+func (_u *AIPUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (au *AIPUpdate) check() error {
-	if v, ok := au.mutation.Status(); ok {
+func (_u *AIPUpdate) check() error {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := aip.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "AIP.status": %w`, err)}
 		}
@@ -233,31 +233,31 @@ func (au *AIPUpdate) check() error {
 	return nil
 }
 
-func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := au.check(); err != nil {
-		return n, err
+func (_u *AIPUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(aip.Table, aip.Columns, sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt))
-	if ps := au.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := au.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(aip.FieldName, field.TypeString, value)
 	}
-	if value, ok := au.mutation.AipID(); ok {
+	if value, ok := _u.mutation.AipID(); ok {
 		_spec.SetField(aip.FieldAipID, field.TypeUUID, value)
 	}
-	if value, ok := au.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(aip.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := au.mutation.ObjectKey(); ok {
+	if value, ok := _u.mutation.ObjectKey(); ok {
 		_spec.SetField(aip.FieldObjectKey, field.TypeUUID, value)
 	}
-	if au.mutation.LocationCleared() {
+	if _u.mutation.LocationCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
@@ -270,7 +270,7 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.LocationIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.LocationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
@@ -286,7 +286,7 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if au.mutation.WorkflowsCleared() {
+	if _u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -299,7 +299,7 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !au.mutation.WorkflowsCleared() {
+	if nodes := _u.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !_u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -315,7 +315,7 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.WorkflowsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -331,7 +331,7 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if au.mutation.DeletionRequestsCleared() {
+	if _u.mutation.DeletionRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -344,7 +344,7 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.RemovedDeletionRequestsIDs(); len(nodes) > 0 && !au.mutation.DeletionRequestsCleared() {
+	if nodes := _u.mutation.RemovedDeletionRequestsIDs(); len(nodes) > 0 && !_u.mutation.DeletionRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -360,7 +360,7 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := au.mutation.DeletionRequestsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DeletionRequestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -376,7 +376,7 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, au.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{aip.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -384,8 +384,8 @@ func (au *AIPUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	au.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // AIPUpdateOne is the builder for updating a single AIP entity.
@@ -397,190 +397,190 @@ type AIPUpdateOne struct {
 }
 
 // SetName sets the "name" field.
-func (auo *AIPUpdateOne) SetName(s string) *AIPUpdateOne {
-	auo.mutation.SetName(s)
-	return auo
+func (_u *AIPUpdateOne) SetName(v string) *AIPUpdateOne {
+	_u.mutation.SetName(v)
+	return _u
 }
 
 // SetNillableName sets the "name" field if the given value is not nil.
-func (auo *AIPUpdateOne) SetNillableName(s *string) *AIPUpdateOne {
-	if s != nil {
-		auo.SetName(*s)
+func (_u *AIPUpdateOne) SetNillableName(v *string) *AIPUpdateOne {
+	if v != nil {
+		_u.SetName(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetAipID sets the "aip_id" field.
-func (auo *AIPUpdateOne) SetAipID(u uuid.UUID) *AIPUpdateOne {
-	auo.mutation.SetAipID(u)
-	return auo
+func (_u *AIPUpdateOne) SetAipID(v uuid.UUID) *AIPUpdateOne {
+	_u.mutation.SetAipID(v)
+	return _u
 }
 
 // SetNillableAipID sets the "aip_id" field if the given value is not nil.
-func (auo *AIPUpdateOne) SetNillableAipID(u *uuid.UUID) *AIPUpdateOne {
-	if u != nil {
-		auo.SetAipID(*u)
+func (_u *AIPUpdateOne) SetNillableAipID(v *uuid.UUID) *AIPUpdateOne {
+	if v != nil {
+		_u.SetAipID(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetLocationID sets the "location_id" field.
-func (auo *AIPUpdateOne) SetLocationID(i int) *AIPUpdateOne {
-	auo.mutation.SetLocationID(i)
-	return auo
+func (_u *AIPUpdateOne) SetLocationID(v int) *AIPUpdateOne {
+	_u.mutation.SetLocationID(v)
+	return _u
 }
 
 // SetNillableLocationID sets the "location_id" field if the given value is not nil.
-func (auo *AIPUpdateOne) SetNillableLocationID(i *int) *AIPUpdateOne {
-	if i != nil {
-		auo.SetLocationID(*i)
+func (_u *AIPUpdateOne) SetNillableLocationID(v *int) *AIPUpdateOne {
+	if v != nil {
+		_u.SetLocationID(*v)
 	}
-	return auo
+	return _u
 }
 
 // ClearLocationID clears the value of the "location_id" field.
-func (auo *AIPUpdateOne) ClearLocationID() *AIPUpdateOne {
-	auo.mutation.ClearLocationID()
-	return auo
+func (_u *AIPUpdateOne) ClearLocationID() *AIPUpdateOne {
+	_u.mutation.ClearLocationID()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (auo *AIPUpdateOne) SetStatus(es enums.AIPStatus) *AIPUpdateOne {
-	auo.mutation.SetStatus(es)
-	return auo
+func (_u *AIPUpdateOne) SetStatus(v enums.AIPStatus) *AIPUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (auo *AIPUpdateOne) SetNillableStatus(es *enums.AIPStatus) *AIPUpdateOne {
-	if es != nil {
-		auo.SetStatus(*es)
+func (_u *AIPUpdateOne) SetNillableStatus(v *enums.AIPStatus) *AIPUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetObjectKey sets the "object_key" field.
-func (auo *AIPUpdateOne) SetObjectKey(u uuid.UUID) *AIPUpdateOne {
-	auo.mutation.SetObjectKey(u)
-	return auo
+func (_u *AIPUpdateOne) SetObjectKey(v uuid.UUID) *AIPUpdateOne {
+	_u.mutation.SetObjectKey(v)
+	return _u
 }
 
 // SetNillableObjectKey sets the "object_key" field if the given value is not nil.
-func (auo *AIPUpdateOne) SetNillableObjectKey(u *uuid.UUID) *AIPUpdateOne {
-	if u != nil {
-		auo.SetObjectKey(*u)
+func (_u *AIPUpdateOne) SetNillableObjectKey(v *uuid.UUID) *AIPUpdateOne {
+	if v != nil {
+		_u.SetObjectKey(*v)
 	}
-	return auo
+	return _u
 }
 
 // SetLocation sets the "location" edge to the Location entity.
-func (auo *AIPUpdateOne) SetLocation(l *Location) *AIPUpdateOne {
-	return auo.SetLocationID(l.ID)
+func (_u *AIPUpdateOne) SetLocation(v *Location) *AIPUpdateOne {
+	return _u.SetLocationID(v.ID)
 }
 
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
-func (auo *AIPUpdateOne) AddWorkflowIDs(ids ...int) *AIPUpdateOne {
-	auo.mutation.AddWorkflowIDs(ids...)
-	return auo
+func (_u *AIPUpdateOne) AddWorkflowIDs(ids ...int) *AIPUpdateOne {
+	_u.mutation.AddWorkflowIDs(ids...)
+	return _u
 }
 
 // AddWorkflows adds the "workflows" edges to the Workflow entity.
-func (auo *AIPUpdateOne) AddWorkflows(w ...*Workflow) *AIPUpdateOne {
-	ids := make([]int, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
+func (_u *AIPUpdateOne) AddWorkflows(v ...*Workflow) *AIPUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return auo.AddWorkflowIDs(ids...)
+	return _u.AddWorkflowIDs(ids...)
 }
 
 // AddDeletionRequestIDs adds the "deletion_requests" edge to the DeletionRequest entity by IDs.
-func (auo *AIPUpdateOne) AddDeletionRequestIDs(ids ...int) *AIPUpdateOne {
-	auo.mutation.AddDeletionRequestIDs(ids...)
-	return auo
+func (_u *AIPUpdateOne) AddDeletionRequestIDs(ids ...int) *AIPUpdateOne {
+	_u.mutation.AddDeletionRequestIDs(ids...)
+	return _u
 }
 
 // AddDeletionRequests adds the "deletion_requests" edges to the DeletionRequest entity.
-func (auo *AIPUpdateOne) AddDeletionRequests(d ...*DeletionRequest) *AIPUpdateOne {
-	ids := make([]int, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *AIPUpdateOne) AddDeletionRequests(v ...*DeletionRequest) *AIPUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return auo.AddDeletionRequestIDs(ids...)
+	return _u.AddDeletionRequestIDs(ids...)
 }
 
 // Mutation returns the AIPMutation object of the builder.
-func (auo *AIPUpdateOne) Mutation() *AIPMutation {
-	return auo.mutation
+func (_u *AIPUpdateOne) Mutation() *AIPMutation {
+	return _u.mutation
 }
 
 // ClearLocation clears the "location" edge to the Location entity.
-func (auo *AIPUpdateOne) ClearLocation() *AIPUpdateOne {
-	auo.mutation.ClearLocation()
-	return auo
+func (_u *AIPUpdateOne) ClearLocation() *AIPUpdateOne {
+	_u.mutation.ClearLocation()
+	return _u
 }
 
 // ClearWorkflows clears all "workflows" edges to the Workflow entity.
-func (auo *AIPUpdateOne) ClearWorkflows() *AIPUpdateOne {
-	auo.mutation.ClearWorkflows()
-	return auo
+func (_u *AIPUpdateOne) ClearWorkflows() *AIPUpdateOne {
+	_u.mutation.ClearWorkflows()
+	return _u
 }
 
 // RemoveWorkflowIDs removes the "workflows" edge to Workflow entities by IDs.
-func (auo *AIPUpdateOne) RemoveWorkflowIDs(ids ...int) *AIPUpdateOne {
-	auo.mutation.RemoveWorkflowIDs(ids...)
-	return auo
+func (_u *AIPUpdateOne) RemoveWorkflowIDs(ids ...int) *AIPUpdateOne {
+	_u.mutation.RemoveWorkflowIDs(ids...)
+	return _u
 }
 
 // RemoveWorkflows removes "workflows" edges to Workflow entities.
-func (auo *AIPUpdateOne) RemoveWorkflows(w ...*Workflow) *AIPUpdateOne {
-	ids := make([]int, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
+func (_u *AIPUpdateOne) RemoveWorkflows(v ...*Workflow) *AIPUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return auo.RemoveWorkflowIDs(ids...)
+	return _u.RemoveWorkflowIDs(ids...)
 }
 
 // ClearDeletionRequests clears all "deletion_requests" edges to the DeletionRequest entity.
-func (auo *AIPUpdateOne) ClearDeletionRequests() *AIPUpdateOne {
-	auo.mutation.ClearDeletionRequests()
-	return auo
+func (_u *AIPUpdateOne) ClearDeletionRequests() *AIPUpdateOne {
+	_u.mutation.ClearDeletionRequests()
+	return _u
 }
 
 // RemoveDeletionRequestIDs removes the "deletion_requests" edge to DeletionRequest entities by IDs.
-func (auo *AIPUpdateOne) RemoveDeletionRequestIDs(ids ...int) *AIPUpdateOne {
-	auo.mutation.RemoveDeletionRequestIDs(ids...)
-	return auo
+func (_u *AIPUpdateOne) RemoveDeletionRequestIDs(ids ...int) *AIPUpdateOne {
+	_u.mutation.RemoveDeletionRequestIDs(ids...)
+	return _u
 }
 
 // RemoveDeletionRequests removes "deletion_requests" edges to DeletionRequest entities.
-func (auo *AIPUpdateOne) RemoveDeletionRequests(d ...*DeletionRequest) *AIPUpdateOne {
-	ids := make([]int, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_u *AIPUpdateOne) RemoveDeletionRequests(v ...*DeletionRequest) *AIPUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return auo.RemoveDeletionRequestIDs(ids...)
+	return _u.RemoveDeletionRequestIDs(ids...)
 }
 
 // Where appends a list predicates to the AIPUpdate builder.
-func (auo *AIPUpdateOne) Where(ps ...predicate.AIP) *AIPUpdateOne {
-	auo.mutation.Where(ps...)
-	return auo
+func (_u *AIPUpdateOne) Where(ps ...predicate.AIP) *AIPUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (auo *AIPUpdateOne) Select(field string, fields ...string) *AIPUpdateOne {
-	auo.fields = append([]string{field}, fields...)
-	return auo
+func (_u *AIPUpdateOne) Select(field string, fields ...string) *AIPUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated AIP entity.
-func (auo *AIPUpdateOne) Save(ctx context.Context) (*AIP, error) {
-	return withHooks(ctx, auo.sqlSave, auo.mutation, auo.hooks)
+func (_u *AIPUpdateOne) Save(ctx context.Context) (*AIP, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (auo *AIPUpdateOne) SaveX(ctx context.Context) *AIP {
-	node, err := auo.Save(ctx)
+func (_u *AIPUpdateOne) SaveX(ctx context.Context) *AIP {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -588,21 +588,21 @@ func (auo *AIPUpdateOne) SaveX(ctx context.Context) *AIP {
 }
 
 // Exec executes the query on the entity.
-func (auo *AIPUpdateOne) Exec(ctx context.Context) error {
-	_, err := auo.Save(ctx)
+func (_u *AIPUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (auo *AIPUpdateOne) ExecX(ctx context.Context) {
-	if err := auo.Exec(ctx); err != nil {
+func (_u *AIPUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (auo *AIPUpdateOne) check() error {
-	if v, ok := auo.mutation.Status(); ok {
+func (_u *AIPUpdateOne) check() error {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := aip.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "AIP.status": %w`, err)}
 		}
@@ -610,17 +610,17 @@ func (auo *AIPUpdateOne) check() error {
 	return nil
 }
 
-func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
-	if err := auo.check(); err != nil {
+func (_u *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(aip.Table, aip.Columns, sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt))
-	id, ok := auo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`db: missing "AIP.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := auo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, aip.FieldID)
 		for _, f := range fields {
@@ -632,26 +632,26 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 			}
 		}
 	}
-	if ps := auo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := auo.mutation.Name(); ok {
+	if value, ok := _u.mutation.Name(); ok {
 		_spec.SetField(aip.FieldName, field.TypeString, value)
 	}
-	if value, ok := auo.mutation.AipID(); ok {
+	if value, ok := _u.mutation.AipID(); ok {
 		_spec.SetField(aip.FieldAipID, field.TypeUUID, value)
 	}
-	if value, ok := auo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(aip.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := auo.mutation.ObjectKey(); ok {
+	if value, ok := _u.mutation.ObjectKey(); ok {
 		_spec.SetField(aip.FieldObjectKey, field.TypeUUID, value)
 	}
-	if auo.mutation.LocationCleared() {
+	if _u.mutation.LocationCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
@@ -664,7 +664,7 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.LocationIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.LocationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
@@ -680,7 +680,7 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if auo.mutation.WorkflowsCleared() {
+	if _u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -693,7 +693,7 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !auo.mutation.WorkflowsCleared() {
+	if nodes := _u.mutation.RemovedWorkflowsIDs(); len(nodes) > 0 && !_u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -709,7 +709,7 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.WorkflowsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -725,7 +725,7 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if auo.mutation.DeletionRequestsCleared() {
+	if _u.mutation.DeletionRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -738,7 +738,7 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.RemovedDeletionRequestsIDs(); len(nodes) > 0 && !auo.mutation.DeletionRequestsCleared() {
+	if nodes := _u.mutation.RemovedDeletionRequestsIDs(); len(nodes) > 0 && !_u.mutation.DeletionRequestsCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -754,7 +754,7 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := auo.mutation.DeletionRequestsIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DeletionRequestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -770,10 +770,10 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &AIP{config: auo.config}
+	_node = &AIP{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, auo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{aip.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -781,6 +781,6 @@ func (auo *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 		}
 		return nil, err
 	}
-	auo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

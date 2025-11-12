@@ -282,8 +282,8 @@ func (c *SIPClient) Update() *SIPUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *SIPClient) UpdateOne(s *SIP) *SIPUpdateOne {
-	mutation := newSIPMutation(c.config, OpUpdateOne, withSIP(s))
+func (c *SIPClient) UpdateOne(_m *SIP) *SIPUpdateOne {
+	mutation := newSIPMutation(c.config, OpUpdateOne, withSIP(_m))
 	return &SIPUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -300,8 +300,8 @@ func (c *SIPClient) Delete() *SIPDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *SIPClient) DeleteOne(s *SIP) *SIPDeleteOne {
-	return c.DeleteOneID(s.ID)
+func (c *SIPClient) DeleteOne(_m *SIP) *SIPDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -336,32 +336,32 @@ func (c *SIPClient) GetX(ctx context.Context, id int) *SIP {
 }
 
 // QueryWorkflows queries the workflows edge of a SIP.
-func (c *SIPClient) QueryWorkflows(s *SIP) *WorkflowQuery {
+func (c *SIPClient) QueryWorkflows(_m *SIP) *WorkflowQuery {
 	query := (&WorkflowClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(sip.Table, sip.FieldID, id),
 			sqlgraph.To(workflow.Table, workflow.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, sip.WorkflowsTable, sip.WorkflowsColumn),
 		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryUploader queries the uploader edge of a SIP.
-func (c *SIPClient) QueryUploader(s *SIP) *UserQuery {
+func (c *SIPClient) QueryUploader(_m *SIP) *UserQuery {
 	query := (&UserClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := s.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(sip.Table, sip.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, sip.UploaderTable, sip.UploaderColumn),
 		)
-		fromV = sqlgraph.Neighbors(s.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -447,8 +447,8 @@ func (c *TaskClient) Update() *TaskUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *TaskClient) UpdateOne(t *Task) *TaskUpdateOne {
-	mutation := newTaskMutation(c.config, OpUpdateOne, withTask(t))
+func (c *TaskClient) UpdateOne(_m *Task) *TaskUpdateOne {
+	mutation := newTaskMutation(c.config, OpUpdateOne, withTask(_m))
 	return &TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -465,8 +465,8 @@ func (c *TaskClient) Delete() *TaskDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *TaskClient) DeleteOne(t *Task) *TaskDeleteOne {
-	return c.DeleteOneID(t.ID)
+func (c *TaskClient) DeleteOne(_m *Task) *TaskDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -501,16 +501,16 @@ func (c *TaskClient) GetX(ctx context.Context, id int) *Task {
 }
 
 // QueryWorkflow queries the workflow edge of a Task.
-func (c *TaskClient) QueryWorkflow(t *Task) *WorkflowQuery {
+func (c *TaskClient) QueryWorkflow(_m *Task) *WorkflowQuery {
 	query := (&WorkflowClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := t.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(task.Table, task.FieldID, id),
 			sqlgraph.To(workflow.Table, workflow.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, task.WorkflowTable, task.WorkflowColumn),
 		)
-		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -596,8 +596,8 @@ func (c *UserClient) Update() *UserUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *UserClient) UpdateOne(u *User) *UserUpdateOne {
-	mutation := newUserMutation(c.config, OpUpdateOne, withUser(u))
+func (c *UserClient) UpdateOne(_m *User) *UserUpdateOne {
+	mutation := newUserMutation(c.config, OpUpdateOne, withUser(_m))
 	return &UserUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -614,8 +614,8 @@ func (c *UserClient) Delete() *UserDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *UserClient) DeleteOne(u *User) *UserDeleteOne {
-	return c.DeleteOneID(u.ID)
+func (c *UserClient) DeleteOne(_m *User) *UserDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -650,16 +650,16 @@ func (c *UserClient) GetX(ctx context.Context, id int) *User {
 }
 
 // QueryUploadedSips queries the uploaded_sips edge of a User.
-func (c *UserClient) QueryUploadedSips(u *User) *SIPQuery {
+func (c *UserClient) QueryUploadedSips(_m *User) *SIPQuery {
 	query := (&SIPClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := u.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(user.Table, user.FieldID, id),
 			sqlgraph.To(sip.Table, sip.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, user.UploadedSipsTable, user.UploadedSipsColumn),
 		)
-		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -745,8 +745,8 @@ func (c *WorkflowClient) Update() *WorkflowUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *WorkflowClient) UpdateOne(w *Workflow) *WorkflowUpdateOne {
-	mutation := newWorkflowMutation(c.config, OpUpdateOne, withWorkflow(w))
+func (c *WorkflowClient) UpdateOne(_m *Workflow) *WorkflowUpdateOne {
+	mutation := newWorkflowMutation(c.config, OpUpdateOne, withWorkflow(_m))
 	return &WorkflowUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -763,8 +763,8 @@ func (c *WorkflowClient) Delete() *WorkflowDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *WorkflowClient) DeleteOne(w *Workflow) *WorkflowDeleteOne {
-	return c.DeleteOneID(w.ID)
+func (c *WorkflowClient) DeleteOne(_m *Workflow) *WorkflowDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -799,32 +799,32 @@ func (c *WorkflowClient) GetX(ctx context.Context, id int) *Workflow {
 }
 
 // QuerySip queries the sip edge of a Workflow.
-func (c *WorkflowClient) QuerySip(w *Workflow) *SIPQuery {
+func (c *WorkflowClient) QuerySip(_m *Workflow) *SIPQuery {
 	query := (&SIPClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := w.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(workflow.Table, workflow.FieldID, id),
 			sqlgraph.To(sip.Table, sip.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, workflow.SipTable, workflow.SipColumn),
 		)
-		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryTasks queries the tasks edge of a Workflow.
-func (c *WorkflowClient) QueryTasks(w *Workflow) *TaskQuery {
+func (c *WorkflowClient) QueryTasks(_m *Workflow) *TaskQuery {
 	query := (&TaskClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := w.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(workflow.Table, workflow.FieldID, id),
 			sqlgraph.To(task.Table, task.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, workflow.TasksTable, workflow.TasksColumn),
 		)
-		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query

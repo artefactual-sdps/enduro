@@ -292,8 +292,8 @@ func (c *AIPClient) Update() *AIPUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *AIPClient) UpdateOne(a *AIP) *AIPUpdateOne {
-	mutation := newAIPMutation(c.config, OpUpdateOne, withAIP(a))
+func (c *AIPClient) UpdateOne(_m *AIP) *AIPUpdateOne {
+	mutation := newAIPMutation(c.config, OpUpdateOne, withAIP(_m))
 	return &AIPUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -310,8 +310,8 @@ func (c *AIPClient) Delete() *AIPDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *AIPClient) DeleteOne(a *AIP) *AIPDeleteOne {
-	return c.DeleteOneID(a.ID)
+func (c *AIPClient) DeleteOne(_m *AIP) *AIPDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -346,48 +346,48 @@ func (c *AIPClient) GetX(ctx context.Context, id int) *AIP {
 }
 
 // QueryLocation queries the location edge of a AIP.
-func (c *AIPClient) QueryLocation(a *AIP) *LocationQuery {
+func (c *AIPClient) QueryLocation(_m *AIP) *LocationQuery {
 	query := (&LocationClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(aip.Table, aip.FieldID, id),
 			sqlgraph.To(location.Table, location.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, false, aip.LocationTable, aip.LocationColumn),
 		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryWorkflows queries the workflows edge of a AIP.
-func (c *AIPClient) QueryWorkflows(a *AIP) *WorkflowQuery {
+func (c *AIPClient) QueryWorkflows(_m *AIP) *WorkflowQuery {
 	query := (&WorkflowClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(aip.Table, aip.FieldID, id),
 			sqlgraph.To(workflow.Table, workflow.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, aip.WorkflowsTable, aip.WorkflowsColumn),
 		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryDeletionRequests queries the deletion_requests edge of a AIP.
-func (c *AIPClient) QueryDeletionRequests(a *AIP) *DeletionRequestQuery {
+func (c *AIPClient) QueryDeletionRequests(_m *AIP) *DeletionRequestQuery {
 	query := (&DeletionRequestClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := a.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(aip.Table, aip.FieldID, id),
 			sqlgraph.To(deletionrequest.Table, deletionrequest.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, aip.DeletionRequestsTable, aip.DeletionRequestsColumn),
 		)
-		fromV = sqlgraph.Neighbors(a.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -473,8 +473,8 @@ func (c *DeletionRequestClient) Update() *DeletionRequestUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *DeletionRequestClient) UpdateOne(dr *DeletionRequest) *DeletionRequestUpdateOne {
-	mutation := newDeletionRequestMutation(c.config, OpUpdateOne, withDeletionRequest(dr))
+func (c *DeletionRequestClient) UpdateOne(_m *DeletionRequest) *DeletionRequestUpdateOne {
+	mutation := newDeletionRequestMutation(c.config, OpUpdateOne, withDeletionRequest(_m))
 	return &DeletionRequestUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -491,8 +491,8 @@ func (c *DeletionRequestClient) Delete() *DeletionRequestDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *DeletionRequestClient) DeleteOne(dr *DeletionRequest) *DeletionRequestDeleteOne {
-	return c.DeleteOneID(dr.ID)
+func (c *DeletionRequestClient) DeleteOne(_m *DeletionRequest) *DeletionRequestDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -527,32 +527,32 @@ func (c *DeletionRequestClient) GetX(ctx context.Context, id int) *DeletionReque
 }
 
 // QueryAip queries the aip edge of a DeletionRequest.
-func (c *DeletionRequestClient) QueryAip(dr *DeletionRequest) *AIPQuery {
+func (c *DeletionRequestClient) QueryAip(_m *DeletionRequest) *AIPQuery {
 	query := (&AIPClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dr.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(deletionrequest.Table, deletionrequest.FieldID, id),
 			sqlgraph.To(aip.Table, aip.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, deletionrequest.AipTable, deletionrequest.AipColumn),
 		)
-		fromV = sqlgraph.Neighbors(dr.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryWorkflow queries the workflow edge of a DeletionRequest.
-func (c *DeletionRequestClient) QueryWorkflow(dr *DeletionRequest) *WorkflowQuery {
+func (c *DeletionRequestClient) QueryWorkflow(_m *DeletionRequest) *WorkflowQuery {
 	query := (&WorkflowClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := dr.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(deletionrequest.Table, deletionrequest.FieldID, id),
 			sqlgraph.To(workflow.Table, workflow.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, deletionrequest.WorkflowTable, deletionrequest.WorkflowColumn),
 		)
-		fromV = sqlgraph.Neighbors(dr.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -638,8 +638,8 @@ func (c *LocationClient) Update() *LocationUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *LocationClient) UpdateOne(l *Location) *LocationUpdateOne {
-	mutation := newLocationMutation(c.config, OpUpdateOne, withLocation(l))
+func (c *LocationClient) UpdateOne(_m *Location) *LocationUpdateOne {
+	mutation := newLocationMutation(c.config, OpUpdateOne, withLocation(_m))
 	return &LocationUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -656,8 +656,8 @@ func (c *LocationClient) Delete() *LocationDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *LocationClient) DeleteOne(l *Location) *LocationDeleteOne {
-	return c.DeleteOneID(l.ID)
+func (c *LocationClient) DeleteOne(_m *Location) *LocationDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -692,16 +692,16 @@ func (c *LocationClient) GetX(ctx context.Context, id int) *Location {
 }
 
 // QueryAips queries the aips edge of a Location.
-func (c *LocationClient) QueryAips(l *Location) *AIPQuery {
+func (c *LocationClient) QueryAips(_m *Location) *AIPQuery {
 	query := (&AIPClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := l.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(location.Table, location.FieldID, id),
 			sqlgraph.To(aip.Table, aip.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, true, location.AipsTable, location.AipsColumn),
 		)
-		fromV = sqlgraph.Neighbors(l.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -787,8 +787,8 @@ func (c *TaskClient) Update() *TaskUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *TaskClient) UpdateOne(t *Task) *TaskUpdateOne {
-	mutation := newTaskMutation(c.config, OpUpdateOne, withTask(t))
+func (c *TaskClient) UpdateOne(_m *Task) *TaskUpdateOne {
+	mutation := newTaskMutation(c.config, OpUpdateOne, withTask(_m))
 	return &TaskUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -805,8 +805,8 @@ func (c *TaskClient) Delete() *TaskDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *TaskClient) DeleteOne(t *Task) *TaskDeleteOne {
-	return c.DeleteOneID(t.ID)
+func (c *TaskClient) DeleteOne(_m *Task) *TaskDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -841,16 +841,16 @@ func (c *TaskClient) GetX(ctx context.Context, id int) *Task {
 }
 
 // QueryWorkflow queries the workflow edge of a Task.
-func (c *TaskClient) QueryWorkflow(t *Task) *WorkflowQuery {
+func (c *TaskClient) QueryWorkflow(_m *Task) *WorkflowQuery {
 	query := (&WorkflowClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := t.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(task.Table, task.FieldID, id),
 			sqlgraph.To(workflow.Table, workflow.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, task.WorkflowTable, task.WorkflowColumn),
 		)
-		fromV = sqlgraph.Neighbors(t.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
@@ -936,8 +936,8 @@ func (c *WorkflowClient) Update() *WorkflowUpdate {
 }
 
 // UpdateOne returns an update builder for the given entity.
-func (c *WorkflowClient) UpdateOne(w *Workflow) *WorkflowUpdateOne {
-	mutation := newWorkflowMutation(c.config, OpUpdateOne, withWorkflow(w))
+func (c *WorkflowClient) UpdateOne(_m *Workflow) *WorkflowUpdateOne {
+	mutation := newWorkflowMutation(c.config, OpUpdateOne, withWorkflow(_m))
 	return &WorkflowUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
 
@@ -954,8 +954,8 @@ func (c *WorkflowClient) Delete() *WorkflowDelete {
 }
 
 // DeleteOne returns a builder for deleting the given entity.
-func (c *WorkflowClient) DeleteOne(w *Workflow) *WorkflowDeleteOne {
-	return c.DeleteOneID(w.ID)
+func (c *WorkflowClient) DeleteOne(_m *Workflow) *WorkflowDeleteOne {
+	return c.DeleteOneID(_m.ID)
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
@@ -990,48 +990,48 @@ func (c *WorkflowClient) GetX(ctx context.Context, id int) *Workflow {
 }
 
 // QueryAip queries the aip edge of a Workflow.
-func (c *WorkflowClient) QueryAip(w *Workflow) *AIPQuery {
+func (c *WorkflowClient) QueryAip(_m *Workflow) *AIPQuery {
 	query := (&AIPClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := w.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(workflow.Table, workflow.FieldID, id),
 			sqlgraph.To(aip.Table, aip.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, workflow.AipTable, workflow.AipColumn),
 		)
-		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryTasks queries the tasks edge of a Workflow.
-func (c *WorkflowClient) QueryTasks(w *Workflow) *TaskQuery {
+func (c *WorkflowClient) QueryTasks(_m *Workflow) *TaskQuery {
 	query := (&TaskClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := w.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(workflow.Table, workflow.FieldID, id),
 			sqlgraph.To(task.Table, task.FieldID),
 			sqlgraph.Edge(sqlgraph.O2M, false, workflow.TasksTable, workflow.TasksColumn),
 		)
-		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query
 }
 
 // QueryDeletionRequest queries the deletion_request edge of a Workflow.
-func (c *WorkflowClient) QueryDeletionRequest(w *Workflow) *DeletionRequestQuery {
+func (c *WorkflowClient) QueryDeletionRequest(_m *Workflow) *DeletionRequestQuery {
 	query := (&DeletionRequestClient{config: c.config}).Query()
 	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := w.ID
+		id := _m.ID
 		step := sqlgraph.NewStep(
 			sqlgraph.From(workflow.Table, workflow.FieldID, id),
 			sqlgraph.To(deletionrequest.Table, deletionrequest.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, false, workflow.DeletionRequestTable, workflow.DeletionRequestColumn),
 		)
-		fromV = sqlgraph.Neighbors(w.driver.Dialect(), step)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
 	}
 	return query

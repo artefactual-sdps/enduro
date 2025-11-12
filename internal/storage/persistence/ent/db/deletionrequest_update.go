@@ -27,188 +27,188 @@ type DeletionRequestUpdate struct {
 }
 
 // Where appends a list predicates to the DeletionRequestUpdate builder.
-func (dru *DeletionRequestUpdate) Where(ps ...predicate.DeletionRequest) *DeletionRequestUpdate {
-	dru.mutation.Where(ps...)
-	return dru
+func (_u *DeletionRequestUpdate) Where(ps ...predicate.DeletionRequest) *DeletionRequestUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetUUID sets the "uuid" field.
-func (dru *DeletionRequestUpdate) SetUUID(u uuid.UUID) *DeletionRequestUpdate {
-	dru.mutation.SetUUID(u)
-	return dru
+func (_u *DeletionRequestUpdate) SetUUID(v uuid.UUID) *DeletionRequestUpdate {
+	_u.mutation.SetUUID(v)
+	return _u
 }
 
 // SetNillableUUID sets the "uuid" field if the given value is not nil.
-func (dru *DeletionRequestUpdate) SetNillableUUID(u *uuid.UUID) *DeletionRequestUpdate {
-	if u != nil {
-		dru.SetUUID(*u)
+func (_u *DeletionRequestUpdate) SetNillableUUID(v *uuid.UUID) *DeletionRequestUpdate {
+	if v != nil {
+		_u.SetUUID(*v)
 	}
-	return dru
+	return _u
 }
 
 // SetReviewer sets the "reviewer" field.
-func (dru *DeletionRequestUpdate) SetReviewer(s string) *DeletionRequestUpdate {
-	dru.mutation.SetReviewer(s)
-	return dru
+func (_u *DeletionRequestUpdate) SetReviewer(v string) *DeletionRequestUpdate {
+	_u.mutation.SetReviewer(v)
+	return _u
 }
 
 // SetNillableReviewer sets the "reviewer" field if the given value is not nil.
-func (dru *DeletionRequestUpdate) SetNillableReviewer(s *string) *DeletionRequestUpdate {
-	if s != nil {
-		dru.SetReviewer(*s)
+func (_u *DeletionRequestUpdate) SetNillableReviewer(v *string) *DeletionRequestUpdate {
+	if v != nil {
+		_u.SetReviewer(*v)
 	}
-	return dru
+	return _u
 }
 
 // ClearReviewer clears the value of the "reviewer" field.
-func (dru *DeletionRequestUpdate) ClearReviewer() *DeletionRequestUpdate {
-	dru.mutation.ClearReviewer()
-	return dru
+func (_u *DeletionRequestUpdate) ClearReviewer() *DeletionRequestUpdate {
+	_u.mutation.ClearReviewer()
+	return _u
 }
 
 // SetReviewerIss sets the "reviewer_iss" field.
-func (dru *DeletionRequestUpdate) SetReviewerIss(s string) *DeletionRequestUpdate {
-	dru.mutation.SetReviewerIss(s)
-	return dru
+func (_u *DeletionRequestUpdate) SetReviewerIss(v string) *DeletionRequestUpdate {
+	_u.mutation.SetReviewerIss(v)
+	return _u
 }
 
 // SetNillableReviewerIss sets the "reviewer_iss" field if the given value is not nil.
-func (dru *DeletionRequestUpdate) SetNillableReviewerIss(s *string) *DeletionRequestUpdate {
-	if s != nil {
-		dru.SetReviewerIss(*s)
+func (_u *DeletionRequestUpdate) SetNillableReviewerIss(v *string) *DeletionRequestUpdate {
+	if v != nil {
+		_u.SetReviewerIss(*v)
 	}
-	return dru
+	return _u
 }
 
 // ClearReviewerIss clears the value of the "reviewer_iss" field.
-func (dru *DeletionRequestUpdate) ClearReviewerIss() *DeletionRequestUpdate {
-	dru.mutation.ClearReviewerIss()
-	return dru
+func (_u *DeletionRequestUpdate) ClearReviewerIss() *DeletionRequestUpdate {
+	_u.mutation.ClearReviewerIss()
+	return _u
 }
 
 // SetReviewerSub sets the "reviewer_sub" field.
-func (dru *DeletionRequestUpdate) SetReviewerSub(s string) *DeletionRequestUpdate {
-	dru.mutation.SetReviewerSub(s)
-	return dru
+func (_u *DeletionRequestUpdate) SetReviewerSub(v string) *DeletionRequestUpdate {
+	_u.mutation.SetReviewerSub(v)
+	return _u
 }
 
 // SetNillableReviewerSub sets the "reviewer_sub" field if the given value is not nil.
-func (dru *DeletionRequestUpdate) SetNillableReviewerSub(s *string) *DeletionRequestUpdate {
-	if s != nil {
-		dru.SetReviewerSub(*s)
+func (_u *DeletionRequestUpdate) SetNillableReviewerSub(v *string) *DeletionRequestUpdate {
+	if v != nil {
+		_u.SetReviewerSub(*v)
 	}
-	return dru
+	return _u
 }
 
 // ClearReviewerSub clears the value of the "reviewer_sub" field.
-func (dru *DeletionRequestUpdate) ClearReviewerSub() *DeletionRequestUpdate {
-	dru.mutation.ClearReviewerSub()
-	return dru
+func (_u *DeletionRequestUpdate) ClearReviewerSub() *DeletionRequestUpdate {
+	_u.mutation.ClearReviewerSub()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (dru *DeletionRequestUpdate) SetStatus(ers enums.DeletionRequestStatus) *DeletionRequestUpdate {
-	dru.mutation.SetStatus(ers)
-	return dru
+func (_u *DeletionRequestUpdate) SetStatus(v enums.DeletionRequestStatus) *DeletionRequestUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (dru *DeletionRequestUpdate) SetNillableStatus(ers *enums.DeletionRequestStatus) *DeletionRequestUpdate {
-	if ers != nil {
-		dru.SetStatus(*ers)
+func (_u *DeletionRequestUpdate) SetNillableStatus(v *enums.DeletionRequestStatus) *DeletionRequestUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return dru
+	return _u
 }
 
 // SetReviewedAt sets the "reviewed_at" field.
-func (dru *DeletionRequestUpdate) SetReviewedAt(t time.Time) *DeletionRequestUpdate {
-	dru.mutation.SetReviewedAt(t)
-	return dru
+func (_u *DeletionRequestUpdate) SetReviewedAt(v time.Time) *DeletionRequestUpdate {
+	_u.mutation.SetReviewedAt(v)
+	return _u
 }
 
 // SetNillableReviewedAt sets the "reviewed_at" field if the given value is not nil.
-func (dru *DeletionRequestUpdate) SetNillableReviewedAt(t *time.Time) *DeletionRequestUpdate {
-	if t != nil {
-		dru.SetReviewedAt(*t)
+func (_u *DeletionRequestUpdate) SetNillableReviewedAt(v *time.Time) *DeletionRequestUpdate {
+	if v != nil {
+		_u.SetReviewedAt(*v)
 	}
-	return dru
+	return _u
 }
 
 // ClearReviewedAt clears the value of the "reviewed_at" field.
-func (dru *DeletionRequestUpdate) ClearReviewedAt() *DeletionRequestUpdate {
-	dru.mutation.ClearReviewedAt()
-	return dru
+func (_u *DeletionRequestUpdate) ClearReviewedAt() *DeletionRequestUpdate {
+	_u.mutation.ClearReviewedAt()
+	return _u
 }
 
 // SetAipID sets the "aip_id" field.
-func (dru *DeletionRequestUpdate) SetAipID(i int) *DeletionRequestUpdate {
-	dru.mutation.SetAipID(i)
-	return dru
+func (_u *DeletionRequestUpdate) SetAipID(v int) *DeletionRequestUpdate {
+	_u.mutation.SetAipID(v)
+	return _u
 }
 
 // SetNillableAipID sets the "aip_id" field if the given value is not nil.
-func (dru *DeletionRequestUpdate) SetNillableAipID(i *int) *DeletionRequestUpdate {
-	if i != nil {
-		dru.SetAipID(*i)
+func (_u *DeletionRequestUpdate) SetNillableAipID(v *int) *DeletionRequestUpdate {
+	if v != nil {
+		_u.SetAipID(*v)
 	}
-	return dru
+	return _u
 }
 
 // SetWorkflowID sets the "workflow_id" field.
-func (dru *DeletionRequestUpdate) SetWorkflowID(i int) *DeletionRequestUpdate {
-	dru.mutation.SetWorkflowID(i)
-	return dru
+func (_u *DeletionRequestUpdate) SetWorkflowID(v int) *DeletionRequestUpdate {
+	_u.mutation.SetWorkflowID(v)
+	return _u
 }
 
 // SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
-func (dru *DeletionRequestUpdate) SetNillableWorkflowID(i *int) *DeletionRequestUpdate {
-	if i != nil {
-		dru.SetWorkflowID(*i)
+func (_u *DeletionRequestUpdate) SetNillableWorkflowID(v *int) *DeletionRequestUpdate {
+	if v != nil {
+		_u.SetWorkflowID(*v)
 	}
-	return dru
+	return _u
 }
 
 // ClearWorkflowID clears the value of the "workflow_id" field.
-func (dru *DeletionRequestUpdate) ClearWorkflowID() *DeletionRequestUpdate {
-	dru.mutation.ClearWorkflowID()
-	return dru
+func (_u *DeletionRequestUpdate) ClearWorkflowID() *DeletionRequestUpdate {
+	_u.mutation.ClearWorkflowID()
+	return _u
 }
 
 // SetAip sets the "aip" edge to the AIP entity.
-func (dru *DeletionRequestUpdate) SetAip(a *AIP) *DeletionRequestUpdate {
-	return dru.SetAipID(a.ID)
+func (_u *DeletionRequestUpdate) SetAip(v *AIP) *DeletionRequestUpdate {
+	return _u.SetAipID(v.ID)
 }
 
 // SetWorkflow sets the "workflow" edge to the Workflow entity.
-func (dru *DeletionRequestUpdate) SetWorkflow(w *Workflow) *DeletionRequestUpdate {
-	return dru.SetWorkflowID(w.ID)
+func (_u *DeletionRequestUpdate) SetWorkflow(v *Workflow) *DeletionRequestUpdate {
+	return _u.SetWorkflowID(v.ID)
 }
 
 // Mutation returns the DeletionRequestMutation object of the builder.
-func (dru *DeletionRequestUpdate) Mutation() *DeletionRequestMutation {
-	return dru.mutation
+func (_u *DeletionRequestUpdate) Mutation() *DeletionRequestMutation {
+	return _u.mutation
 }
 
 // ClearAip clears the "aip" edge to the AIP entity.
-func (dru *DeletionRequestUpdate) ClearAip() *DeletionRequestUpdate {
-	dru.mutation.ClearAip()
-	return dru
+func (_u *DeletionRequestUpdate) ClearAip() *DeletionRequestUpdate {
+	_u.mutation.ClearAip()
+	return _u
 }
 
 // ClearWorkflow clears the "workflow" edge to the Workflow entity.
-func (dru *DeletionRequestUpdate) ClearWorkflow() *DeletionRequestUpdate {
-	dru.mutation.ClearWorkflow()
-	return dru
+func (_u *DeletionRequestUpdate) ClearWorkflow() *DeletionRequestUpdate {
+	_u.mutation.ClearWorkflow()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (dru *DeletionRequestUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, dru.sqlSave, dru.mutation, dru.hooks)
+func (_u *DeletionRequestUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (dru *DeletionRequestUpdate) SaveX(ctx context.Context) int {
-	affected, err := dru.Save(ctx)
+func (_u *DeletionRequestUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -216,84 +216,84 @@ func (dru *DeletionRequestUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (dru *DeletionRequestUpdate) Exec(ctx context.Context) error {
-	_, err := dru.Save(ctx)
+func (_u *DeletionRequestUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (dru *DeletionRequestUpdate) ExecX(ctx context.Context) {
-	if err := dru.Exec(ctx); err != nil {
+func (_u *DeletionRequestUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (dru *DeletionRequestUpdate) check() error {
-	if v, ok := dru.mutation.Status(); ok {
+func (_u *DeletionRequestUpdate) check() error {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := deletionrequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.status": %w`, err)}
 		}
 	}
-	if v, ok := dru.mutation.AipID(); ok {
+	if v, ok := _u.mutation.AipID(); ok {
 		if err := deletionrequest.AipIDValidator(v); err != nil {
 			return &ValidationError{Name: "aip_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.aip_id": %w`, err)}
 		}
 	}
-	if v, ok := dru.mutation.WorkflowID(); ok {
+	if v, ok := _u.mutation.WorkflowID(); ok {
 		if err := deletionrequest.WorkflowIDValidator(v); err != nil {
 			return &ValidationError{Name: "workflow_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.workflow_id": %w`, err)}
 		}
 	}
-	if dru.mutation.AipCleared() && len(dru.mutation.AipIDs()) > 0 {
+	if _u.mutation.AipCleared() && len(_u.mutation.AipIDs()) > 0 {
 		return errors.New(`db: clearing a required unique edge "DeletionRequest.aip"`)
 	}
 	return nil
 }
 
-func (dru *DeletionRequestUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := dru.check(); err != nil {
-		return n, err
+func (_u *DeletionRequestUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(deletionrequest.Table, deletionrequest.Columns, sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt))
-	if ps := dru.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := dru.mutation.UUID(); ok {
+	if value, ok := _u.mutation.UUID(); ok {
 		_spec.SetField(deletionrequest.FieldUUID, field.TypeUUID, value)
 	}
-	if value, ok := dru.mutation.Reviewer(); ok {
+	if value, ok := _u.mutation.Reviewer(); ok {
 		_spec.SetField(deletionrequest.FieldReviewer, field.TypeString, value)
 	}
-	if dru.mutation.ReviewerCleared() {
+	if _u.mutation.ReviewerCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewer, field.TypeString)
 	}
-	if value, ok := dru.mutation.ReviewerIss(); ok {
+	if value, ok := _u.mutation.ReviewerIss(); ok {
 		_spec.SetField(deletionrequest.FieldReviewerIss, field.TypeString, value)
 	}
-	if dru.mutation.ReviewerIssCleared() {
+	if _u.mutation.ReviewerIssCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewerIss, field.TypeString)
 	}
-	if value, ok := dru.mutation.ReviewerSub(); ok {
+	if value, ok := _u.mutation.ReviewerSub(); ok {
 		_spec.SetField(deletionrequest.FieldReviewerSub, field.TypeString, value)
 	}
-	if dru.mutation.ReviewerSubCleared() {
+	if _u.mutation.ReviewerSubCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewerSub, field.TypeString)
 	}
-	if value, ok := dru.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(deletionrequest.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := dru.mutation.ReviewedAt(); ok {
+	if value, ok := _u.mutation.ReviewedAt(); ok {
 		_spec.SetField(deletionrequest.FieldReviewedAt, field.TypeTime, value)
 	}
-	if dru.mutation.ReviewedAtCleared() {
+	if _u.mutation.ReviewedAtCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewedAt, field.TypeTime)
 	}
-	if dru.mutation.AipCleared() {
+	if _u.mutation.AipCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -306,7 +306,7 @@ func (dru *DeletionRequestUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dru.mutation.AipIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AipIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -322,7 +322,7 @@ func (dru *DeletionRequestUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if dru.mutation.WorkflowCleared() {
+	if _u.mutation.WorkflowCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -335,7 +335,7 @@ func (dru *DeletionRequestUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := dru.mutation.WorkflowIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.WorkflowIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -351,7 +351,7 @@ func (dru *DeletionRequestUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, dru.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{deletionrequest.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -359,8 +359,8 @@ func (dru *DeletionRequestUpdate) sqlSave(ctx context.Context) (n int, err error
 		}
 		return 0, err
 	}
-	dru.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // DeletionRequestUpdateOne is the builder for updating a single DeletionRequest entity.
@@ -372,195 +372,195 @@ type DeletionRequestUpdateOne struct {
 }
 
 // SetUUID sets the "uuid" field.
-func (druo *DeletionRequestUpdateOne) SetUUID(u uuid.UUID) *DeletionRequestUpdateOne {
-	druo.mutation.SetUUID(u)
-	return druo
+func (_u *DeletionRequestUpdateOne) SetUUID(v uuid.UUID) *DeletionRequestUpdateOne {
+	_u.mutation.SetUUID(v)
+	return _u
 }
 
 // SetNillableUUID sets the "uuid" field if the given value is not nil.
-func (druo *DeletionRequestUpdateOne) SetNillableUUID(u *uuid.UUID) *DeletionRequestUpdateOne {
-	if u != nil {
-		druo.SetUUID(*u)
+func (_u *DeletionRequestUpdateOne) SetNillableUUID(v *uuid.UUID) *DeletionRequestUpdateOne {
+	if v != nil {
+		_u.SetUUID(*v)
 	}
-	return druo
+	return _u
 }
 
 // SetReviewer sets the "reviewer" field.
-func (druo *DeletionRequestUpdateOne) SetReviewer(s string) *DeletionRequestUpdateOne {
-	druo.mutation.SetReviewer(s)
-	return druo
+func (_u *DeletionRequestUpdateOne) SetReviewer(v string) *DeletionRequestUpdateOne {
+	_u.mutation.SetReviewer(v)
+	return _u
 }
 
 // SetNillableReviewer sets the "reviewer" field if the given value is not nil.
-func (druo *DeletionRequestUpdateOne) SetNillableReviewer(s *string) *DeletionRequestUpdateOne {
-	if s != nil {
-		druo.SetReviewer(*s)
+func (_u *DeletionRequestUpdateOne) SetNillableReviewer(v *string) *DeletionRequestUpdateOne {
+	if v != nil {
+		_u.SetReviewer(*v)
 	}
-	return druo
+	return _u
 }
 
 // ClearReviewer clears the value of the "reviewer" field.
-func (druo *DeletionRequestUpdateOne) ClearReviewer() *DeletionRequestUpdateOne {
-	druo.mutation.ClearReviewer()
-	return druo
+func (_u *DeletionRequestUpdateOne) ClearReviewer() *DeletionRequestUpdateOne {
+	_u.mutation.ClearReviewer()
+	return _u
 }
 
 // SetReviewerIss sets the "reviewer_iss" field.
-func (druo *DeletionRequestUpdateOne) SetReviewerIss(s string) *DeletionRequestUpdateOne {
-	druo.mutation.SetReviewerIss(s)
-	return druo
+func (_u *DeletionRequestUpdateOne) SetReviewerIss(v string) *DeletionRequestUpdateOne {
+	_u.mutation.SetReviewerIss(v)
+	return _u
 }
 
 // SetNillableReviewerIss sets the "reviewer_iss" field if the given value is not nil.
-func (druo *DeletionRequestUpdateOne) SetNillableReviewerIss(s *string) *DeletionRequestUpdateOne {
-	if s != nil {
-		druo.SetReviewerIss(*s)
+func (_u *DeletionRequestUpdateOne) SetNillableReviewerIss(v *string) *DeletionRequestUpdateOne {
+	if v != nil {
+		_u.SetReviewerIss(*v)
 	}
-	return druo
+	return _u
 }
 
 // ClearReviewerIss clears the value of the "reviewer_iss" field.
-func (druo *DeletionRequestUpdateOne) ClearReviewerIss() *DeletionRequestUpdateOne {
-	druo.mutation.ClearReviewerIss()
-	return druo
+func (_u *DeletionRequestUpdateOne) ClearReviewerIss() *DeletionRequestUpdateOne {
+	_u.mutation.ClearReviewerIss()
+	return _u
 }
 
 // SetReviewerSub sets the "reviewer_sub" field.
-func (druo *DeletionRequestUpdateOne) SetReviewerSub(s string) *DeletionRequestUpdateOne {
-	druo.mutation.SetReviewerSub(s)
-	return druo
+func (_u *DeletionRequestUpdateOne) SetReviewerSub(v string) *DeletionRequestUpdateOne {
+	_u.mutation.SetReviewerSub(v)
+	return _u
 }
 
 // SetNillableReviewerSub sets the "reviewer_sub" field if the given value is not nil.
-func (druo *DeletionRequestUpdateOne) SetNillableReviewerSub(s *string) *DeletionRequestUpdateOne {
-	if s != nil {
-		druo.SetReviewerSub(*s)
+func (_u *DeletionRequestUpdateOne) SetNillableReviewerSub(v *string) *DeletionRequestUpdateOne {
+	if v != nil {
+		_u.SetReviewerSub(*v)
 	}
-	return druo
+	return _u
 }
 
 // ClearReviewerSub clears the value of the "reviewer_sub" field.
-func (druo *DeletionRequestUpdateOne) ClearReviewerSub() *DeletionRequestUpdateOne {
-	druo.mutation.ClearReviewerSub()
-	return druo
+func (_u *DeletionRequestUpdateOne) ClearReviewerSub() *DeletionRequestUpdateOne {
+	_u.mutation.ClearReviewerSub()
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (druo *DeletionRequestUpdateOne) SetStatus(ers enums.DeletionRequestStatus) *DeletionRequestUpdateOne {
-	druo.mutation.SetStatus(ers)
-	return druo
+func (_u *DeletionRequestUpdateOne) SetStatus(v enums.DeletionRequestStatus) *DeletionRequestUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (druo *DeletionRequestUpdateOne) SetNillableStatus(ers *enums.DeletionRequestStatus) *DeletionRequestUpdateOne {
-	if ers != nil {
-		druo.SetStatus(*ers)
+func (_u *DeletionRequestUpdateOne) SetNillableStatus(v *enums.DeletionRequestStatus) *DeletionRequestUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return druo
+	return _u
 }
 
 // SetReviewedAt sets the "reviewed_at" field.
-func (druo *DeletionRequestUpdateOne) SetReviewedAt(t time.Time) *DeletionRequestUpdateOne {
-	druo.mutation.SetReviewedAt(t)
-	return druo
+func (_u *DeletionRequestUpdateOne) SetReviewedAt(v time.Time) *DeletionRequestUpdateOne {
+	_u.mutation.SetReviewedAt(v)
+	return _u
 }
 
 // SetNillableReviewedAt sets the "reviewed_at" field if the given value is not nil.
-func (druo *DeletionRequestUpdateOne) SetNillableReviewedAt(t *time.Time) *DeletionRequestUpdateOne {
-	if t != nil {
-		druo.SetReviewedAt(*t)
+func (_u *DeletionRequestUpdateOne) SetNillableReviewedAt(v *time.Time) *DeletionRequestUpdateOne {
+	if v != nil {
+		_u.SetReviewedAt(*v)
 	}
-	return druo
+	return _u
 }
 
 // ClearReviewedAt clears the value of the "reviewed_at" field.
-func (druo *DeletionRequestUpdateOne) ClearReviewedAt() *DeletionRequestUpdateOne {
-	druo.mutation.ClearReviewedAt()
-	return druo
+func (_u *DeletionRequestUpdateOne) ClearReviewedAt() *DeletionRequestUpdateOne {
+	_u.mutation.ClearReviewedAt()
+	return _u
 }
 
 // SetAipID sets the "aip_id" field.
-func (druo *DeletionRequestUpdateOne) SetAipID(i int) *DeletionRequestUpdateOne {
-	druo.mutation.SetAipID(i)
-	return druo
+func (_u *DeletionRequestUpdateOne) SetAipID(v int) *DeletionRequestUpdateOne {
+	_u.mutation.SetAipID(v)
+	return _u
 }
 
 // SetNillableAipID sets the "aip_id" field if the given value is not nil.
-func (druo *DeletionRequestUpdateOne) SetNillableAipID(i *int) *DeletionRequestUpdateOne {
-	if i != nil {
-		druo.SetAipID(*i)
+func (_u *DeletionRequestUpdateOne) SetNillableAipID(v *int) *DeletionRequestUpdateOne {
+	if v != nil {
+		_u.SetAipID(*v)
 	}
-	return druo
+	return _u
 }
 
 // SetWorkflowID sets the "workflow_id" field.
-func (druo *DeletionRequestUpdateOne) SetWorkflowID(i int) *DeletionRequestUpdateOne {
-	druo.mutation.SetWorkflowID(i)
-	return druo
+func (_u *DeletionRequestUpdateOne) SetWorkflowID(v int) *DeletionRequestUpdateOne {
+	_u.mutation.SetWorkflowID(v)
+	return _u
 }
 
 // SetNillableWorkflowID sets the "workflow_id" field if the given value is not nil.
-func (druo *DeletionRequestUpdateOne) SetNillableWorkflowID(i *int) *DeletionRequestUpdateOne {
-	if i != nil {
-		druo.SetWorkflowID(*i)
+func (_u *DeletionRequestUpdateOne) SetNillableWorkflowID(v *int) *DeletionRequestUpdateOne {
+	if v != nil {
+		_u.SetWorkflowID(*v)
 	}
-	return druo
+	return _u
 }
 
 // ClearWorkflowID clears the value of the "workflow_id" field.
-func (druo *DeletionRequestUpdateOne) ClearWorkflowID() *DeletionRequestUpdateOne {
-	druo.mutation.ClearWorkflowID()
-	return druo
+func (_u *DeletionRequestUpdateOne) ClearWorkflowID() *DeletionRequestUpdateOne {
+	_u.mutation.ClearWorkflowID()
+	return _u
 }
 
 // SetAip sets the "aip" edge to the AIP entity.
-func (druo *DeletionRequestUpdateOne) SetAip(a *AIP) *DeletionRequestUpdateOne {
-	return druo.SetAipID(a.ID)
+func (_u *DeletionRequestUpdateOne) SetAip(v *AIP) *DeletionRequestUpdateOne {
+	return _u.SetAipID(v.ID)
 }
 
 // SetWorkflow sets the "workflow" edge to the Workflow entity.
-func (druo *DeletionRequestUpdateOne) SetWorkflow(w *Workflow) *DeletionRequestUpdateOne {
-	return druo.SetWorkflowID(w.ID)
+func (_u *DeletionRequestUpdateOne) SetWorkflow(v *Workflow) *DeletionRequestUpdateOne {
+	return _u.SetWorkflowID(v.ID)
 }
 
 // Mutation returns the DeletionRequestMutation object of the builder.
-func (druo *DeletionRequestUpdateOne) Mutation() *DeletionRequestMutation {
-	return druo.mutation
+func (_u *DeletionRequestUpdateOne) Mutation() *DeletionRequestMutation {
+	return _u.mutation
 }
 
 // ClearAip clears the "aip" edge to the AIP entity.
-func (druo *DeletionRequestUpdateOne) ClearAip() *DeletionRequestUpdateOne {
-	druo.mutation.ClearAip()
-	return druo
+func (_u *DeletionRequestUpdateOne) ClearAip() *DeletionRequestUpdateOne {
+	_u.mutation.ClearAip()
+	return _u
 }
 
 // ClearWorkflow clears the "workflow" edge to the Workflow entity.
-func (druo *DeletionRequestUpdateOne) ClearWorkflow() *DeletionRequestUpdateOne {
-	druo.mutation.ClearWorkflow()
-	return druo
+func (_u *DeletionRequestUpdateOne) ClearWorkflow() *DeletionRequestUpdateOne {
+	_u.mutation.ClearWorkflow()
+	return _u
 }
 
 // Where appends a list predicates to the DeletionRequestUpdate builder.
-func (druo *DeletionRequestUpdateOne) Where(ps ...predicate.DeletionRequest) *DeletionRequestUpdateOne {
-	druo.mutation.Where(ps...)
-	return druo
+func (_u *DeletionRequestUpdateOne) Where(ps ...predicate.DeletionRequest) *DeletionRequestUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (druo *DeletionRequestUpdateOne) Select(field string, fields ...string) *DeletionRequestUpdateOne {
-	druo.fields = append([]string{field}, fields...)
-	return druo
+func (_u *DeletionRequestUpdateOne) Select(field string, fields ...string) *DeletionRequestUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated DeletionRequest entity.
-func (druo *DeletionRequestUpdateOne) Save(ctx context.Context) (*DeletionRequest, error) {
-	return withHooks(ctx, druo.sqlSave, druo.mutation, druo.hooks)
+func (_u *DeletionRequestUpdateOne) Save(ctx context.Context) (*DeletionRequest, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (druo *DeletionRequestUpdateOne) SaveX(ctx context.Context) *DeletionRequest {
-	node, err := druo.Save(ctx)
+func (_u *DeletionRequestUpdateOne) SaveX(ctx context.Context) *DeletionRequest {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -568,52 +568,52 @@ func (druo *DeletionRequestUpdateOne) SaveX(ctx context.Context) *DeletionReques
 }
 
 // Exec executes the query on the entity.
-func (druo *DeletionRequestUpdateOne) Exec(ctx context.Context) error {
-	_, err := druo.Save(ctx)
+func (_u *DeletionRequestUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (druo *DeletionRequestUpdateOne) ExecX(ctx context.Context) {
-	if err := druo.Exec(ctx); err != nil {
+func (_u *DeletionRequestUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (druo *DeletionRequestUpdateOne) check() error {
-	if v, ok := druo.mutation.Status(); ok {
+func (_u *DeletionRequestUpdateOne) check() error {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := deletionrequest.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.status": %w`, err)}
 		}
 	}
-	if v, ok := druo.mutation.AipID(); ok {
+	if v, ok := _u.mutation.AipID(); ok {
 		if err := deletionrequest.AipIDValidator(v); err != nil {
 			return &ValidationError{Name: "aip_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.aip_id": %w`, err)}
 		}
 	}
-	if v, ok := druo.mutation.WorkflowID(); ok {
+	if v, ok := _u.mutation.WorkflowID(); ok {
 		if err := deletionrequest.WorkflowIDValidator(v); err != nil {
 			return &ValidationError{Name: "workflow_id", err: fmt.Errorf(`db: validator failed for field "DeletionRequest.workflow_id": %w`, err)}
 		}
 	}
-	if druo.mutation.AipCleared() && len(druo.mutation.AipIDs()) > 0 {
+	if _u.mutation.AipCleared() && len(_u.mutation.AipIDs()) > 0 {
 		return errors.New(`db: clearing a required unique edge "DeletionRequest.aip"`)
 	}
 	return nil
 }
 
-func (druo *DeletionRequestUpdateOne) sqlSave(ctx context.Context) (_node *DeletionRequest, err error) {
-	if err := druo.check(); err != nil {
+func (_u *DeletionRequestUpdateOne) sqlSave(ctx context.Context) (_node *DeletionRequest, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(deletionrequest.Table, deletionrequest.Columns, sqlgraph.NewFieldSpec(deletionrequest.FieldID, field.TypeInt))
-	id, ok := druo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`db: missing "DeletionRequest.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := druo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, deletionrequest.FieldID)
 		for _, f := range fields {
@@ -625,44 +625,44 @@ func (druo *DeletionRequestUpdateOne) sqlSave(ctx context.Context) (_node *Delet
 			}
 		}
 	}
-	if ps := druo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := druo.mutation.UUID(); ok {
+	if value, ok := _u.mutation.UUID(); ok {
 		_spec.SetField(deletionrequest.FieldUUID, field.TypeUUID, value)
 	}
-	if value, ok := druo.mutation.Reviewer(); ok {
+	if value, ok := _u.mutation.Reviewer(); ok {
 		_spec.SetField(deletionrequest.FieldReviewer, field.TypeString, value)
 	}
-	if druo.mutation.ReviewerCleared() {
+	if _u.mutation.ReviewerCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewer, field.TypeString)
 	}
-	if value, ok := druo.mutation.ReviewerIss(); ok {
+	if value, ok := _u.mutation.ReviewerIss(); ok {
 		_spec.SetField(deletionrequest.FieldReviewerIss, field.TypeString, value)
 	}
-	if druo.mutation.ReviewerIssCleared() {
+	if _u.mutation.ReviewerIssCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewerIss, field.TypeString)
 	}
-	if value, ok := druo.mutation.ReviewerSub(); ok {
+	if value, ok := _u.mutation.ReviewerSub(); ok {
 		_spec.SetField(deletionrequest.FieldReviewerSub, field.TypeString, value)
 	}
-	if druo.mutation.ReviewerSubCleared() {
+	if _u.mutation.ReviewerSubCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewerSub, field.TypeString)
 	}
-	if value, ok := druo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(deletionrequest.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := druo.mutation.ReviewedAt(); ok {
+	if value, ok := _u.mutation.ReviewedAt(); ok {
 		_spec.SetField(deletionrequest.FieldReviewedAt, field.TypeTime, value)
 	}
-	if druo.mutation.ReviewedAtCleared() {
+	if _u.mutation.ReviewedAtCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewedAt, field.TypeTime)
 	}
-	if druo.mutation.AipCleared() {
+	if _u.mutation.AipCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -675,7 +675,7 @@ func (druo *DeletionRequestUpdateOne) sqlSave(ctx context.Context) (_node *Delet
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := druo.mutation.AipIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AipIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -691,7 +691,7 @@ func (druo *DeletionRequestUpdateOne) sqlSave(ctx context.Context) (_node *Delet
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if druo.mutation.WorkflowCleared() {
+	if _u.mutation.WorkflowCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -704,7 +704,7 @@ func (druo *DeletionRequestUpdateOne) sqlSave(ctx context.Context) (_node *Delet
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := druo.mutation.WorkflowIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.WorkflowIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: true,
@@ -720,10 +720,10 @@ func (druo *DeletionRequestUpdateOne) sqlSave(ctx context.Context) (_node *Delet
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &DeletionRequest{config: druo.config}
+	_node = &DeletionRequest{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, druo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{deletionrequest.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -731,6 +731,6 @@ func (druo *DeletionRequestUpdateOne) sqlSave(ctx context.Context) (_node *Delet
 		}
 		return nil, err
 	}
-	druo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

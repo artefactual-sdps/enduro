@@ -20,56 +20,56 @@ type AIPDelete struct {
 }
 
 // Where appends a list predicates to the AIPDelete builder.
-func (ad *AIPDelete) Where(ps ...predicate.AIP) *AIPDelete {
-	ad.mutation.Where(ps...)
-	return ad
+func (_d *AIPDelete) Where(ps ...predicate.AIP) *AIPDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (ad *AIPDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, ad.sqlExec, ad.mutation, ad.hooks)
+func (_d *AIPDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ad *AIPDelete) ExecX(ctx context.Context) int {
-	n, err := ad.Exec(ctx)
+func (_d *AIPDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (ad *AIPDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *AIPDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(aip.Table, sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt))
-	if ps := ad.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, ad.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	ad.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // AIPDeleteOne is the builder for deleting a single AIP entity.
 type AIPDeleteOne struct {
-	ad *AIPDelete
+	_d *AIPDelete
 }
 
 // Where appends a list predicates to the AIPDelete builder.
-func (ado *AIPDeleteOne) Where(ps ...predicate.AIP) *AIPDeleteOne {
-	ado.ad.mutation.Where(ps...)
-	return ado
+func (_d *AIPDeleteOne) Where(ps ...predicate.AIP) *AIPDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (ado *AIPDeleteOne) Exec(ctx context.Context) error {
-	n, err := ado.ad.Exec(ctx)
+func (_d *AIPDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (ado *AIPDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ado *AIPDeleteOne) ExecX(ctx context.Context) {
-	if err := ado.Exec(ctx); err != nil {
+func (_d *AIPDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

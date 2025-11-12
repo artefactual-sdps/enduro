@@ -27,155 +27,155 @@ type SIPCreate struct {
 }
 
 // SetUUID sets the "uuid" field.
-func (sc *SIPCreate) SetUUID(u uuid.UUID) *SIPCreate {
-	sc.mutation.SetUUID(u)
-	return sc
+func (_c *SIPCreate) SetUUID(v uuid.UUID) *SIPCreate {
+	_c.mutation.SetUUID(v)
+	return _c
 }
 
 // SetName sets the "name" field.
-func (sc *SIPCreate) SetName(s string) *SIPCreate {
-	sc.mutation.SetName(s)
-	return sc
+func (_c *SIPCreate) SetName(v string) *SIPCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetAipID sets the "aip_id" field.
-func (sc *SIPCreate) SetAipID(u uuid.UUID) *SIPCreate {
-	sc.mutation.SetAipID(u)
-	return sc
+func (_c *SIPCreate) SetAipID(v uuid.UUID) *SIPCreate {
+	_c.mutation.SetAipID(v)
+	return _c
 }
 
 // SetNillableAipID sets the "aip_id" field if the given value is not nil.
-func (sc *SIPCreate) SetNillableAipID(u *uuid.UUID) *SIPCreate {
-	if u != nil {
-		sc.SetAipID(*u)
+func (_c *SIPCreate) SetNillableAipID(v *uuid.UUID) *SIPCreate {
+	if v != nil {
+		_c.SetAipID(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (sc *SIPCreate) SetStatus(es enums.SIPStatus) *SIPCreate {
-	sc.mutation.SetStatus(es)
-	return sc
+func (_c *SIPCreate) SetStatus(v enums.SIPStatus) *SIPCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (sc *SIPCreate) SetCreatedAt(t time.Time) *SIPCreate {
-	sc.mutation.SetCreatedAt(t)
-	return sc
+func (_c *SIPCreate) SetCreatedAt(v time.Time) *SIPCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (sc *SIPCreate) SetNillableCreatedAt(t *time.Time) *SIPCreate {
-	if t != nil {
-		sc.SetCreatedAt(*t)
+func (_c *SIPCreate) SetNillableCreatedAt(v *time.Time) *SIPCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetStartedAt sets the "started_at" field.
-func (sc *SIPCreate) SetStartedAt(t time.Time) *SIPCreate {
-	sc.mutation.SetStartedAt(t)
-	return sc
+func (_c *SIPCreate) SetStartedAt(v time.Time) *SIPCreate {
+	_c.mutation.SetStartedAt(v)
+	return _c
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (sc *SIPCreate) SetNillableStartedAt(t *time.Time) *SIPCreate {
-	if t != nil {
-		sc.SetStartedAt(*t)
+func (_c *SIPCreate) SetNillableStartedAt(v *time.Time) *SIPCreate {
+	if v != nil {
+		_c.SetStartedAt(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (sc *SIPCreate) SetCompletedAt(t time.Time) *SIPCreate {
-	sc.mutation.SetCompletedAt(t)
-	return sc
+func (_c *SIPCreate) SetCompletedAt(v time.Time) *SIPCreate {
+	_c.mutation.SetCompletedAt(v)
+	return _c
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (sc *SIPCreate) SetNillableCompletedAt(t *time.Time) *SIPCreate {
-	if t != nil {
-		sc.SetCompletedAt(*t)
+func (_c *SIPCreate) SetNillableCompletedAt(v *time.Time) *SIPCreate {
+	if v != nil {
+		_c.SetCompletedAt(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetFailedAs sets the "failed_as" field.
-func (sc *SIPCreate) SetFailedAs(efa enums.SIPFailedAs) *SIPCreate {
-	sc.mutation.SetFailedAs(efa)
-	return sc
+func (_c *SIPCreate) SetFailedAs(v enums.SIPFailedAs) *SIPCreate {
+	_c.mutation.SetFailedAs(v)
+	return _c
 }
 
 // SetNillableFailedAs sets the "failed_as" field if the given value is not nil.
-func (sc *SIPCreate) SetNillableFailedAs(efa *enums.SIPFailedAs) *SIPCreate {
-	if efa != nil {
-		sc.SetFailedAs(*efa)
+func (_c *SIPCreate) SetNillableFailedAs(v *enums.SIPFailedAs) *SIPCreate {
+	if v != nil {
+		_c.SetFailedAs(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetFailedKey sets the "failed_key" field.
-func (sc *SIPCreate) SetFailedKey(s string) *SIPCreate {
-	sc.mutation.SetFailedKey(s)
-	return sc
+func (_c *SIPCreate) SetFailedKey(v string) *SIPCreate {
+	_c.mutation.SetFailedKey(v)
+	return _c
 }
 
 // SetNillableFailedKey sets the "failed_key" field if the given value is not nil.
-func (sc *SIPCreate) SetNillableFailedKey(s *string) *SIPCreate {
-	if s != nil {
-		sc.SetFailedKey(*s)
+func (_c *SIPCreate) SetNillableFailedKey(v *string) *SIPCreate {
+	if v != nil {
+		_c.SetFailedKey(*v)
 	}
-	return sc
+	return _c
 }
 
 // SetUploaderID sets the "uploader_id" field.
-func (sc *SIPCreate) SetUploaderID(i int) *SIPCreate {
-	sc.mutation.SetUploaderID(i)
-	return sc
+func (_c *SIPCreate) SetUploaderID(v int) *SIPCreate {
+	_c.mutation.SetUploaderID(v)
+	return _c
 }
 
 // SetNillableUploaderID sets the "uploader_id" field if the given value is not nil.
-func (sc *SIPCreate) SetNillableUploaderID(i *int) *SIPCreate {
-	if i != nil {
-		sc.SetUploaderID(*i)
+func (_c *SIPCreate) SetNillableUploaderID(v *int) *SIPCreate {
+	if v != nil {
+		_c.SetUploaderID(*v)
 	}
-	return sc
+	return _c
 }
 
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
-func (sc *SIPCreate) AddWorkflowIDs(ids ...int) *SIPCreate {
-	sc.mutation.AddWorkflowIDs(ids...)
-	return sc
+func (_c *SIPCreate) AddWorkflowIDs(ids ...int) *SIPCreate {
+	_c.mutation.AddWorkflowIDs(ids...)
+	return _c
 }
 
 // AddWorkflows adds the "workflows" edges to the Workflow entity.
-func (sc *SIPCreate) AddWorkflows(w ...*Workflow) *SIPCreate {
-	ids := make([]int, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
+func (_c *SIPCreate) AddWorkflows(v ...*Workflow) *SIPCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return sc.AddWorkflowIDs(ids...)
+	return _c.AddWorkflowIDs(ids...)
 }
 
 // SetUploader sets the "uploader" edge to the User entity.
-func (sc *SIPCreate) SetUploader(u *User) *SIPCreate {
-	return sc.SetUploaderID(u.ID)
+func (_c *SIPCreate) SetUploader(v *User) *SIPCreate {
+	return _c.SetUploaderID(v.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
-func (sc *SIPCreate) Mutation() *SIPMutation {
-	return sc.mutation
+func (_c *SIPCreate) Mutation() *SIPMutation {
+	return _c.mutation
 }
 
 // Save creates the SIP in the database.
-func (sc *SIPCreate) Save(ctx context.Context) (*SIP, error) {
-	sc.defaults()
-	return withHooks(ctx, sc.sqlSave, sc.mutation, sc.hooks)
+func (_c *SIPCreate) Save(ctx context.Context) (*SIP, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (sc *SIPCreate) SaveX(ctx context.Context) *SIP {
-	v, err := sc.Save(ctx)
+func (_c *SIPCreate) SaveX(ctx context.Context) *SIP {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -183,51 +183,51 @@ func (sc *SIPCreate) SaveX(ctx context.Context) *SIP {
 }
 
 // Exec executes the query.
-func (sc *SIPCreate) Exec(ctx context.Context) error {
-	_, err := sc.Save(ctx)
+func (_c *SIPCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (sc *SIPCreate) ExecX(ctx context.Context) {
-	if err := sc.Exec(ctx); err != nil {
+func (_c *SIPCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (sc *SIPCreate) defaults() {
-	if _, ok := sc.mutation.CreatedAt(); !ok {
+func (_c *SIPCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := sip.DefaultCreatedAt()
-		sc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (sc *SIPCreate) check() error {
-	if _, ok := sc.mutation.UUID(); !ok {
+func (_c *SIPCreate) check() error {
+	if _, ok := _c.mutation.UUID(); !ok {
 		return &ValidationError{Name: "uuid", err: errors.New(`db: missing required field "SIP.uuid"`)}
 	}
-	if _, ok := sc.mutation.Name(); !ok {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`db: missing required field "SIP.name"`)}
 	}
-	if _, ok := sc.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "SIP.status"`)}
 	}
-	if v, ok := sc.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := sip.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "SIP.status": %w`, err)}
 		}
 	}
-	if _, ok := sc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`db: missing required field "SIP.created_at"`)}
 	}
-	if v, ok := sc.mutation.FailedAs(); ok {
+	if v, ok := _c.mutation.FailedAs(); ok {
 		if err := sip.FailedAsValidator(v); err != nil {
 			return &ValidationError{Name: "failed_as", err: fmt.Errorf(`db: validator failed for field "SIP.failed_as": %w`, err)}
 		}
 	}
-	if v, ok := sc.mutation.UploaderID(); ok {
+	if v, ok := _c.mutation.UploaderID(); ok {
 		if err := sip.UploaderIDValidator(v); err != nil {
 			return &ValidationError{Name: "uploader_id", err: fmt.Errorf(`db: validator failed for field "SIP.uploader_id": %w`, err)}
 		}
@@ -235,12 +235,12 @@ func (sc *SIPCreate) check() error {
 	return nil
 }
 
-func (sc *SIPCreate) sqlSave(ctx context.Context) (*SIP, error) {
-	if err := sc.check(); err != nil {
+func (_c *SIPCreate) sqlSave(ctx context.Context) (*SIP, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := sc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, sc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -248,54 +248,54 @@ func (sc *SIPCreate) sqlSave(ctx context.Context) (*SIP, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	sc.mutation.id = &_node.ID
-	sc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
+func (_c *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 	var (
-		_node = &SIP{config: sc.config}
+		_node = &SIP{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(sip.Table, sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = sc.conflict
-	if value, ok := sc.mutation.UUID(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.UUID(); ok {
 		_spec.SetField(sip.FieldUUID, field.TypeUUID, value)
 		_node.UUID = value
 	}
-	if value, ok := sc.mutation.Name(); ok {
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(sip.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := sc.mutation.AipID(); ok {
+	if value, ok := _c.mutation.AipID(); ok {
 		_spec.SetField(sip.FieldAipID, field.TypeUUID, value)
 		_node.AipID = value
 	}
-	if value, ok := sc.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(sip.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := sc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(sip.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if value, ok := sc.mutation.StartedAt(); ok {
+	if value, ok := _c.mutation.StartedAt(); ok {
 		_spec.SetField(sip.FieldStartedAt, field.TypeTime, value)
 		_node.StartedAt = value
 	}
-	if value, ok := sc.mutation.CompletedAt(); ok {
+	if value, ok := _c.mutation.CompletedAt(); ok {
 		_spec.SetField(sip.FieldCompletedAt, field.TypeTime, value)
 		_node.CompletedAt = value
 	}
-	if value, ok := sc.mutation.FailedAs(); ok {
+	if value, ok := _c.mutation.FailedAs(); ok {
 		_spec.SetField(sip.FieldFailedAs, field.TypeEnum, value)
 		_node.FailedAs = value
 	}
-	if value, ok := sc.mutation.FailedKey(); ok {
+	if value, ok := _c.mutation.FailedKey(); ok {
 		_spec.SetField(sip.FieldFailedKey, field.TypeString, value)
 		_node.FailedKey = value
 	}
-	if nodes := sc.mutation.WorkflowsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -311,7 +311,7 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := sc.mutation.UploaderIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.UploaderIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -347,10 +347,10 @@ func (sc *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 //			SetUUID(v+v).
 //		}).
 //		Exec(ctx)
-func (sc *SIPCreate) OnConflict(opts ...sql.ConflictOption) *SIPUpsertOne {
-	sc.conflict = opts
+func (_c *SIPCreate) OnConflict(opts ...sql.ConflictOption) *SIPUpsertOne {
+	_c.conflict = opts
 	return &SIPUpsertOne{
-		create: sc,
+		create: _c,
 	}
 }
 
@@ -360,10 +360,10 @@ func (sc *SIPCreate) OnConflict(opts ...sql.ConflictOption) *SIPUpsertOne {
 //	client.SIP.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (sc *SIPCreate) OnConflictColumns(columns ...string) *SIPUpsertOne {
-	sc.conflict = append(sc.conflict, sql.ConflictColumns(columns...))
+func (_c *SIPCreate) OnConflictColumns(columns ...string) *SIPUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &SIPUpsertOne{
-		create: sc,
+		create: _c,
 	}
 }
 
@@ -756,16 +756,16 @@ type SIPCreateBulk struct {
 }
 
 // Save creates the SIP entities in the database.
-func (scb *SIPCreateBulk) Save(ctx context.Context) ([]*SIP, error) {
-	if scb.err != nil {
-		return nil, scb.err
+func (_c *SIPCreateBulk) Save(ctx context.Context) ([]*SIP, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(scb.builders))
-	nodes := make([]*SIP, len(scb.builders))
-	mutators := make([]Mutator, len(scb.builders))
-	for i := range scb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*SIP, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := scb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*SIPMutation)
@@ -779,12 +779,12 @@ func (scb *SIPCreateBulk) Save(ctx context.Context) ([]*SIP, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, scb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = scb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, scb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -808,7 +808,7 @@ func (scb *SIPCreateBulk) Save(ctx context.Context) ([]*SIP, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, scb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -816,8 +816,8 @@ func (scb *SIPCreateBulk) Save(ctx context.Context) ([]*SIP, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (scb *SIPCreateBulk) SaveX(ctx context.Context) []*SIP {
-	v, err := scb.Save(ctx)
+func (_c *SIPCreateBulk) SaveX(ctx context.Context) []*SIP {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -825,14 +825,14 @@ func (scb *SIPCreateBulk) SaveX(ctx context.Context) []*SIP {
 }
 
 // Exec executes the query.
-func (scb *SIPCreateBulk) Exec(ctx context.Context) error {
-	_, err := scb.Save(ctx)
+func (_c *SIPCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (scb *SIPCreateBulk) ExecX(ctx context.Context) {
-	if err := scb.Exec(ctx); err != nil {
+func (_c *SIPCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -852,10 +852,10 @@ func (scb *SIPCreateBulk) ExecX(ctx context.Context) {
 //			SetUUID(v+v).
 //		}).
 //		Exec(ctx)
-func (scb *SIPCreateBulk) OnConflict(opts ...sql.ConflictOption) *SIPUpsertBulk {
-	scb.conflict = opts
+func (_c *SIPCreateBulk) OnConflict(opts ...sql.ConflictOption) *SIPUpsertBulk {
+	_c.conflict = opts
 	return &SIPUpsertBulk{
-		create: scb,
+		create: _c,
 	}
 }
 
@@ -865,10 +865,10 @@ func (scb *SIPCreateBulk) OnConflict(opts ...sql.ConflictOption) *SIPUpsertBulk 
 //	client.SIP.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (scb *SIPCreateBulk) OnConflictColumns(columns ...string) *SIPUpsertBulk {
-	scb.conflict = append(scb.conflict, sql.ConflictColumns(columns...))
+func (_c *SIPCreateBulk) OnConflictColumns(columns ...string) *SIPUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &SIPUpsertBulk{
-		create: scb,
+		create: _c,
 	}
 }
 

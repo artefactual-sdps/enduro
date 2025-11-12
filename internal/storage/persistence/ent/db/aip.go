@@ -102,7 +102,7 @@ func (*AIP) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the AIP fields.
-func (a *AIP) assignValues(columns []string, values []any) error {
+func (_m *AIP) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -113,45 +113,45 @@ func (a *AIP) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			a.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case aip.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				a.Name = value.String
+				_m.Name = value.String
 			}
 		case aip.FieldAipID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field aip_id", values[i])
 			} else if value != nil {
-				a.AipID = *value
+				_m.AipID = *value
 			}
 		case aip.FieldLocationID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field location_id", values[i])
 			} else if value.Valid {
-				a.LocationID = int(value.Int64)
+				_m.LocationID = int(value.Int64)
 			}
 		case aip.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				a.Status = enums.AIPStatus(value.String)
+				_m.Status = enums.AIPStatus(value.String)
 			}
 		case aip.FieldObjectKey:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field object_key", values[i])
 			} else if value != nil {
-				a.ObjectKey = *value
+				_m.ObjectKey = *value
 			}
 		case aip.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
-				a.CreatedAt = value.Time
+				_m.CreatedAt = value.Time
 			}
 		default:
-			a.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -159,65 +159,65 @@ func (a *AIP) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the AIP.
 // This includes values selected through modifiers, order, etc.
-func (a *AIP) Value(name string) (ent.Value, error) {
-	return a.selectValues.Get(name)
+func (_m *AIP) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryLocation queries the "location" edge of the AIP entity.
-func (a *AIP) QueryLocation() *LocationQuery {
-	return NewAIPClient(a.config).QueryLocation(a)
+func (_m *AIP) QueryLocation() *LocationQuery {
+	return NewAIPClient(_m.config).QueryLocation(_m)
 }
 
 // QueryWorkflows queries the "workflows" edge of the AIP entity.
-func (a *AIP) QueryWorkflows() *WorkflowQuery {
-	return NewAIPClient(a.config).QueryWorkflows(a)
+func (_m *AIP) QueryWorkflows() *WorkflowQuery {
+	return NewAIPClient(_m.config).QueryWorkflows(_m)
 }
 
 // QueryDeletionRequests queries the "deletion_requests" edge of the AIP entity.
-func (a *AIP) QueryDeletionRequests() *DeletionRequestQuery {
-	return NewAIPClient(a.config).QueryDeletionRequests(a)
+func (_m *AIP) QueryDeletionRequests() *DeletionRequestQuery {
+	return NewAIPClient(_m.config).QueryDeletionRequests(_m)
 }
 
 // Update returns a builder for updating this AIP.
 // Note that you need to call AIP.Unwrap() before calling this method if this AIP
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (a *AIP) Update() *AIPUpdateOne {
-	return NewAIPClient(a.config).UpdateOne(a)
+func (_m *AIP) Update() *AIPUpdateOne {
+	return NewAIPClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the AIP entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (a *AIP) Unwrap() *AIP {
-	_tx, ok := a.config.driver.(*txDriver)
+func (_m *AIP) Unwrap() *AIP {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("db: AIP is not a transactional entity")
 	}
-	a.config.driver = _tx.drv
-	return a
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (a *AIP) String() string {
+func (_m *AIP) String() string {
 	var builder strings.Builder
 	builder.WriteString("AIP(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", a.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("name=")
-	builder.WriteString(a.Name)
+	builder.WriteString(_m.Name)
 	builder.WriteString(", ")
 	builder.WriteString("aip_id=")
-	builder.WriteString(fmt.Sprintf("%v", a.AipID))
+	builder.WriteString(fmt.Sprintf("%v", _m.AipID))
 	builder.WriteString(", ")
 	builder.WriteString("location_id=")
-	builder.WriteString(fmt.Sprintf("%v", a.LocationID))
+	builder.WriteString(fmt.Sprintf("%v", _m.LocationID))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", a.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("object_key=")
-	builder.WriteString(fmt.Sprintf("%v", a.ObjectKey))
+	builder.WriteString(fmt.Sprintf("%v", _m.ObjectKey))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
-	builder.WriteString(a.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
 	builder.WriteByte(')')
 	return builder.String()
 }

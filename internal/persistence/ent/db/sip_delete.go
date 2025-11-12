@@ -20,56 +20,56 @@ type SIPDelete struct {
 }
 
 // Where appends a list predicates to the SIPDelete builder.
-func (sd *SIPDelete) Where(ps ...predicate.SIP) *SIPDelete {
-	sd.mutation.Where(ps...)
-	return sd
+func (_d *SIPDelete) Where(ps ...predicate.SIP) *SIPDelete {
+	_d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query and returns how many vertices were deleted.
-func (sd *SIPDelete) Exec(ctx context.Context) (int, error) {
-	return withHooks(ctx, sd.sqlExec, sd.mutation, sd.hooks)
+func (_d *SIPDelete) Exec(ctx context.Context) (int, error) {
+	return withHooks(ctx, _d.sqlExec, _d.mutation, _d.hooks)
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (sd *SIPDelete) ExecX(ctx context.Context) int {
-	n, err := sd.Exec(ctx)
+func (_d *SIPDelete) ExecX(ctx context.Context) int {
+	n, err := _d.Exec(ctx)
 	if err != nil {
 		panic(err)
 	}
 	return n
 }
 
-func (sd *SIPDelete) sqlExec(ctx context.Context) (int, error) {
+func (_d *SIPDelete) sqlExec(ctx context.Context) (int, error) {
 	_spec := sqlgraph.NewDeleteSpec(sip.Table, sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt))
-	if ps := sd.mutation.predicates; len(ps) > 0 {
+	if ps := _d.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	affected, err := sqlgraph.DeleteNodes(ctx, sd.driver, _spec)
+	affected, err := sqlgraph.DeleteNodes(ctx, _d.driver, _spec)
 	if err != nil && sqlgraph.IsConstraintError(err) {
 		err = &ConstraintError{msg: err.Error(), wrap: err}
 	}
-	sd.mutation.done = true
+	_d.mutation.done = true
 	return affected, err
 }
 
 // SIPDeleteOne is the builder for deleting a single SIP entity.
 type SIPDeleteOne struct {
-	sd *SIPDelete
+	_d *SIPDelete
 }
 
 // Where appends a list predicates to the SIPDelete builder.
-func (sdo *SIPDeleteOne) Where(ps ...predicate.SIP) *SIPDeleteOne {
-	sdo.sd.mutation.Where(ps...)
-	return sdo
+func (_d *SIPDeleteOne) Where(ps ...predicate.SIP) *SIPDeleteOne {
+	_d._d.mutation.Where(ps...)
+	return _d
 }
 
 // Exec executes the deletion query.
-func (sdo *SIPDeleteOne) Exec(ctx context.Context) error {
-	n, err := sdo.sd.Exec(ctx)
+func (_d *SIPDeleteOne) Exec(ctx context.Context) error {
+	n, err := _d._d.Exec(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -81,8 +81,8 @@ func (sdo *SIPDeleteOne) Exec(ctx context.Context) error {
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (sdo *SIPDeleteOne) ExecX(ctx context.Context) {
-	if err := sdo.Exec(ctx); err != nil {
+func (_d *SIPDeleteOne) ExecX(ctx context.Context) {
+	if err := _d.Exec(ctx); err != nil {
 		panic(err)
 	}
 }

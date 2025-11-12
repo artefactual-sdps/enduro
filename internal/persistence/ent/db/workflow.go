@@ -93,7 +93,7 @@ func (*Workflow) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the Workflow fields.
-func (w *Workflow) assignValues(columns []string, values []any) error {
+func (_m *Workflow) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -104,51 +104,51 @@ func (w *Workflow) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			w.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case workflow.FieldUUID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field uuid", values[i])
 			} else if value != nil {
-				w.UUID = *value
+				_m.UUID = *value
 			}
 		case workflow.FieldTemporalID:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field temporal_id", values[i])
 			} else if value.Valid {
-				w.TemporalID = value.String
+				_m.TemporalID = value.String
 			}
 		case workflow.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				w.Type = enums.WorkflowType(value.String)
+				_m.Type = enums.WorkflowType(value.String)
 			}
 		case workflow.FieldStatus:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				w.Status = int8(value.Int64)
+				_m.Status = int8(value.Int64)
 			}
 		case workflow.FieldStartedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field started_at", values[i])
 			} else if value.Valid {
-				w.StartedAt = value.Time
+				_m.StartedAt = value.Time
 			}
 		case workflow.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
 			} else if value.Valid {
-				w.CompletedAt = value.Time
+				_m.CompletedAt = value.Time
 			}
 		case workflow.FieldSipID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field sip_id", values[i])
 			} else if value.Valid {
-				w.SipID = int(value.Int64)
+				_m.SipID = int(value.Int64)
 			}
 		default:
-			w.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -156,63 +156,63 @@ func (w *Workflow) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the Workflow.
 // This includes values selected through modifiers, order, etc.
-func (w *Workflow) Value(name string) (ent.Value, error) {
-	return w.selectValues.Get(name)
+func (_m *Workflow) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QuerySip queries the "sip" edge of the Workflow entity.
-func (w *Workflow) QuerySip() *SIPQuery {
-	return NewWorkflowClient(w.config).QuerySip(w)
+func (_m *Workflow) QuerySip() *SIPQuery {
+	return NewWorkflowClient(_m.config).QuerySip(_m)
 }
 
 // QueryTasks queries the "tasks" edge of the Workflow entity.
-func (w *Workflow) QueryTasks() *TaskQuery {
-	return NewWorkflowClient(w.config).QueryTasks(w)
+func (_m *Workflow) QueryTasks() *TaskQuery {
+	return NewWorkflowClient(_m.config).QueryTasks(_m)
 }
 
 // Update returns a builder for updating this Workflow.
 // Note that you need to call Workflow.Unwrap() before calling this method if this Workflow
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (w *Workflow) Update() *WorkflowUpdateOne {
-	return NewWorkflowClient(w.config).UpdateOne(w)
+func (_m *Workflow) Update() *WorkflowUpdateOne {
+	return NewWorkflowClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the Workflow entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (w *Workflow) Unwrap() *Workflow {
-	_tx, ok := w.config.driver.(*txDriver)
+func (_m *Workflow) Unwrap() *Workflow {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("db: Workflow is not a transactional entity")
 	}
-	w.config.driver = _tx.drv
-	return w
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (w *Workflow) String() string {
+func (_m *Workflow) String() string {
 	var builder strings.Builder
 	builder.WriteString("Workflow(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", w.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("uuid=")
-	builder.WriteString(fmt.Sprintf("%v", w.UUID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UUID))
 	builder.WriteString(", ")
 	builder.WriteString("temporal_id=")
-	builder.WriteString(w.TemporalID)
+	builder.WriteString(_m.TemporalID)
 	builder.WriteString(", ")
 	builder.WriteString("type=")
-	builder.WriteString(fmt.Sprintf("%v", w.Type))
+	builder.WriteString(fmt.Sprintf("%v", _m.Type))
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", w.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("started_at=")
-	builder.WriteString(w.StartedAt.Format(time.ANSIC))
+	builder.WriteString(_m.StartedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("completed_at=")
-	builder.WriteString(w.CompletedAt.Format(time.ANSIC))
+	builder.WriteString(_m.CompletedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("sip_id=")
-	builder.WriteString(fmt.Sprintf("%v", w.SipID))
+	builder.WriteString(fmt.Sprintf("%v", _m.SipID))
 	builder.WriteByte(')')
 	return builder.String()
 }

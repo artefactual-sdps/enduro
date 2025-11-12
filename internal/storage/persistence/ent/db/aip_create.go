@@ -28,106 +28,106 @@ type AIPCreate struct {
 }
 
 // SetName sets the "name" field.
-func (ac *AIPCreate) SetName(s string) *AIPCreate {
-	ac.mutation.SetName(s)
-	return ac
+func (_c *AIPCreate) SetName(v string) *AIPCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetAipID sets the "aip_id" field.
-func (ac *AIPCreate) SetAipID(u uuid.UUID) *AIPCreate {
-	ac.mutation.SetAipID(u)
-	return ac
+func (_c *AIPCreate) SetAipID(v uuid.UUID) *AIPCreate {
+	_c.mutation.SetAipID(v)
+	return _c
 }
 
 // SetLocationID sets the "location_id" field.
-func (ac *AIPCreate) SetLocationID(i int) *AIPCreate {
-	ac.mutation.SetLocationID(i)
-	return ac
+func (_c *AIPCreate) SetLocationID(v int) *AIPCreate {
+	_c.mutation.SetLocationID(v)
+	return _c
 }
 
 // SetNillableLocationID sets the "location_id" field if the given value is not nil.
-func (ac *AIPCreate) SetNillableLocationID(i *int) *AIPCreate {
-	if i != nil {
-		ac.SetLocationID(*i)
+func (_c *AIPCreate) SetNillableLocationID(v *int) *AIPCreate {
+	if v != nil {
+		_c.SetLocationID(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetStatus sets the "status" field.
-func (ac *AIPCreate) SetStatus(es enums.AIPStatus) *AIPCreate {
-	ac.mutation.SetStatus(es)
-	return ac
+func (_c *AIPCreate) SetStatus(v enums.AIPStatus) *AIPCreate {
+	_c.mutation.SetStatus(v)
+	return _c
 }
 
 // SetObjectKey sets the "object_key" field.
-func (ac *AIPCreate) SetObjectKey(u uuid.UUID) *AIPCreate {
-	ac.mutation.SetObjectKey(u)
-	return ac
+func (_c *AIPCreate) SetObjectKey(v uuid.UUID) *AIPCreate {
+	_c.mutation.SetObjectKey(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (ac *AIPCreate) SetCreatedAt(t time.Time) *AIPCreate {
-	ac.mutation.SetCreatedAt(t)
-	return ac
+func (_c *AIPCreate) SetCreatedAt(v time.Time) *AIPCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (ac *AIPCreate) SetNillableCreatedAt(t *time.Time) *AIPCreate {
-	if t != nil {
-		ac.SetCreatedAt(*t)
+func (_c *AIPCreate) SetNillableCreatedAt(v *time.Time) *AIPCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return ac
+	return _c
 }
 
 // SetLocation sets the "location" edge to the Location entity.
-func (ac *AIPCreate) SetLocation(l *Location) *AIPCreate {
-	return ac.SetLocationID(l.ID)
+func (_c *AIPCreate) SetLocation(v *Location) *AIPCreate {
+	return _c.SetLocationID(v.ID)
 }
 
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
-func (ac *AIPCreate) AddWorkflowIDs(ids ...int) *AIPCreate {
-	ac.mutation.AddWorkflowIDs(ids...)
-	return ac
+func (_c *AIPCreate) AddWorkflowIDs(ids ...int) *AIPCreate {
+	_c.mutation.AddWorkflowIDs(ids...)
+	return _c
 }
 
 // AddWorkflows adds the "workflows" edges to the Workflow entity.
-func (ac *AIPCreate) AddWorkflows(w ...*Workflow) *AIPCreate {
-	ids := make([]int, len(w))
-	for i := range w {
-		ids[i] = w[i].ID
+func (_c *AIPCreate) AddWorkflows(v ...*Workflow) *AIPCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ac.AddWorkflowIDs(ids...)
+	return _c.AddWorkflowIDs(ids...)
 }
 
 // AddDeletionRequestIDs adds the "deletion_requests" edge to the DeletionRequest entity by IDs.
-func (ac *AIPCreate) AddDeletionRequestIDs(ids ...int) *AIPCreate {
-	ac.mutation.AddDeletionRequestIDs(ids...)
-	return ac
+func (_c *AIPCreate) AddDeletionRequestIDs(ids ...int) *AIPCreate {
+	_c.mutation.AddDeletionRequestIDs(ids...)
+	return _c
 }
 
 // AddDeletionRequests adds the "deletion_requests" edges to the DeletionRequest entity.
-func (ac *AIPCreate) AddDeletionRequests(d ...*DeletionRequest) *AIPCreate {
-	ids := make([]int, len(d))
-	for i := range d {
-		ids[i] = d[i].ID
+func (_c *AIPCreate) AddDeletionRequests(v ...*DeletionRequest) *AIPCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return ac.AddDeletionRequestIDs(ids...)
+	return _c.AddDeletionRequestIDs(ids...)
 }
 
 // Mutation returns the AIPMutation object of the builder.
-func (ac *AIPCreate) Mutation() *AIPMutation {
-	return ac.mutation
+func (_c *AIPCreate) Mutation() *AIPMutation {
+	return _c.mutation
 }
 
 // Save creates the AIP in the database.
-func (ac *AIPCreate) Save(ctx context.Context) (*AIP, error) {
-	ac.defaults()
-	return withHooks(ctx, ac.sqlSave, ac.mutation, ac.hooks)
+func (_c *AIPCreate) Save(ctx context.Context) (*AIP, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (ac *AIPCreate) SaveX(ctx context.Context) *AIP {
-	v, err := ac.Save(ctx)
+func (_c *AIPCreate) SaveX(ctx context.Context) *AIP {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -135,57 +135,57 @@ func (ac *AIPCreate) SaveX(ctx context.Context) *AIP {
 }
 
 // Exec executes the query.
-func (ac *AIPCreate) Exec(ctx context.Context) error {
-	_, err := ac.Save(ctx)
+func (_c *AIPCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (ac *AIPCreate) ExecX(ctx context.Context) {
-	if err := ac.Exec(ctx); err != nil {
+func (_c *AIPCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (ac *AIPCreate) defaults() {
-	if _, ok := ac.mutation.CreatedAt(); !ok {
+func (_c *AIPCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := aip.DefaultCreatedAt()
-		ac.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (ac *AIPCreate) check() error {
-	if _, ok := ac.mutation.Name(); !ok {
+func (_c *AIPCreate) check() error {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`db: missing required field "AIP.name"`)}
 	}
-	if _, ok := ac.mutation.AipID(); !ok {
+	if _, ok := _c.mutation.AipID(); !ok {
 		return &ValidationError{Name: "aip_id", err: errors.New(`db: missing required field "AIP.aip_id"`)}
 	}
-	if _, ok := ac.mutation.Status(); !ok {
+	if _, ok := _c.mutation.Status(); !ok {
 		return &ValidationError{Name: "status", err: errors.New(`db: missing required field "AIP.status"`)}
 	}
-	if v, ok := ac.mutation.Status(); ok {
+	if v, ok := _c.mutation.Status(); ok {
 		if err := aip.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "AIP.status": %w`, err)}
 		}
 	}
-	if _, ok := ac.mutation.ObjectKey(); !ok {
+	if _, ok := _c.mutation.ObjectKey(); !ok {
 		return &ValidationError{Name: "object_key", err: errors.New(`db: missing required field "AIP.object_key"`)}
 	}
-	if _, ok := ac.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`db: missing required field "AIP.created_at"`)}
 	}
 	return nil
 }
 
-func (ac *AIPCreate) sqlSave(ctx context.Context) (*AIP, error) {
-	if err := ac.check(); err != nil {
+func (_c *AIPCreate) sqlSave(ctx context.Context) (*AIP, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := ac.createSpec()
-	if err := sqlgraph.CreateNode(ctx, ac.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -193,38 +193,38 @@ func (ac *AIPCreate) sqlSave(ctx context.Context) (*AIP, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	ac.mutation.id = &_node.ID
-	ac.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (ac *AIPCreate) createSpec() (*AIP, *sqlgraph.CreateSpec) {
+func (_c *AIPCreate) createSpec() (*AIP, *sqlgraph.CreateSpec) {
 	var (
-		_node = &AIP{config: ac.config}
+		_node = &AIP{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(aip.Table, sqlgraph.NewFieldSpec(aip.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = ac.conflict
-	if value, ok := ac.mutation.Name(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(aip.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := ac.mutation.AipID(); ok {
+	if value, ok := _c.mutation.AipID(); ok {
 		_spec.SetField(aip.FieldAipID, field.TypeUUID, value)
 		_node.AipID = value
 	}
-	if value, ok := ac.mutation.Status(); ok {
+	if value, ok := _c.mutation.Status(); ok {
 		_spec.SetField(aip.FieldStatus, field.TypeEnum, value)
 		_node.Status = value
 	}
-	if value, ok := ac.mutation.ObjectKey(); ok {
+	if value, ok := _c.mutation.ObjectKey(); ok {
 		_spec.SetField(aip.FieldObjectKey, field.TypeUUID, value)
 		_node.ObjectKey = value
 	}
-	if value, ok := ac.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(aip.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if nodes := ac.mutation.LocationIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.LocationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: false,
@@ -241,7 +241,7 @@ func (ac *AIPCreate) createSpec() (*AIP, *sqlgraph.CreateSpec) {
 		_node.LocationID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ac.mutation.WorkflowsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -257,7 +257,7 @@ func (ac *AIPCreate) createSpec() (*AIP, *sqlgraph.CreateSpec) {
 		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
-	if nodes := ac.mutation.DeletionRequestsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.DeletionRequestsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -292,10 +292,10 @@ func (ac *AIPCreate) createSpec() (*AIP, *sqlgraph.CreateSpec) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-func (ac *AIPCreate) OnConflict(opts ...sql.ConflictOption) *AIPUpsertOne {
-	ac.conflict = opts
+func (_c *AIPCreate) OnConflict(opts ...sql.ConflictOption) *AIPUpsertOne {
+	_c.conflict = opts
 	return &AIPUpsertOne{
-		create: ac,
+		create: _c,
 	}
 }
 
@@ -305,10 +305,10 @@ func (ac *AIPCreate) OnConflict(opts ...sql.ConflictOption) *AIPUpsertOne {
 //	client.AIP.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (ac *AIPCreate) OnConflictColumns(columns ...string) *AIPUpsertOne {
-	ac.conflict = append(ac.conflict, sql.ConflictColumns(columns...))
+func (_c *AIPCreate) OnConflictColumns(columns ...string) *AIPUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &AIPUpsertOne{
-		create: ac,
+		create: _c,
 	}
 }
 
@@ -555,16 +555,16 @@ type AIPCreateBulk struct {
 }
 
 // Save creates the AIP entities in the database.
-func (acb *AIPCreateBulk) Save(ctx context.Context) ([]*AIP, error) {
-	if acb.err != nil {
-		return nil, acb.err
+func (_c *AIPCreateBulk) Save(ctx context.Context) ([]*AIP, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(acb.builders))
-	nodes := make([]*AIP, len(acb.builders))
-	mutators := make([]Mutator, len(acb.builders))
-	for i := range acb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*AIP, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := acb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*AIPMutation)
@@ -578,12 +578,12 @@ func (acb *AIPCreateBulk) Save(ctx context.Context) ([]*AIP, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, acb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = acb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, acb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -607,7 +607,7 @@ func (acb *AIPCreateBulk) Save(ctx context.Context) ([]*AIP, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, acb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -615,8 +615,8 @@ func (acb *AIPCreateBulk) Save(ctx context.Context) ([]*AIP, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (acb *AIPCreateBulk) SaveX(ctx context.Context) []*AIP {
-	v, err := acb.Save(ctx)
+func (_c *AIPCreateBulk) SaveX(ctx context.Context) []*AIP {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -624,14 +624,14 @@ func (acb *AIPCreateBulk) SaveX(ctx context.Context) []*AIP {
 }
 
 // Exec executes the query.
-func (acb *AIPCreateBulk) Exec(ctx context.Context) error {
-	_, err := acb.Save(ctx)
+func (_c *AIPCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (acb *AIPCreateBulk) ExecX(ctx context.Context) {
-	if err := acb.Exec(ctx); err != nil {
+func (_c *AIPCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -651,10 +651,10 @@ func (acb *AIPCreateBulk) ExecX(ctx context.Context) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-func (acb *AIPCreateBulk) OnConflict(opts ...sql.ConflictOption) *AIPUpsertBulk {
-	acb.conflict = opts
+func (_c *AIPCreateBulk) OnConflict(opts ...sql.ConflictOption) *AIPUpsertBulk {
+	_c.conflict = opts
 	return &AIPUpsertBulk{
-		create: acb,
+		create: _c,
 	}
 }
 
@@ -664,10 +664,10 @@ func (acb *AIPCreateBulk) OnConflict(opts ...sql.ConflictOption) *AIPUpsertBulk 
 //	client.AIP.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (acb *AIPCreateBulk) OnConflictColumns(columns ...string) *AIPUpsertBulk {
-	acb.conflict = append(acb.conflict, sql.ConflictColumns(columns...))
+func (_c *AIPCreateBulk) OnConflictColumns(columns ...string) *AIPUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &AIPUpsertBulk{
-		create: acb,
+		create: _c,
 	}
 }
 

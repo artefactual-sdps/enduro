@@ -108,7 +108,7 @@ func (*DeletionRequest) scanValues(columns []string) ([]any, error) {
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
 // to the DeletionRequest fields.
-func (dr *DeletionRequest) assignValues(columns []string, values []any) error {
+func (_m *DeletionRequest) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
@@ -119,87 +119,87 @@ func (dr *DeletionRequest) assignValues(columns []string, values []any) error {
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
-			dr.ID = int(value.Int64)
+			_m.ID = int(value.Int64)
 		case deletionrequest.FieldUUID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field uuid", values[i])
 			} else if value != nil {
-				dr.UUID = *value
+				_m.UUID = *value
 			}
 		case deletionrequest.FieldRequester:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field requester", values[i])
 			} else if value.Valid {
-				dr.Requester = value.String
+				_m.Requester = value.String
 			}
 		case deletionrequest.FieldRequesterIss:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field requester_iss", values[i])
 			} else if value.Valid {
-				dr.RequesterIss = value.String
+				_m.RequesterIss = value.String
 			}
 		case deletionrequest.FieldRequesterSub:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field requester_sub", values[i])
 			} else if value.Valid {
-				dr.RequesterSub = value.String
+				_m.RequesterSub = value.String
 			}
 		case deletionrequest.FieldReviewer:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field reviewer", values[i])
 			} else if value.Valid {
-				dr.Reviewer = value.String
+				_m.Reviewer = value.String
 			}
 		case deletionrequest.FieldReviewerIss:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field reviewer_iss", values[i])
 			} else if value.Valid {
-				dr.ReviewerIss = value.String
+				_m.ReviewerIss = value.String
 			}
 		case deletionrequest.FieldReviewerSub:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field reviewer_sub", values[i])
 			} else if value.Valid {
-				dr.ReviewerSub = value.String
+				_m.ReviewerSub = value.String
 			}
 		case deletionrequest.FieldReason:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field reason", values[i])
 			} else if value.Valid {
-				dr.Reason = value.String
+				_m.Reason = value.String
 			}
 		case deletionrequest.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				dr.Status = enums.DeletionRequestStatus(value.String)
+				_m.Status = enums.DeletionRequestStatus(value.String)
 			}
 		case deletionrequest.FieldRequestedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field requested_at", values[i])
 			} else if value.Valid {
-				dr.RequestedAt = value.Time
+				_m.RequestedAt = value.Time
 			}
 		case deletionrequest.FieldReviewedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field reviewed_at", values[i])
 			} else if value.Valid {
-				dr.ReviewedAt = value.Time
+				_m.ReviewedAt = value.Time
 			}
 		case deletionrequest.FieldAipID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field aip_id", values[i])
 			} else if value.Valid {
-				dr.AipID = int(value.Int64)
+				_m.AipID = int(value.Int64)
 			}
 		case deletionrequest.FieldWorkflowID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field workflow_id", values[i])
 			} else if value.Valid {
-				dr.WorkflowID = int(value.Int64)
+				_m.WorkflowID = int(value.Int64)
 			}
 		default:
-			dr.selectValues.Set(columns[i], values[i])
+			_m.selectValues.Set(columns[i], values[i])
 		}
 	}
 	return nil
@@ -207,81 +207,81 @@ func (dr *DeletionRequest) assignValues(columns []string, values []any) error {
 
 // Value returns the ent.Value that was dynamically selected and assigned to the DeletionRequest.
 // This includes values selected through modifiers, order, etc.
-func (dr *DeletionRequest) Value(name string) (ent.Value, error) {
-	return dr.selectValues.Get(name)
+func (_m *DeletionRequest) Value(name string) (ent.Value, error) {
+	return _m.selectValues.Get(name)
 }
 
 // QueryAip queries the "aip" edge of the DeletionRequest entity.
-func (dr *DeletionRequest) QueryAip() *AIPQuery {
-	return NewDeletionRequestClient(dr.config).QueryAip(dr)
+func (_m *DeletionRequest) QueryAip() *AIPQuery {
+	return NewDeletionRequestClient(_m.config).QueryAip(_m)
 }
 
 // QueryWorkflow queries the "workflow" edge of the DeletionRequest entity.
-func (dr *DeletionRequest) QueryWorkflow() *WorkflowQuery {
-	return NewDeletionRequestClient(dr.config).QueryWorkflow(dr)
+func (_m *DeletionRequest) QueryWorkflow() *WorkflowQuery {
+	return NewDeletionRequestClient(_m.config).QueryWorkflow(_m)
 }
 
 // Update returns a builder for updating this DeletionRequest.
 // Note that you need to call DeletionRequest.Unwrap() before calling this method if this DeletionRequest
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (dr *DeletionRequest) Update() *DeletionRequestUpdateOne {
-	return NewDeletionRequestClient(dr.config).UpdateOne(dr)
+func (_m *DeletionRequest) Update() *DeletionRequestUpdateOne {
+	return NewDeletionRequestClient(_m.config).UpdateOne(_m)
 }
 
 // Unwrap unwraps the DeletionRequest entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (dr *DeletionRequest) Unwrap() *DeletionRequest {
-	_tx, ok := dr.config.driver.(*txDriver)
+func (_m *DeletionRequest) Unwrap() *DeletionRequest {
+	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
 		panic("db: DeletionRequest is not a transactional entity")
 	}
-	dr.config.driver = _tx.drv
-	return dr
+	_m.config.driver = _tx.drv
+	return _m
 }
 
 // String implements the fmt.Stringer.
-func (dr *DeletionRequest) String() string {
+func (_m *DeletionRequest) String() string {
 	var builder strings.Builder
 	builder.WriteString("DeletionRequest(")
-	builder.WriteString(fmt.Sprintf("id=%v, ", dr.ID))
+	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("uuid=")
-	builder.WriteString(fmt.Sprintf("%v", dr.UUID))
+	builder.WriteString(fmt.Sprintf("%v", _m.UUID))
 	builder.WriteString(", ")
 	builder.WriteString("requester=")
-	builder.WriteString(dr.Requester)
+	builder.WriteString(_m.Requester)
 	builder.WriteString(", ")
 	builder.WriteString("requester_iss=")
-	builder.WriteString(dr.RequesterIss)
+	builder.WriteString(_m.RequesterIss)
 	builder.WriteString(", ")
 	builder.WriteString("requester_sub=")
-	builder.WriteString(dr.RequesterSub)
+	builder.WriteString(_m.RequesterSub)
 	builder.WriteString(", ")
 	builder.WriteString("reviewer=")
-	builder.WriteString(dr.Reviewer)
+	builder.WriteString(_m.Reviewer)
 	builder.WriteString(", ")
 	builder.WriteString("reviewer_iss=")
-	builder.WriteString(dr.ReviewerIss)
+	builder.WriteString(_m.ReviewerIss)
 	builder.WriteString(", ")
 	builder.WriteString("reviewer_sub=")
-	builder.WriteString(dr.ReviewerSub)
+	builder.WriteString(_m.ReviewerSub)
 	builder.WriteString(", ")
 	builder.WriteString("reason=")
-	builder.WriteString(dr.Reason)
+	builder.WriteString(_m.Reason)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
-	builder.WriteString(fmt.Sprintf("%v", dr.Status))
+	builder.WriteString(fmt.Sprintf("%v", _m.Status))
 	builder.WriteString(", ")
 	builder.WriteString("requested_at=")
-	builder.WriteString(dr.RequestedAt.Format(time.ANSIC))
+	builder.WriteString(_m.RequestedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("reviewed_at=")
-	builder.WriteString(dr.ReviewedAt.Format(time.ANSIC))
+	builder.WriteString(_m.ReviewedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
 	builder.WriteString("aip_id=")
-	builder.WriteString(fmt.Sprintf("%v", dr.AipID))
+	builder.WriteString(fmt.Sprintf("%v", _m.AipID))
 	builder.WriteString(", ")
 	builder.WriteString("workflow_id=")
-	builder.WriteString(fmt.Sprintf("%v", dr.WorkflowID))
+	builder.WriteString(fmt.Sprintf("%v", _m.WorkflowID))
 	builder.WriteByte(')')
 	return builder.String()
 }

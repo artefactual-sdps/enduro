@@ -28,206 +28,206 @@ type WorkflowUpdate struct {
 }
 
 // Where appends a list predicates to the WorkflowUpdate builder.
-func (wu *WorkflowUpdate) Where(ps ...predicate.Workflow) *WorkflowUpdate {
-	wu.mutation.Where(ps...)
-	return wu
+func (_u *WorkflowUpdate) Where(ps ...predicate.Workflow) *WorkflowUpdate {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // SetUUID sets the "uuid" field.
-func (wu *WorkflowUpdate) SetUUID(u uuid.UUID) *WorkflowUpdate {
-	wu.mutation.SetUUID(u)
-	return wu
+func (_u *WorkflowUpdate) SetUUID(v uuid.UUID) *WorkflowUpdate {
+	_u.mutation.SetUUID(v)
+	return _u
 }
 
 // SetNillableUUID sets the "uuid" field if the given value is not nil.
-func (wu *WorkflowUpdate) SetNillableUUID(u *uuid.UUID) *WorkflowUpdate {
-	if u != nil {
-		wu.SetUUID(*u)
+func (_u *WorkflowUpdate) SetNillableUUID(v *uuid.UUID) *WorkflowUpdate {
+	if v != nil {
+		_u.SetUUID(*v)
 	}
-	return wu
+	return _u
 }
 
 // SetTemporalID sets the "temporal_id" field.
-func (wu *WorkflowUpdate) SetTemporalID(s string) *WorkflowUpdate {
-	wu.mutation.SetTemporalID(s)
-	return wu
+func (_u *WorkflowUpdate) SetTemporalID(v string) *WorkflowUpdate {
+	_u.mutation.SetTemporalID(v)
+	return _u
 }
 
 // SetNillableTemporalID sets the "temporal_id" field if the given value is not nil.
-func (wu *WorkflowUpdate) SetNillableTemporalID(s *string) *WorkflowUpdate {
-	if s != nil {
-		wu.SetTemporalID(*s)
+func (_u *WorkflowUpdate) SetNillableTemporalID(v *string) *WorkflowUpdate {
+	if v != nil {
+		_u.SetTemporalID(*v)
 	}
-	return wu
+	return _u
 }
 
 // SetType sets the "type" field.
-func (wu *WorkflowUpdate) SetType(et enums.WorkflowType) *WorkflowUpdate {
-	wu.mutation.SetType(et)
-	return wu
+func (_u *WorkflowUpdate) SetType(v enums.WorkflowType) *WorkflowUpdate {
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (wu *WorkflowUpdate) SetNillableType(et *enums.WorkflowType) *WorkflowUpdate {
-	if et != nil {
-		wu.SetType(*et)
+func (_u *WorkflowUpdate) SetNillableType(v *enums.WorkflowType) *WorkflowUpdate {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return wu
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (wu *WorkflowUpdate) SetStatus(es enums.WorkflowStatus) *WorkflowUpdate {
-	wu.mutation.SetStatus(es)
-	return wu
+func (_u *WorkflowUpdate) SetStatus(v enums.WorkflowStatus) *WorkflowUpdate {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (wu *WorkflowUpdate) SetNillableStatus(es *enums.WorkflowStatus) *WorkflowUpdate {
-	if es != nil {
-		wu.SetStatus(*es)
+func (_u *WorkflowUpdate) SetNillableStatus(v *enums.WorkflowStatus) *WorkflowUpdate {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return wu
+	return _u
 }
 
 // SetStartedAt sets the "started_at" field.
-func (wu *WorkflowUpdate) SetStartedAt(t time.Time) *WorkflowUpdate {
-	wu.mutation.SetStartedAt(t)
-	return wu
+func (_u *WorkflowUpdate) SetStartedAt(v time.Time) *WorkflowUpdate {
+	_u.mutation.SetStartedAt(v)
+	return _u
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (wu *WorkflowUpdate) SetNillableStartedAt(t *time.Time) *WorkflowUpdate {
-	if t != nil {
-		wu.SetStartedAt(*t)
+func (_u *WorkflowUpdate) SetNillableStartedAt(v *time.Time) *WorkflowUpdate {
+	if v != nil {
+		_u.SetStartedAt(*v)
 	}
-	return wu
+	return _u
 }
 
 // ClearStartedAt clears the value of the "started_at" field.
-func (wu *WorkflowUpdate) ClearStartedAt() *WorkflowUpdate {
-	wu.mutation.ClearStartedAt()
-	return wu
+func (_u *WorkflowUpdate) ClearStartedAt() *WorkflowUpdate {
+	_u.mutation.ClearStartedAt()
+	return _u
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (wu *WorkflowUpdate) SetCompletedAt(t time.Time) *WorkflowUpdate {
-	wu.mutation.SetCompletedAt(t)
-	return wu
+func (_u *WorkflowUpdate) SetCompletedAt(v time.Time) *WorkflowUpdate {
+	_u.mutation.SetCompletedAt(v)
+	return _u
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (wu *WorkflowUpdate) SetNillableCompletedAt(t *time.Time) *WorkflowUpdate {
-	if t != nil {
-		wu.SetCompletedAt(*t)
+func (_u *WorkflowUpdate) SetNillableCompletedAt(v *time.Time) *WorkflowUpdate {
+	if v != nil {
+		_u.SetCompletedAt(*v)
 	}
-	return wu
+	return _u
 }
 
 // ClearCompletedAt clears the value of the "completed_at" field.
-func (wu *WorkflowUpdate) ClearCompletedAt() *WorkflowUpdate {
-	wu.mutation.ClearCompletedAt()
-	return wu
+func (_u *WorkflowUpdate) ClearCompletedAt() *WorkflowUpdate {
+	_u.mutation.ClearCompletedAt()
+	return _u
 }
 
 // SetAipID sets the "aip_id" field.
-func (wu *WorkflowUpdate) SetAipID(i int) *WorkflowUpdate {
-	wu.mutation.SetAipID(i)
-	return wu
+func (_u *WorkflowUpdate) SetAipID(v int) *WorkflowUpdate {
+	_u.mutation.SetAipID(v)
+	return _u
 }
 
 // SetNillableAipID sets the "aip_id" field if the given value is not nil.
-func (wu *WorkflowUpdate) SetNillableAipID(i *int) *WorkflowUpdate {
-	if i != nil {
-		wu.SetAipID(*i)
+func (_u *WorkflowUpdate) SetNillableAipID(v *int) *WorkflowUpdate {
+	if v != nil {
+		_u.SetAipID(*v)
 	}
-	return wu
+	return _u
 }
 
 // SetAip sets the "aip" edge to the AIP entity.
-func (wu *WorkflowUpdate) SetAip(a *AIP) *WorkflowUpdate {
-	return wu.SetAipID(a.ID)
+func (_u *WorkflowUpdate) SetAip(v *AIP) *WorkflowUpdate {
+	return _u.SetAipID(v.ID)
 }
 
 // AddTaskIDs adds the "tasks" edge to the Task entity by IDs.
-func (wu *WorkflowUpdate) AddTaskIDs(ids ...int) *WorkflowUpdate {
-	wu.mutation.AddTaskIDs(ids...)
-	return wu
+func (_u *WorkflowUpdate) AddTaskIDs(ids ...int) *WorkflowUpdate {
+	_u.mutation.AddTaskIDs(ids...)
+	return _u
 }
 
 // AddTasks adds the "tasks" edges to the Task entity.
-func (wu *WorkflowUpdate) AddTasks(t ...*Task) *WorkflowUpdate {
-	ids := make([]int, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
+func (_u *WorkflowUpdate) AddTasks(v ...*Task) *WorkflowUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return wu.AddTaskIDs(ids...)
+	return _u.AddTaskIDs(ids...)
 }
 
 // SetDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by ID.
-func (wu *WorkflowUpdate) SetDeletionRequestID(id int) *WorkflowUpdate {
-	wu.mutation.SetDeletionRequestID(id)
-	return wu
+func (_u *WorkflowUpdate) SetDeletionRequestID(id int) *WorkflowUpdate {
+	_u.mutation.SetDeletionRequestID(id)
+	return _u
 }
 
 // SetNillableDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by ID if the given value is not nil.
-func (wu *WorkflowUpdate) SetNillableDeletionRequestID(id *int) *WorkflowUpdate {
+func (_u *WorkflowUpdate) SetNillableDeletionRequestID(id *int) *WorkflowUpdate {
 	if id != nil {
-		wu = wu.SetDeletionRequestID(*id)
+		_u = _u.SetDeletionRequestID(*id)
 	}
-	return wu
+	return _u
 }
 
 // SetDeletionRequest sets the "deletion_request" edge to the DeletionRequest entity.
-func (wu *WorkflowUpdate) SetDeletionRequest(d *DeletionRequest) *WorkflowUpdate {
-	return wu.SetDeletionRequestID(d.ID)
+func (_u *WorkflowUpdate) SetDeletionRequest(v *DeletionRequest) *WorkflowUpdate {
+	return _u.SetDeletionRequestID(v.ID)
 }
 
 // Mutation returns the WorkflowMutation object of the builder.
-func (wu *WorkflowUpdate) Mutation() *WorkflowMutation {
-	return wu.mutation
+func (_u *WorkflowUpdate) Mutation() *WorkflowMutation {
+	return _u.mutation
 }
 
 // ClearAip clears the "aip" edge to the AIP entity.
-func (wu *WorkflowUpdate) ClearAip() *WorkflowUpdate {
-	wu.mutation.ClearAip()
-	return wu
+func (_u *WorkflowUpdate) ClearAip() *WorkflowUpdate {
+	_u.mutation.ClearAip()
+	return _u
 }
 
 // ClearTasks clears all "tasks" edges to the Task entity.
-func (wu *WorkflowUpdate) ClearTasks() *WorkflowUpdate {
-	wu.mutation.ClearTasks()
-	return wu
+func (_u *WorkflowUpdate) ClearTasks() *WorkflowUpdate {
+	_u.mutation.ClearTasks()
+	return _u
 }
 
 // RemoveTaskIDs removes the "tasks" edge to Task entities by IDs.
-func (wu *WorkflowUpdate) RemoveTaskIDs(ids ...int) *WorkflowUpdate {
-	wu.mutation.RemoveTaskIDs(ids...)
-	return wu
+func (_u *WorkflowUpdate) RemoveTaskIDs(ids ...int) *WorkflowUpdate {
+	_u.mutation.RemoveTaskIDs(ids...)
+	return _u
 }
 
 // RemoveTasks removes "tasks" edges to Task entities.
-func (wu *WorkflowUpdate) RemoveTasks(t ...*Task) *WorkflowUpdate {
-	ids := make([]int, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
+func (_u *WorkflowUpdate) RemoveTasks(v ...*Task) *WorkflowUpdate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return wu.RemoveTaskIDs(ids...)
+	return _u.RemoveTaskIDs(ids...)
 }
 
 // ClearDeletionRequest clears the "deletion_request" edge to the DeletionRequest entity.
-func (wu *WorkflowUpdate) ClearDeletionRequest() *WorkflowUpdate {
-	wu.mutation.ClearDeletionRequest()
-	return wu
+func (_u *WorkflowUpdate) ClearDeletionRequest() *WorkflowUpdate {
+	_u.mutation.ClearDeletionRequest()
+	return _u
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
-func (wu *WorkflowUpdate) Save(ctx context.Context) (int, error) {
-	return withHooks(ctx, wu.sqlSave, wu.mutation, wu.hooks)
+func (_u *WorkflowUpdate) Save(ctx context.Context) (int, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (wu *WorkflowUpdate) SaveX(ctx context.Context) int {
-	affected, err := wu.Save(ctx)
+func (_u *WorkflowUpdate) SaveX(ctx context.Context) int {
+	affected, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -235,78 +235,78 @@ func (wu *WorkflowUpdate) SaveX(ctx context.Context) int {
 }
 
 // Exec executes the query.
-func (wu *WorkflowUpdate) Exec(ctx context.Context) error {
-	_, err := wu.Save(ctx)
+func (_u *WorkflowUpdate) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (wu *WorkflowUpdate) ExecX(ctx context.Context) {
-	if err := wu.Exec(ctx); err != nil {
+func (_u *WorkflowUpdate) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (wu *WorkflowUpdate) check() error {
-	if v, ok := wu.mutation.GetType(); ok {
+func (_u *WorkflowUpdate) check() error {
+	if v, ok := _u.mutation.GetType(); ok {
 		if err := workflow.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`db: validator failed for field "Workflow.type": %w`, err)}
 		}
 	}
-	if v, ok := wu.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := workflow.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "Workflow.status": %w`, err)}
 		}
 	}
-	if v, ok := wu.mutation.AipID(); ok {
+	if v, ok := _u.mutation.AipID(); ok {
 		if err := workflow.AipIDValidator(v); err != nil {
 			return &ValidationError{Name: "aip_id", err: fmt.Errorf(`db: validator failed for field "Workflow.aip_id": %w`, err)}
 		}
 	}
-	if wu.mutation.AipCleared() && len(wu.mutation.AipIDs()) > 0 {
+	if _u.mutation.AipCleared() && len(_u.mutation.AipIDs()) > 0 {
 		return errors.New(`db: clearing a required unique edge "Workflow.aip"`)
 	}
 	return nil
 }
 
-func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	if err := wu.check(); err != nil {
-		return n, err
+func (_u *WorkflowUpdate) sqlSave(ctx context.Context) (_node int, err error) {
+	if err := _u.check(); err != nil {
+		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(workflow.Table, workflow.Columns, sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt))
-	if ps := wu.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := wu.mutation.UUID(); ok {
+	if value, ok := _u.mutation.UUID(); ok {
 		_spec.SetField(workflow.FieldUUID, field.TypeUUID, value)
 	}
-	if value, ok := wu.mutation.TemporalID(); ok {
+	if value, ok := _u.mutation.TemporalID(); ok {
 		_spec.SetField(workflow.FieldTemporalID, field.TypeString, value)
 	}
-	if value, ok := wu.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(workflow.FieldType, field.TypeEnum, value)
 	}
-	if value, ok := wu.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(workflow.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := wu.mutation.StartedAt(); ok {
+	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(workflow.FieldStartedAt, field.TypeTime, value)
 	}
-	if wu.mutation.StartedAtCleared() {
+	if _u.mutation.StartedAtCleared() {
 		_spec.ClearField(workflow.FieldStartedAt, field.TypeTime)
 	}
-	if value, ok := wu.mutation.CompletedAt(); ok {
+	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(workflow.FieldCompletedAt, field.TypeTime, value)
 	}
-	if wu.mutation.CompletedAtCleared() {
+	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(workflow.FieldCompletedAt, field.TypeTime)
 	}
-	if wu.mutation.AipCleared() {
+	if _u.mutation.AipCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -319,7 +319,7 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wu.mutation.AipIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AipIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -335,7 +335,7 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if wu.mutation.TasksCleared() {
+	if _u.mutation.TasksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -348,7 +348,7 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wu.mutation.RemovedTasksIDs(); len(nodes) > 0 && !wu.mutation.TasksCleared() {
+	if nodes := _u.mutation.RemovedTasksIDs(); len(nodes) > 0 && !_u.mutation.TasksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -364,7 +364,7 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wu.mutation.TasksIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.TasksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -380,7 +380,7 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if wu.mutation.DeletionRequestCleared() {
+	if _u.mutation.DeletionRequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
@@ -393,7 +393,7 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wu.mutation.DeletionRequestIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DeletionRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
@@ -409,7 +409,7 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if n, err = sqlgraph.UpdateNodes(ctx, wu.driver, _spec); err != nil {
+	if _node, err = sqlgraph.UpdateNodes(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{workflow.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -417,8 +417,8 @@ func (wu *WorkflowUpdate) sqlSave(ctx context.Context) (n int, err error) {
 		}
 		return 0, err
 	}
-	wu.mutation.done = true
-	return n, nil
+	_u.mutation.done = true
+	return _node, nil
 }
 
 // WorkflowUpdateOne is the builder for updating a single Workflow entity.
@@ -430,213 +430,213 @@ type WorkflowUpdateOne struct {
 }
 
 // SetUUID sets the "uuid" field.
-func (wuo *WorkflowUpdateOne) SetUUID(u uuid.UUID) *WorkflowUpdateOne {
-	wuo.mutation.SetUUID(u)
-	return wuo
+func (_u *WorkflowUpdateOne) SetUUID(v uuid.UUID) *WorkflowUpdateOne {
+	_u.mutation.SetUUID(v)
+	return _u
 }
 
 // SetNillableUUID sets the "uuid" field if the given value is not nil.
-func (wuo *WorkflowUpdateOne) SetNillableUUID(u *uuid.UUID) *WorkflowUpdateOne {
-	if u != nil {
-		wuo.SetUUID(*u)
+func (_u *WorkflowUpdateOne) SetNillableUUID(v *uuid.UUID) *WorkflowUpdateOne {
+	if v != nil {
+		_u.SetUUID(*v)
 	}
-	return wuo
+	return _u
 }
 
 // SetTemporalID sets the "temporal_id" field.
-func (wuo *WorkflowUpdateOne) SetTemporalID(s string) *WorkflowUpdateOne {
-	wuo.mutation.SetTemporalID(s)
-	return wuo
+func (_u *WorkflowUpdateOne) SetTemporalID(v string) *WorkflowUpdateOne {
+	_u.mutation.SetTemporalID(v)
+	return _u
 }
 
 // SetNillableTemporalID sets the "temporal_id" field if the given value is not nil.
-func (wuo *WorkflowUpdateOne) SetNillableTemporalID(s *string) *WorkflowUpdateOne {
-	if s != nil {
-		wuo.SetTemporalID(*s)
+func (_u *WorkflowUpdateOne) SetNillableTemporalID(v *string) *WorkflowUpdateOne {
+	if v != nil {
+		_u.SetTemporalID(*v)
 	}
-	return wuo
+	return _u
 }
 
 // SetType sets the "type" field.
-func (wuo *WorkflowUpdateOne) SetType(et enums.WorkflowType) *WorkflowUpdateOne {
-	wuo.mutation.SetType(et)
-	return wuo
+func (_u *WorkflowUpdateOne) SetType(v enums.WorkflowType) *WorkflowUpdateOne {
+	_u.mutation.SetType(v)
+	return _u
 }
 
 // SetNillableType sets the "type" field if the given value is not nil.
-func (wuo *WorkflowUpdateOne) SetNillableType(et *enums.WorkflowType) *WorkflowUpdateOne {
-	if et != nil {
-		wuo.SetType(*et)
+func (_u *WorkflowUpdateOne) SetNillableType(v *enums.WorkflowType) *WorkflowUpdateOne {
+	if v != nil {
+		_u.SetType(*v)
 	}
-	return wuo
+	return _u
 }
 
 // SetStatus sets the "status" field.
-func (wuo *WorkflowUpdateOne) SetStatus(es enums.WorkflowStatus) *WorkflowUpdateOne {
-	wuo.mutation.SetStatus(es)
-	return wuo
+func (_u *WorkflowUpdateOne) SetStatus(v enums.WorkflowStatus) *WorkflowUpdateOne {
+	_u.mutation.SetStatus(v)
+	return _u
 }
 
 // SetNillableStatus sets the "status" field if the given value is not nil.
-func (wuo *WorkflowUpdateOne) SetNillableStatus(es *enums.WorkflowStatus) *WorkflowUpdateOne {
-	if es != nil {
-		wuo.SetStatus(*es)
+func (_u *WorkflowUpdateOne) SetNillableStatus(v *enums.WorkflowStatus) *WorkflowUpdateOne {
+	if v != nil {
+		_u.SetStatus(*v)
 	}
-	return wuo
+	return _u
 }
 
 // SetStartedAt sets the "started_at" field.
-func (wuo *WorkflowUpdateOne) SetStartedAt(t time.Time) *WorkflowUpdateOne {
-	wuo.mutation.SetStartedAt(t)
-	return wuo
+func (_u *WorkflowUpdateOne) SetStartedAt(v time.Time) *WorkflowUpdateOne {
+	_u.mutation.SetStartedAt(v)
+	return _u
 }
 
 // SetNillableStartedAt sets the "started_at" field if the given value is not nil.
-func (wuo *WorkflowUpdateOne) SetNillableStartedAt(t *time.Time) *WorkflowUpdateOne {
-	if t != nil {
-		wuo.SetStartedAt(*t)
+func (_u *WorkflowUpdateOne) SetNillableStartedAt(v *time.Time) *WorkflowUpdateOne {
+	if v != nil {
+		_u.SetStartedAt(*v)
 	}
-	return wuo
+	return _u
 }
 
 // ClearStartedAt clears the value of the "started_at" field.
-func (wuo *WorkflowUpdateOne) ClearStartedAt() *WorkflowUpdateOne {
-	wuo.mutation.ClearStartedAt()
-	return wuo
+func (_u *WorkflowUpdateOne) ClearStartedAt() *WorkflowUpdateOne {
+	_u.mutation.ClearStartedAt()
+	return _u
 }
 
 // SetCompletedAt sets the "completed_at" field.
-func (wuo *WorkflowUpdateOne) SetCompletedAt(t time.Time) *WorkflowUpdateOne {
-	wuo.mutation.SetCompletedAt(t)
-	return wuo
+func (_u *WorkflowUpdateOne) SetCompletedAt(v time.Time) *WorkflowUpdateOne {
+	_u.mutation.SetCompletedAt(v)
+	return _u
 }
 
 // SetNillableCompletedAt sets the "completed_at" field if the given value is not nil.
-func (wuo *WorkflowUpdateOne) SetNillableCompletedAt(t *time.Time) *WorkflowUpdateOne {
-	if t != nil {
-		wuo.SetCompletedAt(*t)
+func (_u *WorkflowUpdateOne) SetNillableCompletedAt(v *time.Time) *WorkflowUpdateOne {
+	if v != nil {
+		_u.SetCompletedAt(*v)
 	}
-	return wuo
+	return _u
 }
 
 // ClearCompletedAt clears the value of the "completed_at" field.
-func (wuo *WorkflowUpdateOne) ClearCompletedAt() *WorkflowUpdateOne {
-	wuo.mutation.ClearCompletedAt()
-	return wuo
+func (_u *WorkflowUpdateOne) ClearCompletedAt() *WorkflowUpdateOne {
+	_u.mutation.ClearCompletedAt()
+	return _u
 }
 
 // SetAipID sets the "aip_id" field.
-func (wuo *WorkflowUpdateOne) SetAipID(i int) *WorkflowUpdateOne {
-	wuo.mutation.SetAipID(i)
-	return wuo
+func (_u *WorkflowUpdateOne) SetAipID(v int) *WorkflowUpdateOne {
+	_u.mutation.SetAipID(v)
+	return _u
 }
 
 // SetNillableAipID sets the "aip_id" field if the given value is not nil.
-func (wuo *WorkflowUpdateOne) SetNillableAipID(i *int) *WorkflowUpdateOne {
-	if i != nil {
-		wuo.SetAipID(*i)
+func (_u *WorkflowUpdateOne) SetNillableAipID(v *int) *WorkflowUpdateOne {
+	if v != nil {
+		_u.SetAipID(*v)
 	}
-	return wuo
+	return _u
 }
 
 // SetAip sets the "aip" edge to the AIP entity.
-func (wuo *WorkflowUpdateOne) SetAip(a *AIP) *WorkflowUpdateOne {
-	return wuo.SetAipID(a.ID)
+func (_u *WorkflowUpdateOne) SetAip(v *AIP) *WorkflowUpdateOne {
+	return _u.SetAipID(v.ID)
 }
 
 // AddTaskIDs adds the "tasks" edge to the Task entity by IDs.
-func (wuo *WorkflowUpdateOne) AddTaskIDs(ids ...int) *WorkflowUpdateOne {
-	wuo.mutation.AddTaskIDs(ids...)
-	return wuo
+func (_u *WorkflowUpdateOne) AddTaskIDs(ids ...int) *WorkflowUpdateOne {
+	_u.mutation.AddTaskIDs(ids...)
+	return _u
 }
 
 // AddTasks adds the "tasks" edges to the Task entity.
-func (wuo *WorkflowUpdateOne) AddTasks(t ...*Task) *WorkflowUpdateOne {
-	ids := make([]int, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
+func (_u *WorkflowUpdateOne) AddTasks(v ...*Task) *WorkflowUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return wuo.AddTaskIDs(ids...)
+	return _u.AddTaskIDs(ids...)
 }
 
 // SetDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by ID.
-func (wuo *WorkflowUpdateOne) SetDeletionRequestID(id int) *WorkflowUpdateOne {
-	wuo.mutation.SetDeletionRequestID(id)
-	return wuo
+func (_u *WorkflowUpdateOne) SetDeletionRequestID(id int) *WorkflowUpdateOne {
+	_u.mutation.SetDeletionRequestID(id)
+	return _u
 }
 
 // SetNillableDeletionRequestID sets the "deletion_request" edge to the DeletionRequest entity by ID if the given value is not nil.
-func (wuo *WorkflowUpdateOne) SetNillableDeletionRequestID(id *int) *WorkflowUpdateOne {
+func (_u *WorkflowUpdateOne) SetNillableDeletionRequestID(id *int) *WorkflowUpdateOne {
 	if id != nil {
-		wuo = wuo.SetDeletionRequestID(*id)
+		_u = _u.SetDeletionRequestID(*id)
 	}
-	return wuo
+	return _u
 }
 
 // SetDeletionRequest sets the "deletion_request" edge to the DeletionRequest entity.
-func (wuo *WorkflowUpdateOne) SetDeletionRequest(d *DeletionRequest) *WorkflowUpdateOne {
-	return wuo.SetDeletionRequestID(d.ID)
+func (_u *WorkflowUpdateOne) SetDeletionRequest(v *DeletionRequest) *WorkflowUpdateOne {
+	return _u.SetDeletionRequestID(v.ID)
 }
 
 // Mutation returns the WorkflowMutation object of the builder.
-func (wuo *WorkflowUpdateOne) Mutation() *WorkflowMutation {
-	return wuo.mutation
+func (_u *WorkflowUpdateOne) Mutation() *WorkflowMutation {
+	return _u.mutation
 }
 
 // ClearAip clears the "aip" edge to the AIP entity.
-func (wuo *WorkflowUpdateOne) ClearAip() *WorkflowUpdateOne {
-	wuo.mutation.ClearAip()
-	return wuo
+func (_u *WorkflowUpdateOne) ClearAip() *WorkflowUpdateOne {
+	_u.mutation.ClearAip()
+	return _u
 }
 
 // ClearTasks clears all "tasks" edges to the Task entity.
-func (wuo *WorkflowUpdateOne) ClearTasks() *WorkflowUpdateOne {
-	wuo.mutation.ClearTasks()
-	return wuo
+func (_u *WorkflowUpdateOne) ClearTasks() *WorkflowUpdateOne {
+	_u.mutation.ClearTasks()
+	return _u
 }
 
 // RemoveTaskIDs removes the "tasks" edge to Task entities by IDs.
-func (wuo *WorkflowUpdateOne) RemoveTaskIDs(ids ...int) *WorkflowUpdateOne {
-	wuo.mutation.RemoveTaskIDs(ids...)
-	return wuo
+func (_u *WorkflowUpdateOne) RemoveTaskIDs(ids ...int) *WorkflowUpdateOne {
+	_u.mutation.RemoveTaskIDs(ids...)
+	return _u
 }
 
 // RemoveTasks removes "tasks" edges to Task entities.
-func (wuo *WorkflowUpdateOne) RemoveTasks(t ...*Task) *WorkflowUpdateOne {
-	ids := make([]int, len(t))
-	for i := range t {
-		ids[i] = t[i].ID
+func (_u *WorkflowUpdateOne) RemoveTasks(v ...*Task) *WorkflowUpdateOne {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return wuo.RemoveTaskIDs(ids...)
+	return _u.RemoveTaskIDs(ids...)
 }
 
 // ClearDeletionRequest clears the "deletion_request" edge to the DeletionRequest entity.
-func (wuo *WorkflowUpdateOne) ClearDeletionRequest() *WorkflowUpdateOne {
-	wuo.mutation.ClearDeletionRequest()
-	return wuo
+func (_u *WorkflowUpdateOne) ClearDeletionRequest() *WorkflowUpdateOne {
+	_u.mutation.ClearDeletionRequest()
+	return _u
 }
 
 // Where appends a list predicates to the WorkflowUpdate builder.
-func (wuo *WorkflowUpdateOne) Where(ps ...predicate.Workflow) *WorkflowUpdateOne {
-	wuo.mutation.Where(ps...)
-	return wuo
+func (_u *WorkflowUpdateOne) Where(ps ...predicate.Workflow) *WorkflowUpdateOne {
+	_u.mutation.Where(ps...)
+	return _u
 }
 
 // Select allows selecting one or more fields (columns) of the returned entity.
 // The default is selecting all fields defined in the entity schema.
-func (wuo *WorkflowUpdateOne) Select(field string, fields ...string) *WorkflowUpdateOne {
-	wuo.fields = append([]string{field}, fields...)
-	return wuo
+func (_u *WorkflowUpdateOne) Select(field string, fields ...string) *WorkflowUpdateOne {
+	_u.fields = append([]string{field}, fields...)
+	return _u
 }
 
 // Save executes the query and returns the updated Workflow entity.
-func (wuo *WorkflowUpdateOne) Save(ctx context.Context) (*Workflow, error) {
-	return withHooks(ctx, wuo.sqlSave, wuo.mutation, wuo.hooks)
+func (_u *WorkflowUpdateOne) Save(ctx context.Context) (*Workflow, error) {
+	return withHooks(ctx, _u.sqlSave, _u.mutation, _u.hooks)
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (wuo *WorkflowUpdateOne) SaveX(ctx context.Context) *Workflow {
-	node, err := wuo.Save(ctx)
+func (_u *WorkflowUpdateOne) SaveX(ctx context.Context) *Workflow {
+	node, err := _u.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -644,52 +644,52 @@ func (wuo *WorkflowUpdateOne) SaveX(ctx context.Context) *Workflow {
 }
 
 // Exec executes the query on the entity.
-func (wuo *WorkflowUpdateOne) Exec(ctx context.Context) error {
-	_, err := wuo.Save(ctx)
+func (_u *WorkflowUpdateOne) Exec(ctx context.Context) error {
+	_, err := _u.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (wuo *WorkflowUpdateOne) ExecX(ctx context.Context) {
-	if err := wuo.Exec(ctx); err != nil {
+func (_u *WorkflowUpdateOne) ExecX(ctx context.Context) {
+	if err := _u.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (wuo *WorkflowUpdateOne) check() error {
-	if v, ok := wuo.mutation.GetType(); ok {
+func (_u *WorkflowUpdateOne) check() error {
+	if v, ok := _u.mutation.GetType(); ok {
 		if err := workflow.TypeValidator(v); err != nil {
 			return &ValidationError{Name: "type", err: fmt.Errorf(`db: validator failed for field "Workflow.type": %w`, err)}
 		}
 	}
-	if v, ok := wuo.mutation.Status(); ok {
+	if v, ok := _u.mutation.Status(); ok {
 		if err := workflow.StatusValidator(v); err != nil {
 			return &ValidationError{Name: "status", err: fmt.Errorf(`db: validator failed for field "Workflow.status": %w`, err)}
 		}
 	}
-	if v, ok := wuo.mutation.AipID(); ok {
+	if v, ok := _u.mutation.AipID(); ok {
 		if err := workflow.AipIDValidator(v); err != nil {
 			return &ValidationError{Name: "aip_id", err: fmt.Errorf(`db: validator failed for field "Workflow.aip_id": %w`, err)}
 		}
 	}
-	if wuo.mutation.AipCleared() && len(wuo.mutation.AipIDs()) > 0 {
+	if _u.mutation.AipCleared() && len(_u.mutation.AipIDs()) > 0 {
 		return errors.New(`db: clearing a required unique edge "Workflow.aip"`)
 	}
 	return nil
 }
 
-func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err error) {
-	if err := wuo.check(); err != nil {
+func (_u *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err error) {
+	if err := _u.check(); err != nil {
 		return _node, err
 	}
 	_spec := sqlgraph.NewUpdateSpec(workflow.Table, workflow.Columns, sqlgraph.NewFieldSpec(workflow.FieldID, field.TypeInt))
-	id, ok := wuo.mutation.ID()
+	id, ok := _u.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`db: missing "Workflow.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
-	if fields := wuo.fields; len(fields) > 0 {
+	if fields := _u.fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
 		_spec.Node.Columns = append(_spec.Node.Columns, workflow.FieldID)
 		for _, f := range fields {
@@ -701,38 +701,38 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 			}
 		}
 	}
-	if ps := wuo.mutation.predicates; len(ps) > 0 {
+	if ps := _u.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
 	}
-	if value, ok := wuo.mutation.UUID(); ok {
+	if value, ok := _u.mutation.UUID(); ok {
 		_spec.SetField(workflow.FieldUUID, field.TypeUUID, value)
 	}
-	if value, ok := wuo.mutation.TemporalID(); ok {
+	if value, ok := _u.mutation.TemporalID(); ok {
 		_spec.SetField(workflow.FieldTemporalID, field.TypeString, value)
 	}
-	if value, ok := wuo.mutation.GetType(); ok {
+	if value, ok := _u.mutation.GetType(); ok {
 		_spec.SetField(workflow.FieldType, field.TypeEnum, value)
 	}
-	if value, ok := wuo.mutation.Status(); ok {
+	if value, ok := _u.mutation.Status(); ok {
 		_spec.SetField(workflow.FieldStatus, field.TypeEnum, value)
 	}
-	if value, ok := wuo.mutation.StartedAt(); ok {
+	if value, ok := _u.mutation.StartedAt(); ok {
 		_spec.SetField(workflow.FieldStartedAt, field.TypeTime, value)
 	}
-	if wuo.mutation.StartedAtCleared() {
+	if _u.mutation.StartedAtCleared() {
 		_spec.ClearField(workflow.FieldStartedAt, field.TypeTime)
 	}
-	if value, ok := wuo.mutation.CompletedAt(); ok {
+	if value, ok := _u.mutation.CompletedAt(); ok {
 		_spec.SetField(workflow.FieldCompletedAt, field.TypeTime, value)
 	}
-	if wuo.mutation.CompletedAtCleared() {
+	if _u.mutation.CompletedAtCleared() {
 		_spec.ClearField(workflow.FieldCompletedAt, field.TypeTime)
 	}
-	if wuo.mutation.AipCleared() {
+	if _u.mutation.AipCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -745,7 +745,7 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wuo.mutation.AipIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.AipIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
 			Inverse: true,
@@ -761,7 +761,7 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if wuo.mutation.TasksCleared() {
+	if _u.mutation.TasksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -774,7 +774,7 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wuo.mutation.RemovedTasksIDs(); len(nodes) > 0 && !wuo.mutation.TasksCleared() {
+	if nodes := _u.mutation.RemovedTasksIDs(); len(nodes) > 0 && !_u.mutation.TasksCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -790,7 +790,7 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wuo.mutation.TasksIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.TasksIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: false,
@@ -806,7 +806,7 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	if wuo.mutation.DeletionRequestCleared() {
+	if _u.mutation.DeletionRequestCleared() {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
@@ -819,7 +819,7 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if nodes := wuo.mutation.DeletionRequestIDs(); len(nodes) > 0 {
+	if nodes := _u.mutation.DeletionRequestIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2O,
 			Inverse: false,
@@ -835,10 +835,10 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 		}
 		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
-	_node = &Workflow{config: wuo.config}
+	_node = &Workflow{config: _u.config}
 	_spec.Assign = _node.assignValues
 	_spec.ScanValues = _node.scanValues
-	if err = sqlgraph.UpdateNode(ctx, wuo.driver, _spec); err != nil {
+	if err = sqlgraph.UpdateNode(ctx, _u.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
 			err = &NotFoundError{workflow.Label}
 		} else if sqlgraph.IsConstraintError(err) {
@@ -846,6 +846,6 @@ func (wuo *WorkflowUpdateOne) sqlSave(ctx context.Context) (_node *Workflow, err
 		}
 		return nil, err
 	}
-	wuo.mutation.done = true
+	_u.mutation.done = true
 	return _node, nil
 }

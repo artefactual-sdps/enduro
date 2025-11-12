@@ -27,84 +27,84 @@ type LocationCreate struct {
 }
 
 // SetName sets the "name" field.
-func (lc *LocationCreate) SetName(s string) *LocationCreate {
-	lc.mutation.SetName(s)
-	return lc
+func (_c *LocationCreate) SetName(v string) *LocationCreate {
+	_c.mutation.SetName(v)
+	return _c
 }
 
 // SetDescription sets the "description" field.
-func (lc *LocationCreate) SetDescription(s string) *LocationCreate {
-	lc.mutation.SetDescription(s)
-	return lc
+func (_c *LocationCreate) SetDescription(v string) *LocationCreate {
+	_c.mutation.SetDescription(v)
+	return _c
 }
 
 // SetSource sets the "source" field.
-func (lc *LocationCreate) SetSource(es enums.LocationSource) *LocationCreate {
-	lc.mutation.SetSource(es)
-	return lc
+func (_c *LocationCreate) SetSource(v enums.LocationSource) *LocationCreate {
+	_c.mutation.SetSource(v)
+	return _c
 }
 
 // SetPurpose sets the "purpose" field.
-func (lc *LocationCreate) SetPurpose(ep enums.LocationPurpose) *LocationCreate {
-	lc.mutation.SetPurpose(ep)
-	return lc
+func (_c *LocationCreate) SetPurpose(v enums.LocationPurpose) *LocationCreate {
+	_c.mutation.SetPurpose(v)
+	return _c
 }
 
 // SetUUID sets the "uuid" field.
-func (lc *LocationCreate) SetUUID(u uuid.UUID) *LocationCreate {
-	lc.mutation.SetUUID(u)
-	return lc
+func (_c *LocationCreate) SetUUID(v uuid.UUID) *LocationCreate {
+	_c.mutation.SetUUID(v)
+	return _c
 }
 
 // SetConfig sets the "config" field.
-func (lc *LocationCreate) SetConfig(tc types.LocationConfig) *LocationCreate {
-	lc.mutation.SetConfig(tc)
-	return lc
+func (_c *LocationCreate) SetConfig(v types.LocationConfig) *LocationCreate {
+	_c.mutation.SetConfig(v)
+	return _c
 }
 
 // SetCreatedAt sets the "created_at" field.
-func (lc *LocationCreate) SetCreatedAt(t time.Time) *LocationCreate {
-	lc.mutation.SetCreatedAt(t)
-	return lc
+func (_c *LocationCreate) SetCreatedAt(v time.Time) *LocationCreate {
+	_c.mutation.SetCreatedAt(v)
+	return _c
 }
 
 // SetNillableCreatedAt sets the "created_at" field if the given value is not nil.
-func (lc *LocationCreate) SetNillableCreatedAt(t *time.Time) *LocationCreate {
-	if t != nil {
-		lc.SetCreatedAt(*t)
+func (_c *LocationCreate) SetNillableCreatedAt(v *time.Time) *LocationCreate {
+	if v != nil {
+		_c.SetCreatedAt(*v)
 	}
-	return lc
+	return _c
 }
 
 // AddAipIDs adds the "aips" edge to the AIP entity by IDs.
-func (lc *LocationCreate) AddAipIDs(ids ...int) *LocationCreate {
-	lc.mutation.AddAipIDs(ids...)
-	return lc
+func (_c *LocationCreate) AddAipIDs(ids ...int) *LocationCreate {
+	_c.mutation.AddAipIDs(ids...)
+	return _c
 }
 
 // AddAips adds the "aips" edges to the AIP entity.
-func (lc *LocationCreate) AddAips(a ...*AIP) *LocationCreate {
-	ids := make([]int, len(a))
-	for i := range a {
-		ids[i] = a[i].ID
+func (_c *LocationCreate) AddAips(v ...*AIP) *LocationCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
 	}
-	return lc.AddAipIDs(ids...)
+	return _c.AddAipIDs(ids...)
 }
 
 // Mutation returns the LocationMutation object of the builder.
-func (lc *LocationCreate) Mutation() *LocationMutation {
-	return lc.mutation
+func (_c *LocationCreate) Mutation() *LocationMutation {
+	return _c.mutation
 }
 
 // Save creates the Location in the database.
-func (lc *LocationCreate) Save(ctx context.Context) (*Location, error) {
-	lc.defaults()
-	return withHooks(ctx, lc.sqlSave, lc.mutation, lc.hooks)
+func (_c *LocationCreate) Save(ctx context.Context) (*Location, error) {
+	_c.defaults()
+	return withHooks(ctx, _c.sqlSave, _c.mutation, _c.hooks)
 }
 
 // SaveX calls Save and panics if Save returns an error.
-func (lc *LocationCreate) SaveX(ctx context.Context) *Location {
-	v, err := lc.Save(ctx)
+func (_c *LocationCreate) SaveX(ctx context.Context) *Location {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -112,68 +112,68 @@ func (lc *LocationCreate) SaveX(ctx context.Context) *Location {
 }
 
 // Exec executes the query.
-func (lc *LocationCreate) Exec(ctx context.Context) error {
-	_, err := lc.Save(ctx)
+func (_c *LocationCreate) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lc *LocationCreate) ExecX(ctx context.Context) {
-	if err := lc.Exec(ctx); err != nil {
+func (_c *LocationCreate) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
 
 // defaults sets the default values of the builder before save.
-func (lc *LocationCreate) defaults() {
-	if _, ok := lc.mutation.CreatedAt(); !ok {
+func (_c *LocationCreate) defaults() {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		v := location.DefaultCreatedAt()
-		lc.mutation.SetCreatedAt(v)
+		_c.mutation.SetCreatedAt(v)
 	}
 }
 
 // check runs all checks and user-defined validators on the builder.
-func (lc *LocationCreate) check() error {
-	if _, ok := lc.mutation.Name(); !ok {
+func (_c *LocationCreate) check() error {
+	if _, ok := _c.mutation.Name(); !ok {
 		return &ValidationError{Name: "name", err: errors.New(`db: missing required field "Location.name"`)}
 	}
-	if _, ok := lc.mutation.Description(); !ok {
+	if _, ok := _c.mutation.Description(); !ok {
 		return &ValidationError{Name: "description", err: errors.New(`db: missing required field "Location.description"`)}
 	}
-	if _, ok := lc.mutation.Source(); !ok {
+	if _, ok := _c.mutation.Source(); !ok {
 		return &ValidationError{Name: "source", err: errors.New(`db: missing required field "Location.source"`)}
 	}
-	if v, ok := lc.mutation.Source(); ok {
+	if v, ok := _c.mutation.Source(); ok {
 		if err := location.SourceValidator(v); err != nil {
 			return &ValidationError{Name: "source", err: fmt.Errorf(`db: validator failed for field "Location.source": %w`, err)}
 		}
 	}
-	if _, ok := lc.mutation.Purpose(); !ok {
+	if _, ok := _c.mutation.Purpose(); !ok {
 		return &ValidationError{Name: "purpose", err: errors.New(`db: missing required field "Location.purpose"`)}
 	}
-	if v, ok := lc.mutation.Purpose(); ok {
+	if v, ok := _c.mutation.Purpose(); ok {
 		if err := location.PurposeValidator(v); err != nil {
 			return &ValidationError{Name: "purpose", err: fmt.Errorf(`db: validator failed for field "Location.purpose": %w`, err)}
 		}
 	}
-	if _, ok := lc.mutation.UUID(); !ok {
+	if _, ok := _c.mutation.UUID(); !ok {
 		return &ValidationError{Name: "uuid", err: errors.New(`db: missing required field "Location.uuid"`)}
 	}
-	if _, ok := lc.mutation.Config(); !ok {
+	if _, ok := _c.mutation.Config(); !ok {
 		return &ValidationError{Name: "config", err: errors.New(`db: missing required field "Location.config"`)}
 	}
-	if _, ok := lc.mutation.CreatedAt(); !ok {
+	if _, ok := _c.mutation.CreatedAt(); !ok {
 		return &ValidationError{Name: "created_at", err: errors.New(`db: missing required field "Location.created_at"`)}
 	}
 	return nil
 }
 
-func (lc *LocationCreate) sqlSave(ctx context.Context) (*Location, error) {
-	if err := lc.check(); err != nil {
+func (_c *LocationCreate) sqlSave(ctx context.Context) (*Location, error) {
+	if err := _c.check(); err != nil {
 		return nil, err
 	}
-	_node, _spec := lc.createSpec()
-	if err := sqlgraph.CreateNode(ctx, lc.driver, _spec); err != nil {
+	_node, _spec := _c.createSpec()
+	if err := sqlgraph.CreateNode(ctx, _c.driver, _spec); err != nil {
 		if sqlgraph.IsConstraintError(err) {
 			err = &ConstraintError{msg: err.Error(), wrap: err}
 		}
@@ -181,46 +181,46 @@ func (lc *LocationCreate) sqlSave(ctx context.Context) (*Location, error) {
 	}
 	id := _spec.ID.Value.(int64)
 	_node.ID = int(id)
-	lc.mutation.id = &_node.ID
-	lc.mutation.done = true
+	_c.mutation.id = &_node.ID
+	_c.mutation.done = true
 	return _node, nil
 }
 
-func (lc *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
+func (_c *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
 	var (
-		_node = &Location{config: lc.config}
+		_node = &Location{config: _c.config}
 		_spec = sqlgraph.NewCreateSpec(location.Table, sqlgraph.NewFieldSpec(location.FieldID, field.TypeInt))
 	)
-	_spec.OnConflict = lc.conflict
-	if value, ok := lc.mutation.Name(); ok {
+	_spec.OnConflict = _c.conflict
+	if value, ok := _c.mutation.Name(); ok {
 		_spec.SetField(location.FieldName, field.TypeString, value)
 		_node.Name = value
 	}
-	if value, ok := lc.mutation.Description(); ok {
+	if value, ok := _c.mutation.Description(); ok {
 		_spec.SetField(location.FieldDescription, field.TypeString, value)
 		_node.Description = value
 	}
-	if value, ok := lc.mutation.Source(); ok {
+	if value, ok := _c.mutation.Source(); ok {
 		_spec.SetField(location.FieldSource, field.TypeEnum, value)
 		_node.Source = value
 	}
-	if value, ok := lc.mutation.Purpose(); ok {
+	if value, ok := _c.mutation.Purpose(); ok {
 		_spec.SetField(location.FieldPurpose, field.TypeEnum, value)
 		_node.Purpose = value
 	}
-	if value, ok := lc.mutation.UUID(); ok {
+	if value, ok := _c.mutation.UUID(); ok {
 		_spec.SetField(location.FieldUUID, field.TypeUUID, value)
 		_node.UUID = value
 	}
-	if value, ok := lc.mutation.Config(); ok {
+	if value, ok := _c.mutation.Config(); ok {
 		_spec.SetField(location.FieldConfig, field.TypeJSON, value)
 		_node.Config = value
 	}
-	if value, ok := lc.mutation.CreatedAt(); ok {
+	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(location.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
 	}
-	if nodes := lc.mutation.AipsIDs(); len(nodes) > 0 {
+	if nodes := _c.mutation.AipsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.O2M,
 			Inverse: true,
@@ -255,10 +255,10 @@ func (lc *LocationCreate) createSpec() (*Location, *sqlgraph.CreateSpec) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-func (lc *LocationCreate) OnConflict(opts ...sql.ConflictOption) *LocationUpsertOne {
-	lc.conflict = opts
+func (_c *LocationCreate) OnConflict(opts ...sql.ConflictOption) *LocationUpsertOne {
+	_c.conflict = opts
 	return &LocationUpsertOne{
-		create: lc,
+		create: _c,
 	}
 }
 
@@ -268,10 +268,10 @@ func (lc *LocationCreate) OnConflict(opts ...sql.ConflictOption) *LocationUpsert
 //	client.Location.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (lc *LocationCreate) OnConflictColumns(columns ...string) *LocationUpsertOne {
-	lc.conflict = append(lc.conflict, sql.ConflictColumns(columns...))
+func (_c *LocationCreate) OnConflictColumns(columns ...string) *LocationUpsertOne {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &LocationUpsertOne{
-		create: lc,
+		create: _c,
 	}
 }
 
@@ -531,16 +531,16 @@ type LocationCreateBulk struct {
 }
 
 // Save creates the Location entities in the database.
-func (lcb *LocationCreateBulk) Save(ctx context.Context) ([]*Location, error) {
-	if lcb.err != nil {
-		return nil, lcb.err
+func (_c *LocationCreateBulk) Save(ctx context.Context) ([]*Location, error) {
+	if _c.err != nil {
+		return nil, _c.err
 	}
-	specs := make([]*sqlgraph.CreateSpec, len(lcb.builders))
-	nodes := make([]*Location, len(lcb.builders))
-	mutators := make([]Mutator, len(lcb.builders))
-	for i := range lcb.builders {
+	specs := make([]*sqlgraph.CreateSpec, len(_c.builders))
+	nodes := make([]*Location, len(_c.builders))
+	mutators := make([]Mutator, len(_c.builders))
+	for i := range _c.builders {
 		func(i int, root context.Context) {
-			builder := lcb.builders[i]
+			builder := _c.builders[i]
 			builder.defaults()
 			var mut Mutator = MutateFunc(func(ctx context.Context, m Mutation) (Value, error) {
 				mutation, ok := m.(*LocationMutation)
@@ -554,12 +554,12 @@ func (lcb *LocationCreateBulk) Save(ctx context.Context) ([]*Location, error) {
 				var err error
 				nodes[i], specs[i] = builder.createSpec()
 				if i < len(mutators)-1 {
-					_, err = mutators[i+1].Mutate(root, lcb.builders[i+1].mutation)
+					_, err = mutators[i+1].Mutate(root, _c.builders[i+1].mutation)
 				} else {
 					spec := &sqlgraph.BatchCreateSpec{Nodes: specs}
-					spec.OnConflict = lcb.conflict
+					spec.OnConflict = _c.conflict
 					// Invoke the actual operation on the latest mutation in the chain.
-					if err = sqlgraph.BatchCreate(ctx, lcb.driver, spec); err != nil {
+					if err = sqlgraph.BatchCreate(ctx, _c.driver, spec); err != nil {
 						if sqlgraph.IsConstraintError(err) {
 							err = &ConstraintError{msg: err.Error(), wrap: err}
 						}
@@ -583,7 +583,7 @@ func (lcb *LocationCreateBulk) Save(ctx context.Context) ([]*Location, error) {
 		}(i, ctx)
 	}
 	if len(mutators) > 0 {
-		if _, err := mutators[0].Mutate(ctx, lcb.builders[0].mutation); err != nil {
+		if _, err := mutators[0].Mutate(ctx, _c.builders[0].mutation); err != nil {
 			return nil, err
 		}
 	}
@@ -591,8 +591,8 @@ func (lcb *LocationCreateBulk) Save(ctx context.Context) ([]*Location, error) {
 }
 
 // SaveX is like Save, but panics if an error occurs.
-func (lcb *LocationCreateBulk) SaveX(ctx context.Context) []*Location {
-	v, err := lcb.Save(ctx)
+func (_c *LocationCreateBulk) SaveX(ctx context.Context) []*Location {
+	v, err := _c.Save(ctx)
 	if err != nil {
 		panic(err)
 	}
@@ -600,14 +600,14 @@ func (lcb *LocationCreateBulk) SaveX(ctx context.Context) []*Location {
 }
 
 // Exec executes the query.
-func (lcb *LocationCreateBulk) Exec(ctx context.Context) error {
-	_, err := lcb.Save(ctx)
+func (_c *LocationCreateBulk) Exec(ctx context.Context) error {
+	_, err := _c.Save(ctx)
 	return err
 }
 
 // ExecX is like Exec, but panics if an error occurs.
-func (lcb *LocationCreateBulk) ExecX(ctx context.Context) {
-	if err := lcb.Exec(ctx); err != nil {
+func (_c *LocationCreateBulk) ExecX(ctx context.Context) {
+	if err := _c.Exec(ctx); err != nil {
 		panic(err)
 	}
 }
@@ -627,10 +627,10 @@ func (lcb *LocationCreateBulk) ExecX(ctx context.Context) {
 //			SetName(v+v).
 //		}).
 //		Exec(ctx)
-func (lcb *LocationCreateBulk) OnConflict(opts ...sql.ConflictOption) *LocationUpsertBulk {
-	lcb.conflict = opts
+func (_c *LocationCreateBulk) OnConflict(opts ...sql.ConflictOption) *LocationUpsertBulk {
+	_c.conflict = opts
 	return &LocationUpsertBulk{
-		create: lcb,
+		create: _c,
 	}
 }
 
@@ -640,10 +640,10 @@ func (lcb *LocationCreateBulk) OnConflict(opts ...sql.ConflictOption) *LocationU
 //	client.Location.Create().
 //		OnConflict(sql.ConflictColumns(columns...)).
 //		Exec(ctx)
-func (lcb *LocationCreateBulk) OnConflictColumns(columns ...string) *LocationUpsertBulk {
-	lcb.conflict = append(lcb.conflict, sql.ConflictColumns(columns...))
+func (_c *LocationCreateBulk) OnConflictColumns(columns ...string) *LocationUpsertBulk {
+	_c.conflict = append(_c.conflict, sql.ConflictColumns(columns...))
 	return &LocationUpsertBulk{
-		create: lcb,
+		create: _c,
 	}
 }
 
