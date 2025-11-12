@@ -26,7 +26,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/AboutAboutResponseBody'
+                        $ref: '#/definitions/EnduroAbout'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -46,7 +46,7 @@ paths:
                 "101":
                     description: Switching Protocols response.
                     schema:
-                        $ref: '#/definitions/IngestMonitorResponseBody'
+                        $ref: '#/definitions/IngestEvent'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -127,7 +127,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/IngestListSipSourceObjectsResponseBody'
+                        $ref: '#/definitions/EnduroIngestSipsourceObjects'
                 "400":
                     description: Bad Request response.
                     schema:
@@ -219,7 +219,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/IngestListSipsResponseBody'
+                        $ref: '#/definitions/EnduroIngestSips'
                 "400":
                     description: Bad Request response.
                     schema:
@@ -315,7 +315,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/IngestShowSipResponseBody'
+                        $ref: '#/definitions/EnduroIngestSip'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -327,7 +327,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/IngestShowSipNotFoundResponseBody'
+                        $ref: '#/definitions/SIPNotFound'
                         required:
                             - message
                             - uuid
@@ -386,7 +386,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/IngestConfirmSipNotFoundResponseBody'
+                        $ref: '#/definitions/SIPNotFound'
                         required:
                             - message
                             - uuid
@@ -437,7 +437,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/IngestDownloadSipNotFoundResponseBody'
+                        $ref: '#/definitions/SIPNotFound'
                         required:
                             - message
                             - uuid
@@ -486,7 +486,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/IngestDownloadSipRequestNotFoundResponseBody'
+                        $ref: '#/definitions/SIPNotFound'
                         required:
                             - message
                             - uuid
@@ -538,7 +538,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/IngestRejectSipNotFoundResponseBody'
+                        $ref: '#/definitions/SIPNotFound'
                         required:
                             - message
                             - uuid
@@ -576,7 +576,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/IngestListSipWorkflowsResponseBody'
+                        $ref: '#/definitions/EnduroIngestSipWorkflows'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -588,7 +588,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/IngestListSipWorkflowsNotFoundResponseBody'
+                        $ref: '#/definitions/SIPNotFound'
                         required:
                             - message
                             - uuid
@@ -686,7 +686,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/IngestListUsersResponseBody'
+                        $ref: '#/definitions/EnduroIngestUsers'
                 "400":
                     description: Bad Request response.
                     schema:
@@ -758,7 +758,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/StorageListAipsResponseBody'
+                        $ref: '#/definitions/EnduroStorageAips'
                 "400":
                     description: Bad Request response.
                     schema:
@@ -807,7 +807,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/StorageCreateAipResponseBody'
+                        $ref: '#/definitions/EnduroStorageAip'
                 "400":
                     description: Bad Request response.
                     schema:
@@ -850,7 +850,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/StorageShowAipResponseBody'
+                        $ref: '#/definitions/EnduroStorageAip'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -862,7 +862,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageShowAipNotFoundResponseBody'
+                        $ref: '#/definitions/AIPNotFound'
                         required:
                             - message
                             - uuid
@@ -911,7 +911,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageCancelAipDeletionNotFoundResponseBody'
+                        $ref: '#/definitions/AIPNotFound'
                         required:
                             - message
                             - uuid
@@ -962,7 +962,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageRequestAipDeletionNotFoundResponseBody'
+                        $ref: '#/definitions/AIPNotFound'
                         required:
                             - message
                             - uuid
@@ -1013,7 +1013,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageReviewAipDeletionNotFoundResponseBody'
+                        $ref: '#/definitions/AIPNotFound'
                         required:
                             - message
                             - uuid
@@ -1060,7 +1060,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageDownloadAipNotFoundResponseBody'
+                        $ref: '#/definitions/AIPNotFound'
                         required:
                             - message
                             - uuid
@@ -1109,7 +1109,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageDownloadAipRequestNotFoundResponseBody'
+                        $ref: '#/definitions/AIPNotFound'
                         required:
                             - message
                             - uuid
@@ -1161,7 +1161,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageRejectAipNotFoundResponseBody'
+                        $ref: '#/definitions/AIPNotFound'
                         required:
                             - message
                             - uuid
@@ -1199,7 +1199,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/StorageMoveAipStatusResponseBody'
+                        $ref: '#/definitions/MoveStatusResult'
                         required:
                             - done
                 "401":
@@ -1213,7 +1213,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageMoveAipStatusNotFoundResponseBody'
+                        $ref: '#/definitions/AIPNotFound'
                         required:
                             - message
                             - uuid
@@ -1271,7 +1271,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageMoveAipNotFoundResponseBody'
+                        $ref: '#/definitions/AIPNotFound'
                         required:
                             - message
                             - uuid
@@ -1316,7 +1316,7 @@ paths:
                 "202":
                     description: Accepted response.
                     schema:
-                        $ref: '#/definitions/StorageSubmitAipResponseBody'
+                        $ref: '#/definitions/SubmitAIPResult'
                         required:
                             - url
                 "400":
@@ -1431,7 +1431,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/StorageListAipWorkflowsResponseBody'
+                        $ref: '#/definitions/EnduroStorageAipWorkflows'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -1443,7 +1443,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageListAipWorkflowsNotFoundResponseBody'
+                        $ref: '#/definitions/AIPNotFound'
                         required:
                             - message
                             - uuid
@@ -1512,7 +1512,7 @@ paths:
                 "201":
                     description: Created response.
                     schema:
-                        $ref: '#/definitions/StorageCreateLocationResponseBody'
+                        $ref: '#/definitions/CreateLocationResult'
                         required:
                             - uuid
                 "400":
@@ -1557,7 +1557,7 @@ paths:
                 "200":
                     description: OK response.
                     schema:
-                        $ref: '#/definitions/StorageShowLocationResponseBody'
+                        $ref: '#/definitions/EnduroStorageLocation'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -1569,7 +1569,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageShowLocationNotFoundResponseBody'
+                        $ref: '#/definitions/LocationNotFound'
                         required:
                             - message
                             - uuid
@@ -1619,7 +1619,7 @@ paths:
                 "404":
                     description: Not Found response.
                     schema:
-                        $ref: '#/definitions/StorageListLocationAipsNotFoundResponseBody'
+                        $ref: '#/definitions/LocationNotFound'
                         required:
                             - message
                             - uuid
@@ -1638,7 +1638,7 @@ paths:
                 "101":
                     description: Switching Protocols response.
                     schema:
-                        $ref: '#/definitions/StorageMonitorResponseBody'
+                        $ref: '#/definitions/StorageEvent'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -1684,6 +1684,25 @@ paths:
             security:
                 - jwt_header_Authorization: []
 definitions:
+    AIPNotFound:
+        title: AIPNotFound
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing AIP
+                example: abc123
+        description: AIP not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
     AIPResponse:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip; view=default'
         type: object
@@ -1944,7 +1963,18 @@ definitions:
               temporal_id: abc123
               type: upload aip
               uuid: abc123
-    AboutAboutResponseBody:
+    CreateLocationResult:
+        title: CreateLocationResult
+        type: object
+        properties:
+            uuid:
+                type: string
+                example: abc123
+        example:
+            uuid: abc123
+        required:
+            - uuid
+    EnduroAbout:
         title: 'Mediatype identifier: application/vnd.enduro.about; view=default'
         type: object
         properties:
@@ -1979,6 +2009,193 @@ definitions:
             - preservation_system
             - preprocessing
             - upload_max_size
+    EnduroIngestSip:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip; view=default'
+        type: object
+        properties:
+            aip_uuid:
+                type: string
+                description: Identifier of AIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+            completed_at:
+                type: string
+                description: Completion datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            created_at:
+                type: string
+                description: Creation datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            failed_as:
+                type: string
+                description: Package type in case of failure (SIP or PIP)
+                example: PIP
+                enum:
+                    - SIP
+                    - PIP
+            failed_key:
+                type: string
+                description: Object key of the failed package in the internal bucket
+                example: abc123
+            name:
+                type: string
+                description: Name of the SIP
+                example: abc123
+            started_at:
+                type: string
+                description: Start datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            status:
+                type: string
+                description: Status of the SIP
+                example: failed
+                enum:
+                    - error
+                    - failed
+                    - queued
+                    - processing
+                    - pending
+                    - ingested
+            uploader_email:
+                type: string
+                description: Email of the user who uploaded the SIP
+                example: abc123
+            uploader_name:
+                type: string
+                description: Name of the user who uploaded the SIP
+                example: abc123
+            uploader_uuid:
+                type: string
+                description: UUID of the user who uploaded the SIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            uuid:
+                type: string
+                description: Identifier of SIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        description: show_sip_response_body result type (default view)
+        example:
+            aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            completed_at: "1970-01-01T00:00:01Z"
+            created_at: "1970-01-01T00:00:01Z"
+            failed_as: PIP
+            failed_key: abc123
+            name: abc123
+            started_at: "1970-01-01T00:00:01Z"
+            status: failed
+            uploader_email: abc123
+            uploader_name: abc123
+            uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - uuid
+            - status
+            - created_at
+    EnduroIngestSipWorkflows:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.workflows; view=default'
+        type: object
+        properties:
+            workflows:
+                $ref: '#/definitions/SIPWorkflowResponseBodyCollection'
+        description: list_sip_workflows_response_body result type (default view)
+        example:
+            workflows:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  sip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  tasks:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      name: abc123
+                      note: abc123
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  temporal_id: abc123
+                  type: create and review aip
+                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+    EnduroIngestSips:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sips; view=default'
+        type: object
+        properties:
+            items:
+                $ref: '#/definitions/SIPResponseBodyCollection'
+            page:
+                $ref: '#/definitions/EnduroPageResponseBody'
+        description: list_sips_response_body result type (default view)
+        example:
+            items:
+                - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  completed_at: "1970-01-01T00:00:01Z"
+                  created_at: "1970-01-01T00:00:01Z"
+                  failed_as: PIP
+                  failed_key: abc123
+                  name: abc123
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: failed
+                  uploader_email: abc123
+                  uploader_name: abc123
+                  uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            page:
+                limit: 1
+                offset: 1
+                total: 1
+        required:
+            - items
+            - page
+    EnduroIngestSipsourceObjects:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sipsource.objects; view=default'
+        type: object
+        properties:
+            limit:
+                type: integer
+                description: Limit of objects per page
+                example: 1
+                format: int64
+            next:
+                type: string
+                description: Token to get the next page of objects
+                example: abc123
+            objects:
+                $ref: '#/definitions/SIPSourceObjectResponseBodyCollection'
+        description: list_sip_source_objects_response_body result type (default view)
+        example:
+            limit: 1
+            next: abc123
+            objects:
+                - is_dir: false
+                  key: abc123
+                  mod_time: "1970-01-01T00:00:01Z"
+                  size: 1
+        required:
+            - objects
+            - limit
+    EnduroIngestUsers:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.users; view=default'
+        type: object
+        properties:
+            items:
+                $ref: '#/definitions/UserResponseBodyCollection'
+            page:
+                $ref: '#/definitions/EnduroPageResponseBody'
+        description: list_users_response_body result type (default view)
+        example:
+            items:
+                - created_at: "1970-01-01T00:00:01Z"
+                  email: nobody@example.com
+                  name: Jane Doe
+                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            page:
+                limit: 1
+                offset: 1
+                total: 1
+        required:
+            - items
+            - page
     EnduroPageResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.page; view=default'
         type: object
@@ -2055,6 +2272,154 @@ definitions:
             - enabled
             - workflow_name
             - task_queue
+    EnduroStorageAip:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip; view=default'
+        type: object
+        properties:
+            created_at:
+                type: string
+                description: Creation datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            location_uuid:
+                type: string
+                description: Identifier of storage location
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            name:
+                type: string
+                example: abc123
+            object_key:
+                type: string
+                example: abc123
+            status:
+                type: string
+                description: Status of the AIP
+                default: unspecified
+                example: stored
+                enum:
+                    - unspecified
+                    - stored
+                    - pending
+                    - processing
+                    - deleted
+                    - queued
+            uuid:
+                type: string
+                example: abc123
+        description: create_aip_response_body result type (default view)
+        example:
+            created_at: "1970-01-01T00:00:01Z"
+            location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            name: abc123
+            object_key: abc123
+            status: stored
+            uuid: abc123
+        required:
+            - name
+            - uuid
+            - status
+            - object_key
+            - created_at
+    EnduroStorageAipWorkflows:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aip.workflows; view=default'
+        type: object
+        properties:
+            workflows:
+                $ref: '#/definitions/AIPWorkflowResponseBodyCollection'
+        description: list_aip_workflows_response_body result type (default view)
+        example:
+            workflows:
+                - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  completed_at: "1970-01-01T00:00:01Z"
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: in progress
+                  tasks:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      name: abc123
+                      note: abc123
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      uuid: abc123
+                      workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  temporal_id: abc123
+                  type: upload aip
+                  uuid: abc123
+    EnduroStorageAips:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.aips; view=default'
+        type: object
+        properties:
+            items:
+                $ref: '#/definitions/AIPResponseBodyCollection'
+            page:
+                $ref: '#/definitions/EnduroPageResponseBody'
+        description: list_aips_response_body result type (default view)
+        example:
+            items:
+                - created_at: "1970-01-01T00:00:01Z"
+                  location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  name: abc123
+                  object_key: abc123
+                  status: stored
+                  uuid: abc123
+            page:
+                limit: 1
+                offset: 1
+                total: 1
+        required:
+            - items
+            - page
+    EnduroStorageLocation:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.location; view=default'
+        type: object
+        properties:
+            created_at:
+                type: string
+                description: Creation datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            description:
+                type: string
+                description: Description of the location
+                example: abc123
+            name:
+                type: string
+                description: Name of location
+                example: abc123
+            purpose:
+                type: string
+                description: Purpose of the location
+                default: unspecified
+                example: aip_store
+                enum:
+                    - unspecified
+                    - aip_store
+            source:
+                type: string
+                description: Data source of the location
+                default: unspecified
+                example: minio
+                enum:
+                    - unspecified
+                    - minio
+                    - sftp
+                    - amss
+            uuid:
+                type: string
+                example: abc123
+        description: show_location_response_body result type (default view)
+        example:
+            created_at: "1970-01-01T00:00:01Z"
+            description: abc123
+            name: abc123
+            purpose: aip_store
+            source: minio
+            uuid: abc123
+        required:
+            - name
+            - source
+            - purpose
+            - uuid
+            - created_at
     IngestAddSipInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2197,26 +2562,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestConfirmSipNotFoundResponseBody:
-        title: IngestConfirmSipNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing SIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
-        description: SIP not found
-        example:
-            message: abc123
-            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - message
-            - uuid
     IngestConfirmSipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2315,26 +2660,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestDownloadSipNotFoundResponseBody:
-        title: IngestDownloadSipNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing SIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
-        description: SIP not found
-        example:
-            message: abc123
-            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - message
-            - uuid
     IngestDownloadSipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2421,26 +2746,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestDownloadSipRequestNotFoundResponseBody:
-        title: IngestDownloadSipRequestNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing SIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
-        description: SIP not found
-        example:
-            message: abc123
-            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - message
-            - uuid
     IngestDownloadSipRequestNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2484,6 +2789,49 @@ definitions:
             - temporary
             - timeout
             - fault
+    IngestEvent:
+        title: IngestEvent
+        type: object
+        properties:
+            ingest_value:
+                type: object
+                properties:
+                    Type:
+                        type: string
+                        description: |-
+                            Union type name, one of:
+                            - "ingest_ping_event"
+                            - "sip_created_event"
+                            - "sip_updated_event"
+                            - "sip_status_updated_event"
+                            - "sip_workflow_created_event"
+                            - "sip_workflow_updated_event"
+                            - "sip_task_created_event"
+                            - "sip_task_updated_event"
+                        example: sip_created_event
+                        enum:
+                            - ingest_ping_event
+                            - sip_created_event
+                            - sip_updated_event
+                            - sip_status_updated_event
+                            - sip_workflow_created_event
+                            - sip_workflow_updated_event
+                            - sip_task_created_event
+                            - sip_task_updated_event
+                    Value:
+                        type: string
+                        description: JSON encoded union value
+                        example: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                example:
+                    Type: sip_created_event
+                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                required:
+                    - Type
+                    - Value
+        example:
+            ingest_value:
+                Type: sip_created_event
+                Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
     IngestListSipSourceObjectsInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2613,77 +2961,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestListSipSourceObjectsResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.ingest.sipsource.objects; view=default'
-        type: object
-        properties:
-            limit:
-                type: integer
-                description: Limit of objects per page
-                example: 1
-                format: int64
-            next:
-                type: string
-                description: Token to get the next page of objects
-                example: abc123
-            objects:
-                $ref: '#/definitions/SIPSourceObjectResponseBodyCollection'
-        description: list_sip_source_objects_response_body result type (default view)
-        example:
-            limit: 1
-            next: abc123
-            objects:
-                - is_dir: false
-                  key: abc123
-                  mod_time: "1970-01-01T00:00:01Z"
-                  size: 1
-        required:
-            - objects
-            - limit
-    IngestListSipWorkflowsNotFoundResponseBody:
-        title: IngestListSipWorkflowsNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing SIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
-        description: SIP not found
-        example:
-            message: abc123
-            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - message
-            - uuid
-    IngestListSipWorkflowsResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.workflows; view=default'
-        type: object
-        properties:
-            workflows:
-                $ref: '#/definitions/SIPWorkflowResponseBodyCollection'
-        description: list_sip_workflows_response_body result type (default view)
-        example:
-            workflows:
-                - completed_at: "1970-01-01T00:00:01Z"
-                  sip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  tasks:
-                    - completed_at: "1970-01-01T00:00:01Z"
-                      name: abc123
-                      note: abc123
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: in progress
-                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  temporal_id: abc123
-                  type: create and review aip
-                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     IngestListSipsNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2727,36 +3004,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestListSipsResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.ingest.sips; view=default'
-        type: object
-        properties:
-            items:
-                $ref: '#/definitions/SIPResponseBodyCollection'
-            page:
-                $ref: '#/definitions/EnduroPageResponseBody'
-        description: list_sips_response_body result type (default view)
-        example:
-            items:
-                - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  completed_at: "1970-01-01T00:00:01Z"
-                  created_at: "1970-01-01T00:00:01Z"
-                  failed_as: PIP
-                  failed_key: abc123
-                  name: abc123
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: failed
-                  uploader_email: abc123
-                  uploader_name: abc123
-                  uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            page:
-                limit: 1
-                offset: 1
-                total: 1
-        required:
-            - items
-            - page
     IngestListUsersNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2800,28 +3047,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestListUsersResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.ingest.users; view=default'
-        type: object
-        properties:
-            items:
-                $ref: '#/definitions/UserResponseBodyCollection'
-            page:
-                $ref: '#/definitions/EnduroPageResponseBody'
-        description: list_users_response_body result type (default view)
-        example:
-            items:
-                - created_at: "1970-01-01T00:00:01Z"
-                  email: nobody@example.com
-                  name: Jane Doe
-                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            page:
-                limit: 1
-                offset: 1
-                total: 1
-        required:
-            - items
-            - page
     IngestMonitorInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2908,49 +3133,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestMonitorResponseBody:
-        title: IngestMonitorResponseBody
-        type: object
-        properties:
-            ingest_value:
-                type: object
-                properties:
-                    Type:
-                        type: string
-                        description: |-
-                            Union type name, one of:
-                            - "ingest_ping_event"
-                            - "sip_created_event"
-                            - "sip_updated_event"
-                            - "sip_status_updated_event"
-                            - "sip_workflow_created_event"
-                            - "sip_workflow_updated_event"
-                            - "sip_task_created_event"
-                            - "sip_task_updated_event"
-                        example: sip_created_event
-                        enum:
-                            - ingest_ping_event
-                            - sip_created_event
-                            - sip_updated_event
-                            - sip_status_updated_event
-                            - sip_workflow_created_event
-                            - sip_workflow_updated_event
-                            - sip_task_created_event
-                            - sip_task_updated_event
-                    Value:
-                        type: string
-                        description: JSON encoded union value
-                        example: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-                example:
-                    Type: sip_created_event
-                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-                required:
-                    - Type
-                    - Value
-        example:
-            ingest_value:
-                Type: sip_created_event
-                Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
     IngestRejectSipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2994,26 +3176,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestRejectSipNotFoundResponseBody:
-        title: IngestRejectSipNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing SIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
-        description: SIP not found
-        example:
-            message: abc123
-            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - message
-            - uuid
     IngestRejectSipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -3100,110 +3262,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestShowSipNotFoundResponseBody:
-        title: IngestShowSipNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing SIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
-        description: SIP not found
-        example:
-            message: abc123
-            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - message
-            - uuid
-    IngestShowSipResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip; view=default'
-        type: object
-        properties:
-            aip_uuid:
-                type: string
-                description: Identifier of AIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                format: uuid
-            completed_at:
-                type: string
-                description: Completion datetime
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            created_at:
-                type: string
-                description: Creation datetime
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            failed_as:
-                type: string
-                description: Package type in case of failure (SIP or PIP)
-                example: PIP
-                enum:
-                    - SIP
-                    - PIP
-            failed_key:
-                type: string
-                description: Object key of the failed package in the internal bucket
-                example: abc123
-            name:
-                type: string
-                description: Name of the SIP
-                example: abc123
-            started_at:
-                type: string
-                description: Start datetime
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            status:
-                type: string
-                description: Status of the SIP
-                example: failed
-                enum:
-                    - error
-                    - failed
-                    - queued
-                    - processing
-                    - pending
-                    - ingested
-            uploader_email:
-                type: string
-                description: Email of the user who uploaded the SIP
-                example: abc123
-            uploader_name:
-                type: string
-                description: Name of the user who uploaded the SIP
-                example: abc123
-            uploader_uuid:
-                type: string
-                description: UUID of the user who uploaded the SIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            uuid:
-                type: string
-                description: Identifier of SIP
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        description: show_sip_response_body result type (default view)
-        example:
-            aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            completed_at: "1970-01-01T00:00:01Z"
-            created_at: "1970-01-01T00:00:01Z"
-            failed_as: PIP
-            failed_key: abc123
-            name: abc123
-            started_at: "1970-01-01T00:00:01Z"
-            status: failed
-            uploader_email: abc123
-            uploader_name: abc123
-            uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        required:
-            - uuid
-            - status
-            - created_at
     IngestUploadSipInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -3346,6 +3404,24 @@ definitions:
             uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
             - uuid
+    LocationNotFound:
+        title: LocationNotFound
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                example: abc123
+        description: Storage location not found
+        example:
+            message: abc123
+            uuid: abc123
+        required:
+            - message
+            - uuid
     LocationResponse:
         title: 'Mediatype identifier: application/vnd.enduro.storage.location; view=default'
         type: object
@@ -3398,6 +3474,37 @@ definitions:
             - purpose
             - uuid
             - created_at
+    MoveStatusResult:
+        title: MoveStatusResult
+        type: object
+        properties:
+            done:
+                type: boolean
+                example: false
+        example:
+            done: false
+        required:
+            - done
+    SIPNotFound:
+        title: SIPNotFound
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing SIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+        description: SIP not found
+        example:
+            message: abc123
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - message
+            - uuid
     SIPResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.sip; view=default'
         type: object
@@ -3710,25 +3817,6 @@ definitions:
               object_key: abc123
               status: stored
               uuid: abc123
-    StorageCancelAipDeletionNotFoundResponseBody:
-        title: StorageCancelAipDeletionNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing AIP
-                example: abc123
-        description: AIP not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
     StorageCancelAipDeletionRequestBody:
         title: StorageCancelAipDeletionRequestBody
         type: object
@@ -3826,54 +3914,6 @@ definitions:
             - uuid
             - name
             - object_key
-    StorageCreateAipResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.storage.aip; view=default'
-        type: object
-        properties:
-            created_at:
-                type: string
-                description: Creation datetime
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            location_uuid:
-                type: string
-                description: Identifier of storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            name:
-                type: string
-                example: abc123
-            object_key:
-                type: string
-                example: abc123
-            status:
-                type: string
-                description: Status of the AIP
-                default: unspecified
-                example: stored
-                enum:
-                    - unspecified
-                    - stored
-                    - pending
-                    - processing
-                    - deleted
-                    - queued
-            uuid:
-                type: string
-                example: abc123
-        description: create_aip_response_body result type (default view)
-        example:
-            created_at: "1970-01-01T00:00:01Z"
-            location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            name: abc123
-            object_key: abc123
-            status: stored
-            uuid: abc123
-        required:
-            - name
-            - uuid
-            - status
-            - object_key
-            - created_at
     StorageCreateLocationNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -3980,17 +4020,6 @@ definitions:
             - name
             - source
             - purpose
-    StorageCreateLocationResponseBody:
-        title: StorageCreateLocationResponseBody
-        type: object
-        properties:
-            uuid:
-                type: string
-                example: abc123
-        example:
-            uuid: abc123
-        required:
-            - uuid
     StorageDownloadAipInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4034,25 +4063,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageDownloadAipNotFoundResponseBody:
-        title: StorageDownloadAipNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing AIP
-                example: abc123
-        description: AIP not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
     StorageDownloadAipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4139,25 +4149,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageDownloadAipRequestNotFoundResponseBody:
-        title: StorageDownloadAipRequestNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing AIP
-                example: abc123
-        description: AIP not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
     StorageDownloadAipRequestNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4201,49 +4192,51 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageListAipWorkflowsNotFoundResponseBody:
-        title: StorageListAipWorkflowsNotFoundResponseBody
+    StorageEvent:
+        title: StorageEvent
         type: object
         properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing AIP
-                example: abc123
-        description: AIP not found
+            storage_value:
+                type: object
+                properties:
+                    Type:
+                        type: string
+                        description: |-
+                            Union type name, one of:
+                            - "storage_ping_event"
+                            - "location_created_event"
+                            - "aip_created_event"
+                            - "aip_status_updated_event"
+                            - "aip_location_updated_event"
+                            - "aip_workflow_created_event"
+                            - "aip_workflow_updated_event"
+                            - "aip_task_created_event"
+                            - "aip_task_updated_event"
+                        example: location_created_event
+                        enum:
+                            - storage_ping_event
+                            - location_created_event
+                            - aip_created_event
+                            - aip_status_updated_event
+                            - aip_location_updated_event
+                            - aip_workflow_created_event
+                            - aip_workflow_updated_event
+                            - aip_task_created_event
+                            - aip_task_updated_event
+                    Value:
+                        type: string
+                        description: JSON encoded union value
+                        example: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                example:
+                    Type: location_created_event
+                    Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                required:
+                    - Type
+                    - Value
         example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
-    StorageListAipWorkflowsResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.storage.aip.workflows; view=default'
-        type: object
-        properties:
-            workflows:
-                $ref: '#/definitions/AIPWorkflowResponseBodyCollection'
-        description: list_aip_workflows_response_body result type (default view)
-        example:
-            workflows:
-                - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  completed_at: "1970-01-01T00:00:01Z"
-                  started_at: "1970-01-01T00:00:01Z"
-                  status: in progress
-                  tasks:
-                    - completed_at: "1970-01-01T00:00:01Z"
-                      name: abc123
-                      note: abc123
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: in progress
-                      uuid: abc123
-                      workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  temporal_id: abc123
-                  type: upload aip
-                  uuid: abc123
+            storage_value:
+                Type: location_created_event
+                Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
     StorageListAipsNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4330,48 +4323,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageListAipsResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.storage.aips; view=default'
-        type: object
-        properties:
-            items:
-                $ref: '#/definitions/AIPResponseBodyCollection'
-            page:
-                $ref: '#/definitions/EnduroPageResponseBody'
-        description: list_aips_response_body result type (default view)
-        example:
-            items:
-                - created_at: "1970-01-01T00:00:01Z"
-                  location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                  name: abc123
-                  object_key: abc123
-                  status: stored
-                  uuid: abc123
-            page:
-                limit: 1
-                offset: 1
-                total: 1
-        required:
-            - items
-            - page
-    StorageListLocationAipsNotFoundResponseBody:
-        title: StorageListLocationAipsNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                example: abc123
-        description: Storage location not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
     StorageListLocationAipsNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4514,51 +4465,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageMonitorResponseBody:
-        title: StorageMonitorResponseBody
-        type: object
-        properties:
-            storage_value:
-                type: object
-                properties:
-                    Type:
-                        type: string
-                        description: |-
-                            Union type name, one of:
-                            - "storage_ping_event"
-                            - "location_created_event"
-                            - "aip_created_event"
-                            - "aip_status_updated_event"
-                            - "aip_location_updated_event"
-                            - "aip_workflow_created_event"
-                            - "aip_workflow_updated_event"
-                            - "aip_task_created_event"
-                            - "aip_task_updated_event"
-                        example: location_created_event
-                        enum:
-                            - storage_ping_event
-                            - location_created_event
-                            - aip_created_event
-                            - aip_status_updated_event
-                            - aip_location_updated_event
-                            - aip_workflow_created_event
-                            - aip_workflow_updated_event
-                            - aip_task_created_event
-                            - aip_task_updated_event
-                    Value:
-                        type: string
-                        description: JSON encoded union value
-                        example: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-                example:
-                    Type: location_created_event
-                    Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-                required:
-                    - Type
-                    - Value
-        example:
-            storage_value:
-                Type: location_created_event
-                Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
     StorageMoveAipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4602,25 +4508,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageMoveAipNotFoundResponseBody:
-        title: StorageMoveAipNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing AIP
-                example: abc123
-        description: AIP not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
     StorageMoveAipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4719,36 +4606,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageMoveAipStatusNotFoundResponseBody:
-        title: StorageMoveAipStatusNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing AIP
-                example: abc123
-        description: AIP not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
-    StorageMoveAipStatusResponseBody:
-        title: StorageMoveAipStatusResponseBody
-        type: object
-        properties:
-            done:
-                type: boolean
-                example: false
-        example:
-            done: false
-        required:
-            - done
     StorageRejectAipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4792,25 +4649,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageRejectAipNotFoundResponseBody:
-        title: StorageRejectAipNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing AIP
-                example: abc123
-        description: AIP not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
     StorageRejectAipNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4854,25 +4692,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    StorageRequestAipDeletionNotFoundResponseBody:
-        title: StorageRequestAipDeletionNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing AIP
-                example: abc123
-        description: AIP not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
     StorageRequestAipDeletionRequestBody:
         title: StorageRequestAipDeletionRequestBody
         type: object
@@ -4884,25 +4703,6 @@ definitions:
             reason: abc123
         required:
             - reason
-    StorageReviewAipDeletionNotFoundResponseBody:
-        title: StorageReviewAipDeletionNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing AIP
-                example: abc123
-        description: AIP not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
     StorageReviewAipDeletionRequestBody:
         title: StorageReviewAipDeletionRequestBody
         type: object
@@ -4914,143 +4714,6 @@ definitions:
             approved: false
         required:
             - approved
-    StorageShowAipNotFoundResponseBody:
-        title: StorageShowAipNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                description: Identifier of missing AIP
-                example: abc123
-        description: AIP not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
-    StorageShowAipResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.storage.aip; view=default'
-        type: object
-        properties:
-            created_at:
-                type: string
-                description: Creation datetime
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            location_uuid:
-                type: string
-                description: Identifier of storage location
-                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            name:
-                type: string
-                example: abc123
-            object_key:
-                type: string
-                example: abc123
-            status:
-                type: string
-                description: Status of the AIP
-                default: unspecified
-                example: stored
-                enum:
-                    - unspecified
-                    - stored
-                    - pending
-                    - processing
-                    - deleted
-                    - queued
-            uuid:
-                type: string
-                example: abc123
-        description: show_aip_response_body result type (default view)
-        example:
-            created_at: "1970-01-01T00:00:01Z"
-            location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-            name: abc123
-            object_key: abc123
-            status: stored
-            uuid: abc123
-        required:
-            - name
-            - uuid
-            - status
-            - object_key
-            - created_at
-    StorageShowLocationNotFoundResponseBody:
-        title: StorageShowLocationNotFoundResponseBody
-        type: object
-        properties:
-            message:
-                type: string
-                description: Message of error
-                example: abc123
-            uuid:
-                type: string
-                example: abc123
-        description: Storage location not found
-        example:
-            message: abc123
-            uuid: abc123
-        required:
-            - message
-            - uuid
-    StorageShowLocationResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.storage.location; view=default'
-        type: object
-        properties:
-            created_at:
-                type: string
-                description: Creation datetime
-                example: "1970-01-01T00:00:01Z"
-                format: date-time
-            description:
-                type: string
-                description: Description of the location
-                example: abc123
-            name:
-                type: string
-                description: Name of location
-                example: abc123
-            purpose:
-                type: string
-                description: Purpose of the location
-                default: unspecified
-                example: aip_store
-                enum:
-                    - unspecified
-                    - aip_store
-            source:
-                type: string
-                description: Data source of the location
-                default: unspecified
-                example: minio
-                enum:
-                    - unspecified
-                    - minio
-                    - sftp
-                    - amss
-            uuid:
-                type: string
-                example: abc123
-        description: show_location_response_body result type (default view)
-        example:
-            created_at: "1970-01-01T00:00:01Z"
-            description: abc123
-            name: abc123
-            purpose: aip_store
-            source: minio
-            uuid: abc123
-        required:
-            - name
-            - source
-            - purpose
-            - uuid
-            - created_at
     StorageSubmitAipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -5148,17 +4811,6 @@ definitions:
             name: abc123
         required:
             - name
-    StorageSubmitAipResponseBody:
-        title: StorageSubmitAipResponseBody
-        type: object
-        properties:
-            url:
-                type: string
-                example: abc123
-        example:
-            url: abc123
-        required:
-            - url
     StorageUpdateAipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -5245,6 +4897,17 @@ definitions:
             - temporary
             - timeout
             - fault
+    SubmitAIPResult:
+        title: SubmitAIPResult
+        type: object
+        properties:
+            url:
+                type: string
+                example: abc123
+        example:
+            url: abc123
+        required:
+            - url
     UserResponseBody:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.user; view=default'
         type: object

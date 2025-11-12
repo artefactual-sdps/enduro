@@ -91,6 +91,10 @@ type mockMonitorServerStream struct {
 }
 
 func (m *mockMonitorServerStream) Send(event *goastorage.StorageEvent) error {
+	return m.SendWithContext(context.Background(), event)
+}
+
+func (m *mockMonitorServerStream) SendWithContext(ctx context.Context, event *goastorage.StorageEvent) error {
 	if m.closed {
 		return fmt.Errorf("stream closed")
 	}

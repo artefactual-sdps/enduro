@@ -61,7 +61,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/IngestEvent'
+                                $ref: '#/components/schemas/IngestEvent2'
                             example:
                                 ingest_value:
                                     Type: sip_created_event
@@ -170,7 +170,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPSourceObjects'
+                                $ref: '#/components/schemas/EnduroIngestSipsourceObjects'
                             example:
                                 limit: 1
                                 next: abc123
@@ -307,7 +307,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPs'
+                                $ref: '#/components/schemas/EnduroIngestSips'
                             example:
                                 items:
                                     - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -798,7 +798,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPWorkflows'
+                                $ref: '#/components/schemas/EnduroIngestSipWorkflows'
                             example:
                                 workflows:
                                     - completed_at: "1970-01-01T00:00:01Z"
@@ -955,7 +955,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/Users'
+                                $ref: '#/components/schemas/EnduroIngestUsers'
                             example:
                                 items:
                                     - created_at: "1970-01-01T00:00:01Z"
@@ -1062,7 +1062,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AIPs'
+                                $ref: '#/components/schemas/EnduroStorageAips'
                             example:
                                 items:
                                     - created_at: "1970-01-01T00:00:01Z"
@@ -1216,7 +1216,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -1273,7 +1273,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -1330,7 +1330,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -1387,7 +1387,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -1471,7 +1471,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -1534,7 +1534,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -1595,7 +1595,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -1656,7 +1656,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -1724,7 +1724,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -1769,7 +1769,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/URLConfig'
+                                $ref: '#/components/schemas/SubmitAIPResult'
                             example:
                                 url: abc123
                 "400":
@@ -1906,7 +1906,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AIPWorkflows'
+                                $ref: '#/components/schemas/EnduroStorageAipWorkflows'
                             example:
                                 workflows:
                                     - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -1945,7 +1945,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -2018,7 +2018,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/AddSipResponseBody'
+                                $ref: '#/components/schemas/CreateLocationResult'
                             example:
                                 uuid: abc123
                 "400":
@@ -2102,7 +2102,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/LocationNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -2168,7 +2168,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/SIPNotFound'
+                                $ref: '#/components/schemas/LocationNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
@@ -2196,7 +2196,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/StorageEvent'
+                                $ref: '#/components/schemas/StorageEvent2'
                             example:
                                 storage_value:
                                     Type: location_created_event
@@ -2313,6 +2313,24 @@ components:
             required:
                 - uuid
                 - location_uuid
+        AIPNotFound:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Message of error
+                    example: abc123
+                uuid:
+                    type: string
+                    description: Identifier of missing AIP
+                    example: abc123
+            description: AIP not found.
+            example:
+                message: abc123
+                uuid: abc123
+            required:
+                - message
+                - uuid
         AIPResponse:
             type: object
             properties:
@@ -2531,50 +2549,6 @@ components:
             required:
                 - uuid
                 - item
-        AIPWorkflows:
-            type: object
-            properties:
-                workflows:
-                    $ref: '#/components/schemas/AIPWorkflowCollection'
-            example:
-                workflows:
-                    - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      completed_at: "1970-01-01T00:00:01Z"
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: in progress
-                      tasks:
-                        - completed_at: "1970-01-01T00:00:01Z"
-                          name: abc123
-                          note: abc123
-                          started_at: "1970-01-01T00:00:01Z"
-                          status: in progress
-                          uuid: abc123
-                          workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      temporal_id: abc123
-                      type: upload aip
-                      uuid: abc123
-        AIPs:
-            type: object
-            properties:
-                items:
-                    $ref: '#/components/schemas/AIPCollection'
-                page:
-                    $ref: '#/components/schemas/EnduroPage'
-            example:
-                items:
-                    - created_at: "1970-01-01T00:00:01Z"
-                      location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      name: abc123
-                      object_key: abc123
-                      status: stored
-                      uuid: abc123
-                page:
-                    limit: 1
-                    offset: 1
-                    total: 1
-            required:
-                - items
-                - page
         AMSSConfig:
             type: object
             properties:
@@ -2732,6 +2706,16 @@ components:
                 - name
                 - source
                 - purpose
+        CreateLocationResult:
+            type: object
+            properties:
+                uuid:
+                    type: string
+                    example: abc123
+            example:
+                uuid: abc123
+            required:
+                - uuid
         EnduroAbout:
             type: object
             properties:
@@ -2964,6 +2948,57 @@ components:
                 - status
                 - started_at
                 - sip_uuid
+        EnduroIngestSipWorkflows:
+            type: object
+            properties:
+                workflows:
+                    $ref: '#/components/schemas/SIPWorkflowCollection'
+            description: SIPWorkflows describes the workflows of a SIP.
+            example:
+                workflows:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      sip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      tasks:
+                        - completed_at: "1970-01-01T00:00:01Z"
+                          name: abc123
+                          note: abc123
+                          started_at: "1970-01-01T00:00:01Z"
+                          status: in progress
+                          uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                          workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      temporal_id: abc123
+                      type: create and review aip
+                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        EnduroIngestSips:
+            type: object
+            properties:
+                items:
+                    $ref: '#/components/schemas/SIPCollection'
+                page:
+                    $ref: '#/components/schemas/EnduroPage'
+            example:
+                items:
+                    - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      completed_at: "1970-01-01T00:00:01Z"
+                      created_at: "1970-01-01T00:00:01Z"
+                      failed_as: PIP
+                      failed_key: abc123
+                      name: abc123
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: failed
+                      uploader_email: abc123
+                      uploader_name: abc123
+                      uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                page:
+                    limit: 1
+                    offset: 1
+                    total: 1
+            required:
+                - items
+                - page
         EnduroIngestSipsourceObject:
             type: object
             properties:
@@ -2994,6 +3029,31 @@ components:
             required:
                 - key
                 - is_dir
+        EnduroIngestSipsourceObjects:
+            type: object
+            properties:
+                limit:
+                    type: integer
+                    description: Limit of objects per page
+                    example: 1
+                    format: int64
+                next:
+                    type: string
+                    description: Token to get the next page of objects
+                    example: abc123
+                objects:
+                    $ref: '#/components/schemas/SIPSourceObjectCollection'
+            example:
+                limit: 1
+                next: abc123
+                objects:
+                    - is_dir: false
+                      key: abc123
+                      mod_time: "1970-01-01T00:00:01Z"
+                      size: 1
+            required:
+                - objects
+                - limit
         EnduroIngestUser:
             type: object
             properties:
@@ -3025,6 +3085,26 @@ components:
                 - email
                 - name
                 - created_at
+        EnduroIngestUsers:
+            type: object
+            properties:
+                items:
+                    $ref: '#/components/schemas/UserCollection'
+                page:
+                    $ref: '#/components/schemas/EnduroPage'
+            example:
+                items:
+                    - created_at: "1970-01-01T00:00:01Z"
+                      email: nobody@example.com
+                      name: Jane Doe
+                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                page:
+                    limit: 1
+                    offset: 1
+                    total: 1
+            required:
+                - items
+                - page
         EnduroPage:
             type: object
             properties:
@@ -3254,6 +3334,51 @@ components:
                 - type
                 - status
                 - aip_uuid
+        EnduroStorageAipWorkflows:
+            type: object
+            properties:
+                workflows:
+                    $ref: '#/components/schemas/AIPWorkflowCollection'
+            description: AIPWorkflows describes the workflows of an AIP.
+            example:
+                workflows:
+                    - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      completed_at: "1970-01-01T00:00:01Z"
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: in progress
+                      tasks:
+                        - completed_at: "1970-01-01T00:00:01Z"
+                          name: abc123
+                          note: abc123
+                          started_at: "1970-01-01T00:00:01Z"
+                          status: in progress
+                          uuid: abc123
+                          workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      temporal_id: abc123
+                      type: upload aip
+                      uuid: abc123
+        EnduroStorageAips:
+            type: object
+            properties:
+                items:
+                    $ref: '#/components/schemas/AIPCollection'
+                page:
+                    $ref: '#/components/schemas/EnduroPage'
+            example:
+                items:
+                    - created_at: "1970-01-01T00:00:01Z"
+                      location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      name: abc123
+                      object_key: abc123
+                      status: stored
+                      uuid: abc123
+                page:
+                    limit: 1
+                    offset: 1
+                    total: 1
+            required:
+                - items
+                - page
         EnduroStorageLocation:
             type: object
             properties:
@@ -3374,6 +3499,50 @@ components:
             type: object
             properties:
                 ingest_value:
+                    example:
+                        item:
+                            aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            completed_at: "1970-01-01T00:00:01Z"
+                            created_at: "1970-01-01T00:00:01Z"
+                            failed_as: PIP
+                            failed_key: abc123
+                            name: abc123
+                            started_at: "1970-01-01T00:00:01Z"
+                            status: failed
+                            uploader_email: abc123
+                            uploader_name: abc123
+                            uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                        uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    anyOf:
+                        - $ref: '#/components/schemas/IngestPingEvent'
+                        - $ref: '#/components/schemas/SIPCreatedEvent'
+                        - $ref: '#/components/schemas/SIPUpdatedEvent'
+                        - $ref: '#/components/schemas/SIPStatusUpdatedEvent'
+                        - $ref: '#/components/schemas/SIPWorkflowCreatedEvent'
+                        - $ref: '#/components/schemas/SIPWorkflowUpdatedEvent'
+                        - $ref: '#/components/schemas/SIPTaskCreatedEvent'
+                        - $ref: '#/components/schemas/SIPTaskUpdatedEvent'
+            example:
+                ingest_value:
+                    item:
+                        aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                        completed_at: "1970-01-01T00:00:01Z"
+                        created_at: "1970-01-01T00:00:01Z"
+                        failed_as: PIP
+                        failed_key: abc123
+                        name: abc123
+                        started_at: "1970-01-01T00:00:01Z"
+                        status: failed
+                        uploader_email: abc123
+                        uploader_name: abc123
+                        uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                        uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        IngestEvent2:
+            type: object
+            properties:
+                ingest_value:
                     type: object
                     properties:
                         Type:
@@ -3450,6 +3619,23 @@ components:
             required:
                 - uuid
                 - item
+        LocationNotFound:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Message of error
+                    example: abc123
+                uuid:
+                    type: string
+                    example: abc123
+            description: Storage location not found.
+            example:
+                message: abc123
+                uuid: abc123
+            required:
+                - message
+                - uuid
         LocationResponse:
             type: object
             properties:
@@ -3663,7 +3849,7 @@ components:
                     description: Identifier of missing SIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-            description: SIP not found
+            description: SIP not found.
             example:
                 message: abc123
                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -3679,31 +3865,6 @@ components:
                   key: abc123
                   mod_time: "1970-01-01T00:00:01Z"
                   size: 1
-        SIPSourceObjects:
-            type: object
-            properties:
-                limit:
-                    type: integer
-                    description: Limit of objects per page
-                    example: 1
-                    format: int64
-                next:
-                    type: string
-                    description: Token to get the next page of objects
-                    example: abc123
-                objects:
-                    $ref: '#/components/schemas/SIPSourceObjectCollection'
-            example:
-                limit: 1
-                next: abc123
-                objects:
-                    - is_dir: false
-                      key: abc123
-                      mod_time: "1970-01-01T00:00:01Z"
-                      size: 1
-            required:
-                - objects
-                - limit
         SIPStatusUpdatedEvent:
             type: object
             properties:
@@ -3890,57 +4051,58 @@ components:
             required:
                 - uuid
                 - item
-        SIPWorkflows:
-            type: object
-            properties:
-                workflows:
-                    $ref: '#/components/schemas/SIPWorkflowCollection'
-            example:
-                workflows:
-                    - completed_at: "1970-01-01T00:00:01Z"
-                      sip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: in progress
-                      tasks:
-                        - completed_at: "1970-01-01T00:00:01Z"
-                          name: abc123
-                          note: abc123
-                          started_at: "1970-01-01T00:00:01Z"
-                          status: in progress
-                          uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                          workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      temporal_id: abc123
-                      type: create and review aip
-                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        SIPs:
-            type: object
-            properties:
-                items:
-                    $ref: '#/components/schemas/SIPCollection'
-                page:
-                    $ref: '#/components/schemas/EnduroPage'
-            example:
-                items:
-                    - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      completed_at: "1970-01-01T00:00:01Z"
-                      created_at: "1970-01-01T00:00:01Z"
-                      failed_as: PIP
-                      failed_key: abc123
-                      name: abc123
-                      started_at: "1970-01-01T00:00:01Z"
-                      status: failed
-                      uploader_email: abc123
-                      uploader_name: abc123
-                      uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                page:
-                    limit: 1
-                    offset: 1
-                    total: 1
-            required:
-                - items
-                - page
         StorageEvent:
+            type: object
+            properties:
+                storage_value:
+                    example:
+                        item:
+                            config:
+                                bucket: abc123
+                                endpoint: abc123
+                                key: abc123
+                                path_style: false
+                                profile: abc123
+                                region: abc123
+                                secret: abc123
+                                token: abc123
+                            created_at: "1970-01-01T00:00:01Z"
+                            description: abc123
+                            name: abc123
+                            purpose: aip_store
+                            source: minio
+                            uuid: abc123
+                        uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    anyOf:
+                        - $ref: '#/components/schemas/StoragePingEvent'
+                        - $ref: '#/components/schemas/LocationCreatedEvent'
+                        - $ref: '#/components/schemas/AIPCreatedEvent'
+                        - $ref: '#/components/schemas/AIPStatusUpdatedEvent'
+                        - $ref: '#/components/schemas/AIPLocationUpdatedEvent'
+                        - $ref: '#/components/schemas/AIPWorkflowCreatedEvent'
+                        - $ref: '#/components/schemas/AIPWorkflowUpdatedEvent'
+                        - $ref: '#/components/schemas/AIPTaskCreatedEvent'
+                        - $ref: '#/components/schemas/AIPTaskUpdatedEvent'
+            example:
+                storage_value:
+                    item:
+                        config:
+                            bucket: abc123
+                            endpoint: abc123
+                            key: abc123
+                            path_style: false
+                            profile: abc123
+                            region: abc123
+                            secret: abc123
+                            token: abc123
+                        created_at: "1970-01-01T00:00:01Z"
+                        description: abc123
+                        name: abc123
+                        purpose: aip_store
+                        source: minio
+                        uuid: abc123
+                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        StorageEvent2:
             type: object
             properties:
                 storage_value:
@@ -3992,6 +4154,16 @@ components:
                     example: abc123
             example:
                 message: abc123
+        SubmitAIPResult:
+            type: object
+            properties:
+                url:
+                    type: string
+                    example: abc123
+            example:
+                url: abc123
+            required:
+                - url
         SubmitAipRequestBody:
             type: object
             properties:
@@ -4021,26 +4193,6 @@ components:
                   email: nobody@example.com
                   name: Jane Doe
                   uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        Users:
-            type: object
-            properties:
-                items:
-                    $ref: '#/components/schemas/UserCollection'
-                page:
-                    $ref: '#/components/schemas/EnduroPage'
-            example:
-                items:
-                    - created_at: "1970-01-01T00:00:01Z"
-                      email: nobody@example.com
-                      name: Jane Doe
-                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                page:
-                    limit: 1
-                    offset: 1
-                    total: 1
-            required:
-                - items
-                - page
     securitySchemes:
         jwt_header_Authorization:
             type: http

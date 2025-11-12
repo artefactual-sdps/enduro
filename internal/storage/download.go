@@ -10,7 +10,6 @@ import (
 	goahttp "goa.design/goa/v3/http"
 
 	"github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
-	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/fsutil"
 )
 
@@ -20,12 +19,11 @@ import (
 func Download(svc Service, mux goahttp.Muxer, dec func(r *http.Request) goahttp.Decoder) http.HandlerFunc {
 	return func(rw http.ResponseWriter, req *http.Request) {
 		// Decode request payload.
-		payload, err := server.DecodeDownloadAipRequest(mux, dec)(req)
+		p, err := server.DecodeDownloadAipRequest(mux, dec)(req)
 		if err != nil {
 			rw.WriteHeader(http.StatusBadRequest)
 			return
 		}
-		p := payload.(*goastorage.DownloadAipPayload)
 
 		aipID, err := uuid.Parse(p.UUID)
 		if err != nil {

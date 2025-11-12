@@ -3,6 +3,31 @@
     "application/json"
   ],
   "definitions": {
+    "AIPNotFound": {
+      "description": "AIP not found",
+      "example": {
+        "message": "abc123",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of missing AIP",
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "uuid"
+      ],
+      "title": "AIPNotFound",
+      "type": "object"
+    },
     "AIPResponse": {
       "description": "An AIP describes an AIP retrieved by the storage service. (default view)",
       "example": {
@@ -332,7 +357,23 @@
       "title": "Mediatype identifier: application/vnd.enduro.storage.aip.workflow; type=collection; view=default",
       "type": "array"
     },
-    "AboutAboutResponseBody": {
+    "CreateLocationResult": {
+      "example": {
+        "uuid": "abc123"
+      },
+      "properties": {
+        "uuid": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid"
+      ],
+      "title": "CreateLocationResult",
+      "type": "object"
+    },
+    "EnduroAbout": {
       "description": "AboutResponseBody result type (default view)",
       "example": {
         "poststorage": [
@@ -378,6 +419,251 @@
         "upload_max_size"
       ],
       "title": "Mediatype identifier: application/vnd.enduro.about; view=default",
+      "type": "object"
+    },
+    "EnduroIngestSip": {
+      "description": "show_sip_response_body result type (default view)",
+      "example": {
+        "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+        "completed_at": "1970-01-01T00:00:01Z",
+        "created_at": "1970-01-01T00:00:01Z",
+        "failed_as": "PIP",
+        "failed_key": "abc123",
+        "name": "abc123",
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "failed",
+        "uploader_email": "abc123",
+        "uploader_name": "abc123",
+        "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "aip_uuid": {
+          "description": "Identifier of AIP",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "format": "uuid",
+          "type": "string"
+        },
+        "completed_at": {
+          "description": "Completion datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "failed_as": {
+          "description": "Package type in case of failure (SIP or PIP)",
+          "enum": [
+            "SIP",
+            "PIP"
+          ],
+          "example": "PIP",
+          "type": "string"
+        },
+        "failed_key": {
+          "description": "Object key of the failed package in the internal bucket",
+          "example": "abc123",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of the SIP",
+          "example": "abc123",
+          "type": "string"
+        },
+        "started_at": {
+          "description": "Start datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "description": "Status of the SIP",
+          "enum": [
+            "error",
+            "failed",
+            "queued",
+            "processing",
+            "pending",
+            "ingested"
+          ],
+          "example": "failed",
+          "type": "string"
+        },
+        "uploader_email": {
+          "description": "Email of the user who uploaded the SIP",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uploader_name": {
+          "description": "Name of the user who uploaded the SIP",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uploader_uuid": {
+          "description": "UUID of the user who uploaded the SIP",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of SIP",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid",
+        "status",
+        "created_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip; view=default",
+      "type": "object"
+    },
+    "EnduroIngestSipWorkflows": {
+      "description": "list_sip_workflows_response_body result type (default view)",
+      "example": {
+        "workflows": [
+          {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "sip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "tasks": [
+              {
+                "completed_at": "1970-01-01T00:00:01Z",
+                "name": "abc123",
+                "note": "abc123",
+                "started_at": "1970-01-01T00:00:01Z",
+                "status": "in progress",
+                "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+              }
+            ],
+            "temporal_id": "abc123",
+            "type": "create and review aip",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          }
+        ]
+      },
+      "properties": {
+        "workflows": {
+          "$ref": "#/definitions/SIPWorkflowResponseBodyCollection"
+        }
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.workflows; view=default",
+      "type": "object"
+    },
+    "EnduroIngestSips": {
+      "description": "list_sips_response_body result type (default view)",
+      "example": {
+        "items": [
+          {
+            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "completed_at": "1970-01-01T00:00:01Z",
+            "created_at": "1970-01-01T00:00:01Z",
+            "failed_as": "PIP",
+            "failed_key": "abc123",
+            "name": "abc123",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "failed",
+            "uploader_email": "abc123",
+            "uploader_name": "abc123",
+            "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          }
+        ],
+        "page": {
+          "limit": 1,
+          "offset": 1,
+          "total": 1
+        }
+      },
+      "properties": {
+        "items": {
+          "$ref": "#/definitions/SIPResponseBodyCollection"
+        },
+        "page": {
+          "$ref": "#/definitions/EnduroPageResponseBody"
+        }
+      },
+      "required": [
+        "items",
+        "page"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sips; view=default",
+      "type": "object"
+    },
+    "EnduroIngestSipsourceObjects": {
+      "description": "list_sip_source_objects_response_body result type (default view)",
+      "example": {
+        "limit": 1,
+        "next": "abc123",
+        "objects": [
+          {
+            "is_dir": false,
+            "key": "abc123",
+            "mod_time": "1970-01-01T00:00:01Z",
+            "size": 1
+          }
+        ]
+      },
+      "properties": {
+        "limit": {
+          "description": "Limit of objects per page",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "next": {
+          "description": "Token to get the next page of objects",
+          "example": "abc123",
+          "type": "string"
+        },
+        "objects": {
+          "$ref": "#/definitions/SIPSourceObjectResponseBodyCollection"
+        }
+      },
+      "required": [
+        "objects",
+        "limit"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.sipsource.objects; view=default",
+      "type": "object"
+    },
+    "EnduroIngestUsers": {
+      "description": "list_users_response_body result type (default view)",
+      "example": {
+        "items": [
+          {
+            "created_at": "1970-01-01T00:00:01Z",
+            "email": "nobody@example.com",
+            "name": "Jane Doe",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          }
+        ],
+        "page": {
+          "limit": 1,
+          "offset": 1,
+          "total": 1
+        }
+      },
+      "properties": {
+        "items": {
+          "$ref": "#/definitions/UserResponseBodyCollection"
+        },
+        "page": {
+          "$ref": "#/definitions/EnduroPageResponseBody"
+        }
+      },
+      "required": [
+        "items",
+        "page"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.users; view=default",
       "type": "object"
     },
     "EnduroPageResponseBody": {
@@ -479,6 +765,197 @@
         "task_queue"
       ],
       "title": "Mediatype identifier: application/vnd.enduro.preprocessing; view=default",
+      "type": "object"
+    },
+    "EnduroStorageAip": {
+      "description": "create_aip_response_body result type (default view)",
+      "example": {
+        "created_at": "1970-01-01T00:00:01Z",
+        "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+        "name": "abc123",
+        "object_key": "abc123",
+        "status": "stored",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "location_uuid": {
+          "description": "Identifier of storage location",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        },
+        "name": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "object_key": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "status": {
+          "default": "unspecified",
+          "description": "Status of the AIP",
+          "enum": [
+            "unspecified",
+            "stored",
+            "pending",
+            "processing",
+            "deleted",
+            "queued"
+          ],
+          "example": "stored",
+          "type": "string"
+        },
+        "uuid": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "uuid",
+        "status",
+        "object_key",
+        "created_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip; view=default",
+      "type": "object"
+    },
+    "EnduroStorageAipWorkflows": {
+      "description": "list_aip_workflows_response_body result type (default view)",
+      "example": {
+        "workflows": [
+          {
+            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "completed_at": "1970-01-01T00:00:01Z",
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "in progress",
+            "tasks": [
+              {
+                "completed_at": "1970-01-01T00:00:01Z",
+                "name": "abc123",
+                "note": "abc123",
+                "started_at": "1970-01-01T00:00:01Z",
+                "status": "in progress",
+                "uuid": "abc123",
+                "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+              }
+            ],
+            "temporal_id": "abc123",
+            "type": "upload aip",
+            "uuid": "abc123"
+          }
+        ]
+      },
+      "properties": {
+        "workflows": {
+          "$ref": "#/definitions/AIPWorkflowResponseBodyCollection"
+        }
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aip.workflows; view=default",
+      "type": "object"
+    },
+    "EnduroStorageAips": {
+      "description": "list_aips_response_body result type (default view)",
+      "example": {
+        "items": [
+          {
+            "created_at": "1970-01-01T00:00:01Z",
+            "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "name": "abc123",
+            "object_key": "abc123",
+            "status": "stored",
+            "uuid": "abc123"
+          }
+        ],
+        "page": {
+          "limit": 1,
+          "offset": 1,
+          "total": 1
+        }
+      },
+      "properties": {
+        "items": {
+          "$ref": "#/definitions/AIPResponseBodyCollection"
+        },
+        "page": {
+          "$ref": "#/definitions/EnduroPageResponseBody"
+        }
+      },
+      "required": [
+        "items",
+        "page"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.storage.aips; view=default",
+      "type": "object"
+    },
+    "EnduroStorageLocation": {
+      "description": "show_location_response_body result type (default view)",
+      "example": {
+        "created_at": "1970-01-01T00:00:01Z",
+        "description": "abc123",
+        "name": "abc123",
+        "purpose": "aip_store",
+        "source": "minio",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "created_at": {
+          "description": "Creation datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "description": {
+          "description": "Description of the location",
+          "example": "abc123",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name of location",
+          "example": "abc123",
+          "type": "string"
+        },
+        "purpose": {
+          "default": "unspecified",
+          "description": "Purpose of the location",
+          "enum": [
+            "unspecified",
+            "aip_store"
+          ],
+          "example": "aip_store",
+          "type": "string"
+        },
+        "source": {
+          "default": "unspecified",
+          "description": "Data source of the location",
+          "enum": [
+            "unspecified",
+            "minio",
+            "sftp",
+            "amss"
+          ],
+          "example": "minio",
+          "type": "string"
+        },
+        "uuid": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "source",
+        "purpose",
+        "uuid",
+        "created_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.storage.location; view=default",
       "type": "object"
     },
     "IngestAddSipInternalErrorResponseBody": {
@@ -658,32 +1135,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestConfirmSipNotFoundResponseBody": {
-      "description": "SIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing SIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "format": "uuid",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "IngestConfirmSipNotFoundResponseBody",
-      "type": "object"
-    },
     "IngestConfirmSipNotValidResponseBody": {
       "description": "confirm_sip_not_valid_response_body result type (default view)",
       "example": {
@@ -807,32 +1258,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestDownloadSipNotFoundResponseBody": {
-      "description": "SIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing SIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "format": "uuid",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "IngestDownloadSipNotFoundResponseBody",
-      "type": "object"
-    },
     "IngestDownloadSipNotValidResponseBody": {
       "description": "download_sip_not_valid_response_body result type (default view)",
       "example": {
@@ -939,32 +1364,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestDownloadSipRequestNotFoundResponseBody": {
-      "description": "SIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing SIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "format": "uuid",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "IngestDownloadSipRequestNotFoundResponseBody",
-      "type": "object"
-    },
     "IngestDownloadSipRequestNotValidResponseBody": {
       "description": "download_sip_request_not_valid_response_body result type (default view)",
       "example": {
@@ -1016,6 +1415,51 @@
         "fault"
       ],
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestEvent": {
+      "example": {
+        "ingest_value": {
+          "Type": "sip_created_event",
+          "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+        }
+      },
+      "properties": {
+        "ingest_value": {
+          "example": {
+            "Type": "sip_created_event",
+            "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+          },
+          "properties": {
+            "Type": {
+              "description": "Union type name, one of:\n- \"ingest_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"",
+              "enum": [
+                "ingest_ping_event",
+                "sip_created_event",
+                "sip_updated_event",
+                "sip_status_updated_event",
+                "sip_workflow_created_event",
+                "sip_workflow_updated_event",
+                "sip_task_created_event",
+                "sip_task_updated_event"
+              ],
+              "example": "sip_created_event",
+              "type": "string"
+            },
+            "Value": {
+              "description": "JSON encoded union value",
+              "example": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
+              "type": "string"
+            }
+          },
+          "required": [
+            "Type",
+            "Value"
+          ],
+          "type": "object"
+        }
+      },
+      "title": "IngestEvent",
       "type": "object"
     },
     "IngestListSipSourceObjectsInternalErrorResponseBody": {
@@ -1177,103 +1621,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestListSipSourceObjectsResponseBody": {
-      "description": "list_sip_source_objects_response_body result type (default view)",
-      "example": {
-        "limit": 1,
-        "next": "abc123",
-        "objects": [
-          {
-            "is_dir": false,
-            "key": "abc123",
-            "mod_time": "1970-01-01T00:00:01Z",
-            "size": 1
-          }
-        ]
-      },
-      "properties": {
-        "limit": {
-          "description": "Limit of objects per page",
-          "example": 1,
-          "format": "int64",
-          "type": "integer"
-        },
-        "next": {
-          "description": "Token to get the next page of objects",
-          "example": "abc123",
-          "type": "string"
-        },
-        "objects": {
-          "$ref": "#/definitions/SIPSourceObjectResponseBodyCollection"
-        }
-      },
-      "required": [
-        "objects",
-        "limit"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.ingest.sipsource.objects; view=default",
-      "type": "object"
-    },
-    "IngestListSipWorkflowsNotFoundResponseBody": {
-      "description": "SIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing SIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "format": "uuid",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "IngestListSipWorkflowsNotFoundResponseBody",
-      "type": "object"
-    },
-    "IngestListSipWorkflowsResponseBody": {
-      "description": "list_sip_workflows_response_body result type (default view)",
-      "example": {
-        "workflows": [
-          {
-            "completed_at": "1970-01-01T00:00:01Z",
-            "sip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-            "started_at": "1970-01-01T00:00:01Z",
-            "status": "in progress",
-            "tasks": [
-              {
-                "completed_at": "1970-01-01T00:00:01Z",
-                "name": "abc123",
-                "note": "abc123",
-                "started_at": "1970-01-01T00:00:01Z",
-                "status": "in progress",
-                "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-                "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-              }
-            ],
-            "temporal_id": "abc123",
-            "type": "create and review aip",
-            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-          }
-        ]
-      },
-      "properties": {
-        "workflows": {
-          "$ref": "#/definitions/SIPWorkflowResponseBodyCollection"
-        }
-      },
-      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.workflows; view=default",
-      "type": "object"
-    },
     "IngestListSipsNotValidResponseBody": {
       "description": "list_sips_not_valid_response_body result type (default view)",
       "example": {
@@ -1327,46 +1674,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestListSipsResponseBody": {
-      "description": "list_sips_response_body result type (default view)",
-      "example": {
-        "items": [
-          {
-            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-            "completed_at": "1970-01-01T00:00:01Z",
-            "created_at": "1970-01-01T00:00:01Z",
-            "failed_as": "PIP",
-            "failed_key": "abc123",
-            "name": "abc123",
-            "started_at": "1970-01-01T00:00:01Z",
-            "status": "failed",
-            "uploader_email": "abc123",
-            "uploader_name": "abc123",
-            "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-          }
-        ],
-        "page": {
-          "limit": 1,
-          "offset": 1,
-          "total": 1
-        }
-      },
-      "properties": {
-        "items": {
-          "$ref": "#/definitions/SIPResponseBodyCollection"
-        },
-        "page": {
-          "$ref": "#/definitions/EnduroPageResponseBody"
-        }
-      },
-      "required": [
-        "items",
-        "page"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.ingest.sips; view=default",
-      "type": "object"
-    },
     "IngestListUsersNotValidResponseBody": {
       "description": "list_users_not_valid_response_body result type (default view)",
       "example": {
@@ -1418,38 +1725,6 @@
         "fault"
       ],
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "IngestListUsersResponseBody": {
-      "description": "list_users_response_body result type (default view)",
-      "example": {
-        "items": [
-          {
-            "created_at": "1970-01-01T00:00:01Z",
-            "email": "nobody@example.com",
-            "name": "Jane Doe",
-            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-          }
-        ],
-        "page": {
-          "limit": 1,
-          "offset": 1,
-          "total": 1
-        }
-      },
-      "properties": {
-        "items": {
-          "$ref": "#/definitions/UserResponseBodyCollection"
-        },
-        "page": {
-          "$ref": "#/definitions/EnduroPageResponseBody"
-        }
-      },
-      "required": [
-        "items",
-        "page"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.ingest.users; view=default",
       "type": "object"
     },
     "IngestMonitorInternalErrorResponseBody": {
@@ -1558,51 +1833,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestMonitorResponseBody": {
-      "example": {
-        "ingest_value": {
-          "Type": "sip_created_event",
-          "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
-        }
-      },
-      "properties": {
-        "ingest_value": {
-          "example": {
-            "Type": "sip_created_event",
-            "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
-          },
-          "properties": {
-            "Type": {
-              "description": "Union type name, one of:\n- \"ingest_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"",
-              "enum": [
-                "ingest_ping_event",
-                "sip_created_event",
-                "sip_updated_event",
-                "sip_status_updated_event",
-                "sip_workflow_created_event",
-                "sip_workflow_updated_event",
-                "sip_task_created_event",
-                "sip_task_updated_event"
-              ],
-              "example": "sip_created_event",
-              "type": "string"
-            },
-            "Value": {
-              "description": "JSON encoded union value",
-              "example": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
-              "type": "string"
-            }
-          },
-          "required": [
-            "Type",
-            "Value"
-          ],
-          "type": "object"
-        }
-      },
-      "title": "IngestMonitorResponseBody",
-      "type": "object"
-    },
     "IngestRejectSipNotAvailableResponseBody": {
       "description": "reject_sip_not_available_response_body result type (default view)",
       "example": {
@@ -1654,32 +1884,6 @@
         "fault"
       ],
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "IngestRejectSipNotFoundResponseBody": {
-      "description": "SIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing SIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "format": "uuid",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "IngestRejectSipNotFoundResponseBody",
       "type": "object"
     },
     "IngestRejectSipNotValidResponseBody": {
@@ -1786,134 +1990,6 @@
         "fault"
       ],
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "IngestShowSipNotFoundResponseBody": {
-      "description": "SIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing SIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "format": "uuid",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "IngestShowSipNotFoundResponseBody",
-      "type": "object"
-    },
-    "IngestShowSipResponseBody": {
-      "description": "show_sip_response_body result type (default view)",
-      "example": {
-        "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-        "completed_at": "1970-01-01T00:00:01Z",
-        "created_at": "1970-01-01T00:00:01Z",
-        "failed_as": "PIP",
-        "failed_key": "abc123",
-        "name": "abc123",
-        "started_at": "1970-01-01T00:00:01Z",
-        "status": "failed",
-        "uploader_email": "abc123",
-        "uploader_name": "abc123",
-        "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-      },
-      "properties": {
-        "aip_uuid": {
-          "description": "Identifier of AIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "format": "uuid",
-          "type": "string"
-        },
-        "completed_at": {
-          "description": "Completion datetime",
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "created_at": {
-          "description": "Creation datetime",
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "failed_as": {
-          "description": "Package type in case of failure (SIP or PIP)",
-          "enum": [
-            "SIP",
-            "PIP"
-          ],
-          "example": "PIP",
-          "type": "string"
-        },
-        "failed_key": {
-          "description": "Object key of the failed package in the internal bucket",
-          "example": "abc123",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name of the SIP",
-          "example": "abc123",
-          "type": "string"
-        },
-        "started_at": {
-          "description": "Start datetime",
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "status": {
-          "description": "Status of the SIP",
-          "enum": [
-            "error",
-            "failed",
-            "queued",
-            "processing",
-            "pending",
-            "ingested"
-          ],
-          "example": "failed",
-          "type": "string"
-        },
-        "uploader_email": {
-          "description": "Email of the user who uploaded the SIP",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uploader_name": {
-          "description": "Name of the user who uploaded the SIP",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uploader_uuid": {
-          "description": "UUID of the user who uploaded the SIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of SIP",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "type": "string"
-        }
-      },
-      "required": [
-        "uuid",
-        "status",
-        "created_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.ingest.sip; view=default",
       "type": "object"
     },
     "IngestUploadSipInternalErrorResponseBody": {
@@ -2093,6 +2169,30 @@
       "title": "IngestUploadSipResponseBody",
       "type": "object"
     },
+    "LocationNotFound": {
+      "description": "Storage location not found",
+      "example": {
+        "message": "abc123",
+        "uuid": "abc123"
+      },
+      "properties": {
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uuid": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "uuid"
+      ],
+      "title": "LocationNotFound",
+      "type": "object"
+    },
     "LocationResponse": {
       "description": "A Location describes a location retrieved by the storage service. (default view)",
       "example": {
@@ -2155,6 +2255,48 @@
         "created_at"
       ],
       "title": "Mediatype identifier: application/vnd.enduro.storage.location; view=default",
+      "type": "object"
+    },
+    "MoveStatusResult": {
+      "example": {
+        "done": false
+      },
+      "properties": {
+        "done": {
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "done"
+      ],
+      "title": "MoveStatusResult",
+      "type": "object"
+    },
+    "SIPNotFound": {
+      "description": "SIP not found",
+      "example": {
+        "message": "abc123",
+        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of missing SIP",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "format": "uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "uuid"
+      ],
+      "title": "SIPNotFound",
       "type": "object"
     },
     "SIPResponseBody": {
@@ -2552,31 +2694,6 @@
       "title": "Mediatype identifier: application/vnd.enduro.storage.aip; type=collection; view=default",
       "type": "array"
     },
-    "StorageCancelAipDeletionNotFoundResponseBody": {
-      "description": "AIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing AIP",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageCancelAipDeletionNotFoundResponseBody",
-      "type": "object"
-    },
     "StorageCancelAipDeletionRequestBody": {
       "example": {
         "check": false
@@ -2696,65 +2813,6 @@
         "object_key"
       ],
       "title": "StorageCreateAipRequestBody",
-      "type": "object"
-    },
-    "StorageCreateAipResponseBody": {
-      "description": "create_aip_response_body result type (default view)",
-      "example": {
-        "created_at": "1970-01-01T00:00:01Z",
-        "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-        "name": "abc123",
-        "object_key": "abc123",
-        "status": "stored",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "created_at": {
-          "description": "Creation datetime",
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "location_uuid": {
-          "description": "Identifier of storage location",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "type": "string"
-        },
-        "name": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "object_key": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "status": {
-          "default": "unspecified",
-          "description": "Status of the AIP",
-          "enum": [
-            "unspecified",
-            "stored",
-            "pending",
-            "processing",
-            "deleted",
-            "queued"
-          ],
-          "example": "stored",
-          "type": "string"
-        },
-        "uuid": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "uuid",
-        "status",
-        "object_key",
-        "created_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.storage.aip; view=default",
       "type": "object"
     },
     "StorageCreateLocationNotValidResponseBody": {
@@ -2886,22 +2944,6 @@
       "title": "StorageCreateLocationRequestBody",
       "type": "object"
     },
-    "StorageCreateLocationResponseBody": {
-      "example": {
-        "uuid": "abc123"
-      },
-      "properties": {
-        "uuid": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "uuid"
-      ],
-      "title": "StorageCreateLocationResponseBody",
-      "type": "object"
-    },
     "StorageDownloadAipInternalErrorResponseBody": {
       "description": "download_aip_internal_error_response_body result type (default view)",
       "example": {
@@ -2953,31 +2995,6 @@
         "fault"
       ],
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "StorageDownloadAipNotFoundResponseBody": {
-      "description": "AIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing AIP",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageDownloadAipNotFoundResponseBody",
       "type": "object"
     },
     "StorageDownloadAipNotValidResponseBody": {
@@ -3086,31 +3103,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageDownloadAipRequestNotFoundResponseBody": {
-      "description": "AIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing AIP",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageDownloadAipRequestNotFoundResponseBody",
-      "type": "object"
-    },
     "StorageDownloadAipRequestNotValidResponseBody": {
       "description": "download_aip_request_not_valid_response_body result type (default view)",
       "example": {
@@ -3164,63 +3156,50 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageListAipWorkflowsNotFoundResponseBody": {
-      "description": "AIP not found",
+    "StorageEvent": {
       "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing AIP",
-          "example": "abc123",
-          "type": "string"
+        "storage_value": {
+          "Type": "location_created_event",
+          "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
         }
       },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageListAipWorkflowsNotFoundResponseBody",
-      "type": "object"
-    },
-    "StorageListAipWorkflowsResponseBody": {
-      "description": "list_aip_workflows_response_body result type (default view)",
-      "example": {
-        "workflows": [
-          {
-            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-            "completed_at": "1970-01-01T00:00:01Z",
-            "started_at": "1970-01-01T00:00:01Z",
-            "status": "in progress",
-            "tasks": [
-              {
-                "completed_at": "1970-01-01T00:00:01Z",
-                "name": "abc123",
-                "note": "abc123",
-                "started_at": "1970-01-01T00:00:01Z",
-                "status": "in progress",
-                "uuid": "abc123",
-                "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-              }
-            ],
-            "temporal_id": "abc123",
-            "type": "upload aip",
-            "uuid": "abc123"
-          }
-        ]
-      },
       "properties": {
-        "workflows": {
-          "$ref": "#/definitions/AIPWorkflowResponseBodyCollection"
+        "storage_value": {
+          "example": {
+            "Type": "location_created_event",
+            "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+          },
+          "properties": {
+            "Type": {
+              "description": "Union type name, one of:\n- \"storage_ping_event\"\n- \"location_created_event\"\n- \"aip_created_event\"\n- \"aip_status_updated_event\"\n- \"aip_location_updated_event\"\n- \"aip_workflow_created_event\"\n- \"aip_workflow_updated_event\"\n- \"aip_task_created_event\"\n- \"aip_task_updated_event\"",
+              "enum": [
+                "storage_ping_event",
+                "location_created_event",
+                "aip_created_event",
+                "aip_status_updated_event",
+                "aip_location_updated_event",
+                "aip_workflow_created_event",
+                "aip_workflow_updated_event",
+                "aip_task_created_event",
+                "aip_task_updated_event"
+              ],
+              "example": "location_created_event",
+              "type": "string"
+            },
+            "Value": {
+              "description": "JSON encoded union value",
+              "example": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
+              "type": "string"
+            }
+          },
+          "required": [
+            "Type",
+            "Value"
+          ],
+          "type": "object"
         }
       },
-      "title": "Mediatype identifier: application/vnd.enduro.storage.aip.workflows; view=default",
+      "title": "StorageEvent",
       "type": "object"
     },
     "StorageListAipsNotAvailableResponseBody": {
@@ -3327,64 +3306,6 @@
         "fault"
       ],
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "StorageListAipsResponseBody": {
-      "description": "list_aips_response_body result type (default view)",
-      "example": {
-        "items": [
-          {
-            "created_at": "1970-01-01T00:00:01Z",
-            "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-            "name": "abc123",
-            "object_key": "abc123",
-            "status": "stored",
-            "uuid": "abc123"
-          }
-        ],
-        "page": {
-          "limit": 1,
-          "offset": 1,
-          "total": 1
-        }
-      },
-      "properties": {
-        "items": {
-          "$ref": "#/definitions/AIPResponseBodyCollection"
-        },
-        "page": {
-          "$ref": "#/definitions/EnduroPageResponseBody"
-        }
-      },
-      "required": [
-        "items",
-        "page"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.storage.aips; view=default",
-      "type": "object"
-    },
-    "StorageListLocationAipsNotFoundResponseBody": {
-      "description": "Storage location not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageListLocationAipsNotFoundResponseBody",
       "type": "object"
     },
     "StorageListLocationAipsNotValidResponseBody": {
@@ -3564,52 +3485,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageMonitorResponseBody": {
-      "example": {
-        "storage_value": {
-          "Type": "location_created_event",
-          "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
-        }
-      },
-      "properties": {
-        "storage_value": {
-          "example": {
-            "Type": "location_created_event",
-            "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
-          },
-          "properties": {
-            "Type": {
-              "description": "Union type name, one of:\n- \"storage_ping_event\"\n- \"location_created_event\"\n- \"aip_created_event\"\n- \"aip_status_updated_event\"\n- \"aip_location_updated_event\"\n- \"aip_workflow_created_event\"\n- \"aip_workflow_updated_event\"\n- \"aip_task_created_event\"\n- \"aip_task_updated_event\"",
-              "enum": [
-                "storage_ping_event",
-                "location_created_event",
-                "aip_created_event",
-                "aip_status_updated_event",
-                "aip_location_updated_event",
-                "aip_workflow_created_event",
-                "aip_workflow_updated_event",
-                "aip_task_created_event",
-                "aip_task_updated_event"
-              ],
-              "example": "location_created_event",
-              "type": "string"
-            },
-            "Value": {
-              "description": "JSON encoded union value",
-              "example": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
-              "type": "string"
-            }
-          },
-          "required": [
-            "Type",
-            "Value"
-          ],
-          "type": "object"
-        }
-      },
-      "title": "StorageMonitorResponseBody",
-      "type": "object"
-    },
     "StorageMoveAipNotAvailableResponseBody": {
       "description": "move_aip_not_available_response_body result type (default view)",
       "example": {
@@ -3661,31 +3536,6 @@
         "fault"
       ],
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "StorageMoveAipNotFoundResponseBody": {
-      "description": "AIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing AIP",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageMoveAipNotFoundResponseBody",
       "type": "object"
     },
     "StorageMoveAipNotValidResponseBody": {
@@ -3811,47 +3661,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageMoveAipStatusNotFoundResponseBody": {
-      "description": "AIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing AIP",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageMoveAipStatusNotFoundResponseBody",
-      "type": "object"
-    },
-    "StorageMoveAipStatusResponseBody": {
-      "example": {
-        "done": false
-      },
-      "properties": {
-        "done": {
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "done"
-      ],
-      "title": "StorageMoveAipStatusResponseBody",
-      "type": "object"
-    },
     "StorageRejectAipNotAvailableResponseBody": {
       "description": "reject_aip_not_available_response_body result type (default view)",
       "example": {
@@ -3903,31 +3712,6 @@
         "fault"
       ],
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "StorageRejectAipNotFoundResponseBody": {
-      "description": "AIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing AIP",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageRejectAipNotFoundResponseBody",
       "type": "object"
     },
     "StorageRejectAipNotValidResponseBody": {
@@ -3983,31 +3767,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageRequestAipDeletionNotFoundResponseBody": {
-      "description": "AIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing AIP",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageRequestAipDeletionNotFoundResponseBody",
-      "type": "object"
-    },
     "StorageRequestAipDeletionRequestBody": {
       "example": {
         "reason": "abc123"
@@ -4024,31 +3783,6 @@
       "title": "StorageRequestAipDeletionRequestBody",
       "type": "object"
     },
-    "StorageReviewAipDeletionNotFoundResponseBody": {
-      "description": "AIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing AIP",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageReviewAipDeletionNotFoundResponseBody",
-      "type": "object"
-    },
     "StorageReviewAipDeletionRequestBody": {
       "example": {
         "approved": false
@@ -4063,178 +3797,6 @@
         "approved"
       ],
       "title": "StorageReviewAipDeletionRequestBody",
-      "type": "object"
-    },
-    "StorageShowAipNotFoundResponseBody": {
-      "description": "AIP not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "description": "Identifier of missing AIP",
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageShowAipNotFoundResponseBody",
-      "type": "object"
-    },
-    "StorageShowAipResponseBody": {
-      "description": "show_aip_response_body result type (default view)",
-      "example": {
-        "created_at": "1970-01-01T00:00:01Z",
-        "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-        "name": "abc123",
-        "object_key": "abc123",
-        "status": "stored",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "created_at": {
-          "description": "Creation datetime",
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "location_uuid": {
-          "description": "Identifier of storage location",
-          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-          "type": "string"
-        },
-        "name": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "object_key": {
-          "example": "abc123",
-          "type": "string"
-        },
-        "status": {
-          "default": "unspecified",
-          "description": "Status of the AIP",
-          "enum": [
-            "unspecified",
-            "stored",
-            "pending",
-            "processing",
-            "deleted",
-            "queued"
-          ],
-          "example": "stored",
-          "type": "string"
-        },
-        "uuid": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "uuid",
-        "status",
-        "object_key",
-        "created_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.storage.aip; view=default",
-      "type": "object"
-    },
-    "StorageShowLocationNotFoundResponseBody": {
-      "description": "Storage location not found",
-      "example": {
-        "message": "abc123",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "message": {
-          "description": "Message of error",
-          "example": "abc123",
-          "type": "string"
-        },
-        "uuid": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "message",
-        "uuid"
-      ],
-      "title": "StorageShowLocationNotFoundResponseBody",
-      "type": "object"
-    },
-    "StorageShowLocationResponseBody": {
-      "description": "show_location_response_body result type (default view)",
-      "example": {
-        "created_at": "1970-01-01T00:00:01Z",
-        "description": "abc123",
-        "name": "abc123",
-        "purpose": "aip_store",
-        "source": "minio",
-        "uuid": "abc123"
-      },
-      "properties": {
-        "created_at": {
-          "description": "Creation datetime",
-          "example": "1970-01-01T00:00:01Z",
-          "format": "date-time",
-          "type": "string"
-        },
-        "description": {
-          "description": "Description of the location",
-          "example": "abc123",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name of location",
-          "example": "abc123",
-          "type": "string"
-        },
-        "purpose": {
-          "default": "unspecified",
-          "description": "Purpose of the location",
-          "enum": [
-            "unspecified",
-            "aip_store"
-          ],
-          "example": "aip_store",
-          "type": "string"
-        },
-        "source": {
-          "default": "unspecified",
-          "description": "Data source of the location",
-          "enum": [
-            "unspecified",
-            "minio",
-            "sftp",
-            "amss"
-          ],
-          "example": "minio",
-          "type": "string"
-        },
-        "uuid": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "name",
-        "source",
-        "purpose",
-        "uuid",
-        "created_at"
-      ],
-      "title": "Mediatype identifier: application/vnd.enduro.storage.location; view=default",
       "type": "object"
     },
     "StorageSubmitAipNotAvailableResponseBody": {
@@ -4359,22 +3921,6 @@
       "title": "StorageSubmitAipRequestBody",
       "type": "object"
     },
-    "StorageSubmitAipResponseBody": {
-      "example": {
-        "url": "abc123"
-      },
-      "properties": {
-        "url": {
-          "example": "abc123",
-          "type": "string"
-        }
-      },
-      "required": [
-        "url"
-      ],
-      "title": "StorageSubmitAipResponseBody",
-      "type": "object"
-    },
     "StorageUpdateAipNotAvailableResponseBody": {
       "description": "update_aip_not_available_response_body result type (default view)",
       "example": {
@@ -4481,6 +4027,22 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
+    "SubmitAIPResult": {
+      "example": {
+        "url": "abc123"
+      },
+      "properties": {
+        "url": {
+          "example": "abc123",
+          "type": "string"
+        }
+      },
+      "required": [
+        "url"
+      ],
+      "title": "SubmitAIPResult",
+      "type": "object"
+    },
     "UserResponseBody": {
       "description": "User describes an Enduro user. (default view)",
       "example": {
@@ -4560,7 +4122,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/AboutAboutResponseBody"
+              "$ref": "#/definitions/EnduroAbout"
             }
           },
           "401": {
@@ -4575,7 +4137,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "about about",
@@ -4592,7 +4154,7 @@
           "101": {
             "description": "Switching Protocols response.",
             "schema": {
-              "$ref": "#/definitions/IngestMonitorResponseBody"
+              "$ref": "#/definitions/IngestEvent"
             }
           },
           "401": {
@@ -4661,7 +4223,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "monitor_request ingest",
@@ -4708,7 +4270,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/IngestListSipSourceObjectsResponseBody"
+              "$ref": "#/definitions/EnduroIngestSipsourceObjects"
             }
           },
           "400": {
@@ -4747,7 +4309,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "list_sip_source_objects ingest",
@@ -4836,7 +4398,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/IngestListSipsResponseBody"
+              "$ref": "#/definitions/EnduroIngestSips"
             }
           },
           "400": {
@@ -4863,7 +4425,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "list_sips ingest",
@@ -4937,7 +4499,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "add_sip ingest",
@@ -5007,7 +4569,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "upload_sip ingest",
@@ -5040,7 +4602,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/IngestShowSipResponseBody"
+              "$ref": "#/definitions/EnduroIngestSip"
             }
           },
           "401": {
@@ -5058,7 +4620,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/IngestShowSipNotFoundResponseBody",
+              "$ref": "#/definitions/SIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -5077,7 +4639,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "show_sip ingest",
@@ -5142,7 +4704,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/IngestConfirmSipNotFoundResponseBody",
+              "$ref": "#/definitions/SIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -5161,7 +4723,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "confirm_sip ingest",
@@ -5220,7 +4782,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/IngestDownloadSipNotFoundResponseBody",
+              "$ref": "#/definitions/SIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -5286,7 +4848,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/IngestDownloadSipRequestNotFoundResponseBody",
+              "$ref": "#/definitions/SIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -5305,7 +4867,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "download_sip_request ingest",
@@ -5359,7 +4921,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/IngestRejectSipNotFoundResponseBody",
+              "$ref": "#/definitions/SIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -5378,7 +4940,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "reject_sip ingest",
@@ -5411,7 +4973,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/IngestListSipWorkflowsResponseBody"
+              "$ref": "#/definitions/EnduroIngestSipWorkflows"
             }
           },
           "401": {
@@ -5429,7 +4991,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/IngestListSipWorkflowsNotFoundResponseBody",
+              "$ref": "#/definitions/SIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -5442,7 +5004,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "list_sip_workflows ingest",
@@ -5495,7 +5057,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/IngestListUsersResponseBody"
+              "$ref": "#/definitions/EnduroIngestUsers"
             }
           },
           "400": {
@@ -5522,7 +5084,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "list_users ingest",
@@ -5595,7 +5157,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/StorageListAipsResponseBody"
+              "$ref": "#/definitions/EnduroStorageAips"
             }
           },
           "400": {
@@ -5628,7 +5190,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "list_aips storage",
@@ -5664,7 +5226,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/StorageCreateAipResponseBody"
+              "$ref": "#/definitions/EnduroStorageAip"
             }
           },
           "400": {
@@ -5691,7 +5253,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "create_aip storage",
@@ -5724,7 +5286,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/StorageShowAipResponseBody"
+              "$ref": "#/definitions/EnduroStorageAip"
             }
           },
           "401": {
@@ -5742,7 +5304,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageShowAipNotFoundResponseBody",
+              "$ref": "#/definitions/AIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -5755,7 +5317,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "show_aip storage",
@@ -5811,7 +5373,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageCancelAipDeletionNotFoundResponseBody",
+              "$ref": "#/definitions/AIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -5824,7 +5386,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "cancel_aip_deletion storage",
@@ -5883,7 +5445,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageRequestAipDeletionNotFoundResponseBody",
+              "$ref": "#/definitions/AIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -5896,7 +5458,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "request_aip_deletion storage",
@@ -5955,7 +5517,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageReviewAipDeletionNotFoundResponseBody",
+              "$ref": "#/definitions/AIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -5968,7 +5530,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "review_aip_deletion storage",
@@ -6027,7 +5589,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageDownloadAipNotFoundResponseBody",
+              "$ref": "#/definitions/AIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -6093,7 +5655,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageDownloadAipRequestNotFoundResponseBody",
+              "$ref": "#/definitions/AIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -6112,7 +5674,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "download_aip_request storage",
@@ -6166,7 +5728,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageRejectAipNotFoundResponseBody",
+              "$ref": "#/definitions/AIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -6185,7 +5747,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "reject_aip storage",
@@ -6218,7 +5780,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/StorageMoveAipStatusResponseBody",
+              "$ref": "#/definitions/MoveStatusResult",
               "required": [
                 "done"
               ]
@@ -6239,7 +5801,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageMoveAipStatusNotFoundResponseBody",
+              "$ref": "#/definitions/AIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -6258,7 +5820,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "move_aip_status storage",
@@ -6321,7 +5883,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageMoveAipNotFoundResponseBody",
+              "$ref": "#/definitions/AIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -6340,7 +5902,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "move_aip storage",
@@ -6384,7 +5946,7 @@
           "202": {
             "description": "Accepted response.",
             "schema": {
-              "$ref": "#/definitions/StorageSubmitAipResponseBody",
+              "$ref": "#/definitions/SubmitAIPResult",
               "required": [
                 "url"
               ]
@@ -6420,7 +5982,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "submit_aip storage",
@@ -6483,7 +6045,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "update_aip storage",
@@ -6543,7 +6105,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/StorageListAipWorkflowsResponseBody"
+              "$ref": "#/definitions/EnduroStorageAipWorkflows"
             }
           },
           "401": {
@@ -6561,7 +6123,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageListAipWorkflowsNotFoundResponseBody",
+              "$ref": "#/definitions/AIPNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -6574,7 +6136,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "list_aip_workflows storage",
@@ -6620,7 +6182,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "list_locations storage",
@@ -6656,7 +6218,7 @@
           "201": {
             "description": "Created response.",
             "schema": {
-              "$ref": "#/definitions/StorageCreateLocationResponseBody",
+              "$ref": "#/definitions/CreateLocationResult",
               "required": [
                 "uuid"
               ]
@@ -6686,7 +6248,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "create_location storage",
@@ -6719,7 +6281,7 @@
           "200": {
             "description": "OK response.",
             "schema": {
-              "$ref": "#/definitions/StorageShowLocationResponseBody"
+              "$ref": "#/definitions/EnduroStorageLocation"
             }
           },
           "401": {
@@ -6737,7 +6299,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageShowLocationNotFoundResponseBody",
+              "$ref": "#/definitions/LocationNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -6750,7 +6312,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "show_location storage",
@@ -6807,7 +6369,7 @@
           "404": {
             "description": "Not Found response.",
             "schema": {
-              "$ref": "#/definitions/StorageListLocationAipsNotFoundResponseBody",
+              "$ref": "#/definitions/LocationNotFound",
               "required": [
                 "message",
                 "uuid"
@@ -6820,7 +6382,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "list_location_aips storage",
@@ -6837,7 +6399,7 @@
           "101": {
             "description": "Switching Protocols response.",
             "schema": {
-              "$ref": "#/definitions/StorageMonitorResponseBody"
+              "$ref": "#/definitions/StorageEvent"
             }
           },
           "401": {
@@ -6906,7 +6468,7 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": []
+            "jwt_header_Authorization": null
           }
         ],
         "summary": "monitor_request storage",
