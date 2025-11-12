@@ -33,7 +33,7 @@ func TestEventSerializer(t *testing.T) {
 
 	serializer := &ingest.EventSerializer{}
 	originalEvent := &goaingest.IngestEvent{
-		IngestValue: &goaingest.IngestPingEvent{Message: ref.New("test")},
+		Value: &goaingest.IngestPingEvent{Message: ref.New("test")},
 	}
 
 	data, err := serializer.Marshal(originalEvent)

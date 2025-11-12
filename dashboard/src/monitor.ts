@@ -134,10 +134,8 @@ export class IngestMonitorConnection extends MonitorConnection {
     // Handle incoming messages.
     this.socket.onmessage = (ev: MessageEvent) => {
       const body = JSON.parse(ev.data);
-      const data = api.IngestEventFromJSON(body);
-      if (data.ingestValue) {
-        handleIngestEvent(data.ingestValue);
-      }
+      const data = api.IngestEvent2FromJSON(body);
+      if (data.value) handleIngestEvent(data.value);
     };
   }
 }
@@ -177,10 +175,8 @@ export class StorageMonitorConnection extends MonitorConnection {
     // Handle incoming messages.
     this.socket.onmessage = (ev: MessageEvent) => {
       const body = JSON.parse(ev.data);
-      const data = api.StorageEventFromJSON(body);
-      if (data.storageValue) {
-        handleStorageEvent(data.storageValue);
-      }
+      const data = api.StorageEvent2FromJSON(body);
+      if (data.value) handleStorageEvent(data.value);
     };
   }
 }

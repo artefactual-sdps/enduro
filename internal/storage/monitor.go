@@ -55,7 +55,7 @@ func (s *serviceImpl) Monitor(
 
 	// Say hello to be nice.
 	event := &goastorage.StoragePingEvent{Message: ref.New("Hello")}
-	if err := stream.Send(&goastorage.StorageEvent{StorageValue: event}); err != nil {
+	if err := stream.Send(&goastorage.StorageEvent{Value: event}); err != nil {
 		// Consider send errors as client disconnections.
 		s.logger.V(1).Info("Failed to send hello event.", "err", err)
 		return nil
@@ -74,7 +74,7 @@ func (s *serviceImpl) Monitor(
 
 		case <-ticker.C:
 			event := &goastorage.StoragePingEvent{Message: ref.New("Ping")}
-			if err := stream.Send(&goastorage.StorageEvent{StorageValue: event}); err != nil {
+			if err := stream.Send(&goastorage.StorageEvent{Value: event}); err != nil {
 				// Consider send errors as client disconnections.
 				s.logger.V(1).Info("Failed to send ping event.", "err", err)
 				return nil
@@ -86,7 +86,7 @@ func (s *serviceImpl) Monitor(
 			}
 
 			// Check the event type and the user attributes before sending.
-			switch event.StorageValue.(type) {
+			switch event.Value.(type) {
 			case *goastorage.StoragePingEvent:
 				// Is this event even sent through this channel?
 			case *goastorage.LocationCreatedEvent:

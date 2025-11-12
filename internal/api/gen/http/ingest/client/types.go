@@ -27,7 +27,7 @@ type ConfirmSipRequestBody struct {
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
-	IngestValue *struct {
+	Value *struct {
 		// Union type name, one of:
 		// - "ingest_ping_event"
 		// - "sip_created_event"
@@ -40,7 +40,7 @@ type MonitorResponseBody struct {
 		Type *string `form:"Type" json:"Type" xml:"Type"`
 		// JSON encoded union value
 		Value *string `form:"Value" json:"Value" xml:"Value"`
-	} `form:"ingest_value,omitempty" json:"ingest_value,omitempty" xml:"ingest_value,omitempty"`
+	} `form:"value,omitempty" json:"value,omitempty" xml:"value,omitempty"`
 }
 
 // ListSipsResponseBody is the type of the "ingest" service "list_sips"
@@ -713,40 +713,40 @@ func NewMonitorRequestUnauthorized(body string) ingest.Unauthorized {
 // from a HTTP "OK" response.
 func NewMonitorIngestEventOK(body *MonitorResponseBody) *ingest.IngestEvent {
 	v := &ingest.IngestEvent{}
-	if body.IngestValue != nil {
-		switch *body.IngestValue.Type {
+	if body.Value != nil {
+		switch *body.Value.Type {
 		case "ingest_ping_event":
 			var val *ingest.IngestPingEvent
-			json.Unmarshal([]byte(*body.IngestValue.Value), &val)
-			v.IngestValue = val
+			json.Unmarshal([]byte(*body.Value.Value), &val)
+			v.Value = val
 		case "sip_created_event":
 			var val *ingest.SIPCreatedEvent
-			json.Unmarshal([]byte(*body.IngestValue.Value), &val)
-			v.IngestValue = val
+			json.Unmarshal([]byte(*body.Value.Value), &val)
+			v.Value = val
 		case "sip_updated_event":
 			var val *ingest.SIPUpdatedEvent
-			json.Unmarshal([]byte(*body.IngestValue.Value), &val)
-			v.IngestValue = val
+			json.Unmarshal([]byte(*body.Value.Value), &val)
+			v.Value = val
 		case "sip_status_updated_event":
 			var val *ingest.SIPStatusUpdatedEvent
-			json.Unmarshal([]byte(*body.IngestValue.Value), &val)
-			v.IngestValue = val
+			json.Unmarshal([]byte(*body.Value.Value), &val)
+			v.Value = val
 		case "sip_workflow_created_event":
 			var val *ingest.SIPWorkflowCreatedEvent
-			json.Unmarshal([]byte(*body.IngestValue.Value), &val)
-			v.IngestValue = val
+			json.Unmarshal([]byte(*body.Value.Value), &val)
+			v.Value = val
 		case "sip_workflow_updated_event":
 			var val *ingest.SIPWorkflowUpdatedEvent
-			json.Unmarshal([]byte(*body.IngestValue.Value), &val)
-			v.IngestValue = val
+			json.Unmarshal([]byte(*body.Value.Value), &val)
+			v.Value = val
 		case "sip_task_created_event":
 			var val *ingest.SIPTaskCreatedEvent
-			json.Unmarshal([]byte(*body.IngestValue.Value), &val)
-			v.IngestValue = val
+			json.Unmarshal([]byte(*body.Value.Value), &val)
+			v.Value = val
 		case "sip_task_updated_event":
 			var val *ingest.SIPTaskUpdatedEvent
-			json.Unmarshal([]byte(*body.IngestValue.Value), &val)
-			v.IngestValue = val
+			json.Unmarshal([]byte(*body.Value.Value), &val)
+			v.Value = val
 		}
 	}
 
@@ -1426,16 +1426,16 @@ func NewListSipSourceObjectsUnauthorized(body string) ingest.Unauthorized {
 // ValidateMonitorResponseBody runs the validations defined on
 // MonitorResponseBody
 func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
-	if body.IngestValue != nil {
-		if body.IngestValue.Type == nil {
-			err = goa.MergeErrors(err, goa.MissingFieldError("Type", "body.ingest_value"))
+	if body.Value != nil {
+		if body.Value.Type == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Type", "body.value"))
 		}
-		if body.IngestValue.Value == nil {
-			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.ingest_value"))
+		if body.Value.Value == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.value"))
 		}
-		if body.IngestValue.Type != nil {
-			if !(*body.IngestValue.Type == "ingest_ping_event" || *body.IngestValue.Type == "sip_created_event" || *body.IngestValue.Type == "sip_updated_event" || *body.IngestValue.Type == "sip_status_updated_event" || *body.IngestValue.Type == "sip_workflow_created_event" || *body.IngestValue.Type == "sip_workflow_updated_event" || *body.IngestValue.Type == "sip_task_created_event" || *body.IngestValue.Type == "sip_task_updated_event") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.ingest_value.Type", *body.IngestValue.Type, []any{"ingest_ping_event", "sip_created_event", "sip_updated_event", "sip_status_updated_event", "sip_workflow_created_event", "sip_workflow_updated_event", "sip_task_created_event", "sip_task_updated_event"}))
+		if body.Value.Type != nil {
+			if !(*body.Value.Type == "ingest_ping_event" || *body.Value.Type == "sip_created_event" || *body.Value.Type == "sip_updated_event" || *body.Value.Type == "sip_status_updated_event" || *body.Value.Type == "sip_workflow_created_event" || *body.Value.Type == "sip_workflow_updated_event" || *body.Value.Type == "sip_task_created_event" || *body.Value.Type == "sip_task_updated_event") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.value.Type", *body.Value.Type, []any{"ingest_ping_event", "sip_created_event", "sip_updated_event", "sip_status_updated_event", "sip_workflow_created_event", "sip_workflow_updated_event", "sip_task_created_event", "sip_task_updated_event"}))
 			}
 		}
 	}

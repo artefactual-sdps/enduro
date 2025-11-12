@@ -13,12 +13,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { IngestEventIngestValue } from './IngestEventIngestValue';
+import type { IngestEventValue } from './IngestEventValue';
 import {
-    IngestEventIngestValueFromJSON,
-    IngestEventIngestValueFromJSONTyped,
-    IngestEventIngestValueToJSON,
-} from './IngestEventIngestValue';
+    IngestEventValueFromJSON,
+    IngestEventValueFromJSONTyped,
+    IngestEventValueToJSON,
+} from './IngestEventValue';
 
 /**
  * 
@@ -28,10 +28,10 @@ import {
 export interface IngestEvent {
     /**
      * 
-     * @type {IngestEventIngestValue}
+     * @type {IngestEventValue}
      * @memberof IngestEvent
      */
-    ingestValue?: IngestEventIngestValue;
+    value?: IngestEventValue;
 }
 
 /**
@@ -53,7 +53,7 @@ export function IngestEventFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-        'ingestValue': !exists(json, 'ingest_value') ? undefined : IngestEventIngestValueFromJSON(json['ingest_value']),
+        'value': !exists(json, 'value') ? undefined : IngestEventValueFromJSON(json['value']),
     };
 }
 
@@ -66,7 +66,7 @@ export function IngestEventToJSON(value?: IngestEvent | null): any {
     }
     return {
         
-        'ingest_value': IngestEventIngestValueToJSON(value.ingestValue),
+        'value': IngestEventValueToJSON(value.value),
     };
 }
 

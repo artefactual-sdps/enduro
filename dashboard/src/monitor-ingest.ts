@@ -1,26 +1,23 @@
 import { api } from "@/client";
 import { transformKeys } from "@/helpers/transform";
-import { IngestEventIngestValueTypeEnum } from "@/openapi-generator";
+import { IngestEvent2ValueTypeEnum } from "@/openapi-generator";
 import { useSipStore } from "@/stores/sip";
 
-export function handleIngestEvent(event: api.IngestEventIngestValue) {
+export function handleIngestEvent(event: api.IngestEvent2Value) {
   handlers[event.type](transformKeys(event.value));
 }
 
 const handlers: {
-  [key in api.IngestEventIngestValueTypeEnum]: (data: unknown) => void;
+  [key in api.IngestEvent2ValueTypeEnum]: (data: unknown) => void;
 } = {
-  [IngestEventIngestValueTypeEnum.IngestPingEvent]: () => {},
-  [IngestEventIngestValueTypeEnum.SipCreatedEvent]: handleSipCreated,
-  [IngestEventIngestValueTypeEnum.SipUpdatedEvent]: handleSipUpdated,
-  [IngestEventIngestValueTypeEnum.SipStatusUpdatedEvent]:
-    handleSipStatusUpdated,
-  [IngestEventIngestValueTypeEnum.SipWorkflowCreatedEvent]:
-    handleSipWorkflowCreated,
-  [IngestEventIngestValueTypeEnum.SipWorkflowUpdatedEvent]:
-    handleSipWorkflowUpdated,
-  [IngestEventIngestValueTypeEnum.SipTaskCreatedEvent]: handleSipTaskCreated,
-  [IngestEventIngestValueTypeEnum.SipTaskUpdatedEvent]: handleSipTaskUpdated,
+  [IngestEvent2ValueTypeEnum.IngestPingEvent]: () => {},
+  [IngestEvent2ValueTypeEnum.SipCreatedEvent]: handleSipCreated,
+  [IngestEvent2ValueTypeEnum.SipUpdatedEvent]: handleSipUpdated,
+  [IngestEvent2ValueTypeEnum.SipStatusUpdatedEvent]: handleSipStatusUpdated,
+  [IngestEvent2ValueTypeEnum.SipWorkflowCreatedEvent]: handleSipWorkflowCreated,
+  [IngestEvent2ValueTypeEnum.SipWorkflowUpdatedEvent]: handleSipWorkflowUpdated,
+  [IngestEvent2ValueTypeEnum.SipTaskCreatedEvent]: handleSipTaskCreated,
+  [IngestEvent2ValueTypeEnum.SipTaskUpdatedEvent]: handleSipTaskUpdated,
 };
 
 function handleSipCreated() {

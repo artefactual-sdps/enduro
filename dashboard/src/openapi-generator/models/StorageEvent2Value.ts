@@ -16,9 +16,9 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface StorageEvent2StorageValue
+ * @interface StorageEvent2Value
  */
-export interface StorageEvent2StorageValue {
+export interface StorageEvent2Value {
     /**
      * Union type name, one of:
      * - "storage_ping_event"
@@ -31,13 +31,13 @@ export interface StorageEvent2StorageValue {
      * - "aip_task_created_event"
      * - "aip_task_updated_event"
      * @type {string}
-     * @memberof StorageEvent2StorageValue
+     * @memberof StorageEvent2Value
      */
-    type: StorageEvent2StorageValueTypeEnum;
+    type: StorageEvent2ValueTypeEnum;
     /**
      * JSON encoded union value
      * @type {string}
-     * @memberof StorageEvent2StorageValue
+     * @memberof StorageEvent2Value
      */
     value: string;
 }
@@ -46,7 +46,7 @@ export interface StorageEvent2StorageValue {
 /**
  * @export
  */
-export const StorageEvent2StorageValueTypeEnum = {
+export const StorageEvent2ValueTypeEnum = {
     StoragePingEvent: 'storage_ping_event',
     LocationCreatedEvent: 'location_created_event',
     AipCreatedEvent: 'aip_created_event',
@@ -57,13 +57,13 @@ export const StorageEvent2StorageValueTypeEnum = {
     AipTaskCreatedEvent: 'aip_task_created_event',
     AipTaskUpdatedEvent: 'aip_task_updated_event'
 } as const;
-export type StorageEvent2StorageValueTypeEnum = typeof StorageEvent2StorageValueTypeEnum[keyof typeof StorageEvent2StorageValueTypeEnum];
+export type StorageEvent2ValueTypeEnum = typeof StorageEvent2ValueTypeEnum[keyof typeof StorageEvent2ValueTypeEnum];
 
 
 /**
- * Check if a given object implements the StorageEvent2StorageValue interface.
+ * Check if a given object implements the StorageEvent2Value interface.
  */
-export function instanceOfStorageEvent2StorageValue(value: object): boolean {
+export function instanceOfStorageEvent2Value(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "type" in value;
     isInstance = isInstance && "value" in value;
@@ -71,11 +71,11 @@ export function instanceOfStorageEvent2StorageValue(value: object): boolean {
     return isInstance;
 }
 
-export function StorageEvent2StorageValueFromJSON(json: any): StorageEvent2StorageValue {
-    return StorageEvent2StorageValueFromJSONTyped(json, false);
+export function StorageEvent2ValueFromJSON(json: any): StorageEvent2Value {
+    return StorageEvent2ValueFromJSONTyped(json, false);
 }
 
-export function StorageEvent2StorageValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): StorageEvent2StorageValue {
+export function StorageEvent2ValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): StorageEvent2Value {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -86,7 +86,7 @@ export function StorageEvent2StorageValueFromJSONTyped(json: any, ignoreDiscrimi
     };
 }
 
-export function StorageEvent2StorageValueToJSON(value?: StorageEvent2StorageValue | null): any {
+export function StorageEvent2ValueToJSON(value?: StorageEvent2Value | null): any {
     if (value === undefined) {
         return undefined;
     }

@@ -4,27 +4,11 @@ import (
 	. "goa.design/goa/v3/dsl" //nolint:staticcheck
 )
 
-//
-// We use a couple of Meta attributes in this file that are important for the
-// generator to produce the expected results:
-//
-//   - Meta("type:generate:force")
-//     It guarantees that the schema is included in the OpenAPI spec when it
-//     is only listed as a member of an union type (OneOf).
-//
-//   - Meta("openapi:typename", "StoragePingEvent")
-//     It guarantees that the schema is not omitted because there is another
-//     type structurally equivalent, which is the default behavior in Goa.
-//
-
+// This type is used as a StreamingResult, Goa generates two OpenAPI schemas,
+// one for the declared type itself and one for its streaming representation.
+// To avoid a name clash the latter is suffixed as StorageEvent2.
 var StorageEvent = Type("StorageEvent", func() {
-	// The IngestEvent and the StorageEvent share a similar structure.
-	// To differentiate them we use distinct keys for the event value.
-	// If we use the Meta("type:generate:force") option in this type we
-	// get two versions in the design because it's used as an streaming
-	// response, and we get HTTP and WebSocket schemas. Without the meta
-	// and the same structure we only get the IngestEvent in the schema.
-	OneOf("storage_value", func() {
+	OneOf("value", func() {
 		Attribute("storage_ping_event", StoragePingEvent)
 		Attribute("location_created_event", LocationCreatedEvent)
 		Attribute("aip_created_event", AIPCreatedEvent)
@@ -39,27 +23,18 @@ var StorageEvent = Type("StorageEvent", func() {
 
 var StoragePingEvent = Type("StoragePingEvent", func() {
 	Attribute("message", String)
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "StoragePingEvent")
 })
 
 var LocationCreatedEvent = Type("LocationCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of Location")
 	Attribute("item", Location)
 	Required("uuid", "item")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "LocationCreatedEvent")
 })
 
 var AIPCreatedEvent = Type("AIPCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of AIP")
 	Attribute("item", AIP)
 	Required("uuid", "item")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "AIPCreatedEvent")
 })
 
 var AIPStatusUpdatedEvent = Type("AIPStatusUpdatedEvent", func() {
@@ -68,52 +43,34 @@ var AIPStatusUpdatedEvent = Type("AIPStatusUpdatedEvent", func() {
 		EnumAIPStatus()
 	})
 	Required("uuid", "status")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "AIPStatusUpdatedEvent")
 })
 
 var AIPLocationUpdatedEvent = Type("AIPLocationUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of AIP")
 	TypedAttributeUUID("location_uuid", "Identifier of Location")
 	Required("uuid", "location_uuid")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "AIPLocationUpdatedEvent")
 })
 
 var AIPWorkflowCreatedEvent = Type("AIPWorkflowCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of workflow")
 	Attribute("item", AIPWorkflow)
 	Required("uuid", "item")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "AIPWorkflowCreatedEvent")
 })
 
 var AIPWorkflowUpdatedEvent = Type("AIPWorkflowUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of workflow")
 	Attribute("item", AIPWorkflow)
 	Required("uuid", "item")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "AIPWorkflowUpdatedEvent")
 })
 
 var AIPTaskCreatedEvent = Type("AIPTaskCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of task")
 	Attribute("item", AIPTask)
 	Required("uuid", "item")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "AIPTaskCreatedEvent")
 })
 
 var AIPTaskUpdatedEvent = Type("AIPTaskUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of task")
 	Attribute("item", AIPTask)
 	Required("uuid", "item")
-
-	Meta("type:generate:force")
-	Meta("openapi:typename", "AIPTaskUpdatedEvent")
 })

@@ -16,9 +16,9 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface IngestEvent2IngestValue
+ * @interface IngestEvent2Value
  */
-export interface IngestEvent2IngestValue {
+export interface IngestEvent2Value {
     /**
      * Union type name, one of:
      * - "ingest_ping_event"
@@ -30,13 +30,13 @@ export interface IngestEvent2IngestValue {
      * - "sip_task_created_event"
      * - "sip_task_updated_event"
      * @type {string}
-     * @memberof IngestEvent2IngestValue
+     * @memberof IngestEvent2Value
      */
-    type: IngestEvent2IngestValueTypeEnum;
+    type: IngestEvent2ValueTypeEnum;
     /**
      * JSON encoded union value
      * @type {string}
-     * @memberof IngestEvent2IngestValue
+     * @memberof IngestEvent2Value
      */
     value: string;
 }
@@ -45,7 +45,7 @@ export interface IngestEvent2IngestValue {
 /**
  * @export
  */
-export const IngestEvent2IngestValueTypeEnum = {
+export const IngestEvent2ValueTypeEnum = {
     IngestPingEvent: 'ingest_ping_event',
     SipCreatedEvent: 'sip_created_event',
     SipUpdatedEvent: 'sip_updated_event',
@@ -55,13 +55,13 @@ export const IngestEvent2IngestValueTypeEnum = {
     SipTaskCreatedEvent: 'sip_task_created_event',
     SipTaskUpdatedEvent: 'sip_task_updated_event'
 } as const;
-export type IngestEvent2IngestValueTypeEnum = typeof IngestEvent2IngestValueTypeEnum[keyof typeof IngestEvent2IngestValueTypeEnum];
+export type IngestEvent2ValueTypeEnum = typeof IngestEvent2ValueTypeEnum[keyof typeof IngestEvent2ValueTypeEnum];
 
 
 /**
- * Check if a given object implements the IngestEvent2IngestValue interface.
+ * Check if a given object implements the IngestEvent2Value interface.
  */
-export function instanceOfIngestEvent2IngestValue(value: object): boolean {
+export function instanceOfIngestEvent2Value(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "type" in value;
     isInstance = isInstance && "value" in value;
@@ -69,11 +69,11 @@ export function instanceOfIngestEvent2IngestValue(value: object): boolean {
     return isInstance;
 }
 
-export function IngestEvent2IngestValueFromJSON(json: any): IngestEvent2IngestValue {
-    return IngestEvent2IngestValueFromJSONTyped(json, false);
+export function IngestEvent2ValueFromJSON(json: any): IngestEvent2Value {
+    return IngestEvent2ValueFromJSONTyped(json, false);
 }
 
-export function IngestEvent2IngestValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): IngestEvent2IngestValue {
+export function IngestEvent2ValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): IngestEvent2Value {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -84,7 +84,7 @@ export function IngestEvent2IngestValueFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function IngestEvent2IngestValueToJSON(value?: IngestEvent2IngestValue | null): any {
+export function IngestEvent2ValueToJSON(value?: IngestEvent2Value | null): any {
     if (value === undefined) {
         return undefined;
     }

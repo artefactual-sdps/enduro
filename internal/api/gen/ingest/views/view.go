@@ -55,8 +55,8 @@ type SIPSourceObjects struct {
 
 // IngestEventView is a type that runs validations on a projected type.
 type IngestEventView struct {
-	IngestValue interface {
-		ingestValueVal()
+	Value interface {
+		valueVal()
 	}
 }
 
@@ -249,21 +249,21 @@ type SIPSourceObjectView struct {
 	IsDir *bool
 }
 
-func (*IngestPingEventView) ingestValueVal() {}
+func (*IngestPingEventView) valueVal() {}
 
-func (*SIPCreatedEventView) ingestValueVal() {}
+func (*SIPCreatedEventView) valueVal() {}
 
-func (*SIPUpdatedEventView) ingestValueVal() {}
+func (*SIPUpdatedEventView) valueVal() {}
 
-func (*SIPStatusUpdatedEventView) ingestValueVal() {}
+func (*SIPStatusUpdatedEventView) valueVal() {}
 
-func (*SIPWorkflowCreatedEventView) ingestValueVal() {}
+func (*SIPWorkflowCreatedEventView) valueVal() {}
 
-func (*SIPWorkflowUpdatedEventView) ingestValueVal() {}
+func (*SIPWorkflowUpdatedEventView) valueVal() {}
 
-func (*SIPTaskCreatedEventView) ingestValueVal() {}
+func (*SIPTaskCreatedEventView) valueVal() {}
 
-func (*SIPTaskUpdatedEventView) ingestValueVal() {}
+func (*SIPTaskUpdatedEventView) valueVal() {}
 
 var (
 	// SIPsMap is a map indexing the attribute names of SIPs by view name.
@@ -511,7 +511,7 @@ func ValidateSIPSourceObjects(result *SIPSourceObjects) (err error) {
 
 // ValidateIngestEventView runs the validations defined on IngestEventView.
 func ValidateIngestEventView(result *IngestEventView) (err error) {
-	switch v := result.IngestValue.(type) {
+	switch v := result.Value.(type) {
 	case *SIPCreatedEventView:
 		if v != nil {
 			if err2 := ValidateSIPCreatedEventView(v); err2 != nil {

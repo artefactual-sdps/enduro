@@ -1,30 +1,28 @@
 import { api } from "@/client";
 import { transformKeys } from "@/helpers/transform";
-import { StorageEventStorageValueTypeEnum } from "@/openapi-generator";
+import { StorageEvent2ValueTypeEnum } from "@/openapi-generator";
 import { useAipStore } from "@/stores/aip";
 import { useLocationStore } from "@/stores/location";
 
-export function handleStorageEvent(event: api.StorageEventStorageValue) {
+export function handleStorageEvent(event: api.StorageEvent2Value) {
   handlers[event.type](transformKeys(event.value));
 }
 
 const handlers: {
-  [key in api.StorageEventStorageValueTypeEnum]: (data: unknown) => void;
+  [key in api.StorageEvent2ValueTypeEnum]: (data: unknown) => void;
 } = {
-  [StorageEventStorageValueTypeEnum.StoragePingEvent]: () => {},
-  [StorageEventStorageValueTypeEnum.LocationCreatedEvent]:
-    handleLocationCreated,
-  [StorageEventStorageValueTypeEnum.AipCreatedEvent]: handleAipCreated,
-  [StorageEventStorageValueTypeEnum.AipStatusUpdatedEvent]:
-    handleAipStatusUpdated,
-  [StorageEventStorageValueTypeEnum.AipLocationUpdatedEvent]:
+  [StorageEvent2ValueTypeEnum.StoragePingEvent]: () => {},
+  [StorageEvent2ValueTypeEnum.LocationCreatedEvent]: handleLocationCreated,
+  [StorageEvent2ValueTypeEnum.AipCreatedEvent]: handleAipCreated,
+  [StorageEvent2ValueTypeEnum.AipStatusUpdatedEvent]: handleAipStatusUpdated,
+  [StorageEvent2ValueTypeEnum.AipLocationUpdatedEvent]:
     handleAipLocationUpdated,
-  [StorageEventStorageValueTypeEnum.AipWorkflowCreatedEvent]:
+  [StorageEvent2ValueTypeEnum.AipWorkflowCreatedEvent]:
     handleAipWorkflowCreated,
-  [StorageEventStorageValueTypeEnum.AipWorkflowUpdatedEvent]:
+  [StorageEvent2ValueTypeEnum.AipWorkflowUpdatedEvent]:
     handleAipWorkflowUpdated,
-  [StorageEventStorageValueTypeEnum.AipTaskCreatedEvent]: handleAipTaskCreated,
-  [StorageEventStorageValueTypeEnum.AipTaskUpdatedEvent]: handleAipTaskUpdated,
+  [StorageEvent2ValueTypeEnum.AipTaskCreatedEvent]: handleAipTaskCreated,
+  [StorageEvent2ValueTypeEnum.AipTaskUpdatedEvent]: handleAipTaskUpdated,
 };
 
 function handleLocationCreated() {

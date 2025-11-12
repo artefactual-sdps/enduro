@@ -306,10 +306,6 @@ type EnduroPage struct {
 	Total int
 }
 
-type IngestPingEvent struct {
-	Message *string
-}
-
 // ListAipWorkflowsPayload is the payload type of the storage service
 // list_aip_workflows method.
 type ListAipWorkflowsPayload struct {
@@ -466,105 +462,6 @@ type SFTPConfig struct {
 	Directory string
 }
 
-// SIP describes an ingest SIP type.
-type SIP struct {
-	// Identifier of SIP
-	UUID uuid.UUID
-	// Name of the SIP
-	Name *string
-	// Status of the SIP
-	Status string
-	// Identifier of AIP
-	AipUUID *string
-	// Creation datetime
-	CreatedAt string
-	// Start datetime
-	StartedAt *string
-	// Completion datetime
-	CompletedAt *string
-	// Package type in case of failure (SIP or PIP)
-	FailedAs *string
-	// Object key of the failed package in the internal bucket
-	FailedKey *string
-	// UUID of the user who uploaded the SIP
-	UploaderUUID *uuid.UUID
-	// Email of the user who uploaded the SIP
-	UploaderEmail *string
-	// Name of the user who uploaded the SIP
-	UploaderName *string
-}
-
-type SIPCreatedEvent struct {
-	// Identifier of SIP
-	UUID uuid.UUID
-	Item *SIP
-}
-
-type SIPStatusUpdatedEvent struct {
-	// Identifier of SIP
-	UUID   uuid.UUID
-	Status string
-}
-
-// SIPTask describes a SIP workflow task.
-type SIPTask struct {
-	// Identifier of the task
-	UUID        uuid.UUID
-	Name        string
-	Status      string
-	StartedAt   string
-	CompletedAt *string
-	Note        *string
-	// Identifier of related workflow
-	WorkflowUUID uuid.UUID
-}
-
-type SIPTaskCollection []*SIPTask
-
-type SIPTaskCreatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *SIPTask
-}
-
-type SIPTaskUpdatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *SIPTask
-}
-
-type SIPUpdatedEvent struct {
-	// Identifier of SIP
-	UUID uuid.UUID
-	Item *SIP
-}
-
-// SIPWorkflow describes a workflow of a SIP.
-type SIPWorkflow struct {
-	// Identifier of the workflow
-	UUID        uuid.UUID
-	TemporalID  string
-	Type        string
-	Status      string
-	StartedAt   string
-	CompletedAt *string
-	Tasks       SIPTaskCollection
-	// Identifier of related SIP
-	SipUUID uuid.UUID
-}
-
-type SIPWorkflowCreatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *SIPWorkflow
-}
-
-type SIPWorkflowUpdatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *SIPWorkflow
-}
-
 // ShowAipPayload is the payload type of the storage service show_aip method.
 type ShowAipPayload struct {
 	// Identifier of AIP
@@ -582,8 +479,8 @@ type ShowLocationPayload struct {
 
 // StorageEvent is the result type of the storage service monitor method.
 type StorageEvent struct {
-	StorageValue interface {
-		storageValueVal()
+	Value interface {
+		valueVal()
 	}
 }
 
@@ -691,29 +588,29 @@ func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
 
-func (*AIPCreatedEvent) storageValueVal() {}
+func (*AIPCreatedEvent) valueVal() {}
 
-func (*AIPLocationUpdatedEvent) storageValueVal() {}
+func (*AIPLocationUpdatedEvent) valueVal() {}
 
-func (*AIPStatusUpdatedEvent) storageValueVal() {}
+func (*AIPStatusUpdatedEvent) valueVal() {}
 
-func (*AIPTaskCreatedEvent) storageValueVal() {}
+func (*AIPTaskCreatedEvent) valueVal() {}
 
-func (*AIPTaskUpdatedEvent) storageValueVal() {}
+func (*AIPTaskUpdatedEvent) valueVal() {}
 
-func (*AIPWorkflowCreatedEvent) storageValueVal() {}
+func (*AIPWorkflowCreatedEvent) valueVal() {}
 
-func (*AIPWorkflowUpdatedEvent) storageValueVal() {}
+func (*AIPWorkflowUpdatedEvent) valueVal() {}
 
 func (*AMSSConfig) configVal() {}
 
-func (*LocationCreatedEvent) storageValueVal() {}
+func (*LocationCreatedEvent) valueVal() {}
 
 func (*S3Config) configVal() {}
 
 func (*SFTPConfig) configVal() {}
 
-func (*StoragePingEvent) storageValueVal() {}
+func (*StoragePingEvent) valueVal() {}
 
 func (*URLConfig) configVal() {}
 

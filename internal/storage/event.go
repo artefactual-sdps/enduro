@@ -45,5 +45,5 @@ type Event interface {
 
 // PublishEvent publishes a storage event with type safety.
 func PublishEvent[E Event](ctx context.Context, svc event.Service[*goastorage.StorageEvent], event E) {
-	svc.PublishEvent(ctx, &goastorage.StorageEvent{StorageValue: event})
+	svc.PublishEvent(ctx, &goastorage.StorageEvent{Value: event})
 }

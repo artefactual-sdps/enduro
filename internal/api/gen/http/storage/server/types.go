@@ -87,7 +87,7 @@ type CreateLocationRequestBody struct {
 // MonitorResponseBody is the type of the "storage" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
-	StorageValue *struct {
+	Value *struct {
 		// Union type name, one of:
 		// - "storage_ping_event"
 		// - "location_created_event"
@@ -101,7 +101,7 @@ type MonitorResponseBody struct {
 		Type string `form:"Type" json:"Type" xml:"Type"`
 		// JSON encoded union value
 		Value string `form:"Value" json:"Value" xml:"Value"`
-	} `form:"storage_value,omitempty" json:"storage_value,omitempty" xml:"storage_value,omitempty"`
+	} `form:"value,omitempty" json:"value,omitempty" xml:"value,omitempty"`
 }
 
 // ListAipsResponseBody is the type of the "storage" service "list_aips"
@@ -746,10 +746,10 @@ type AIPResponse struct {
 // "monitor" endpoint of the "storage" service.
 func NewMonitorResponseBody(res *storage.StorageEvent) *MonitorResponseBody {
 	body := &MonitorResponseBody{}
-	if res.StorageValue != nil {
-		js, _ := json.Marshal(res.StorageValue)
+	if res.Value != nil {
+		js, _ := json.Marshal(res.Value)
 		var name string
-		switch res.StorageValue.(type) {
+		switch res.Value.(type) {
 		case *storage.StoragePingEvent:
 			name = "storage_ping_event"
 		case *storage.LocationCreatedEvent:
@@ -769,7 +769,7 @@ func NewMonitorResponseBody(res *storage.StorageEvent) *MonitorResponseBody {
 		case *storage.AIPTaskUpdatedEvent:
 			name = "aip_task_updated_event"
 		}
-		body.StorageValue = &struct {
+		body.Value = &struct {
 			// Union type name, one of:
 			// - "storage_ping_event"
 			// - "location_created_event"

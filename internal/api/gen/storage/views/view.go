@@ -64,8 +64,8 @@ type AIPCollection struct {
 
 // StorageEventView is a type that runs validations on a projected type.
 type StorageEventView struct {
-	StorageValue interface {
-		storageValueVal()
+	Value interface {
+		valueVal()
 	}
 }
 
@@ -265,23 +265,23 @@ func (*SFTPConfigView) configVal() {}
 
 func (*URLConfigView) configVal() {}
 
-func (*StoragePingEventView) storageValueVal() {}
+func (*StoragePingEventView) valueVal() {}
 
-func (*LocationCreatedEventView) storageValueVal() {}
+func (*LocationCreatedEventView) valueVal() {}
 
-func (*AIPCreatedEventView) storageValueVal() {}
+func (*AIPCreatedEventView) valueVal() {}
 
-func (*AIPStatusUpdatedEventView) storageValueVal() {}
+func (*AIPStatusUpdatedEventView) valueVal() {}
 
-func (*AIPLocationUpdatedEventView) storageValueVal() {}
+func (*AIPLocationUpdatedEventView) valueVal() {}
 
-func (*AIPWorkflowCreatedEventView) storageValueVal() {}
+func (*AIPWorkflowCreatedEventView) valueVal() {}
 
-func (*AIPWorkflowUpdatedEventView) storageValueVal() {}
+func (*AIPWorkflowUpdatedEventView) valueVal() {}
 
-func (*AIPTaskCreatedEventView) storageValueVal() {}
+func (*AIPTaskCreatedEventView) valueVal() {}
 
-func (*AIPTaskUpdatedEventView) storageValueVal() {}
+func (*AIPTaskUpdatedEventView) valueVal() {}
 
 var (
 	// AIPsMap is a map indexing the attribute names of AIPs by view name.
@@ -498,7 +498,7 @@ func ValidateAIPCollection(result AIPCollection) (err error) {
 
 // ValidateStorageEventView runs the validations defined on StorageEventView.
 func ValidateStorageEventView(result *StorageEventView) (err error) {
-	switch v := result.StorageValue.(type) {
+	switch v := result.Value.(type) {
 	case *LocationCreatedEventView:
 		if v != nil {
 			if err2 := ValidateLocationCreatedEventView(v); err2 != nil {

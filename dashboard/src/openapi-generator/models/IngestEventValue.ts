@@ -71,40 +71,40 @@ import {
 /**
  * 
  * @export
- * @interface IngestEventIngestValue
+ * @interface IngestEventValue
  */
-export interface IngestEventIngestValue {
+export interface IngestEventValue {
     /**
      * 
      * @type {string}
-     * @memberof IngestEventIngestValue
+     * @memberof IngestEventValue
      */
     message?: string;
     /**
      * 
      * @type {EnduroIngestSipTask}
-     * @memberof IngestEventIngestValue
+     * @memberof IngestEventValue
      */
     item: EnduroIngestSipTask;
     /**
      * Identifier of task
      * @type {string}
-     * @memberof IngestEventIngestValue
+     * @memberof IngestEventValue
      */
     uuid: string;
     /**
      * 
      * @type {string}
-     * @memberof IngestEventIngestValue
+     * @memberof IngestEventValue
      */
-    status: IngestEventIngestValueStatusEnum;
+    status: IngestEventValueStatusEnum;
 }
 
 
 /**
  * @export
  */
-export const IngestEventIngestValueStatusEnum = {
+export const IngestEventValueStatusEnum = {
     Error: 'error',
     Failed: 'failed',
     Queued: 'queued',
@@ -112,13 +112,13 @@ export const IngestEventIngestValueStatusEnum = {
     Pending: 'pending',
     Ingested: 'ingested'
 } as const;
-export type IngestEventIngestValueStatusEnum = typeof IngestEventIngestValueStatusEnum[keyof typeof IngestEventIngestValueStatusEnum];
+export type IngestEventValueStatusEnum = typeof IngestEventValueStatusEnum[keyof typeof IngestEventValueStatusEnum];
 
 
 /**
- * Check if a given object implements the IngestEventIngestValue interface.
+ * Check if a given object implements the IngestEventValue interface.
  */
-export function instanceOfIngestEventIngestValue(value: object): boolean {
+export function instanceOfIngestEventValue(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "item" in value;
     isInstance = isInstance && "uuid" in value;
@@ -127,11 +127,11 @@ export function instanceOfIngestEventIngestValue(value: object): boolean {
     return isInstance;
 }
 
-export function IngestEventIngestValueFromJSON(json: any): IngestEventIngestValue {
-    return IngestEventIngestValueFromJSONTyped(json, false);
+export function IngestEventValueFromJSON(json: any): IngestEventValue {
+    return IngestEventValueFromJSONTyped(json, false);
 }
 
-export function IngestEventIngestValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): IngestEventIngestValue {
+export function IngestEventValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): IngestEventValue {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -144,7 +144,7 @@ export function IngestEventIngestValueFromJSONTyped(json: any, ignoreDiscriminat
     };
 }
 
-export function IngestEventIngestValueToJSON(value?: IngestEventIngestValue | null): any {
+export function IngestEventValueToJSON(value?: IngestEventValue | null): any {
     if (value === undefined) {
         return undefined;
     }

@@ -77,37 +77,37 @@ import {
 /**
  * 
  * @export
- * @interface StorageEventStorageValue
+ * @interface StorageEventValue
  */
-export interface StorageEventStorageValue {
+export interface StorageEventValue {
     /**
      * 
      * @type {string}
-     * @memberof StorageEventStorageValue
+     * @memberof StorageEventValue
      */
     message?: string;
     /**
      * 
      * @type {EnduroStorageAipTask}
-     * @memberof StorageEventStorageValue
+     * @memberof StorageEventValue
      */
     item: EnduroStorageAipTask;
     /**
      * Identifier of task
      * @type {string}
-     * @memberof StorageEventStorageValue
+     * @memberof StorageEventValue
      */
     uuid: string;
     /**
      * 
      * @type {string}
-     * @memberof StorageEventStorageValue
+     * @memberof StorageEventValue
      */
-    status: StorageEventStorageValueStatusEnum;
+    status: StorageEventValueStatusEnum;
     /**
      * Identifier of Location
      * @type {string}
-     * @memberof StorageEventStorageValue
+     * @memberof StorageEventValue
      */
     locationUuid: string;
 }
@@ -116,7 +116,7 @@ export interface StorageEventStorageValue {
 /**
  * @export
  */
-export const StorageEventStorageValueStatusEnum = {
+export const StorageEventValueStatusEnum = {
     Unspecified: 'unspecified',
     Stored: 'stored',
     Pending: 'pending',
@@ -124,13 +124,13 @@ export const StorageEventStorageValueStatusEnum = {
     Deleted: 'deleted',
     Queued: 'queued'
 } as const;
-export type StorageEventStorageValueStatusEnum = typeof StorageEventStorageValueStatusEnum[keyof typeof StorageEventStorageValueStatusEnum];
+export type StorageEventValueStatusEnum = typeof StorageEventValueStatusEnum[keyof typeof StorageEventValueStatusEnum];
 
 
 /**
- * Check if a given object implements the StorageEventStorageValue interface.
+ * Check if a given object implements the StorageEventValue interface.
  */
-export function instanceOfStorageEventStorageValue(value: object): boolean {
+export function instanceOfStorageEventValue(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "item" in value;
     isInstance = isInstance && "uuid" in value;
@@ -140,11 +140,11 @@ export function instanceOfStorageEventStorageValue(value: object): boolean {
     return isInstance;
 }
 
-export function StorageEventStorageValueFromJSON(json: any): StorageEventStorageValue {
-    return StorageEventStorageValueFromJSONTyped(json, false);
+export function StorageEventValueFromJSON(json: any): StorageEventValue {
+    return StorageEventValueFromJSONTyped(json, false);
 }
 
-export function StorageEventStorageValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): StorageEventStorageValue {
+export function StorageEventValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): StorageEventValue {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -158,7 +158,7 @@ export function StorageEventStorageValueFromJSONTyped(json: any, ignoreDiscrimin
     };
 }
 
-export function StorageEventStorageValueToJSON(value?: StorageEventStorageValue | null): any {
+export function StorageEventValueToJSON(value?: StorageEventValue | null): any {
     if (value === undefined) {
         return undefined;
     }

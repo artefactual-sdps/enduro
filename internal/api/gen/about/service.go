@@ -12,7 +12,6 @@ import (
 	"context"
 
 	aboutviews "github.com/artefactual-sdps/enduro/internal/api/gen/about/views"
-	"github.com/google/uuid"
 	"goa.design/goa/v3/security"
 )
 
@@ -44,95 +43,6 @@ const ServiceName = "about"
 // MethodKey key.
 var MethodNames = [1]string{"about"}
 
-// An AIP describes an AIP retrieved by the storage service.
-type AIP struct {
-	Name string
-	UUID uuid.UUID
-	// Status of the AIP
-	Status    string
-	ObjectKey uuid.UUID
-	// Identifier of storage location
-	LocationUUID *uuid.UUID
-	// Creation datetime
-	CreatedAt string
-}
-
-type AIPCreatedEvent struct {
-	// Identifier of AIP
-	UUID uuid.UUID
-	Item *AIP
-}
-
-type AIPLocationUpdatedEvent struct {
-	// Identifier of AIP
-	UUID uuid.UUID
-	// Identifier of Location
-	LocationUUID uuid.UUID
-}
-
-type AIPStatusUpdatedEvent struct {
-	// Identifier of AIP
-	UUID   uuid.UUID
-	Status string
-}
-
-// AIPTask describes an AIP workflow task.
-type AIPTask struct {
-	UUID        uuid.UUID
-	Name        string
-	Status      string
-	StartedAt   *string
-	CompletedAt *string
-	Note        *string
-	// Identifier of related workflow
-	WorkflowUUID uuid.UUID
-}
-
-type AIPTaskCollection []*AIPTask
-
-type AIPTaskCreatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *AIPTask
-}
-
-type AIPTaskUpdatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *AIPTask
-}
-
-// AIPWorkflow describes a workflow of an AIP.
-type AIPWorkflow struct {
-	UUID        uuid.UUID
-	TemporalID  string
-	Type        string
-	Status      string
-	StartedAt   *string
-	CompletedAt *string
-	// Identifier of related AIP
-	AipUUID uuid.UUID
-	Tasks   AIPTaskCollection
-}
-
-type AIPWorkflowCreatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *AIPWorkflow
-}
-
-type AIPWorkflowUpdatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *AIPWorkflow
-}
-
-type AMSSConfig struct {
-	APIKey   string
-	URL      string
-	Username string
-}
-
 // AboutPayload is the payload type of the about service about method.
 type AboutPayload struct {
 	Token *string
@@ -160,159 +70,6 @@ type EnduroPreprocessing struct {
 	TaskQueue    string
 }
 
-type IngestPingEvent struct {
-	Message *string
-}
-
-// A Location describes a location retrieved by the storage service.
-type Location struct {
-	// Name of location
-	Name string
-	// Description of the location
-	Description *string
-	// Data source of the location
-	Source string
-	// Purpose of the location
-	Purpose string
-	UUID    uuid.UUID
-	Config  interface {
-		configVal()
-	}
-	// Creation datetime
-	CreatedAt string
-}
-
-type LocationCreatedEvent struct {
-	// Identifier of Location
-	UUID uuid.UUID
-	Item *Location
-}
-
-type S3Config struct {
-	Bucket    string
-	Region    string
-	Endpoint  *string
-	PathStyle *bool
-	Profile   *string
-	Key       *string
-	Secret    *string
-	Token     *string
-}
-
-type SFTPConfig struct {
-	Address   string
-	Username  string
-	Password  string
-	Directory string
-}
-
-// SIP describes an ingest SIP type.
-type SIP struct {
-	// Identifier of SIP
-	UUID uuid.UUID
-	// Name of the SIP
-	Name *string
-	// Status of the SIP
-	Status string
-	// Identifier of AIP
-	AipUUID *string
-	// Creation datetime
-	CreatedAt string
-	// Start datetime
-	StartedAt *string
-	// Completion datetime
-	CompletedAt *string
-	// Package type in case of failure (SIP or PIP)
-	FailedAs *string
-	// Object key of the failed package in the internal bucket
-	FailedKey *string
-	// UUID of the user who uploaded the SIP
-	UploaderUUID *uuid.UUID
-	// Email of the user who uploaded the SIP
-	UploaderEmail *string
-	// Name of the user who uploaded the SIP
-	UploaderName *string
-}
-
-type SIPCreatedEvent struct {
-	// Identifier of SIP
-	UUID uuid.UUID
-	Item *SIP
-}
-
-type SIPStatusUpdatedEvent struct {
-	// Identifier of SIP
-	UUID   uuid.UUID
-	Status string
-}
-
-// SIPTask describes a SIP workflow task.
-type SIPTask struct {
-	// Identifier of the task
-	UUID        uuid.UUID
-	Name        string
-	Status      string
-	StartedAt   string
-	CompletedAt *string
-	Note        *string
-	// Identifier of related workflow
-	WorkflowUUID uuid.UUID
-}
-
-type SIPTaskCollection []*SIPTask
-
-type SIPTaskCreatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *SIPTask
-}
-
-type SIPTaskUpdatedEvent struct {
-	// Identifier of task
-	UUID uuid.UUID
-	Item *SIPTask
-}
-
-type SIPUpdatedEvent struct {
-	// Identifier of SIP
-	UUID uuid.UUID
-	Item *SIP
-}
-
-// SIPWorkflow describes a workflow of a SIP.
-type SIPWorkflow struct {
-	// Identifier of the workflow
-	UUID        uuid.UUID
-	TemporalID  string
-	Type        string
-	Status      string
-	StartedAt   string
-	CompletedAt *string
-	Tasks       SIPTaskCollection
-	// Identifier of related SIP
-	SipUUID uuid.UUID
-}
-
-type SIPWorkflowCreatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *SIPWorkflow
-}
-
-type SIPWorkflowUpdatedEvent struct {
-	// Identifier of workflow
-	UUID uuid.UUID
-	Item *SIPWorkflow
-}
-
-type StoragePingEvent struct {
-	Message *string
-}
-
-type URLConfig struct {
-	URL string
-}
-
 // Unauthorized
 type Unauthorized string
 
@@ -332,14 +89,6 @@ func (e Unauthorized) ErrorName() string {
 func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
-
-func (*AMSSConfig) configVal() {}
-
-func (*S3Config) configVal() {}
-
-func (*SFTPConfig) configVal() {}
-
-func (*URLConfig) configVal() {}
 
 // NewEnduroAbout initializes result type EnduroAbout from viewed result type
 // EnduroAbout.

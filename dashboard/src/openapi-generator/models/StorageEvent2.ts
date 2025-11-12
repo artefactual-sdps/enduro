@@ -13,12 +13,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { StorageEvent2StorageValue } from './StorageEvent2StorageValue';
+import type { StorageEvent2Value } from './StorageEvent2Value';
 import {
-    StorageEvent2StorageValueFromJSON,
-    StorageEvent2StorageValueFromJSONTyped,
-    StorageEvent2StorageValueToJSON,
-} from './StorageEvent2StorageValue';
+    StorageEvent2ValueFromJSON,
+    StorageEvent2ValueFromJSONTyped,
+    StorageEvent2ValueToJSON,
+} from './StorageEvent2Value';
 
 /**
  * 
@@ -28,10 +28,10 @@ import {
 export interface StorageEvent2 {
     /**
      * 
-     * @type {StorageEvent2StorageValue}
+     * @type {StorageEvent2Value}
      * @memberof StorageEvent2
      */
-    storageValue?: StorageEvent2StorageValue;
+    value?: StorageEvent2Value;
 }
 
 /**
@@ -53,7 +53,7 @@ export function StorageEvent2FromJSONTyped(json: any, ignoreDiscriminator: boole
     }
     return {
         
-        'storageValue': !exists(json, 'storage_value') ? undefined : StorageEvent2StorageValueFromJSON(json['storage_value']),
+        'value': !exists(json, 'value') ? undefined : StorageEvent2ValueFromJSON(json['value']),
     };
 }
 
@@ -66,7 +66,7 @@ export function StorageEvent2ToJSON(value?: StorageEvent2 | null): any {
     }
     return {
         
-        'storage_value': StorageEvent2StorageValueToJSON(value.storageValue),
+        'value': StorageEvent2ValueToJSON(value.value),
     };
 }
 

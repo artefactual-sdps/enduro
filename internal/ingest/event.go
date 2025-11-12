@@ -44,5 +44,5 @@ type Event interface {
 
 // PublishEvent publishes an ingest event with type safety.
 func PublishEvent[E Event](ctx context.Context, svc event.Service[*goaingest.IngestEvent], event E) {
-	svc.PublishEvent(ctx, &goaingest.IngestEvent{IngestValue: event})
+	svc.PublishEvent(ctx, &goaingest.IngestEvent{Value: event})
 }

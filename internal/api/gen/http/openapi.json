@@ -1419,13 +1419,13 @@
     },
     "IngestEvent": {
       "example": {
-        "ingest_value": {
+        "value": {
           "Type": "sip_created_event",
           "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
         }
       },
       "properties": {
-        "ingest_value": {
+        "value": {
           "example": {
             "Type": "sip_created_event",
             "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
@@ -3158,13 +3158,13 @@
     },
     "StorageEvent": {
       "example": {
-        "storage_value": {
+        "value": {
           "Type": "location_created_event",
           "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
         }
       },
       "properties": {
-        "storage_value": {
+        "value": {
           "example": {
             "Type": "location_created_event",
             "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"

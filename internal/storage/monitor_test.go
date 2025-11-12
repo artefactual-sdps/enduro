@@ -98,7 +98,7 @@ func (m *mockMonitorServerStream) SendWithContext(ctx context.Context, event *go
 	if m.closed {
 		return fmt.Errorf("stream closed")
 	}
-	m.events = append(m.events, event.StorageValue)
+	m.events = append(m.events, event.Value)
 	return nil
 }
 
@@ -123,14 +123,14 @@ func TestMonitor(t *testing.T) {
 			})
 	}
 	allEvents := []*goastorage.StorageEvent{
-		{StorageValue: &goastorage.LocationCreatedEvent{UUID: testUUID}},
-		{StorageValue: &goastorage.AIPCreatedEvent{UUID: testUUID}},
-		{StorageValue: &goastorage.AIPStatusUpdatedEvent{UUID: testUUID}},
-		{StorageValue: &goastorage.AIPLocationUpdatedEvent{UUID: testUUID}},
-		{StorageValue: &goastorage.AIPWorkflowCreatedEvent{UUID: testUUID}},
-		{StorageValue: &goastorage.AIPWorkflowUpdatedEvent{UUID: testUUID}},
-		{StorageValue: &goastorage.AIPTaskCreatedEvent{UUID: testUUID}},
-		{StorageValue: &goastorage.AIPTaskUpdatedEvent{UUID: testUUID}},
+		{Value: &goastorage.LocationCreatedEvent{UUID: testUUID}},
+		{Value: &goastorage.AIPCreatedEvent{UUID: testUUID}},
+		{Value: &goastorage.AIPStatusUpdatedEvent{UUID: testUUID}},
+		{Value: &goastorage.AIPLocationUpdatedEvent{UUID: testUUID}},
+		{Value: &goastorage.AIPWorkflowCreatedEvent{UUID: testUUID}},
+		{Value: &goastorage.AIPWorkflowUpdatedEvent{UUID: testUUID}},
+		{Value: &goastorage.AIPTaskCreatedEvent{UUID: testUUID}},
+		{Value: &goastorage.AIPTaskUpdatedEvent{UUID: testUUID}},
 	}
 	allWantEvents := []any{
 		&goastorage.StoragePingEvent{Message: ref.New("Hello")},

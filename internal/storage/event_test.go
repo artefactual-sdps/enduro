@@ -34,7 +34,7 @@ func TestEventSerializer(t *testing.T) {
 
 	serializer := &storage.EventSerializer{}
 	originalEvent := &goastorage.StorageEvent{
-		StorageValue: &goastorage.StoragePingEvent{Message: ref.New("test")},
+		Value: &goastorage.StoragePingEvent{Message: ref.New("test")},
 	}
 
 	data, err := serializer.Marshal(originalEvent)
