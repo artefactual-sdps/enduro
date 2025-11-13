@@ -1,54 +1,46 @@
 <script setup lang="ts">
-import DOMPurify from "dompurify";
-import { onMounted, ref } from "vue";
+import { onMounted } from "vue";
 
 import { useAuthStore } from "@/stores/auth";
+import { useCustomStore } from "@/stores/custom";
 import { useLayoutStore } from "@/stores/layout";
 import IconHome from "~icons/clarity/home-line";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
+const customStore = useCustomStore();
+
 layoutStore.updateBreadcrumb([]);
 
-const url = import.meta.env.VITE_CUSTOM_HOME_URL as string | undefined;
-const content = ref<string | null>(null);
-const error = ref<string | null>(null);
-const loading = ref(false);
-
 onMounted(async () => {
-  if (!url) return;
-  loading.value = true;
-  try {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`Response status: ${response.status}`);
-    const data = DOMPurify.sanitize(await response.text());
-    if (!data) throw new Error("Sanitized content is empty.");
-    content.value = data;
-  } catch (err) {
-    console.error("Error loading custom home HTML:", err);
-    error.value = "Failed to load custom home content.";
-  }
-  loading.value = false;
+  await customStore.loadHomeContent();
 });
 </script>
 
 <template>
   <div class="container-xxl">
     <!-- Custom HTML content -->
-    <template v-if="url">
-      <div v-if="loading" class="text-center p-3">
+    <template v-if="customStore.manifest?.homeUrl">
+      <div v-if="customStore.homeLoading" class="text-center p-3">
         <div class="spinner-border text-muted" role="status">
           <span class="visually-hidden">Loading...</span>
         </div>
       </div>
-      <div v-else-if="error" class="alert alert-warning" role="alert">
-        {{ error }}
+      <div
+        v-else-if="customStore.homeError"
+        class="alert alert-warning"
+        role="alert"
+      >
+        {{ customStore.homeError }}
       </div>
-      <div v-else-if="content" v-html="content"></div>
+      <div
+        v-else-if="customStore.homeContent"
+        v-html="customStore.homeContent"
+      ></div>
     </template>
 
     <!-- Default content -->
-    <div v-if="!url || error">
+    <div v-if="!customStore.manifest?.homeUrl || customStore.homeError">
       <h1 class="d-flex mb-3">
         <IconHome class="me-3 text-dark" />Welcome<span
           v-if="authStore.isEnabled"

@@ -35,19 +35,19 @@ a:not(.btn),
 }
 
 .accordion-button {
-  background-color: $light;
-  border: solid 1px $gray-500;
+  background-color: var(--bs-light);
+  border: solid 1px var(--bs-gray-500);
 }
 
 .accordion-button:hover,
 .accordion-button:focus {
-  background-color: $primary-bg-subtle;
-  border-color: $primary;
+  background-color: var(--bs-primary-bg-subtle);
+  border-color: var(--bs-primary);
   border-width: 2px;
 }
 
 .accordion-button.collapsed .h4 {
-  color: $dark;
+  color: var(--bs-dark);
 }
 
 .fade-enter-active,
