@@ -40,6 +40,298 @@ paths:
                             example: abc123
             security:
                 - jwt_header_Authorization: []
+    /ingest/batches:
+        get:
+            tags:
+                - ingest
+            summary: list_batches ingest
+            description: List all ingested Batches
+            operationId: ingest#list_batches
+            parameters:
+                - name: identifier
+                  in: query
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    example: abc123
+                  example: abc123
+                - name: earliest_created_time
+                  in: query
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                  example: "1970-01-01T00:00:01Z"
+                - name: latest_created_time
+                  in: query
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                  example: "1970-01-01T00:00:01Z"
+                - name: status
+                  in: query
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    example: processing
+                    enum:
+                        - queued
+                        - processing
+                        - pending
+                        - ingested
+                        - canceled
+                  example: processing
+                - name: uploader_uuid
+                  in: query
+                  description: UUID of the Batch uploader
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    description: UUID of the Batch uploader
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                - name: limit
+                  in: query
+                  description: Limit number of results to return
+                  allowEmptyValue: true
+                  schema:
+                    type: integer
+                    description: Limit number of results to return
+                    example: 1
+                    format: int64
+                  example: 1
+                - name: offset
+                  in: query
+                  description: Offset from the beginning of the found set
+                  allowEmptyValue: true
+                  schema:
+                    type: integer
+                    description: Offset from the beginning of the found set
+                    example: 1
+                    format: int64
+                  example: 1
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EnduroIngestBatches'
+                            example:
+                                items:
+                                    - completed_at: "1970-01-01T00:00:01Z"
+                                      created_at: "1970-01-01T00:00:01Z"
+                                      identifier: abc123
+                                      sips_count: 1
+                                      started_at: "1970-01-01T00:00:01Z"
+                                      status: processing
+                                      uploader_email: abc123
+                                      uploader_name: abc123
+                                      uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                page:
+                                    limit: 1
+                                    offset: 1
+                                    total: 1
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "501":
+                    description: 'not_implemented: Not Implemented response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - ingest:batches:list
+        post:
+            tags:
+                - ingest
+            summary: add_batch ingest
+            description: Ingest a Batch from a SIP Source
+            operationId: ingest#add_batch
+            parameters:
+                - name: source_id
+                  in: query
+                  description: Identifier of SIP source -- CURRENTLY NOT USED
+                  allowEmptyValue: true
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of SIP source -- CURRENTLY NOT USED
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                - name: keys
+                  in: query
+                  description: Key of the SIPs to ingest as part of the batch
+                  allowEmptyValue: true
+                  required: true
+                  schema:
+                    type: array
+                    items:
+                        type: string
+                        example: abc123
+                    description: Key of the SIPs to ingest as part of the batch
+                    example:
+                        - abc123
+                  example:
+                    - abc123
+                - name: identifier
+                  in: query
+                  description: Optional Batch identifier assigned by the user
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    description: Optional Batch identifier assigned by the user
+                    example: abc123
+                  example: abc123
+            responses:
+                "201":
+                    description: Created response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AddSipResponseBody'
+                            example:
+                                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "501":
+                    description: 'not_implemented: Not Implemented response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - ingest:batches:create
+    /ingest/batches/{uuid}:
+        get:
+            tags:
+                - ingest
+            summary: show_batch ingest
+            description: Show Batch by UUID
+            operationId: ingest#show_batch
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of Batch to show
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of Batch to show
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/EnduroIngestBatch'
+                            example:
+                                completed_at: "1970-01-01T00:00:01Z"
+                                created_at: "1970-01-01T00:00:01Z"
+                                identifier: abc123
+                                sips_count: 1
+                                started_at: "1970-01-01T00:00:01Z"
+                                status: processing
+                                uploader_email: abc123
+                                uploader_name: abc123
+                                uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: Batch not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/BatchNotFound'
+                            example:
+                                message: abc123
+                                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                "409":
+                    description: 'not_available: Conflict response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "501":
+                    description: 'not_implemented: Not Implemented response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - ingest:batches:read
     /ingest/monitor:
         get:
             tags:
@@ -65,7 +357,7 @@ paths:
                             example:
                                 value:
                                     Type: sip_created_event
-                                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
@@ -281,6 +573,16 @@ paths:
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
                   example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                - name: batch_uuid
+                  in: query
+                  description: UUID of the related Batch
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    description: UUID of the related Batch
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 - name: limit
                   in: query
                   description: Limit number of results to return
@@ -311,6 +613,9 @@ paths:
                             example:
                                 items:
                                     - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                      batch_identifier: abc123
+                                      batch_status: processing
+                                      batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                       completed_at: "1970-01-01T00:00:01Z"
                                       created_at: "1970-01-01T00:00:01Z"
                                       failed_as: PIP
@@ -446,6 +751,9 @@ paths:
                                 $ref: '#/components/schemas/EnduroIngestSip'
                             example:
                                 aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                batch_identifier: abc123
+                                batch_status: processing
+                                batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                 completed_at: "1970-01-01T00:00:01Z"
                                 created_at: "1970-01-01T00:00:01Z"
                                 failed_as: PIP
@@ -2581,6 +2889,40 @@ components:
                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             required:
                 - uuid
+        BatchCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroIngestBatch'
+            example:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  created_at: "1970-01-01T00:00:01Z"
+                  identifier: abc123
+                  sips_count: 1
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: processing
+                  uploader_email: abc123
+                  uploader_name: abc123
+                  uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        BatchNotFound:
+            type: object
+            properties:
+                message:
+                    type: string
+                    description: Message of error
+                    example: abc123
+                uuid:
+                    type: string
+                    description: Identifier of missing Batch
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+            description: Batch not found.
+            example:
+                message: abc123
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - message
+                - uuid
         CancelAipDeletionRequestBody:
             type: object
             properties:
@@ -2749,6 +3091,103 @@ components:
                 - preservation_system
                 - preprocessing
                 - upload_max_size
+        EnduroIngestBatch:
+            type: object
+            properties:
+                completed_at:
+                    type: string
+                    description: Completion datetime
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                created_at:
+                    type: string
+                    description: Creation datetime
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                identifier:
+                    type: string
+                    description: Identifier of the Batch
+                    example: abc123
+                sips_count:
+                    type: integer
+                    description: Number of SIPs in the Batch
+                    example: 1
+                    format: int64
+                started_at:
+                    type: string
+                    description: Start datetime
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                status:
+                    type: string
+                    description: Status of the Batch
+                    example: processing
+                    enum:
+                        - queued
+                        - processing
+                        - pending
+                        - ingested
+                        - canceled
+                uploader_email:
+                    type: string
+                    description: Email of the user who uploaded the Batch
+                    example: abc123
+                uploader_name:
+                    type: string
+                    description: Name of the user who uploaded the Batch
+                    example: abc123
+                uploader_uuid:
+                    type: string
+                    description: UUID of the user who uploaded the Batch
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                uuid:
+                    type: string
+                    description: Identifier of Batch
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            description: Batch describes an ingest batch type.
+            example:
+                completed_at: "1970-01-01T00:00:01Z"
+                created_at: "1970-01-01T00:00:01Z"
+                identifier: abc123
+                sips_count: 1
+                started_at: "1970-01-01T00:00:01Z"
+                status: processing
+                uploader_email: abc123
+                uploader_name: abc123
+                uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - identifier
+                - sips_count
+                - status
+                - created_at
+        EnduroIngestBatches:
+            type: object
+            properties:
+                items:
+                    $ref: '#/components/schemas/BatchCollection'
+                page:
+                    $ref: '#/components/schemas/EnduroPage'
+            example:
+                items:
+                    - completed_at: "1970-01-01T00:00:01Z"
+                      created_at: "1970-01-01T00:00:01Z"
+                      identifier: abc123
+                      sips_count: 1
+                      started_at: "1970-01-01T00:00:01Z"
+                      status: processing
+                      uploader_email: abc123
+                      uploader_name: abc123
+                      uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                page:
+                    limit: 1
+                    offset: 1
+                    total: 1
+            required:
+                - items
+                - page
         EnduroIngestSip:
             type: object
             properties:
@@ -2757,6 +3196,24 @@ components:
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
+                batch_identifier:
+                    type: string
+                    description: Identifier of the related Batch
+                    example: abc123
+                batch_status:
+                    type: string
+                    description: Status of the related Batch
+                    example: processing
+                    enum:
+                        - queued
+                        - processing
+                        - pending
+                        - ingested
+                        - canceled
+                batch_uuid:
+                    type: string
+                    description: UUID of the related Batch
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 completed_at:
                     type: string
                     description: Completion datetime
@@ -2817,6 +3274,9 @@ components:
             description: SIP describes an ingest SIP type.
             example:
                 aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                batch_identifier: abc123
+                batch_status: processing
+                batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 completed_at: "1970-01-01T00:00:01Z"
                 created_at: "1970-01-01T00:00:01Z"
                 failed_as: PIP
@@ -2981,6 +3441,9 @@ components:
             example:
                 items:
                     - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                      batch_identifier: abc123
+                      batch_status: processing
+                      batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                       completed_at: "1970-01-01T00:00:01Z"
                       created_at: "1970-01-01T00:00:01Z"
                       failed_as: PIP
@@ -3502,6 +3965,9 @@ components:
                     example:
                         item:
                             aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            batch_identifier: abc123
+                            batch_status: processing
+                            batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                             completed_at: "1970-01-01T00:00:01Z"
                             created_at: "1970-01-01T00:00:01Z"
                             failed_as: PIP
@@ -3527,6 +3993,9 @@ components:
                 value:
                     item:
                         aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                        batch_identifier: abc123
+                        batch_status: processing
+                        batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         completed_at: "1970-01-01T00:00:01Z"
                         created_at: "1970-01-01T00:00:01Z"
                         failed_as: PIP
@@ -3570,17 +4039,17 @@ components:
                         Value:
                             type: string
                             description: JSON encoded union value
-                            example: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                            example: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                     example:
                         Type: sip_created_event
-                        Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                        Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                     required:
                         - Type
                         - Value
             example:
                 value:
                     Type: sip_created_event
-                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
         IngestPingEvent:
             type: object
             properties:
@@ -3799,6 +4268,9 @@ components:
                 $ref: '#/components/schemas/EnduroIngestSip'
             example:
                 - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  batch_identifier: abc123
+                  batch_status: processing
+                  batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   completed_at: "1970-01-01T00:00:01Z"
                   created_at: "1970-01-01T00:00:01Z"
                   failed_as: PIP
@@ -3822,6 +4294,9 @@ components:
             example:
                 item:
                     aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    batch_identifier: abc123
+                    batch_status: processing
+                    batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     completed_at: "1970-01-01T00:00:01Z"
                     created_at: "1970-01-01T00:00:01Z"
                     failed_as: PIP
@@ -3956,6 +4431,9 @@ components:
             example:
                 item:
                     aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    batch_identifier: abc123
+                    batch_status: processing
+                    batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     completed_at: "1970-01-01T00:00:01Z"
                     created_at: "1970-01-01T00:00:01Z"
                     failed_as: PIP

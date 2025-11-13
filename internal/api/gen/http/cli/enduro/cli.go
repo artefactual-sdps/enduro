@@ -27,7 +27,7 @@ import (
 func UsageCommands() []string {
 	return []string{
 		"about about",
-		"ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects)",
+		"ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects|add-batch|list-batches|show-batch)",
 		"storage (monitor-request|monitor|list-aips|create-aip|submit-aip|update-aip|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)",
 	}
 }
@@ -73,6 +73,7 @@ func ParseEndpoint(
 		ingestListSipsLatestCreatedTimeFlag   = ingestListSipsFlags.String("latest-created-time", "", "")
 		ingestListSipsStatusFlag              = ingestListSipsFlags.String("status", "", "")
 		ingestListSipsUploaderUUIDFlag        = ingestListSipsFlags.String("uploader-uuid", "", "")
+		ingestListSipsBatchUUIDFlag           = ingestListSipsFlags.String("batch-uuid", "", "")
 		ingestListSipsLimitFlag               = ingestListSipsFlags.String("limit", "", "")
 		ingestListSipsOffsetFlag              = ingestListSipsFlags.String("offset", "", "")
 		ingestListSipsTokenFlag               = ingestListSipsFlags.String("token", "", "")
@@ -124,6 +125,26 @@ func ParseEndpoint(
 		ingestListSipSourceObjectsLimitFlag  = ingestListSipSourceObjectsFlags.String("limit", "", "")
 		ingestListSipSourceObjectsCursorFlag = ingestListSipSourceObjectsFlags.String("cursor", "", "")
 		ingestListSipSourceObjectsTokenFlag  = ingestListSipSourceObjectsFlags.String("token", "", "")
+
+		ingestAddBatchFlags          = flag.NewFlagSet("add-batch", flag.ExitOnError)
+		ingestAddBatchSourceIDFlag   = ingestAddBatchFlags.String("source-id", "REQUIRED", "")
+		ingestAddBatchKeysFlag       = ingestAddBatchFlags.String("keys", "REQUIRED", "")
+		ingestAddBatchIdentifierFlag = ingestAddBatchFlags.String("identifier", "", "")
+		ingestAddBatchTokenFlag      = ingestAddBatchFlags.String("token", "", "")
+
+		ingestListBatchesFlags                   = flag.NewFlagSet("list-batches", flag.ExitOnError)
+		ingestListBatchesIdentifierFlag          = ingestListBatchesFlags.String("identifier", "", "")
+		ingestListBatchesEarliestCreatedTimeFlag = ingestListBatchesFlags.String("earliest-created-time", "", "")
+		ingestListBatchesLatestCreatedTimeFlag   = ingestListBatchesFlags.String("latest-created-time", "", "")
+		ingestListBatchesStatusFlag              = ingestListBatchesFlags.String("status", "", "")
+		ingestListBatchesUploaderUUIDFlag        = ingestListBatchesFlags.String("uploader-uuid", "", "")
+		ingestListBatchesLimitFlag               = ingestListBatchesFlags.String("limit", "", "")
+		ingestListBatchesOffsetFlag              = ingestListBatchesFlags.String("offset", "", "")
+		ingestListBatchesTokenFlag               = ingestListBatchesFlags.String("token", "", "")
+
+		ingestShowBatchFlags     = flag.NewFlagSet("show-batch", flag.ExitOnError)
+		ingestShowBatchUUIDFlag  = ingestShowBatchFlags.String("uuid", "REQUIRED", "Identifier of Batch to show")
+		ingestShowBatchTokenFlag = ingestShowBatchFlags.String("token", "", "")
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
@@ -233,6 +254,9 @@ func ParseEndpoint(
 	ingestDownloadSipFlags.Usage = ingestDownloadSipUsage
 	ingestListUsersFlags.Usage = ingestListUsersUsage
 	ingestListSipSourceObjectsFlags.Usage = ingestListSipSourceObjectsUsage
+	ingestAddBatchFlags.Usage = ingestAddBatchUsage
+	ingestListBatchesFlags.Usage = ingestListBatchesUsage
+	ingestShowBatchFlags.Usage = ingestShowBatchUsage
 
 	storageFlags.Usage = storageUsage
 	storageMonitorRequestFlags.Usage = storageMonitorRequestUsage
@@ -340,6 +364,15 @@ func ParseEndpoint(
 			case "list-sip-source-objects":
 				epf = ingestListSipSourceObjectsFlags
 
+			case "add-batch":
+				epf = ingestAddBatchFlags
+
+			case "list-batches":
+				epf = ingestListBatchesFlags
+
+			case "show-batch":
+				epf = ingestShowBatchFlags
+
 			}
 
 		case "storage":
@@ -444,7 +477,7 @@ func ParseEndpoint(
 				data, err = ingestc.BuildMonitorPayload(*ingestMonitorTicketFlag)
 			case "list-sips":
 				endpoint = c.ListSips()
-				data, err = ingestc.BuildListSipsPayload(*ingestListSipsNameFlag, *ingestListSipsAipUUIDFlag, *ingestListSipsEarliestCreatedTimeFlag, *ingestListSipsLatestCreatedTimeFlag, *ingestListSipsStatusFlag, *ingestListSipsUploaderUUIDFlag, *ingestListSipsLimitFlag, *ingestListSipsOffsetFlag, *ingestListSipsTokenFlag)
+				data, err = ingestc.BuildListSipsPayload(*ingestListSipsNameFlag, *ingestListSipsAipUUIDFlag, *ingestListSipsEarliestCreatedTimeFlag, *ingestListSipsLatestCreatedTimeFlag, *ingestListSipsStatusFlag, *ingestListSipsUploaderUUIDFlag, *ingestListSipsBatchUUIDFlag, *ingestListSipsLimitFlag, *ingestListSipsOffsetFlag, *ingestListSipsTokenFlag)
 			case "show-sip":
 				endpoint = c.ShowSip()
 				data, err = ingestc.BuildShowSipPayload(*ingestShowSipUUIDFlag, *ingestShowSipTokenFlag)
@@ -478,6 +511,15 @@ func ParseEndpoint(
 			case "list-sip-source-objects":
 				endpoint = c.ListSipSourceObjects()
 				data, err = ingestc.BuildListSipSourceObjectsPayload(*ingestListSipSourceObjectsUUIDFlag, *ingestListSipSourceObjectsLimitFlag, *ingestListSipSourceObjectsCursorFlag, *ingestListSipSourceObjectsTokenFlag)
+			case "add-batch":
+				endpoint = c.AddBatch()
+				data, err = ingestc.BuildAddBatchPayload(*ingestAddBatchSourceIDFlag, *ingestAddBatchKeysFlag, *ingestAddBatchIdentifierFlag, *ingestAddBatchTokenFlag)
+			case "list-batches":
+				endpoint = c.ListBatches()
+				data, err = ingestc.BuildListBatchesPayload(*ingestListBatchesIdentifierFlag, *ingestListBatchesEarliestCreatedTimeFlag, *ingestListBatchesLatestCreatedTimeFlag, *ingestListBatchesStatusFlag, *ingestListBatchesUploaderUUIDFlag, *ingestListBatchesLimitFlag, *ingestListBatchesOffsetFlag, *ingestListBatchesTokenFlag)
+			case "show-batch":
+				endpoint = c.ShowBatch()
+				data, err = ingestc.BuildShowBatchPayload(*ingestShowBatchUUIDFlag, *ingestShowBatchTokenFlag)
 			}
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore, dialer, storageConfigurer)
@@ -599,6 +641,9 @@ func ingestUsage() {
 	fmt.Fprintln(os.Stderr, `    download-sip: Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP's `+"`"+`failed_as`+"`"+` value.`)
 	fmt.Fprintln(os.Stderr, `    list-users: List all users`)
 	fmt.Fprintln(os.Stderr, `    list-sip-source-objects: List the objects in a SIP source`)
+	fmt.Fprintln(os.Stderr, `    add-batch: Ingest a Batch from a SIP Source`)
+	fmt.Fprintln(os.Stderr, `    list-batches: List all ingested Batches`)
+	fmt.Fprintln(os.Stderr, `    show-batch: Show Batch by UUID`)
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Additional help:")
 	fmt.Fprintf(os.Stderr, "    %s ingest COMMAND --help\n", os.Args[0])
@@ -650,6 +695,7 @@ func ingestListSipsUsage() {
 	fmt.Fprint(os.Stderr, " -latest-created-time STRING")
 	fmt.Fprint(os.Stderr, " -status STRING")
 	fmt.Fprint(os.Stderr, " -uploader-uuid STRING")
+	fmt.Fprint(os.Stderr, " -batch-uuid STRING")
 	fmt.Fprint(os.Stderr, " -limit INT")
 	fmt.Fprint(os.Stderr, " -offset INT")
 	fmt.Fprint(os.Stderr, " -token STRING")
@@ -666,6 +712,7 @@ func ingestListSipsUsage() {
 	fmt.Fprintln(os.Stderr, `    -latest-created-time STRING: `)
 	fmt.Fprintln(os.Stderr, `    -status STRING: `)
 	fmt.Fprintln(os.Stderr, `    -uploader-uuid STRING: `)
+	fmt.Fprintln(os.Stderr, `    -batch-uuid STRING: `)
 	fmt.Fprintln(os.Stderr, `    -limit INT: `)
 	fmt.Fprintln(os.Stderr, `    -offset INT: `)
 	fmt.Fprintln(os.Stderr, `    -token STRING: `)
@@ -673,7 +720,7 @@ func ingestListSipsUsage() {
 	// Example block: pass example as parameter to avoid format parsing of % characters
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `ingest list-sips --name "abc123" --aip-uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "failed" --uploader-uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --limit 1 --offset 1 --token "abc123"`)
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `ingest list-sips --name "abc123" --aip-uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "failed" --uploader-uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --batch-uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --limit 1 --offset 1 --token "abc123"`)
 }
 
 func ingestShowSipUsage() {
@@ -902,6 +949,87 @@ func ingestListSipSourceObjectsUsage() {
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
 	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `ingest list-sip-source-objects --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --limit 1 --cursor "abc123" --token "abc123"`)
+}
+
+func ingestAddBatchUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] ingest add-batch", os.Args[0])
+	fmt.Fprint(os.Stderr, " -source-id STRING")
+	fmt.Fprint(os.Stderr, " -keys JSON")
+	fmt.Fprint(os.Stderr, " -identifier STRING")
+	fmt.Fprint(os.Stderr, " -token STRING")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `Ingest a Batch from a SIP Source`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -source-id STRING: `)
+	fmt.Fprintln(os.Stderr, `    -keys JSON: `)
+	fmt.Fprintln(os.Stderr, `    -identifier STRING: `)
+	fmt.Fprintln(os.Stderr, `    -token STRING: `)
+
+	// Example block: pass example as parameter to avoid format parsing of % characters
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `ingest add-batch --source-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --keys '[
+      "abc123"
+   ]' --identifier "abc123" --token "abc123"`)
+}
+
+func ingestListBatchesUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] ingest list-batches", os.Args[0])
+	fmt.Fprint(os.Stderr, " -identifier STRING")
+	fmt.Fprint(os.Stderr, " -earliest-created-time STRING")
+	fmt.Fprint(os.Stderr, " -latest-created-time STRING")
+	fmt.Fprint(os.Stderr, " -status STRING")
+	fmt.Fprint(os.Stderr, " -uploader-uuid STRING")
+	fmt.Fprint(os.Stderr, " -limit INT")
+	fmt.Fprint(os.Stderr, " -offset INT")
+	fmt.Fprint(os.Stderr, " -token STRING")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `List all ingested Batches`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -identifier STRING: `)
+	fmt.Fprintln(os.Stderr, `    -earliest-created-time STRING: `)
+	fmt.Fprintln(os.Stderr, `    -latest-created-time STRING: `)
+	fmt.Fprintln(os.Stderr, `    -status STRING: `)
+	fmt.Fprintln(os.Stderr, `    -uploader-uuid STRING: `)
+	fmt.Fprintln(os.Stderr, `    -limit INT: `)
+	fmt.Fprintln(os.Stderr, `    -offset INT: `)
+	fmt.Fprintln(os.Stderr, `    -token STRING: `)
+
+	// Example block: pass example as parameter to avoid format parsing of % characters
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `ingest list-batches --identifier "abc123" --earliest-created-time "1970-01-01T00:00:01Z" --latest-created-time "1970-01-01T00:00:01Z" --status "processing" --uploader-uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --limit 1 --offset 1 --token "abc123"`)
+}
+
+func ingestShowBatchUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] ingest show-batch", os.Args[0])
+	fmt.Fprint(os.Stderr, " -uuid STRING")
+	fmt.Fprint(os.Stderr, " -token STRING")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `Show Batch by UUID`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -uuid STRING: Identifier of Batch to show`)
+	fmt.Fprintln(os.Stderr, `    -token STRING: `)
+
+	// Example block: pass example as parameter to avoid format parsing of % characters
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `ingest show-batch --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"`)
 }
 
 // storageUsage displays the usage of the storage command and its subcommands.

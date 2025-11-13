@@ -77,6 +77,12 @@ type ShowSipResponseBody struct {
 	UploaderEmail *string `form:"uploader_email,omitempty" json:"uploader_email,omitempty" xml:"uploader_email,omitempty"`
 	// Name of the user who uploaded the SIP
 	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
+	// UUID of the related Batch
+	BatchUUID *uuid.UUID `form:"batch_uuid,omitempty" json:"batch_uuid,omitempty" xml:"batch_uuid,omitempty"`
+	// Identifier of the related Batch
+	BatchIdentifier *string `form:"batch_identifier,omitempty" json:"batch_identifier,omitempty" xml:"batch_identifier,omitempty"`
+	// Status of the related Batch
+	BatchStatus *string `form:"batch_status,omitempty" json:"batch_status,omitempty" xml:"batch_status,omitempty"`
 }
 
 // ListSipWorkflowsResponseBody is the type of the "ingest" service
@@ -114,6 +120,45 @@ type ListSipSourceObjectsResponseBody struct {
 	Limit *int `form:"limit,omitempty" json:"limit,omitempty" xml:"limit,omitempty"`
 	// Token to get the next page of objects
 	Next *string `form:"next,omitempty" json:"next,omitempty" xml:"next,omitempty"`
+}
+
+// AddBatchResponseBody is the type of the "ingest" service "add_batch"
+// endpoint HTTP response body.
+type AddBatchResponseBody struct {
+	// Identifier of the ingested Batch
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
+// ListBatchesResponseBody is the type of the "ingest" service "list_batches"
+// endpoint HTTP response body.
+type ListBatchesResponseBody struct {
+	Items BatchCollectionResponseBody `form:"items,omitempty" json:"items,omitempty" xml:"items,omitempty"`
+	Page  *EnduroPageResponseBody     `form:"page,omitempty" json:"page,omitempty" xml:"page,omitempty"`
+}
+
+// ShowBatchResponseBody is the type of the "ingest" service "show_batch"
+// endpoint HTTP response body.
+type ShowBatchResponseBody struct {
+	// Identifier of Batch
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	// Identifier of the Batch
+	Identifier *string `form:"identifier,omitempty" json:"identifier,omitempty" xml:"identifier,omitempty"`
+	// Number of SIPs in the Batch
+	SipsCount *int `form:"sips_count,omitempty" json:"sips_count,omitempty" xml:"sips_count,omitempty"`
+	// Status of the Batch
+	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	// Creation datetime
+	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
+	// Start datetime
+	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	// Completion datetime
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	// UUID of the user who uploaded the Batch
+	UploaderUUID *uuid.UUID `form:"uploader_uuid,omitempty" json:"uploader_uuid,omitempty" xml:"uploader_uuid,omitempty"`
+	// Email of the user who uploaded the Batch
+	UploaderEmail *string `form:"uploader_email,omitempty" json:"uploader_email,omitempty" xml:"uploader_email,omitempty"`
+	// Name of the user who uploaded the Batch
+	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
 }
 
 // MonitorRequestInternalErrorResponseBody is the type of the "ingest" service
@@ -553,6 +598,141 @@ type ListSipSourceObjectsInternalErrorResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// AddBatchNotValidResponseBody is the type of the "ingest" service "add_batch"
+// endpoint HTTP response body for the "not_valid" error.
+type AddBatchNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// AddBatchInternalErrorResponseBody is the type of the "ingest" service
+// "add_batch" endpoint HTTP response body for the "internal_error" error.
+type AddBatchInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// AddBatchNotImplementedResponseBody is the type of the "ingest" service
+// "add_batch" endpoint HTTP response body for the "not_implemented" error.
+type AddBatchNotImplementedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListBatchesNotValidResponseBody is the type of the "ingest" service
+// "list_batches" endpoint HTTP response body for the "not_valid" error.
+type ListBatchesNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListBatchesNotImplementedResponseBody is the type of the "ingest" service
+// "list_batches" endpoint HTTP response body for the "not_implemented" error.
+type ListBatchesNotImplementedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ShowBatchNotAvailableResponseBody is the type of the "ingest" service
+// "show_batch" endpoint HTTP response body for the "not_available" error.
+type ShowBatchNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ShowBatchNotImplementedResponseBody is the type of the "ingest" service
+// "show_batch" endpoint HTTP response body for the "not_implemented" error.
+type ShowBatchNotImplementedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ShowBatchNotFoundResponseBody is the type of the "ingest" service
+// "show_batch" endpoint HTTP response body for the "not_found" error.
+type ShowBatchNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing Batch
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
 // SIPCollectionResponseBody is used to define fields on response body types.
 type SIPCollectionResponseBody []*SIPResponseBody
 
@@ -582,6 +762,12 @@ type SIPResponseBody struct {
 	UploaderEmail *string `form:"uploader_email,omitempty" json:"uploader_email,omitempty" xml:"uploader_email,omitempty"`
 	// Name of the user who uploaded the SIP
 	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
+	// UUID of the related Batch
+	BatchUUID *uuid.UUID `form:"batch_uuid,omitempty" json:"batch_uuid,omitempty" xml:"batch_uuid,omitempty"`
+	// Identifier of the related Batch
+	BatchIdentifier *string `form:"batch_identifier,omitempty" json:"batch_identifier,omitempty" xml:"batch_identifier,omitempty"`
+	// Status of the related Batch
+	BatchStatus *string `form:"batch_status,omitempty" json:"batch_status,omitempty" xml:"batch_status,omitempty"`
 }
 
 // EnduroPageResponseBody is used to define fields on response body types.
@@ -658,6 +844,33 @@ type SIPSourceObjectResponseBody struct {
 	Size *int64 `form:"size,omitempty" json:"size,omitempty" xml:"size,omitempty"`
 	// True if the object is a directory, false if it is a file
 	IsDir *bool `form:"is_dir,omitempty" json:"is_dir,omitempty" xml:"is_dir,omitempty"`
+}
+
+// BatchCollectionResponseBody is used to define fields on response body types.
+type BatchCollectionResponseBody []*BatchResponseBody
+
+// BatchResponseBody is used to define fields on response body types.
+type BatchResponseBody struct {
+	// Identifier of Batch
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	// Identifier of the Batch
+	Identifier *string `form:"identifier,omitempty" json:"identifier,omitempty" xml:"identifier,omitempty"`
+	// Number of SIPs in the Batch
+	SipsCount *int `form:"sips_count,omitempty" json:"sips_count,omitempty" xml:"sips_count,omitempty"`
+	// Status of the Batch
+	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	// Creation datetime
+	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
+	// Start datetime
+	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	// Completion datetime
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	// UUID of the user who uploaded the Batch
+	UploaderUUID *uuid.UUID `form:"uploader_uuid,omitempty" json:"uploader_uuid,omitempty" xml:"uploader_uuid,omitempty"`
+	// Email of the user who uploaded the Batch
+	UploaderEmail *string `form:"uploader_email,omitempty" json:"uploader_email,omitempty" xml:"uploader_email,omitempty"`
+	// Name of the user who uploaded the Batch
+	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
 }
 
 // NewConfirmSipRequestBody builds the HTTP request body from the payload of
@@ -831,18 +1044,21 @@ func NewListSipsUnauthorized(body string) ingest.Unauthorized {
 // HTTP "OK" response.
 func NewShowSipSIPOK(body *ShowSipResponseBody) *ingestviews.SIPView {
 	v := &ingestviews.SIPView{
-		UUID:          body.UUID,
-		Name:          body.Name,
-		Status:        body.Status,
-		AipUUID:       body.AipUUID,
-		CreatedAt:     body.CreatedAt,
-		StartedAt:     body.StartedAt,
-		CompletedAt:   body.CompletedAt,
-		FailedAs:      body.FailedAs,
-		FailedKey:     body.FailedKey,
-		UploaderUUID:  body.UploaderUUID,
-		UploaderEmail: body.UploaderEmail,
-		UploaderName:  body.UploaderName,
+		UUID:            body.UUID,
+		Name:            body.Name,
+		Status:          body.Status,
+		AipUUID:         body.AipUUID,
+		CreatedAt:       body.CreatedAt,
+		StartedAt:       body.StartedAt,
+		CompletedAt:     body.CompletedAt,
+		FailedAs:        body.FailedAs,
+		FailedKey:       body.FailedKey,
+		UploaderUUID:    body.UploaderUUID,
+		UploaderEmail:   body.UploaderEmail,
+		UploaderName:    body.UploaderName,
+		BatchUUID:       body.BatchUUID,
+		BatchIdentifier: body.BatchIdentifier,
+		BatchStatus:     body.BatchStatus,
 	}
 
 	return v
@@ -1423,6 +1639,212 @@ func NewListSipSourceObjectsUnauthorized(body string) ingest.Unauthorized {
 	return v
 }
 
+// NewAddBatchResultCreated builds a "ingest" service "add_batch" endpoint
+// result from a HTTP "Created" response.
+func NewAddBatchResultCreated(body *AddBatchResponseBody) *ingest.AddBatchResult {
+	v := &ingest.AddBatchResult{
+		UUID: *body.UUID,
+	}
+
+	return v
+}
+
+// NewAddBatchNotValid builds a ingest service add_batch endpoint not_valid
+// error.
+func NewAddBatchNotValid(body *AddBatchNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewAddBatchInternalError builds a ingest service add_batch endpoint
+// internal_error error.
+func NewAddBatchInternalError(body *AddBatchInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewAddBatchNotImplemented builds a ingest service add_batch endpoint
+// not_implemented error.
+func NewAddBatchNotImplemented(body *AddBatchNotImplementedResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewAddBatchForbidden builds a ingest service add_batch endpoint forbidden
+// error.
+func NewAddBatchForbidden(body string) ingest.Forbidden {
+	v := ingest.Forbidden(body)
+
+	return v
+}
+
+// NewAddBatchUnauthorized builds a ingest service add_batch endpoint
+// unauthorized error.
+func NewAddBatchUnauthorized(body string) ingest.Unauthorized {
+	v := ingest.Unauthorized(body)
+
+	return v
+}
+
+// NewListBatchesBatchesOK builds a "ingest" service "list_batches" endpoint
+// result from a HTTP "OK" response.
+func NewListBatchesBatchesOK(body *ListBatchesResponseBody) *ingestviews.BatchesView {
+	v := &ingestviews.BatchesView{}
+	v.Items = make([]*ingestviews.BatchView, len(body.Items))
+	for i, val := range body.Items {
+		v.Items[i] = unmarshalBatchResponseBodyToIngestviewsBatchView(val)
+	}
+	v.Page = unmarshalEnduroPageResponseBodyToIngestviewsEnduroPageView(body.Page)
+
+	return v
+}
+
+// NewListBatchesNotValid builds a ingest service list_batches endpoint
+// not_valid error.
+func NewListBatchesNotValid(body *ListBatchesNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListBatchesNotImplemented builds a ingest service list_batches endpoint
+// not_implemented error.
+func NewListBatchesNotImplemented(body *ListBatchesNotImplementedResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListBatchesForbidden builds a ingest service list_batches endpoint
+// forbidden error.
+func NewListBatchesForbidden(body string) ingest.Forbidden {
+	v := ingest.Forbidden(body)
+
+	return v
+}
+
+// NewListBatchesUnauthorized builds a ingest service list_batches endpoint
+// unauthorized error.
+func NewListBatchesUnauthorized(body string) ingest.Unauthorized {
+	v := ingest.Unauthorized(body)
+
+	return v
+}
+
+// NewShowBatchBatchOK builds a "ingest" service "show_batch" endpoint result
+// from a HTTP "OK" response.
+func NewShowBatchBatchOK(body *ShowBatchResponseBody) *ingestviews.BatchView {
+	v := &ingestviews.BatchView{
+		UUID:          body.UUID,
+		Identifier:    body.Identifier,
+		SipsCount:     body.SipsCount,
+		Status:        body.Status,
+		CreatedAt:     body.CreatedAt,
+		StartedAt:     body.StartedAt,
+		CompletedAt:   body.CompletedAt,
+		UploaderUUID:  body.UploaderUUID,
+		UploaderEmail: body.UploaderEmail,
+		UploaderName:  body.UploaderName,
+	}
+
+	return v
+}
+
+// NewShowBatchNotAvailable builds a ingest service show_batch endpoint
+// not_available error.
+func NewShowBatchNotAvailable(body *ShowBatchNotAvailableResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewShowBatchNotImplemented builds a ingest service show_batch endpoint
+// not_implemented error.
+func NewShowBatchNotImplemented(body *ShowBatchNotImplementedResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewShowBatchNotFound builds a ingest service show_batch endpoint not_found
+// error.
+func NewShowBatchNotFound(body *ShowBatchNotFoundResponseBody) *ingest.BatchNotFound {
+	v := &ingest.BatchNotFound{
+		Message: *body.Message,
+		UUID:    *body.UUID,
+	}
+
+	return v
+}
+
+// NewShowBatchForbidden builds a ingest service show_batch endpoint forbidden
+// error.
+func NewShowBatchForbidden(body string) ingest.Forbidden {
+	v := ingest.Forbidden(body)
+
+	return v
+}
+
+// NewShowBatchUnauthorized builds a ingest service show_batch endpoint
+// unauthorized error.
+func NewShowBatchUnauthorized(body string) ingest.Unauthorized {
+	v := ingest.Unauthorized(body)
+
+	return v
+}
+
 // ValidateMonitorResponseBody runs the validations defined on
 // MonitorResponseBody
 func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
@@ -1457,6 +1879,18 @@ func ValidateAddSipResponseBody(body *AddSipResponseBody) (err error) {
 // ValidateUploadSipResponseBody runs the validations defined on
 // upload_sip_response_body
 func ValidateUploadSipResponseBody(body *UploadSipResponseBody) (err error) {
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.UUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
+	}
+	return
+}
+
+// ValidateAddBatchResponseBody runs the validations defined on
+// add_batch_response_body
+func ValidateAddBatchResponseBody(body *AddBatchResponseBody) (err error) {
 	if body.UUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
 	}
@@ -2060,6 +2494,189 @@ func ValidateListSipSourceObjectsInternalErrorResponseBody(body *ListSipSourceOb
 	return
 }
 
+// ValidateAddBatchNotValidResponseBody runs the validations defined on
+// add_batch_not_valid_response_body
+func ValidateAddBatchNotValidResponseBody(body *AddBatchNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateAddBatchInternalErrorResponseBody runs the validations defined on
+// add_batch_internal_error_response_body
+func ValidateAddBatchInternalErrorResponseBody(body *AddBatchInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateAddBatchNotImplementedResponseBody runs the validations defined on
+// add_batch_not_implemented_response_body
+func ValidateAddBatchNotImplementedResponseBody(body *AddBatchNotImplementedResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListBatchesNotValidResponseBody runs the validations defined on
+// list_batches_not_valid_response_body
+func ValidateListBatchesNotValidResponseBody(body *ListBatchesNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListBatchesNotImplementedResponseBody runs the validations defined
+// on list_batches_not_implemented_response_body
+func ValidateListBatchesNotImplementedResponseBody(body *ListBatchesNotImplementedResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateShowBatchNotAvailableResponseBody runs the validations defined on
+// show_batch_not_available_response_body
+func ValidateShowBatchNotAvailableResponseBody(body *ShowBatchNotAvailableResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateShowBatchNotImplementedResponseBody runs the validations defined on
+// show_batch_not_implemented_response_body
+func ValidateShowBatchNotImplementedResponseBody(body *ShowBatchNotImplementedResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateShowBatchNotFoundResponseBody runs the validations defined on
+// show_batch_not_found_response_body
+func ValidateShowBatchNotFoundResponseBody(body *ShowBatchNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.UUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
+	}
+	return
+}
+
 // ValidateSIPCollectionResponseBody runs the validations defined on
 // SIPCollectionResponseBody
 func ValidateSIPCollectionResponseBody(body SIPCollectionResponseBody) (err error) {
@@ -2104,6 +2721,11 @@ func ValidateSIPResponseBody(body *SIPResponseBody) (err error) {
 	if body.FailedAs != nil {
 		if !(*body.FailedAs == "SIP" || *body.FailedAs == "PIP") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.failed_as", *body.FailedAs, []any{"SIP", "PIP"}))
+		}
+	}
+	if body.BatchStatus != nil {
+		if !(*body.BatchStatus == "queued" || *body.BatchStatus == "processing" || *body.BatchStatus == "pending" || *body.BatchStatus == "ingested" || *body.BatchStatus == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.batch_status", *body.BatchStatus, []any{"queued", "processing", "pending", "ingested", "canceled"}))
 		}
 	}
 	return
@@ -2284,6 +2906,53 @@ func ValidateSIPSourceObjectResponseBody(body *SIPSourceObjectResponseBody) (err
 	}
 	if body.ModTime != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.mod_time", *body.ModTime, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateBatchCollectionResponseBody runs the validations defined on
+// BatchCollectionResponseBody
+func ValidateBatchCollectionResponseBody(body BatchCollectionResponseBody) (err error) {
+	for _, e := range body {
+		if e != nil {
+			if err2 := ValidateBatchResponseBody(e); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+	}
+	return
+}
+
+// ValidateBatchResponseBody runs the validations defined on BatchResponseBody
+func ValidateBatchResponseBody(body *BatchResponseBody) (err error) {
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.Identifier == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("identifier", "body"))
+	}
+	if body.SipsCount == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("sips_count", "body"))
+	}
+	if body.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
+	}
+	if body.CreatedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
+	}
+	if body.Status != nil {
+		if !(*body.Status == "queued" || *body.Status == "processing" || *body.Status == "pending" || *body.Status == "ingested" || *body.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"queued", "processing", "pending", "ingested", "canceled"}))
+		}
+	}
+	if body.CreatedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.created_at", *body.CreatedAt, goa.FormatDateTime))
+	}
+	if body.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.started_at", *body.StartedAt, goa.FormatDateTime))
+	}
+	if body.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
 	}
 	return
 }

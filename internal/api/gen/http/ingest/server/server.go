@@ -38,6 +38,9 @@ type Server struct {
 	DownloadSip          http.Handler
 	ListUsers            http.Handler
 	ListSipSourceObjects http.Handler
+	AddBatch             http.Handler
+	ListBatches          http.Handler
+	ShowBatch            http.Handler
 	CORS                 http.Handler
 }
 
@@ -86,6 +89,9 @@ func New(
 			{"DownloadSip", "GET", "/ingest/sips/{uuid}/download"},
 			{"ListUsers", "GET", "/ingest/users"},
 			{"ListSipSourceObjects", "GET", "/ingest/sip-sources/{uuid}/objects"},
+			{"AddBatch", "POST", "/ingest/batches"},
+			{"ListBatches", "GET", "/ingest/batches"},
+			{"ShowBatch", "GET", "/ingest/batches/{uuid}"},
 			{"CORS", "OPTIONS", "/ingest/monitor"},
 			{"CORS", "OPTIONS", "/ingest/sips"},
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}"},
@@ -96,6 +102,8 @@ func New(
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/download"},
 			{"CORS", "OPTIONS", "/ingest/users"},
 			{"CORS", "OPTIONS", "/ingest/sip-sources/{uuid}/objects"},
+			{"CORS", "OPTIONS", "/ingest/batches"},
+			{"CORS", "OPTIONS", "/ingest/batches/{uuid}"},
 		},
 		MonitorRequest:       NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
 		Monitor:              NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
@@ -110,6 +118,9 @@ func New(
 		DownloadSip:          NewDownloadSipHandler(e.DownloadSip, mux, decoder, encoder, errhandler, formatter),
 		ListUsers:            NewListUsersHandler(e.ListUsers, mux, decoder, encoder, errhandler, formatter),
 		ListSipSourceObjects: NewListSipSourceObjectsHandler(e.ListSipSourceObjects, mux, decoder, encoder, errhandler, formatter),
+		AddBatch:             NewAddBatchHandler(e.AddBatch, mux, decoder, encoder, errhandler, formatter),
+		ListBatches:          NewListBatchesHandler(e.ListBatches, mux, decoder, encoder, errhandler, formatter),
+		ShowBatch:            NewShowBatchHandler(e.ShowBatch, mux, decoder, encoder, errhandler, formatter),
 		CORS:                 NewCORSHandler(),
 	}
 }
@@ -132,6 +143,9 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.DownloadSip = m(s.DownloadSip)
 	s.ListUsers = m(s.ListUsers)
 	s.ListSipSourceObjects = m(s.ListSipSourceObjects)
+	s.AddBatch = m(s.AddBatch)
+	s.ListBatches = m(s.ListBatches)
+	s.ShowBatch = m(s.ShowBatch)
 	s.CORS = m(s.CORS)
 }
 
@@ -153,6 +167,9 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountDownloadSipHandler(mux, h.DownloadSip)
 	MountListUsersHandler(mux, h.ListUsers)
 	MountListSipSourceObjectsHandler(mux, h.ListSipSourceObjects)
+	MountAddBatchHandler(mux, h.AddBatch)
+	MountListBatchesHandler(mux, h.ListBatches)
+	MountShowBatchHandler(mux, h.ShowBatch)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -907,6 +924,165 @@ func NewListSipSourceObjectsHandler(
 	})
 }
 
+// MountAddBatchHandler configures the mux to serve the "ingest" service
+// "add_batch" endpoint.
+func MountAddBatchHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/ingest/batches", otelhttp.WithRouteTag("/ingest/batches", f).ServeHTTP)
+}
+
+// NewAddBatchHandler creates a HTTP handler which loads the HTTP request and
+// calls the "ingest" service "add_batch" endpoint.
+func NewAddBatchHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeAddBatchRequest(mux, decoder)
+		encodeResponse = EncodeAddBatchResponse(encoder)
+		encodeError    = EncodeAddBatchError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "add_batch")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			if errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+		}
+	})
+}
+
+// MountListBatchesHandler configures the mux to serve the "ingest" service
+// "list_batches" endpoint.
+func MountListBatchesHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/ingest/batches", otelhttp.WithRouteTag("/ingest/batches", f).ServeHTTP)
+}
+
+// NewListBatchesHandler creates a HTTP handler which loads the HTTP request
+// and calls the "ingest" service "list_batches" endpoint.
+func NewListBatchesHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeListBatchesRequest(mux, decoder)
+		encodeResponse = EncodeListBatchesResponse(encoder)
+		encodeError    = EncodeListBatchesError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "list_batches")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			if errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+		}
+	})
+}
+
+// MountShowBatchHandler configures the mux to serve the "ingest" service
+// "show_batch" endpoint.
+func MountShowBatchHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/ingest/batches/{uuid}", otelhttp.WithRouteTag("/ingest/batches/{uuid}", f).ServeHTTP)
+}
+
+// NewShowBatchHandler creates a HTTP handler which loads the HTTP request and
+// calls the "ingest" service "show_batch" endpoint.
+func NewShowBatchHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeShowBatchRequest(mux, decoder)
+		encodeResponse = EncodeShowBatchResponse(encoder)
+		encodeError    = EncodeShowBatchError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "show_batch")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			if errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+		}
+	})
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service ingest.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
@@ -921,6 +1097,8 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/download", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/users", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sip-sources/{uuid}/objects", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/batches", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/batches/{uuid}", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 204 response.

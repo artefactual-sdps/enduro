@@ -26,6 +26,24 @@ export interface EnduroIngestSip {
      */
     aipUuid?: string;
     /**
+     * Identifier of the related Batch
+     * @type {string}
+     * @memberof EnduroIngestSip
+     */
+    batchIdentifier?: string;
+    /**
+     * Status of the related Batch
+     * @type {string}
+     * @memberof EnduroIngestSip
+     */
+    batchStatus?: EnduroIngestSipBatchStatusEnum;
+    /**
+     * UUID of the related Batch
+     * @type {string}
+     * @memberof EnduroIngestSip
+     */
+    batchUuid?: string;
+    /**
      * Completion datetime
      * @type {Date}
      * @memberof EnduroIngestSip
@@ -97,6 +115,18 @@ export interface EnduroIngestSip {
 /**
  * @export
  */
+export const EnduroIngestSipBatchStatusEnum = {
+    Queued: 'queued',
+    Processing: 'processing',
+    Pending: 'pending',
+    Ingested: 'ingested',
+    Canceled: 'canceled'
+} as const;
+export type EnduroIngestSipBatchStatusEnum = typeof EnduroIngestSipBatchStatusEnum[keyof typeof EnduroIngestSipBatchStatusEnum];
+
+/**
+ * @export
+ */
 export const EnduroIngestSipFailedAsEnum = {
     Sip: 'SIP',
     Pip: 'PIP'
@@ -140,6 +170,9 @@ export function EnduroIngestSipFromJSONTyped(json: any, ignoreDiscriminator: boo
     return {
         
         'aipUuid': !exists(json, 'aip_uuid') ? undefined : json['aip_uuid'],
+        'batchIdentifier': !exists(json, 'batch_identifier') ? undefined : json['batch_identifier'],
+        'batchStatus': !exists(json, 'batch_status') ? undefined : json['batch_status'],
+        'batchUuid': !exists(json, 'batch_uuid') ? undefined : json['batch_uuid'],
         'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
         'createdAt': (new Date(json['created_at'])),
         'failedAs': !exists(json, 'failed_as') ? undefined : json['failed_as'],
@@ -164,6 +197,9 @@ export function EnduroIngestSipToJSON(value?: EnduroIngestSip | null): any {
     return {
         
         'aip_uuid': value.aipUuid,
+        'batch_identifier': value.batchIdentifier,
+        'batch_status': value.batchStatus,
+        'batch_uuid': value.batchUuid,
         'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
         'created_at': (value.createdAt.toISOString()),
         'failed_as': value.failedAs,

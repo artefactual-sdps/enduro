@@ -201,6 +201,7 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 			latestCreatedTime   *string
 			status              *string
 			uploaderUUID        *string
+			batchUUID           *string
 			limit               *int
 			offset              *int
 			token               *string
@@ -248,6 +249,13 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 		if uploaderUUID != nil {
 			err = goa.MergeErrors(err, goa.ValidateFormat("uploader_uuid", *uploaderUUID, goa.FormatUUID))
 		}
+		batchUUIDRaw := qp.Get("batch_uuid")
+		if batchUUIDRaw != "" {
+			batchUUID = &batchUUIDRaw
+		}
+		if batchUUID != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("batch_uuid", *batchUUID, goa.FormatUUID))
+		}
 		{
 			limitRaw := qp.Get("limit")
 			if limitRaw != "" {
@@ -277,7 +285,7 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListSipsPayload(name, aipUUID, earliestCreatedTime, latestCreatedTime, status, uploaderUUID, limit, offset, token)
+		payload := NewListSipsPayload(name, aipUUID, earliestCreatedTime, latestCreatedTime, status, uploaderUUID, batchUUID, limit, offset, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -1499,6 +1507,412 @@ func EncodeListSipSourceObjectsError(encoder func(context.Context, http.Response
 	}
 }
 
+// EncodeAddBatchResponse returns an encoder for responses returned by the
+// ingest add_batch endpoint.
+func EncodeAddBatchResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res, _ := v.(*ingest.AddBatchResult)
+		enc := encoder(ctx, w)
+		body := NewAddBatchResponseBody(res)
+		w.WriteHeader(http.StatusCreated)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeAddBatchRequest returns a decoder for requests sent to the ingest
+// add_batch endpoint.
+func DecodeAddBatchRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*ingest.AddBatchPayload, error) {
+	return func(r *http.Request) (*ingest.AddBatchPayload, error) {
+		var (
+			sourceID   string
+			keys       []string
+			identifier *string
+			token      *string
+			err        error
+		)
+		qp := r.URL.Query()
+		sourceID = qp.Get("source_id")
+		if sourceID == "" {
+			err = goa.MergeErrors(err, goa.MissingFieldError("source_id", "query string"))
+		}
+		err = goa.MergeErrors(err, goa.ValidateFormat("source_id", sourceID, goa.FormatUUID))
+		keys = qp["keys"]
+		if keys == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("keys", "query string"))
+		}
+		identifierRaw := qp.Get("identifier")
+		if identifierRaw != "" {
+			identifier = &identifierRaw
+		}
+		tokenRaw := r.Header.Get("Authorization")
+		if tokenRaw != "" {
+			token = &tokenRaw
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewAddBatchPayload(sourceID, keys, identifier, token)
+		if payload.Token != nil {
+			if strings.Contains(*payload.Token, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.Token, " ", 2)[1]
+				payload.Token = &cred
+			}
+		}
+
+		return payload, nil
+	}
+}
+
+// EncodeAddBatchError returns an encoder for errors returned by the add_batch
+// ingest endpoint.
+func EncodeAddBatchError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "not_valid":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewAddBatchNotValidResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "internal_error":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewAddBatchInternalErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
+		case "not_implemented":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewAddBatchNotImplementedResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusNotImplemented)
+			return enc.Encode(body)
+		case "forbidden":
+			var res ingest.Forbidden
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusForbidden)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res ingest.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
+// EncodeListBatchesResponse returns an encoder for responses returned by the
+// ingest list_batches endpoint.
+func EncodeListBatchesResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res := v.(*ingestviews.Batches)
+		enc := encoder(ctx, w)
+		body := NewListBatchesResponseBody(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeListBatchesRequest returns a decoder for requests sent to the ingest
+// list_batches endpoint.
+func DecodeListBatchesRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*ingest.ListBatchesPayload, error) {
+	return func(r *http.Request) (*ingest.ListBatchesPayload, error) {
+		var (
+			identifier          *string
+			earliestCreatedTime *string
+			latestCreatedTime   *string
+			status              *string
+			uploaderUUID        *string
+			limit               *int
+			offset              *int
+			token               *string
+			err                 error
+		)
+		qp := r.URL.Query()
+		identifierRaw := qp.Get("identifier")
+		if identifierRaw != "" {
+			identifier = &identifierRaw
+		}
+		earliestCreatedTimeRaw := qp.Get("earliest_created_time")
+		if earliestCreatedTimeRaw != "" {
+			earliestCreatedTime = &earliestCreatedTimeRaw
+		}
+		if earliestCreatedTime != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("earliest_created_time", *earliestCreatedTime, goa.FormatDateTime))
+		}
+		latestCreatedTimeRaw := qp.Get("latest_created_time")
+		if latestCreatedTimeRaw != "" {
+			latestCreatedTime = &latestCreatedTimeRaw
+		}
+		if latestCreatedTime != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("latest_created_time", *latestCreatedTime, goa.FormatDateTime))
+		}
+		statusRaw := qp.Get("status")
+		if statusRaw != "" {
+			status = &statusRaw
+		}
+		if status != nil {
+			if !(*status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested" || *status == "canceled") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"queued", "processing", "pending", "ingested", "canceled"}))
+			}
+		}
+		uploaderUUIDRaw := qp.Get("uploader_uuid")
+		if uploaderUUIDRaw != "" {
+			uploaderUUID = &uploaderUUIDRaw
+		}
+		if uploaderUUID != nil {
+			err = goa.MergeErrors(err, goa.ValidateFormat("uploader_uuid", *uploaderUUID, goa.FormatUUID))
+		}
+		{
+			limitRaw := qp.Get("limit")
+			if limitRaw != "" {
+				v, err2 := strconv.ParseInt(limitRaw, 10, strconv.IntSize)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("limit", limitRaw, "integer"))
+				}
+				pv := int(v)
+				limit = &pv
+			}
+		}
+		{
+			offsetRaw := qp.Get("offset")
+			if offsetRaw != "" {
+				v, err2 := strconv.ParseInt(offsetRaw, 10, strconv.IntSize)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("offset", offsetRaw, "integer"))
+				}
+				pv := int(v)
+				offset = &pv
+			}
+		}
+		tokenRaw := r.Header.Get("Authorization")
+		if tokenRaw != "" {
+			token = &tokenRaw
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewListBatchesPayload(identifier, earliestCreatedTime, latestCreatedTime, status, uploaderUUID, limit, offset, token)
+		if payload.Token != nil {
+			if strings.Contains(*payload.Token, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.Token, " ", 2)[1]
+				payload.Token = &cred
+			}
+		}
+
+		return payload, nil
+	}
+}
+
+// EncodeListBatchesError returns an encoder for errors returned by the
+// list_batches ingest endpoint.
+func EncodeListBatchesError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "not_valid":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewListBatchesNotValidResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "not_implemented":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewListBatchesNotImplementedResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusNotImplemented)
+			return enc.Encode(body)
+		case "forbidden":
+			var res ingest.Forbidden
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusForbidden)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res ingest.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
+// EncodeShowBatchResponse returns an encoder for responses returned by the
+// ingest show_batch endpoint.
+func EncodeShowBatchResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res := v.(*ingestviews.Batch)
+		enc := encoder(ctx, w)
+		body := NewShowBatchResponseBody(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeShowBatchRequest returns a decoder for requests sent to the ingest
+// show_batch endpoint.
+func DecodeShowBatchRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*ingest.ShowBatchPayload, error) {
+	return func(r *http.Request) (*ingest.ShowBatchPayload, error) {
+		var (
+			uuid  string
+			token *string
+			err   error
+
+			params = mux.Vars(r)
+		)
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		tokenRaw := r.Header.Get("Authorization")
+		if tokenRaw != "" {
+			token = &tokenRaw
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewShowBatchPayload(uuid, token)
+		if payload.Token != nil {
+			if strings.Contains(*payload.Token, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.Token, " ", 2)[1]
+				payload.Token = &cred
+			}
+		}
+
+		return payload, nil
+	}
+}
+
+// EncodeShowBatchError returns an encoder for errors returned by the
+// show_batch ingest endpoint.
+func EncodeShowBatchError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "not_available":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewShowBatchNotAvailableResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusConflict)
+			return enc.Encode(body)
+		case "not_implemented":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewShowBatchNotImplementedResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusNotImplemented)
+			return enc.Encode(body)
+		case "not_found":
+			var res *ingest.BatchNotFound
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewShowBatchNotFoundResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		case "forbidden":
+			var res ingest.Forbidden
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusForbidden)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res ingest.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // marshalIngestviewsSIPViewToSIPResponseBody builds a value of type
 // *SIPResponseBody from a value of type *ingestviews.SIPView.
 func marshalIngestviewsSIPViewToSIPResponseBody(v *ingestviews.SIPView) *SIPResponseBody {
@@ -1600,6 +2014,25 @@ func marshalIngestviewsSIPSourceObjectViewToSIPSourceObjectResponseBody(v *inges
 		ModTime: v.ModTime,
 		Size:    v.Size,
 		IsDir:   *v.IsDir,
+	}
+
+	return res
+}
+
+// marshalIngestviewsBatchViewToBatchResponseBody builds a value of type
+// *BatchResponseBody from a value of type *ingestviews.BatchView.
+func marshalIngestviewsBatchViewToBatchResponseBody(v *ingestviews.BatchView) *BatchResponseBody {
+	res := &BatchResponseBody{
+		UUID:          *v.UUID,
+		Identifier:    *v.Identifier,
+		SipsCount:     *v.SipsCount,
+		Status:        *v.Status,
+		CreatedAt:     *v.CreatedAt,
+		StartedAt:     v.StartedAt,
+		CompletedAt:   v.CompletedAt,
+		UploaderUUID:  v.UploaderUUID,
+		UploaderEmail: v.UploaderEmail,
+		UploaderName:  v.UploaderName,
 	}
 
 	return res

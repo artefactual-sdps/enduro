@@ -72,6 +72,18 @@ type Client struct {
 	// list_sip_source_objects endpoint.
 	ListSipSourceObjectsDoer goahttp.Doer
 
+	// AddBatch Doer is the HTTP client used to make requests to the add_batch
+	// endpoint.
+	AddBatchDoer goahttp.Doer
+
+	// ListBatches Doer is the HTTP client used to make requests to the
+	// list_batches endpoint.
+	ListBatchesDoer goahttp.Doer
+
+	// ShowBatch Doer is the HTTP client used to make requests to the show_batch
+	// endpoint.
+	ShowBatchDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -115,6 +127,9 @@ func NewClient(
 		DownloadSipDoer:          doer,
 		ListUsersDoer:            doer,
 		ListSipSourceObjectsDoer: doer,
+		AddBatchDoer:             doer,
+		ListBatchesDoer:          doer,
+		ShowBatchDoer:            doer,
 		CORSDoer:                 doer,
 		RestoreResponseBody:      restoreBody,
 		scheme:                   scheme,
@@ -456,6 +471,78 @@ func (c *Client) ListSipSourceObjects() goa.Endpoint {
 		resp, err := c.ListSipSourceObjectsDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("ingest", "list_sip_source_objects", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// AddBatch returns an endpoint that makes HTTP requests to the ingest service
+// add_batch server.
+func (c *Client) AddBatch() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeAddBatchRequest(c.encoder)
+		decodeResponse = DecodeAddBatchResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildAddBatchRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.AddBatchDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("ingest", "add_batch", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// ListBatches returns an endpoint that makes HTTP requests to the ingest
+// service list_batches server.
+func (c *Client) ListBatches() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeListBatchesRequest(c.encoder)
+		decodeResponse = DecodeListBatchesResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildListBatchesRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ListBatchesDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("ingest", "list_batches", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// ShowBatch returns an endpoint that makes HTTP requests to the ingest service
+// show_batch server.
+func (c *Client) ShowBatch() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeShowBatchRequest(c.encoder)
+		decodeResponse = DecodeShowBatchResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildShowBatchRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ShowBatchDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("ingest", "show_batch", err)
 		}
 		return decodeResponse(resp)
 	}

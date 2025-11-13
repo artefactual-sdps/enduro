@@ -49,7 +49,7 @@ func BuildMonitorPayload(ingestMonitorTicket string) (*ingest.MonitorPayload, er
 
 // BuildListSipsPayload builds the payload for the ingest list_sips endpoint
 // from CLI flags.
-func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipUUID string, ingestListSipsEarliestCreatedTime string, ingestListSipsLatestCreatedTime string, ingestListSipsStatus string, ingestListSipsUploaderUUID string, ingestListSipsLimit string, ingestListSipsOffset string, ingestListSipsToken string) (*ingest.ListSipsPayload, error) {
+func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipUUID string, ingestListSipsEarliestCreatedTime string, ingestListSipsLatestCreatedTime string, ingestListSipsStatus string, ingestListSipsUploaderUUID string, ingestListSipsBatchUUID string, ingestListSipsLimit string, ingestListSipsOffset string, ingestListSipsToken string) (*ingest.ListSipsPayload, error) {
 	var err error
 	var name *string
 	{
@@ -109,6 +109,16 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipUUID strin
 			}
 		}
 	}
+	var batchUUID *string
+	{
+		if ingestListSipsBatchUUID != "" {
+			batchUUID = &ingestListSipsBatchUUID
+			err = goa.MergeErrors(err, goa.ValidateFormat("batch_uuid", *batchUUID, goa.FormatUUID))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
 	var limit *int
 	{
 		if ingestListSipsLimit != "" {
@@ -146,6 +156,7 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipUUID strin
 	v.LatestCreatedTime = latestCreatedTime
 	v.Status = status
 	v.UploaderUUID = uploaderUUID
+	v.BatchUUID = batchUUID
 	v.Limit = limit
 	v.Offset = offset
 	v.Token = token
@@ -465,6 +476,166 @@ func BuildListSipSourceObjectsPayload(ingestListSipSourceObjectsUUID string, ing
 	v.UUID = uuid
 	v.Limit = limit
 	v.Cursor = cursor
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildAddBatchPayload builds the payload for the ingest add_batch endpoint
+// from CLI flags.
+func BuildAddBatchPayload(ingestAddBatchSourceID string, ingestAddBatchKeys string, ingestAddBatchIdentifier string, ingestAddBatchToken string) (*ingest.AddBatchPayload, error) {
+	var err error
+	var sourceID string
+	{
+		sourceID = ingestAddBatchSourceID
+		err = goa.MergeErrors(err, goa.ValidateFormat("source_id", sourceID, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var keys []string
+	{
+		err = json.Unmarshal([]byte(ingestAddBatchKeys), &keys)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for keys, \nerror: %s, \nexample of valid JSON:\n%s", err, "'[\n      \"abc123\"\n   ]'")
+		}
+	}
+	var identifier *string
+	{
+		if ingestAddBatchIdentifier != "" {
+			identifier = &ingestAddBatchIdentifier
+		}
+	}
+	var token *string
+	{
+		if ingestAddBatchToken != "" {
+			token = &ingestAddBatchToken
+		}
+	}
+	v := &ingest.AddBatchPayload{}
+	v.SourceID = sourceID
+	v.Keys = keys
+	v.Identifier = identifier
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildListBatchesPayload builds the payload for the ingest list_batches
+// endpoint from CLI flags.
+func BuildListBatchesPayload(ingestListBatchesIdentifier string, ingestListBatchesEarliestCreatedTime string, ingestListBatchesLatestCreatedTime string, ingestListBatchesStatus string, ingestListBatchesUploaderUUID string, ingestListBatchesLimit string, ingestListBatchesOffset string, ingestListBatchesToken string) (*ingest.ListBatchesPayload, error) {
+	var err error
+	var identifier *string
+	{
+		if ingestListBatchesIdentifier != "" {
+			identifier = &ingestListBatchesIdentifier
+		}
+	}
+	var earliestCreatedTime *string
+	{
+		if ingestListBatchesEarliestCreatedTime != "" {
+			earliestCreatedTime = &ingestListBatchesEarliestCreatedTime
+			err = goa.MergeErrors(err, goa.ValidateFormat("earliest_created_time", *earliestCreatedTime, goa.FormatDateTime))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	var latestCreatedTime *string
+	{
+		if ingestListBatchesLatestCreatedTime != "" {
+			latestCreatedTime = &ingestListBatchesLatestCreatedTime
+			err = goa.MergeErrors(err, goa.ValidateFormat("latest_created_time", *latestCreatedTime, goa.FormatDateTime))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	var status *string
+	{
+		if ingestListBatchesStatus != "" {
+			status = &ingestListBatchesStatus
+			if !(*status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested" || *status == "canceled") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"queued", "processing", "pending", "ingested", "canceled"}))
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	var uploaderUUID *string
+	{
+		if ingestListBatchesUploaderUUID != "" {
+			uploaderUUID = &ingestListBatchesUploaderUUID
+			err = goa.MergeErrors(err, goa.ValidateFormat("uploader_uuid", *uploaderUUID, goa.FormatUUID))
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	var limit *int
+	{
+		if ingestListBatchesLimit != "" {
+			var v int64
+			v, err = strconv.ParseInt(ingestListBatchesLimit, 10, strconv.IntSize)
+			val := int(v)
+			limit = &val
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for limit, must be INT")
+			}
+		}
+	}
+	var offset *int
+	{
+		if ingestListBatchesOffset != "" {
+			var v int64
+			v, err = strconv.ParseInt(ingestListBatchesOffset, 10, strconv.IntSize)
+			val := int(v)
+			offset = &val
+			if err != nil {
+				return nil, fmt.Errorf("invalid value for offset, must be INT")
+			}
+		}
+	}
+	var token *string
+	{
+		if ingestListBatchesToken != "" {
+			token = &ingestListBatchesToken
+		}
+	}
+	v := &ingest.ListBatchesPayload{}
+	v.Identifier = identifier
+	v.EarliestCreatedTime = earliestCreatedTime
+	v.LatestCreatedTime = latestCreatedTime
+	v.Status = status
+	v.UploaderUUID = uploaderUUID
+	v.Limit = limit
+	v.Offset = offset
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildShowBatchPayload builds the payload for the ingest show_batch endpoint
+// from CLI flags.
+func BuildShowBatchPayload(ingestShowBatchUUID string, ingestShowBatchToken string) (*ingest.ShowBatchPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = ingestShowBatchUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if ingestShowBatchToken != "" {
+			token = &ingestShowBatchToken
+		}
+	}
+	v := &ingest.ShowBatchPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v, nil

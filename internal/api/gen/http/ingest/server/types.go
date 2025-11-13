@@ -116,6 +116,45 @@ type ListSipSourceObjectsResponseBody struct {
 	Next *string `form:"next,omitempty" json:"next,omitempty" xml:"next,omitempty"`
 }
 
+// AddBatchResponseBody is the type of the "ingest" service "add_batch"
+// endpoint HTTP response body.
+type AddBatchResponseBody struct {
+	// Identifier of the ingested Batch
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// ListBatchesResponseBody is the type of the "ingest" service "list_batches"
+// endpoint HTTP response body.
+type ListBatchesResponseBody struct {
+	Items BatchResponseBodyCollection `form:"items" json:"items" xml:"items"`
+	Page  *EnduroPageResponseBody     `form:"page" json:"page" xml:"page"`
+}
+
+// ShowBatchResponseBody is the type of the "ingest" service "show_batch"
+// endpoint HTTP response body.
+type ShowBatchResponseBody struct {
+	// Identifier of Batch
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	// Identifier of the Batch
+	Identifier string `form:"identifier" json:"identifier" xml:"identifier"`
+	// Number of SIPs in the Batch
+	SipsCount int `form:"sips_count" json:"sips_count" xml:"sips_count"`
+	// Status of the Batch
+	Status string `form:"status" json:"status" xml:"status"`
+	// Creation datetime
+	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
+	// Start datetime
+	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	// Completion datetime
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	// UUID of the user who uploaded the Batch
+	UploaderUUID *uuid.UUID `form:"uploader_uuid,omitempty" json:"uploader_uuid,omitempty" xml:"uploader_uuid,omitempty"`
+	// Email of the user who uploaded the Batch
+	UploaderEmail *string `form:"uploader_email,omitempty" json:"uploader_email,omitempty" xml:"uploader_email,omitempty"`
+	// Name of the user who uploaded the Batch
+	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
+}
+
 // MonitorRequestInternalErrorResponseBody is the type of the "ingest" service
 // "monitor_request" endpoint HTTP response body for the "internal_error" error.
 type MonitorRequestInternalErrorResponseBody struct {
@@ -553,6 +592,141 @@ type ListSipSourceObjectsInternalErrorResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// AddBatchNotValidResponseBody is the type of the "ingest" service "add_batch"
+// endpoint HTTP response body for the "not_valid" error.
+type AddBatchNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// AddBatchInternalErrorResponseBody is the type of the "ingest" service
+// "add_batch" endpoint HTTP response body for the "internal_error" error.
+type AddBatchInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// AddBatchNotImplementedResponseBody is the type of the "ingest" service
+// "add_batch" endpoint HTTP response body for the "not_implemented" error.
+type AddBatchNotImplementedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ListBatchesNotValidResponseBody is the type of the "ingest" service
+// "list_batches" endpoint HTTP response body for the "not_valid" error.
+type ListBatchesNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ListBatchesNotImplementedResponseBody is the type of the "ingest" service
+// "list_batches" endpoint HTTP response body for the "not_implemented" error.
+type ListBatchesNotImplementedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ShowBatchNotAvailableResponseBody is the type of the "ingest" service
+// "show_batch" endpoint HTTP response body for the "not_available" error.
+type ShowBatchNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ShowBatchNotImplementedResponseBody is the type of the "ingest" service
+// "show_batch" endpoint HTTP response body for the "not_implemented" error.
+type ShowBatchNotImplementedResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ShowBatchNotFoundResponseBody is the type of the "ingest" service
+// "show_batch" endpoint HTTP response body for the "not_found" error.
+type ShowBatchNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing Batch
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
 // SIPResponseBodyCollection is used to define fields on response body types.
 type SIPResponseBodyCollection []*SIPResponseBody
 
@@ -658,6 +832,33 @@ type SIPSourceObjectResponseBody struct {
 	Size *int64 `form:"size,omitempty" json:"size,omitempty" xml:"size,omitempty"`
 	// True if the object is a directory, false if it is a file
 	IsDir bool `form:"is_dir" json:"is_dir" xml:"is_dir"`
+}
+
+// BatchResponseBodyCollection is used to define fields on response body types.
+type BatchResponseBodyCollection []*BatchResponseBody
+
+// BatchResponseBody is used to define fields on response body types.
+type BatchResponseBody struct {
+	// Identifier of Batch
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	// Identifier of the Batch
+	Identifier string `form:"identifier" json:"identifier" xml:"identifier"`
+	// Number of SIPs in the Batch
+	SipsCount int `form:"sips_count" json:"sips_count" xml:"sips_count"`
+	// Status of the Batch
+	Status string `form:"status" json:"status" xml:"status"`
+	// Creation datetime
+	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
+	// Start datetime
+	StartedAt *string `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
+	// Completion datetime
+	CompletedAt *string `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
+	// UUID of the user who uploaded the Batch
+	UploaderUUID *uuid.UUID `form:"uploader_uuid,omitempty" json:"uploader_uuid,omitempty" xml:"uploader_uuid,omitempty"`
+	// Email of the user who uploaded the Batch
+	UploaderEmail *string `form:"uploader_email,omitempty" json:"uploader_email,omitempty" xml:"uploader_email,omitempty"`
+	// Name of the user who uploaded the Batch
+	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
 }
 
 // NewMonitorResponseBody builds the HTTP response body from the result of the
@@ -807,6 +1008,51 @@ func NewListSipSourceObjectsResponseBody(res *ingestviews.SIPSourceObjectsView) 
 		}
 	} else {
 		body.Objects = []*SIPSourceObjectResponseBody{}
+	}
+	return body
+}
+
+// NewAddBatchResponseBody builds the HTTP response body from the result of the
+// "add_batch" endpoint of the "ingest" service.
+func NewAddBatchResponseBody(res *ingest.AddBatchResult) *AddBatchResponseBody {
+	body := &AddBatchResponseBody{
+		UUID: res.UUID,
+	}
+	return body
+}
+
+// NewListBatchesResponseBody builds the HTTP response body from the result of
+// the "list_batches" endpoint of the "ingest" service.
+func NewListBatchesResponseBody(res *ingestviews.BatchesView) *ListBatchesResponseBody {
+	body := &ListBatchesResponseBody{}
+	if res.Items != nil {
+		body.Items = make([]*BatchResponseBody, len(res.Items))
+		for i, val := range res.Items {
+			body.Items[i] = marshalIngestviewsBatchViewToBatchResponseBody(val)
+		}
+	} else {
+		body.Items = []*BatchResponseBody{}
+	}
+	if res.Page != nil {
+		body.Page = marshalIngestviewsEnduroPageViewToEnduroPageResponseBody(res.Page)
+	}
+	return body
+}
+
+// NewShowBatchResponseBody builds the HTTP response body from the result of
+// the "show_batch" endpoint of the "ingest" service.
+func NewShowBatchResponseBody(res *ingestviews.BatchView) *ShowBatchResponseBody {
+	body := &ShowBatchResponseBody{
+		UUID:          *res.UUID,
+		Identifier:    *res.Identifier,
+		SipsCount:     *res.SipsCount,
+		Status:        *res.Status,
+		CreatedAt:     *res.CreatedAt,
+		StartedAt:     res.StartedAt,
+		CompletedAt:   res.CompletedAt,
+		UploaderUUID:  res.UploaderUUID,
+		UploaderEmail: res.UploaderEmail,
+		UploaderName:  res.UploaderName,
 	}
 	return body
 }
@@ -1169,6 +1415,114 @@ func NewListSipSourceObjectsInternalErrorResponseBody(res *goa.ServiceError) *Li
 	return body
 }
 
+// NewAddBatchNotValidResponseBody builds the HTTP response body from the
+// result of the "add_batch" endpoint of the "ingest" service.
+func NewAddBatchNotValidResponseBody(res *goa.ServiceError) *AddBatchNotValidResponseBody {
+	body := &AddBatchNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewAddBatchInternalErrorResponseBody builds the HTTP response body from the
+// result of the "add_batch" endpoint of the "ingest" service.
+func NewAddBatchInternalErrorResponseBody(res *goa.ServiceError) *AddBatchInternalErrorResponseBody {
+	body := &AddBatchInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewAddBatchNotImplementedResponseBody builds the HTTP response body from the
+// result of the "add_batch" endpoint of the "ingest" service.
+func NewAddBatchNotImplementedResponseBody(res *goa.ServiceError) *AddBatchNotImplementedResponseBody {
+	body := &AddBatchNotImplementedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewListBatchesNotValidResponseBody builds the HTTP response body from the
+// result of the "list_batches" endpoint of the "ingest" service.
+func NewListBatchesNotValidResponseBody(res *goa.ServiceError) *ListBatchesNotValidResponseBody {
+	body := &ListBatchesNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewListBatchesNotImplementedResponseBody builds the HTTP response body from
+// the result of the "list_batches" endpoint of the "ingest" service.
+func NewListBatchesNotImplementedResponseBody(res *goa.ServiceError) *ListBatchesNotImplementedResponseBody {
+	body := &ListBatchesNotImplementedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewShowBatchNotAvailableResponseBody builds the HTTP response body from the
+// result of the "show_batch" endpoint of the "ingest" service.
+func NewShowBatchNotAvailableResponseBody(res *goa.ServiceError) *ShowBatchNotAvailableResponseBody {
+	body := &ShowBatchNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewShowBatchNotImplementedResponseBody builds the HTTP response body from
+// the result of the "show_batch" endpoint of the "ingest" service.
+func NewShowBatchNotImplementedResponseBody(res *goa.ServiceError) *ShowBatchNotImplementedResponseBody {
+	body := &ShowBatchNotImplementedResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewShowBatchNotFoundResponseBody builds the HTTP response body from the
+// result of the "show_batch" endpoint of the "ingest" service.
+func NewShowBatchNotFoundResponseBody(res *ingest.BatchNotFound) *ShowBatchNotFoundResponseBody {
+	body := &ShowBatchNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
 // NewMonitorRequestPayload builds a ingest service monitor_request endpoint
 // payload.
 func NewMonitorRequestPayload(token *string) *ingest.MonitorRequestPayload {
@@ -1187,7 +1541,7 @@ func NewMonitorPayload(ticket *string) *ingest.MonitorPayload {
 }
 
 // NewListSipsPayload builds a ingest service list_sips endpoint payload.
-func NewListSipsPayload(name *string, aipUUID *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, uploaderUUID *string, limit *int, offset *int, token *string) *ingest.ListSipsPayload {
+func NewListSipsPayload(name *string, aipUUID *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, uploaderUUID *string, batchUUID *string, limit *int, offset *int, token *string) *ingest.ListSipsPayload {
 	v := &ingest.ListSipsPayload{}
 	v.Name = name
 	v.AipUUID = aipUUID
@@ -1195,6 +1549,7 @@ func NewListSipsPayload(name *string, aipUUID *string, earliestCreatedTime *stri
 	v.LatestCreatedTime = latestCreatedTime
 	v.Status = status
 	v.UploaderUUID = uploaderUUID
+	v.BatchUUID = batchUUID
 	v.Limit = limit
 	v.Offset = offset
 	v.Token = token
@@ -1298,6 +1653,41 @@ func NewListSipSourceObjectsPayload(uuid string, limit *int, cursor *string, tok
 	v.UUID = uuid
 	v.Limit = limit
 	v.Cursor = cursor
+	v.Token = token
+
+	return v
+}
+
+// NewAddBatchPayload builds a ingest service add_batch endpoint payload.
+func NewAddBatchPayload(sourceID string, keys []string, identifier *string, token *string) *ingest.AddBatchPayload {
+	v := &ingest.AddBatchPayload{}
+	v.SourceID = sourceID
+	v.Keys = keys
+	v.Identifier = identifier
+	v.Token = token
+
+	return v
+}
+
+// NewListBatchesPayload builds a ingest service list_batches endpoint payload.
+func NewListBatchesPayload(identifier *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, uploaderUUID *string, limit *int, offset *int, token *string) *ingest.ListBatchesPayload {
+	v := &ingest.ListBatchesPayload{}
+	v.Identifier = identifier
+	v.EarliestCreatedTime = earliestCreatedTime
+	v.LatestCreatedTime = latestCreatedTime
+	v.Status = status
+	v.UploaderUUID = uploaderUUID
+	v.Limit = limit
+	v.Offset = offset
+	v.Token = token
+
+	return v
+}
+
+// NewShowBatchPayload builds a ingest service show_batch endpoint payload.
+func NewShowBatchPayload(uuid string, token *string) *ingest.ShowBatchPayload {
+	v := &ingest.ShowBatchPayload{}
+	v.UUID = uuid
 	v.Token = token
 
 	return v

@@ -312,6 +312,9 @@ func EncodeListSipsRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 		if p.UploaderUUID != nil {
 			values.Add("uploader_uuid", *p.UploaderUUID)
 		}
+		if p.BatchUUID != nil {
+			values.Add("batch_uuid", *p.BatchUUID)
+		}
 		if p.Limit != nil {
 			values.Add("limit", fmt.Sprintf("%v", *p.Limit))
 		}
@@ -1889,22 +1892,488 @@ func DecodeListSipSourceObjectsResponse(decoder func(*http.Response) goahttp.Dec
 	}
 }
 
+// BuildAddBatchRequest instantiates a HTTP request object with method and path
+// set to call the "ingest" service "add_batch" endpoint
+func (c *Client) BuildAddBatchRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AddBatchIngestPath()}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "add_batch", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeAddBatchRequest returns an encoder for requests sent to the ingest
+// add_batch server.
+func EncodeAddBatchRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.AddBatchPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "add_batch", "*ingest.AddBatchPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		values := req.URL.Query()
+		values.Add("source_id", p.SourceID)
+		for _, value := range p.Keys {
+			values.Add("keys", value)
+		}
+		if p.Identifier != nil {
+			values.Add("identifier", *p.Identifier)
+		}
+		req.URL.RawQuery = values.Encode()
+		return nil
+	}
+}
+
+// DecodeAddBatchResponse returns a decoder for responses returned by the
+// ingest add_batch endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeAddBatchResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "not_implemented" (type *goa.ServiceError): http.StatusNotImplemented
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeAddBatchResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusCreated:
+			var (
+				body AddBatchResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_batch", err)
+			}
+			err = ValidateAddBatchResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "add_batch", err)
+			}
+			res := NewAddBatchResultCreated(&body)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body AddBatchNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_batch", err)
+			}
+			err = ValidateAddBatchNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "add_batch", err)
+			}
+			return nil, NewAddBatchNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body AddBatchInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_batch", err)
+			}
+			err = ValidateAddBatchInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "add_batch", err)
+			}
+			return nil, NewAddBatchInternalError(&body)
+		case http.StatusNotImplemented:
+			var (
+				body AddBatchNotImplementedResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_batch", err)
+			}
+			err = ValidateAddBatchNotImplementedResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "add_batch", err)
+			}
+			return nil, NewAddBatchNotImplemented(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_batch", err)
+			}
+			return nil, NewAddBatchForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "add_batch", err)
+			}
+			return nil, NewAddBatchUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "add_batch", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildListBatchesRequest instantiates a HTTP request object with method and
+// path set to call the "ingest" service "list_batches" endpoint
+func (c *Client) BuildListBatchesRequest(ctx context.Context, v any) (*http.Request, error) {
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListBatchesIngestPath()}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "list_batches", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeListBatchesRequest returns an encoder for requests sent to the ingest
+// list_batches server.
+func EncodeListBatchesRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.ListBatchesPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "list_batches", "*ingest.ListBatchesPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		values := req.URL.Query()
+		if p.Identifier != nil {
+			values.Add("identifier", *p.Identifier)
+		}
+		if p.EarliestCreatedTime != nil {
+			values.Add("earliest_created_time", *p.EarliestCreatedTime)
+		}
+		if p.LatestCreatedTime != nil {
+			values.Add("latest_created_time", *p.LatestCreatedTime)
+		}
+		if p.Status != nil {
+			values.Add("status", *p.Status)
+		}
+		if p.UploaderUUID != nil {
+			values.Add("uploader_uuid", *p.UploaderUUID)
+		}
+		if p.Limit != nil {
+			values.Add("limit", fmt.Sprintf("%v", *p.Limit))
+		}
+		if p.Offset != nil {
+			values.Add("offset", fmt.Sprintf("%v", *p.Offset))
+		}
+		req.URL.RawQuery = values.Encode()
+		return nil
+	}
+}
+
+// DecodeListBatchesResponse returns a decoder for responses returned by the
+// ingest list_batches endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeListBatchesResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "not_implemented" (type *goa.ServiceError): http.StatusNotImplemented
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeListBatchesResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ListBatchesResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_batches", err)
+			}
+			p := NewListBatchesBatchesOK(&body)
+			view := "default"
+			vres := &ingestviews.Batches{Projected: p, View: view}
+			if err = ingestviews.ValidateBatches(vres); err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_batches", err)
+			}
+			res := ingest.NewBatches(vres)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body ListBatchesNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_batches", err)
+			}
+			err = ValidateListBatchesNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_batches", err)
+			}
+			return nil, NewListBatchesNotValid(&body)
+		case http.StatusNotImplemented:
+			var (
+				body ListBatchesNotImplementedResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_batches", err)
+			}
+			err = ValidateListBatchesNotImplementedResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_batches", err)
+			}
+			return nil, NewListBatchesNotImplemented(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_batches", err)
+			}
+			return nil, NewListBatchesForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_batches", err)
+			}
+			return nil, NewListBatchesUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "list_batches", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildShowBatchRequest instantiates a HTTP request object with method and
+// path set to call the "ingest" service "show_batch" endpoint
+func (c *Client) BuildShowBatchRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*ingest.ShowBatchPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("ingest", "show_batch", "*ingest.ShowBatchPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ShowBatchIngestPath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "show_batch", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeShowBatchRequest returns an encoder for requests sent to the ingest
+// show_batch server.
+func EncodeShowBatchRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.ShowBatchPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "show_batch", "*ingest.ShowBatchPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeShowBatchResponse returns a decoder for responses returned by the
+// ingest show_batch endpoint. restoreBody controls whether the response body
+// should be restored after having been read.
+// DecodeShowBatchResponse may return the following errors:
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_implemented" (type *goa.ServiceError): http.StatusNotImplemented
+//   - "not_found" (type *ingest.BatchNotFound): http.StatusNotFound
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeShowBatchResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ShowBatchResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_batch", err)
+			}
+			p := NewShowBatchBatchOK(&body)
+			view := "default"
+			vres := &ingestviews.Batch{Projected: p, View: view}
+			if err = ingestviews.ValidateBatch(vres); err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "show_batch", err)
+			}
+			res := ingest.NewBatch(vres)
+			return res, nil
+		case http.StatusConflict:
+			var (
+				body ShowBatchNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_batch", err)
+			}
+			err = ValidateShowBatchNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "show_batch", err)
+			}
+			return nil, NewShowBatchNotAvailable(&body)
+		case http.StatusNotImplemented:
+			var (
+				body ShowBatchNotImplementedResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_batch", err)
+			}
+			err = ValidateShowBatchNotImplementedResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "show_batch", err)
+			}
+			return nil, NewShowBatchNotImplemented(&body)
+		case http.StatusNotFound:
+			var (
+				body ShowBatchNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_batch", err)
+			}
+			err = ValidateShowBatchNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "show_batch", err)
+			}
+			return nil, NewShowBatchNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_batch", err)
+			}
+			return nil, NewShowBatchForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_batch", err)
+			}
+			return nil, NewShowBatchUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "show_batch", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // unmarshalSIPResponseBodyToIngestviewsSIPView builds a value of type
 // *ingestviews.SIPView from a value of type *SIPResponseBody.
 func unmarshalSIPResponseBodyToIngestviewsSIPView(v *SIPResponseBody) *ingestviews.SIPView {
 	res := &ingestviews.SIPView{
-		UUID:          v.UUID,
-		Name:          v.Name,
-		Status:        v.Status,
-		AipUUID:       v.AipUUID,
-		CreatedAt:     v.CreatedAt,
-		StartedAt:     v.StartedAt,
-		CompletedAt:   v.CompletedAt,
-		FailedAs:      v.FailedAs,
-		FailedKey:     v.FailedKey,
-		UploaderUUID:  v.UploaderUUID,
-		UploaderEmail: v.UploaderEmail,
-		UploaderName:  v.UploaderName,
+		UUID:            v.UUID,
+		Name:            v.Name,
+		Status:          v.Status,
+		AipUUID:         v.AipUUID,
+		CreatedAt:       v.CreatedAt,
+		StartedAt:       v.StartedAt,
+		CompletedAt:     v.CompletedAt,
+		FailedAs:        v.FailedAs,
+		FailedKey:       v.FailedKey,
+		UploaderUUID:    v.UploaderUUID,
+		UploaderEmail:   v.UploaderEmail,
+		UploaderName:    v.UploaderName,
+		BatchUUID:       v.BatchUUID,
+		BatchIdentifier: v.BatchIdentifier,
+		BatchStatus:     v.BatchStatus,
 	}
 
 	return res
@@ -1990,6 +2459,25 @@ func unmarshalSIPSourceObjectResponseBodyToIngestviewsSIPSourceObjectView(v *SIP
 		ModTime: v.ModTime,
 		Size:    v.Size,
 		IsDir:   v.IsDir,
+	}
+
+	return res
+}
+
+// unmarshalBatchResponseBodyToIngestviewsBatchView builds a value of type
+// *ingestviews.BatchView from a value of type *BatchResponseBody.
+func unmarshalBatchResponseBodyToIngestviewsBatchView(v *BatchResponseBody) *ingestviews.BatchView {
+	res := &ingestviews.BatchView{
+		UUID:          v.UUID,
+		Identifier:    v.Identifier,
+		SipsCount:     v.SipsCount,
+		Status:        v.Status,
+		CreatedAt:     v.CreatedAt,
+		StartedAt:     v.StartedAt,
+		CompletedAt:   v.CompletedAt,
+		UploaderUUID:  v.UploaderUUID,
+		UploaderEmail: v.UploaderEmail,
+		UploaderName:  v.UploaderName,
 	}
 
 	return res

@@ -424,6 +424,51 @@
         ],
         "type": "object"
       },
+      "BatchCollection": {
+        "example": [
+          {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "created_at": "1970-01-01T00:00:01Z",
+            "identifier": "abc123",
+            "sips_count": 1,
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "processing",
+            "uploader_email": "abc123",
+            "uploader_name": "abc123",
+            "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          }
+        ],
+        "items": {
+          "$ref": "#/components/schemas/EnduroIngestBatch"
+        },
+        "type": "array"
+      },
+      "BatchNotFound": {
+        "description": "Batch not found.",
+        "example": {
+          "message": "abc123",
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "message": {
+            "description": "Message of error",
+            "example": "abc123",
+            "type": "string"
+          },
+          "uuid": {
+            "description": "Identifier of missing Batch",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "uuid"
+        ],
+        "type": "object"
+      },
       "CancelAipDeletionRequestBody": {
         "example": {
           "check": false
@@ -642,10 +687,135 @@
         ],
         "type": "object"
       },
+      "EnduroIngestBatch": {
+        "description": "Batch describes an ingest batch type.",
+        "example": {
+          "completed_at": "1970-01-01T00:00:01Z",
+          "created_at": "1970-01-01T00:00:01Z",
+          "identifier": "abc123",
+          "sips_count": 1,
+          "started_at": "1970-01-01T00:00:01Z",
+          "status": "processing",
+          "uploader_email": "abc123",
+          "uploader_name": "abc123",
+          "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "completed_at": {
+            "description": "Completion datetime",
+            "example": "1970-01-01T00:00:01Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "created_at": {
+            "description": "Creation datetime",
+            "example": "1970-01-01T00:00:01Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "identifier": {
+            "description": "Identifier of the Batch",
+            "example": "abc123",
+            "type": "string"
+          },
+          "sips_count": {
+            "description": "Number of SIPs in the Batch",
+            "example": 1,
+            "format": "int64",
+            "type": "integer"
+          },
+          "started_at": {
+            "description": "Start datetime",
+            "example": "1970-01-01T00:00:01Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the Batch",
+            "enum": [
+              "queued",
+              "processing",
+              "pending",
+              "ingested",
+              "canceled"
+            ],
+            "example": "processing",
+            "type": "string"
+          },
+          "uploader_email": {
+            "description": "Email of the user who uploaded the Batch",
+            "example": "abc123",
+            "type": "string"
+          },
+          "uploader_name": {
+            "description": "Name of the user who uploaded the Batch",
+            "example": "abc123",
+            "type": "string"
+          },
+          "uploader_uuid": {
+            "description": "UUID of the user who uploaded the Batch",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          },
+          "uuid": {
+            "description": "Identifier of Batch",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "identifier",
+          "sips_count",
+          "status",
+          "created_at"
+        ],
+        "type": "object"
+      },
+      "EnduroIngestBatches": {
+        "example": {
+          "items": [
+            {
+              "completed_at": "1970-01-01T00:00:01Z",
+              "created_at": "1970-01-01T00:00:01Z",
+              "identifier": "abc123",
+              "sips_count": 1,
+              "started_at": "1970-01-01T00:00:01Z",
+              "status": "processing",
+              "uploader_email": "abc123",
+              "uploader_name": "abc123",
+              "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+            }
+          ],
+          "page": {
+            "limit": 1,
+            "offset": 1,
+            "total": 1
+          }
+        },
+        "properties": {
+          "items": {
+            "$ref": "#/components/schemas/BatchCollection"
+          },
+          "page": {
+            "$ref": "#/components/schemas/EnduroPage"
+          }
+        },
+        "required": [
+          "items",
+          "page"
+        ],
+        "type": "object"
+      },
       "EnduroIngestSip": {
         "description": "SIP describes an ingest SIP type.",
         "example": {
           "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "batch_identifier": "abc123",
+          "batch_status": "processing",
+          "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "completed_at": "1970-01-01T00:00:01Z",
           "created_at": "1970-01-01T00:00:01Z",
           "failed_as": "PIP",
@@ -663,6 +833,28 @@
             "description": "Identifier of AIP",
             "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "format": "uuid",
+            "type": "string"
+          },
+          "batch_identifier": {
+            "description": "Identifier of the related Batch",
+            "example": "abc123",
+            "type": "string"
+          },
+          "batch_status": {
+            "description": "Status of the related Batch",
+            "enum": [
+              "queued",
+              "processing",
+              "pending",
+              "ingested",
+              "canceled"
+            ],
+            "example": "processing",
+            "type": "string"
+          },
+          "batch_uuid": {
+            "description": "UUID of the related Batch",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "type": "string"
           },
           "completed_at": {
@@ -926,6 +1118,9 @@
           "items": [
             {
               "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "batch_identifier": "abc123",
+              "batch_status": "processing",
+              "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
               "completed_at": "1970-01-01T00:00:01Z",
               "created_at": "1970-01-01T00:00:01Z",
               "failed_as": "PIP",
@@ -1615,6 +1810,9 @@
           "value": {
             "item": {
               "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "batch_identifier": "abc123",
+              "batch_status": "processing",
+              "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
               "completed_at": "1970-01-01T00:00:01Z",
               "created_at": "1970-01-01T00:00:01Z",
               "failed_as": "PIP",
@@ -1661,6 +1859,9 @@
             "example": {
               "item": {
                 "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                "batch_identifier": "abc123",
+                "batch_status": "processing",
+                "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                 "completed_at": "1970-01-01T00:00:01Z",
                 "created_at": "1970-01-01T00:00:01Z",
                 "failed_as": "PIP",
@@ -1683,14 +1884,14 @@
         "example": {
           "value": {
             "Type": "sip_created_event",
-            "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+            "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
           }
         },
         "properties": {
           "value": {
             "example": {
               "Type": "sip_created_event",
-              "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+              "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
             },
             "properties": {
               "Type": {
@@ -1710,7 +1911,7 @@
               },
               "Value": {
                 "description": "JSON encoded union value",
-                "example": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
+                "example": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
                 "type": "string"
               }
             },
@@ -2009,6 +2210,9 @@
         "example": [
           {
             "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "batch_identifier": "abc123",
+            "batch_status": "processing",
+            "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "completed_at": "1970-01-01T00:00:01Z",
             "created_at": "1970-01-01T00:00:01Z",
             "failed_as": "PIP",
@@ -2031,6 +2235,9 @@
         "example": {
           "item": {
             "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "batch_identifier": "abc123",
+            "batch_status": "processing",
+            "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "completed_at": "1970-01-01T00:00:01Z",
             "created_at": "1970-01-01T00:00:01Z",
             "failed_as": "PIP",
@@ -2209,6 +2416,9 @@
         "example": {
           "item": {
             "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "batch_identifier": "abc123",
+            "batch_status": "processing",
+            "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "completed_at": "1970-01-01T00:00:01Z",
             "created_at": "1970-01-01T00:00:01Z",
             "failed_as": "PIP",
@@ -2613,6 +2823,437 @@
         ]
       }
     },
+    "/ingest/batches": {
+      "get": {
+        "description": "List all ingested Batches",
+        "operationId": "ingest#list_batches",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "example": "abc123",
+            "in": "query",
+            "name": "identifier",
+            "schema": {
+              "example": "abc123",
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "example": "1970-01-01T00:00:01Z",
+            "in": "query",
+            "name": "earliest_created_time",
+            "schema": {
+              "example": "1970-01-01T00:00:01Z",
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "example": "1970-01-01T00:00:01Z",
+            "in": "query",
+            "name": "latest_created_time",
+            "schema": {
+              "example": "1970-01-01T00:00:01Z",
+              "format": "date-time",
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "example": "processing",
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "enum": [
+                "queued",
+                "processing",
+                "pending",
+                "ingested",
+                "canceled"
+              ],
+              "example": "processing",
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "description": "UUID of the Batch uploader",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "in": "query",
+            "name": "uploader_uuid",
+            "schema": {
+              "description": "UUID of the Batch uploader",
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "description": "Limit number of results to return",
+            "example": 1,
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "description": "Limit number of results to return",
+              "example": 1,
+              "format": "int64",
+              "type": "integer"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "description": "Offset from the beginning of the found set",
+            "example": 1,
+            "in": "query",
+            "name": "offset",
+            "schema": {
+              "description": "Offset from the beginning of the found set",
+              "example": 1,
+              "format": "int64",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "items": [
+                    {
+                      "completed_at": "1970-01-01T00:00:01Z",
+                      "created_at": "1970-01-01T00:00:01Z",
+                      "identifier": "abc123",
+                      "sips_count": 1,
+                      "started_at": "1970-01-01T00:00:01Z",
+                      "status": "processing",
+                      "uploader_email": "abc123",
+                      "uploader_name": "abc123",
+                      "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                      "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                    }
+                  ],
+                  "page": {
+                    "limit": 1,
+                    "offset": 1,
+                    "total": 1
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/EnduroIngestBatches"
+                }
+              }
+            },
+            "description": "OK response."
+          },
+          "400": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_valid: Bad Request response."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
+          "501": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_implemented: Not Implemented response."
+          }
+        },
+        "security": [
+          {
+            "jwt_header_Authorization": [
+              "ingest:batches:list"
+            ]
+          }
+        ],
+        "summary": "list_batches ingest",
+        "tags": [
+          "ingest"
+        ]
+      },
+      "post": {
+        "description": "Ingest a Batch from a SIP Source",
+        "operationId": "ingest#add_batch",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "description": "Identifier of SIP source -- CURRENTLY NOT USED",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "in": "query",
+            "name": "source_id",
+            "required": true,
+            "schema": {
+              "description": "Identifier of SIP source -- CURRENTLY NOT USED",
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "description": "Key of the SIPs to ingest as part of the batch",
+            "example": [
+              "abc123"
+            ],
+            "in": "query",
+            "name": "keys",
+            "required": true,
+            "schema": {
+              "description": "Key of the SIPs to ingest as part of the batch",
+              "example": [
+                "abc123"
+              ],
+              "items": {
+                "example": "abc123",
+                "type": "string"
+              },
+              "type": "array"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "description": "Optional Batch identifier assigned by the user",
+            "example": "abc123",
+            "in": "query",
+            "name": "identifier",
+            "schema": {
+              "description": "Optional Batch identifier assigned by the user",
+              "example": "abc123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/AddSipResponseBody"
+                }
+              }
+            },
+            "description": "Created response."
+          },
+          "400": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_valid: Bad Request response."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
+          },
+          "501": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_implemented: Not Implemented response."
+          }
+        },
+        "security": [
+          {
+            "jwt_header_Authorization": [
+              "ingest:batches:create"
+            ]
+          }
+        ],
+        "summary": "add_batch ingest",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/ingest/batches/{uuid}": {
+      "get": {
+        "description": "Show Batch by UUID",
+        "operationId": "ingest#show_batch",
+        "parameters": [
+          {
+            "description": "Identifier of Batch to show",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "description": "Identifier of Batch to show",
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "completed_at": "1970-01-01T00:00:01Z",
+                  "created_at": "1970-01-01T00:00:01Z",
+                  "identifier": "abc123",
+                  "sips_count": 1,
+                  "started_at": "1970-01-01T00:00:01Z",
+                  "status": "processing",
+                  "uploader_email": "abc123",
+                  "uploader_name": "abc123",
+                  "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                  "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/EnduroIngestBatch"
+                }
+              }
+            },
+            "description": "OK response."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "abc123",
+                  "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/BatchNotFound"
+                }
+              }
+            },
+            "description": "not_found: Batch not found"
+          },
+          "409": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_available: Conflict response."
+          },
+          "501": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_implemented: Not Implemented response."
+          }
+        },
+        "security": [
+          {
+            "jwt_header_Authorization": [
+              "ingest:batches:read"
+            ]
+          }
+        ],
+        "summary": "show_batch ingest",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
     "/ingest/monitor": {
       "get": {
         "description": "Obtain access to the /monitor WebSocket",
@@ -2636,7 +3277,7 @@
                 "example": {
                   "value": {
                     "Type": "sip_created_event",
-                    "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+                    "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
                   }
                 },
                 "schema": {
@@ -2966,6 +3607,19 @@
           },
           {
             "allowEmptyValue": true,
+            "description": "UUID of the related Batch",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "in": "query",
+            "name": "batch_uuid",
+            "schema": {
+              "description": "UUID of the related Batch",
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
             "description": "Limit number of results to return",
             "example": 1,
             "in": "query",
@@ -2999,6 +3653,9 @@
                   "items": [
                     {
                       "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                      "batch_identifier": "abc123",
+                      "batch_status": "processing",
+                      "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                       "completed_at": "1970-01-01T00:00:01Z",
                       "created_at": "1970-01-01T00:00:01Z",
                       "failed_as": "PIP",
@@ -3293,6 +3950,9 @@
               "application/json": {
                 "example": {
                   "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                  "batch_identifier": "abc123",
+                  "batch_status": "processing",
+                  "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                   "completed_at": "1970-01-01T00:00:01Z",
                   "created_at": "1970-01-01T00:00:01Z",
                   "failed_as": "PIP",

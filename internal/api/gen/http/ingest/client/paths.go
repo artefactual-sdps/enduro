@@ -76,3 +76,18 @@ func ListUsersIngestPath() string {
 func ListSipSourceObjectsIngestPath(uuid string) string {
 	return fmt.Sprintf("/ingest/sip-sources/%v/objects", uuid)
 }
+
+// AddBatchIngestPath returns the URL path to the ingest service add_batch HTTP endpoint.
+func AddBatchIngestPath() string {
+	return "/ingest/batches"
+}
+
+// ListBatchesIngestPath returns the URL path to the ingest service list_batches HTTP endpoint.
+func ListBatchesIngestPath() string {
+	return "/ingest/batches"
+}
+
+// ShowBatchIngestPath returns the URL path to the ingest service show_batch HTTP endpoint.
+func ShowBatchIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/batches/%v", uuid)
+}

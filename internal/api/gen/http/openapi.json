@@ -357,6 +357,141 @@
       "title": "Mediatype identifier: application/vnd.enduro.storage.aip.workflow; type=collection; view=default",
       "type": "array"
     },
+    "BatchNotFound": {
+      "description": "Batch not found",
+      "example": {
+        "message": "abc123",
+        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "message": {
+          "description": "Message of error",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of missing Batch",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "format": "uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "message",
+        "uuid"
+      ],
+      "title": "BatchNotFound",
+      "type": "object"
+    },
+    "BatchResponseBody": {
+      "description": "Batch describes an ingest batch type. (default view)",
+      "example": {
+        "completed_at": "1970-01-01T00:00:01Z",
+        "created_at": "1970-01-01T00:00:01Z",
+        "identifier": "abc123",
+        "sips_count": 1,
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "processing",
+        "uploader_email": "abc123",
+        "uploader_name": "abc123",
+        "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "completed_at": {
+          "description": "Completion datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "identifier": {
+          "description": "Identifier of the Batch",
+          "example": "abc123",
+          "type": "string"
+        },
+        "sips_count": {
+          "description": "Number of SIPs in the Batch",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "started_at": {
+          "description": "Start datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "description": "Status of the Batch",
+          "enum": [
+            "queued",
+            "processing",
+            "pending",
+            "ingested",
+            "canceled"
+          ],
+          "example": "processing",
+          "type": "string"
+        },
+        "uploader_email": {
+          "description": "Email of the user who uploaded the Batch",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uploader_name": {
+          "description": "Name of the user who uploaded the Batch",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uploader_uuid": {
+          "description": "UUID of the user who uploaded the Batch",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of Batch",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid",
+        "identifier",
+        "sips_count",
+        "status",
+        "created_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.batch; view=default",
+      "type": "object"
+    },
+    "BatchResponseBodyCollection": {
+      "description": "BatchCollectionResponseBody is the result type for an array of BatchResponseBody (default view)",
+      "example": [
+        {
+          "completed_at": "1970-01-01T00:00:01Z",
+          "created_at": "1970-01-01T00:00:01Z",
+          "identifier": "abc123",
+          "sips_count": 1,
+          "started_at": "1970-01-01T00:00:01Z",
+          "status": "processing",
+          "uploader_email": "abc123",
+          "uploader_name": "abc123",
+          "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        }
+      ],
+      "items": {
+        "$ref": "#/definitions/BatchResponseBody"
+      },
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.batch; type=collection; view=default",
+      "type": "array"
+    },
     "CreateLocationResult": {
       "example": {
         "uuid": "abc123"
@@ -419,6 +554,131 @@
         "upload_max_size"
       ],
       "title": "Mediatype identifier: application/vnd.enduro.about; view=default",
+      "type": "object"
+    },
+    "EnduroIngestBatch": {
+      "description": "show_batch_response_body result type (default view)",
+      "example": {
+        "completed_at": "1970-01-01T00:00:01Z",
+        "created_at": "1970-01-01T00:00:01Z",
+        "identifier": "abc123",
+        "sips_count": 1,
+        "started_at": "1970-01-01T00:00:01Z",
+        "status": "processing",
+        "uploader_email": "abc123",
+        "uploader_name": "abc123",
+        "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "completed_at": {
+          "description": "Completion datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "created_at": {
+          "description": "Creation datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "identifier": {
+          "description": "Identifier of the Batch",
+          "example": "abc123",
+          "type": "string"
+        },
+        "sips_count": {
+          "description": "Number of SIPs in the Batch",
+          "example": 1,
+          "format": "int64",
+          "type": "integer"
+        },
+        "started_at": {
+          "description": "Start datetime",
+          "example": "1970-01-01T00:00:01Z",
+          "format": "date-time",
+          "type": "string"
+        },
+        "status": {
+          "description": "Status of the Batch",
+          "enum": [
+            "queued",
+            "processing",
+            "pending",
+            "ingested",
+            "canceled"
+          ],
+          "example": "processing",
+          "type": "string"
+        },
+        "uploader_email": {
+          "description": "Email of the user who uploaded the Batch",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uploader_name": {
+          "description": "Name of the user who uploaded the Batch",
+          "example": "abc123",
+          "type": "string"
+        },
+        "uploader_uuid": {
+          "description": "UUID of the user who uploaded the Batch",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        },
+        "uuid": {
+          "description": "Identifier of Batch",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid",
+        "identifier",
+        "sips_count",
+        "status",
+        "created_at"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.batch; view=default",
+      "type": "object"
+    },
+    "EnduroIngestBatches": {
+      "description": "list_batches_response_body result type (default view)",
+      "example": {
+        "items": [
+          {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "created_at": "1970-01-01T00:00:01Z",
+            "identifier": "abc123",
+            "sips_count": 1,
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "processing",
+            "uploader_email": "abc123",
+            "uploader_name": "abc123",
+            "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          }
+        ],
+        "page": {
+          "limit": 1,
+          "offset": 1,
+          "total": 1
+        }
+      },
+      "properties": {
+        "items": {
+          "$ref": "#/definitions/BatchResponseBodyCollection"
+        },
+        "page": {
+          "$ref": "#/definitions/EnduroPageResponseBody"
+        }
+      },
+      "required": [
+        "items",
+        "page"
+      ],
+      "title": "Mediatype identifier: application/vnd.enduro.ingest.batches; view=default",
       "type": "object"
     },
     "EnduroIngestSip": {
@@ -958,6 +1218,183 @@
       "title": "Mediatype identifier: application/vnd.enduro.storage.location; view=default",
       "type": "object"
     },
+    "IngestAddBatchInternalErrorResponseBody": {
+      "description": "add_batch_internal_error_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestAddBatchNotImplementedResponseBody": {
+      "description": "add_batch_not_implemented_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestAddBatchNotValidResponseBody": {
+      "description": "add_batch_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestAddBatchResponseBody": {
+      "example": {
+        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+      },
+      "properties": {
+        "uuid": {
+          "description": "Identifier of the ingested Batch",
+          "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "format": "uuid",
+          "type": "string"
+        }
+      },
+      "required": [
+        "uuid"
+      ],
+      "title": "IngestAddBatchResponseBody",
+      "type": "object"
+    },
     "IngestAddSipInternalErrorResponseBody": {
       "description": "add_sip_internal_error_response_body result type (default view)",
       "example": {
@@ -1421,14 +1858,14 @@
       "example": {
         "value": {
           "Type": "sip_created_event",
-          "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+          "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
         }
       },
       "properties": {
         "value": {
           "example": {
             "Type": "sip_created_event",
-            "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+            "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
           },
           "properties": {
             "Type": {
@@ -1448,7 +1885,7 @@
             },
             "Value": {
               "description": "JSON encoded union value",
-              "example": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
+              "example": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
               "type": "string"
             }
           },
@@ -1460,6 +1897,112 @@
         }
       },
       "title": "IngestEvent",
+      "type": "object"
+    },
+    "IngestListBatchesNotImplementedResponseBody": {
+      "description": "list_batches_not_implemented_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListBatchesNotValidResponseBody": {
+      "description": "list_batches_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
     "IngestListSipSourceObjectsInternalErrorResponseBody": {
@@ -1888,6 +2431,112 @@
     },
     "IngestRejectSipNotValidResponseBody": {
       "description": "reject_sip_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestShowBatchNotAvailableResponseBody": {
+      "description": "show_batch_not_available_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestShowBatchNotImplementedResponseBody": {
+      "description": "show_batch_not_implemented_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -4146,6 +4795,286 @@
         ]
       }
     },
+    "/ingest/batches": {
+      "get": {
+        "description": "List all ingested Batches\n\n**Required security scopes for jwt**:\n  * `ingest:batches:list`",
+        "operationId": "ingest#list_batches",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "identifier",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "format": "date-time",
+            "in": "query",
+            "name": "earliest_created_time",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "format": "date-time",
+            "in": "query",
+            "name": "latest_created_time",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "enum": [
+              "queued",
+              "processing",
+              "pending",
+              "ingested",
+              "canceled"
+            ],
+            "in": "query",
+            "name": "status",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "UUID of the Batch uploader",
+            "format": "uuid",
+            "in": "query",
+            "name": "uploader_uuid",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "Limit number of results to return",
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "description": "Offset from the beginning of the found set",
+            "in": "query",
+            "name": "offset",
+            "required": false,
+            "type": "integer"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/EnduroIngestBatches"
+            }
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListBatchesNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "501": {
+            "description": "Not Implemented response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListBatchesNotImplementedResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": null
+          }
+        ],
+        "summary": "list_batches ingest",
+        "tags": [
+          "ingest"
+        ]
+      },
+      "post": {
+        "description": "Ingest a Batch from a SIP Source\n\n**Required security scopes for jwt**:\n  * `ingest:batches:create`",
+        "operationId": "ingest#add_batch",
+        "parameters": [
+          {
+            "description": "Identifier of SIP source -- CURRENTLY NOT USED",
+            "format": "uuid",
+            "in": "query",
+            "name": "source_id",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "collectionFormat": "multi",
+            "description": "Key of the SIPs to ingest as part of the batch",
+            "in": "query",
+            "items": {
+              "type": "string"
+            },
+            "name": "keys",
+            "required": true,
+            "type": "array"
+          },
+          {
+            "description": "Optional Batch identifier assigned by the user",
+            "in": "query",
+            "name": "identifier",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Created response.",
+            "schema": {
+              "$ref": "#/definitions/IngestAddBatchResponseBody",
+              "required": [
+                "uuid"
+              ]
+            }
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/IngestAddBatchNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestAddBatchInternalErrorResponseBody"
+            }
+          },
+          "501": {
+            "description": "Not Implemented response.",
+            "schema": {
+              "$ref": "#/definitions/IngestAddBatchNotImplementedResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": null
+          }
+        ],
+        "summary": "add_batch ingest",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/ingest/batches/{uuid}": {
+      "get": {
+        "description": "Show Batch by UUID\n\n**Required security scopes for jwt**:\n  * `ingest:batches:read`",
+        "operationId": "ingest#show_batch",
+        "parameters": [
+          {
+            "description": "Identifier of Batch to show",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "schema": {
+              "$ref": "#/definitions/EnduroIngestBatch"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/BatchNotFound",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          },
+          "409": {
+            "description": "Conflict response.",
+            "schema": {
+              "$ref": "#/definitions/IngestShowBatchNotAvailableResponseBody"
+            }
+          },
+          "501": {
+            "description": "Not Implemented response.",
+            "schema": {
+              "$ref": "#/definitions/IngestShowBatchNotImplementedResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": null
+          }
+        ],
+        "summary": "show_batch ingest",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
     "/ingest/monitor": {
       "get": {
         "description": "Obtain access to the /monitor WebSocket",
@@ -4370,6 +5299,14 @@
             "format": "uuid",
             "in": "query",
             "name": "uploader_uuid",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "description": "UUID of the related Batch",
+            "format": "uuid",
+            "in": "query",
+            "name": "batch_uuid",
             "required": false,
             "type": "string"
           },
@@ -6485,7 +7422,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:sips:create`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:batches:create`: no description\n  * `ingest:batches:list`: no description\n  * `ingest:batches:read`: no description\n  * `ingest:sips:create`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

@@ -16,7 +16,10 @@
 import * as runtime from '../runtime';
 import type {
   AddSipResponseBody,
+  BatchNotFound,
   ConfirmSipRequestBody,
+  EnduroIngestBatch,
+  EnduroIngestBatches,
   EnduroIngestSip,
   EnduroIngestSipWorkflows,
   EnduroIngestSips,
@@ -28,8 +31,14 @@ import type {
 import {
     AddSipResponseBodyFromJSON,
     AddSipResponseBodyToJSON,
+    BatchNotFoundFromJSON,
+    BatchNotFoundToJSON,
     ConfirmSipRequestBodyFromJSON,
     ConfirmSipRequestBodyToJSON,
+    EnduroIngestBatchFromJSON,
+    EnduroIngestBatchToJSON,
+    EnduroIngestBatchesFromJSON,
+    EnduroIngestBatchesToJSON,
     EnduroIngestSipFromJSON,
     EnduroIngestSipToJSON,
     EnduroIngestSipWorkflowsFromJSON,
@@ -45,6 +54,12 @@ import {
     SIPNotFoundFromJSON,
     SIPNotFoundToJSON,
 } from '../models/index';
+
+export interface IngestAddBatchRequest {
+    sourceId: string;
+    keys: Array<string>;
+    identifier?: string;
+}
 
 export interface IngestAddSipRequest {
     sourceId: string;
@@ -65,6 +80,16 @@ export interface IngestDownloadSipRequestRequest {
     uuid: string;
 }
 
+export interface IngestListBatchesRequest {
+    identifier?: string;
+    earliestCreatedTime?: Date;
+    latestCreatedTime?: Date;
+    status?: IngestListBatchesStatusEnum;
+    uploaderUuid?: string;
+    limit?: number;
+    offset?: number;
+}
+
 export interface IngestListSipSourceObjectsRequest {
     uuid: string;
     limit?: number;
@@ -82,6 +107,7 @@ export interface IngestListSipsRequest {
     latestCreatedTime?: Date;
     status?: IngestListSipsStatusEnum;
     uploaderUuid?: string;
+    batchUuid?: string;
     limit?: number;
     offset?: number;
 }
@@ -101,6 +127,10 @@ export interface IngestRejectSipRequest {
     uuid: string;
 }
 
+export interface IngestShowBatchRequest {
+    uuid: string;
+}
+
 export interface IngestShowSipRequest {
     uuid: string;
 }
@@ -116,6 +146,24 @@ export interface IngestUploadSipRequest {
  * @interface IngestApiInterface
  */
 export interface IngestApiInterface {
+    /**
+     * Ingest a Batch from a SIP Source
+     * @summary add_batch ingest
+     * @param {string} sourceId Identifier of SIP source -- CURRENTLY NOT USED
+     * @param {Array<string>} keys Key of the SIPs to ingest as part of the batch
+     * @param {string} [identifier] Optional Batch identifier assigned by the user
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestAddBatchRaw(requestParameters: IngestAddBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>>;
+
+    /**
+     * Ingest a Batch from a SIP Source
+     * add_batch ingest
+     */
+    ingestAddBatch(requestParameters: IngestAddBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody>;
+
     /**
      * Ingest a SIP from a SIP Source
      * @summary add_sip ingest
@@ -184,6 +232,28 @@ export interface IngestApiInterface {
     ingestDownloadSipRequest(requestParameters: IngestDownloadSipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
+     * List all ingested Batches
+     * @summary list_batches ingest
+     * @param {string} [identifier] 
+     * @param {Date} [earliestCreatedTime] 
+     * @param {Date} [latestCreatedTime] 
+     * @param {'queued' | 'processing' | 'pending' | 'ingested' | 'canceled'} [status] 
+     * @param {string} [uploaderUuid] UUID of the Batch uploader
+     * @param {number} [limit] Limit number of results to return
+     * @param {number} [offset] Offset from the beginning of the found set
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestListBatchesRaw(requestParameters: IngestListBatchesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestBatches>>;
+
+    /**
+     * List all ingested Batches
+     * list_batches ingest
+     */
+    ingestListBatches(requestParameters: IngestListBatchesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestBatches>;
+
+    /**
      * List the objects in a SIP source
      * @summary list_sip_source_objects ingest
      * @param {string} uuid SIP source identifier -- CURRENTLY NOT USED
@@ -226,6 +296,7 @@ export interface IngestApiInterface {
      * @param {Date} [latestCreatedTime] 
      * @param {'error' | 'failed' | 'queued' | 'processing' | 'pending' | 'ingested'} [status] 
      * @param {string} [uploaderUuid] UUID of the SIP uploader
+     * @param {string} [batchUuid] UUID of the related Batch
      * @param {number} [limit] Limit number of results to return
      * @param {number} [offset] Offset from the beginning of the found set
      * @param {*} [options] Override http request option.
@@ -307,6 +378,22 @@ export interface IngestApiInterface {
     ingestRejectSip(requestParameters: IngestRejectSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
+     * Show Batch by UUID
+     * @summary show_batch ingest
+     * @param {string} uuid Identifier of Batch to show
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestShowBatchRaw(requestParameters: IngestShowBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestBatch>>;
+
+    /**
+     * Show Batch by UUID
+     * show_batch ingest
+     */
+    ingestShowBatch(requestParameters: IngestShowBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestBatch>;
+
+    /**
      * Show SIP by ID
      * @summary show_sip ingest
      * @param {string} uuid Identifier of SIP to show
@@ -344,6 +431,62 @@ export interface IngestApiInterface {
  * 
  */
 export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
+
+    /**
+     * Ingest a Batch from a SIP Source
+     * add_batch ingest
+     */
+    async ingestAddBatchRaw(requestParameters: IngestAddBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
+        if (requestParameters.sourceId === null || requestParameters.sourceId === undefined) {
+            throw new runtime.RequiredError('sourceId','Required parameter requestParameters.sourceId was null or undefined when calling ingestAddBatch.');
+        }
+
+        if (requestParameters.keys === null || requestParameters.keys === undefined) {
+            throw new runtime.RequiredError('keys','Required parameter requestParameters.keys was null or undefined when calling ingestAddBatch.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.sourceId !== undefined) {
+            queryParameters['source_id'] = requestParameters.sourceId;
+        }
+
+        if (requestParameters.keys) {
+            queryParameters['keys'] = requestParameters.keys;
+        }
+
+        if (requestParameters.identifier !== undefined) {
+            queryParameters['identifier'] = requestParameters.identifier;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/ingest/batches`,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => AddSipResponseBodyFromJSON(jsonValue));
+    }
+
+    /**
+     * Ingest a Batch from a SIP Source
+     * add_batch ingest
+     */
+    async ingestAddBatch(requestParameters: IngestAddBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody> {
+        const response = await this.ingestAddBatchRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Ingest a SIP from a SIP Source
@@ -515,6 +658,70 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
+     * List all ingested Batches
+     * list_batches ingest
+     */
+    async ingestListBatchesRaw(requestParameters: IngestListBatchesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestBatches>> {
+        const queryParameters: any = {};
+
+        if (requestParameters.identifier !== undefined) {
+            queryParameters['identifier'] = requestParameters.identifier;
+        }
+
+        if (requestParameters.earliestCreatedTime !== undefined) {
+            queryParameters['earliest_created_time'] = (requestParameters.earliestCreatedTime as any).toISOString();
+        }
+
+        if (requestParameters.latestCreatedTime !== undefined) {
+            queryParameters['latest_created_time'] = (requestParameters.latestCreatedTime as any).toISOString();
+        }
+
+        if (requestParameters.status !== undefined) {
+            queryParameters['status'] = requestParameters.status;
+        }
+
+        if (requestParameters.uploaderUuid !== undefined) {
+            queryParameters['uploader_uuid'] = requestParameters.uploaderUuid;
+        }
+
+        if (requestParameters.limit !== undefined) {
+            queryParameters['limit'] = requestParameters.limit;
+        }
+
+        if (requestParameters.offset !== undefined) {
+            queryParameters['offset'] = requestParameters.offset;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/ingest/batches`,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestBatchesFromJSON(jsonValue));
+    }
+
+    /**
+     * List all ingested Batches
+     * list_batches ingest
+     */
+    async ingestListBatches(requestParameters: IngestListBatchesRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestBatches> {
+        const response = await this.ingestListBatchesRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * List the objects in a SIP source
      * list_sip_source_objects ingest
      */
@@ -631,6 +838,10 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (requestParameters.uploaderUuid !== undefined) {
             queryParameters['uploader_uuid'] = requestParameters.uploaderUuid;
+        }
+
+        if (requestParameters.batchUuid !== undefined) {
+            queryParameters['batch_uuid'] = requestParameters.batchUuid;
         }
 
         if (requestParameters.limit !== undefined) {
@@ -824,6 +1035,46 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
+     * Show Batch by UUID
+     * show_batch ingest
+     */
+    async ingestShowBatchRaw(requestParameters: IngestShowBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestBatch>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestShowBatch.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/ingest/batches/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestBatchFromJSON(jsonValue));
+    }
+
+    /**
+     * Show Batch by UUID
+     * show_batch ingest
+     */
+    async ingestShowBatch(requestParameters: IngestShowBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestBatch> {
+        const response = await this.ingestShowBatchRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
      * Show SIP by ID
      * show_sip ingest
      */
@@ -905,6 +1156,17 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
 }
 
+/**
+ * @export
+ */
+export const IngestListBatchesStatusEnum = {
+    Queued: 'queued',
+    Processing: 'processing',
+    Pending: 'pending',
+    Ingested: 'ingested',
+    Canceled: 'canceled'
+} as const;
+export type IngestListBatchesStatusEnum = typeof IngestListBatchesStatusEnum[keyof typeof IngestListBatchesStatusEnum];
 /**
  * @export
  */

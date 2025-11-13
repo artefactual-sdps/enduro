@@ -15,6 +15,7 @@ models/AIPWorkflowCreatedEvent.ts
 models/AIPWorkflowUpdatedEvent.ts
 models/AMSSConfig.ts
 models/AddSipResponseBody.ts
+models/BatchNotFound.ts
 models/CancelAipDeletionRequestBody.ts
 models/ConfirmSipRequestBody.ts
 models/CreateAipRequestBody.ts
@@ -22,6 +23,8 @@ models/CreateLocationRequestBody.ts
 models/CreateLocationRequestBodyConfig.ts
 models/CreateLocationResult.ts
 models/EnduroAbout.ts
+models/EnduroIngestBatch.ts
+models/EnduroIngestBatches.ts
 models/EnduroIngestSip.ts
 models/EnduroIngestSipTask.ts
 models/EnduroIngestSipWorkflow.ts

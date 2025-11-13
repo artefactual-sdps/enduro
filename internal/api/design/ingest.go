@@ -73,6 +73,7 @@ var _ = Service("ingest", func() {
 				EnumSIPStatus()
 			})
 			AttributeUUID("uploader_uuid", "UUID of the SIP uploader")
+			AttributeUUID("batch_uuid", "UUID of the related Batch")
 			Attribute("limit", Int, "Limit number of results to return")
 			Attribute("offset", Int, "Offset from the beginning of the found set")
 
@@ -91,6 +92,7 @@ var _ = Service("ingest", func() {
 				Param("latest_created_time")
 				Param("status")
 				Param("uploader_uuid")
+				Param("batch_uuid")
 				Param("limit")
 				Param("offset")
 			})
@@ -382,6 +384,101 @@ var _ = Service("ingest", func() {
 			})
 		})
 	})
+	Method("add_batch", func() {
+		Description("Ingest a Batch from a SIP Source")
+		Security(JWTAuth, func() {
+			Scope(auth.IngestBatchesCreateAttr)
+		})
+		Payload(func() {
+			AttributeUUID("source_id", "Identifier of SIP source -- CURRENTLY NOT USED")
+			Attribute("keys", ArrayOf(String), "Key of the SIPs to ingest as part of the batch")
+			Attribute("identifier", String, "Optional Batch identifier assigned by the user")
+			Token("token", String)
+			Required("source_id", "keys")
+		})
+		Result(func() {
+			AttributeUUID("uuid", "Identifier of the ingested Batch")
+			Required("uuid")
+		})
+		Error("not_valid")
+		Error("internal_error")
+		Error("not_implemented")
+		HTTP(func() {
+			POST("/batches")
+			Response(StatusCreated)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+			Response("not_implemented", StatusNotImplemented)
+			Params(func() {
+				Param("source_id")
+				Param("keys")
+				Param("identifier")
+			})
+		})
+	})
+	Method("list_batches", func() {
+		Description("List all ingested Batches")
+		Security(JWTAuth, func() {
+			Scope(auth.IngestBatchesListAttr)
+		})
+		Payload(func() {
+			Attribute("identifier", String)
+			Attribute("earliest_created_time", String, func() {
+				Format(FormatDateTime)
+			})
+			Attribute("latest_created_time", String, func() {
+				Format(FormatDateTime)
+			})
+			Attribute("status", String, func() {
+				EnumBatchStatus()
+			})
+			AttributeUUID("uploader_uuid", "UUID of the Batch uploader")
+			Attribute("limit", Int, "Limit number of results to return")
+			Attribute("offset", Int, "Offset from the beginning of the found set")
+
+			Token("token", String)
+		})
+		Result(Batches)
+		Error("not_valid")
+		Error("not_implemented")
+		HTTP(func() {
+			GET("/batches")
+			Response(StatusOK)
+			Response("not_valid", StatusBadRequest)
+			Response("not_implemented", StatusNotImplemented)
+			Params(func() {
+				Param("identifier")
+				Param("earliest_created_time")
+				Param("latest_created_time")
+				Param("status")
+				Param("uploader_uuid")
+				Param("limit")
+				Param("offset")
+			})
+		})
+	})
+	Method("show_batch", func() {
+		Description("Show Batch by UUID")
+		Security(JWTAuth, func() {
+			Scope(auth.IngestBatchesReadAttr)
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of Batch to show")
+			Token("token", String)
+			Required("uuid")
+		})
+		Result(Batch)
+		Error("not_found", BatchNotFound, "Batch not found")
+		Error("not_available")
+		Error("not_implemented")
+		HTTP(func() {
+			GET("/batches/{uuid}")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+			Response("not_available", StatusConflict)
+			Response("not_implemented", StatusNotImplemented)
+		})
+	})
 })
 
 var EnumSIPStatus = func() {
@@ -418,6 +515,11 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 		TypedAttributeUUID("uploader_uuid", "UUID of the user who uploaded the SIP")
 		Attribute("uploader_email", String, "Email of the user who uploaded the SIP")
 		Attribute("uploader_name", String, "Name of the user who uploaded the SIP")
+		TypedAttributeUUID("batch_uuid", "UUID of the related Batch")
+		Attribute("batch_identifier", String, "Identifier of the related Batch")
+		Attribute("batch_status", String, "Status of the related Batch", func() {
+			EnumBatchStatus()
+		})
 	})
 	View("default", func() {
 		Attribute("uuid")
@@ -582,4 +684,51 @@ var SIPSourceObjects = ResultType("application/vnd.enduro.ingest.sipsource.objec
 	Attribute("limit", Int, "Limit of objects per page")
 	Attribute("next", String, "Token to get the next page of objects")
 	Required("objects", "limit")
+})
+
+var EnumBatchStatus = func() {
+	Enum(enums.BatchStatusInterfaces()...)
+}
+
+var Batch = ResultType("application/vnd.enduro.ingest.batch", func() {
+	Description("Batch describes an ingest batch type.")
+	TypeName("Batch")
+	Attributes(func() {
+		TypedAttributeUUID("uuid", "Identifier of Batch")
+		Attribute("identifier", String, "Identifier of the Batch")
+		Attribute("sips_count", Int, "Number of SIPs in the Batch")
+		Attribute("status", String, "Status of the Batch", func() {
+			EnumBatchStatus()
+		})
+		Attribute("created_at", String, "Creation datetime", func() {
+			Format(FormatDateTime)
+		})
+		Attribute("started_at", String, "Start datetime", func() {
+			Format(FormatDateTime)
+		})
+		Attribute("completed_at", String, "Completion datetime", func() {
+			Format(FormatDateTime)
+		})
+		TypedAttributeUUID("uploader_uuid", "UUID of the user who uploaded the Batch")
+		Attribute("uploader_email", String, "Email of the user who uploaded the Batch")
+		Attribute("uploader_name", String, "Name of the user who uploaded the Batch")
+	})
+	Required("uuid", "identifier", "sips_count", "status", "created_at")
+})
+
+var Batches = ResultType("application/vnd.enduro.ingest.batches", func() {
+	TypeName("Batches")
+	Attribute("items", CollectionOf(Batch))
+	Attribute("page", Page)
+	Required("items", "page")
+})
+
+var BatchNotFound = Type("BatchNotFound", func() {
+	Description("Batch not found.")
+	TypeName("BatchNotFound")
+	Attribute("message", String, "Message of error", func() {
+		Meta("struct:error:message")
+	})
+	AttributeUUID("uuid", "Identifier of missing Batch")
+	Required("message", "uuid")
 })

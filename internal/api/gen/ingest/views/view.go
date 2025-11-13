@@ -53,6 +53,22 @@ type SIPSourceObjects struct {
 	View string
 }
 
+// Batches is the viewed result type that is projected based on a view.
+type Batches struct {
+	// Type to project
+	Projected *BatchesView
+	// View to render
+	View string
+}
+
+// Batch is the viewed result type that is projected based on a view.
+type Batch struct {
+	// Type to project
+	Projected *BatchView
+	// View to render
+	View string
+}
+
 // IngestEventView is a type that runs validations on a projected type.
 type IngestEventView struct {
 	Value interface {
@@ -98,6 +114,12 @@ type SIPView struct {
 	UploaderEmail *string
 	// Name of the user who uploaded the SIP
 	UploaderName *string
+	// UUID of the related Batch
+	BatchUUID *uuid.UUID
+	// Identifier of the related Batch
+	BatchIdentifier *string
+	// Status of the related Batch
+	BatchStatus *string
 }
 
 // SIPUpdatedEventView is a type that runs validations on a projected type.
@@ -249,6 +271,39 @@ type SIPSourceObjectView struct {
 	IsDir *bool
 }
 
+// BatchesView is a type that runs validations on a projected type.
+type BatchesView struct {
+	Items BatchCollectionView
+	Page  *EnduroPageView
+}
+
+// BatchCollectionView is a type that runs validations on a projected type.
+type BatchCollectionView []*BatchView
+
+// BatchView is a type that runs validations on a projected type.
+type BatchView struct {
+	// Identifier of Batch
+	UUID *uuid.UUID
+	// Identifier of the Batch
+	Identifier *string
+	// Number of SIPs in the Batch
+	SipsCount *int
+	// Status of the Batch
+	Status *string
+	// Creation datetime
+	CreatedAt *string
+	// Start datetime
+	StartedAt *string
+	// Completion datetime
+	CompletedAt *string
+	// UUID of the user who uploaded the Batch
+	UploaderUUID *uuid.UUID
+	// Email of the user who uploaded the Batch
+	UploaderEmail *string
+	// Name of the user who uploaded the Batch
+	UploaderName *string
+}
+
 func (*IngestPingEventView) valueVal() {}
 
 func (*SIPCreatedEventView) valueVal() {}
@@ -311,6 +366,28 @@ var (
 			"objects",
 			"limit",
 			"next",
+		},
+	}
+	// BatchesMap is a map indexing the attribute names of Batches by view name.
+	BatchesMap = map[string][]string{
+		"default": {
+			"items",
+			"page",
+		},
+	}
+	// BatchMap is a map indexing the attribute names of Batch by view name.
+	BatchMap = map[string][]string{
+		"default": {
+			"uuid",
+			"identifier",
+			"sips_count",
+			"status",
+			"created_at",
+			"started_at",
+			"completed_at",
+			"uploader_uuid",
+			"uploader_email",
+			"uploader_name",
 		},
 	}
 	// SIPWorkflowMap is a map indexing the attribute names of SIPWorkflow by view
@@ -450,6 +527,22 @@ var (
 			"is_dir",
 		},
 	}
+	// BatchCollectionMap is a map indexing the attribute names of BatchCollection
+	// by view name.
+	BatchCollectionMap = map[string][]string{
+		"default": {
+			"uuid",
+			"identifier",
+			"sips_count",
+			"status",
+			"created_at",
+			"started_at",
+			"completed_at",
+			"uploader_uuid",
+			"uploader_email",
+			"uploader_name",
+		},
+	}
 )
 
 // ValidateSIPs runs the validations defined on the viewed result type SIPs.
@@ -503,6 +596,29 @@ func ValidateSIPSourceObjects(result *SIPSourceObjects) (err error) {
 	switch result.View {
 	case "default", "":
 		err = ValidateSIPSourceObjectsView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
+
+// ValidateBatches runs the validations defined on the viewed result type
+// Batches.
+func ValidateBatches(result *Batches) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateBatchesView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
+
+// ValidateBatch runs the validations defined on the viewed result type Batch.
+func ValidateBatch(result *Batch) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateBatchView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
@@ -1017,6 +1133,69 @@ func ValidateSIPSourceObjectView(result *SIPSourceObjectView) (err error) {
 	}
 	if result.ModTime != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.mod_time", *result.ModTime, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateBatchesView runs the validations defined on BatchesView using the
+// "default" view.
+func ValidateBatchesView(result *BatchesView) (err error) {
+
+	if result.Items != nil {
+		if err2 := ValidateBatchCollectionView(result.Items); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if result.Page != nil {
+		if err2 := ValidateEnduroPageView(result.Page); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateBatchCollectionView runs the validations defined on
+// BatchCollectionView using the "default" view.
+func ValidateBatchCollectionView(result BatchCollectionView) (err error) {
+	for _, item := range result {
+		if err2 := ValidateBatchView(item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateBatchView runs the validations defined on BatchView using the
+// "default" view.
+func ValidateBatchView(result *BatchView) (err error) {
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
+	}
+	if result.Identifier == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("identifier", "result"))
+	}
+	if result.SipsCount == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("sips_count", "result"))
+	}
+	if result.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
+	}
+	if result.CreatedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
+	}
+	if result.Status != nil {
+		if !(*result.Status == "queued" || *result.Status == "processing" || *result.Status == "pending" || *result.Status == "ingested" || *result.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"queued", "processing", "pending", "ingested", "canceled"}))
+		}
+	}
+	if result.CreatedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.created_at", *result.CreatedAt, goa.FormatDateTime))
+	}
+	if result.StartedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.started_at", *result.StartedAt, goa.FormatDateTime))
+	}
+	if result.CompletedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("result.completed_at", *result.CompletedAt, goa.FormatDateTime))
 	}
 	return
 }

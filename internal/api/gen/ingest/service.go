@@ -51,6 +51,12 @@ type Service interface {
 	ListUsers(context.Context, *ListUsersPayload) (res *Users, err error)
 	// List the objects in a SIP source
 	ListSipSourceObjects(context.Context, *ListSipSourceObjectsPayload) (res *SIPSourceObjects, err error)
+	// Ingest a Batch from a SIP Source
+	AddBatch(context.Context, *AddBatchPayload) (res *AddBatchResult, err error)
+	// List all ingested Batches
+	ListBatches(context.Context, *ListBatchesPayload) (res *Batches, err error)
+	// Show Batch by UUID
+	ShowBatch(context.Context, *ShowBatchPayload) (res *Batch, err error)
 }
 
 // Auther defines the authorization functions to be implemented by the service.
@@ -73,7 +79,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [13]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "add_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_sip_source_objects"}
+var MethodNames = [16]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "add_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_sip_source_objects", "add_batch", "list_batches", "show_batch"}
 
 // MonitorServerStream allows streaming instances of *IngestEvent to the client.
 type MonitorServerStream interface {
@@ -90,6 +96,23 @@ type MonitorClientStream interface {
 	RecvWithContext(context.Context) (*IngestEvent, error)
 }
 
+// AddBatchPayload is the payload type of the ingest service add_batch method.
+type AddBatchPayload struct {
+	// Identifier of SIP source -- CURRENTLY NOT USED
+	SourceID string
+	// Key of the SIPs to ingest as part of the batch
+	Keys []string
+	// Optional Batch identifier assigned by the user
+	Identifier *string
+	Token      *string
+}
+
+// AddBatchResult is the result type of the ingest service add_batch method.
+type AddBatchResult struct {
+	// Identifier of the ingested Batch
+	UUID string
+}
+
 // AddSipPayload is the payload type of the ingest service add_sip method.
 type AddSipPayload struct {
 	// Identifier of SIP source -- CURRENTLY NOT USED
@@ -103,6 +126,46 @@ type AddSipPayload struct {
 type AddSipResult struct {
 	// Identifier of the ingested SIP
 	UUID string
+}
+
+// Batch is the result type of the ingest service show_batch method.
+type Batch struct {
+	// Identifier of Batch
+	UUID uuid.UUID
+	// Identifier of the Batch
+	Identifier string
+	// Number of SIPs in the Batch
+	SipsCount int
+	// Status of the Batch
+	Status string
+	// Creation datetime
+	CreatedAt string
+	// Start datetime
+	StartedAt *string
+	// Completion datetime
+	CompletedAt *string
+	// UUID of the user who uploaded the Batch
+	UploaderUUID *uuid.UUID
+	// Email of the user who uploaded the Batch
+	UploaderEmail *string
+	// Name of the user who uploaded the Batch
+	UploaderName *string
+}
+
+type BatchCollection []*Batch
+
+// Batch not found.
+type BatchNotFound struct {
+	// Message of error
+	Message string
+	// Identifier of missing Batch
+	UUID string
+}
+
+// Batches is the result type of the ingest service list_batches method.
+type Batches struct {
+	Items BatchCollection
+	Page  *EnduroPage
 }
 
 // ConfirmSipPayload is the payload type of the ingest service confirm_sip
@@ -166,6 +229,22 @@ type IngestPingEvent struct {
 	Message *string
 }
 
+// ListBatchesPayload is the payload type of the ingest service list_batches
+// method.
+type ListBatchesPayload struct {
+	Identifier          *string
+	EarliestCreatedTime *string
+	LatestCreatedTime   *string
+	Status              *string
+	// UUID of the Batch uploader
+	UploaderUUID *string
+	// Limit number of results to return
+	Limit *int
+	// Offset from the beginning of the found set
+	Offset *int
+	Token  *string
+}
+
 // ListSipSourceObjectsPayload is the payload type of the ingest service
 // list_sip_source_objects method.
 type ListSipSourceObjectsPayload struct {
@@ -196,6 +275,8 @@ type ListSipsPayload struct {
 	Status              *string
 	// UUID of the SIP uploader
 	UploaderUUID *string
+	// UUID of the related Batch
+	BatchUUID *string
 	// Limit number of results to return
 	Limit *int
 	// Offset from the beginning of the found set
@@ -266,6 +347,12 @@ type SIP struct {
 	UploaderEmail *string
 	// Name of the user who uploaded the SIP
 	UploaderName *string
+	// UUID of the related Batch
+	BatchUUID *uuid.UUID
+	// Identifier of the related Batch
+	BatchIdentifier *string
+	// Status of the related Batch
+	BatchStatus *string
 }
 
 type SIPCollection []*SIP
@@ -387,6 +474,13 @@ type SIPs struct {
 	Page  *EnduroPage
 }
 
+// ShowBatchPayload is the payload type of the ingest service show_batch method.
+type ShowBatchPayload struct {
+	// Identifier of Batch to show
+	UUID  string
+	Token *string
+}
+
 // ShowSipPayload is the payload type of the ingest service show_sip method.
 type ShowSipPayload struct {
 	// Identifier of SIP to show
@@ -432,6 +526,23 @@ type Forbidden string
 
 // Unauthorized
 type Unauthorized string
+
+// Error returns an error description.
+func (e *BatchNotFound) Error() string {
+	return "Batch not found."
+}
+
+// ErrorName returns "BatchNotFound".
+//
+// Deprecated: Use GoaErrorName - https://github.com/goadesign/goa/issues/3105
+func (e *BatchNotFound) ErrorName() string {
+	return e.GoaErrorName()
+}
+
+// GoaErrorName returns "BatchNotFound".
+func (e *BatchNotFound) GoaErrorName() string {
+	return "not_found"
+}
 
 // Error returns an error description.
 func (e *SIPNotFound) Error() string {
@@ -530,6 +641,11 @@ func MakeNotFound(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_found", false, false, false)
 }
 
+// MakeNotImplemented builds a goa.ServiceError from an error.
+func MakeNotImplemented(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "not_implemented", false, false, false)
+}
+
 // NewSIPs initializes result type SIPs from viewed result type SIPs.
 func NewSIPs(vres *ingestviews.SIPs) *SIPs {
 	return newSIPs(vres.Projected)
@@ -590,6 +706,30 @@ func NewSIPSourceObjects(vres *ingestviews.SIPSourceObjects) *SIPSourceObjects {
 func NewViewedSIPSourceObjects(res *SIPSourceObjects, view string) *ingestviews.SIPSourceObjects {
 	p := newSIPSourceObjectsView(res)
 	return &ingestviews.SIPSourceObjects{Projected: p, View: "default"}
+}
+
+// NewBatches initializes result type Batches from viewed result type Batches.
+func NewBatches(vres *ingestviews.Batches) *Batches {
+	return newBatches(vres.Projected)
+}
+
+// NewViewedBatches initializes viewed result type Batches from result type
+// Batches using the given view.
+func NewViewedBatches(res *Batches, view string) *ingestviews.Batches {
+	p := newBatchesView(res)
+	return &ingestviews.Batches{Projected: p, View: "default"}
+}
+
+// NewBatch initializes result type Batch from viewed result type Batch.
+func NewBatch(vres *ingestviews.Batch) *Batch {
+	return newBatch(vres.Projected)
+}
+
+// NewViewedBatch initializes viewed result type Batch from result type Batch
+// using the given view.
+func NewViewedBatch(res *Batch, view string) *ingestviews.Batch {
+	p := newBatchView(res)
+	return &ingestviews.Batch{Projected: p, View: "default"}
 }
 
 // newSIP converts projected type SIP to service type SIP.
@@ -1069,6 +1209,96 @@ func newSIPSourceObjectView(res *SIPSourceObject) *ingestviews.SIPSourceObjectVi
 		ModTime: res.ModTime,
 		Size:    res.Size,
 		IsDir:   &res.IsDir,
+	}
+	return vres
+}
+
+// newBatches converts projected type Batches to service type Batches.
+func newBatches(vres *ingestviews.BatchesView) *Batches {
+	res := &Batches{}
+	if vres.Items != nil {
+		res.Items = newBatchCollection(vres.Items)
+	}
+	if vres.Page != nil {
+		res.Page = newEnduroPage(vres.Page)
+	}
+	return res
+}
+
+// newBatchesView projects result type Batches to projected type BatchesView
+// using the "default" view.
+func newBatchesView(res *Batches) *ingestviews.BatchesView {
+	vres := &ingestviews.BatchesView{}
+	if res.Items != nil {
+		vres.Items = newBatchCollectionView(res.Items)
+	}
+	if res.Page != nil {
+		vres.Page = newEnduroPageView(res.Page)
+	}
+	return vres
+}
+
+// newBatchCollection converts projected type BatchCollection to service type
+// BatchCollection.
+func newBatchCollection(vres ingestviews.BatchCollectionView) BatchCollection {
+	res := make(BatchCollection, len(vres))
+	for i, n := range vres {
+		res[i] = newBatch(n)
+	}
+	return res
+}
+
+// newBatchCollectionView projects result type BatchCollection to projected
+// type BatchCollectionView using the "default" view.
+func newBatchCollectionView(res BatchCollection) ingestviews.BatchCollectionView {
+	vres := make(ingestviews.BatchCollectionView, len(res))
+	for i, n := range res {
+		vres[i] = newBatchView(n)
+	}
+	return vres
+}
+
+// newBatch converts projected type Batch to service type Batch.
+func newBatch(vres *ingestviews.BatchView) *Batch {
+	res := &Batch{
+		StartedAt:     vres.StartedAt,
+		CompletedAt:   vres.CompletedAt,
+		UploaderUUID:  vres.UploaderUUID,
+		UploaderEmail: vres.UploaderEmail,
+		UploaderName:  vres.UploaderName,
+	}
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
+	}
+	if vres.Identifier != nil {
+		res.Identifier = *vres.Identifier
+	}
+	if vres.SipsCount != nil {
+		res.SipsCount = *vres.SipsCount
+	}
+	if vres.Status != nil {
+		res.Status = *vres.Status
+	}
+	if vres.CreatedAt != nil {
+		res.CreatedAt = *vres.CreatedAt
+	}
+	return res
+}
+
+// newBatchView projects result type Batch to projected type BatchView using
+// the "default" view.
+func newBatchView(res *Batch) *ingestviews.BatchView {
+	vres := &ingestviews.BatchView{
+		UUID:          &res.UUID,
+		Identifier:    &res.Identifier,
+		SipsCount:     &res.SipsCount,
+		Status:        &res.Status,
+		CreatedAt:     &res.CreatedAt,
+		StartedAt:     res.StartedAt,
+		CompletedAt:   res.CompletedAt,
+		UploaderUUID:  res.UploaderUUID,
+		UploaderEmail: res.UploaderEmail,
+		UploaderName:  res.UploaderName,
 	}
 	return vres
 }

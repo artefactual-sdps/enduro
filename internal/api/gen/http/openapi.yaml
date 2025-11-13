@@ -35,6 +35,206 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
+    /ingest/batches:
+        get:
+            tags:
+                - ingest
+            summary: list_batches ingest
+            description: |-
+                List all ingested Batches
+
+                **Required security scopes for jwt**:
+                  * `ingest:batches:list`
+            operationId: ingest#list_batches
+            parameters:
+                - name: identifier
+                  in: query
+                  required: false
+                  type: string
+                - name: earliest_created_time
+                  in: query
+                  required: false
+                  type: string
+                  format: date-time
+                - name: latest_created_time
+                  in: query
+                  required: false
+                  type: string
+                  format: date-time
+                - name: status
+                  in: query
+                  required: false
+                  type: string
+                  enum:
+                    - queued
+                    - processing
+                    - pending
+                    - ingested
+                    - canceled
+                - name: uploader_uuid
+                  in: query
+                  description: UUID of the Batch uploader
+                  required: false
+                  type: string
+                  format: uuid
+                - name: limit
+                  in: query
+                  description: Limit number of results to return
+                  required: false
+                  type: integer
+                - name: offset
+                  in: query
+                  description: Offset from the beginning of the found set
+                  required: false
+                  type: integer
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/EnduroIngestBatches'
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/IngestListBatchesNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "501":
+                    description: Not Implemented response.
+                    schema:
+                        $ref: '#/definitions/IngestListBatchesNotImplementedResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+        post:
+            tags:
+                - ingest
+            summary: add_batch ingest
+            description: |-
+                Ingest a Batch from a SIP Source
+
+                **Required security scopes for jwt**:
+                  * `ingest:batches:create`
+            operationId: ingest#add_batch
+            parameters:
+                - name: source_id
+                  in: query
+                  description: Identifier of SIP source -- CURRENTLY NOT USED
+                  required: true
+                  type: string
+                  format: uuid
+                - name: keys
+                  in: query
+                  description: Key of the SIPs to ingest as part of the batch
+                  required: true
+                  type: array
+                  items:
+                    type: string
+                  collectionFormat: multi
+                - name: identifier
+                  in: query
+                  description: Optional Batch identifier assigned by the user
+                  required: false
+                  type: string
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "201":
+                    description: Created response.
+                    schema:
+                        $ref: '#/definitions/IngestAddBatchResponseBody'
+                        required:
+                            - uuid
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/IngestAddBatchNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/IngestAddBatchInternalErrorResponseBody'
+                "501":
+                    description: Not Implemented response.
+                    schema:
+                        $ref: '#/definitions/IngestAddBatchNotImplementedResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /ingest/batches/{uuid}:
+        get:
+            tags:
+                - ingest
+            summary: show_batch ingest
+            description: |-
+                Show Batch by UUID
+
+                **Required security scopes for jwt**:
+                  * `ingest:batches:read`
+            operationId: ingest#show_batch
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of Batch to show
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/EnduroIngestBatch'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/BatchNotFound'
+                        required:
+                            - message
+                            - uuid
+                "409":
+                    description: Conflict response.
+                    schema:
+                        $ref: '#/definitions/IngestShowBatchNotAvailableResponseBody'
+                "501":
+                    description: Not Implemented response.
+                    schema:
+                        $ref: '#/definitions/IngestShowBatchNotImplementedResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
     /ingest/monitor:
         get:
             tags:
@@ -198,6 +398,12 @@ paths:
                 - name: uploader_uuid
                   in: query
                   description: UUID of the SIP uploader
+                  required: false
+                  type: string
+                  format: uuid
+                - name: batch_uuid
+                  in: query
+                  description: UUID of the related Batch
                   required: false
                   type: string
                   format: uuid
@@ -1963,6 +2169,115 @@ definitions:
               temporal_id: abc123
               type: upload aip
               uuid: abc123
+    BatchNotFound:
+        title: BatchNotFound
+        type: object
+        properties:
+            message:
+                type: string
+                description: Message of error
+                example: abc123
+            uuid:
+                type: string
+                description: Identifier of missing Batch
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+        description: Batch not found
+        example:
+            message: abc123
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - message
+            - uuid
+    BatchResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.batch; view=default'
+        type: object
+        properties:
+            completed_at:
+                type: string
+                description: Completion datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            created_at:
+                type: string
+                description: Creation datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            identifier:
+                type: string
+                description: Identifier of the Batch
+                example: abc123
+            sips_count:
+                type: integer
+                description: Number of SIPs in the Batch
+                example: 1
+                format: int64
+            started_at:
+                type: string
+                description: Start datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            status:
+                type: string
+                description: Status of the Batch
+                example: processing
+                enum:
+                    - queued
+                    - processing
+                    - pending
+                    - ingested
+                    - canceled
+            uploader_email:
+                type: string
+                description: Email of the user who uploaded the Batch
+                example: abc123
+            uploader_name:
+                type: string
+                description: Name of the user who uploaded the Batch
+                example: abc123
+            uploader_uuid:
+                type: string
+                description: UUID of the user who uploaded the Batch
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            uuid:
+                type: string
+                description: Identifier of Batch
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        description: Batch describes an ingest batch type. (default view)
+        example:
+            completed_at: "1970-01-01T00:00:01Z"
+            created_at: "1970-01-01T00:00:01Z"
+            identifier: abc123
+            sips_count: 1
+            started_at: "1970-01-01T00:00:01Z"
+            status: processing
+            uploader_email: abc123
+            uploader_name: abc123
+            uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - uuid
+            - identifier
+            - sips_count
+            - status
+            - created_at
+    BatchResponseBodyCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.batch; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/BatchResponseBody'
+        description: BatchCollectionResponseBody is the result type for an array of BatchResponseBody (default view)
+        example:
+            - completed_at: "1970-01-01T00:00:01Z"
+              created_at: "1970-01-01T00:00:01Z"
+              identifier: abc123
+              sips_count: 1
+              started_at: "1970-01-01T00:00:01Z"
+              status: processing
+              uploader_email: abc123
+              uploader_name: abc123
+              uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+              uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     CreateLocationResult:
         title: CreateLocationResult
         type: object
@@ -2009,6 +2324,106 @@ definitions:
             - preservation_system
             - preprocessing
             - upload_max_size
+    EnduroIngestBatch:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.batch; view=default'
+        type: object
+        properties:
+            completed_at:
+                type: string
+                description: Completion datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            created_at:
+                type: string
+                description: Creation datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            identifier:
+                type: string
+                description: Identifier of the Batch
+                example: abc123
+            sips_count:
+                type: integer
+                description: Number of SIPs in the Batch
+                example: 1
+                format: int64
+            started_at:
+                type: string
+                description: Start datetime
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            status:
+                type: string
+                description: Status of the Batch
+                example: processing
+                enum:
+                    - queued
+                    - processing
+                    - pending
+                    - ingested
+                    - canceled
+            uploader_email:
+                type: string
+                description: Email of the user who uploaded the Batch
+                example: abc123
+            uploader_name:
+                type: string
+                description: Name of the user who uploaded the Batch
+                example: abc123
+            uploader_uuid:
+                type: string
+                description: UUID of the user who uploaded the Batch
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            uuid:
+                type: string
+                description: Identifier of Batch
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        description: show_batch_response_body result type (default view)
+        example:
+            completed_at: "1970-01-01T00:00:01Z"
+            created_at: "1970-01-01T00:00:01Z"
+            identifier: abc123
+            sips_count: 1
+            started_at: "1970-01-01T00:00:01Z"
+            status: processing
+            uploader_email: abc123
+            uploader_name: abc123
+            uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - uuid
+            - identifier
+            - sips_count
+            - status
+            - created_at
+    EnduroIngestBatches:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.batches; view=default'
+        type: object
+        properties:
+            items:
+                $ref: '#/definitions/BatchResponseBodyCollection'
+            page:
+                $ref: '#/definitions/EnduroPageResponseBody'
+        description: list_batches_response_body result type (default view)
+        example:
+            items:
+                - completed_at: "1970-01-01T00:00:01Z"
+                  created_at: "1970-01-01T00:00:01Z"
+                  identifier: abc123
+                  sips_count: 1
+                  started_at: "1970-01-01T00:00:01Z"
+                  status: processing
+                  uploader_email: abc123
+                  uploader_name: abc123
+                  uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            page:
+                limit: 1
+                offset: 1
+                total: 1
+        required:
+            - items
+            - page
     EnduroIngestSip:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.sip; view=default'
         type: object
@@ -2420,6 +2835,148 @@ definitions:
             - purpose
             - uuid
             - created_at
+    IngestAddBatchInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: add_batch_internal_error_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestAddBatchNotImplementedResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: add_batch_not_implemented_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestAddBatchNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: add_batch_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestAddBatchResponseBody:
+        title: IngestAddBatchResponseBody
+        type: object
+        properties:
+            uuid:
+                type: string
+                description: Identifier of the ingested Batch
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+        example:
+            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - uuid
     IngestAddSipInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -2821,17 +3378,103 @@ definitions:
                     Value:
                         type: string
                         description: JSON encoded union value
-                        example: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                        example: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                 example:
                     Type: sip_created_event
-                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
                 required:
                     - Type
                     - Value
         example:
             value:
                 Type: sip_created_event
-                Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+    IngestListBatchesNotImplementedResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: list_batches_not_implemented_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestListBatchesNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: list_batches_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
     IngestListSipSourceObjectsInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -3205,6 +3848,92 @@ definitions:
                 description: Is the error a timeout?
                 example: false
         description: reject_sip_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestShowBatchNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: show_batch_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestShowBatchNotImplementedResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: show_batch_not_implemented_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4958,6 +5687,9 @@ securityDefinitions:
             Secures endpoint by requiring a valid JWT token.
 
             **Security Scopes**:
+              * `ingest:batches:create`: no description
+              * `ingest:batches:list`: no description
+              * `ingest:batches:read`: no description
               * `ingest:sips:create`: no description
               * `ingest:sips:download`: no description
               * `ingest:sips:list`: no description
