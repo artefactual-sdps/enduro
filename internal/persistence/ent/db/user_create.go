@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/batch"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 	"github.com/google/uuid"
@@ -113,6 +114,21 @@ func (_c *UserCreate) AddUploadedSips(v ...*SIP) *UserCreate {
 		ids[i] = v[i].ID
 	}
 	return _c.AddUploadedSipIDs(ids...)
+}
+
+// AddUploadedBatchIDs adds the "uploaded_batches" edge to the Batch entity by IDs.
+func (_c *UserCreate) AddUploadedBatchIDs(ids ...int) *UserCreate {
+	_c.mutation.AddUploadedBatchIDs(ids...)
+	return _c
+}
+
+// AddUploadedBatches adds the "uploaded_batches" edges to the Batch entity.
+func (_c *UserCreate) AddUploadedBatches(v ...*Batch) *UserCreate {
+	ids := make([]int, len(v))
+	for i := range v {
+		ids[i] = v[i].ID
+	}
+	return _c.AddUploadedBatchIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -224,6 +240,22 @@ func (_c *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.UploadedBatchesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.UploadedBatchesTable,
+			Columns: []string{user.UploadedBatchesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(batch.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

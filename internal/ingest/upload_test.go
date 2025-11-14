@@ -140,7 +140,7 @@ func TestUpload(t *testing.T) {
 					},
 				).Return(nil, errors.New("temporal error"))
 
-				psvc.EXPECT().DeleteSIP(ctx, 1)
+				psvc.EXPECT().DeleteSIP(ctx, uuid0)
 			},
 			multipartBody: zipMmultipartBody,
 			contentType:   "multipart/form-data; boundary=foobar",

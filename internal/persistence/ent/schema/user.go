@@ -59,6 +59,8 @@ func (User) Edges() []ent.Edge {
 	return []ent.Edge{
 		edge.To("uploaded_sips", SIP.Type).
 			Annotations(entsql.OnDelete(entsql.SetNull)),
+		edge.To("uploaded_batches", Batch.Type).
+			Annotations(entsql.OnDelete(entsql.SetNull)),
 	}
 }
 

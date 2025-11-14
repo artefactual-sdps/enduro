@@ -5,6 +5,7 @@ package db
 import (
 	"time"
 
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/batch"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
@@ -16,6 +17,20 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	batchFields := schema.Batch{}.Fields()
+	_ = batchFields
+	// batchDescSipsCount is the schema descriptor for sips_count field.
+	batchDescSipsCount := batchFields[3].Descriptor()
+	// batch.SipsCountValidator is a validator for the "sips_count" field. It is called by the builders before save.
+	batch.SipsCountValidator = batchDescSipsCount.Validators[0].(func(int) error)
+	// batchDescCreatedAt is the schema descriptor for created_at field.
+	batchDescCreatedAt := batchFields[4].Descriptor()
+	// batch.DefaultCreatedAt holds the default value on creation for the created_at field.
+	batch.DefaultCreatedAt = batchDescCreatedAt.Default.(func() time.Time)
+	// batchDescUploaderID is the schema descriptor for uploader_id field.
+	batchDescUploaderID := batchFields[7].Descriptor()
+	// batch.UploaderIDValidator is a validator for the "uploader_id" field. It is called by the builders before save.
+	batch.UploaderIDValidator = batchDescUploaderID.Validators[0].(func(int) error)
 	sipFields := schema.SIP{}.Fields()
 	_ = sipFields
 	// sipDescCreatedAt is the schema descriptor for created_at field.
@@ -26,6 +41,10 @@ func init() {
 	sipDescUploaderID := sipFields[9].Descriptor()
 	// sip.UploaderIDValidator is a validator for the "uploader_id" field. It is called by the builders before save.
 	sip.UploaderIDValidator = sipDescUploaderID.Validators[0].(func(int) error)
+	// sipDescBatchID is the schema descriptor for batch_id field.
+	sipDescBatchID := sipFields[10].Descriptor()
+	// sip.BatchIDValidator is a validator for the "batch_id" field. It is called by the builders before save.
+	sip.BatchIDValidator = sipDescBatchID.Validators[0].(func(int) error)
 	taskFields := schema.Task{}.Fields()
 	_ = taskFields
 	// taskDescWorkflowID is the schema descriptor for workflow_id field.

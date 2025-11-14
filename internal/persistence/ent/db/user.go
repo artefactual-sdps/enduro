@@ -40,9 +40,11 @@ type User struct {
 type UserEdges struct {
 	// UploadedSips holds the value of the uploaded_sips edge.
 	UploadedSips []*SIP `json:"uploaded_sips,omitempty"`
+	// UploadedBatches holds the value of the uploaded_batches edge.
+	UploadedBatches []*Batch `json:"uploaded_batches,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // UploadedSipsOrErr returns the UploadedSips value or an error if the edge
@@ -52,6 +54,15 @@ func (e UserEdges) UploadedSipsOrErr() ([]*SIP, error) {
 		return e.UploadedSips, nil
 	}
 	return nil, &NotLoadedError{edge: "uploaded_sips"}
+}
+
+// UploadedBatchesOrErr returns the UploadedBatches value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) UploadedBatchesOrErr() ([]*Batch, error) {
+	if e.loadedTypes[1] {
+		return e.UploadedBatches, nil
+	}
+	return nil, &NotLoadedError{edge: "uploaded_batches"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -140,6 +151,11 @@ func (_m *User) Value(name string) (ent.Value, error) {
 // QueryUploadedSips queries the "uploaded_sips" edge of the User entity.
 func (_m *User) QueryUploadedSips() *SIPQuery {
 	return NewUserClient(_m.config).QueryUploadedSips(_m)
+}
+
+// QueryUploadedBatches queries the "uploaded_batches" edge of the User entity.
+func (_m *User) QueryUploadedBatches() *BatchQuery {
+	return NewUserClient(_m.config).QueryUploadedBatches(_m)
 }
 
 // Update returns a builder for updating this User.

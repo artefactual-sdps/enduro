@@ -15,6 +15,7 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/batch"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
@@ -26,6 +27,8 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// Batch is the client for interacting with the Batch builders.
+	Batch *BatchClient
 	// SIP is the client for interacting with the SIP builders.
 	SIP *SIPClient
 	// Task is the client for interacting with the Task builders.
@@ -45,6 +48,7 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.Batch = NewBatchClient(c.config)
 	c.SIP = NewSIPClient(c.config)
 	c.Task = NewTaskClient(c.config)
 	c.User = NewUserClient(c.config)
@@ -141,6 +145,7 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:      ctx,
 		config:   cfg,
+		Batch:    NewBatchClient(cfg),
 		SIP:      NewSIPClient(cfg),
 		Task:     NewTaskClient(cfg),
 		User:     NewUserClient(cfg),
@@ -164,6 +169,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:      ctx,
 		config:   cfg,
+		Batch:    NewBatchClient(cfg),
 		SIP:      NewSIPClient(cfg),
 		Task:     NewTaskClient(cfg),
 		User:     NewUserClient(cfg),
@@ -174,7 +180,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		SIP.
+//		Batch.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -196,6 +202,7 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
+	c.Batch.Use(hooks...)
 	c.SIP.Use(hooks...)
 	c.Task.Use(hooks...)
 	c.User.Use(hooks...)
@@ -205,6 +212,7 @@ func (c *Client) Use(hooks ...Hook) {
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
+	c.Batch.Intercept(interceptors...)
 	c.SIP.Intercept(interceptors...)
 	c.Task.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
@@ -214,6 +222,8 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *BatchMutation:
+		return c.Batch.mutate(ctx, m)
 	case *SIPMutation:
 		return c.SIP.mutate(ctx, m)
 	case *TaskMutation:
@@ -224,6 +234,171 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 		return c.Workflow.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("db: unknown mutation type %T", m)
+	}
+}
+
+// BatchClient is a client for the Batch schema.
+type BatchClient struct {
+	config
+}
+
+// NewBatchClient returns a client for the Batch from the given config.
+func NewBatchClient(c config) *BatchClient {
+	return &BatchClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `batch.Hooks(f(g(h())))`.
+func (c *BatchClient) Use(hooks ...Hook) {
+	c.hooks.Batch = append(c.hooks.Batch, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `batch.Intercept(f(g(h())))`.
+func (c *BatchClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Batch = append(c.inters.Batch, interceptors...)
+}
+
+// Create returns a builder for creating a Batch entity.
+func (c *BatchClient) Create() *BatchCreate {
+	mutation := newBatchMutation(c.config, OpCreate)
+	return &BatchCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Batch entities.
+func (c *BatchClient) CreateBulk(builders ...*BatchCreate) *BatchCreateBulk {
+	return &BatchCreateBulk{config: c.config, builders: builders}
+}
+
+// MapCreateBulk creates a bulk creation builder from the given slice. For each item in the slice, the function creates
+// a builder and applies setFunc on it.
+func (c *BatchClient) MapCreateBulk(slice any, setFunc func(*BatchCreate, int)) *BatchCreateBulk {
+	rv := reflect.ValueOf(slice)
+	if rv.Kind() != reflect.Slice {
+		return &BatchCreateBulk{err: fmt.Errorf("calling to BatchClient.MapCreateBulk with wrong type %T, need slice", slice)}
+	}
+	builders := make([]*BatchCreate, rv.Len())
+	for i := 0; i < rv.Len(); i++ {
+		builders[i] = c.Create()
+		setFunc(builders[i], i)
+	}
+	return &BatchCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Batch.
+func (c *BatchClient) Update() *BatchUpdate {
+	mutation := newBatchMutation(c.config, OpUpdate)
+	return &BatchUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BatchClient) UpdateOne(_m *Batch) *BatchUpdateOne {
+	mutation := newBatchMutation(c.config, OpUpdateOne, withBatch(_m))
+	return &BatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BatchClient) UpdateOneID(id int) *BatchUpdateOne {
+	mutation := newBatchMutation(c.config, OpUpdateOne, withBatchID(id))
+	return &BatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Batch.
+func (c *BatchClient) Delete() *BatchDelete {
+	mutation := newBatchMutation(c.config, OpDelete)
+	return &BatchDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *BatchClient) DeleteOne(_m *Batch) *BatchDeleteOne {
+	return c.DeleteOneID(_m.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *BatchClient) DeleteOneID(id int) *BatchDeleteOne {
+	builder := c.Delete().Where(batch.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BatchDeleteOne{builder}
+}
+
+// Query returns a query builder for Batch.
+func (c *BatchClient) Query() *BatchQuery {
+	return &BatchQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeBatch},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Batch entity by its id.
+func (c *BatchClient) Get(ctx context.Context, id int) (*Batch, error) {
+	return c.Query().Where(batch.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BatchClient) GetX(ctx context.Context, id int) *Batch {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QuerySips queries the sips edge of a Batch.
+func (c *BatchClient) QuerySips(_m *Batch) *SIPQuery {
+	query := (&SIPClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(batch.Table, batch.FieldID, id),
+			sqlgraph.To(sip.Table, sip.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, batch.SipsTable, batch.SipsColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUploader queries the uploader edge of a Batch.
+func (c *BatchClient) QueryUploader(_m *Batch) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(batch.Table, batch.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, batch.UploaderTable, batch.UploaderColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *BatchClient) Hooks() []Hook {
+	return c.hooks.Batch
+}
+
+// Interceptors returns the client interceptors.
+func (c *BatchClient) Interceptors() []Interceptor {
+	return c.inters.Batch
+}
+
+func (c *BatchClient) mutate(ctx context.Context, m *BatchMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&BatchCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&BatchUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&BatchUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&BatchDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("db: unknown Batch mutation op: %q", m.Op())
 	}
 }
 
@@ -360,6 +535,22 @@ func (c *SIPClient) QueryUploader(_m *SIP) *UserQuery {
 			sqlgraph.From(sip.Table, sip.FieldID, id),
 			sqlgraph.To(user.Table, user.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, sip.UploaderTable, sip.UploaderColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryBatch queries the batch edge of a SIP.
+func (c *SIPClient) QueryBatch(_m *SIP) *BatchQuery {
+	query := (&BatchClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(sip.Table, sip.FieldID, id),
+			sqlgraph.To(batch.Table, batch.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, sip.BatchTable, sip.BatchColumn),
 		)
 		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
 		return fromV, nil
@@ -665,6 +856,22 @@ func (c *UserClient) QueryUploadedSips(_m *User) *SIPQuery {
 	return query
 }
 
+// QueryUploadedBatches queries the uploaded_batches edge of a User.
+func (c *UserClient) QueryUploadedBatches(_m *User) *BatchQuery {
+	query := (&BatchClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := _m.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(batch.Table, batch.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.UploadedBatchesTable, user.UploadedBatchesColumn),
+		)
+		fromV = sqlgraph.Neighbors(_m.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	return c.hooks.User
@@ -858,9 +1065,9 @@ func (c *WorkflowClient) mutate(ctx context.Context, m *WorkflowMutation) (Value
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		SIP, Task, User, Workflow []ent.Hook
+		Batch, SIP, Task, User, Workflow []ent.Hook
 	}
 	inters struct {
-		SIP, Task, User, Workflow []ent.Interceptor
+		Batch, SIP, Task, User, Workflow []ent.Interceptor
 	}
 )

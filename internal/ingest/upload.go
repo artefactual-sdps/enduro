@@ -141,7 +141,7 @@ func (w *goaWrapper) initSIP(
 	}
 	if err := InitProcessingWorkflow(ctx, w.tc, w.taskQueue, &req); err != nil {
 		// Delete SIP from persistence.
-		return errors.Join(err, w.perSvc.DeleteSIP(ctx, s.ID))
+		return errors.Join(err, w.perSvc.DeleteSIP(ctx, id))
 	}
 
 	PublishEvent(ctx, w.evsvc, sipToCreatedEvent(s))

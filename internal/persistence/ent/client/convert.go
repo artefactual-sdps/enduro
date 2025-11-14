@@ -37,6 +37,9 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 	if sip.Edges.Uploader != nil {
 		s.Uploader = convertUser(sip.Edges.Uploader)
 	}
+	if sip.Edges.Batch != nil {
+		s.Batch = convertBatch(sip.Edges.Batch)
+	}
 
 	return &s
 }
@@ -87,4 +90,31 @@ func convertUser(dbu *db.User) *datatypes.User {
 		OIDCIss:   dbu.OidcIss,
 		OIDCSub:   dbu.OidcSub,
 	}
+}
+
+// convertBatch converts an entgo `db.Batch` representation to a
+// `datatypes.Batch` representation.
+func convertBatch(batch *db.Batch) *datatypes.Batch {
+	// Convert required fields.
+	b := datatypes.Batch{
+		ID:         batch.ID,
+		UUID:       batch.UUID,
+		Identifier: batch.Identifier,
+		SIPSCount:  batch.SipsCount,
+		Status:     batch.Status,
+		CreatedAt:  batch.CreatedAt,
+	}
+
+	// Convert optional fields.
+	if !batch.StartedAt.IsZero() {
+		b.StartedAt = sql.NullTime{Time: batch.StartedAt, Valid: true}
+	}
+	if !batch.CompletedAt.IsZero() {
+		b.CompletedAt = sql.NullTime{Time: batch.CompletedAt, Valid: true}
+	}
+	if batch.Edges.Uploader != nil {
+		b.Uploader = convertUser(batch.Edges.Uploader)
+	}
+
+	return &b
 }

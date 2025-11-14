@@ -21,8 +21,9 @@ var (
 )
 
 type (
-	SIPUpdater  func(*datatypes.SIP) (*datatypes.SIP, error)
-	TaskUpdater func(*datatypes.Task) (*datatypes.Task, error)
+	SIPUpdater   func(*datatypes.SIP) (*datatypes.SIP, error)
+	TaskUpdater  func(*datatypes.Task) (*datatypes.Task, error)
+	BatchUpdater func(*datatypes.Batch) (*datatypes.Batch, error)
 )
 
 type Service interface {
@@ -31,7 +32,7 @@ type Service interface {
 	// (e.g. ID, CreatedAt).
 	CreateSIP(context.Context, *datatypes.SIP) error
 	UpdateSIP(context.Context, uuid.UUID, SIPUpdater) (*datatypes.SIP, error)
-	DeleteSIP(context.Context, int) error
+	DeleteSIP(context.Context, uuid.UUID) error
 	ReadSIP(context.Context, uuid.UUID) (*datatypes.SIP, error)
 	ListSIPs(context.Context, *SIPFilter) ([]*datatypes.SIP, *Page, error)
 
@@ -52,4 +53,10 @@ type Service interface {
 
 	// ListUsers retrieves a list of users based on the provided filter.
 	ListUsers(context.Context, *UserFilter) ([]*datatypes.User, *Page, error)
+
+	CreateBatch(context.Context, *datatypes.Batch) error
+	UpdateBatch(context.Context, uuid.UUID, BatchUpdater) (*datatypes.Batch, error)
+	DeleteBatch(context.Context, uuid.UUID) error
+	ReadBatch(context.Context, uuid.UUID) (*datatypes.Batch, error)
+	ListBatches(context.Context, *BatchFilter) ([]*datatypes.Batch, *Page, error)
 }

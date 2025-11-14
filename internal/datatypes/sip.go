@@ -37,6 +37,9 @@ type SIP struct {
 
 	// Uploader is the user that uploaded the SIP.
 	Uploader *User
+
+	// Batch is the batch this SIP belongs to.
+	Batch *Batch
 }
 
 // Goa returns the API representation of the SIP.
@@ -70,6 +73,11 @@ func (s *SIP) Goa() *goaingest.SIP {
 		if s.Uploader.Name != "" {
 			col.UploaderName = &s.Uploader.Name
 		}
+	}
+	if s.Batch != nil {
+		col.BatchUUID = ref.New(s.Batch.UUID)
+		col.BatchIdentifier = ref.New(s.Batch.Identifier)
+		col.BatchStatus = ref.New(s.Batch.Status.String())
 	}
 
 	return &col

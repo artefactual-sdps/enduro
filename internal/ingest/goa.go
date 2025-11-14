@@ -105,7 +105,7 @@ func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayloa
 	}
 	if err := InitProcessingWorkflow(ctx, w.tc, w.taskQueue, &req); err != nil {
 		// Delete SIP from persistence.
-		err = errors.Join(err, w.perSvc.DeleteSIP(ctx, s.ID))
+		err = errors.Join(err, w.perSvc.DeleteSIP(ctx, s.UUID))
 		w.logger.Error(err, "add SIP")
 		return nil, ErrInternalError
 	}

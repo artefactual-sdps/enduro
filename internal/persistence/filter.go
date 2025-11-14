@@ -42,6 +42,7 @@ type SIPFilter struct {
 	Status     *enums.SIPStatus
 	CreatedAt  *timerange.Range
 	UploaderID *uuid.UUID
+	BatchID    *uuid.UUID
 
 	entfilter.Sort
 	Page
@@ -51,6 +52,18 @@ type UserFilter struct {
 	CreatedAt *timerange.Range
 	Email     *string
 	Name      *string
+
+	entfilter.Sort
+	Page
+}
+
+type BatchFilter struct {
+	// Identifier filters for batches whose identifiers contain the given string.
+	Identifier *string
+
+	Status     *enums.BatchStatus
+	CreatedAt  *timerange.Range
+	UploaderID *uuid.UUID
 
 	entfilter.Sort
 	Page

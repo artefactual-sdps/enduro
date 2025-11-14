@@ -9,6 +9,62 @@ import (
 )
 
 var (
+	// BatchColumns holds the columns for the "batch" table.
+	BatchColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "uuid", Type: field.TypeUUID, Unique: true},
+		{Name: "identifier", Type: field.TypeString, Size: 2048},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"queued", "processing", "pending", "ingested", "canceled"}},
+		{Name: "sips_count", Type: field.TypeInt},
+		{Name: "created_at", Type: field.TypeTime},
+		{Name: "started_at", Type: field.TypeTime, Nullable: true},
+		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
+		{Name: "uploader_id", Type: field.TypeInt, Nullable: true},
+	}
+	// BatchTable holds the schema information for the "batch" table.
+	BatchTable = &schema.Table{
+		Name:       "batch",
+		Columns:    BatchColumns,
+		PrimaryKey: []*schema.Column{BatchColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "batch_user_uploaded_batches",
+				Columns:    []*schema.Column{BatchColumns[8]},
+				RefColumns: []*schema.Column{UserColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+		},
+		Indexes: []*schema.Index{
+			{
+				Name:    "batch_identifier_idx",
+				Unique:  false,
+				Columns: []*schema.Column{BatchColumns[2]},
+				Annotation: &entsql.IndexAnnotation{
+					Prefix: 50,
+				},
+			},
+			{
+				Name:    "batch_status_idx",
+				Unique:  false,
+				Columns: []*schema.Column{BatchColumns[3]},
+			},
+			{
+				Name:    "batch_created_at_idx",
+				Unique:  false,
+				Columns: []*schema.Column{BatchColumns[5]},
+			},
+			{
+				Name:    "batch_started_at_idx",
+				Unique:  false,
+				Columns: []*schema.Column{BatchColumns[6]},
+			},
+			{
+				Name:    "batch_uploader_id_idx",
+				Unique:  false,
+				Columns: []*schema.Column{BatchColumns[8]},
+			},
+		},
+	}
 	// SipColumns holds the columns for the "sip" table.
 	SipColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -21,6 +77,7 @@ var (
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},
 		{Name: "failed_as", Type: field.TypeEnum, Nullable: true, Enums: []string{"SIP", "PIP"}},
 		{Name: "failed_key", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "batch_id", Type: field.TypeInt, Nullable: true},
 		{Name: "uploader_id", Type: field.TypeInt, Nullable: true},
 	}
 	// SipTable holds the schema information for the "sip" table.
@@ -30,8 +87,14 @@ var (
 		PrimaryKey: []*schema.Column{SipColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
-				Symbol:     "sip_user_uploaded_sips",
+				Symbol:     "sip_batch_sips",
 				Columns:    []*schema.Column{SipColumns[10]},
+				RefColumns: []*schema.Column{BatchColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
+				Symbol:     "sip_user_uploaded_sips",
+				Columns:    []*schema.Column{SipColumns[11]},
 				RefColumns: []*schema.Column{UserColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -67,6 +130,11 @@ var (
 			},
 			{
 				Name:    "sip_uploader_id_idx",
+				Unique:  false,
+				Columns: []*schema.Column{SipColumns[11]},
+			},
+			{
+				Name:    "sip_batch_id_idx",
 				Unique:  false,
 				Columns: []*schema.Column{SipColumns[10]},
 			},
@@ -163,6 +231,7 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		BatchTable,
 		SipTable,
 		TaskTable,
 		UserTable,
@@ -171,7 +240,12 @@ var (
 )
 
 func init() {
-	SipTable.ForeignKeys[0].RefTable = UserTable
+	BatchTable.ForeignKeys[0].RefTable = UserTable
+	BatchTable.Annotation = &entsql.Annotation{
+		Table: "batch",
+	}
+	SipTable.ForeignKeys[0].RefTable = BatchTable
+	SipTable.ForeignKeys[1].RefTable = UserTable
 	SipTable.Annotation = &entsql.Annotation{
 		Table: "sip",
 	}

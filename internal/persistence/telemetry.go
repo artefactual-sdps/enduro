@@ -59,10 +59,10 @@ func (w *wrapper) UpdateSIP(ctx context.Context, id uuid.UUID, updater SIPUpdate
 	return r, nil
 }
 
-func (w *wrapper) DeleteSIP(ctx context.Context, id int) error {
+func (w *wrapper) DeleteSIP(ctx context.Context, id uuid.UUID) error {
 	ctx, span := w.tracer.Start(ctx, "DeleteSIP")
 	defer span.End()
-	span.SetAttributes(attribute.Int("id", id))
+	span.SetAttributes(attribute.String("id", id.String()))
 
 	err := w.wrapped.DeleteSIP(ctx, id)
 	if err != nil {
@@ -195,4 +195,72 @@ func (w *wrapper) ListUsers(ctx context.Context, f *UserFilter) ([]*datatypes.Us
 	}
 
 	return r, p, nil
+}
+
+func (w *wrapper) CreateBatch(ctx context.Context, p *datatypes.Batch) error {
+	ctx, span := w.tracer.Start(ctx, "CreateBatch")
+	defer span.End()
+
+	err := w.wrapped.CreateBatch(ctx, p)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return updateError(err, "CreateBatch")
+	}
+
+	return nil
+}
+
+func (w *wrapper) UpdateBatch(ctx context.Context, id uuid.UUID, updater BatchUpdater) (*datatypes.Batch, error) {
+	ctx, span := w.tracer.Start(ctx, "UpdateBatch")
+	defer span.End()
+	span.SetAttributes(attribute.String("id", id.String()))
+
+	r, err := w.wrapped.UpdateBatch(ctx, id, updater)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "UpdateBatch")
+	}
+
+	return r, nil
+}
+
+func (w *wrapper) DeleteBatch(ctx context.Context, id uuid.UUID) error {
+	ctx, span := w.tracer.Start(ctx, "DeleteBatch")
+	defer span.End()
+	span.SetAttributes(attribute.String("id", id.String()))
+
+	err := w.wrapped.DeleteBatch(ctx, id)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return updateError(err, "DeleteBatch")
+	}
+
+	return nil
+}
+
+func (w *wrapper) ReadBatch(ctx context.Context, id uuid.UUID) (*datatypes.Batch, error) {
+	ctx, span := w.tracer.Start(ctx, "ReadBatch")
+	defer span.End()
+	span.SetAttributes(attribute.String("id", id.String()))
+
+	r, err := w.wrapped.ReadBatch(ctx, id)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ReadBatch")
+	}
+
+	return r, nil
+}
+
+func (w *wrapper) ListBatches(ctx context.Context, f *BatchFilter) ([]*datatypes.Batch, *Page, error) {
+	ctx, span := w.tracer.Start(ctx, "ListBatches")
+	defer span.End()
+
+	r, pg, err := w.wrapped.ListBatches(ctx, f)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, nil, updateError(err, "ListBatches")
+	}
+
+	return r, pg, nil
 }

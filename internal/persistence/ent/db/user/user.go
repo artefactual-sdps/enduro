@@ -28,6 +28,8 @@ const (
 	FieldOidcSub = "oidc_sub"
 	// EdgeUploadedSips holds the string denoting the uploaded_sips edge name in mutations.
 	EdgeUploadedSips = "uploaded_sips"
+	// EdgeUploadedBatches holds the string denoting the uploaded_batches edge name in mutations.
+	EdgeUploadedBatches = "uploaded_batches"
 	// Table holds the table name of the user in the database.
 	Table = "user"
 	// UploadedSipsTable is the table that holds the uploaded_sips relation/edge.
@@ -37,6 +39,13 @@ const (
 	UploadedSipsInverseTable = "sip"
 	// UploadedSipsColumn is the table column denoting the uploaded_sips relation/edge.
 	UploadedSipsColumn = "uploader_id"
+	// UploadedBatchesTable is the table that holds the uploaded_batches relation/edge.
+	UploadedBatchesTable = "batch"
+	// UploadedBatchesInverseTable is the table name for the Batch entity.
+	// It exists in this package in order to avoid circular dependency with the "batch" package.
+	UploadedBatchesInverseTable = "batch"
+	// UploadedBatchesColumn is the table column denoting the uploaded_batches relation/edge.
+	UploadedBatchesColumn = "uploader_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -116,10 +125,31 @@ func ByUploadedSips(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUploadedSipsStep(), append([]sql.OrderTerm{term}, terms...)...)
 	}
 }
+
+// ByUploadedBatchesCount orders the results by uploaded_batches count.
+func ByUploadedBatchesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newUploadedBatchesStep(), opts...)
+	}
+}
+
+// ByUploadedBatches orders the results by uploaded_batches terms.
+func ByUploadedBatches(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newUploadedBatchesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newUploadedSipsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UploadedSipsInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, UploadedSipsTable, UploadedSipsColumn),
+	)
+}
+func newUploadedBatchesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(UploadedBatchesInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, UploadedBatchesTable, UploadedBatchesColumn),
 	)
 }

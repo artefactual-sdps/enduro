@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/batch"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
@@ -76,6 +77,7 @@ var (
 func checkColumn(t, c string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
+			batch.Table:    batch.ValidColumn,
 			sip.Table:      sip.ValidColumn,
 			task.Table:     task.ValidColumn,
 			user.Table:     user.ValidColumn,

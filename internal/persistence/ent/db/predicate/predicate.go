@@ -6,6 +6,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Batch is the predicate function for batch builders.
+type Batch func(*sql.Selector)
+
 // SIP is the predicate function for sip builders.
 type SIP func(*sql.Selector)
 

@@ -97,6 +97,11 @@ func UploaderID(v int) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldUploaderID, v))
 }
 
+// BatchID applies equality check predicate on the "batch_id" field. It's identical to BatchIDEQ.
+func BatchID(v int) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldBatchID, v))
+}
+
 // UUIDEQ applies the EQ predicate on the "uuid" field.
 func UUIDEQ(v uuid.UUID) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldUUID, v))
@@ -567,6 +572,36 @@ func UploaderIDNotNil() predicate.SIP {
 	return predicate.SIP(sql.FieldNotNull(FieldUploaderID))
 }
 
+// BatchIDEQ applies the EQ predicate on the "batch_id" field.
+func BatchIDEQ(v int) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldBatchID, v))
+}
+
+// BatchIDNEQ applies the NEQ predicate on the "batch_id" field.
+func BatchIDNEQ(v int) predicate.SIP {
+	return predicate.SIP(sql.FieldNEQ(FieldBatchID, v))
+}
+
+// BatchIDIn applies the In predicate on the "batch_id" field.
+func BatchIDIn(vs ...int) predicate.SIP {
+	return predicate.SIP(sql.FieldIn(FieldBatchID, vs...))
+}
+
+// BatchIDNotIn applies the NotIn predicate on the "batch_id" field.
+func BatchIDNotIn(vs ...int) predicate.SIP {
+	return predicate.SIP(sql.FieldNotIn(FieldBatchID, vs...))
+}
+
+// BatchIDIsNil applies the IsNil predicate on the "batch_id" field.
+func BatchIDIsNil() predicate.SIP {
+	return predicate.SIP(sql.FieldIsNull(FieldBatchID))
+}
+
+// BatchIDNotNil applies the NotNil predicate on the "batch_id" field.
+func BatchIDNotNil() predicate.SIP {
+	return predicate.SIP(sql.FieldNotNull(FieldBatchID))
+}
+
 // HasWorkflows applies the HasEdge predicate on the "workflows" edge.
 func HasWorkflows() predicate.SIP {
 	return predicate.SIP(func(s *sql.Selector) {
@@ -605,6 +640,29 @@ func HasUploader() predicate.SIP {
 func HasUploaderWith(preds ...predicate.User) predicate.SIP {
 	return predicate.SIP(func(s *sql.Selector) {
 		step := newUploaderStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasBatch applies the HasEdge predicate on the "batch" edge.
+func HasBatch() predicate.SIP {
+	return predicate.SIP(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, BatchTable, BatchColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasBatchWith applies the HasEdge predicate on the "batch" edge with a given conditions (other predicates).
+func HasBatchWith(preds ...predicate.Batch) predicate.SIP {
+	return predicate.SIP(func(s *sql.Selector) {
+		step := newBatchStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

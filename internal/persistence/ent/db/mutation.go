@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/batch"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
@@ -29,11 +30,951 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
+	TypeBatch    = "Batch"
 	TypeSIP      = "SIP"
 	TypeTask     = "Task"
 	TypeUser     = "User"
 	TypeWorkflow = "Workflow"
 )
+
+// BatchMutation represents an operation that mutates the Batch nodes in the graph.
+type BatchMutation struct {
+	config
+	op              Op
+	typ             string
+	id              *int
+	uuid            *uuid.UUID
+	identifier      *string
+	status          *enums.BatchStatus
+	sips_count      *int
+	addsips_count   *int
+	created_at      *time.Time
+	started_at      *time.Time
+	completed_at    *time.Time
+	clearedFields   map[string]struct{}
+	sips            map[int]struct{}
+	removedsips     map[int]struct{}
+	clearedsips     bool
+	uploader        *int
+	cleareduploader bool
+	done            bool
+	oldValue        func(context.Context) (*Batch, error)
+	predicates      []predicate.Batch
+}
+
+var _ ent.Mutation = (*BatchMutation)(nil)
+
+// batchOption allows management of the mutation configuration using functional options.
+type batchOption func(*BatchMutation)
+
+// newBatchMutation creates new mutation for the Batch entity.
+func newBatchMutation(c config, op Op, opts ...batchOption) *BatchMutation {
+	m := &BatchMutation{
+		config:        c,
+		op:            op,
+		typ:           TypeBatch,
+		clearedFields: make(map[string]struct{}),
+	}
+	for _, opt := range opts {
+		opt(m)
+	}
+	return m
+}
+
+// withBatchID sets the ID field of the mutation.
+func withBatchID(id int) batchOption {
+	return func(m *BatchMutation) {
+		var (
+			err   error
+			once  sync.Once
+			value *Batch
+		)
+		m.oldValue = func(ctx context.Context) (*Batch, error) {
+			once.Do(func() {
+				if m.done {
+					err = errors.New("querying old values post mutation is not allowed")
+				} else {
+					value, err = m.Client().Batch.Get(ctx, id)
+				}
+			})
+			return value, err
+		}
+		m.id = &id
+	}
+}
+
+// withBatch sets the old Batch of the mutation.
+func withBatch(node *Batch) batchOption {
+	return func(m *BatchMutation) {
+		m.oldValue = func(context.Context) (*Batch, error) {
+			return node, nil
+		}
+		m.id = &node.ID
+	}
+}
+
+// Client returns a new `ent.Client` from the mutation. If the mutation was
+// executed in a transaction (ent.Tx), a transactional client is returned.
+func (m BatchMutation) Client() *Client {
+	client := &Client{config: m.config}
+	client.init()
+	return client
+}
+
+// Tx returns an `ent.Tx` for mutations that were executed in transactions;
+// it returns an error otherwise.
+func (m BatchMutation) Tx() (*Tx, error) {
+	if _, ok := m.driver.(*txDriver); !ok {
+		return nil, errors.New("db: mutation is not running in a transaction")
+	}
+	tx := &Tx{config: m.config}
+	tx.init()
+	return tx, nil
+}
+
+// ID returns the ID value in the mutation. Note that the ID is only available
+// if it was provided to the builder or after it was returned from the database.
+func (m *BatchMutation) ID() (id int, exists bool) {
+	if m.id == nil {
+		return
+	}
+	return *m.id, true
+}
+
+// IDs queries the database and returns the entity ids that match the mutation's predicate.
+// That means, if the mutation is applied within a transaction with an isolation level such
+// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
+// or updated by the mutation.
+func (m *BatchMutation) IDs(ctx context.Context) ([]int, error) {
+	switch {
+	case m.op.Is(OpUpdateOne | OpDeleteOne):
+		id, exists := m.ID()
+		if exists {
+			return []int{id}, nil
+		}
+		fallthrough
+	case m.op.Is(OpUpdate | OpDelete):
+		return m.Client().Batch.Query().Where(m.predicates...).IDs(ctx)
+	default:
+		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
+	}
+}
+
+// SetUUID sets the "uuid" field.
+func (m *BatchMutation) SetUUID(u uuid.UUID) {
+	m.uuid = &u
+}
+
+// UUID returns the value of the "uuid" field in the mutation.
+func (m *BatchMutation) UUID() (r uuid.UUID, exists bool) {
+	v := m.uuid
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUUID returns the old "uuid" field's value of the Batch entity.
+// If the Batch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BatchMutation) OldUUID(ctx context.Context) (v uuid.UUID, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUUID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUUID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUUID: %w", err)
+	}
+	return oldValue.UUID, nil
+}
+
+// ResetUUID resets all changes to the "uuid" field.
+func (m *BatchMutation) ResetUUID() {
+	m.uuid = nil
+}
+
+// SetIdentifier sets the "identifier" field.
+func (m *BatchMutation) SetIdentifier(s string) {
+	m.identifier = &s
+}
+
+// Identifier returns the value of the "identifier" field in the mutation.
+func (m *BatchMutation) Identifier() (r string, exists bool) {
+	v := m.identifier
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldIdentifier returns the old "identifier" field's value of the Batch entity.
+// If the Batch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BatchMutation) OldIdentifier(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldIdentifier is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldIdentifier requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldIdentifier: %w", err)
+	}
+	return oldValue.Identifier, nil
+}
+
+// ResetIdentifier resets all changes to the "identifier" field.
+func (m *BatchMutation) ResetIdentifier() {
+	m.identifier = nil
+}
+
+// SetStatus sets the "status" field.
+func (m *BatchMutation) SetStatus(es enums.BatchStatus) {
+	m.status = &es
+}
+
+// Status returns the value of the "status" field in the mutation.
+func (m *BatchMutation) Status() (r enums.BatchStatus, exists bool) {
+	v := m.status
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStatus returns the old "status" field's value of the Batch entity.
+// If the Batch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BatchMutation) OldStatus(ctx context.Context) (v enums.BatchStatus, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStatus is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStatus requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStatus: %w", err)
+	}
+	return oldValue.Status, nil
+}
+
+// ResetStatus resets all changes to the "status" field.
+func (m *BatchMutation) ResetStatus() {
+	m.status = nil
+}
+
+// SetSipsCount sets the "sips_count" field.
+func (m *BatchMutation) SetSipsCount(i int) {
+	m.sips_count = &i
+	m.addsips_count = nil
+}
+
+// SipsCount returns the value of the "sips_count" field in the mutation.
+func (m *BatchMutation) SipsCount() (r int, exists bool) {
+	v := m.sips_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldSipsCount returns the old "sips_count" field's value of the Batch entity.
+// If the Batch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BatchMutation) OldSipsCount(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldSipsCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldSipsCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldSipsCount: %w", err)
+	}
+	return oldValue.SipsCount, nil
+}
+
+// AddSipsCount adds i to the "sips_count" field.
+func (m *BatchMutation) AddSipsCount(i int) {
+	if m.addsips_count != nil {
+		*m.addsips_count += i
+	} else {
+		m.addsips_count = &i
+	}
+}
+
+// AddedSipsCount returns the value that was added to the "sips_count" field in this mutation.
+func (m *BatchMutation) AddedSipsCount() (r int, exists bool) {
+	v := m.addsips_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetSipsCount resets all changes to the "sips_count" field.
+func (m *BatchMutation) ResetSipsCount() {
+	m.sips_count = nil
+	m.addsips_count = nil
+}
+
+// SetCreatedAt sets the "created_at" field.
+func (m *BatchMutation) SetCreatedAt(t time.Time) {
+	m.created_at = &t
+}
+
+// CreatedAt returns the value of the "created_at" field in the mutation.
+func (m *BatchMutation) CreatedAt() (r time.Time, exists bool) {
+	v := m.created_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCreatedAt returns the old "created_at" field's value of the Batch entity.
+// If the Batch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BatchMutation) OldCreatedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCreatedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCreatedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCreatedAt: %w", err)
+	}
+	return oldValue.CreatedAt, nil
+}
+
+// ResetCreatedAt resets all changes to the "created_at" field.
+func (m *BatchMutation) ResetCreatedAt() {
+	m.created_at = nil
+}
+
+// SetStartedAt sets the "started_at" field.
+func (m *BatchMutation) SetStartedAt(t time.Time) {
+	m.started_at = &t
+}
+
+// StartedAt returns the value of the "started_at" field in the mutation.
+func (m *BatchMutation) StartedAt() (r time.Time, exists bool) {
+	v := m.started_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldStartedAt returns the old "started_at" field's value of the Batch entity.
+// If the Batch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BatchMutation) OldStartedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldStartedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldStartedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldStartedAt: %w", err)
+	}
+	return oldValue.StartedAt, nil
+}
+
+// ClearStartedAt clears the value of the "started_at" field.
+func (m *BatchMutation) ClearStartedAt() {
+	m.started_at = nil
+	m.clearedFields[batch.FieldStartedAt] = struct{}{}
+}
+
+// StartedAtCleared returns if the "started_at" field was cleared in this mutation.
+func (m *BatchMutation) StartedAtCleared() bool {
+	_, ok := m.clearedFields[batch.FieldStartedAt]
+	return ok
+}
+
+// ResetStartedAt resets all changes to the "started_at" field.
+func (m *BatchMutation) ResetStartedAt() {
+	m.started_at = nil
+	delete(m.clearedFields, batch.FieldStartedAt)
+}
+
+// SetCompletedAt sets the "completed_at" field.
+func (m *BatchMutation) SetCompletedAt(t time.Time) {
+	m.completed_at = &t
+}
+
+// CompletedAt returns the value of the "completed_at" field in the mutation.
+func (m *BatchMutation) CompletedAt() (r time.Time, exists bool) {
+	v := m.completed_at
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompletedAt returns the old "completed_at" field's value of the Batch entity.
+// If the Batch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BatchMutation) OldCompletedAt(ctx context.Context) (v time.Time, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompletedAt is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompletedAt requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompletedAt: %w", err)
+	}
+	return oldValue.CompletedAt, nil
+}
+
+// ClearCompletedAt clears the value of the "completed_at" field.
+func (m *BatchMutation) ClearCompletedAt() {
+	m.completed_at = nil
+	m.clearedFields[batch.FieldCompletedAt] = struct{}{}
+}
+
+// CompletedAtCleared returns if the "completed_at" field was cleared in this mutation.
+func (m *BatchMutation) CompletedAtCleared() bool {
+	_, ok := m.clearedFields[batch.FieldCompletedAt]
+	return ok
+}
+
+// ResetCompletedAt resets all changes to the "completed_at" field.
+func (m *BatchMutation) ResetCompletedAt() {
+	m.completed_at = nil
+	delete(m.clearedFields, batch.FieldCompletedAt)
+}
+
+// SetUploaderID sets the "uploader_id" field.
+func (m *BatchMutation) SetUploaderID(i int) {
+	m.uploader = &i
+}
+
+// UploaderID returns the value of the "uploader_id" field in the mutation.
+func (m *BatchMutation) UploaderID() (r int, exists bool) {
+	v := m.uploader
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldUploaderID returns the old "uploader_id" field's value of the Batch entity.
+// If the Batch object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *BatchMutation) OldUploaderID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldUploaderID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldUploaderID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldUploaderID: %w", err)
+	}
+	return oldValue.UploaderID, nil
+}
+
+// ClearUploaderID clears the value of the "uploader_id" field.
+func (m *BatchMutation) ClearUploaderID() {
+	m.uploader = nil
+	m.clearedFields[batch.FieldUploaderID] = struct{}{}
+}
+
+// UploaderIDCleared returns if the "uploader_id" field was cleared in this mutation.
+func (m *BatchMutation) UploaderIDCleared() bool {
+	_, ok := m.clearedFields[batch.FieldUploaderID]
+	return ok
+}
+
+// ResetUploaderID resets all changes to the "uploader_id" field.
+func (m *BatchMutation) ResetUploaderID() {
+	m.uploader = nil
+	delete(m.clearedFields, batch.FieldUploaderID)
+}
+
+// AddSipIDs adds the "sips" edge to the SIP entity by ids.
+func (m *BatchMutation) AddSipIDs(ids ...int) {
+	if m.sips == nil {
+		m.sips = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.sips[ids[i]] = struct{}{}
+	}
+}
+
+// ClearSips clears the "sips" edge to the SIP entity.
+func (m *BatchMutation) ClearSips() {
+	m.clearedsips = true
+}
+
+// SipsCleared reports if the "sips" edge to the SIP entity was cleared.
+func (m *BatchMutation) SipsCleared() bool {
+	return m.clearedsips
+}
+
+// RemoveSipIDs removes the "sips" edge to the SIP entity by IDs.
+func (m *BatchMutation) RemoveSipIDs(ids ...int) {
+	if m.removedsips == nil {
+		m.removedsips = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.sips, ids[i])
+		m.removedsips[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedSips returns the removed IDs of the "sips" edge to the SIP entity.
+func (m *BatchMutation) RemovedSipsIDs() (ids []int) {
+	for id := range m.removedsips {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// SipsIDs returns the "sips" edge IDs in the mutation.
+func (m *BatchMutation) SipsIDs() (ids []int) {
+	for id := range m.sips {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetSips resets all changes to the "sips" edge.
+func (m *BatchMutation) ResetSips() {
+	m.sips = nil
+	m.clearedsips = false
+	m.removedsips = nil
+}
+
+// ClearUploader clears the "uploader" edge to the User entity.
+func (m *BatchMutation) ClearUploader() {
+	m.cleareduploader = true
+	m.clearedFields[batch.FieldUploaderID] = struct{}{}
+}
+
+// UploaderCleared reports if the "uploader" edge to the User entity was cleared.
+func (m *BatchMutation) UploaderCleared() bool {
+	return m.UploaderIDCleared() || m.cleareduploader
+}
+
+// UploaderIDs returns the "uploader" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// UploaderID instead. It exists only for internal usage by the builders.
+func (m *BatchMutation) UploaderIDs() (ids []int) {
+	if id := m.uploader; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetUploader resets all changes to the "uploader" edge.
+func (m *BatchMutation) ResetUploader() {
+	m.uploader = nil
+	m.cleareduploader = false
+}
+
+// Where appends a list predicates to the BatchMutation builder.
+func (m *BatchMutation) Where(ps ...predicate.Batch) {
+	m.predicates = append(m.predicates, ps...)
+}
+
+// WhereP appends storage-level predicates to the BatchMutation builder. Using this method,
+// users can use type-assertion to append predicates that do not depend on any generated package.
+func (m *BatchMutation) WhereP(ps ...func(*sql.Selector)) {
+	p := make([]predicate.Batch, len(ps))
+	for i := range ps {
+		p[i] = ps[i]
+	}
+	m.Where(p...)
+}
+
+// Op returns the operation name.
+func (m *BatchMutation) Op() Op {
+	return m.op
+}
+
+// SetOp allows setting the mutation operation.
+func (m *BatchMutation) SetOp(op Op) {
+	m.op = op
+}
+
+// Type returns the node type of this mutation (Batch).
+func (m *BatchMutation) Type() string {
+	return m.typ
+}
+
+// Fields returns all fields that were changed during this mutation. Note that in
+// order to get all numeric fields that were incremented/decremented, call
+// AddedFields().
+func (m *BatchMutation) Fields() []string {
+	fields := make([]string, 0, 8)
+	if m.uuid != nil {
+		fields = append(fields, batch.FieldUUID)
+	}
+	if m.identifier != nil {
+		fields = append(fields, batch.FieldIdentifier)
+	}
+	if m.status != nil {
+		fields = append(fields, batch.FieldStatus)
+	}
+	if m.sips_count != nil {
+		fields = append(fields, batch.FieldSipsCount)
+	}
+	if m.created_at != nil {
+		fields = append(fields, batch.FieldCreatedAt)
+	}
+	if m.started_at != nil {
+		fields = append(fields, batch.FieldStartedAt)
+	}
+	if m.completed_at != nil {
+		fields = append(fields, batch.FieldCompletedAt)
+	}
+	if m.uploader != nil {
+		fields = append(fields, batch.FieldUploaderID)
+	}
+	return fields
+}
+
+// Field returns the value of a field with the given name. The second boolean
+// return value indicates that this field was not set, or was not defined in the
+// schema.
+func (m *BatchMutation) Field(name string) (ent.Value, bool) {
+	switch name {
+	case batch.FieldUUID:
+		return m.UUID()
+	case batch.FieldIdentifier:
+		return m.Identifier()
+	case batch.FieldStatus:
+		return m.Status()
+	case batch.FieldSipsCount:
+		return m.SipsCount()
+	case batch.FieldCreatedAt:
+		return m.CreatedAt()
+	case batch.FieldStartedAt:
+		return m.StartedAt()
+	case batch.FieldCompletedAt:
+		return m.CompletedAt()
+	case batch.FieldUploaderID:
+		return m.UploaderID()
+	}
+	return nil, false
+}
+
+// OldField returns the old value of the field from the database. An error is
+// returned if the mutation operation is not UpdateOne, or the query to the
+// database failed.
+func (m *BatchMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
+	switch name {
+	case batch.FieldUUID:
+		return m.OldUUID(ctx)
+	case batch.FieldIdentifier:
+		return m.OldIdentifier(ctx)
+	case batch.FieldStatus:
+		return m.OldStatus(ctx)
+	case batch.FieldSipsCount:
+		return m.OldSipsCount(ctx)
+	case batch.FieldCreatedAt:
+		return m.OldCreatedAt(ctx)
+	case batch.FieldStartedAt:
+		return m.OldStartedAt(ctx)
+	case batch.FieldCompletedAt:
+		return m.OldCompletedAt(ctx)
+	case batch.FieldUploaderID:
+		return m.OldUploaderID(ctx)
+	}
+	return nil, fmt.Errorf("unknown Batch field %s", name)
+}
+
+// SetField sets the value of a field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BatchMutation) SetField(name string, value ent.Value) error {
+	switch name {
+	case batch.FieldUUID:
+		v, ok := value.(uuid.UUID)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUUID(v)
+		return nil
+	case batch.FieldIdentifier:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetIdentifier(v)
+		return nil
+	case batch.FieldStatus:
+		v, ok := value.(enums.BatchStatus)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStatus(v)
+		return nil
+	case batch.FieldSipsCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetSipsCount(v)
+		return nil
+	case batch.FieldCreatedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCreatedAt(v)
+		return nil
+	case batch.FieldStartedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetStartedAt(v)
+		return nil
+	case batch.FieldCompletedAt:
+		v, ok := value.(time.Time)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompletedAt(v)
+		return nil
+	case batch.FieldUploaderID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetUploaderID(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Batch field %s", name)
+}
+
+// AddedFields returns all numeric fields that were incremented/decremented during
+// this mutation.
+func (m *BatchMutation) AddedFields() []string {
+	var fields []string
+	if m.addsips_count != nil {
+		fields = append(fields, batch.FieldSipsCount)
+	}
+	return fields
+}
+
+// AddedField returns the numeric value that was incremented/decremented on a field
+// with the given name. The second boolean return value indicates that this field
+// was not set, or was not defined in the schema.
+func (m *BatchMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case batch.FieldSipsCount:
+		return m.AddedSipsCount()
+	}
+	return nil, false
+}
+
+// AddField adds the value to the field with the given name. It returns an error if
+// the field is not defined in the schema, or if the type mismatched the field
+// type.
+func (m *BatchMutation) AddField(name string, value ent.Value) error {
+	switch name {
+	case batch.FieldSipsCount:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddSipsCount(v)
+		return nil
+	}
+	return fmt.Errorf("unknown Batch numeric field %s", name)
+}
+
+// ClearedFields returns all nullable fields that were cleared during this
+// mutation.
+func (m *BatchMutation) ClearedFields() []string {
+	var fields []string
+	if m.FieldCleared(batch.FieldStartedAt) {
+		fields = append(fields, batch.FieldStartedAt)
+	}
+	if m.FieldCleared(batch.FieldCompletedAt) {
+		fields = append(fields, batch.FieldCompletedAt)
+	}
+	if m.FieldCleared(batch.FieldUploaderID) {
+		fields = append(fields, batch.FieldUploaderID)
+	}
+	return fields
+}
+
+// FieldCleared returns a boolean indicating if a field with the given name was
+// cleared in this mutation.
+func (m *BatchMutation) FieldCleared(name string) bool {
+	_, ok := m.clearedFields[name]
+	return ok
+}
+
+// ClearField clears the value of the field with the given name. It returns an
+// error if the field is not defined in the schema.
+func (m *BatchMutation) ClearField(name string) error {
+	switch name {
+	case batch.FieldStartedAt:
+		m.ClearStartedAt()
+		return nil
+	case batch.FieldCompletedAt:
+		m.ClearCompletedAt()
+		return nil
+	case batch.FieldUploaderID:
+		m.ClearUploaderID()
+		return nil
+	}
+	return fmt.Errorf("unknown Batch nullable field %s", name)
+}
+
+// ResetField resets all changes in the mutation for the field with the given name.
+// It returns an error if the field is not defined in the schema.
+func (m *BatchMutation) ResetField(name string) error {
+	switch name {
+	case batch.FieldUUID:
+		m.ResetUUID()
+		return nil
+	case batch.FieldIdentifier:
+		m.ResetIdentifier()
+		return nil
+	case batch.FieldStatus:
+		m.ResetStatus()
+		return nil
+	case batch.FieldSipsCount:
+		m.ResetSipsCount()
+		return nil
+	case batch.FieldCreatedAt:
+		m.ResetCreatedAt()
+		return nil
+	case batch.FieldStartedAt:
+		m.ResetStartedAt()
+		return nil
+	case batch.FieldCompletedAt:
+		m.ResetCompletedAt()
+		return nil
+	case batch.FieldUploaderID:
+		m.ResetUploaderID()
+		return nil
+	}
+	return fmt.Errorf("unknown Batch field %s", name)
+}
+
+// AddedEdges returns all edge names that were set/added in this mutation.
+func (m *BatchMutation) AddedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.sips != nil {
+		edges = append(edges, batch.EdgeSips)
+	}
+	if m.uploader != nil {
+		edges = append(edges, batch.EdgeUploader)
+	}
+	return edges
+}
+
+// AddedIDs returns all IDs (to other nodes) that were added for the given edge
+// name in this mutation.
+func (m *BatchMutation) AddedIDs(name string) []ent.Value {
+	switch name {
+	case batch.EdgeSips:
+		ids := make([]ent.Value, 0, len(m.sips))
+		for id := range m.sips {
+			ids = append(ids, id)
+		}
+		return ids
+	case batch.EdgeUploader:
+		if id := m.uploader; id != nil {
+			return []ent.Value{*id}
+		}
+	}
+	return nil
+}
+
+// RemovedEdges returns all edge names that were removed in this mutation.
+func (m *BatchMutation) RemovedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.removedsips != nil {
+		edges = append(edges, batch.EdgeSips)
+	}
+	return edges
+}
+
+// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
+// the given name in this mutation.
+func (m *BatchMutation) RemovedIDs(name string) []ent.Value {
+	switch name {
+	case batch.EdgeSips:
+		ids := make([]ent.Value, 0, len(m.removedsips))
+		for id := range m.removedsips {
+			ids = append(ids, id)
+		}
+		return ids
+	}
+	return nil
+}
+
+// ClearedEdges returns all edge names that were cleared in this mutation.
+func (m *BatchMutation) ClearedEdges() []string {
+	edges := make([]string, 0, 2)
+	if m.clearedsips {
+		edges = append(edges, batch.EdgeSips)
+	}
+	if m.cleareduploader {
+		edges = append(edges, batch.EdgeUploader)
+	}
+	return edges
+}
+
+// EdgeCleared returns a boolean which indicates if the edge with the given name
+// was cleared in this mutation.
+func (m *BatchMutation) EdgeCleared(name string) bool {
+	switch name {
+	case batch.EdgeSips:
+		return m.clearedsips
+	case batch.EdgeUploader:
+		return m.cleareduploader
+	}
+	return false
+}
+
+// ClearEdge clears the value of the edge with the given name. It returns an error
+// if that edge is not defined in the schema.
+func (m *BatchMutation) ClearEdge(name string) error {
+	switch name {
+	case batch.EdgeUploader:
+		m.ClearUploader()
+		return nil
+	}
+	return fmt.Errorf("unknown Batch unique edge %s", name)
+}
+
+// ResetEdge resets all changes to the edge with the given name in this mutation.
+// It returns an error if the edge is not defined in the schema.
+func (m *BatchMutation) ResetEdge(name string) error {
+	switch name {
+	case batch.EdgeSips:
+		m.ResetSips()
+		return nil
+	case batch.EdgeUploader:
+		m.ResetUploader()
+		return nil
+	}
+	return fmt.Errorf("unknown Batch edge %s", name)
+}
 
 // SIPMutation represents an operation that mutates the SIP nodes in the graph.
 type SIPMutation struct {
@@ -56,6 +997,8 @@ type SIPMutation struct {
 	clearedworkflows bool
 	uploader         *int
 	cleareduploader  bool
+	batch            *int
+	clearedbatch     bool
 	done             bool
 	oldValue         func(context.Context) (*SIP, error)
 	predicates       []predicate.SIP
@@ -597,6 +1540,55 @@ func (m *SIPMutation) ResetUploaderID() {
 	delete(m.clearedFields, sip.FieldUploaderID)
 }
 
+// SetBatchID sets the "batch_id" field.
+func (m *SIPMutation) SetBatchID(i int) {
+	m.batch = &i
+}
+
+// BatchID returns the value of the "batch_id" field in the mutation.
+func (m *SIPMutation) BatchID() (r int, exists bool) {
+	v := m.batch
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldBatchID returns the old "batch_id" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldBatchID(ctx context.Context) (v int, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldBatchID is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldBatchID requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldBatchID: %w", err)
+	}
+	return oldValue.BatchID, nil
+}
+
+// ClearBatchID clears the value of the "batch_id" field.
+func (m *SIPMutation) ClearBatchID() {
+	m.batch = nil
+	m.clearedFields[sip.FieldBatchID] = struct{}{}
+}
+
+// BatchIDCleared returns if the "batch_id" field was cleared in this mutation.
+func (m *SIPMutation) BatchIDCleared() bool {
+	_, ok := m.clearedFields[sip.FieldBatchID]
+	return ok
+}
+
+// ResetBatchID resets all changes to the "batch_id" field.
+func (m *SIPMutation) ResetBatchID() {
+	m.batch = nil
+	delete(m.clearedFields, sip.FieldBatchID)
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by ids.
 func (m *SIPMutation) AddWorkflowIDs(ids ...int) {
 	if m.workflows == nil {
@@ -678,6 +1670,33 @@ func (m *SIPMutation) ResetUploader() {
 	m.cleareduploader = false
 }
 
+// ClearBatch clears the "batch" edge to the Batch entity.
+func (m *SIPMutation) ClearBatch() {
+	m.clearedbatch = true
+	m.clearedFields[sip.FieldBatchID] = struct{}{}
+}
+
+// BatchCleared reports if the "batch" edge to the Batch entity was cleared.
+func (m *SIPMutation) BatchCleared() bool {
+	return m.BatchIDCleared() || m.clearedbatch
+}
+
+// BatchIDs returns the "batch" edge IDs in the mutation.
+// Note that IDs always returns len(IDs) <= 1 for unique edges, and you should use
+// BatchID instead. It exists only for internal usage by the builders.
+func (m *SIPMutation) BatchIDs() (ids []int) {
+	if id := m.batch; id != nil {
+		ids = append(ids, *id)
+	}
+	return
+}
+
+// ResetBatch resets all changes to the "batch" edge.
+func (m *SIPMutation) ResetBatch() {
+	m.batch = nil
+	m.clearedbatch = false
+}
+
 // Where appends a list predicates to the SIPMutation builder.
 func (m *SIPMutation) Where(ps ...predicate.SIP) {
 	m.predicates = append(m.predicates, ps...)
@@ -712,7 +1731,7 @@ func (m *SIPMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SIPMutation) Fields() []string {
-	fields := make([]string, 0, 10)
+	fields := make([]string, 0, 11)
 	if m.uuid != nil {
 		fields = append(fields, sip.FieldUUID)
 	}
@@ -743,6 +1762,9 @@ func (m *SIPMutation) Fields() []string {
 	if m.uploader != nil {
 		fields = append(fields, sip.FieldUploaderID)
 	}
+	if m.batch != nil {
+		fields = append(fields, sip.FieldBatchID)
+	}
 	return fields
 }
 
@@ -771,6 +1793,8 @@ func (m *SIPMutation) Field(name string) (ent.Value, bool) {
 		return m.FailedKey()
 	case sip.FieldUploaderID:
 		return m.UploaderID()
+	case sip.FieldBatchID:
+		return m.BatchID()
 	}
 	return nil, false
 }
@@ -800,6 +1824,8 @@ func (m *SIPMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldFailedKey(ctx)
 	case sip.FieldUploaderID:
 		return m.OldUploaderID(ctx)
+	case sip.FieldBatchID:
+		return m.OldBatchID(ctx)
 	}
 	return nil, fmt.Errorf("unknown SIP field %s", name)
 }
@@ -879,6 +1905,13 @@ func (m *SIPMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetUploaderID(v)
 		return nil
+	case sip.FieldBatchID:
+		v, ok := value.(int)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetBatchID(v)
+		return nil
 	}
 	return fmt.Errorf("unknown SIP field %s", name)
 }
@@ -930,6 +1963,9 @@ func (m *SIPMutation) ClearedFields() []string {
 	if m.FieldCleared(sip.FieldUploaderID) {
 		fields = append(fields, sip.FieldUploaderID)
 	}
+	if m.FieldCleared(sip.FieldBatchID) {
+		fields = append(fields, sip.FieldBatchID)
+	}
 	return fields
 }
 
@@ -961,6 +1997,9 @@ func (m *SIPMutation) ClearField(name string) error {
 		return nil
 	case sip.FieldUploaderID:
 		m.ClearUploaderID()
+		return nil
+	case sip.FieldBatchID:
+		m.ClearBatchID()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP nullable field %s", name)
@@ -1000,18 +2039,24 @@ func (m *SIPMutation) ResetField(name string) error {
 	case sip.FieldUploaderID:
 		m.ResetUploaderID()
 		return nil
+	case sip.FieldBatchID:
+		m.ResetBatchID()
+		return nil
 	}
 	return fmt.Errorf("unknown SIP field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *SIPMutation) AddedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.workflows != nil {
 		edges = append(edges, sip.EdgeWorkflows)
 	}
 	if m.uploader != nil {
 		edges = append(edges, sip.EdgeUploader)
+	}
+	if m.batch != nil {
+		edges = append(edges, sip.EdgeBatch)
 	}
 	return edges
 }
@@ -1030,13 +2075,17 @@ func (m *SIPMutation) AddedIDs(name string) []ent.Value {
 		if id := m.uploader; id != nil {
 			return []ent.Value{*id}
 		}
+	case sip.EdgeBatch:
+		if id := m.batch; id != nil {
+			return []ent.Value{*id}
+		}
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *SIPMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.removedworkflows != nil {
 		edges = append(edges, sip.EdgeWorkflows)
 	}
@@ -1059,12 +2108,15 @@ func (m *SIPMutation) RemovedIDs(name string) []ent.Value {
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *SIPMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 2)
+	edges := make([]string, 0, 3)
 	if m.clearedworkflows {
 		edges = append(edges, sip.EdgeWorkflows)
 	}
 	if m.cleareduploader {
 		edges = append(edges, sip.EdgeUploader)
+	}
+	if m.clearedbatch {
+		edges = append(edges, sip.EdgeBatch)
 	}
 	return edges
 }
@@ -1077,6 +2129,8 @@ func (m *SIPMutation) EdgeCleared(name string) bool {
 		return m.clearedworkflows
 	case sip.EdgeUploader:
 		return m.cleareduploader
+	case sip.EdgeBatch:
+		return m.clearedbatch
 	}
 	return false
 }
@@ -1087,6 +2141,9 @@ func (m *SIPMutation) ClearEdge(name string) error {
 	switch name {
 	case sip.EdgeUploader:
 		m.ClearUploader()
+		return nil
+	case sip.EdgeBatch:
+		m.ClearBatch()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP unique edge %s", name)
@@ -1101,6 +2158,9 @@ func (m *SIPMutation) ResetEdge(name string) error {
 		return nil
 	case sip.EdgeUploader:
 		m.ResetUploader()
+		return nil
+	case sip.EdgeBatch:
+		m.ResetBatch()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP edge %s", name)
@@ -1890,22 +2950,25 @@ func (m *TaskMutation) ResetEdge(name string) error {
 // UserMutation represents an operation that mutates the User nodes in the graph.
 type UserMutation struct {
 	config
-	op                   Op
-	typ                  string
-	id                   *int
-	uuid                 *uuid.UUID
-	created_at           *time.Time
-	email                *string
-	name                 *string
-	oidc_iss             *string
-	oidc_sub             *string
-	clearedFields        map[string]struct{}
-	uploaded_sips        map[int]struct{}
-	removeduploaded_sips map[int]struct{}
-	cleareduploaded_sips bool
-	done                 bool
-	oldValue             func(context.Context) (*User, error)
-	predicates           []predicate.User
+	op                      Op
+	typ                     string
+	id                      *int
+	uuid                    *uuid.UUID
+	created_at              *time.Time
+	email                   *string
+	name                    *string
+	oidc_iss                *string
+	oidc_sub                *string
+	clearedFields           map[string]struct{}
+	uploaded_sips           map[int]struct{}
+	removeduploaded_sips    map[int]struct{}
+	cleareduploaded_sips    bool
+	uploaded_batches        map[int]struct{}
+	removeduploaded_batches map[int]struct{}
+	cleareduploaded_batches bool
+	done                    bool
+	oldValue                func(context.Context) (*User, error)
+	predicates              []predicate.User
 }
 
 var _ ent.Mutation = (*UserMutation)(nil)
@@ -2328,6 +3391,60 @@ func (m *UserMutation) ResetUploadedSips() {
 	m.removeduploaded_sips = nil
 }
 
+// AddUploadedBatchIDs adds the "uploaded_batches" edge to the Batch entity by ids.
+func (m *UserMutation) AddUploadedBatchIDs(ids ...int) {
+	if m.uploaded_batches == nil {
+		m.uploaded_batches = make(map[int]struct{})
+	}
+	for i := range ids {
+		m.uploaded_batches[ids[i]] = struct{}{}
+	}
+}
+
+// ClearUploadedBatches clears the "uploaded_batches" edge to the Batch entity.
+func (m *UserMutation) ClearUploadedBatches() {
+	m.cleareduploaded_batches = true
+}
+
+// UploadedBatchesCleared reports if the "uploaded_batches" edge to the Batch entity was cleared.
+func (m *UserMutation) UploadedBatchesCleared() bool {
+	return m.cleareduploaded_batches
+}
+
+// RemoveUploadedBatchIDs removes the "uploaded_batches" edge to the Batch entity by IDs.
+func (m *UserMutation) RemoveUploadedBatchIDs(ids ...int) {
+	if m.removeduploaded_batches == nil {
+		m.removeduploaded_batches = make(map[int]struct{})
+	}
+	for i := range ids {
+		delete(m.uploaded_batches, ids[i])
+		m.removeduploaded_batches[ids[i]] = struct{}{}
+	}
+}
+
+// RemovedUploadedBatches returns the removed IDs of the "uploaded_batches" edge to the Batch entity.
+func (m *UserMutation) RemovedUploadedBatchesIDs() (ids []int) {
+	for id := range m.removeduploaded_batches {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// UploadedBatchesIDs returns the "uploaded_batches" edge IDs in the mutation.
+func (m *UserMutation) UploadedBatchesIDs() (ids []int) {
+	for id := range m.uploaded_batches {
+		ids = append(ids, id)
+	}
+	return
+}
+
+// ResetUploadedBatches resets all changes to the "uploaded_batches" edge.
+func (m *UserMutation) ResetUploadedBatches() {
+	m.uploaded_batches = nil
+	m.cleareduploaded_batches = false
+	m.removeduploaded_batches = nil
+}
+
 // Where appends a list predicates to the UserMutation builder.
 func (m *UserMutation) Where(ps ...predicate.User) {
 	m.predicates = append(m.predicates, ps...)
@@ -2573,9 +3690,12 @@ func (m *UserMutation) ResetField(name string) error {
 
 // AddedEdges returns all edge names that were set/added in this mutation.
 func (m *UserMutation) AddedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.uploaded_sips != nil {
 		edges = append(edges, user.EdgeUploadedSips)
+	}
+	if m.uploaded_batches != nil {
+		edges = append(edges, user.EdgeUploadedBatches)
 	}
 	return edges
 }
@@ -2590,15 +3710,24 @@ func (m *UserMutation) AddedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeUploadedBatches:
+		ids := make([]ent.Value, 0, len(m.uploaded_batches))
+		for id := range m.uploaded_batches {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // RemovedEdges returns all edge names that were removed in this mutation.
 func (m *UserMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.removeduploaded_sips != nil {
 		edges = append(edges, user.EdgeUploadedSips)
+	}
+	if m.removeduploaded_batches != nil {
+		edges = append(edges, user.EdgeUploadedBatches)
 	}
 	return edges
 }
@@ -2613,15 +3742,24 @@ func (m *UserMutation) RemovedIDs(name string) []ent.Value {
 			ids = append(ids, id)
 		}
 		return ids
+	case user.EdgeUploadedBatches:
+		ids := make([]ent.Value, 0, len(m.removeduploaded_batches))
+		for id := range m.removeduploaded_batches {
+			ids = append(ids, id)
+		}
+		return ids
 	}
 	return nil
 }
 
 // ClearedEdges returns all edge names that were cleared in this mutation.
 func (m *UserMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 1)
+	edges := make([]string, 0, 2)
 	if m.cleareduploaded_sips {
 		edges = append(edges, user.EdgeUploadedSips)
+	}
+	if m.cleareduploaded_batches {
+		edges = append(edges, user.EdgeUploadedBatches)
 	}
 	return edges
 }
@@ -2632,6 +3770,8 @@ func (m *UserMutation) EdgeCleared(name string) bool {
 	switch name {
 	case user.EdgeUploadedSips:
 		return m.cleareduploaded_sips
+	case user.EdgeUploadedBatches:
+		return m.cleareduploaded_batches
 	}
 	return false
 }
@@ -2650,6 +3790,9 @@ func (m *UserMutation) ResetEdge(name string) error {
 	switch name {
 	case user.EdgeUploadedSips:
 		m.ResetUploadedSips()
+		return nil
+	case user.EdgeUploadedBatches:
+		m.ResetUploadedBatches()
 		return nil
 	}
 	return fmt.Errorf("unknown User edge %s", name)

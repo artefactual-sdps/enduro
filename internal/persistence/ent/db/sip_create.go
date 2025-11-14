@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/batch"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
@@ -142,6 +143,20 @@ func (_c *SIPCreate) SetNillableUploaderID(v *int) *SIPCreate {
 	return _c
 }
 
+// SetBatchID sets the "batch_id" field.
+func (_c *SIPCreate) SetBatchID(v int) *SIPCreate {
+	_c.mutation.SetBatchID(v)
+	return _c
+}
+
+// SetNillableBatchID sets the "batch_id" field if the given value is not nil.
+func (_c *SIPCreate) SetNillableBatchID(v *int) *SIPCreate {
+	if v != nil {
+		_c.SetBatchID(*v)
+	}
+	return _c
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (_c *SIPCreate) AddWorkflowIDs(ids ...int) *SIPCreate {
 	_c.mutation.AddWorkflowIDs(ids...)
@@ -160,6 +175,11 @@ func (_c *SIPCreate) AddWorkflows(v ...*Workflow) *SIPCreate {
 // SetUploader sets the "uploader" edge to the User entity.
 func (_c *SIPCreate) SetUploader(v *User) *SIPCreate {
 	return _c.SetUploaderID(v.ID)
+}
+
+// SetBatch sets the "batch" edge to the Batch entity.
+func (_c *SIPCreate) SetBatch(v *Batch) *SIPCreate {
+	return _c.SetBatchID(v.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -230,6 +250,11 @@ func (_c *SIPCreate) check() error {
 	if v, ok := _c.mutation.UploaderID(); ok {
 		if err := sip.UploaderIDValidator(v); err != nil {
 			return &ValidationError{Name: "uploader_id", err: fmt.Errorf(`db: validator failed for field "SIP.uploader_id": %w`, err)}
+		}
+	}
+	if v, ok := _c.mutation.BatchID(); ok {
+		if err := sip.BatchIDValidator(v); err != nil {
+			return &ValidationError{Name: "batch_id", err: fmt.Errorf(`db: validator failed for field "SIP.batch_id": %w`, err)}
 		}
 	}
 	return nil
@@ -326,6 +351,23 @@ func (_c *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.UploaderID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := _c.mutation.BatchIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   sip.BatchTable,
+			Columns: []string{sip.BatchColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(batch.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.BatchID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
@@ -509,6 +551,24 @@ func (u *SIPUpsert) UpdateUploaderID() *SIPUpsert {
 // ClearUploaderID clears the value of the "uploader_id" field.
 func (u *SIPUpsert) ClearUploaderID() *SIPUpsert {
 	u.SetNull(sip.FieldUploaderID)
+	return u
+}
+
+// SetBatchID sets the "batch_id" field.
+func (u *SIPUpsert) SetBatchID(v int) *SIPUpsert {
+	u.Set(sip.FieldBatchID, v)
+	return u
+}
+
+// UpdateBatchID sets the "batch_id" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateBatchID() *SIPUpsert {
+	u.SetExcluded(sip.FieldBatchID)
+	return u
+}
+
+// ClearBatchID clears the value of the "batch_id" field.
+func (u *SIPUpsert) ClearBatchID() *SIPUpsert {
+	u.SetNull(sip.FieldBatchID)
 	return u
 }
 
@@ -711,6 +771,27 @@ func (u *SIPUpsertOne) UpdateUploaderID() *SIPUpsertOne {
 func (u *SIPUpsertOne) ClearUploaderID() *SIPUpsertOne {
 	return u.Update(func(s *SIPUpsert) {
 		s.ClearUploaderID()
+	})
+}
+
+// SetBatchID sets the "batch_id" field.
+func (u *SIPUpsertOne) SetBatchID(v int) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetBatchID(v)
+	})
+}
+
+// UpdateBatchID sets the "batch_id" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateBatchID() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateBatchID()
+	})
+}
+
+// ClearBatchID clears the value of the "batch_id" field.
+func (u *SIPUpsertOne) ClearBatchID() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearBatchID()
 	})
 }
 
@@ -1079,6 +1160,27 @@ func (u *SIPUpsertBulk) UpdateUploaderID() *SIPUpsertBulk {
 func (u *SIPUpsertBulk) ClearUploaderID() *SIPUpsertBulk {
 	return u.Update(func(s *SIPUpsert) {
 		s.ClearUploaderID()
+	})
+}
+
+// SetBatchID sets the "batch_id" field.
+func (u *SIPUpsertBulk) SetBatchID(v int) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetBatchID(v)
+	})
+}
+
+// UpdateBatchID sets the "batch_id" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateBatchID() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateBatchID()
+	})
+}
+
+// ClearBatchID clears the value of the "batch_id" field.
+func (u *SIPUpsertBulk) ClearBatchID() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearBatchID()
 	})
 }
 

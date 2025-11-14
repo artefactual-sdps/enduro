@@ -2,6 +2,7 @@ package entclient
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -10,6 +11,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/batch"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 )
@@ -61,6 +63,16 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 		q.SetUploaderID(uID)
 	}
 
+	// If Batch is set, link it to the SIP.
+	if s.Batch != nil && s.Batch.UUID != uuid.Nil {
+		bID, err := tx.Client().Batch.Query().Where(batch.UUID(s.Batch.UUID)).OnlyID(ctx)
+		if err != nil {
+			return rollback(tx, err)
+		}
+
+		q.SetBatchID(bID)
+	}
+
 	// Save the SIP.
 	dbs, err := q.Save(ctx)
 	if err != nil {
@@ -71,10 +83,12 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	}
 
 	// Update SIP with DB data, to get generated values (e.g. ID). Manually set
-	// the uploader data because the dbs result doesn't include the user edge.
+	// the uploader and batch data because the dbs result doesn't include the user edge.
 	uploader := s.Uploader
+	batch := s.Batch
 	*s = *convertSIP(dbs)
 	s.Uploader = uploader
+	s.Batch = batch
 
 	return nil
 }
@@ -98,6 +112,7 @@ func (c *client) UpdateSIP(
 	dbs, err := tx.SIP.Query().
 		Where(sip.UUID(id)).
 		WithUploader().
+		WithBatch().
 		Only(ctx)
 	if err != nil {
 		return nil, rollback(tx, newDBError(err))
@@ -106,10 +121,14 @@ func (c *client) UpdateSIP(
 	// Keep database ID in case it's changed by the updater.
 	dbID := dbs.ID
 
-	// Get the uploader data so we can set it on the returned SIP later.
+	// Get the uploader and batch data so we can set it on the returned SIP later.
 	var uploader *datatypes.User
 	if dbs.Edges.Uploader != nil {
 		uploader = convertUser(dbs.Edges.Uploader)
+	}
+	var batch *datatypes.Batch
+	if dbs.Edges.Batch != nil {
+		batch = convertBatch(dbs.Edges.Batch)
 	}
 
 	// Get an updated datatypes.SIP from the updater function.
@@ -154,16 +173,21 @@ func (c *client) UpdateSIP(
 
 	s := convertSIP(dbs)
 
-	// Set the uploader data on the returned SIP.
+	// Set the uploader and batch data on the returned SIP.
 	s.Uploader = uploader
+	s.Batch = batch
 
 	return s, nil
 }
 
 // DeleteSIP deletes the persisted SIP identified by id.
-func (c *client) DeleteSIP(ctx context.Context, id int) error {
-	if err := c.ent.SIP.DeleteOneID(id).Exec(ctx); err != nil {
+func (c *client) DeleteSIP(ctx context.Context, id uuid.UUID) error {
+	n, err := c.ent.SIP.Delete().Where(sip.UUID(id)).Exec(ctx)
+	if err != nil {
 		return newDBErrorWithDetails(err, "delete SIP")
+	}
+	if n == 0 {
+		return fmt.Errorf("%w: %s", persistence.ErrNotFound, "db: sip not found: delete SIP")
 	}
 
 	return nil
@@ -174,6 +198,7 @@ func (c *client) ReadSIP(ctx context.Context, id uuid.UUID) (*datatypes.SIP, err
 	s, err := c.ent.SIP.Query().
 		Where(sip.UUID(id)).
 		WithUploader().
+		WithBatch().
 		Only(ctx)
 	if err != nil {
 		return nil, newDBError(err)
@@ -186,16 +211,17 @@ func (c *client) ReadSIP(ctx context.Context, id uuid.UUID) (*datatypes.SIP, err
 func (c *client) ListSIPs(ctx context.Context, f *persistence.SIPFilter) (
 	[]*datatypes.SIP, *persistence.Page, error,
 ) {
-	res := []*datatypes.SIP{}
-
 	if f == nil {
 		f = &persistence.SIPFilter{}
 	}
 
-	q := c.ent.SIP.Query().WithUploader()
+	q := c.ent.SIP.Query().WithUploader().WithBatch()
 
 	if f.UploaderID != nil {
 		q.Where(sip.HasUploaderWith(user.UUID(*f.UploaderID)))
+	}
+	if f.BatchID != nil {
+		q.Where(sip.HasBatchWith(batch.UUID(*f.BatchID)))
 	}
 
 	page, whole := filterSIPs(q, f)
@@ -205,8 +231,9 @@ func (c *client) ListSIPs(ctx context.Context, f *persistence.SIPFilter) (
 		return nil, nil, newDBError(err)
 	}
 
-	for _, i := range r {
-		res = append(res, convertSIP(i))
+	res := make([]*datatypes.SIP, len(r))
+	for i, dbs := range r {
+		res[i] = convertSIP(dbs)
 	}
 
 	total, err := whole.Count(ctx)

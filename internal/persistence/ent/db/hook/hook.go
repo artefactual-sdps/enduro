@@ -9,6 +9,18 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 )
 
+// The BatchFunc type is an adapter to allow the use of ordinary
+// function as Batch mutator.
+type BatchFunc func(context.Context, *db.BatchMutation) (db.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BatchFunc) Mutate(ctx context.Context, m db.Mutation) (db.Value, error) {
+	if mv, ok := m.(*db.BatchMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *db.BatchMutation", m)
+}
+
 // The SIPFunc type is an adapter to allow the use of ordinary
 // function as SIP mutator.
 type SIPFunc func(context.Context, *db.SIPMutation) (db.Value, error)

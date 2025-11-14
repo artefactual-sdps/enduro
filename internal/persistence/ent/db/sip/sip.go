@@ -36,10 +36,14 @@ const (
 	FieldFailedKey = "failed_key"
 	// FieldUploaderID holds the string denoting the uploader_id field in the database.
 	FieldUploaderID = "uploader_id"
+	// FieldBatchID holds the string denoting the batch_id field in the database.
+	FieldBatchID = "batch_id"
 	// EdgeWorkflows holds the string denoting the workflows edge name in mutations.
 	EdgeWorkflows = "workflows"
 	// EdgeUploader holds the string denoting the uploader edge name in mutations.
 	EdgeUploader = "uploader"
+	// EdgeBatch holds the string denoting the batch edge name in mutations.
+	EdgeBatch = "batch"
 	// Table holds the table name of the sip in the database.
 	Table = "sip"
 	// WorkflowsTable is the table that holds the workflows relation/edge.
@@ -56,6 +60,13 @@ const (
 	UploaderInverseTable = "user"
 	// UploaderColumn is the table column denoting the uploader relation/edge.
 	UploaderColumn = "uploader_id"
+	// BatchTable is the table that holds the batch relation/edge.
+	BatchTable = "sip"
+	// BatchInverseTable is the table name for the Batch entity.
+	// It exists in this package in order to avoid circular dependency with the "batch" package.
+	BatchInverseTable = "batch"
+	// BatchColumn is the table column denoting the batch relation/edge.
+	BatchColumn = "batch_id"
 )
 
 // Columns holds all SQL columns for sip fields.
@@ -71,6 +82,7 @@ var Columns = []string{
 	FieldFailedAs,
 	FieldFailedKey,
 	FieldUploaderID,
+	FieldBatchID,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -88,6 +100,8 @@ var (
 	DefaultCreatedAt func() time.Time
 	// UploaderIDValidator is a validator for the "uploader_id" field. It is called by the builders before save.
 	UploaderIDValidator func(int) error
+	// BatchIDValidator is a validator for the "batch_id" field. It is called by the builders before save.
+	BatchIDValidator func(int) error
 )
 
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
@@ -168,6 +182,11 @@ func ByUploaderID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUploaderID, opts...).ToFunc()
 }
 
+// ByBatchID orders the results by the batch_id field.
+func ByBatchID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBatchID, opts...).ToFunc()
+}
+
 // ByWorkflowsCount orders the results by workflows count.
 func ByWorkflowsCount(opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
@@ -188,6 +207,13 @@ func ByUploaderField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newUploaderStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByBatchField orders the results by batch field.
+func ByBatchField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBatchStep(), sql.OrderByField(field, opts...))
+	}
+}
 func newWorkflowsStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
@@ -200,5 +226,12 @@ func newUploaderStep() *sqlgraph.Step {
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(UploaderInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UploaderTable, UploaderColumn),
+	)
+}
+func newBatchStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BatchInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, BatchTable, BatchColumn),
 	)
 }

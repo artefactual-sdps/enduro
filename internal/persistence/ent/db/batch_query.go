@@ -16,58 +16,56 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 )
 
-// SIPQuery is the builder for querying SIP entities.
-type SIPQuery struct {
+// BatchQuery is the builder for querying Batch entities.
+type BatchQuery struct {
 	config
-	ctx           *QueryContext
-	order         []sip.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.SIP
-	withWorkflows *WorkflowQuery
-	withUploader  *UserQuery
-	withBatch     *BatchQuery
+	ctx          *QueryContext
+	order        []batch.OrderOption
+	inters       []Interceptor
+	predicates   []predicate.Batch
+	withSips     *SIPQuery
+	withUploader *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
 }
 
-// Where adds a new predicate for the SIPQuery builder.
-func (_q *SIPQuery) Where(ps ...predicate.SIP) *SIPQuery {
+// Where adds a new predicate for the BatchQuery builder.
+func (_q *BatchQuery) Where(ps ...predicate.Batch) *BatchQuery {
 	_q.predicates = append(_q.predicates, ps...)
 	return _q
 }
 
 // Limit the number of records to be returned by this query.
-func (_q *SIPQuery) Limit(limit int) *SIPQuery {
+func (_q *BatchQuery) Limit(limit int) *BatchQuery {
 	_q.ctx.Limit = &limit
 	return _q
 }
 
 // Offset to start from.
-func (_q *SIPQuery) Offset(offset int) *SIPQuery {
+func (_q *BatchQuery) Offset(offset int) *BatchQuery {
 	_q.ctx.Offset = &offset
 	return _q
 }
 
 // Unique configures the query builder to filter duplicate records on query.
 // By default, unique is set to true, and can be disabled using this method.
-func (_q *SIPQuery) Unique(unique bool) *SIPQuery {
+func (_q *BatchQuery) Unique(unique bool) *BatchQuery {
 	_q.ctx.Unique = &unique
 	return _q
 }
 
 // Order specifies how the records should be ordered.
-func (_q *SIPQuery) Order(o ...sip.OrderOption) *SIPQuery {
+func (_q *BatchQuery) Order(o ...batch.OrderOption) *BatchQuery {
 	_q.order = append(_q.order, o...)
 	return _q
 }
 
-// QueryWorkflows chains the current query on the "workflows" edge.
-func (_q *SIPQuery) QueryWorkflows() *WorkflowQuery {
-	query := (&WorkflowClient{config: _q.config}).Query()
+// QuerySips chains the current query on the "sips" edge.
+func (_q *BatchQuery) QuerySips() *SIPQuery {
+	query := (&SIPClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
 			return nil, err
@@ -77,9 +75,9 @@ func (_q *SIPQuery) QueryWorkflows() *WorkflowQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(sip.Table, sip.FieldID, selector),
-			sqlgraph.To(workflow.Table, workflow.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, sip.WorkflowsTable, sip.WorkflowsColumn),
+			sqlgraph.From(batch.Table, batch.FieldID, selector),
+			sqlgraph.To(sip.Table, sip.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, batch.SipsTable, batch.SipsColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -88,7 +86,7 @@ func (_q *SIPQuery) QueryWorkflows() *WorkflowQuery {
 }
 
 // QueryUploader chains the current query on the "uploader" edge.
-func (_q *SIPQuery) QueryUploader() *UserQuery {
+func (_q *BatchQuery) QueryUploader() *UserQuery {
 	query := (&UserClient{config: _q.config}).Query()
 	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
 		if err := _q.prepareQuery(ctx); err != nil {
@@ -99,9 +97,9 @@ func (_q *SIPQuery) QueryUploader() *UserQuery {
 			return nil, err
 		}
 		step := sqlgraph.NewStep(
-			sqlgraph.From(sip.Table, sip.FieldID, selector),
+			sqlgraph.From(batch.Table, batch.FieldID, selector),
 			sqlgraph.To(user.Table, user.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, sip.UploaderTable, sip.UploaderColumn),
+			sqlgraph.Edge(sqlgraph.M2O, true, batch.UploaderTable, batch.UploaderColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
 		return fromU, nil
@@ -109,43 +107,21 @@ func (_q *SIPQuery) QueryUploader() *UserQuery {
 	return query
 }
 
-// QueryBatch chains the current query on the "batch" edge.
-func (_q *SIPQuery) QueryBatch() *BatchQuery {
-	query := (&BatchClient{config: _q.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := _q.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := _q.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(sip.Table, sip.FieldID, selector),
-			sqlgraph.To(batch.Table, batch.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, sip.BatchTable, sip.BatchColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(_q.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// First returns the first SIP entity from the query.
-// Returns a *NotFoundError when no SIP was found.
-func (_q *SIPQuery) First(ctx context.Context) (*SIP, error) {
+// First returns the first Batch entity from the query.
+// Returns a *NotFoundError when no Batch was found.
+func (_q *BatchQuery) First(ctx context.Context) (*Batch, error) {
 	nodes, err := _q.Limit(1).All(setContextOp(ctx, _q.ctx, ent.OpQueryFirst))
 	if err != nil {
 		return nil, err
 	}
 	if len(nodes) == 0 {
-		return nil, &NotFoundError{sip.Label}
+		return nil, &NotFoundError{batch.Label}
 	}
 	return nodes[0], nil
 }
 
 // FirstX is like First, but panics if an error occurs.
-func (_q *SIPQuery) FirstX(ctx context.Context) *SIP {
+func (_q *BatchQuery) FirstX(ctx context.Context) *Batch {
 	node, err := _q.First(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -153,22 +129,22 @@ func (_q *SIPQuery) FirstX(ctx context.Context) *SIP {
 	return node
 }
 
-// FirstID returns the first SIP ID from the query.
-// Returns a *NotFoundError when no SIP ID was found.
-func (_q *SIPQuery) FirstID(ctx context.Context) (id int, err error) {
+// FirstID returns the first Batch ID from the query.
+// Returns a *NotFoundError when no Batch ID was found.
+func (_q *BatchQuery) FirstID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = _q.Limit(1).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryFirstID)); err != nil {
 		return
 	}
 	if len(ids) == 0 {
-		err = &NotFoundError{sip.Label}
+		err = &NotFoundError{batch.Label}
 		return
 	}
 	return ids[0], nil
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (_q *SIPQuery) FirstIDX(ctx context.Context) int {
+func (_q *BatchQuery) FirstIDX(ctx context.Context) int {
 	id, err := _q.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -176,10 +152,10 @@ func (_q *SIPQuery) FirstIDX(ctx context.Context) int {
 	return id
 }
 
-// Only returns a single SIP entity found by the query, ensuring it only returns one.
-// Returns a *NotSingularError when more than one SIP entity is found.
-// Returns a *NotFoundError when no SIP entities are found.
-func (_q *SIPQuery) Only(ctx context.Context) (*SIP, error) {
+// Only returns a single Batch entity found by the query, ensuring it only returns one.
+// Returns a *NotSingularError when more than one Batch entity is found.
+// Returns a *NotFoundError when no Batch entities are found.
+func (_q *BatchQuery) Only(ctx context.Context) (*Batch, error) {
 	nodes, err := _q.Limit(2).All(setContextOp(ctx, _q.ctx, ent.OpQueryOnly))
 	if err != nil {
 		return nil, err
@@ -188,14 +164,14 @@ func (_q *SIPQuery) Only(ctx context.Context) (*SIP, error) {
 	case 1:
 		return nodes[0], nil
 	case 0:
-		return nil, &NotFoundError{sip.Label}
+		return nil, &NotFoundError{batch.Label}
 	default:
-		return nil, &NotSingularError{sip.Label}
+		return nil, &NotSingularError{batch.Label}
 	}
 }
 
 // OnlyX is like Only, but panics if an error occurs.
-func (_q *SIPQuery) OnlyX(ctx context.Context) *SIP {
+func (_q *BatchQuery) OnlyX(ctx context.Context) *Batch {
 	node, err := _q.Only(ctx)
 	if err != nil {
 		panic(err)
@@ -203,10 +179,10 @@ func (_q *SIPQuery) OnlyX(ctx context.Context) *SIP {
 	return node
 }
 
-// OnlyID is like Only, but returns the only SIP ID in the query.
-// Returns a *NotSingularError when more than one SIP ID is found.
+// OnlyID is like Only, but returns the only Batch ID in the query.
+// Returns a *NotSingularError when more than one Batch ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (_q *SIPQuery) OnlyID(ctx context.Context) (id int, err error) {
+func (_q *BatchQuery) OnlyID(ctx context.Context) (id int, err error) {
 	var ids []int
 	if ids, err = _q.Limit(2).IDs(setContextOp(ctx, _q.ctx, ent.OpQueryOnlyID)); err != nil {
 		return
@@ -215,15 +191,15 @@ func (_q *SIPQuery) OnlyID(ctx context.Context) (id int, err error) {
 	case 1:
 		id = ids[0]
 	case 0:
-		err = &NotFoundError{sip.Label}
+		err = &NotFoundError{batch.Label}
 	default:
-		err = &NotSingularError{sip.Label}
+		err = &NotSingularError{batch.Label}
 	}
 	return
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (_q *SIPQuery) OnlyIDX(ctx context.Context) int {
+func (_q *BatchQuery) OnlyIDX(ctx context.Context) int {
 	id, err := _q.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -231,18 +207,18 @@ func (_q *SIPQuery) OnlyIDX(ctx context.Context) int {
 	return id
 }
 
-// All executes the query and returns a list of SIPs.
-func (_q *SIPQuery) All(ctx context.Context) ([]*SIP, error) {
+// All executes the query and returns a list of Batches.
+func (_q *BatchQuery) All(ctx context.Context) ([]*Batch, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryAll)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return nil, err
 	}
-	qr := querierAll[[]*SIP, *SIPQuery]()
-	return withInterceptors[[]*SIP](ctx, _q, qr, _q.inters)
+	qr := querierAll[[]*Batch, *BatchQuery]()
+	return withInterceptors[[]*Batch](ctx, _q, qr, _q.inters)
 }
 
 // AllX is like All, but panics if an error occurs.
-func (_q *SIPQuery) AllX(ctx context.Context) []*SIP {
+func (_q *BatchQuery) AllX(ctx context.Context) []*Batch {
 	nodes, err := _q.All(ctx)
 	if err != nil {
 		panic(err)
@@ -250,20 +226,20 @@ func (_q *SIPQuery) AllX(ctx context.Context) []*SIP {
 	return nodes
 }
 
-// IDs executes the query and returns a list of SIP IDs.
-func (_q *SIPQuery) IDs(ctx context.Context) (ids []int, err error) {
+// IDs executes the query and returns a list of Batch IDs.
+func (_q *BatchQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if _q.ctx.Unique == nil && _q.path != nil {
 		_q.Unique(true)
 	}
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryIDs)
-	if err = _q.Select(sip.FieldID).Scan(ctx, &ids); err != nil {
+	if err = _q.Select(batch.FieldID).Scan(ctx, &ids); err != nil {
 		return nil, err
 	}
 	return ids, nil
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (_q *SIPQuery) IDsX(ctx context.Context) []int {
+func (_q *BatchQuery) IDsX(ctx context.Context) []int {
 	ids, err := _q.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -272,16 +248,16 @@ func (_q *SIPQuery) IDsX(ctx context.Context) []int {
 }
 
 // Count returns the count of the given query.
-func (_q *SIPQuery) Count(ctx context.Context) (int, error) {
+func (_q *BatchQuery) Count(ctx context.Context) (int, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryCount)
 	if err := _q.prepareQuery(ctx); err != nil {
 		return 0, err
 	}
-	return withInterceptors[int](ctx, _q, querierCount[*SIPQuery](), _q.inters)
+	return withInterceptors[int](ctx, _q, querierCount[*BatchQuery](), _q.inters)
 }
 
 // CountX is like Count, but panics if an error occurs.
-func (_q *SIPQuery) CountX(ctx context.Context) int {
+func (_q *BatchQuery) CountX(ctx context.Context) int {
 	count, err := _q.Count(ctx)
 	if err != nil {
 		panic(err)
@@ -290,7 +266,7 @@ func (_q *SIPQuery) CountX(ctx context.Context) int {
 }
 
 // Exist returns true if the query has elements in the graph.
-func (_q *SIPQuery) Exist(ctx context.Context) (bool, error) {
+func (_q *BatchQuery) Exist(ctx context.Context) (bool, error) {
 	ctx = setContextOp(ctx, _q.ctx, ent.OpQueryExist)
 	switch _, err := _q.FirstID(ctx); {
 	case IsNotFound(err):
@@ -303,7 +279,7 @@ func (_q *SIPQuery) Exist(ctx context.Context) (bool, error) {
 }
 
 // ExistX is like Exist, but panics if an error occurs.
-func (_q *SIPQuery) ExistX(ctx context.Context) bool {
+func (_q *BatchQuery) ExistX(ctx context.Context) bool {
 	exist, err := _q.Exist(ctx)
 	if err != nil {
 		panic(err)
@@ -311,57 +287,45 @@ func (_q *SIPQuery) ExistX(ctx context.Context) bool {
 	return exist
 }
 
-// Clone returns a duplicate of the SIPQuery builder, including all associated steps. It can be
+// Clone returns a duplicate of the BatchQuery builder, including all associated steps. It can be
 // used to prepare common query builders and use them differently after the clone is made.
-func (_q *SIPQuery) Clone() *SIPQuery {
+func (_q *BatchQuery) Clone() *BatchQuery {
 	if _q == nil {
 		return nil
 	}
-	return &SIPQuery{
-		config:        _q.config,
-		ctx:           _q.ctx.Clone(),
-		order:         append([]sip.OrderOption{}, _q.order...),
-		inters:        append([]Interceptor{}, _q.inters...),
-		predicates:    append([]predicate.SIP{}, _q.predicates...),
-		withWorkflows: _q.withWorkflows.Clone(),
-		withUploader:  _q.withUploader.Clone(),
-		withBatch:     _q.withBatch.Clone(),
+	return &BatchQuery{
+		config:       _q.config,
+		ctx:          _q.ctx.Clone(),
+		order:        append([]batch.OrderOption{}, _q.order...),
+		inters:       append([]Interceptor{}, _q.inters...),
+		predicates:   append([]predicate.Batch{}, _q.predicates...),
+		withSips:     _q.withSips.Clone(),
+		withUploader: _q.withUploader.Clone(),
 		// clone intermediate query.
 		sql:  _q.sql.Clone(),
 		path: _q.path,
 	}
 }
 
-// WithWorkflows tells the query-builder to eager-load the nodes that are connected to
-// the "workflows" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *SIPQuery) WithWorkflows(opts ...func(*WorkflowQuery)) *SIPQuery {
-	query := (&WorkflowClient{config: _q.config}).Query()
+// WithSips tells the query-builder to eager-load the nodes that are connected to
+// the "sips" edge. The optional arguments are used to configure the query builder of the edge.
+func (_q *BatchQuery) WithSips(opts ...func(*SIPQuery)) *BatchQuery {
+	query := (&SIPClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
-	_q.withWorkflows = query
+	_q.withSips = query
 	return _q
 }
 
 // WithUploader tells the query-builder to eager-load the nodes that are connected to
 // the "uploader" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *SIPQuery) WithUploader(opts ...func(*UserQuery)) *SIPQuery {
+func (_q *BatchQuery) WithUploader(opts ...func(*UserQuery)) *BatchQuery {
 	query := (&UserClient{config: _q.config}).Query()
 	for _, opt := range opts {
 		opt(query)
 	}
 	_q.withUploader = query
-	return _q
-}
-
-// WithBatch tells the query-builder to eager-load the nodes that are connected to
-// the "batch" edge. The optional arguments are used to configure the query builder of the edge.
-func (_q *SIPQuery) WithBatch(opts ...func(*BatchQuery)) *SIPQuery {
-	query := (&BatchClient{config: _q.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	_q.withBatch = query
 	return _q
 }
 
@@ -375,15 +339,15 @@ func (_q *SIPQuery) WithBatch(opts ...func(*BatchQuery)) *SIPQuery {
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.SIP.Query().
-//		GroupBy(sip.FieldUUID).
+//	client.Batch.Query().
+//		GroupBy(batch.FieldUUID).
 //		Aggregate(db.Count()).
 //		Scan(ctx, &v)
-func (_q *SIPQuery) GroupBy(field string, fields ...string) *SIPGroupBy {
+func (_q *BatchQuery) GroupBy(field string, fields ...string) *BatchGroupBy {
 	_q.ctx.Fields = append([]string{field}, fields...)
-	grbuild := &SIPGroupBy{build: _q}
+	grbuild := &BatchGroupBy{build: _q}
 	grbuild.flds = &_q.ctx.Fields
-	grbuild.label = sip.Label
+	grbuild.label = batch.Label
 	grbuild.scan = grbuild.Scan
 	return grbuild
 }
@@ -397,23 +361,23 @@ func (_q *SIPQuery) GroupBy(field string, fields ...string) *SIPGroupBy {
 //		UUID uuid.UUID `json:"uuid,omitempty"`
 //	}
 //
-//	client.SIP.Query().
-//		Select(sip.FieldUUID).
+//	client.Batch.Query().
+//		Select(batch.FieldUUID).
 //		Scan(ctx, &v)
-func (_q *SIPQuery) Select(fields ...string) *SIPSelect {
+func (_q *BatchQuery) Select(fields ...string) *BatchSelect {
 	_q.ctx.Fields = append(_q.ctx.Fields, fields...)
-	sbuild := &SIPSelect{SIPQuery: _q}
-	sbuild.label = sip.Label
+	sbuild := &BatchSelect{BatchQuery: _q}
+	sbuild.label = batch.Label
 	sbuild.flds, sbuild.scan = &_q.ctx.Fields, sbuild.Scan
 	return sbuild
 }
 
-// Aggregate returns a SIPSelect configured with the given aggregations.
-func (_q *SIPQuery) Aggregate(fns ...AggregateFunc) *SIPSelect {
+// Aggregate returns a BatchSelect configured with the given aggregations.
+func (_q *BatchQuery) Aggregate(fns ...AggregateFunc) *BatchSelect {
 	return _q.Select().Aggregate(fns...)
 }
 
-func (_q *SIPQuery) prepareQuery(ctx context.Context) error {
+func (_q *BatchQuery) prepareQuery(ctx context.Context) error {
 	for _, inter := range _q.inters {
 		if inter == nil {
 			return fmt.Errorf("db: uninitialized interceptor (forgotten import db/runtime?)")
@@ -425,7 +389,7 @@ func (_q *SIPQuery) prepareQuery(ctx context.Context) error {
 		}
 	}
 	for _, f := range _q.ctx.Fields {
-		if !sip.ValidColumn(f) {
+		if !batch.ValidColumn(f) {
 			return &ValidationError{Name: f, err: fmt.Errorf("db: invalid field %q for query", f)}
 		}
 	}
@@ -439,21 +403,20 @@ func (_q *SIPQuery) prepareQuery(ctx context.Context) error {
 	return nil
 }
 
-func (_q *SIPQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SIP, error) {
+func (_q *BatchQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Batch, error) {
 	var (
-		nodes       = []*SIP{}
+		nodes       = []*Batch{}
 		_spec       = _q.querySpec()
-		loadedTypes = [3]bool{
-			_q.withWorkflows != nil,
+		loadedTypes = [2]bool{
+			_q.withSips != nil,
 			_q.withUploader != nil,
-			_q.withBatch != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
-		return (*SIP).scanValues(nil, columns)
+		return (*Batch).scanValues(nil, columns)
 	}
 	_spec.Assign = func(columns []string, values []any) error {
-		node := &SIP{config: _q.config}
+		node := &Batch{config: _q.config}
 		nodes = append(nodes, node)
 		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
@@ -467,31 +430,25 @@ func (_q *SIPQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*SIP, err
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
-	if query := _q.withWorkflows; query != nil {
-		if err := _q.loadWorkflows(ctx, query, nodes,
-			func(n *SIP) { n.Edges.Workflows = []*Workflow{} },
-			func(n *SIP, e *Workflow) { n.Edges.Workflows = append(n.Edges.Workflows, e) }); err != nil {
+	if query := _q.withSips; query != nil {
+		if err := _q.loadSips(ctx, query, nodes,
+			func(n *Batch) { n.Edges.Sips = []*SIP{} },
+			func(n *Batch, e *SIP) { n.Edges.Sips = append(n.Edges.Sips, e) }); err != nil {
 			return nil, err
 		}
 	}
 	if query := _q.withUploader; query != nil {
 		if err := _q.loadUploader(ctx, query, nodes, nil,
-			func(n *SIP, e *User) { n.Edges.Uploader = e }); err != nil {
-			return nil, err
-		}
-	}
-	if query := _q.withBatch; query != nil {
-		if err := _q.loadBatch(ctx, query, nodes, nil,
-			func(n *SIP, e *Batch) { n.Edges.Batch = e }); err != nil {
+			func(n *Batch, e *User) { n.Edges.Uploader = e }); err != nil {
 			return nil, err
 		}
 	}
 	return nodes, nil
 }
 
-func (_q *SIPQuery) loadWorkflows(ctx context.Context, query *WorkflowQuery, nodes []*SIP, init func(*SIP), assign func(*SIP, *Workflow)) error {
+func (_q *BatchQuery) loadSips(ctx context.Context, query *SIPQuery, nodes []*Batch, init func(*Batch), assign func(*Batch, *SIP)) error {
 	fks := make([]driver.Value, 0, len(nodes))
-	nodeids := make(map[int]*SIP)
+	nodeids := make(map[int]*Batch)
 	for i := range nodes {
 		fks = append(fks, nodes[i].ID)
 		nodeids[nodes[i].ID] = nodes[i]
@@ -500,28 +457,28 @@ func (_q *SIPQuery) loadWorkflows(ctx context.Context, query *WorkflowQuery, nod
 		}
 	}
 	if len(query.ctx.Fields) > 0 {
-		query.ctx.AppendFieldOnce(workflow.FieldSipID)
+		query.ctx.AppendFieldOnce(sip.FieldBatchID)
 	}
-	query.Where(predicate.Workflow(func(s *sql.Selector) {
-		s.Where(sql.InValues(s.C(sip.WorkflowsColumn), fks...))
+	query.Where(predicate.SIP(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(batch.SipsColumn), fks...))
 	}))
 	neighbors, err := query.All(ctx)
 	if err != nil {
 		return err
 	}
 	for _, n := range neighbors {
-		fk := n.SipID
+		fk := n.BatchID
 		node, ok := nodeids[fk]
 		if !ok {
-			return fmt.Errorf(`unexpected referenced foreign-key "sip_id" returned %v for node %v`, fk, n.ID)
+			return fmt.Errorf(`unexpected referenced foreign-key "batch_id" returned %v for node %v`, fk, n.ID)
 		}
 		assign(node, n)
 	}
 	return nil
 }
-func (_q *SIPQuery) loadUploader(ctx context.Context, query *UserQuery, nodes []*SIP, init func(*SIP), assign func(*SIP, *User)) error {
+func (_q *BatchQuery) loadUploader(ctx context.Context, query *UserQuery, nodes []*Batch, init func(*Batch), assign func(*Batch, *User)) error {
 	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*SIP)
+	nodeids := make(map[int][]*Batch)
 	for i := range nodes {
 		fk := nodes[i].UploaderID
 		if _, ok := nodeids[fk]; !ok {
@@ -548,37 +505,8 @@ func (_q *SIPQuery) loadUploader(ctx context.Context, query *UserQuery, nodes []
 	}
 	return nil
 }
-func (_q *SIPQuery) loadBatch(ctx context.Context, query *BatchQuery, nodes []*SIP, init func(*SIP), assign func(*SIP, *Batch)) error {
-	ids := make([]int, 0, len(nodes))
-	nodeids := make(map[int][]*SIP)
-	for i := range nodes {
-		fk := nodes[i].BatchID
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(batch.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "batch_id" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
 
-func (_q *SIPQuery) sqlCount(ctx context.Context) (int, error) {
+func (_q *BatchQuery) sqlCount(ctx context.Context) (int, error) {
 	_spec := _q.querySpec()
 	_spec.Node.Columns = _q.ctx.Fields
 	if len(_q.ctx.Fields) > 0 {
@@ -587,8 +515,8 @@ func (_q *SIPQuery) sqlCount(ctx context.Context) (int, error) {
 	return sqlgraph.CountNodes(ctx, _q.driver, _spec)
 }
 
-func (_q *SIPQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(sip.Table, sip.Columns, sqlgraph.NewFieldSpec(sip.FieldID, field.TypeInt))
+func (_q *BatchQuery) querySpec() *sqlgraph.QuerySpec {
+	_spec := sqlgraph.NewQuerySpec(batch.Table, batch.Columns, sqlgraph.NewFieldSpec(batch.FieldID, field.TypeInt))
 	_spec.From = _q.sql
 	if unique := _q.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
@@ -597,17 +525,14 @@ func (_q *SIPQuery) querySpec() *sqlgraph.QuerySpec {
 	}
 	if fields := _q.ctx.Fields; len(fields) > 0 {
 		_spec.Node.Columns = make([]string, 0, len(fields))
-		_spec.Node.Columns = append(_spec.Node.Columns, sip.FieldID)
+		_spec.Node.Columns = append(_spec.Node.Columns, batch.FieldID)
 		for i := range fields {
-			if fields[i] != sip.FieldID {
+			if fields[i] != batch.FieldID {
 				_spec.Node.Columns = append(_spec.Node.Columns, fields[i])
 			}
 		}
 		if _q.withUploader != nil {
-			_spec.Node.AddColumnOnce(sip.FieldUploaderID)
-		}
-		if _q.withBatch != nil {
-			_spec.Node.AddColumnOnce(sip.FieldBatchID)
+			_spec.Node.AddColumnOnce(batch.FieldUploaderID)
 		}
 	}
 	if ps := _q.predicates; len(ps) > 0 {
@@ -633,12 +558,12 @@ func (_q *SIPQuery) querySpec() *sqlgraph.QuerySpec {
 	return _spec
 }
 
-func (_q *SIPQuery) sqlQuery(ctx context.Context) *sql.Selector {
+func (_q *BatchQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	builder := sql.Dialect(_q.driver.Dialect())
-	t1 := builder.Table(sip.Table)
+	t1 := builder.Table(batch.Table)
 	columns := _q.ctx.Fields
 	if len(columns) == 0 {
-		columns = sip.Columns
+		columns = batch.Columns
 	}
 	selector := builder.Select(t1.Columns(columns...)...).From(t1)
 	if _q.sql != nil {
@@ -665,28 +590,28 @@ func (_q *SIPQuery) sqlQuery(ctx context.Context) *sql.Selector {
 	return selector
 }
 
-// SIPGroupBy is the group-by builder for SIP entities.
-type SIPGroupBy struct {
+// BatchGroupBy is the group-by builder for Batch entities.
+type BatchGroupBy struct {
 	selector
-	build *SIPQuery
+	build *BatchQuery
 }
 
 // Aggregate adds the given aggregation functions to the group-by query.
-func (_g *SIPGroupBy) Aggregate(fns ...AggregateFunc) *SIPGroupBy {
+func (_g *BatchGroupBy) Aggregate(fns ...AggregateFunc) *BatchGroupBy {
 	_g.fns = append(_g.fns, fns...)
 	return _g
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_g *SIPGroupBy) Scan(ctx context.Context, v any) error {
+func (_g *BatchGroupBy) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _g.build.ctx, ent.OpQueryGroupBy)
 	if err := _g.build.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*SIPQuery, *SIPGroupBy](ctx, _g.build, _g, _g.build.inters, v)
+	return scanWithInterceptors[*BatchQuery, *BatchGroupBy](ctx, _g.build, _g, _g.build.inters, v)
 }
 
-func (_g *SIPGroupBy) sqlScan(ctx context.Context, root *SIPQuery, v any) error {
+func (_g *BatchGroupBy) sqlScan(ctx context.Context, root *BatchQuery, v any) error {
 	selector := root.sqlQuery(ctx).Select()
 	aggregation := make([]string, 0, len(_g.fns))
 	for _, fn := range _g.fns {
@@ -713,28 +638,28 @@ func (_g *SIPGroupBy) sqlScan(ctx context.Context, root *SIPQuery, v any) error 
 	return sql.ScanSlice(rows, v)
 }
 
-// SIPSelect is the builder for selecting fields of SIP entities.
-type SIPSelect struct {
-	*SIPQuery
+// BatchSelect is the builder for selecting fields of Batch entities.
+type BatchSelect struct {
+	*BatchQuery
 	selector
 }
 
 // Aggregate adds the given aggregation functions to the selector query.
-func (_s *SIPSelect) Aggregate(fns ...AggregateFunc) *SIPSelect {
+func (_s *BatchSelect) Aggregate(fns ...AggregateFunc) *BatchSelect {
 	_s.fns = append(_s.fns, fns...)
 	return _s
 }
 
 // Scan applies the selector query and scans the result into the given value.
-func (_s *SIPSelect) Scan(ctx context.Context, v any) error {
+func (_s *BatchSelect) Scan(ctx context.Context, v any) error {
 	ctx = setContextOp(ctx, _s.ctx, ent.OpQuerySelect)
 	if err := _s.prepareQuery(ctx); err != nil {
 		return err
 	}
-	return scanWithInterceptors[*SIPQuery, *SIPSelect](ctx, _s.SIPQuery, _s, _s.inters, v)
+	return scanWithInterceptors[*BatchQuery, *BatchSelect](ctx, _s.BatchQuery, _s, _s.inters, v)
 }
 
-func (_s *SIPSelect) sqlScan(ctx context.Context, root *SIPQuery, v any) error {
+func (_s *BatchSelect) sqlScan(ctx context.Context, root *BatchQuery, v any) error {
 	selector := root.sqlQuery(ctx)
 	aggregation := make([]string, 0, len(_s.fns))
 	for _, fn := range _s.fns {

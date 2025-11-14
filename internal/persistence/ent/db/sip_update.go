@@ -12,6 +12,7 @@ import (
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
 	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/batch"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/predicate"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
@@ -180,6 +181,26 @@ func (_u *SIPUpdate) ClearUploaderID() *SIPUpdate {
 	return _u
 }
 
+// SetBatchID sets the "batch_id" field.
+func (_u *SIPUpdate) SetBatchID(v int) *SIPUpdate {
+	_u.mutation.SetBatchID(v)
+	return _u
+}
+
+// SetNillableBatchID sets the "batch_id" field if the given value is not nil.
+func (_u *SIPUpdate) SetNillableBatchID(v *int) *SIPUpdate {
+	if v != nil {
+		_u.SetBatchID(*v)
+	}
+	return _u
+}
+
+// ClearBatchID clears the value of the "batch_id" field.
+func (_u *SIPUpdate) ClearBatchID() *SIPUpdate {
+	_u.mutation.ClearBatchID()
+	return _u
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (_u *SIPUpdate) AddWorkflowIDs(ids ...int) *SIPUpdate {
 	_u.mutation.AddWorkflowIDs(ids...)
@@ -198,6 +219,11 @@ func (_u *SIPUpdate) AddWorkflows(v ...*Workflow) *SIPUpdate {
 // SetUploader sets the "uploader" edge to the User entity.
 func (_u *SIPUpdate) SetUploader(v *User) *SIPUpdate {
 	return _u.SetUploaderID(v.ID)
+}
+
+// SetBatch sets the "batch" edge to the Batch entity.
+func (_u *SIPUpdate) SetBatch(v *Batch) *SIPUpdate {
+	return _u.SetBatchID(v.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -229,6 +255,12 @@ func (_u *SIPUpdate) RemoveWorkflows(v ...*Workflow) *SIPUpdate {
 // ClearUploader clears the "uploader" edge to the User entity.
 func (_u *SIPUpdate) ClearUploader() *SIPUpdate {
 	_u.mutation.ClearUploader()
+	return _u
+}
+
+// ClearBatch clears the "batch" edge to the Batch entity.
+func (_u *SIPUpdate) ClearBatch() *SIPUpdate {
+	_u.mutation.ClearBatch()
 	return _u
 }
 
@@ -274,6 +306,11 @@ func (_u *SIPUpdate) check() error {
 	if v, ok := _u.mutation.UploaderID(); ok {
 		if err := sip.UploaderIDValidator(v); err != nil {
 			return &ValidationError{Name: "uploader_id", err: fmt.Errorf(`db: validator failed for field "SIP.uploader_id": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.BatchID(); ok {
+		if err := sip.BatchIDValidator(v); err != nil {
+			return &ValidationError{Name: "batch_id", err: fmt.Errorf(`db: validator failed for field "SIP.batch_id": %w`, err)}
 		}
 	}
 	return nil
@@ -394,6 +431,35 @@ func (_u *SIPUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.BatchCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   sip.BatchTable,
+			Columns: []string{sip.BatchColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(batch.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.BatchIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   sip.BatchTable,
+			Columns: []string{sip.BatchColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(batch.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -569,6 +635,26 @@ func (_u *SIPUpdateOne) ClearUploaderID() *SIPUpdateOne {
 	return _u
 }
 
+// SetBatchID sets the "batch_id" field.
+func (_u *SIPUpdateOne) SetBatchID(v int) *SIPUpdateOne {
+	_u.mutation.SetBatchID(v)
+	return _u
+}
+
+// SetNillableBatchID sets the "batch_id" field if the given value is not nil.
+func (_u *SIPUpdateOne) SetNillableBatchID(v *int) *SIPUpdateOne {
+	if v != nil {
+		_u.SetBatchID(*v)
+	}
+	return _u
+}
+
+// ClearBatchID clears the value of the "batch_id" field.
+func (_u *SIPUpdateOne) ClearBatchID() *SIPUpdateOne {
+	_u.mutation.ClearBatchID()
+	return _u
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (_u *SIPUpdateOne) AddWorkflowIDs(ids ...int) *SIPUpdateOne {
 	_u.mutation.AddWorkflowIDs(ids...)
@@ -587,6 +673,11 @@ func (_u *SIPUpdateOne) AddWorkflows(v ...*Workflow) *SIPUpdateOne {
 // SetUploader sets the "uploader" edge to the User entity.
 func (_u *SIPUpdateOne) SetUploader(v *User) *SIPUpdateOne {
 	return _u.SetUploaderID(v.ID)
+}
+
+// SetBatch sets the "batch" edge to the Batch entity.
+func (_u *SIPUpdateOne) SetBatch(v *Batch) *SIPUpdateOne {
+	return _u.SetBatchID(v.ID)
 }
 
 // Mutation returns the SIPMutation object of the builder.
@@ -618,6 +709,12 @@ func (_u *SIPUpdateOne) RemoveWorkflows(v ...*Workflow) *SIPUpdateOne {
 // ClearUploader clears the "uploader" edge to the User entity.
 func (_u *SIPUpdateOne) ClearUploader() *SIPUpdateOne {
 	_u.mutation.ClearUploader()
+	return _u
+}
+
+// ClearBatch clears the "batch" edge to the Batch entity.
+func (_u *SIPUpdateOne) ClearBatch() *SIPUpdateOne {
+	_u.mutation.ClearBatch()
 	return _u
 }
 
@@ -676,6 +773,11 @@ func (_u *SIPUpdateOne) check() error {
 	if v, ok := _u.mutation.UploaderID(); ok {
 		if err := sip.UploaderIDValidator(v); err != nil {
 			return &ValidationError{Name: "uploader_id", err: fmt.Errorf(`db: validator failed for field "SIP.uploader_id": %w`, err)}
+		}
+	}
+	if v, ok := _u.mutation.BatchID(); ok {
+		if err := sip.BatchIDValidator(v); err != nil {
+			return &ValidationError{Name: "batch_id", err: fmt.Errorf(`db: validator failed for field "SIP.batch_id": %w`, err)}
 		}
 	}
 	return nil
@@ -813,6 +915,35 @@ func (_u *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
 				IDSpec: sqlgraph.NewFieldSpec(user.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
+	}
+	if _u.mutation.BatchCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   sip.BatchTable,
+			Columns: []string{sip.BatchColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(batch.FieldID, field.TypeInt),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := _u.mutation.BatchIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   sip.BatchTable,
+			Columns: []string{sip.BatchColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(batch.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

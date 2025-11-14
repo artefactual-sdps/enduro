@@ -29,6 +29,7 @@ func TestCreateSIP(t *testing.T) {
 	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
 	uploaderID := uuid.New()
 	uploaderID2 := uuid.New()
+	batchUUID := uuid.New()
 
 	tests := []struct {
 		name    string
@@ -134,6 +135,37 @@ func TestCreateSIP(t *testing.T) {
 			},
 		},
 		{
+			name: "Creates a SIP linked to a batch",
+			sip: &datatypes.SIP{
+				UUID:   sipUUID,
+				Name:   "Test SIP 5",
+				Status: enums.SIPStatusQueued,
+				Batch: &datatypes.Batch{
+					ID:         1,
+					UUID:       batchUUID,
+					Identifier: batchUUID.String(),
+					Status:     enums.BatchStatusProcessing,
+					SIPSCount:  5,
+					CreatedAt:  time.Now(),
+				},
+			},
+			want: &datatypes.SIP{
+				ID:        1,
+				UUID:      sipUUID,
+				Name:      "Test SIP 5",
+				Status:    enums.SIPStatusQueued,
+				CreatedAt: time.Now(),
+				Batch: &datatypes.Batch{
+					ID:         1,
+					UUID:       batchUUID,
+					Identifier: batchUUID.String(),
+					Status:     enums.BatchStatusProcessing,
+					SIPSCount:  5,
+					CreatedAt:  time.Now(),
+				},
+			},
+		},
+		{
 			name:    "Required field error for missing UUID",
 			sip:     &datatypes.SIP{},
 			wantErr: "invalid data error: field \"UUID\" is required",
@@ -151,6 +183,11 @@ func TestCreateSIP(t *testing.T) {
 			c, svc := setUpClient(t, logr.Discard())
 			ctx := t.Context()
 			sip := *tt.sip // Make a local copy of sip.
+
+			if sip.Batch != nil {
+				err := svc.CreateBatch(ctx, sip.Batch)
+				assert.NilError(t, err)
+			}
 
 			_, err := createUser(t, c, uploaderID)
 			assert.NilError(t, err)
@@ -184,6 +221,7 @@ func TestUpdateSIP(t *testing.T) {
 		Valid: true,
 	}
 	uploaderID := uuid.New()
+	batchUUID := uuid.New()
 
 	started := sql.NullTime{Time: time.Now(), Valid: true}
 	started2 := sql.NullTime{
@@ -226,6 +264,14 @@ func TestUpdateSIP(t *testing.T) {
 						OIDCIss: "https://example.com/oidc",
 						OIDCSub: "1234567890",
 					},
+					Batch: &datatypes.Batch{
+						ID:         1,
+						UUID:       batchUUID,
+						Identifier: "batch-identifier",
+						Status:     enums.BatchStatusProcessing,
+						SIPSCount:  5,
+						CreatedAt:  time.Now(),
+					},
 				},
 				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
 					s.ID = 100        // No-op, can't update ID.
@@ -260,6 +306,14 @@ func TestUpdateSIP(t *testing.T) {
 					CreatedAt: time.Now(),
 					OIDCIss:   "https://example.com/oidc",
 					OIDCSub:   "1234567890",
+				},
+				Batch: &datatypes.Batch{
+					ID:         1,
+					UUID:       batchUUID,
+					Identifier: "batch-identifier",
+					Status:     enums.BatchStatusProcessing,
+					SIPSCount:  5,
+					CreatedAt:  time.Now(),
 				},
 			},
 		},
@@ -362,6 +416,11 @@ func TestUpdateSIP(t *testing.T) {
 				_, err := createUser(t, c, uploaderID)
 				assert.NilError(t, err)
 
+				if sip.Batch != nil {
+					err := svc.CreateBatch(ctx, sip.Batch)
+					assert.NilError(t, err)
+				}
+
 				err = svc.CreateSIP(ctx, &sip)
 				assert.NilError(t, err)
 			}
@@ -386,7 +445,7 @@ func TestDeleteSIP(t *testing.T) {
 
 	for _, tc := range []struct {
 		name    string
-		id      int
+		id      uuid.UUID
 		wantErr string
 	}{
 		{
@@ -394,14 +453,14 @@ func TestDeleteSIP(t *testing.T) {
 		},
 		{
 			name:    "Fails to delete a missing SIP",
-			id:      12345,
+			id:      uuid.New(),
 			wantErr: "not found error: db: sip not found: delete SIP",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			client, svc := setUpClient(t, logr.Discard())
+			_, svc := setUpClient(t, logr.Discard())
 			ctx := t.Context()
 
 			sip := &datatypes.SIP{
@@ -413,8 +472,8 @@ func TestDeleteSIP(t *testing.T) {
 			err := svc.CreateSIP(ctx, sip)
 			assert.NilError(t, err)
 
-			if tc.id == 0 {
-				tc.id = sip.ID
+			if tc.id == uuid.Nil {
+				tc.id = sipUUID
 			}
 
 			err = svc.DeleteSIP(ctx, tc.id)
@@ -424,8 +483,8 @@ func TestDeleteSIP(t *testing.T) {
 			}
 			assert.NilError(t, err)
 
-			_, err = client.SIP.Get(ctx, tc.id)
-			assert.Error(t, err, "db: sip not found")
+			_, err = svc.ReadSIP(ctx, tc.id)
+			assert.Error(t, err, "not found error: db: sip not found")
 		})
 	}
 }
@@ -434,6 +493,7 @@ func TestReadSIP(t *testing.T) {
 	t.Parallel()
 
 	uploaderID := uuid.New()
+	batchUUID := uuid.New()
 
 	for _, tt := range []struct {
 		name    string
@@ -463,6 +523,14 @@ func TestReadSIP(t *testing.T) {
 					OIDCIss:   "https://example.com/oidc",
 					OIDCSub:   "1234567890",
 				},
+				Batch: &datatypes.Batch{
+					ID:         1,
+					UUID:       batchUUID,
+					Identifier: "batch-identifier",
+					Status:     enums.BatchStatusProcessing,
+					SIPSCount:  5,
+					CreatedAt:  time.Now(),
+				},
 			},
 		},
 		{
@@ -481,6 +549,11 @@ func TestReadSIP(t *testing.T) {
 				user, err := createUser(t, entc, uploaderID)
 				assert.NilError(t, err)
 
+				if tt.want.Batch != nil {
+					err := svc.CreateBatch(ctx, tt.want.Batch)
+					assert.NilError(t, err)
+				}
+
 				_, err = entc.SIP.Create().
 					SetUUID(tt.want.UUID).
 					SetName(tt.want.Name).
@@ -492,6 +565,7 @@ func TestReadSIP(t *testing.T) {
 					SetFailedAs(tt.want.FailedAs).
 					SetFailedKey(tt.want.FailedKey).
 					SetUploader(user).
+					SetBatchID(tt.want.Batch.ID).
 					Save(ctx)
 				assert.NilError(t, err)
 			}
@@ -523,6 +597,8 @@ func TestListSIPs(t *testing.T) {
 	}
 	uploaderID := uuid.New()
 	uploaderID2 := uuid.New()
+	batchID := uuid.New()
+	batchID2 := uuid.New()
 
 	started := sql.NullTime{
 		Time: func() time.Time {
@@ -1032,6 +1108,70 @@ func TestListSIPs(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "Returns SIPs filtered by BatchID",
+			data: []*datatypes.SIP{
+				{
+					UUID:        sipUUID,
+					Name:        "Test SIP 1",
+					AIPID:       aipID,
+					Status:      enums.SIPStatusIngested,
+					StartedAt:   started,
+					CompletedAt: completed,
+					Batch: &datatypes.Batch{
+						UUID:       batchID,
+						Identifier: "Test Batch 1",
+						Status:     enums.BatchStatusIngested,
+						SIPSCount:  5,
+						CreatedAt:  time.Now(),
+					},
+				},
+				{
+					UUID:        sipUUID2,
+					Name:        "Test SIP 2",
+					AIPID:       aipID2,
+					Status:      enums.SIPStatusProcessing,
+					StartedAt:   started2,
+					CompletedAt: completed2,
+					Batch: &datatypes.Batch{
+						UUID:       batchID2,
+						Identifier: "Test Batch 2",
+						Status:     enums.BatchStatusProcessing,
+						SIPSCount:  10,
+						CreatedAt:  time.Now(),
+					},
+				},
+			},
+			sipFilter: &persistence.SIPFilter{
+				BatchID: ref.New(batchID2),
+			},
+			want: results{
+				data: []*datatypes.SIP{
+					{
+						ID:          2,
+						UUID:        sipUUID2,
+						Name:        "Test SIP 2",
+						AIPID:       aipID2,
+						Status:      enums.SIPStatusProcessing,
+						CreatedAt:   time.Now(),
+						StartedAt:   started2,
+						CompletedAt: completed2,
+						Batch: &datatypes.Batch{
+							ID:         2,
+							UUID:       batchID2,
+							Identifier: "Test Batch 2",
+							Status:     enums.BatchStatusProcessing,
+							SIPSCount:  10,
+							CreatedAt:  time.Now(),
+						},
+					},
+				},
+				page: &persistence.Page{
+					Limit: entfilter.DefaultPageSize,
+					Total: 1,
+				},
+			},
+		},
 	}
 
 	for _, tt := range tests {
@@ -1071,6 +1211,17 @@ func TestListSIPs(t *testing.T) {
 							Save(t.Context())
 						assert.NilError(t, err)
 						q.SetUploader(user)
+					}
+					if sip.Batch != nil {
+						batch, err := entc.Batch.Create().
+							SetUUID(sip.Batch.UUID).
+							SetIdentifier(sip.Batch.Identifier).
+							SetStatus(sip.Batch.Status).
+							SetSipsCount(sip.Batch.SIPSCount).
+							SetCreatedAt(sip.Batch.CreatedAt).
+							Save(t.Context())
+						assert.NilError(t, err)
+						q.SetBatch(batch)
 					}
 
 					_, err := q.Save(ctx)

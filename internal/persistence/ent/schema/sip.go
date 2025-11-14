@@ -58,6 +58,9 @@ func (SIP) Fields() []ent.Field {
 		field.Int("uploader_id").
 			Optional().
 			Positive(),
+		field.Int("batch_id").
+			Optional().
+			Positive(),
 	}
 }
 
@@ -69,6 +72,10 @@ func (SIP) Edges() []ent.Edge {
 		edge.From("uploader", User.Type).
 			Field("uploader_id").
 			Ref("uploaded_sips").
+			Unique(),
+		edge.From("batch", Batch.Type).
+			Field("batch_id").
+			Ref("sips").
 			Unique(),
 	}
 }
@@ -89,5 +96,7 @@ func (SIP) Indexes() []ent.Index {
 			StorageKey("sip_started_at_idx"),
 		index.Fields("uploader_id").
 			StorageKey("sip_uploader_id_idx"),
+		index.Fields("batch_id").
+			StorageKey("sip_batch_id_idx"),
 	}
 }

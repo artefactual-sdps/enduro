@@ -11,69 +11,60 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/batch"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/user"
 	"github.com/google/uuid"
 )
 
-// SIP is the model entity for the SIP schema.
-type SIP struct {
+// Batch is the model entity for the Batch schema.
+type Batch struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
 	// UUID holds the value of the "uuid" field.
 	UUID uuid.UUID `json:"uuid,omitempty"`
-	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty"`
-	// AipID holds the value of the "aip_id" field.
-	AipID uuid.UUID `json:"aip_id,omitempty"`
+	// Identifier holds the value of the "identifier" field.
+	Identifier string `json:"identifier,omitempty"`
 	// Status holds the value of the "status" field.
-	Status enums.SIPStatus `json:"status,omitempty"`
+	Status enums.BatchStatus `json:"status,omitempty"`
+	// SipsCount holds the value of the "sips_count" field.
+	SipsCount int `json:"sips_count,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
 	// StartedAt holds the value of the "started_at" field.
 	StartedAt time.Time `json:"started_at,omitempty"`
 	// CompletedAt holds the value of the "completed_at" field.
 	CompletedAt time.Time `json:"completed_at,omitempty"`
-	// FailedAs holds the value of the "failed_as" field.
-	FailedAs enums.SIPFailedAs `json:"failed_as,omitempty"`
-	// FailedKey holds the value of the "failed_key" field.
-	FailedKey string `json:"failed_key,omitempty"`
 	// UploaderID holds the value of the "uploader_id" field.
 	UploaderID int `json:"uploader_id,omitempty"`
-	// BatchID holds the value of the "batch_id" field.
-	BatchID int `json:"batch_id,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
-	// The values are being populated by the SIPQuery when eager-loading is set.
-	Edges        SIPEdges `json:"edges"`
+	// The values are being populated by the BatchQuery when eager-loading is set.
+	Edges        BatchEdges `json:"edges"`
 	selectValues sql.SelectValues
 }
 
-// SIPEdges holds the relations/edges for other nodes in the graph.
-type SIPEdges struct {
-	// Workflows holds the value of the workflows edge.
-	Workflows []*Workflow `json:"workflows,omitempty"`
+// BatchEdges holds the relations/edges for other nodes in the graph.
+type BatchEdges struct {
+	// Sips holds the value of the sips edge.
+	Sips []*SIP `json:"sips,omitempty"`
 	// Uploader holds the value of the uploader edge.
 	Uploader *User `json:"uploader,omitempty"`
-	// Batch holds the value of the batch edge.
-	Batch *Batch `json:"batch,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [3]bool
+	loadedTypes [2]bool
 }
 
-// WorkflowsOrErr returns the Workflows value or an error if the edge
+// SipsOrErr returns the Sips value or an error if the edge
 // was not loaded in eager-loading.
-func (e SIPEdges) WorkflowsOrErr() ([]*Workflow, error) {
+func (e BatchEdges) SipsOrErr() ([]*SIP, error) {
 	if e.loadedTypes[0] {
-		return e.Workflows, nil
+		return e.Sips, nil
 	}
-	return nil, &NotLoadedError{edge: "workflows"}
+	return nil, &NotLoadedError{edge: "sips"}
 }
 
 // UploaderOrErr returns the Uploader value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
-func (e SIPEdges) UploaderOrErr() (*User, error) {
+func (e BatchEdges) UploaderOrErr() (*User, error) {
 	if e.Uploader != nil {
 		return e.Uploader, nil
 	} else if e.loadedTypes[1] {
@@ -82,29 +73,18 @@ func (e SIPEdges) UploaderOrErr() (*User, error) {
 	return nil, &NotLoadedError{edge: "uploader"}
 }
 
-// BatchOrErr returns the Batch value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e SIPEdges) BatchOrErr() (*Batch, error) {
-	if e.Batch != nil {
-		return e.Batch, nil
-	} else if e.loadedTypes[2] {
-		return nil, &NotFoundError{label: batch.Label}
-	}
-	return nil, &NotLoadedError{edge: "batch"}
-}
-
 // scanValues returns the types for scanning values from sql.Rows.
-func (*SIP) scanValues(columns []string) ([]any, error) {
+func (*Batch) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case sip.FieldID, sip.FieldUploaderID, sip.FieldBatchID:
+		case batch.FieldID, batch.FieldSipsCount, batch.FieldUploaderID:
 			values[i] = new(sql.NullInt64)
-		case sip.FieldName, sip.FieldStatus, sip.FieldFailedAs, sip.FieldFailedKey:
+		case batch.FieldIdentifier, batch.FieldStatus:
 			values[i] = new(sql.NullString)
-		case sip.FieldCreatedAt, sip.FieldStartedAt, sip.FieldCompletedAt:
+		case batch.FieldCreatedAt, batch.FieldStartedAt, batch.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
-		case sip.FieldUUID, sip.FieldAipID:
+		case batch.FieldUUID:
 			values[i] = new(uuid.UUID)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -114,84 +94,66 @@ func (*SIP) scanValues(columns []string) ([]any, error) {
 }
 
 // assignValues assigns the values that were returned from sql.Rows (after scanning)
-// to the SIP fields.
-func (_m *SIP) assignValues(columns []string, values []any) error {
+// to the Batch fields.
+func (_m *Batch) assignValues(columns []string, values []any) error {
 	if m, n := len(values), len(columns); m < n {
 		return fmt.Errorf("mismatch number of scan values: %d != %d", m, n)
 	}
 	for i := range columns {
 		switch columns[i] {
-		case sip.FieldID:
+		case batch.FieldID:
 			value, ok := values[i].(*sql.NullInt64)
 			if !ok {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			_m.ID = int(value.Int64)
-		case sip.FieldUUID:
+		case batch.FieldUUID:
 			if value, ok := values[i].(*uuid.UUID); !ok {
 				return fmt.Errorf("unexpected type %T for field uuid", values[i])
 			} else if value != nil {
 				_m.UUID = *value
 			}
-		case sip.FieldName:
+		case batch.FieldIdentifier:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field name", values[i])
+				return fmt.Errorf("unexpected type %T for field identifier", values[i])
 			} else if value.Valid {
-				_m.Name = value.String
+				_m.Identifier = value.String
 			}
-		case sip.FieldAipID:
-			if value, ok := values[i].(*uuid.UUID); !ok {
-				return fmt.Errorf("unexpected type %T for field aip_id", values[i])
-			} else if value != nil {
-				_m.AipID = *value
-			}
-		case sip.FieldStatus:
+		case batch.FieldStatus:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field status", values[i])
 			} else if value.Valid {
-				_m.Status = enums.SIPStatus(value.String)
+				_m.Status = enums.BatchStatus(value.String)
 			}
-		case sip.FieldCreatedAt:
+		case batch.FieldSipsCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field sips_count", values[i])
+			} else if value.Valid {
+				_m.SipsCount = int(value.Int64)
+			}
+		case batch.FieldCreatedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				_m.CreatedAt = value.Time
 			}
-		case sip.FieldStartedAt:
+		case batch.FieldStartedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field started_at", values[i])
 			} else if value.Valid {
 				_m.StartedAt = value.Time
 			}
-		case sip.FieldCompletedAt:
+		case batch.FieldCompletedAt:
 			if value, ok := values[i].(*sql.NullTime); !ok {
 				return fmt.Errorf("unexpected type %T for field completed_at", values[i])
 			} else if value.Valid {
 				_m.CompletedAt = value.Time
 			}
-		case sip.FieldFailedAs:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field failed_as", values[i])
-			} else if value.Valid {
-				_m.FailedAs = enums.SIPFailedAs(value.String)
-			}
-		case sip.FieldFailedKey:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field failed_key", values[i])
-			} else if value.Valid {
-				_m.FailedKey = value.String
-			}
-		case sip.FieldUploaderID:
+		case batch.FieldUploaderID:
 			if value, ok := values[i].(*sql.NullInt64); !ok {
 				return fmt.Errorf("unexpected type %T for field uploader_id", values[i])
 			} else if value.Valid {
 				_m.UploaderID = int(value.Int64)
-			}
-		case sip.FieldBatchID:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field batch_id", values[i])
-			} else if value.Valid {
-				_m.BatchID = int(value.Int64)
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -200,61 +162,56 @@ func (_m *SIP) assignValues(columns []string, values []any) error {
 	return nil
 }
 
-// Value returns the ent.Value that was dynamically selected and assigned to the SIP.
+// Value returns the ent.Value that was dynamically selected and assigned to the Batch.
 // This includes values selected through modifiers, order, etc.
-func (_m *SIP) Value(name string) (ent.Value, error) {
+func (_m *Batch) Value(name string) (ent.Value, error) {
 	return _m.selectValues.Get(name)
 }
 
-// QueryWorkflows queries the "workflows" edge of the SIP entity.
-func (_m *SIP) QueryWorkflows() *WorkflowQuery {
-	return NewSIPClient(_m.config).QueryWorkflows(_m)
+// QuerySips queries the "sips" edge of the Batch entity.
+func (_m *Batch) QuerySips() *SIPQuery {
+	return NewBatchClient(_m.config).QuerySips(_m)
 }
 
-// QueryUploader queries the "uploader" edge of the SIP entity.
-func (_m *SIP) QueryUploader() *UserQuery {
-	return NewSIPClient(_m.config).QueryUploader(_m)
+// QueryUploader queries the "uploader" edge of the Batch entity.
+func (_m *Batch) QueryUploader() *UserQuery {
+	return NewBatchClient(_m.config).QueryUploader(_m)
 }
 
-// QueryBatch queries the "batch" edge of the SIP entity.
-func (_m *SIP) QueryBatch() *BatchQuery {
-	return NewSIPClient(_m.config).QueryBatch(_m)
-}
-
-// Update returns a builder for updating this SIP.
-// Note that you need to call SIP.Unwrap() before calling this method if this SIP
+// Update returns a builder for updating this Batch.
+// Note that you need to call Batch.Unwrap() before calling this method if this Batch
 // was returned from a transaction, and the transaction was committed or rolled back.
-func (_m *SIP) Update() *SIPUpdateOne {
-	return NewSIPClient(_m.config).UpdateOne(_m)
+func (_m *Batch) Update() *BatchUpdateOne {
+	return NewBatchClient(_m.config).UpdateOne(_m)
 }
 
-// Unwrap unwraps the SIP entity that was returned from a transaction after it was closed,
+// Unwrap unwraps the Batch entity that was returned from a transaction after it was closed,
 // so that all future queries will be executed through the driver which created the transaction.
-func (_m *SIP) Unwrap() *SIP {
+func (_m *Batch) Unwrap() *Batch {
 	_tx, ok := _m.config.driver.(*txDriver)
 	if !ok {
-		panic("db: SIP is not a transactional entity")
+		panic("db: Batch is not a transactional entity")
 	}
 	_m.config.driver = _tx.drv
 	return _m
 }
 
 // String implements the fmt.Stringer.
-func (_m *SIP) String() string {
+func (_m *Batch) String() string {
 	var builder strings.Builder
-	builder.WriteString("SIP(")
+	builder.WriteString("Batch(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", _m.ID))
 	builder.WriteString("uuid=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UUID))
 	builder.WriteString(", ")
-	builder.WriteString("name=")
-	builder.WriteString(_m.Name)
-	builder.WriteString(", ")
-	builder.WriteString("aip_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.AipID))
+	builder.WriteString("identifier=")
+	builder.WriteString(_m.Identifier)
 	builder.WriteString(", ")
 	builder.WriteString("status=")
 	builder.WriteString(fmt.Sprintf("%v", _m.Status))
+	builder.WriteString(", ")
+	builder.WriteString("sips_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.SipsCount))
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
@@ -265,20 +222,11 @@ func (_m *SIP) String() string {
 	builder.WriteString("completed_at=")
 	builder.WriteString(_m.CompletedAt.Format(time.ANSIC))
 	builder.WriteString(", ")
-	builder.WriteString("failed_as=")
-	builder.WriteString(fmt.Sprintf("%v", _m.FailedAs))
-	builder.WriteString(", ")
-	builder.WriteString("failed_key=")
-	builder.WriteString(_m.FailedKey)
-	builder.WriteString(", ")
 	builder.WriteString("uploader_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.UploaderID))
-	builder.WriteString(", ")
-	builder.WriteString("batch_id=")
-	builder.WriteString(fmt.Sprintf("%v", _m.BatchID))
 	builder.WriteByte(')')
 	return builder.String()
 }
 
-// SIPs is a parsable slice of SIP.
-type SIPs []*SIP
+// Batches is a parsable slice of Batch.
+type Batches []*Batch
