@@ -14,7 +14,7 @@ jobs:
         run: go mod download
         working-directory: hack/pulumi
       - name: Refresh and update Pulumi stack
-        uses: pulumi/actions@d7ceb0215da5a14ec84f50b703365ddf0194a9c8 # v6.6.0
+        uses: pulumi/actions@8582a9e8cc630786854029b4e09281acd6794b58 # v6.6.1
         with:
           command: up
           refresh: true
@@ -24,7 +24,7 @@ jobs:
           PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_TOKEN }}
           DOCKER_BUILDKIT: 1
       - name: Configure kubectl
-        uses: azure/k8s-set-context@212a19233d93f03eceaac31ae5a1d1acf650b6ef # v3
+        uses: azure/k8s-set-context@ae59a723ba9abe7a9655538854a025448dbab4aa # v3
         with:
           method: kubeconfig
           kubeconfig: ${{ secrets.DO_DEV_KUBECONFIG }}
