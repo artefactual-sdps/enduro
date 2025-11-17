@@ -127,29 +127,18 @@ paths:
                   * `ingest:batches:create`
             operationId: ingest#add_batch
             parameters:
-                - name: source_id
-                  in: query
-                  description: Identifier of SIP source -- CURRENTLY NOT USED
-                  required: true
-                  type: string
-                  format: uuid
-                - name: keys
-                  in: query
-                  description: Key of the SIPs to ingest as part of the batch
-                  required: true
-                  type: array
-                  items:
-                    type: string
-                  collectionFormat: multi
-                - name: identifier
-                  in: query
-                  description: Optional Batch identifier assigned by the user
-                  required: false
-                  type: string
                 - name: Authorization
                   in: header
                   required: false
                   type: string
+                - name: add_batch_request_body
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/IngestAddBatchRequestBody'
+                    required:
+                        - source_id
+                        - keys
             responses:
                 "201":
                     description: Created response.
@@ -2964,6 +2953,35 @@ definitions:
             - temporary
             - timeout
             - fault
+    IngestAddBatchRequestBody:
+        title: IngestAddBatchRequestBody
+        type: object
+        properties:
+            identifier:
+                type: string
+                description: Optional Batch identifier assigned by the user
+                example: abc123
+            keys:
+                type: array
+                items:
+                    type: string
+                    example: abc123
+                description: Key of the SIPs to ingest as part of the batch
+                example:
+                    - abc123
+            source_id:
+                type: string
+                description: Identifier of SIP source -- CURRENTLY NOT USED
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+        example:
+            identifier: abc123
+            keys:
+                - abc123
+            source_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - source_id
+            - keys
     IngestAddBatchResponseBody:
         title: IngestAddBatchResponseBody
         type: object

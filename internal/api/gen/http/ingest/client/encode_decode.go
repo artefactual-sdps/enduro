@@ -1923,15 +1923,10 @@ func EncodeAddBatchRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 				req.Header.Set("Authorization", head)
 			}
 		}
-		values := req.URL.Query()
-		values.Add("source_id", p.SourceID)
-		for _, value := range p.Keys {
-			values.Add("keys", value)
+		body := NewAddBatchRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("ingest", "add_batch", err)
 		}
-		if p.Identifier != nil {
-			values.Add("identifier", *p.Identifier)
-		}
-		req.URL.RawQuery = values.Encode()
 		return nil
 	}
 }

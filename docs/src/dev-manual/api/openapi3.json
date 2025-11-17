@@ -407,6 +407,44 @@
         ],
         "type": "object"
       },
+      "AddBatchRequestBody": {
+        "example": {
+          "identifier": "abc123",
+          "keys": [
+            "abc123"
+          ],
+          "source_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "identifier": {
+            "description": "Optional Batch identifier assigned by the user",
+            "example": "abc123",
+            "type": "string"
+          },
+          "keys": {
+            "description": "Key of the SIPs to ingest as part of the batch",
+            "example": [
+              "abc123"
+            ],
+            "items": {
+              "example": "abc123",
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "source_id": {
+            "description": "Identifier of SIP source -- CURRENTLY NOT USED",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "format": "uuid",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_id",
+          "keys"
+        ],
+        "type": "object"
+      },
       "AddSipResponseBody": {
         "example": {
           "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
@@ -3009,55 +3047,23 @@
       "post": {
         "description": "Ingest a Batch from a SIP Source",
         "operationId": "ingest#add_batch",
-        "parameters": [
-          {
-            "allowEmptyValue": true,
-            "description": "Identifier of SIP source -- CURRENTLY NOT USED",
-            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-            "in": "query",
-            "name": "source_id",
-            "required": true,
-            "schema": {
-              "description": "Identifier of SIP source -- CURRENTLY NOT USED",
-              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-              "format": "uuid",
-              "type": "string"
-            }
-          },
-          {
-            "allowEmptyValue": true,
-            "description": "Key of the SIPs to ingest as part of the batch",
-            "example": [
-              "abc123"
-            ],
-            "in": "query",
-            "name": "keys",
-            "required": true,
-            "schema": {
-              "description": "Key of the SIPs to ingest as part of the batch",
-              "example": [
-                "abc123"
-              ],
-              "items": {
-                "example": "abc123",
-                "type": "string"
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "identifier": "abc123",
+                "keys": [
+                  "abc123"
+                ],
+                "source_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
               },
-              "type": "array"
+              "schema": {
+                "$ref": "#/components/schemas/AddBatchRequestBody"
+              }
             }
           },
-          {
-            "allowEmptyValue": true,
-            "description": "Optional Batch identifier assigned by the user",
-            "example": "abc123",
-            "in": "query",
-            "name": "identifier",
-            "schema": {
-              "description": "Optional Batch identifier assigned by the user",
-              "example": "abc123",
-              "type": "string"
-            }
-          }
-        ],
+          "required": true
+        },
         "responses": {
           "201": {
             "content": {

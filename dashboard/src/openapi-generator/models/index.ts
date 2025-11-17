@@ -10,6 +10,7 @@ export * from './AIPTaskUpdatedEvent';
 export * from './AIPWorkflowCreatedEvent';
 export * from './AIPWorkflowUpdatedEvent';
 export * from './AMSSConfig';
+export * from './AddBatchRequestBody';
 export * from './AddSipResponseBody';
 export * from './BatchNotFound';
 export * from './CancelAipDeletionRequestBody';

@@ -1524,34 +1524,33 @@ func EncodeAddBatchResponse(encoder func(context.Context, http.ResponseWriter) g
 func DecodeAddBatchRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*ingest.AddBatchPayload, error) {
 	return func(r *http.Request) (*ingest.AddBatchPayload, error) {
 		var (
-			sourceID   string
-			keys       []string
-			identifier *string
-			token      *string
-			err        error
+			body AddBatchRequestBody
+			err  error
 		)
-		qp := r.URL.Query()
-		sourceID = qp.Get("source_id")
-		if sourceID == "" {
-			err = goa.MergeErrors(err, goa.MissingFieldError("source_id", "query string"))
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return nil, goa.MissingPayloadError()
+			}
+			var gerr *goa.ServiceError
+			if errors.As(err, &gerr) {
+				return nil, gerr
+			}
+			return nil, goa.DecodePayloadError(err.Error())
 		}
-		err = goa.MergeErrors(err, goa.ValidateFormat("source_id", sourceID, goa.FormatUUID))
-		keys = qp["keys"]
-		if keys == nil {
-			err = goa.MergeErrors(err, goa.MissingFieldError("keys", "query string"))
+		err = ValidateAddBatchRequestBody(&body)
+		if err != nil {
+			return nil, err
 		}
-		identifierRaw := qp.Get("identifier")
-		if identifierRaw != "" {
-			identifier = &identifierRaw
-		}
+
+		var (
+			token *string
+		)
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
 		}
-		if err != nil {
-			return nil, err
-		}
-		payload := NewAddBatchPayload(sourceID, keys, identifier, token)
+		payload := NewAddBatchPayload(&body, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
