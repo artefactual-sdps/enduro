@@ -898,6 +898,7 @@ type DeletionRequestMutation struct {
 	status          *enums.DeletionRequestStatus
 	requested_at    *time.Time
 	reviewed_at     *time.Time
+	report_key      *string
 	clearedFields   map[string]struct{}
 	aip             *int
 	clearedaip      bool
@@ -1539,6 +1540,55 @@ func (m *DeletionRequestMutation) ResetWorkflowID() {
 	delete(m.clearedFields, deletionrequest.FieldWorkflowID)
 }
 
+// SetReportKey sets the "report_key" field.
+func (m *DeletionRequestMutation) SetReportKey(s string) {
+	m.report_key = &s
+}
+
+// ReportKey returns the value of the "report_key" field in the mutation.
+func (m *DeletionRequestMutation) ReportKey() (r string, exists bool) {
+	v := m.report_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldReportKey returns the old "report_key" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldReportKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldReportKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldReportKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldReportKey: %w", err)
+	}
+	return oldValue.ReportKey, nil
+}
+
+// ClearReportKey clears the value of the "report_key" field.
+func (m *DeletionRequestMutation) ClearReportKey() {
+	m.report_key = nil
+	m.clearedFields[deletionrequest.FieldReportKey] = struct{}{}
+}
+
+// ReportKeyCleared returns if the "report_key" field was cleared in this mutation.
+func (m *DeletionRequestMutation) ReportKeyCleared() bool {
+	_, ok := m.clearedFields[deletionrequest.FieldReportKey]
+	return ok
+}
+
+// ResetReportKey resets all changes to the "report_key" field.
+func (m *DeletionRequestMutation) ResetReportKey() {
+	m.report_key = nil
+	delete(m.clearedFields, deletionrequest.FieldReportKey)
+}
+
 // ClearAip clears the "aip" edge to the AIP entity.
 func (m *DeletionRequestMutation) ClearAip() {
 	m.clearedaip = true
@@ -1627,7 +1677,7 @@ func (m *DeletionRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DeletionRequestMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 14)
 	if m.uuid != nil {
 		fields = append(fields, deletionrequest.FieldUUID)
 	}
@@ -1667,6 +1717,9 @@ func (m *DeletionRequestMutation) Fields() []string {
 	if m.workflow != nil {
 		fields = append(fields, deletionrequest.FieldWorkflowID)
 	}
+	if m.report_key != nil {
+		fields = append(fields, deletionrequest.FieldReportKey)
+	}
 	return fields
 }
 
@@ -1701,6 +1754,8 @@ func (m *DeletionRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.AipID()
 	case deletionrequest.FieldWorkflowID:
 		return m.WorkflowID()
+	case deletionrequest.FieldReportKey:
+		return m.ReportKey()
 	}
 	return nil, false
 }
@@ -1736,6 +1791,8 @@ func (m *DeletionRequestMutation) OldField(ctx context.Context, name string) (en
 		return m.OldAipID(ctx)
 	case deletionrequest.FieldWorkflowID:
 		return m.OldWorkflowID(ctx)
+	case deletionrequest.FieldReportKey:
+		return m.OldReportKey(ctx)
 	}
 	return nil, fmt.Errorf("unknown DeletionRequest field %s", name)
 }
@@ -1836,6 +1893,13 @@ func (m *DeletionRequestMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetWorkflowID(v)
 		return nil
+	case deletionrequest.FieldReportKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetReportKey(v)
+		return nil
 	}
 	return fmt.Errorf("unknown DeletionRequest field %s", name)
 }
@@ -1884,6 +1948,9 @@ func (m *DeletionRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(deletionrequest.FieldWorkflowID) {
 		fields = append(fields, deletionrequest.FieldWorkflowID)
 	}
+	if m.FieldCleared(deletionrequest.FieldReportKey) {
+		fields = append(fields, deletionrequest.FieldReportKey)
+	}
 	return fields
 }
 
@@ -1912,6 +1979,9 @@ func (m *DeletionRequestMutation) ClearField(name string) error {
 		return nil
 	case deletionrequest.FieldWorkflowID:
 		m.ClearWorkflowID()
+		return nil
+	case deletionrequest.FieldReportKey:
+		m.ClearReportKey()
 		return nil
 	}
 	return fmt.Errorf("unknown DeletionRequest nullable field %s", name)
@@ -1959,6 +2029,9 @@ func (m *DeletionRequestMutation) ResetField(name string) error {
 		return nil
 	case deletionrequest.FieldWorkflowID:
 		m.ResetWorkflowID()
+		return nil
+	case deletionrequest.FieldReportKey:
+		m.ResetReportKey()
 		return nil
 	}
 	return fmt.Errorf("unknown DeletionRequest field %s", name)

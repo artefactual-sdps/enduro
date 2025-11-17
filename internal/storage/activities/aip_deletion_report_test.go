@@ -1,7 +1,6 @@
 package activities_test
 
 import (
-	"context"
 	"errors"
 	"testing"
 	"time"
@@ -22,6 +21,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/activities"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/fake"
+	pdf_fake "github.com/artefactual-sdps/enduro/internal/storage/pdfs/fake"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -44,6 +44,7 @@ func expectListDeletionRequests(msvc *fake.MockService, aipID uuid.UUID) {
 		}).
 		Return([]*types.DeletionRequest{
 			{
+				DBID:         1,
 				UUID:         uuid.MustParse("323e4567-e89b-12d3-a456-426614174000"),
 				WorkflowDBID: 1,
 				Reason:       "Test reason for deletion",
@@ -79,13 +80,42 @@ func expectLocation(t *testing.T, msvc *fake.MockService) {
 		Return(loc, nil)
 }
 
-func defaultExpects(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
+func expectUpdateDeletionRequest(t *testing.T, msvc *fake.MockService, drDBID int) {
+	msvc.EXPECT().
+		UpdateDeletionRequest(
+			mockutil.Context(),
+			drDBID,
+			mockutil.Func(
+				"Updates deletion report key",
+				func(updater persistence.DeletionRequestUpdater) error {
+					got, err := updater(&types.DeletionRequest{})
+					assert.NilError(t, err)
+					assert.DeepEqual(t, got, &types.DeletionRequest{
+						ReportKey: storage.ReportPrefix + "aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
+					})
+					return nil
+				},
+			),
+		).
+		Return(&types.DeletionRequest{}, nil)
+}
+
+func expectSvc(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 	t.Helper()
 
 	expectReadAIP(msvc, aipID)
 	expectListDeletionRequests(msvc, aipID)
 	expectReadWorkflows(msvc, 1)
 	expectLocation(t, msvc)
+	expectUpdateDeletionRequest(t, msvc, 1)
+}
+
+func expectFormFill(t *testing.T, mff *pdf_fake.MockFormFiller, aipID uuid.UUID) {
+	t.Helper()
+
+	mff.EXPECT().
+		FillForm(gomock.Any(), gomock.Any(), gomock.Any()).
+		Return(nil)
 }
 
 func TestAIPDeletionReportActivity(t *testing.T) {
@@ -95,18 +125,20 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 	templatePath := "../../../assets/Enduro_AIP_deletion_report_v3.tmpl.pdf"
 
 	type test struct {
-		name         string
-		templatePath string
-		expects      func(*testing.T, *fake.MockService, uuid.UUID)
-		params       activities.AIPDeletionReportActivityParams
-		want         activities.AIPDeletionReportActivityResult
-		wantErr      string
+		name             string
+		templatePath     string
+		expectedSvc      func(*testing.T, *fake.MockService, uuid.UUID)
+		expectedFormFill func(*testing.T, *pdf_fake.MockFormFiller, uuid.UUID)
+		params           activities.AIPDeletionReportActivityParams
+		want             activities.AIPDeletionReportActivityResult
+		wantErr          string
 	}
 	for _, tc := range []test{
 		{
-			name:         "Generate AIP Deletion Report",
-			templatePath: templatePath,
-			expects:      defaultExpects,
+			name:             "Generate AIP Deletion Report",
+			templatePath:     templatePath,
+			expectedSvc:      expectSvc,
+			expectedFormFill: expectFormFill,
 			params: activities.AIPDeletionReportActivityParams{
 				AIPID:          aipID,
 				LocationSource: enums.LocationSourceAmss,
@@ -130,12 +162,12 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 				AIPID:          aipID,
 				LocationSource: enums.LocationSourceAmss,
 			},
-			wantErr: "AIP deletion report: template file does not exist: non_existent.tmpl.pdf",
+			wantErr: "AIP deletion report: template file not found: non_existent.tmpl.pdf",
 		},
 		{
 			name:         "Errors if AIP is not found",
 			templatePath: templatePath,
-			expects: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
+			expectedSvc: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 				msvc.EXPECT().
 					ReadAip(mockutil.Context(), aipID).
 					Return(nil, &goastorage.AIPNotFound{
@@ -151,7 +183,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 		{
 			name:         "Errors if ListDeletionRequests fails",
 			templatePath: templatePath,
-			expects: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
+			expectedSvc: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 				expectReadAIP(msvc, aipID)
 				msvc.EXPECT().
 					ListDeletionRequests(mockutil.Context(), &persistence.DeletionRequestFilter{
@@ -168,7 +200,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 		{
 			name:         "Errors if no approved deletion requests found",
 			templatePath: templatePath,
-			expects: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
+			expectedSvc: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 				expectReadAIP(msvc, aipID)
 				msvc.EXPECT().
 					ListDeletionRequests(mockutil.Context(), &persistence.DeletionRequestFilter{
@@ -185,7 +217,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 		{
 			name:         "Errors if ReadWorkflow fails",
 			templatePath: templatePath,
-			expects: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
+			expectedSvc: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 				expectReadAIP(msvc, aipID)
 				expectListDeletionRequests(msvc, aipID)
 				msvc.EXPECT().
@@ -197,16 +229,68 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 			},
 			wantErr: "AIP deletion report: load data: ReadWorkflow: internal error",
 		},
+		{
+			name:         "Errors if updating deletion request fails",
+			templatePath: templatePath,
+			expectedSvc: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
+				expectReadAIP(msvc, aipID)
+				expectListDeletionRequests(msvc, aipID)
+				expectReadWorkflows(msvc, 1)
+				expectLocation(t, msvc)
+				msvc.EXPECT().
+					UpdateDeletionRequest(
+						mockutil.Context(),
+						1,
+						mockutil.Func(
+							"Updates deletion report key",
+							func(updater persistence.DeletionRequestUpdater) error {
+								_, err := updater(&types.DeletionRequest{})
+								return err
+							},
+						),
+					).
+					Return(nil, errors.New("internal error"))
+			},
+			expectedFormFill: expectFormFill,
+			params: activities.AIPDeletionReportActivityParams{
+				AIPID: uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
+			},
+			wantErr: "AIP deletion report: update deletion request: internal error",
+		},
+		{
+			name:         "Errors if form filling fails",
+			templatePath: templatePath,
+			expectedSvc: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
+				expectReadAIP(msvc, aipID)
+				expectListDeletionRequests(msvc, aipID)
+				expectReadWorkflows(msvc, 1)
+				expectLocation(t, msvc)
+			},
+			expectedFormFill: func(t *testing.T, mff *pdf_fake.MockFormFiller, aipID uuid.UUID) {
+				mff.EXPECT().
+					FillForm(gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(errors.New("invalid json data"))
+			},
+			params: activities.AIPDeletionReportActivityParams{
+				AIPID: uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
+			},
+			wantErr: "AIP deletion report: fill form: invalid json data",
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
 			msvc := fake.NewMockService(gomock.NewController(t))
-			if tc.expects != nil {
-				tc.expects(t, msvc, aipID)
+			if tc.expectedSvc != nil {
+				tc.expectedSvc(t, msvc, aipID)
 			}
 
-			bucket, err := blob.OpenBucket(context.Background(), "mem://")
+			mff := pdf_fake.NewMockFormFiller(gomock.NewController(t))
+			if tc.expectedFormFill != nil {
+				tc.expectedFormFill(t, mff, aipID)
+			}
+
+			bucket, err := blob.OpenBucket(t.Context(), "mem://")
 			if err != nil {
 				t.Fatalf("failed to open in-memory bucket: %v", err)
 			}
@@ -219,6 +303,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 					clockwork.NewFakeClockAt(time.Date(2025, 10, 30, 11, 15, 16, 0, time.UTC)),
 					storage.AIPDeletionConfig{ReportTemplatePath: tc.templatePath},
 					msvc,
+					mff,
 				).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: activities.AIPDeletionReportActivityName,

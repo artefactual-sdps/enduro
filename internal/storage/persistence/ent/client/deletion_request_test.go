@@ -11,6 +11,7 @@ import (
 	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
+	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
@@ -100,7 +101,7 @@ func TestCreateDeletionRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			ctx := t.Context()
 			entc, c := setUpClient(t)
 			initialDataForDeletionRequestTests(t, ctx, entc)
 
@@ -163,6 +164,8 @@ func TestListDeletionRequests(t *testing.T) {
 					Status:       enums.DeletionRequestStatusApproved,
 					AIPUUID:      aipID,
 					WorkflowDBID: 2,
+					ReportKey: storage.ReportPrefix +
+						"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 				},
 			},
 		},
@@ -215,6 +218,8 @@ func TestListDeletionRequests(t *testing.T) {
 					Status:       enums.DeletionRequestStatusApproved,
 					AIPUUID:      aipID,
 					WorkflowDBID: 2,
+					ReportKey: storage.ReportPrefix +
+						"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 				},
 			},
 		},
@@ -229,7 +234,7 @@ func TestListDeletionRequests(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			ctx := t.Context()
 			entc, c := setUpClient(t)
 			initialDataForDeletionRequestTests(t, ctx, entc)
 
@@ -255,6 +260,8 @@ func TestListDeletionRequests(t *testing.T) {
 				SetStatus(enums.DeletionRequestStatusApproved).
 				SetAipID(1).
 				SetWorkflowID(2).
+				SetReportKey(storage.ReportPrefix +
+					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf").
 				SaveX(ctx)
 
 			r, err := c.ListDeletionRequests(ctx, tc.filter)
@@ -289,6 +296,8 @@ func TestUpdateDeletionRequest(t *testing.T) {
 				dr.ReviewerSub = "sub2"
 				dr.ReviewedAt = reviewedAt
 				dr.Status = enums.DeletionRequestStatusApproved
+				dr.ReportKey = storage.ReportPrefix +
+					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf"
 				return dr, nil
 			},
 			want: &types.DeletionRequest{
@@ -306,6 +315,8 @@ func TestUpdateDeletionRequest(t *testing.T) {
 				Status:       enums.DeletionRequestStatusApproved,
 				AIPUUID:      aipID,
 				WorkflowDBID: 1,
+				ReportKey: storage.ReportPrefix +
+					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 			},
 		},
 		{
@@ -348,7 +359,7 @@ func TestUpdateDeletionRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			ctx := t.Context()
 			entc, c := setUpClient(t)
 			initialDataForDeletionRequestTests(t, ctx, entc)
 
@@ -375,6 +386,87 @@ func TestUpdateDeletionRequest(t *testing.T) {
 
 			assert.NilError(t, err)
 			assert.DeepEqual(t, dr, tt.want)
+		})
+	}
+}
+
+func TestReadDeletionRequests(t *testing.T) {
+	t.Parallel()
+
+	drUUID := uuid.MustParse("123e4567-e89b-12d3-a456-426614174000")
+	requestedAt := time.Date(2025, 10, 29, 10, 10, 10, 0, time.UTC)
+	reviewedAt := time.Date(2025, 10, 30, 11, 11, 11, 0, time.UTC)
+
+	type test struct {
+		name    string
+		id      uuid.UUID
+		want    *types.DeletionRequest
+		wantErr string
+	}
+
+	for _, tc := range []test{
+		{
+			name: "Reads a deletion request",
+			id:   drUUID,
+			want: &types.DeletionRequest{
+				DBID:         1,
+				UUID:         drUUID,
+				Requester:    "requester@example.com",
+				RequesterIss: "issuer",
+				RequesterSub: "sub",
+				Reviewer:     "reviewer@example.com",
+				ReviewerIss:  "issuer",
+				ReviewerSub:  "sub",
+				Reason:       "Test reason",
+				Status:       enums.DeletionRequestStatusApproved,
+				RequestedAt:  requestedAt,
+				ReviewedAt:   reviewedAt,
+				AIPUUID:      aipID,
+				WorkflowDBID: 1,
+				ReportKey: storage.ReportPrefix +
+					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
+			},
+		},
+		{
+			name:    "Returns a deletion request not found error",
+			id:      uuid.MustParse("223e4567-e89b-12d3-a456-426614174000"),
+			wantErr: "read deletion request: db: deletion_request not found",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := t.Context()
+			entc, c := setUpClient(t)
+			initialDataForDeletionRequestTests(t, ctx, entc)
+
+			entc.DeletionRequest.Create().
+				SetUUID(drUUID).
+				SetRequester("requester@example.com").
+				SetRequesterIss("issuer").
+				SetRequesterSub("sub").
+				SetReviewer("reviewer@example.com").
+				SetReviewerIss("issuer").
+				SetReviewerSub("sub").
+				SetReason("Test reason").
+				SetStatus(enums.DeletionRequestStatusApproved).
+				SetRequestedAt(requestedAt).
+				SetReviewedAt(reviewedAt).
+				SetAipID(1).
+				SetWorkflowID(1).
+				SetReportKey(
+					storage.ReportPrefix + "aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
+				).
+				SaveX(ctx)
+
+			r, err := c.ReadDeletionRequest(ctx, tc.id)
+			if tc.wantErr != "" {
+				assert.Error(t, err, tc.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, r, tc.want)
 		})
 	}
 }

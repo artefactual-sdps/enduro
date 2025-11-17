@@ -160,6 +160,20 @@ func (_c *DeletionRequestCreate) SetNillableWorkflowID(v *int) *DeletionRequestC
 	return _c
 }
 
+// SetReportKey sets the "report_key" field.
+func (_c *DeletionRequestCreate) SetReportKey(v string) *DeletionRequestCreate {
+	_c.mutation.SetReportKey(v)
+	return _c
+}
+
+// SetNillableReportKey sets the "report_key" field if the given value is not nil.
+func (_c *DeletionRequestCreate) SetNillableReportKey(v *string) *DeletionRequestCreate {
+	if v != nil {
+		_c.SetReportKey(*v)
+	}
+	return _c
+}
+
 // SetAip sets the "aip" edge to the AIP entity.
 func (_c *DeletionRequestCreate) SetAip(v *AIP) *DeletionRequestCreate {
 	return _c.SetAipID(v.ID)
@@ -329,6 +343,10 @@ func (_c *DeletionRequestCreate) createSpec() (*DeletionRequest, *sqlgraph.Creat
 	if value, ok := _c.mutation.ReviewedAt(); ok {
 		_spec.SetField(deletionrequest.FieldReviewedAt, field.TypeTime, value)
 		_node.ReviewedAt = value
+	}
+	if value, ok := _c.mutation.ReportKey(); ok {
+		_spec.SetField(deletionrequest.FieldReportKey, field.TypeString, value)
+		_node.ReportKey = value
 	}
 	if nodes := _c.mutation.AipIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -542,6 +560,24 @@ func (u *DeletionRequestUpsert) ClearWorkflowID() *DeletionRequestUpsert {
 	return u
 }
 
+// SetReportKey sets the "report_key" field.
+func (u *DeletionRequestUpsert) SetReportKey(v string) *DeletionRequestUpsert {
+	u.Set(deletionrequest.FieldReportKey, v)
+	return u
+}
+
+// UpdateReportKey sets the "report_key" field to the value that was provided on create.
+func (u *DeletionRequestUpsert) UpdateReportKey() *DeletionRequestUpsert {
+	u.SetExcluded(deletionrequest.FieldReportKey)
+	return u
+}
+
+// ClearReportKey clears the value of the "report_key" field.
+func (u *DeletionRequestUpsert) ClearReportKey() *DeletionRequestUpsert {
+	u.SetNull(deletionrequest.FieldReportKey)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -743,6 +779,27 @@ func (u *DeletionRequestUpsertOne) UpdateWorkflowID() *DeletionRequestUpsertOne 
 func (u *DeletionRequestUpsertOne) ClearWorkflowID() *DeletionRequestUpsertOne {
 	return u.Update(func(s *DeletionRequestUpsert) {
 		s.ClearWorkflowID()
+	})
+}
+
+// SetReportKey sets the "report_key" field.
+func (u *DeletionRequestUpsertOne) SetReportKey(v string) *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetReportKey(v)
+	})
+}
+
+// UpdateReportKey sets the "report_key" field to the value that was provided on create.
+func (u *DeletionRequestUpsertOne) UpdateReportKey() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateReportKey()
+	})
+}
+
+// ClearReportKey clears the value of the "report_key" field.
+func (u *DeletionRequestUpsertOne) ClearReportKey() *DeletionRequestUpsertOne {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearReportKey()
 	})
 }
 
@@ -1113,6 +1170,27 @@ func (u *DeletionRequestUpsertBulk) UpdateWorkflowID() *DeletionRequestUpsertBul
 func (u *DeletionRequestUpsertBulk) ClearWorkflowID() *DeletionRequestUpsertBulk {
 	return u.Update(func(s *DeletionRequestUpsert) {
 		s.ClearWorkflowID()
+	})
+}
+
+// SetReportKey sets the "report_key" field.
+func (u *DeletionRequestUpsertBulk) SetReportKey(v string) *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.SetReportKey(v)
+	})
+}
+
+// UpdateReportKey sets the "report_key" field to the value that was provided on create.
+func (u *DeletionRequestUpsertBulk) UpdateReportKey() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.UpdateReportKey()
+	})
+}
+
+// ClearReportKey clears the value of the "report_key" field.
+func (u *DeletionRequestUpsertBulk) ClearReportKey() *DeletionRequestUpsertBulk {
+	return u.Update(func(s *DeletionRequestUpsert) {
+		s.ClearReportKey()
 	})
 }
 

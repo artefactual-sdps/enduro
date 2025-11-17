@@ -22,6 +22,8 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/activities"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/fake"
+	"github.com/artefactual-sdps/enduro/internal/storage/pdfs"
+	pdf_fake "github.com/artefactual-sdps/enduro/internal/storage/pdfs/fake"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -33,7 +35,8 @@ const (
 type StorageDeleteWorkflowTestSuite struct {
 	env        *temporalsdk_testsuite.TestWorkflowEnvironment
 	mockCtrl   *gomock.Controller
-	storagesvc *fake.MockService
+	storagesvc storage.Service
+	formFiller pdfs.FormFiller
 
 	req        *storage.StorageDeleteWorkflowRequest
 	aip        *goastorage.AIP
@@ -50,6 +53,7 @@ func NewStorageDeleteWorkflowTestSuite(
 	s.env = ts.NewTestWorkflowEnvironment()
 	s.mockCtrl = gomock.NewController(t)
 	s.storagesvc = fake.NewMockService(s.mockCtrl)
+	s.formFiller = pdf_fake.NewMockFormFiller(s.mockCtrl)
 	s.req = req
 	s.aip = &goastorage.AIP{
 		UUID:         s.req.AIPID,
@@ -67,6 +71,7 @@ func NewStorageDeleteWorkflowTestSuite(
 			clockwork.NewFakeClock(),
 			storage.AIPDeletionConfig{ReportTemplatePath: "../../../assets/Enduro_AIP_deletion_report_v3.tmpl.pdf"},
 			s.storagesvc,
+			s.formFiller,
 		).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.AIPDeletionReportActivityName},
 	)
