@@ -126,11 +126,9 @@ func ParseEndpoint(
 		ingestListSipSourceObjectsCursorFlag = ingestListSipSourceObjectsFlags.String("cursor", "", "")
 		ingestListSipSourceObjectsTokenFlag  = ingestListSipSourceObjectsFlags.String("token", "", "")
 
-		ingestAddBatchFlags          = flag.NewFlagSet("add-batch", flag.ExitOnError)
-		ingestAddBatchSourceIDFlag   = ingestAddBatchFlags.String("source-id", "REQUIRED", "")
-		ingestAddBatchKeysFlag       = ingestAddBatchFlags.String("keys", "REQUIRED", "")
-		ingestAddBatchIdentifierFlag = ingestAddBatchFlags.String("identifier", "", "")
-		ingestAddBatchTokenFlag      = ingestAddBatchFlags.String("token", "", "")
+		ingestAddBatchFlags     = flag.NewFlagSet("add-batch", flag.ExitOnError)
+		ingestAddBatchBodyFlag  = ingestAddBatchFlags.String("body", "REQUIRED", "")
+		ingestAddBatchTokenFlag = ingestAddBatchFlags.String("token", "", "")
 
 		ingestListBatchesFlags                   = flag.NewFlagSet("list-batches", flag.ExitOnError)
 		ingestListBatchesIdentifierFlag          = ingestListBatchesFlags.String("identifier", "", "")
@@ -513,7 +511,7 @@ func ParseEndpoint(
 				data, err = ingestc.BuildListSipSourceObjectsPayload(*ingestListSipSourceObjectsUUIDFlag, *ingestListSipSourceObjectsLimitFlag, *ingestListSipSourceObjectsCursorFlag, *ingestListSipSourceObjectsTokenFlag)
 			case "add-batch":
 				endpoint = c.AddBatch()
-				data, err = ingestc.BuildAddBatchPayload(*ingestAddBatchSourceIDFlag, *ingestAddBatchKeysFlag, *ingestAddBatchIdentifierFlag, *ingestAddBatchTokenFlag)
+				data, err = ingestc.BuildAddBatchPayload(*ingestAddBatchBodyFlag, *ingestAddBatchTokenFlag)
 			case "list-batches":
 				endpoint = c.ListBatches()
 				data, err = ingestc.BuildListBatchesPayload(*ingestListBatchesIdentifierFlag, *ingestListBatchesEarliestCreatedTimeFlag, *ingestListBatchesLatestCreatedTimeFlag, *ingestListBatchesStatusFlag, *ingestListBatchesUploaderUUIDFlag, *ingestListBatchesLimitFlag, *ingestListBatchesOffsetFlag, *ingestListBatchesTokenFlag)
@@ -954,9 +952,7 @@ func ingestListSipSourceObjectsUsage() {
 func ingestAddBatchUsage() {
 	// Header with flags
 	fmt.Fprintf(os.Stderr, "%s [flags] ingest add-batch", os.Args[0])
-	fmt.Fprint(os.Stderr, " -source-id STRING")
-	fmt.Fprint(os.Stderr, " -keys JSON")
-	fmt.Fprint(os.Stderr, " -identifier STRING")
+	fmt.Fprint(os.Stderr, " -body JSON")
 	fmt.Fprint(os.Stderr, " -token STRING")
 	fmt.Fprintln(os.Stderr)
 
@@ -965,17 +961,19 @@ func ingestAddBatchUsage() {
 	fmt.Fprintln(os.Stderr, `Ingest a Batch from a SIP Source`)
 
 	// Flags list
-	fmt.Fprintln(os.Stderr, `    -source-id STRING: `)
-	fmt.Fprintln(os.Stderr, `    -keys JSON: `)
-	fmt.Fprintln(os.Stderr, `    -identifier STRING: `)
+	fmt.Fprintln(os.Stderr, `    -body JSON: `)
 	fmt.Fprintln(os.Stderr, `    -token STRING: `)
 
 	// Example block: pass example as parameter to avoid format parsing of % characters
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `ingest add-batch --source-id "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --keys '[
-      "abc123"
-   ]' --identifier "abc123" --token "abc123"`)
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `ingest add-batch --body '{
+      "identifier": "abc123",
+      "keys": [
+         "abc123"
+      ],
+      "source_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+   }' --token "abc123"`)
 }
 
 func ingestListBatchesUsage() {

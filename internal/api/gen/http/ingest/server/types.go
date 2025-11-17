@@ -24,6 +24,17 @@ type ConfirmSipRequestBody struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 }
 
+// AddBatchRequestBody is the type of the "ingest" service "add_batch" endpoint
+// HTTP request body.
+type AddBatchRequestBody struct {
+	// Identifier of SIP source -- CURRENTLY NOT USED
+	SourceID *string `form:"source_id,omitempty" json:"source_id,omitempty" xml:"source_id,omitempty"`
+	// Key of the SIPs to ingest as part of the batch
+	Keys []string `form:"keys,omitempty" json:"keys,omitempty" xml:"keys,omitempty"`
+	// Optional Batch identifier assigned by the user
+	Identifier *string `form:"identifier,omitempty" json:"identifier,omitempty" xml:"identifier,omitempty"`
+}
+
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
@@ -1659,11 +1670,15 @@ func NewListSipSourceObjectsPayload(uuid string, limit *int, cursor *string, tok
 }
 
 // NewAddBatchPayload builds a ingest service add_batch endpoint payload.
-func NewAddBatchPayload(sourceID string, keys []string, identifier *string, token *string) *ingest.AddBatchPayload {
-	v := &ingest.AddBatchPayload{}
-	v.SourceID = sourceID
-	v.Keys = keys
-	v.Identifier = identifier
+func NewAddBatchPayload(body *AddBatchRequestBody, token *string) *ingest.AddBatchPayload {
+	v := &ingest.AddBatchPayload{
+		SourceID:   *body.SourceID,
+		Identifier: body.Identifier,
+	}
+	v.Keys = make([]string, len(body.Keys))
+	for i, val := range body.Keys {
+		v.Keys[i] = val
+	}
 	v.Token = token
 
 	return v
@@ -1698,6 +1713,21 @@ func NewShowBatchPayload(uuid string, token *string) *ingest.ShowBatchPayload {
 func ValidateConfirmSipRequestBody(body *ConfirmSipRequestBody) (err error) {
 	if body.LocationUUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("location_uuid", "body"))
+	}
+	return
+}
+
+// ValidateAddBatchRequestBody runs the validations defined on
+// add_batch_request_body
+func ValidateAddBatchRequestBody(body *AddBatchRequestBody) (err error) {
+	if body.SourceID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("source_id", "body"))
+	}
+	if body.Keys == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("keys", "body"))
+	}
+	if body.SourceID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.source_id", *body.SourceID, goa.FormatUUID))
 	}
 	return
 }

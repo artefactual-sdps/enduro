@@ -483,27 +483,20 @@ func BuildListSipSourceObjectsPayload(ingestListSipSourceObjectsUUID string, ing
 
 // BuildAddBatchPayload builds the payload for the ingest add_batch endpoint
 // from CLI flags.
-func BuildAddBatchPayload(ingestAddBatchSourceID string, ingestAddBatchKeys string, ingestAddBatchIdentifier string, ingestAddBatchToken string) (*ingest.AddBatchPayload, error) {
+func BuildAddBatchPayload(ingestAddBatchBody string, ingestAddBatchToken string) (*ingest.AddBatchPayload, error) {
 	var err error
-	var sourceID string
+	var body AddBatchRequestBody
 	{
-		sourceID = ingestAddBatchSourceID
-		err = goa.MergeErrors(err, goa.ValidateFormat("source_id", sourceID, goa.FormatUUID))
+		err = json.Unmarshal([]byte(ingestAddBatchBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"identifier\": \"abc123\",\n      \"keys\": [\n         \"abc123\"\n      ],\n      \"source_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
+		}
+		if body.Keys == nil {
+			err = goa.MergeErrors(err, goa.MissingFieldError("keys", "body"))
+		}
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.source_id", body.SourceID, goa.FormatUUID))
 		if err != nil {
 			return nil, err
-		}
-	}
-	var keys []string
-	{
-		err = json.Unmarshal([]byte(ingestAddBatchKeys), &keys)
-		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for keys, \nerror: %s, \nexample of valid JSON:\n%s", err, "'[\n      \"abc123\"\n   ]'")
-		}
-	}
-	var identifier *string
-	{
-		if ingestAddBatchIdentifier != "" {
-			identifier = &ingestAddBatchIdentifier
 		}
 	}
 	var token *string
@@ -512,10 +505,18 @@ func BuildAddBatchPayload(ingestAddBatchSourceID string, ingestAddBatchKeys stri
 			token = &ingestAddBatchToken
 		}
 	}
-	v := &ingest.AddBatchPayload{}
-	v.SourceID = sourceID
-	v.Keys = keys
-	v.Identifier = identifier
+	v := &ingest.AddBatchPayload{
+		SourceID:   body.SourceID,
+		Identifier: body.Identifier,
+	}
+	if body.Keys != nil {
+		v.Keys = make([]string, len(body.Keys))
+		for i, val := range body.Keys {
+			v.Keys[i] = val
+		}
+	} else {
+		v.Keys = []string{}
+	}
 	v.Token = token
 
 	return v, nil

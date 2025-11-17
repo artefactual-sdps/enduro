@@ -409,11 +409,6 @@ var _ = Service("ingest", func() {
 			Response("not_valid", StatusBadRequest)
 			Response("internal_error", StatusInternalServerError)
 			Response("not_implemented", StatusNotImplemented)
-			Params(func() {
-				Param("source_id")
-				Param("keys")
-				Param("identifier")
-			})
 		})
 	})
 	Method("list_batches", func() {

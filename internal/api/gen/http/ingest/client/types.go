@@ -24,6 +24,17 @@ type ConfirmSipRequestBody struct {
 	LocationUUID uuid.UUID `form:"location_uuid" json:"location_uuid" xml:"location_uuid"`
 }
 
+// AddBatchRequestBody is the type of the "ingest" service "add_batch" endpoint
+// HTTP request body.
+type AddBatchRequestBody struct {
+	// Identifier of SIP source -- CURRENTLY NOT USED
+	SourceID string `form:"source_id" json:"source_id" xml:"source_id"`
+	// Key of the SIPs to ingest as part of the batch
+	Keys []string `form:"keys" json:"keys" xml:"keys"`
+	// Optional Batch identifier assigned by the user
+	Identifier *string `form:"identifier,omitempty" json:"identifier,omitempty" xml:"identifier,omitempty"`
+}
+
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
@@ -878,6 +889,24 @@ type BatchResponseBody struct {
 func NewConfirmSipRequestBody(p *ingest.ConfirmSipPayload) *ConfirmSipRequestBody {
 	body := &ConfirmSipRequestBody{
 		LocationUUID: p.LocationUUID,
+	}
+	return body
+}
+
+// NewAddBatchRequestBody builds the HTTP request body from the payload of the
+// "add_batch" endpoint of the "ingest" service.
+func NewAddBatchRequestBody(p *ingest.AddBatchPayload) *AddBatchRequestBody {
+	body := &AddBatchRequestBody{
+		SourceID:   p.SourceID,
+		Identifier: p.Identifier,
+	}
+	if p.Keys != nil {
+		body.Keys = make([]string, len(p.Keys))
+		for i, val := range p.Keys {
+			body.Keys[i] = val
+		}
+	} else {
+		body.Keys = []string{}
 	}
 	return body
 }

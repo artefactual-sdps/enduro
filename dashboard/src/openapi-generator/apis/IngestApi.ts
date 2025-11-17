@@ -15,6 +15,7 @@
 
 import * as runtime from '../runtime';
 import type {
+  AddBatchRequestBody,
   AddSipResponseBody,
   BatchNotFound,
   ConfirmSipRequestBody,
@@ -29,6 +30,8 @@ import type {
   SIPNotFound,
 } from '../models/index';
 import {
+    AddBatchRequestBodyFromJSON,
+    AddBatchRequestBodyToJSON,
     AddSipResponseBodyFromJSON,
     AddSipResponseBodyToJSON,
     BatchNotFoundFromJSON,
@@ -56,9 +59,7 @@ import {
 } from '../models/index';
 
 export interface IngestAddBatchRequest {
-    sourceId: string;
-    keys: Array<string>;
-    identifier?: string;
+    addBatchRequestBody: AddBatchRequestBody;
 }
 
 export interface IngestAddSipRequest {
@@ -149,9 +150,7 @@ export interface IngestApiInterface {
     /**
      * Ingest a Batch from a SIP Source
      * @summary add_batch ingest
-     * @param {string} sourceId Identifier of SIP source -- CURRENTLY NOT USED
-     * @param {Array<string>} keys Key of the SIPs to ingest as part of the batch
-     * @param {string} [identifier] Optional Batch identifier assigned by the user
+     * @param {AddBatchRequestBody} addBatchRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
@@ -437,29 +436,15 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * add_batch ingest
      */
     async ingestAddBatchRaw(requestParameters: IngestAddBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
-        if (requestParameters.sourceId === null || requestParameters.sourceId === undefined) {
-            throw new runtime.RequiredError('sourceId','Required parameter requestParameters.sourceId was null or undefined when calling ingestAddBatch.');
-        }
-
-        if (requestParameters.keys === null || requestParameters.keys === undefined) {
-            throw new runtime.RequiredError('keys','Required parameter requestParameters.keys was null or undefined when calling ingestAddBatch.');
+        if (requestParameters.addBatchRequestBody === null || requestParameters.addBatchRequestBody === undefined) {
+            throw new runtime.RequiredError('addBatchRequestBody','Required parameter requestParameters.addBatchRequestBody was null or undefined when calling ingestAddBatch.');
         }
 
         const queryParameters: any = {};
 
-        if (requestParameters.sourceId !== undefined) {
-            queryParameters['source_id'] = requestParameters.sourceId;
-        }
-
-        if (requestParameters.keys) {
-            queryParameters['keys'] = requestParameters.keys;
-        }
-
-        if (requestParameters.identifier !== undefined) {
-            queryParameters['identifier'] = requestParameters.identifier;
-        }
-
         const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
@@ -474,6 +459,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
+            body: AddBatchRequestBodyToJSON(requestParameters.addBatchRequestBody),
         }, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => AddSipResponseBodyFromJSON(jsonValue));
