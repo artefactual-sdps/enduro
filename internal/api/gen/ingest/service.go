@@ -154,12 +154,24 @@ type Batch struct {
 
 type BatchCollection []*Batch
 
+type BatchCreatedEvent struct {
+	// Identifier of Batch
+	UUID uuid.UUID
+	Item *Batch
+}
+
 // Batch not found.
 type BatchNotFound struct {
 	// Message of error
 	Message string
 	// Identifier of missing Batch
 	UUID string
+}
+
+type BatchUpdatedEvent struct {
+	// Identifier of Batch
+	UUID uuid.UUID
+	Item *Batch
 }
 
 // Batches is the result type of the ingest service list_batches method.
@@ -595,6 +607,10 @@ func (e Unauthorized) GoaErrorName() string {
 	return "unauthorized"
 }
 
+func (*BatchCreatedEvent) valueVal() {}
+
+func (*BatchUpdatedEvent) valueVal() {}
+
 func (*IngestPingEvent) valueVal() {}
 
 func (*SIPCreatedEvent) valueVal() {}
@@ -929,6 +945,51 @@ func newSIPTaskView(res *SIPTask) *ingestviews.SIPTaskView {
 	return vres
 }
 
+// newBatch converts projected type Batch to service type Batch.
+func newBatch(vres *ingestviews.BatchView) *Batch {
+	res := &Batch{
+		StartedAt:     vres.StartedAt,
+		CompletedAt:   vres.CompletedAt,
+		UploaderUUID:  vres.UploaderUUID,
+		UploaderEmail: vres.UploaderEmail,
+		UploaderName:  vres.UploaderName,
+	}
+	if vres.UUID != nil {
+		res.UUID = *vres.UUID
+	}
+	if vres.Identifier != nil {
+		res.Identifier = *vres.Identifier
+	}
+	if vres.SipsCount != nil {
+		res.SipsCount = *vres.SipsCount
+	}
+	if vres.Status != nil {
+		res.Status = *vres.Status
+	}
+	if vres.CreatedAt != nil {
+		res.CreatedAt = *vres.CreatedAt
+	}
+	return res
+}
+
+// newBatchView projects result type Batch to projected type BatchView using
+// the "default" view.
+func newBatchView(res *Batch) *ingestviews.BatchView {
+	vres := &ingestviews.BatchView{
+		UUID:          &res.UUID,
+		Identifier:    &res.Identifier,
+		SipsCount:     &res.SipsCount,
+		Status:        &res.Status,
+		CreatedAt:     &res.CreatedAt,
+		StartedAt:     res.StartedAt,
+		CompletedAt:   res.CompletedAt,
+		UploaderUUID:  res.UploaderUUID,
+		UploaderEmail: res.UploaderEmail,
+		UploaderName:  res.UploaderName,
+	}
+	return vres
+}
+
 // newSIPs converts projected type SIPs to service type SIPs.
 func newSIPs(vres *ingestviews.SIPsView) *SIPs {
 	res := &SIPs{}
@@ -1254,51 +1315,6 @@ func newBatchCollectionView(res BatchCollection) ingestviews.BatchCollectionView
 	vres := make(ingestviews.BatchCollectionView, len(res))
 	for i, n := range res {
 		vres[i] = newBatchView(n)
-	}
-	return vres
-}
-
-// newBatch converts projected type Batch to service type Batch.
-func newBatch(vres *ingestviews.BatchView) *Batch {
-	res := &Batch{
-		StartedAt:     vres.StartedAt,
-		CompletedAt:   vres.CompletedAt,
-		UploaderUUID:  vres.UploaderUUID,
-		UploaderEmail: vres.UploaderEmail,
-		UploaderName:  vres.UploaderName,
-	}
-	if vres.UUID != nil {
-		res.UUID = *vres.UUID
-	}
-	if vres.Identifier != nil {
-		res.Identifier = *vres.Identifier
-	}
-	if vres.SipsCount != nil {
-		res.SipsCount = *vres.SipsCount
-	}
-	if vres.Status != nil {
-		res.Status = *vres.Status
-	}
-	if vres.CreatedAt != nil {
-		res.CreatedAt = *vres.CreatedAt
-	}
-	return res
-}
-
-// newBatchView projects result type Batch to projected type BatchView using
-// the "default" view.
-func newBatchView(res *Batch) *ingestviews.BatchView {
-	vres := &ingestviews.BatchView{
-		UUID:          &res.UUID,
-		Identifier:    &res.Identifier,
-		SipsCount:     &res.SipsCount,
-		Status:        &res.Status,
-		CreatedAt:     &res.CreatedAt,
-		StartedAt:     res.StartedAt,
-		CompletedAt:   res.CompletedAt,
-		UploaderUUID:  res.UploaderUUID,
-		UploaderEmail: res.UploaderEmail,
-		UploaderName:  res.UploaderName,
 	}
 	return vres
 }

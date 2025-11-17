@@ -105,6 +105,15 @@ func (w *goaWrapper) Monitor(
 				if !claims.CheckAttributes([]string{auth.IngestSIPSWorkflowsListAttr}) {
 					continue
 				}
+			case *goaingest.BatchCreatedEvent:
+				if !claims.CheckAttributes([]string{auth.IngestBatchesListAttr}) {
+					continue
+				}
+			case *goaingest.BatchUpdatedEvent:
+				if !claims.CheckAttributes([]string{auth.IngestBatchesListAttr}) &&
+					!claims.CheckAttributes([]string{auth.IngestBatchesReadAttr}) {
+					continue
+				}
 			default:
 				// Do not send the event if the type is not considered.
 				continue

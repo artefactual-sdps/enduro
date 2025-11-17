@@ -482,6 +482,38 @@
         },
         "type": "array"
       },
+      "BatchCreatedEvent": {
+        "example": {
+          "item": {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "created_at": "1970-01-01T00:00:01Z",
+            "identifier": "abc123",
+            "sips_count": 1,
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "processing",
+            "uploader_email": "abc123",
+            "uploader_name": "abc123",
+            "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/EnduroIngestBatch"
+          },
+          "uuid": {
+            "description": "Identifier of Batch",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "item"
+        ],
+        "type": "object"
+      },
       "BatchNotFound": {
         "description": "Batch not found.",
         "example": {
@@ -504,6 +536,38 @@
         "required": [
           "message",
           "uuid"
+        ],
+        "type": "object"
+      },
+      "BatchUpdatedEvent": {
+        "example": {
+          "item": {
+            "completed_at": "1970-01-01T00:00:01Z",
+            "created_at": "1970-01-01T00:00:01Z",
+            "identifier": "abc123",
+            "sips_count": 1,
+            "started_at": "1970-01-01T00:00:01Z",
+            "status": "processing",
+            "uploader_email": "abc123",
+            "uploader_name": "abc123",
+            "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+          },
+          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+        },
+        "properties": {
+          "item": {
+            "$ref": "#/components/schemas/EnduroIngestBatch"
+          },
+          "uuid": {
+            "description": "Identifier of Batch",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "item"
         ],
         "type": "object"
       },
@@ -1892,6 +1956,12 @@
               },
               {
                 "$ref": "#/components/schemas/SIPTaskUpdatedEvent"
+              },
+              {
+                "$ref": "#/components/schemas/BatchCreatedEvent"
+              },
+              {
+                "$ref": "#/components/schemas/BatchUpdatedEvent"
               }
             ],
             "example": {
@@ -1933,7 +2003,7 @@
             },
             "properties": {
               "Type": {
-                "description": "Union type name, one of:\n- \"ingest_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"",
+                "description": "Union type name, one of:\n- \"ingest_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"\n- \"batch_created_event\"\n- \"batch_updated_event\"",
                 "enum": [
                   "ingest_ping_event",
                   "sip_created_event",
@@ -1942,7 +2012,9 @@
                   "sip_workflow_created_event",
                   "sip_workflow_updated_event",
                   "sip_task_created_event",
-                  "sip_task_updated_event"
+                  "sip_task_updated_event",
+                  "batch_created_event",
+                  "batch_updated_event"
                 ],
                 "example": "sip_created_event",
                 "type": "string"

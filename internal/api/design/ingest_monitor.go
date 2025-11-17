@@ -17,6 +17,8 @@ var IngestEvent = Type("IngestEvent", func() {
 		Attribute("sip_workflow_updated_event", SIPWorkflowUpdatedEvent)
 		Attribute("sip_task_created_event", SIPTaskCreatedEvent)
 		Attribute("sip_task_updated_event", SIPTaskUpdatedEvent)
+		Attribute("batch_created_event", BatchCreatedEvent)
+		Attribute("batch_updated_event", BatchUpdatedEvent)
 	})
 })
 
@@ -73,5 +75,17 @@ var SIPTaskUpdatedEvent = Type("SIPTaskUpdatedEvent", func() {
 	Attribute("item", SIPTask, func() {
 		View("default")
 	})
+	Required("uuid", "item")
+})
+
+var BatchCreatedEvent = Type("BatchCreatedEvent", func() {
+	TypedAttributeUUID("uuid", "Identifier of Batch")
+	Attribute("item", Batch)
+	Required("uuid", "item")
+})
+
+var BatchUpdatedEvent = Type("BatchUpdatedEvent", func() {
+	TypedAttributeUUID("uuid", "Identifier of Batch")
+	Attribute("item", Batch)
 	Required("uuid", "item")
 })

@@ -3383,6 +3383,8 @@ definitions:
                             - "sip_workflow_updated_event"
                             - "sip_task_created_event"
                             - "sip_task_updated_event"
+                            - "batch_created_event"
+                            - "batch_updated_event"
                         example: sip_created_event
                         enum:
                             - ingest_ping_event
@@ -3393,6 +3395,8 @@ definitions:
                             - sip_workflow_updated_event
                             - sip_task_created_event
                             - sip_task_updated_event
+                            - batch_created_event
+                            - batch_updated_event
                     Value:
                         type: string
                         description: JSON encoded union value

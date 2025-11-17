@@ -1908,7 +1908,7 @@
           },
           "properties": {
             "Type": {
-              "description": "Union type name, one of:\n- \"ingest_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"",
+              "description": "Union type name, one of:\n- \"ingest_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"\n- \"batch_created_event\"\n- \"batch_updated_event\"",
               "enum": [
                 "ingest_ping_event",
                 "sip_created_event",
@@ -1917,7 +1917,9 @@
                 "sip_workflow_created_event",
                 "sip_workflow_updated_event",
                 "sip_task_created_event",
-                "sip_task_updated_event"
+                "sip_task_updated_event",
+                "batch_created_event",
+                "batch_updated_event"
               ],
               "example": "sip_created_event",
               "type": "string"
