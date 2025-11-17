@@ -13,12 +13,24 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { EnduroIngestSipTask } from './EnduroIngestSipTask';
+import type { BatchCreatedEvent } from './BatchCreatedEvent';
 import {
-    EnduroIngestSipTaskFromJSON,
-    EnduroIngestSipTaskFromJSONTyped,
-    EnduroIngestSipTaskToJSON,
-} from './EnduroIngestSipTask';
+    BatchCreatedEventFromJSON,
+    BatchCreatedEventFromJSONTyped,
+    BatchCreatedEventToJSON,
+} from './BatchCreatedEvent';
+import type { BatchUpdatedEvent } from './BatchUpdatedEvent';
+import {
+    BatchUpdatedEventFromJSON,
+    BatchUpdatedEventFromJSONTyped,
+    BatchUpdatedEventToJSON,
+} from './BatchUpdatedEvent';
+import type { EnduroIngestBatch } from './EnduroIngestBatch';
+import {
+    EnduroIngestBatchFromJSON,
+    EnduroIngestBatchFromJSONTyped,
+    EnduroIngestBatchToJSON,
+} from './EnduroIngestBatch';
 import type { IngestPingEvent } from './IngestPingEvent';
 import {
     IngestPingEventFromJSON,
@@ -82,12 +94,12 @@ export interface IngestEventValue {
     message?: string;
     /**
      * 
-     * @type {EnduroIngestSipTask}
+     * @type {EnduroIngestBatch}
      * @memberof IngestEventValue
      */
-    item: EnduroIngestSipTask;
+    item: EnduroIngestBatch;
     /**
-     * Identifier of task
+     * Identifier of Batch
      * @type {string}
      * @memberof IngestEventValue
      */
@@ -138,7 +150,7 @@ export function IngestEventValueFromJSONTyped(json: any, ignoreDiscriminator: bo
     return {
         
         'message': !exists(json, 'message') ? undefined : json['message'],
-        'item': EnduroIngestSipTaskFromJSON(json['item']),
+        'item': EnduroIngestBatchFromJSON(json['item']),
         'uuid': json['uuid'],
         'status': json['status'],
     };
@@ -154,7 +166,7 @@ export function IngestEventValueToJSON(value?: IngestEventValue | null): any {
     return {
         
         'message': value.message,
-        'item': EnduroIngestSipTaskToJSON(value.item),
+        'item': EnduroIngestBatchToJSON(value.item),
         'uuid': value.uuid,
         'status': value.status,
     };

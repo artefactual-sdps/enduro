@@ -132,6 +132,8 @@ func TestMonitor(t *testing.T) {
 		{Value: &goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID}},
 		{Value: &goaingest.SIPTaskCreatedEvent{UUID: testUUID}},
 		{Value: &goaingest.SIPTaskUpdatedEvent{UUID: testUUID}},
+		{Value: &goaingest.BatchCreatedEvent{UUID: testUUID}},
+		{Value: &goaingest.BatchUpdatedEvent{UUID: testUUID}},
 	}
 	allWantEvents := []any{
 		&goaingest.IngestPingEvent{Message: ref.New("Hello")},
@@ -142,6 +144,8 @@ func TestMonitor(t *testing.T) {
 		&goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID},
 		&goaingest.SIPTaskCreatedEvent{UUID: testUUID},
 		&goaingest.SIPTaskUpdatedEvent{UUID: testUUID},
+		&goaingest.BatchCreatedEvent{UUID: testUUID},
+		&goaingest.BatchUpdatedEvent{UUID: testUUID},
 	}
 
 	for _, tt := range []struct {

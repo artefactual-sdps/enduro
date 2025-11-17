@@ -48,6 +48,8 @@ type MonitorResponseBody struct {
 		// - "sip_workflow_updated_event"
 		// - "sip_task_created_event"
 		// - "sip_task_updated_event"
+		// - "batch_created_event"
+		// - "batch_updated_event"
 		Type string `form:"Type" json:"Type" xml:"Type"`
 		// JSON encoded union value
 		Value string `form:"Value" json:"Value" xml:"Value"`
@@ -896,6 +898,10 @@ func NewMonitorResponseBody(res *ingest.IngestEvent) *MonitorResponseBody {
 			name = "sip_task_created_event"
 		case *ingest.SIPTaskUpdatedEvent:
 			name = "sip_task_updated_event"
+		case *ingest.BatchCreatedEvent:
+			name = "batch_created_event"
+		case *ingest.BatchUpdatedEvent:
+			name = "batch_updated_event"
 		}
 		body.Value = &struct {
 			// Union type name, one of:
@@ -907,6 +913,8 @@ func NewMonitorResponseBody(res *ingest.IngestEvent) *MonitorResponseBody {
 			// - "sip_workflow_updated_event"
 			// - "sip_task_created_event"
 			// - "sip_task_updated_event"
+			// - "batch_created_event"
+			// - "batch_updated_event"
 			Type string `form:"Type" json:"Type" xml:"Type"`
 			// JSON encoded union value
 			Value string `form:"Value" json:"Value" xml:"Value"`

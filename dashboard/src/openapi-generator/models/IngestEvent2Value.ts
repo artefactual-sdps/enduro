@@ -29,6 +29,8 @@ export interface IngestEvent2Value {
      * - "sip_workflow_updated_event"
      * - "sip_task_created_event"
      * - "sip_task_updated_event"
+     * - "batch_created_event"
+     * - "batch_updated_event"
      * @type {string}
      * @memberof IngestEvent2Value
      */
@@ -53,7 +55,9 @@ export const IngestEvent2ValueTypeEnum = {
     SipWorkflowCreatedEvent: 'sip_workflow_created_event',
     SipWorkflowUpdatedEvent: 'sip_workflow_updated_event',
     SipTaskCreatedEvent: 'sip_task_created_event',
-    SipTaskUpdatedEvent: 'sip_task_updated_event'
+    SipTaskUpdatedEvent: 'sip_task_updated_event',
+    BatchCreatedEvent: 'batch_created_event',
+    BatchUpdatedEvent: 'batch_updated_event'
 } as const;
 export type IngestEvent2ValueTypeEnum = typeof IngestEvent2ValueTypeEnum[keyof typeof IngestEvent2ValueTypeEnum];
 

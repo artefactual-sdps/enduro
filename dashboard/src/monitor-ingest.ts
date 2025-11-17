@@ -18,6 +18,8 @@ const handlers: {
   [IngestEvent2ValueTypeEnum.SipWorkflowUpdatedEvent]: handleSipWorkflowUpdated,
   [IngestEvent2ValueTypeEnum.SipTaskCreatedEvent]: handleSipTaskCreated,
   [IngestEvent2ValueTypeEnum.SipTaskUpdatedEvent]: handleSipTaskUpdated,
+  [IngestEvent2ValueTypeEnum.BatchCreatedEvent]: handleBatchCreated,
+  [IngestEvent2ValueTypeEnum.BatchUpdatedEvent]: handleBatchUpdated,
 };
 
 function handleSipCreated() {
@@ -93,4 +95,21 @@ function handleSipTaskUpdated(data: unknown) {
   const task = store.getTaskById(event.item.workflowUuid, event.uuid);
   if (!task) return;
   Object.assign(task, event.item);
+}
+
+function handleBatchCreated(data: unknown) {
+  console.log("Batch created event received:", data);
+  // TODO: add batch store and update it here.
+  // const store = useBatchStore();
+  // store.fetchBatchesDebounced(1);
+}
+
+function handleBatchUpdated(data: unknown) {
+  console.log("Batch updated event received:", data);
+  // TODO: add batch store and update it here.
+  // const event = api.BatchUpdatedEventFromJSON(data);
+  // const store = useBatchStore();
+  // store.fetchBatchesDebounced(1);
+  // if (store.current?.uuid != event.uuid) return;
+  // Object.assign(store.current, event.item);
 }

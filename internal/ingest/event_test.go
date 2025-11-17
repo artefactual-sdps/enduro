@@ -26,6 +26,8 @@ func TestPublishEventTypes(t *testing.T) {
 	ingest.PublishEvent(ctx, svc, &goaingest.SIPWorkflowUpdatedEvent{})
 	ingest.PublishEvent(ctx, svc, &goaingest.SIPTaskCreatedEvent{})
 	ingest.PublishEvent(ctx, svc, &goaingest.SIPTaskUpdatedEvent{})
+	ingest.PublishEvent(ctx, svc, &goaingest.BatchCreatedEvent{})
+	ingest.PublishEvent(ctx, svc, &goaingest.BatchUpdatedEvent{})
 }
 
 func TestEventSerializer(t *testing.T) {

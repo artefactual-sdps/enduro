@@ -2907,6 +2907,31 @@ components:
                   uploader_name: abc123
                   uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        BatchCreatedEvent:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/EnduroIngestBatch'
+                uuid:
+                    type: string
+                    description: Identifier of Batch
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            example:
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    created_at: "1970-01-01T00:00:01Z"
+                    identifier: abc123
+                    sips_count: 1
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: processing
+                    uploader_email: abc123
+                    uploader_name: abc123
+                    uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - item
         BatchNotFound:
             type: object
             properties:
@@ -2926,6 +2951,31 @@ components:
             required:
                 - message
                 - uuid
+        BatchUpdatedEvent:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/EnduroIngestBatch'
+                uuid:
+                    type: string
+                    description: Identifier of Batch
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            example:
+                item:
+                    completed_at: "1970-01-01T00:00:01Z"
+                    created_at: "1970-01-01T00:00:01Z"
+                    identifier: abc123
+                    sips_count: 1
+                    started_at: "1970-01-01T00:00:01Z"
+                    status: processing
+                    uploader_email: abc123
+                    uploader_name: abc123
+                    uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - item
         CancelAipDeletionRequestBody:
             type: object
             properties:
@@ -3992,6 +4042,8 @@ components:
                         - $ref: '#/components/schemas/SIPWorkflowUpdatedEvent'
                         - $ref: '#/components/schemas/SIPTaskCreatedEvent'
                         - $ref: '#/components/schemas/SIPTaskUpdatedEvent'
+                        - $ref: '#/components/schemas/BatchCreatedEvent'
+                        - $ref: '#/components/schemas/BatchUpdatedEvent'
             example:
                 value:
                     item:
@@ -4029,6 +4081,8 @@ components:
                                 - "sip_workflow_updated_event"
                                 - "sip_task_created_event"
                                 - "sip_task_updated_event"
+                                - "batch_created_event"
+                                - "batch_updated_event"
                             example: sip_created_event
                             enum:
                                 - ingest_ping_event
@@ -4039,6 +4093,8 @@ components:
                                 - sip_workflow_updated_event
                                 - sip_task_created_event
                                 - sip_task_updated_event
+                                - batch_created_event
+                                - batch_updated_event
                         Value:
                             type: string
                             description: JSON encoded union value

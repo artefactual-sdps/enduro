@@ -39,7 +39,9 @@ type Event interface {
 		*goaingest.SIPWorkflowCreatedEvent |
 		*goaingest.SIPWorkflowUpdatedEvent |
 		*goaingest.SIPTaskCreatedEvent |
-		*goaingest.SIPTaskUpdatedEvent
+		*goaingest.SIPTaskUpdatedEvent |
+		*goaingest.BatchCreatedEvent |
+		*goaingest.BatchUpdatedEvent
 }
 
 // PublishEvent publishes an ingest event with type safety.
