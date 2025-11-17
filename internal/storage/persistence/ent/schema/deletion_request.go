@@ -79,6 +79,9 @@ func (DeletionRequest) Fields() []ent.Field {
 		field.Int("workflow_id").
 			Positive().
 			Optional(),
+		field.String("report_key").
+			Annotations(entsql.Annotation{Size: 1024}).
+			Optional(),
 	}
 }
 
