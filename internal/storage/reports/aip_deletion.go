@@ -57,20 +57,21 @@ func (ad *AIPDeletion) Write(ctx context.Context, data *AIPDeletionData, w io.Wr
 }
 
 type AIPDeletionData struct {
-	AIPName            string
-	AIPUUID            uuid.UUID
-	DeletedAt          time.Time
-	EnduroVersion      string
-	PreservationSystem string
-	Reason             string
-	ReportTimestamp    time.Time
-	RequestedAt        time.Time
-	Requester          string
-	ReviewedAt         time.Time
-	Reviewer           string
-	Status             string
-	StorageLocation    string
-	StorageSystem      string
+	DeletionRequestDBID int
+	AIPName             string
+	AIPUUID             uuid.UUID
+	DeletedAt           time.Time
+	EnduroVersion       string
+	PreservationSystem  string
+	Reason              string
+	ReportTimestamp     time.Time
+	RequestedAt         time.Time
+	Requester           string
+	ReviewedAt          time.Time
+	Reviewer            string
+	Status              string
+	StorageLocation     string
+	StorageSystem       string
 }
 
 func (d *AIPDeletionData) MarshalJSON() ([]byte, error) {

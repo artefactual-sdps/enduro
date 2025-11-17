@@ -44,6 +44,7 @@ func expectListDeletionRequests(msvc *fake.MockService, aipID uuid.UUID) {
 		}).
 		Return([]*types.DeletionRequest{
 			{
+				DBID:         1,
 				UUID:         uuid.MustParse("323e4567-e89b-12d3-a456-426614174000"),
 				WorkflowDBID: 1,
 				Reason:       "Test reason for deletion",
@@ -79,6 +80,22 @@ func expectLocation(t *testing.T, msvc *fake.MockService) {
 		Return(loc, nil)
 }
 
+func expectUpdateDeletionRequest(msvc *fake.MockService, drDBID int) {
+	msvc.EXPECT().
+		UpdateDeletionRequest(
+			mockutil.Context(),
+			drDBID,
+			mockutil.Func(
+				"Updates deletion report key",
+				func(updater persistence.DeletionRequestUpdater) error {
+					_, err := updater(&types.DeletionRequest{})
+					return err
+				},
+			),
+		).
+		Return(&types.DeletionRequest{}, nil)
+}
+
 func defaultExpects(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 	t.Helper()
 
@@ -86,6 +103,7 @@ func defaultExpects(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 	expectListDeletionRequests(msvc, aipID)
 	expectReadWorkflows(msvc, 1)
 	expectLocation(t, msvc)
+	expectUpdateDeletionRequest(msvc, 1)
 }
 
 func TestAIPDeletionReportActivity(t *testing.T) {
@@ -196,6 +214,33 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 				AIPID: uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
 			},
 			wantErr: "AIP deletion report: load data: ReadWorkflow: internal error",
+		},
+		{
+			name:         "Errors if updating deletion request fails",
+			templatePath: templatePath,
+			expects: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
+				expectReadAIP(msvc, aipID)
+				expectListDeletionRequests(msvc, aipID)
+				expectReadWorkflows(msvc, 1)
+				expectLocation(t, msvc)
+				msvc.EXPECT().
+					UpdateDeletionRequest(
+						mockutil.Context(),
+						1,
+						mockutil.Func(
+							"Updates deletion report key",
+							func(updater persistence.DeletionRequestUpdater) error {
+								_, err := updater(&types.DeletionRequest{})
+								return err
+							},
+						),
+					).
+					Return(nil, errors.New("internal error"))
+			},
+			params: activities.AIPDeletionReportActivityParams{
+				AIPID: uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
+			},
+			wantErr: "AIP deletion report: update deletion request: internal error",
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {

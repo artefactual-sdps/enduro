@@ -12,6 +12,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/reports"
+	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/artefactual-sdps/enduro/internal/version"
 )
 
@@ -85,6 +86,19 @@ func (a *AIPDeletionReportActivity) Execute(
 		return nil, fmt.Errorf("AIP deletion report: write report to bucket: %w", err)
 	}
 
+	// Persist report key.
+	_, err = a.storageSvc.UpdateDeletionRequest(
+		ctx,
+		data.DeletionRequestDBID,
+		func(dr *types.DeletionRequest) (*types.DeletionRequest, error) {
+			dr.DeletionReportKey = key
+			return dr, nil
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("AIP deletion report: update deletion request: %w", err)
+	}
+
 	return &AIPDeletionReportActivityResult{Key: key}, nil
 }
 
@@ -115,19 +129,20 @@ func (a *AIPDeletionReportActivity) loadData(
 	}
 
 	d := reports.AIPDeletionData{
-		AIPName:            aip.Name,
-		AIPUUID:            aip.UUID,
-		DeletedAt:          wf.CompletedAt,
-		EnduroVersion:      version.Long,
-		PreservationSystem: "a3m",
-		Reason:             drs[0].Reason,
-		RequestedAt:        drs[0].RequestedAt,
-		Requester:          drs[0].Requester,
-		ReviewedAt:         drs[0].ReviewedAt,
-		Reviewer:           drs[0].Reviewer,
-		Status:             drs[0].Status.String(),
-		StorageLocation:    aip.LocationUUID.String(),
-		StorageSystem:      "Enduro Storage Service",
+		DeletionRequestDBID: drs[0].DBID,
+		AIPName:             aip.Name,
+		AIPUUID:             aip.UUID,
+		DeletedAt:           wf.CompletedAt,
+		EnduroVersion:       version.Long,
+		PreservationSystem:  "a3m",
+		Reason:              drs[0].Reason,
+		RequestedAt:         drs[0].RequestedAt,
+		Requester:           drs[0].Requester,
+		ReviewedAt:          drs[0].ReviewedAt,
+		Reviewer:            drs[0].Reviewer,
+		Status:              drs[0].Status.String(),
+		StorageLocation:     aip.LocationUUID.String(),
+		StorageSystem:       "Enduro Storage Service",
 	}
 
 	if locationSource == enums.LocationSourceAmss {

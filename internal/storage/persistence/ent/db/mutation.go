@@ -884,28 +884,29 @@ func (m *AIPMutation) ResetEdge(name string) error {
 // DeletionRequestMutation represents an operation that mutates the DeletionRequest nodes in the graph.
 type DeletionRequestMutation struct {
 	config
-	op              Op
-	typ             string
-	id              *int
-	uuid            *uuid.UUID
-	requester       *string
-	requester_iss   *string
-	requester_sub   *string
-	reviewer        *string
-	reviewer_iss    *string
-	reviewer_sub    *string
-	reason          *string
-	status          *enums.DeletionRequestStatus
-	requested_at    *time.Time
-	reviewed_at     *time.Time
-	clearedFields   map[string]struct{}
-	aip             *int
-	clearedaip      bool
-	workflow        *int
-	clearedworkflow bool
-	done            bool
-	oldValue        func(context.Context) (*DeletionRequest, error)
-	predicates      []predicate.DeletionRequest
+	op                  Op
+	typ                 string
+	id                  *int
+	uuid                *uuid.UUID
+	requester           *string
+	requester_iss       *string
+	requester_sub       *string
+	reviewer            *string
+	reviewer_iss        *string
+	reviewer_sub        *string
+	reason              *string
+	status              *enums.DeletionRequestStatus
+	requested_at        *time.Time
+	reviewed_at         *time.Time
+	deletion_report_key *string
+	clearedFields       map[string]struct{}
+	aip                 *int
+	clearedaip          bool
+	workflow            *int
+	clearedworkflow     bool
+	done                bool
+	oldValue            func(context.Context) (*DeletionRequest, error)
+	predicates          []predicate.DeletionRequest
 }
 
 var _ ent.Mutation = (*DeletionRequestMutation)(nil)
@@ -1539,6 +1540,55 @@ func (m *DeletionRequestMutation) ResetWorkflowID() {
 	delete(m.clearedFields, deletionrequest.FieldWorkflowID)
 }
 
+// SetDeletionReportKey sets the "deletion_report_key" field.
+func (m *DeletionRequestMutation) SetDeletionReportKey(s string) {
+	m.deletion_report_key = &s
+}
+
+// DeletionReportKey returns the value of the "deletion_report_key" field in the mutation.
+func (m *DeletionRequestMutation) DeletionReportKey() (r string, exists bool) {
+	v := m.deletion_report_key
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldDeletionReportKey returns the old "deletion_report_key" field's value of the DeletionRequest entity.
+// If the DeletionRequest object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *DeletionRequestMutation) OldDeletionReportKey(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldDeletionReportKey is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldDeletionReportKey requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldDeletionReportKey: %w", err)
+	}
+	return oldValue.DeletionReportKey, nil
+}
+
+// ClearDeletionReportKey clears the value of the "deletion_report_key" field.
+func (m *DeletionRequestMutation) ClearDeletionReportKey() {
+	m.deletion_report_key = nil
+	m.clearedFields[deletionrequest.FieldDeletionReportKey] = struct{}{}
+}
+
+// DeletionReportKeyCleared returns if the "deletion_report_key" field was cleared in this mutation.
+func (m *DeletionRequestMutation) DeletionReportKeyCleared() bool {
+	_, ok := m.clearedFields[deletionrequest.FieldDeletionReportKey]
+	return ok
+}
+
+// ResetDeletionReportKey resets all changes to the "deletion_report_key" field.
+func (m *DeletionRequestMutation) ResetDeletionReportKey() {
+	m.deletion_report_key = nil
+	delete(m.clearedFields, deletionrequest.FieldDeletionReportKey)
+}
+
 // ClearAip clears the "aip" edge to the AIP entity.
 func (m *DeletionRequestMutation) ClearAip() {
 	m.clearedaip = true
@@ -1627,7 +1677,7 @@ func (m *DeletionRequestMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *DeletionRequestMutation) Fields() []string {
-	fields := make([]string, 0, 13)
+	fields := make([]string, 0, 14)
 	if m.uuid != nil {
 		fields = append(fields, deletionrequest.FieldUUID)
 	}
@@ -1667,6 +1717,9 @@ func (m *DeletionRequestMutation) Fields() []string {
 	if m.workflow != nil {
 		fields = append(fields, deletionrequest.FieldWorkflowID)
 	}
+	if m.deletion_report_key != nil {
+		fields = append(fields, deletionrequest.FieldDeletionReportKey)
+	}
 	return fields
 }
 
@@ -1701,6 +1754,8 @@ func (m *DeletionRequestMutation) Field(name string) (ent.Value, bool) {
 		return m.AipID()
 	case deletionrequest.FieldWorkflowID:
 		return m.WorkflowID()
+	case deletionrequest.FieldDeletionReportKey:
+		return m.DeletionReportKey()
 	}
 	return nil, false
 }
@@ -1736,6 +1791,8 @@ func (m *DeletionRequestMutation) OldField(ctx context.Context, name string) (en
 		return m.OldAipID(ctx)
 	case deletionrequest.FieldWorkflowID:
 		return m.OldWorkflowID(ctx)
+	case deletionrequest.FieldDeletionReportKey:
+		return m.OldDeletionReportKey(ctx)
 	}
 	return nil, fmt.Errorf("unknown DeletionRequest field %s", name)
 }
@@ -1836,6 +1893,13 @@ func (m *DeletionRequestMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetWorkflowID(v)
 		return nil
+	case deletionrequest.FieldDeletionReportKey:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetDeletionReportKey(v)
+		return nil
 	}
 	return fmt.Errorf("unknown DeletionRequest field %s", name)
 }
@@ -1884,6 +1948,9 @@ func (m *DeletionRequestMutation) ClearedFields() []string {
 	if m.FieldCleared(deletionrequest.FieldWorkflowID) {
 		fields = append(fields, deletionrequest.FieldWorkflowID)
 	}
+	if m.FieldCleared(deletionrequest.FieldDeletionReportKey) {
+		fields = append(fields, deletionrequest.FieldDeletionReportKey)
+	}
 	return fields
 }
 
@@ -1912,6 +1979,9 @@ func (m *DeletionRequestMutation) ClearField(name string) error {
 		return nil
 	case deletionrequest.FieldWorkflowID:
 		m.ClearWorkflowID()
+		return nil
+	case deletionrequest.FieldDeletionReportKey:
+		m.ClearDeletionReportKey()
 		return nil
 	}
 	return fmt.Errorf("unknown DeletionRequest nullable field %s", name)
@@ -1959,6 +2029,9 @@ func (m *DeletionRequestMutation) ResetField(name string) error {
 		return nil
 	case deletionrequest.FieldWorkflowID:
 		m.ResetWorkflowID()
+		return nil
+	case deletionrequest.FieldDeletionReportKey:
+		m.ResetDeletionReportKey()
 		return nil
 	}
 	return fmt.Errorf("unknown DeletionRequest field %s", name)
