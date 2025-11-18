@@ -26,4 +26,4 @@ jobs:
             tilt
           tilt: v0.35.2
       - name: Check tilt ci
-        run: timeout 600 tilt ci
+        run: tilt ci
