@@ -27,6 +27,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 	"github.com/artefactual-sdps/enduro/internal/sipsource"
 )
@@ -172,4 +173,195 @@ func TestCreateSIP_AuditLog(t *testing.T) {
 		strings.Contains(got, want),
 		fmt.Sprintf("expected: %s, got: %s", want, got),
 	)
+}
+
+func TestUpdateSIP(t *testing.T) {
+	t.Parallel()
+
+	sip := &datatypes.SIP{
+		ID:        1,
+		UUID:      uuid.MustParse("e8d32bd5-faa4-4ce1-bb50-55d9c28b306d"),
+		Name:      "sip-name",
+		Status:    enums.SIPStatusQueued,
+		CreatedAt: time.Date(2024, 3, 14, 15, 57, 25, 0, time.UTC),
+	}
+	updater := func(s *datatypes.SIP) (*datatypes.SIP, error) { return s, nil }
+
+	for _, tt := range []struct {
+		name    string
+		mock    func(*persistence_fake.MockService, uuid.UUID, persistence.SIPUpdater) *persistence_fake.MockService
+		want    *datatypes.SIP
+		wantErr string
+	}{
+		{
+			name: "Updates a SIP",
+			mock: func(
+				svc *persistence_fake.MockService,
+				id uuid.UUID,
+				updater persistence.SIPUpdater,
+			) *persistence_fake.MockService {
+				svc.EXPECT().
+					UpdateSIP(
+						mockutil.Context(),
+						sip.UUID,
+						mockutil.Func(
+							"should update SIP",
+							func(upd persistence.SIPUpdater) error {
+								_, err := upd(&datatypes.SIP{})
+								return err
+							},
+						),
+					).
+					DoAndReturn(
+						func(
+							ctx context.Context,
+							id uuid.UUID,
+							upd persistence.SIPUpdater,
+						) (*datatypes.SIP, error) {
+							sip, err := upd(sip)
+							return sip, err
+						},
+					)
+				return svc
+			},
+			want: sip,
+		},
+		{
+			name: "Fails to update a SIP",
+			mock: func(
+				svc *persistence_fake.MockService,
+				id uuid.UUID,
+				updater persistence.SIPUpdater,
+			) *persistence_fake.MockService {
+				svc.EXPECT().
+					UpdateSIP(
+						mockutil.Context(),
+						sip.UUID,
+						mockutil.Func(
+							"should update SIP",
+							func(upd persistence.SIPUpdater) error {
+								_, err := upd(&datatypes.SIP{})
+								return err
+							},
+						),
+					).
+					Return(nil, fmt.Errorf("persistence error"))
+				return svc
+			},
+			wantErr: "ingest: update SIP: persistence error",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+			tt.mock(perSvc, sip.UUID, updater)
+
+			s, err := ingestsvc.UpdateSIP(context.Background(), sip.UUID, updater)
+
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, s, tt.want)
+		})
+	}
+}
+
+func TestUpdateBatch(t *testing.T) {
+	t.Parallel()
+
+	batch := &datatypes.Batch{
+		ID:         1,
+		UUID:       uuid.MustParse("e8d32bd5-faa4-4ce1-bb50-55d9c28b306d"),
+		Identifier: "batch-identifier",
+		SIPSCount:  5,
+		Status:     enums.BatchStatusQueued,
+		CreatedAt:  time.Date(2024, 3, 14, 15, 57, 25, 0, time.UTC),
+	}
+	updater := func(b *datatypes.Batch) (*datatypes.Batch, error) { return b, nil }
+
+	for _, tt := range []struct {
+		name    string
+		mock    func(*persistence_fake.MockService, uuid.UUID, persistence.BatchUpdater) *persistence_fake.MockService
+		want    *datatypes.Batch
+		wantErr string
+	}{
+		{
+			name: "Updates a batch",
+			mock: func(
+				svc *persistence_fake.MockService,
+				id uuid.UUID,
+				updater persistence.BatchUpdater,
+			) *persistence_fake.MockService {
+				svc.EXPECT().
+					UpdateBatch(
+						mockutil.Context(),
+						batch.UUID,
+						mockutil.Func(
+							"should update batch",
+							func(upd persistence.BatchUpdater) error {
+								_, err := upd(&datatypes.Batch{})
+								return err
+							},
+						),
+					).
+					DoAndReturn(
+						func(
+							ctx context.Context,
+							id uuid.UUID,
+							upd persistence.BatchUpdater,
+						) (*datatypes.Batch, error) {
+							batch, err := upd(batch)
+							return batch, err
+						},
+					)
+				return svc
+			},
+			want: batch,
+		},
+		{
+			name: "Fails to update a batch",
+			mock: func(
+				svc *persistence_fake.MockService,
+				id uuid.UUID,
+				updater persistence.BatchUpdater,
+			) *persistence_fake.MockService {
+				svc.EXPECT().
+					UpdateBatch(
+						mockutil.Context(),
+						batch.UUID,
+						mockutil.Func(
+							"should update batch",
+							func(upd persistence.BatchUpdater) error {
+								_, err := upd(&datatypes.Batch{})
+								return err
+							},
+						),
+					).
+					Return(nil, fmt.Errorf("persistence error"))
+				return svc
+			},
+			wantErr: "ingest: update Batch: persistence error",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+			tt.mock(perSvc, batch.UUID, updater)
+
+			b, err := ingestsvc.UpdateBatch(context.Background(), batch.UUID, updater)
+
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, b, tt.want)
+		})
+	}
 }

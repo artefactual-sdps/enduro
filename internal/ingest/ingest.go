@@ -58,6 +58,7 @@ type Service interface {
 		completedAt time.Time,
 		note *string,
 	) error
+	UpdateBatch(context.Context, uuid.UUID, persistence.BatchUpdater) (*datatypes.Batch, error)
 }
 
 type ingestImpl struct {
@@ -198,4 +199,20 @@ func (svc *ingestImpl) updateRow(ctx context.Context, query string, args []any) 
 	}
 
 	return nil
+}
+
+func (svc *ingestImpl) UpdateBatch(
+	ctx context.Context,
+	id uuid.UUID,
+	upd persistence.BatchUpdater,
+) (*datatypes.Batch, error) {
+	b, err := svc.perSvc.UpdateBatch(ctx, id, upd)
+	if err != nil {
+		return nil, fmt.Errorf("ingest: update Batch: %v", err)
+	}
+
+	ev := &goaingest.BatchUpdatedEvent{UUID: id, Item: b.Goa()}
+	PublishEvent(ctx, svc.evsvc, ev)
+
+	return b, nil
 }
