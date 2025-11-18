@@ -23,6 +23,6 @@ jobs:
         with:
           setup-tools: |
             tilt
-          tilt: v0.33.11
+          tilt: v0.35.2
       - name: Check tilt ci
         run: timeout 600 tilt ci
