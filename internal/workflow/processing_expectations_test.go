@@ -151,9 +151,11 @@ var expectations = map[string]expectationFunc{
 			ctx,
 			s.workflow.ingestsvc,
 			&createSIPLocalActivityParams{
-				UUID:   sipUUID,
-				Name:   sipName,
-				Status: enums.SIPStatusQueued,
+				SIP: datatypes.SIP{
+					UUID:   sipUUID,
+					Name:   sipName,
+					Status: enums.SIPStatusQueued,
+				},
 			},
 		).Return(sipID, nil)
 	},

@@ -15,9 +15,7 @@ import (
 )
 
 type createSIPLocalActivityParams struct {
-	UUID   uuid.UUID
-	Name   string
-	Status enums.SIPStatus
+	SIP datatypes.SIP
 }
 
 func createSIPLocalActivity(
@@ -25,17 +23,11 @@ func createSIPLocalActivity(
 	ingestsvc ingest.Service,
 	params *createSIPLocalActivityParams,
 ) (int, error) {
-	col := &datatypes.SIP{
-		UUID:   params.UUID,
-		Name:   params.Name,
-		Status: params.Status,
-	}
-
-	if err := ingestsvc.CreateSIP(ctx, col); err != nil {
+	if err := ingestsvc.CreateSIP(ctx, &params.SIP); err != nil {
 		return 0, err
 	}
 
-	return col.ID, nil
+	return params.SIP.ID, nil
 }
 
 type updateSIPLocalActivityParams struct {
