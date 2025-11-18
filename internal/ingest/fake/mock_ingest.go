@@ -388,6 +388,45 @@ func (c *MockServiceSetWorkflowStatusCall) DoAndReturn(f func(context.Context, i
 	return c
 }
 
+// UpdateBatch mocks base method.
+func (m *MockService) UpdateBatch(arg0 context.Context, arg1 uuid.UUID, arg2 persistence.BatchUpdater) (*datatypes.Batch, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateBatch", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*datatypes.Batch)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateBatch indicates an expected call of UpdateBatch.
+func (mr *MockServiceMockRecorder) UpdateBatch(arg0, arg1, arg2 any) *MockServiceUpdateBatchCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateBatch", reflect.TypeOf((*MockService)(nil).UpdateBatch), arg0, arg1, arg2)
+	return &MockServiceUpdateBatchCall{Call: call}
+}
+
+// MockServiceUpdateBatchCall wrap *gomock.Call
+type MockServiceUpdateBatchCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceUpdateBatchCall) Return(arg0 *datatypes.Batch, arg1 error) *MockServiceUpdateBatchCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceUpdateBatchCall) Do(f func(context.Context, uuid.UUID, persistence.BatchUpdater) (*datatypes.Batch, error)) *MockServiceUpdateBatchCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceUpdateBatchCall) DoAndReturn(f func(context.Context, uuid.UUID, persistence.BatchUpdater) (*datatypes.Batch, error)) *MockServiceUpdateBatchCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // UpdateSIP mocks base method.
 func (m *MockService) UpdateSIP(arg0 context.Context, arg1 uuid.UUID, arg2 persistence.SIPUpdater) (*datatypes.SIP, error) {
 	m.ctrl.T.Helper()
