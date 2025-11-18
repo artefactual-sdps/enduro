@@ -182,9 +182,11 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 			createSIPLocalActivity,
 			w.ingestsvc,
 			&createSIPLocalActivityParams{
-				UUID:   state.sip.uuid,
-				Name:   state.sip.name,
-				Status: state.sip.status,
+				SIP: datatypes.SIP{
+					UUID:   state.sip.uuid,
+					Name:   state.sip.name,
+					Status: state.sip.status,
+				},
 			},
 		).Get(activityOpts, nil)
 		if err != nil {
@@ -1290,7 +1292,8 @@ func (w *ProcessingWorkflow) validatePREMIS(
 func (w *ProcessingWorkflow) updateSIPProcessing(ctx temporalsdk_workflow.Context, state *workflowState) error {
 	activityOpts := withLocalActivityOpts(ctx)
 	return temporalsdk_workflow.ExecuteLocalActivity(
-		activityOpts, updateSIPLocalActivity,
+		activityOpts,
+		updateSIPLocalActivity,
 		w.ingestsvc,
 		&updateSIPLocalActivityParams{
 			UUID:    state.sip.uuid,
