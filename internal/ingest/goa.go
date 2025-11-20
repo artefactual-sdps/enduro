@@ -58,6 +58,10 @@ func (svc *ingestImpl) AddSip(ctx context.Context, payload *goaingest.AddSipPayl
 		return nil, goaingest.MakeNotValid(errors.New("invalid SourceID"))
 	}
 
+	if payload.Key == "" {
+		return nil, goaingest.MakeNotValid(errors.New("empty Key"))
+	}
+
 	claims, err := checkClaims(ctx)
 	if err != nil {
 		return nil, goaingest.MakeNotValid(err)
