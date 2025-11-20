@@ -9,55 +9,94 @@ import (
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 const (
-	// The name of the SIP processing workflow.
+	// BatchWorkflowName is the name of the Batch processing workflow.
+	BatchWorkflowName = "batch-workflow"
+
+	// ProcessingWorkflowName is the name of the SIP processing workflow.
 	ProcessingWorkflowName = "processing-workflow"
 
-	// The name of the signal for reviewing a SIP/AIP.
+	// ReviewPerformedSignalName is the name of the signal for reviewing a SIP/AIP.
 	ReviewPerformedSignalName = "review-performed-signal"
 )
 
-type ReviewPerformedSignal struct {
-	Accepted   bool
-	LocationID *uuid.UUID
-}
+type (
+	BatchWorkflowRequest struct {
+		// Batch contains the Batch details.
+		Batch datatypes.Batch
 
-type ProcessingWorkflowRequest struct {
-	// The unique identifier of the SIP.
-	SIPUUID uuid.UUID
+		// SIPSourceID is the ID of the SIP source.
+		SIPSourceID uuid.UUID
 
-	// The name of the SIP.
-	SIPName string
+		// Keys contains the keys of the SIP objects.
+		Keys []string
 
-	// The type of workflow to execute.
-	Type enums.WorkflowType
+		// RetentionPeriod is the duration for which SIPs should be retained after
+		// a successful ingest. If negative, SIPs will be retained indefinitely.
+		RetentionPeriod time.Duration
+	}
 
-	// The name of the watcher that received this blob.
-	WatcherName string
+	ProcessingWorkflowRequest struct {
+		// SIPUUID is the unique identifier of the SIP.
+		SIPUUID uuid.UUID
 
-	// The ID of the SIP source.
-	SIPSourceID uuid.UUID
+		// SIPName is the name of the SIP.
+		SIPName string
 
-	// RetentionPeriod is the duration for which SIPs should be retained after
-	// a successful ingest. If negative, SIPs will be retained indefinitely.
-	RetentionPeriod time.Duration
+		// Type is the type of workflow to execute.
+		Type enums.WorkflowType
 
-	// The directory where the transfer is moved to once processing has completed
-	// successfully.
-	CompletedDir string
+		// WatcherName is the name of the watcher that received this blob.
+		WatcherName string
 
-	// The key of the blob.
-	Key string
+		// SIPSourceID is the ID of the SIP source.
+		SIPSourceID uuid.UUID
 
-	// Indicates whether the blob is a directory (used by the filesystem watcher).
-	IsDir bool
+		// RetentionPeriod is the duration for which SIPs should be retained after
+		// a successful ingest. If negative, SIPs will be retained indefinitely.
+		RetentionPeriod time.Duration
 
-	// The file extension of the original SIP. If it's missing and the SIP is not a
-	// directory, the workflow will try to obtain the value after download.
-	Extension string
+		// CompletedDir is the directory where the transfer is moved to once processing
+		// has completed successfully.
+		CompletedDir string
+
+		// Key is the key of the blob.
+		Key string
+
+		// IsDir indicates whether the blob is a directory (used by the filesystem watcher).
+		IsDir bool
+
+		// Extension is the file extension of the original SIP. If it's missing and the SIP
+		// is not a directory, the workflow will try to obtain the value after download.
+		Extension string
+	}
+
+	ReviewPerformedSignal struct {
+		Accepted   bool
+		LocationID *uuid.UUID
+	}
+)
+
+func InitBatchWorkflow(
+	ctx context.Context,
+	tc temporalsdk_client.Client,
+	taskQueue string,
+	req *BatchWorkflowRequest,
+) error {
+	ctx, cancel := context.WithTimeout(ctx, time.Second*5)
+	defer cancel()
+
+	opts := temporalsdk_client.StartWorkflowOptions{
+		ID:                    fmt.Sprintf("%s-%s", BatchWorkflowName, req.Batch.UUID.String()),
+		TaskQueue:             taskQueue,
+		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+	}
+	_, err := tc.ExecuteWorkflow(ctx, opts, BatchWorkflowName, req)
+	return err
 }
 
 func InitProcessingWorkflow(
@@ -70,7 +109,7 @@ func InitProcessingWorkflow(
 	defer cancel()
 
 	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                    fmt.Sprintf("processing-workflow-%s", req.SIPUUID.String()),
+		ID:                    fmt.Sprintf("%s-%s", ProcessingWorkflowName, req.SIPUUID.String()),
 		TaskQueue:             taskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}

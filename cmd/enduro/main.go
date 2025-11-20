@@ -512,6 +512,12 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.DisposeOriginalActivityName},
 		)
 
+		// Batch workflow.
+		w.RegisterWorkflowWithOptions(
+			workflow.NewBatchWorkflow(cfg, rand.Reader, ingestsvc, temporalClient).Execute,
+			temporalsdk_workflow.RegisterOptions{Name: ingest.BatchWorkflowName},
+		)
+
 		w.RegisterWorkflowWithOptions(
 			storage_workflows.NewStorageDeleteWorkflow(
 				cfg.Storage.AIPDeletion,
