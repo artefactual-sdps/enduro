@@ -11,6 +11,7 @@ package fake
 
 import (
 	context "context"
+	io "io"
 	reflect "reflect"
 	time "time"
 
@@ -44,6 +45,84 @@ func NewMockService(ctrl *gomock.Controller) *MockService {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
+}
+
+// AddBatch mocks base method.
+func (m *MockService) AddBatch(arg0 context.Context, arg1 *ingest.AddBatchPayload) (*ingest.AddBatchResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddBatch", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.AddBatchResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddBatch indicates an expected call of AddBatch.
+func (mr *MockServiceMockRecorder) AddBatch(arg0, arg1 any) *MockServiceAddBatchCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddBatch", reflect.TypeOf((*MockService)(nil).AddBatch), arg0, arg1)
+	return &MockServiceAddBatchCall{Call: call}
+}
+
+// MockServiceAddBatchCall wrap *gomock.Call
+type MockServiceAddBatchCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceAddBatchCall) Return(res *ingest.AddBatchResult, err error) *MockServiceAddBatchCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceAddBatchCall) Do(f func(context.Context, *ingest.AddBatchPayload) (*ingest.AddBatchResult, error)) *MockServiceAddBatchCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceAddBatchCall) DoAndReturn(f func(context.Context, *ingest.AddBatchPayload) (*ingest.AddBatchResult, error)) *MockServiceAddBatchCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// AddSip mocks base method.
+func (m *MockService) AddSip(arg0 context.Context, arg1 *ingest.AddSipPayload) (*ingest.AddSipResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AddSip", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.AddSipResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AddSip indicates an expected call of AddSip.
+func (mr *MockServiceMockRecorder) AddSip(arg0, arg1 any) *MockServiceAddSipCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AddSip", reflect.TypeOf((*MockService)(nil).AddSip), arg0, arg1)
+	return &MockServiceAddSipCall{Call: call}
+}
+
+// MockServiceAddSipCall wrap *gomock.Call
+type MockServiceAddSipCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceAddSipCall) Return(res *ingest.AddSipResult, err error) *MockServiceAddSipCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceAddSipCall) Do(f func(context.Context, *ingest.AddSipPayload) (*ingest.AddSipResult, error)) *MockServiceAddSipCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceAddSipCall) DoAndReturn(f func(context.Context, *ingest.AddSipPayload) (*ingest.AddSipResult, error)) *MockServiceAddSipCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
 }
 
 // CompleteTask mocks base method.
@@ -118,6 +197,44 @@ func (c *MockServiceCompleteWorkflowCall) Do(f func(context.Context, int, enums.
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockServiceCompleteWorkflowCall) DoAndReturn(f func(context.Context, int, enums.WorkflowStatus, time.Time) error) *MockServiceCompleteWorkflowCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// ConfirmSip mocks base method.
+func (m *MockService) ConfirmSip(arg0 context.Context, arg1 *ingest.ConfirmSipPayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ConfirmSip", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ConfirmSip indicates an expected call of ConfirmSip.
+func (mr *MockServiceMockRecorder) ConfirmSip(arg0, arg1 any) *MockServiceConfirmSipCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ConfirmSip", reflect.TypeOf((*MockService)(nil).ConfirmSip), arg0, arg1)
+	return &MockServiceConfirmSipCall{Call: call}
+}
+
+// MockServiceConfirmSipCall wrap *gomock.Call
+type MockServiceConfirmSipCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceConfirmSipCall) Return(err error) *MockServiceConfirmSipCall {
+	c.Call = c.Call.Return(err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceConfirmSipCall) Do(f func(context.Context, *ingest.ConfirmSipPayload) error) *MockServiceConfirmSipCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceConfirmSipCall) DoAndReturn(f func(context.Context, *ingest.ConfirmSipPayload) error) *MockServiceConfirmSipCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -236,40 +353,391 @@ func (c *MockServiceCreateWorkflowCall) DoAndReturn(f func(context.Context, *dat
 	return c
 }
 
-// Goa mocks base method.
-func (m *MockService) Goa() ingest.Service {
+// DownloadSip mocks base method.
+func (m *MockService) DownloadSip(arg0 context.Context, arg1 *ingest.DownloadSipPayload) (*ingest.DownloadSipResult, io.ReadCloser, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Goa")
-	ret0, _ := ret[0].(ingest.Service)
-	return ret0
+	ret := m.ctrl.Call(m, "DownloadSip", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.DownloadSipResult)
+	ret1, _ := ret[1].(io.ReadCloser)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
-// Goa indicates an expected call of Goa.
-func (mr *MockServiceMockRecorder) Goa() *MockServiceGoaCall {
+// DownloadSip indicates an expected call of DownloadSip.
+func (mr *MockServiceMockRecorder) DownloadSip(arg0, arg1 any) *MockServiceDownloadSipCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Goa", reflect.TypeOf((*MockService)(nil).Goa))
-	return &MockServiceGoaCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadSip", reflect.TypeOf((*MockService)(nil).DownloadSip), arg0, arg1)
+	return &MockServiceDownloadSipCall{Call: call}
 }
 
-// MockServiceGoaCall wrap *gomock.Call
-type MockServiceGoaCall struct {
+// MockServiceDownloadSipCall wrap *gomock.Call
+type MockServiceDownloadSipCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceGoaCall) Return(arg0 ingest.Service) *MockServiceGoaCall {
-	c.Call = c.Call.Return(arg0)
+func (c *MockServiceDownloadSipCall) Return(res *ingest.DownloadSipResult, body io.ReadCloser, err error) *MockServiceDownloadSipCall {
+	c.Call = c.Call.Return(res, body, err)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceGoaCall) Do(f func() ingest.Service) *MockServiceGoaCall {
+func (c *MockServiceDownloadSipCall) Do(f func(context.Context, *ingest.DownloadSipPayload) (*ingest.DownloadSipResult, io.ReadCloser, error)) *MockServiceDownloadSipCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceGoaCall) DoAndReturn(f func() ingest.Service) *MockServiceGoaCall {
+func (c *MockServiceDownloadSipCall) DoAndReturn(f func(context.Context, *ingest.DownloadSipPayload) (*ingest.DownloadSipResult, io.ReadCloser, error)) *MockServiceDownloadSipCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// DownloadSipRequest mocks base method.
+func (m *MockService) DownloadSipRequest(arg0 context.Context, arg1 *ingest.DownloadSipRequestPayload) (*ingest.DownloadSipRequestResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DownloadSipRequest", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.DownloadSipRequestResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DownloadSipRequest indicates an expected call of DownloadSipRequest.
+func (mr *MockServiceMockRecorder) DownloadSipRequest(arg0, arg1 any) *MockServiceDownloadSipRequestCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadSipRequest", reflect.TypeOf((*MockService)(nil).DownloadSipRequest), arg0, arg1)
+	return &MockServiceDownloadSipRequestCall{Call: call}
+}
+
+// MockServiceDownloadSipRequestCall wrap *gomock.Call
+type MockServiceDownloadSipRequestCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceDownloadSipRequestCall) Return(res *ingest.DownloadSipRequestResult, err error) *MockServiceDownloadSipRequestCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceDownloadSipRequestCall) Do(f func(context.Context, *ingest.DownloadSipRequestPayload) (*ingest.DownloadSipRequestResult, error)) *MockServiceDownloadSipRequestCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceDownloadSipRequestCall) DoAndReturn(f func(context.Context, *ingest.DownloadSipRequestPayload) (*ingest.DownloadSipRequestResult, error)) *MockServiceDownloadSipRequestCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// ListBatches mocks base method.
+func (m *MockService) ListBatches(arg0 context.Context, arg1 *ingest.ListBatchesPayload) (*ingest.Batches, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListBatches", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.Batches)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListBatches indicates an expected call of ListBatches.
+func (mr *MockServiceMockRecorder) ListBatches(arg0, arg1 any) *MockServiceListBatchesCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListBatches", reflect.TypeOf((*MockService)(nil).ListBatches), arg0, arg1)
+	return &MockServiceListBatchesCall{Call: call}
+}
+
+// MockServiceListBatchesCall wrap *gomock.Call
+type MockServiceListBatchesCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceListBatchesCall) Return(res *ingest.Batches, err error) *MockServiceListBatchesCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceListBatchesCall) Do(f func(context.Context, *ingest.ListBatchesPayload) (*ingest.Batches, error)) *MockServiceListBatchesCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceListBatchesCall) DoAndReturn(f func(context.Context, *ingest.ListBatchesPayload) (*ingest.Batches, error)) *MockServiceListBatchesCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// ListSipSourceObjects mocks base method.
+func (m *MockService) ListSipSourceObjects(arg0 context.Context, arg1 *ingest.ListSipSourceObjectsPayload) (*ingest.SIPSourceObjects, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListSipSourceObjects", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.SIPSourceObjects)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListSipSourceObjects indicates an expected call of ListSipSourceObjects.
+func (mr *MockServiceMockRecorder) ListSipSourceObjects(arg0, arg1 any) *MockServiceListSipSourceObjectsCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSipSourceObjects", reflect.TypeOf((*MockService)(nil).ListSipSourceObjects), arg0, arg1)
+	return &MockServiceListSipSourceObjectsCall{Call: call}
+}
+
+// MockServiceListSipSourceObjectsCall wrap *gomock.Call
+type MockServiceListSipSourceObjectsCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceListSipSourceObjectsCall) Return(res *ingest.SIPSourceObjects, err error) *MockServiceListSipSourceObjectsCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceListSipSourceObjectsCall) Do(f func(context.Context, *ingest.ListSipSourceObjectsPayload) (*ingest.SIPSourceObjects, error)) *MockServiceListSipSourceObjectsCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceListSipSourceObjectsCall) DoAndReturn(f func(context.Context, *ingest.ListSipSourceObjectsPayload) (*ingest.SIPSourceObjects, error)) *MockServiceListSipSourceObjectsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// ListSipWorkflows mocks base method.
+func (m *MockService) ListSipWorkflows(arg0 context.Context, arg1 *ingest.ListSipWorkflowsPayload) (*ingest.SIPWorkflows, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListSipWorkflows", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.SIPWorkflows)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListSipWorkflows indicates an expected call of ListSipWorkflows.
+func (mr *MockServiceMockRecorder) ListSipWorkflows(arg0, arg1 any) *MockServiceListSipWorkflowsCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSipWorkflows", reflect.TypeOf((*MockService)(nil).ListSipWorkflows), arg0, arg1)
+	return &MockServiceListSipWorkflowsCall{Call: call}
+}
+
+// MockServiceListSipWorkflowsCall wrap *gomock.Call
+type MockServiceListSipWorkflowsCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceListSipWorkflowsCall) Return(res *ingest.SIPWorkflows, err error) *MockServiceListSipWorkflowsCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceListSipWorkflowsCall) Do(f func(context.Context, *ingest.ListSipWorkflowsPayload) (*ingest.SIPWorkflows, error)) *MockServiceListSipWorkflowsCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceListSipWorkflowsCall) DoAndReturn(f func(context.Context, *ingest.ListSipWorkflowsPayload) (*ingest.SIPWorkflows, error)) *MockServiceListSipWorkflowsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// ListSips mocks base method.
+func (m *MockService) ListSips(arg0 context.Context, arg1 *ingest.ListSipsPayload) (*ingest.SIPs, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListSips", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.SIPs)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListSips indicates an expected call of ListSips.
+func (mr *MockServiceMockRecorder) ListSips(arg0, arg1 any) *MockServiceListSipsCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListSips", reflect.TypeOf((*MockService)(nil).ListSips), arg0, arg1)
+	return &MockServiceListSipsCall{Call: call}
+}
+
+// MockServiceListSipsCall wrap *gomock.Call
+type MockServiceListSipsCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceListSipsCall) Return(res *ingest.SIPs, err error) *MockServiceListSipsCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceListSipsCall) Do(f func(context.Context, *ingest.ListSipsPayload) (*ingest.SIPs, error)) *MockServiceListSipsCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceListSipsCall) DoAndReturn(f func(context.Context, *ingest.ListSipsPayload) (*ingest.SIPs, error)) *MockServiceListSipsCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// ListUsers mocks base method.
+func (m *MockService) ListUsers(arg0 context.Context, arg1 *ingest.ListUsersPayload) (*ingest.Users, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListUsers", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.Users)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListUsers indicates an expected call of ListUsers.
+func (mr *MockServiceMockRecorder) ListUsers(arg0, arg1 any) *MockServiceListUsersCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListUsers", reflect.TypeOf((*MockService)(nil).ListUsers), arg0, arg1)
+	return &MockServiceListUsersCall{Call: call}
+}
+
+// MockServiceListUsersCall wrap *gomock.Call
+type MockServiceListUsersCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceListUsersCall) Return(res *ingest.Users, err error) *MockServiceListUsersCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceListUsersCall) Do(f func(context.Context, *ingest.ListUsersPayload) (*ingest.Users, error)) *MockServiceListUsersCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceListUsersCall) DoAndReturn(f func(context.Context, *ingest.ListUsersPayload) (*ingest.Users, error)) *MockServiceListUsersCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// Monitor mocks base method.
+func (m *MockService) Monitor(arg0 context.Context, arg1 *ingest.MonitorPayload, arg2 ingest.MonitorServerStream) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Monitor", arg0, arg1, arg2)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Monitor indicates an expected call of Monitor.
+func (mr *MockServiceMockRecorder) Monitor(arg0, arg1, arg2 any) *MockServiceMonitorCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Monitor", reflect.TypeOf((*MockService)(nil).Monitor), arg0, arg1, arg2)
+	return &MockServiceMonitorCall{Call: call}
+}
+
+// MockServiceMonitorCall wrap *gomock.Call
+type MockServiceMonitorCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceMonitorCall) Return(err error) *MockServiceMonitorCall {
+	c.Call = c.Call.Return(err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceMonitorCall) Do(f func(context.Context, *ingest.MonitorPayload, ingest.MonitorServerStream) error) *MockServiceMonitorCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceMonitorCall) DoAndReturn(f func(context.Context, *ingest.MonitorPayload, ingest.MonitorServerStream) error) *MockServiceMonitorCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// MonitorRequest mocks base method.
+func (m *MockService) MonitorRequest(arg0 context.Context, arg1 *ingest.MonitorRequestPayload) (*ingest.MonitorRequestResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MonitorRequest", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.MonitorRequestResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MonitorRequest indicates an expected call of MonitorRequest.
+func (mr *MockServiceMockRecorder) MonitorRequest(arg0, arg1 any) *MockServiceMonitorRequestCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MonitorRequest", reflect.TypeOf((*MockService)(nil).MonitorRequest), arg0, arg1)
+	return &MockServiceMonitorRequestCall{Call: call}
+}
+
+// MockServiceMonitorRequestCall wrap *gomock.Call
+type MockServiceMonitorRequestCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceMonitorRequestCall) Return(res *ingest.MonitorRequestResult, err error) *MockServiceMonitorRequestCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceMonitorRequestCall) Do(f func(context.Context, *ingest.MonitorRequestPayload) (*ingest.MonitorRequestResult, error)) *MockServiceMonitorRequestCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceMonitorRequestCall) DoAndReturn(f func(context.Context, *ingest.MonitorRequestPayload) (*ingest.MonitorRequestResult, error)) *MockServiceMonitorRequestCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// RejectSip mocks base method.
+func (m *MockService) RejectSip(arg0 context.Context, arg1 *ingest.RejectSipPayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "RejectSip", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// RejectSip indicates an expected call of RejectSip.
+func (mr *MockServiceMockRecorder) RejectSip(arg0, arg1 any) *MockServiceRejectSipCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RejectSip", reflect.TypeOf((*MockService)(nil).RejectSip), arg0, arg1)
+	return &MockServiceRejectSipCall{Call: call}
+}
+
+// MockServiceRejectSipCall wrap *gomock.Call
+type MockServiceRejectSipCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceRejectSipCall) Return(err error) *MockServiceRejectSipCall {
+	c.Call = c.Call.Return(err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceRejectSipCall) Do(f func(context.Context, *ingest.RejectSipPayload) error) *MockServiceRejectSipCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceRejectSipCall) DoAndReturn(f func(context.Context, *ingest.RejectSipPayload) error) *MockServiceRejectSipCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -388,6 +856,84 @@ func (c *MockServiceSetWorkflowStatusCall) DoAndReturn(f func(context.Context, i
 	return c
 }
 
+// ShowBatch mocks base method.
+func (m *MockService) ShowBatch(arg0 context.Context, arg1 *ingest.ShowBatchPayload) (*ingest.Batch, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShowBatch", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.Batch)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ShowBatch indicates an expected call of ShowBatch.
+func (mr *MockServiceMockRecorder) ShowBatch(arg0, arg1 any) *MockServiceShowBatchCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowBatch", reflect.TypeOf((*MockService)(nil).ShowBatch), arg0, arg1)
+	return &MockServiceShowBatchCall{Call: call}
+}
+
+// MockServiceShowBatchCall wrap *gomock.Call
+type MockServiceShowBatchCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceShowBatchCall) Return(res *ingest.Batch, err error) *MockServiceShowBatchCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceShowBatchCall) Do(f func(context.Context, *ingest.ShowBatchPayload) (*ingest.Batch, error)) *MockServiceShowBatchCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceShowBatchCall) DoAndReturn(f func(context.Context, *ingest.ShowBatchPayload) (*ingest.Batch, error)) *MockServiceShowBatchCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// ShowSip mocks base method.
+func (m *MockService) ShowSip(arg0 context.Context, arg1 *ingest.ShowSipPayload) (*ingest.SIP, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShowSip", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.SIP)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ShowSip indicates an expected call of ShowSip.
+func (mr *MockServiceMockRecorder) ShowSip(arg0, arg1 any) *MockServiceShowSipCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowSip", reflect.TypeOf((*MockService)(nil).ShowSip), arg0, arg1)
+	return &MockServiceShowSipCall{Call: call}
+}
+
+// MockServiceShowSipCall wrap *gomock.Call
+type MockServiceShowSipCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceShowSipCall) Return(res *ingest.SIP, err error) *MockServiceShowSipCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceShowSipCall) Do(f func(context.Context, *ingest.ShowSipPayload) (*ingest.SIP, error)) *MockServiceShowSipCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceShowSipCall) DoAndReturn(f func(context.Context, *ingest.ShowSipPayload) (*ingest.SIP, error)) *MockServiceShowSipCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // UpdateBatch mocks base method.
 func (m *MockService) UpdateBatch(arg0 context.Context, arg1 uuid.UUID, arg2 persistence.BatchUpdater) (*datatypes.Batch, error) {
 	m.ctrl.T.Helper()
@@ -462,6 +1008,45 @@ func (c *MockServiceUpdateSIPCall) Do(f func(context.Context, uuid.UUID, persist
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockServiceUpdateSIPCall) DoAndReturn(f func(context.Context, uuid.UUID, persistence.SIPUpdater) (*datatypes.SIP, error)) *MockServiceUpdateSIPCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// UploadSip mocks base method.
+func (m *MockService) UploadSip(arg0 context.Context, arg1 *ingest.UploadSipPayload, arg2 io.ReadCloser) (*ingest.UploadSipResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UploadSip", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*ingest.UploadSipResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UploadSip indicates an expected call of UploadSip.
+func (mr *MockServiceMockRecorder) UploadSip(arg0, arg1, arg2 any) *MockServiceUploadSipCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UploadSip", reflect.TypeOf((*MockService)(nil).UploadSip), arg0, arg1, arg2)
+	return &MockServiceUploadSipCall{Call: call}
+}
+
+// MockServiceUploadSipCall wrap *gomock.Call
+type MockServiceUploadSipCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceUploadSipCall) Return(res *ingest.UploadSipResult, err error) *MockServiceUploadSipCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceUploadSipCall) Do(f func(context.Context, *ingest.UploadSipPayload, io.ReadCloser) (*ingest.UploadSipResult, error)) *MockServiceUploadSipCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceUploadSipCall) DoAndReturn(f func(context.Context, *ingest.UploadSipPayload, io.ReadCloser) (*ingest.UploadSipResult, error)) *MockServiceUploadSipCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

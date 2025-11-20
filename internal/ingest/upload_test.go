@@ -247,7 +247,7 @@ func TestUpload(t *testing.T) {
 				ctx = auth.WithUserClaims(ctx, tt.claims)
 			}
 
-			re, err := svc.Goa().UploadSip(ctx, &goaingest.UploadSipPayload{ContentType: tt.contentType}, r)
+			re, err := svc.UploadSip(ctx, &goaingest.UploadSipPayload{ContentType: tt.contentType}, r)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 

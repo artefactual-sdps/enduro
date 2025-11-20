@@ -10,15 +10,15 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 )
 
-func (w *goaWrapper) MonitorRequest(
+func (svc *ingestImpl) MonitorRequest(
 	ctx context.Context,
 	payload *goaingest.MonitorRequestPayload,
 ) (*goaingest.MonitorRequestResult, error) {
 	res := &goaingest.MonitorRequestResult{}
 
-	ticket, err := w.ticketProvider.Request(ctx, auth.UserClaimsFromContext(ctx))
+	ticket, err := svc.ticketProvider.Request(ctx, auth.UserClaimsFromContext(ctx))
 	if err != nil {
-		w.logger.Error(err, "failed to request ticket")
+		svc.logger.Error(err, "failed to request ticket")
 		return nil, ErrInternalError
 	}
 
@@ -31,7 +31,7 @@ func (w *goaWrapper) MonitorRequest(
 	return res, nil
 }
 
-func (w *goaWrapper) Monitor(
+func (svc *ingestImpl) Monitor(
 	ctx context.Context,
 	payload *goaingest.MonitorPayload,
 	stream goaingest.MonitorServerStream,
@@ -40,15 +40,15 @@ func (w *goaWrapper) Monitor(
 
 	// Verify the ticket and update the claims.
 	var claims auth.Claims
-	if err := w.ticketProvider.Check(ctx, payload.Ticket, &claims); err != nil {
-		w.logger.Error(err, "failed to check ticket", "ticket", payload.Ticket)
+	if err := svc.ticketProvider.Check(ctx, payload.Ticket, &claims); err != nil {
+		svc.logger.Error(err, "failed to check ticket", "ticket", payload.Ticket)
 		return ErrInternalError
 	}
 
 	// Subscribe to the event service.
-	sub, err := w.evsvc.Subscribe(ctx)
+	sub, err := svc.evsvc.Subscribe(ctx)
 	if err != nil {
-		w.logger.Error(err, "failed to subscribe to event service")
+		svc.logger.Error(err, "failed to subscribe to event service")
 		return ErrInternalError
 	}
 	defer sub.Close()
@@ -57,7 +57,7 @@ func (w *goaWrapper) Monitor(
 	event := &goaingest.IngestPingEvent{Message: ref.New("Hello")}
 	if err := stream.Send(&goaingest.IngestEvent{Value: event}); err != nil {
 		// Consider send errors as client disconnections.
-		w.logger.V(1).Info("Failed to send hello event.", "err", err)
+		svc.logger.V(1).Info("Failed to send hello event.", "err", err)
 		return nil
 	}
 
@@ -76,7 +76,7 @@ func (w *goaWrapper) Monitor(
 			event := &goaingest.IngestPingEvent{Message: ref.New("Ping")}
 			if err := stream.Send(&goaingest.IngestEvent{Value: event}); err != nil {
 				// Consider send errors as client disconnections.
-				w.logger.V(1).Info("Failed to send ping event.", "err", err)
+				svc.logger.V(1).Info("Failed to send ping event.", "err", err)
 				return nil
 			}
 
@@ -121,7 +121,7 @@ func (w *goaWrapper) Monitor(
 
 			if err := stream.Send(event); err != nil {
 				// Consider send errors as client disconnections.
-				w.logger.V(1).Info("Failed to send event.", "err", err)
+				svc.logger.V(1).Info("Failed to send event.", "err", err)
 				return nil
 			}
 		}

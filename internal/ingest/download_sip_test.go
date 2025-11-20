@@ -160,7 +160,7 @@ func TestDownloadSipRequest(t *testing.T) {
 				InternalStorage:    bucket,
 			})
 
-			res, err := svc.Goa().DownloadSipRequest(ctx, tt.payload)
+			res, err := svc.DownloadSipRequest(ctx, tt.payload)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
@@ -303,7 +303,7 @@ func TestDownloadSip(t *testing.T) {
 				InternalStorage:    bucket,
 			})
 
-			res, body, err := svc.Goa().DownloadSip(ctx, tt.payload)
+			res, body, err := svc.DownloadSip(ctx, tt.payload)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

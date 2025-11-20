@@ -18,14 +18,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/sipsource"
 )
 
-// GoaWrapper returns a ingestImpl wrapper that implements
-// goaingest.Service. It can handle types that are specific to the Goa API.
-type goaWrapper struct {
-	*ingestImpl
-}
-
-var _ goaingest.Service = (*goaWrapper)(nil)
-
 var (
 	ErrBulkStatusUnavailable error = errors.New("bulk status unavailable")
 	ErrForbidden             error = goaingest.Forbidden("Forbidden")
@@ -33,15 +25,15 @@ var (
 	ErrInternalError         error = goaingest.MakeInternalError(errors.New("internal error"))
 )
 
-func (w *goaWrapper) JWTAuth(
+func (svc *ingestImpl) JWTAuth(
 	ctx context.Context,
 	token string,
 	scheme *security.JWTScheme,
 ) (context.Context, error) {
-	claims, err := w.tokenVerifier.Verify(ctx, token)
+	claims, err := svc.tokenVerifier.Verify(ctx, token)
 	if err != nil {
 		if !errors.Is(err, auth.ErrUnauthorized) {
-			w.logger.V(1).Info("failed to verify token", "err", err)
+			svc.logger.V(1).Info("failed to verify token", "err", err)
 		}
 		return ctx, ErrUnauthorized
 	}
@@ -56,7 +48,7 @@ func (w *goaWrapper) JWTAuth(
 }
 
 // AddSip ingests a new SIP from a SIP source.
-func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayload) (*goaingest.AddSipResult, error) {
+func (svc *ingestImpl) AddSip(ctx context.Context, payload *goaingest.AddSipPayload) (*goaingest.AddSipResult, error) {
 	if payload == nil {
 		return nil, goaingest.MakeNotValid(errors.New("missing payload"))
 	}
@@ -73,7 +65,7 @@ func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayloa
 
 	// Add a new SIP to the persistence layer.
 	s := &datatypes.SIP{
-		UUID:   uuid.Must(uuid.NewRandomFromReader(w.rander)),
+		UUID:   uuid.Must(uuid.NewRandomFromReader(svc.rander)),
 		Name:   payload.Key,
 		Status: enums.SIPStatusQueued,
 	}
@@ -81,7 +73,7 @@ func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayloa
 	// If claims is nil, it means authentication is not enabled.
 	if claims != nil {
 		s.Uploader = &datatypes.User{
-			UUID:    uuid.Must(uuid.NewRandomFromReader(w.rander)),
+			UUID:    uuid.Must(uuid.NewRandomFromReader(svc.rander)),
 			Email:   claims.Email,
 			Name:    claims.Name,
 			OIDCIss: claims.Iss,
@@ -89,8 +81,8 @@ func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayloa
 		}
 	}
 
-	if err := w.perSvc.CreateSIP(ctx, s); err != nil {
-		w.logger.Error(err, "add SIP")
+	if err := svc.perSvc.CreateSIP(ctx, s); err != nil {
+		svc.logger.Error(err, "add SIP")
 		return nil, ErrInternalError
 	}
 
@@ -101,19 +93,19 @@ func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayloa
 		SIPName:         s.Name,
 		Type:            enums.WorkflowTypeCreateAip,
 		Key:             payload.Key,
-		RetentionPeriod: w.sipSource.RetentionPeriod(),
+		RetentionPeriod: svc.sipSource.RetentionPeriod(),
 	}
-	if err := InitProcessingWorkflow(ctx, w.tc, w.taskQueue, &req); err != nil {
+	if err := InitProcessingWorkflow(ctx, svc.tc, svc.taskQueue, &req); err != nil {
 		// Delete SIP from persistence.
-		err = errors.Join(err, w.perSvc.DeleteSIP(ctx, s.UUID))
-		w.logger.Error(err, "add SIP")
+		err = errors.Join(err, svc.perSvc.DeleteSIP(ctx, s.UUID))
+		svc.logger.Error(err, "add SIP")
 		return nil, ErrInternalError
 	}
 
-	PublishEvent(ctx, w.evsvc, sipToCreatedEvent(s))
-	w.auditLogger.Log(ctx, sipIngestAuditEvent(s))
+	PublishEvent(ctx, svc.evsvc, sipToCreatedEvent(s))
+	svc.auditLogger.Log(ctx, sipIngestAuditEvent(s))
 
-	w.logger.V(1).Info(
+	svc.logger.V(1).Info(
 		"Add SIP: started processing workflow from SIP source.",
 		"object_key", payload.Key,
 		"source_id", sourceID,
@@ -124,7 +116,7 @@ func (w *goaWrapper) AddSip(ctx context.Context, payload *goaingest.AddSipPayloa
 }
 
 // List all SIPs. It implements goaingest.Service.
-func (w *goaWrapper) ListSips(ctx context.Context, payload *goaingest.ListSipsPayload) (*goaingest.SIPs, error) {
+func (svc *ingestImpl) ListSips(ctx context.Context, payload *goaingest.ListSipsPayload) (*goaingest.SIPs, error) {
 	if payload == nil {
 		payload = &goaingest.ListSipsPayload{}
 	}
@@ -134,7 +126,7 @@ func (w *goaWrapper) ListSips(ctx context.Context, payload *goaingest.ListSipsPa
 		return nil, err
 	}
 
-	r, pg, err := w.perSvc.ListSIPs(ctx, pf)
+	r, pg, err := svc.perSvc.ListSIPs(ctx, pf)
 	if err != nil {
 		return nil, goaingest.MakeInternalError(err)
 	}
@@ -153,7 +145,7 @@ func (w *goaWrapper) ListSips(ctx context.Context, payload *goaingest.ListSipsPa
 }
 
 // Show SIP by ID. It implements goaingest.Service.
-func (w *goaWrapper) ShowSip(
+func (svc *ingestImpl) ShowSip(
 	ctx context.Context,
 	payload *goaingest.ShowSipPayload,
 ) (*goaingest.SIP, error) {
@@ -162,7 +154,7 @@ func (w *goaWrapper) ShowSip(
 		return nil, goaingest.MakeNotValid(errors.New("invalid UUID"))
 	}
 
-	s, err := w.perSvc.ReadSIP(ctx, sipUUID)
+	s, err := svc.perSvc.ReadSIP(ctx, sipUUID)
 	if err == persistence.ErrNotFound {
 		return nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP not found"}
 	} else if err != nil {
@@ -172,7 +164,7 @@ func (w *goaWrapper) ShowSip(
 	return s.Goa(), nil
 }
 
-func (w *goaWrapper) ListSipWorkflows(
+func (svc *ingestImpl) ListSipWorkflows(
 	ctx context.Context,
 	payload *goaingest.ListSipWorkflowsPayload,
 ) (*goaingest.SIPWorkflows, error) {
@@ -181,7 +173,7 @@ func (w *goaWrapper) ListSipWorkflows(
 		return nil, goaingest.MakeNotValid(errors.New("invalid UUID"))
 	}
 
-	s, err := w.perSvc.ReadSIP(ctx, sipUUID)
+	s, err := svc.perSvc.ReadSIP(ctx, sipUUID)
 	if err == sql.ErrNoRows {
 		return nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP not found"}
 	} else if err != nil {
@@ -191,7 +183,7 @@ func (w *goaWrapper) ListSipWorkflows(
 	query := "SELECT id, uuid, temporal_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM workflow WHERE sip_id = ? ORDER BY started_at DESC"
 	args := []any{s.ID}
 
-	rows, err := w.db.QueryxContext(ctx, query, args...)
+	rows, err := svc.db.QueryxContext(ctx, query, args...)
 	if err != nil {
 		return nil, fmt.Errorf("error querying the database: %w", err)
 	}
@@ -209,7 +201,7 @@ func (w *goaWrapper) ListSipWorkflows(
 		ptQuery := "SELECT id, uuid, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM task WHERE workflow_id = ?"
 		ptQueryArgs := []any{workflow.ID}
 
-		ptRows, err := w.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)
+		ptRows, err := svc.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)
 		if err != nil {
 			return nil, fmt.Errorf("error querying the database: %w", err)
 		}
@@ -236,8 +228,8 @@ func (w *goaWrapper) ListSipWorkflows(
 	return result, nil
 }
 
-func (w *goaWrapper) ConfirmSip(ctx context.Context, payload *goaingest.ConfirmSipPayload) error {
-	goaworkflows, err := w.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{UUID: payload.UUID})
+func (svc *ingestImpl) ConfirmSip(ctx context.Context, payload *goaingest.ConfirmSipPayload) error {
+	goaworkflows, err := svc.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{UUID: payload.UUID})
 	if err != nil {
 		return err
 	}
@@ -249,7 +241,7 @@ func (w *goaWrapper) ConfirmSip(ctx context.Context, payload *goaingest.ConfirmS
 		Accepted:   true,
 		LocationID: &payload.LocationUUID,
 	}
-	err = w.tc.SignalWorkflow(ctx, goaworkflows.Workflows[0].TemporalID, "", ReviewPerformedSignalName, signal)
+	err = svc.tc.SignalWorkflow(ctx, goaworkflows.Workflows[0].TemporalID, "", ReviewPerformedSignalName, signal)
 	if err != nil {
 		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
@@ -257,8 +249,8 @@ func (w *goaWrapper) ConfirmSip(ctx context.Context, payload *goaingest.ConfirmS
 	return nil
 }
 
-func (w *goaWrapper) RejectSip(ctx context.Context, payload *goaingest.RejectSipPayload) error {
-	goaworkflows, err := w.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{UUID: payload.UUID})
+func (svc *ingestImpl) RejectSip(ctx context.Context, payload *goaingest.RejectSipPayload) error {
+	goaworkflows, err := svc.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{UUID: payload.UUID})
 	if err != nil {
 		return err
 	}
@@ -269,7 +261,7 @@ func (w *goaWrapper) RejectSip(ctx context.Context, payload *goaingest.RejectSip
 	signal := ReviewPerformedSignal{
 		Accepted: false,
 	}
-	err = w.tc.SignalWorkflow(ctx, goaworkflows.Workflows[0].TemporalID, "", ReviewPerformedSignalName, signal)
+	err = svc.tc.SignalWorkflow(ctx, goaworkflows.Workflows[0].TemporalID, "", ReviewPerformedSignalName, signal)
 	if err != nil {
 		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
@@ -278,7 +270,7 @@ func (w *goaWrapper) RejectSip(ctx context.Context, payload *goaingest.RejectSip
 }
 
 // List all SIPs. It implements goaingest.Service.
-func (w *goaWrapper) ListUsers(ctx context.Context, payload *goaingest.ListUsersPayload) (*goaingest.Users, error) {
+func (svc *ingestImpl) ListUsers(ctx context.Context, payload *goaingest.ListUsersPayload) (*goaingest.Users, error) {
 	if payload == nil {
 		payload = &goaingest.ListUsersPayload{}
 	}
@@ -288,7 +280,7 @@ func (w *goaWrapper) ListUsers(ctx context.Context, payload *goaingest.ListUsers
 		return nil, err
 	}
 
-	r, pg, err := w.perSvc.ListUsers(ctx, pf)
+	r, pg, err := svc.perSvc.ListUsers(ctx, pf)
 	if err != nil {
 		return nil, goaingest.MakeInternalError(err)
 	}
@@ -306,7 +298,7 @@ func (w *goaWrapper) ListUsers(ctx context.Context, payload *goaingest.ListUsers
 	return res, nil
 }
 
-func (w *goaWrapper) ListSipSourceObjects(
+func (w *ingestImpl) ListSipSourceObjects(
 	ctx context.Context,
 	payload *goaingest.ListSipSourceObjectsPayload,
 ) (*goaingest.SIPSourceObjects, error) {

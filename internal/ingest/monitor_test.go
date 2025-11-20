@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 	"go.uber.org/mock/gomock"
@@ -65,17 +64,14 @@ func TestMonitorRequest(t *testing.T) {
 			t.Parallel()
 
 			tpMock := authfake.NewMockTicketProvider(gomock.NewController(t))
-			gw := &goaWrapper{
-				ingestImpl: &ingestImpl{
-					logger:         logr.Discard(),
-					ticketProvider: tpMock,
-				},
-			}
+			svc := NewService(ServiceParams{
+				TicketProvider: tpMock,
+			})
 
 			ctx := auth.WithUserClaims(t.Context(), tt.claims)
 			tt.mock(tpMock, ctx, tt.claims)
 
-			res, err := gw.MonitorRequest(ctx, &goaingest.MonitorRequestPayload{})
+			res, err := svc.MonitorRequest(ctx, &goaingest.MonitorRequestPayload{})
 			if tt.wantErr != "" {
 				assert.ErrorContains(t, err, tt.wantErr)
 				return
@@ -219,13 +215,10 @@ func TestMonitor(t *testing.T) {
 			evsvc := event.NewServiceInMem[*goaingest.IngestEvent]()
 			stream := &mockMonitorServerStream{}
 
-			gw := &goaWrapper{
-				ingestImpl: &ingestImpl{
-					logger:         logr.Discard(),
-					evsvc:          evsvc,
-					ticketProvider: tpMock,
-				},
-			}
+			svc := NewService(ServiceParams{
+				EventService:   evsvc,
+				TicketProvider: tpMock,
+			})
 
 			// Create a context that will be cancelled to stop the monitor.
 			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
@@ -236,7 +229,7 @@ func TestMonitor(t *testing.T) {
 			// Start monitor in a goroutine.
 			errCh := make(chan error, 1)
 			go func() {
-				errCh <- gw.Monitor(ctx, &goaingest.MonitorPayload{Ticket: ticket}, stream)
+				errCh <- svc.Monitor(ctx, &goaingest.MonitorPayload{Ticket: ticket}, stream)
 			}()
 
 			// Send test events after a short delay.

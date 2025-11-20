@@ -28,7 +28,7 @@ type UploadConfig struct {
 	RetentionPeriod time.Duration
 }
 
-func (w *goaWrapper) UploadSip(
+func (svc *ingestImpl) UploadSip(
 	ctx context.Context,
 	payload *goaingest.UploadSipPayload,
 	req io.ReadCloser,
@@ -41,7 +41,7 @@ func (w *goaWrapper) UploadSip(
 		return nil, goaingest.MakeNotValid(err)
 	}
 
-	lr := io.LimitReader(req, int64(w.uploadMaxSize))
+	lr := io.LimitReader(req, int64(svc.uploadMaxSize))
 
 	_, params, err := mime.ParseMediaType(payload.ContentType)
 	if err != nil {
@@ -66,9 +66,9 @@ func (w *goaWrapper) UploadSip(
 	// Remove the format extension from the filename if it is included.
 	ext := format.Extension()
 	name := strings.TrimSuffix(part.FileName(), ext)
-	sipUUID := uuid.Must(uuid.NewRandomFromReader(w.rander))
+	sipUUID := uuid.Must(uuid.NewRandomFromReader(svc.rander))
 	objectKey := fmt.Sprintf("%s%s-%s%s", SIPPrefix, name, sipUUID.String(), ext)
-	wr, err := w.internalStorage.NewWriter(ctx, objectKey, &blob.WriterOptions{})
+	wr, err := svc.internalStorage.NewWriter(ctx, objectKey, &blob.WriterOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -83,7 +83,7 @@ func (w *goaWrapper) UploadSip(
 		return nil, closeErr
 	}
 
-	if err := w.initSIP(
+	if err := svc.initSIP(
 		ctx,
 		sipUUID,
 		part.FileName(),
@@ -93,15 +93,15 @@ func (w *goaWrapper) UploadSip(
 		claims,
 	); err != nil {
 		// Delete SIP from internal bucket.
-		err := errors.Join(err, w.internalStorage.Delete(ctx, objectKey))
-		w.logger.Error(err, "failed to init SIP ingest workflow after upload")
+		err := errors.Join(err, svc.internalStorage.Delete(ctx, objectKey))
+		svc.logger.Error(err, "failed to init SIP ingest workflow after upload")
 		return nil, err
 	}
 
 	return &goaingest.UploadSipResult{UUID: sipUUID.String()}, nil
 }
 
-func (w *goaWrapper) initSIP(
+func (svc *ingestImpl) initSIP(
 	ctx context.Context,
 	id uuid.UUID,
 	name string,
@@ -119,7 +119,7 @@ func (w *goaWrapper) initSIP(
 	// If claims is nil, it means authentication is not enabled.
 	if claims != nil {
 		s.Uploader = &datatypes.User{
-			UUID:    uuid.Must(uuid.NewRandomFromReader(w.rander)),
+			UUID:    uuid.Must(uuid.NewRandomFromReader(svc.rander)),
 			Email:   claims.Email,
 			Name:    claims.Name,
 			OIDCIss: claims.Iss,
@@ -127,7 +127,7 @@ func (w *goaWrapper) initSIP(
 		}
 	}
 
-	if err := w.perSvc.CreateSIP(ctx, s); err != nil {
+	if err := svc.perSvc.CreateSIP(ctx, s); err != nil {
 		return err
 	}
 
@@ -137,15 +137,15 @@ func (w *goaWrapper) initSIP(
 		Type:            wType,
 		Key:             key,
 		Extension:       extension,
-		RetentionPeriod: w.uploadRetentionPeriod,
+		RetentionPeriod: svc.uploadRetentionPeriod,
 	}
-	if err := InitProcessingWorkflow(ctx, w.tc, w.taskQueue, &req); err != nil {
+	if err := InitProcessingWorkflow(ctx, svc.tc, svc.taskQueue, &req); err != nil {
 		// Delete SIP from persistence.
-		return errors.Join(err, w.perSvc.DeleteSIP(ctx, id))
+		return errors.Join(err, svc.perSvc.DeleteSIP(ctx, id))
 	}
 
-	PublishEvent(ctx, w.evsvc, sipToCreatedEvent(s))
-	w.auditLogger.Log(ctx, sipIngestAuditEvent(s))
+	PublishEvent(ctx, svc.evsvc, sipToCreatedEvent(s))
+	svc.auditLogger.Log(ctx, sipIngestAuditEvent(s))
 
 	return nil
 }
