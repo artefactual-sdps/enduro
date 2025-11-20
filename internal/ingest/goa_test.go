@@ -1,4 +1,4 @@
-package ingest
+package ingest_test
 
 import (
 	"context"
@@ -23,6 +23,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 	"github.com/artefactual-sdps/enduro/internal/sipsource"
@@ -63,7 +64,7 @@ func TestJWTAuth(t *testing.T) {
 					Verify(context.Background(), "abc").
 					Return(nil, auth.ErrUnauthorized)
 			},
-			wantErr: ErrUnauthorized,
+			wantErr: ingest.ErrUnauthorized,
 		},
 		{
 			name: "Fails with unauthorized error (logging)",
@@ -73,7 +74,7 @@ func TestJWTAuth(t *testing.T) {
 					Return(nil, fmt.Errorf("fail"))
 			},
 			logged:  `"level"=1 "msg"="failed to verify token" "err"="fail"`,
-			wantErr: ErrUnauthorized,
+			wantErr: ingest.ErrUnauthorized,
 		},
 		{
 			name: "Fails with forbidden error",
@@ -88,7 +89,7 @@ func TestJWTAuth(t *testing.T) {
 				Attributes:    []string{auth.IngestSIPSListAttr},
 			},
 			scopes:  []string{auth.IngestSIPSReadAttr},
-			wantErr: ErrForbidden,
+			wantErr: ingest.ErrForbidden,
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -102,7 +103,7 @@ func TestJWTAuth(t *testing.T) {
 
 			tvMock := authfake.NewMockTokenVerifier(gomock.NewController(t))
 			tt.mock(tvMock, tt.claims)
-			svc := NewService(ServiceParams{
+			svc := ingest.NewService(ingest.ServiceParams{
 				Logger:        logger,
 				TokenVerifier: tvMock,
 			})
@@ -385,7 +386,7 @@ func TestListSIPs(t *testing.T) {
 				tt.mockRecorder(perSvc.EXPECT())
 			}
 
-			svc := NewService(ServiceParams{
+			svc := ingest.NewService(ingest.ServiceParams{
 				PersistenceService: perSvc,
 			})
 
@@ -556,7 +557,7 @@ func TestListUsers(t *testing.T) {
 				tt.mockRecorder(perSvc.EXPECT())
 			}
 
-			svc := NewService(ServiceParams{
+			svc := ingest.NewService(ingest.ServiceParams{
 				PersistenceService: perSvc,
 			})
 
@@ -740,7 +741,7 @@ func TestListSIPSourceObjects(t *testing.T) {
 				tt.mockRecorder(src.EXPECT())
 			}
 
-			svc := NewService(ServiceParams{
+			svc := ingest.NewService(ingest.ServiceParams{
 				Logger:        logr.Discard(),
 				UploadMaxSize: 1000000,
 				SIPSource:     src,

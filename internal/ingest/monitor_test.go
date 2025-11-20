@@ -1,4 +1,4 @@
-package ingest
+package ingest_test
 
 import (
 	"context"
@@ -15,6 +15,7 @@ import (
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/event"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
 
 func TestMonitorRequest(t *testing.T) {
@@ -64,7 +65,7 @@ func TestMonitorRequest(t *testing.T) {
 			t.Parallel()
 
 			tpMock := authfake.NewMockTicketProvider(gomock.NewController(t))
-			svc := NewService(ServiceParams{
+			svc := ingest.NewService(ingest.ServiceParams{
 				TicketProvider: tpMock,
 			})
 
@@ -215,7 +216,7 @@ func TestMonitor(t *testing.T) {
 			evsvc := event.NewServiceInMem[*goaingest.IngestEvent]()
 			stream := &mockMonitorServerStream{}
 
-			svc := NewService(ServiceParams{
+			svc := ingest.NewService(ingest.ServiceParams{
 				EventService:   evsvc,
 				TicketProvider: tpMock,
 			})
