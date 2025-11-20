@@ -101,7 +101,7 @@ func TestCreateDeletionRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			ctx := t.Context()
 			entc, c := setUpClient(t)
 			initialDataForDeletionRequestTests(t, ctx, entc)
 
@@ -234,7 +234,7 @@ func TestListDeletionRequests(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			ctx := t.Context()
 			entc, c := setUpClient(t)
 			initialDataForDeletionRequestTests(t, ctx, entc)
 
@@ -359,7 +359,7 @@ func TestUpdateDeletionRequest(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			ctx := t.Context()
 			entc, c := setUpClient(t)
 			initialDataForDeletionRequestTests(t, ctx, entc)
 
@@ -436,7 +436,7 @@ func TestReadDeletionRequests(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			ctx := t.Context()
 			entc, c := setUpClient(t)
 			initialDataForDeletionRequestTests(t, ctx, entc)
 

@@ -1,62 +1,13 @@
-package reports
+package types
 
 import (
-	"bytes"
-	"context"
 	"encoding/json"
-	"fmt"
-	"io"
-	"os"
 	"time"
 
 	"github.com/google/uuid"
-	"github.com/jonboulle/clockwork"
-	"github.com/pdfcpu/pdfcpu/pkg/api"
 )
 
-type AIPDeletion struct {
-	clock        clockwork.Clock
-	templatePath string
-}
-
-func NewAIPDeletion(clock clockwork.Clock, templatePath string) (*AIPDeletion, error) {
-	if _, err := os.Stat(templatePath); err != nil {
-		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("AIP deletion report: template file does not exist: %s", templatePath)
-		}
-		return nil, fmt.Errorf("AIP deletion report: error checking template file: %s", err)
-	}
-
-	return &AIPDeletion{
-		clock:        clock,
-		templatePath: templatePath,
-	}, nil
-}
-
-func (ad *AIPDeletion) Write(ctx context.Context, data *AIPDeletionData, w io.Writer) error {
-	src, err := os.Open(ad.templatePath)
-	if err != nil {
-		fmt.Println("Error opening template file:", err)
-		return err
-	}
-	defer src.Close()
-
-	// Set the report generation timestamp to now.
-	data.ReportTimestamp = ad.clock.Now().UTC()
-
-	jsonData, err := json.Marshal(data)
-	if err != nil {
-		return fmt.Errorf("AIP deletion report: write: marshal JSON: %w", err)
-	}
-
-	if err := api.FillForm(src, bytes.NewReader(jsonData), w, nil); err != nil {
-		return fmt.Errorf("AIP deletion report: write: fill form: %w", err)
-	}
-
-	return nil
-}
-
-type AIPDeletionData struct {
+type DeletionReportData struct {
 	DeletionRequestDBID int
 	AIPName             string
 	AIPUUID             uuid.UUID
@@ -74,7 +25,7 @@ type AIPDeletionData struct {
 	StorageSystem       string
 }
 
-func (d *AIPDeletionData) MarshalJSON() ([]byte, error) {
+func (d *DeletionReportData) MarshalJSON() ([]byte, error) {
 	return json.Marshal(struct {
 		Header aipDeletionHeader `json:"header"`
 		Forms  []aipDeletionForm `json:"forms"`
