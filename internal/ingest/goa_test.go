@@ -11,8 +11,12 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/go-logr/logr/funcr"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
 	"go.artefactual.dev/tools/mockutil"
 	"go.artefactual.dev/tools/ref"
+	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
+	temporalsdk_client "go.temporal.io/sdk/client"
+	temporalsdk_mocks "go.temporal.io/sdk/mocks"
 	"go.uber.org/mock/gomock"
 	"goa.design/goa/v3/security"
 	"gotest.tools/v3/assert"
@@ -116,6 +120,207 @@ func TestJWTAuth(t *testing.T) {
 			}
 			assert.NilError(t, err)
 			assert.DeepEqual(t, auth.UserClaimsFromContext(ctx), tt.claims)
+		})
+	}
+}
+
+func TestAddSIP(t *testing.T) {
+	t.Parallel()
+
+	sourceID := uuid.MustParse("123e4567-e89b-12d3-a456-426614174000")
+	sipUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	userUUID := uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")
+	key := "sip.zip"
+
+	for _, tt := range []struct {
+		name    string
+		payload *goaingest.AddSipPayload
+		claims  *auth.Claims
+		mock    func(context.Context, *persistence_fake.MockService, *temporalsdk_mocks.Client)
+		want    *goaingest.AddSipResult
+		wantErr string
+	}{
+		{
+			name:    "Returns not valid error (missing payload)",
+			wantErr: "missing payload",
+		},
+		{
+			name:    "Returns not valid error (invalid SourceID)",
+			payload: &goaingest.AddSipPayload{SourceID: "invalid"},
+			wantErr: "invalid SourceID",
+		},
+		{
+			name:    "Returns not valid error (missing key)",
+			payload: &goaingest.AddSipPayload{SourceID: sourceID.String()},
+			wantErr: "empty Key",
+		},
+		{
+			name:    "Returns not valid error (invalid claims Iss)",
+			payload: &goaingest.AddSipPayload{SourceID: sourceID.String(), Key: key},
+			claims:  &auth.Claims{},
+			wantErr: "invalid user claims: missing Iss",
+		},
+		{
+			name:    "Returns not valid error (invalid claims Sub)",
+			payload: &goaingest.AddSipPayload{SourceID: sourceID.String(), Key: key},
+			claims:  &auth.Claims{Iss: "http://keycloak:7470/realms/artefactual"},
+			wantErr: "invalid user claims: missing Sub",
+		},
+		{
+			name:    "Returns persistence error",
+			payload: &goaingest.AddSipPayload{SourceID: sourceID.String(), Key: key},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().CreateSIP(
+					ctx,
+					&datatypes.SIP{
+						UUID:   sipUUID,
+						Name:   key,
+						Status: enums.SIPStatusQueued,
+					},
+				).Return(errors.New("persistence error"))
+			},
+			wantErr: "internal error",
+		},
+		{
+			name:    "Returns Temporal error",
+			payload: &goaingest.AddSipPayload{SourceID: sourceID.String(), Key: key},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().CreateSIP(
+					ctx,
+					&datatypes.SIP{
+						UUID:   sipUUID,
+						Name:   key,
+						Status: enums.SIPStatusQueued,
+					},
+				).DoAndReturn(func(ctx context.Context, s *datatypes.SIP) error {
+					s.ID = 1
+					return nil
+				})
+
+				tc.On(
+					"ExecuteWorkflow",
+					mock.AnythingOfType("*context.timerCtx"),
+					temporalsdk_client.StartWorkflowOptions{
+						ID:                    fmt.Sprintf("processing-workflow-%s", sipUUID.String()),
+						TaskQueue:             "test",
+						WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+					},
+					ingest.ProcessingWorkflowName,
+					&ingest.ProcessingWorkflowRequest{
+						SIPUUID:     sipUUID,
+						SIPSourceID: sourceID,
+						SIPName:     key,
+						Type:        enums.WorkflowTypeCreateAip,
+						Key:         key,
+					},
+				).Return(nil, errors.New("temporal error"))
+
+				psvc.EXPECT().DeleteSIP(ctx, sipUUID)
+			},
+			wantErr: "internal error",
+		},
+		{
+			name:    "Uploads a SIP",
+			payload: &goaingest.AddSipPayload{SourceID: sourceID.String(), Key: key},
+			claims:  nil,
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().CreateSIP(
+					mockutil.Context(),
+					mockutil.Eq(&datatypes.SIP{
+						UUID:   sipUUID,
+						Name:   key,
+						Status: enums.SIPStatusQueued,
+					}),
+				).Return(nil)
+
+				tc.On(
+					"ExecuteWorkflow",
+					mock.AnythingOfType("*context.timerCtx"),
+					temporalsdk_client.StartWorkflowOptions{
+						ID:                    fmt.Sprintf("processing-workflow-%s", sipUUID.String()),
+						TaskQueue:             "test",
+						WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+					},
+					ingest.ProcessingWorkflowName,
+					&ingest.ProcessingWorkflowRequest{
+						SIPUUID:     sipUUID,
+						SIPSourceID: sourceID,
+						SIPName:     key,
+						Type:        enums.WorkflowTypeCreateAip,
+						Key:         key,
+					},
+				).Return(nil, nil)
+			},
+			want: &goaingest.AddSipResult{UUID: sipUUID.String()},
+		},
+		{
+			name:    "Uploads a SIP and creates a user",
+			payload: &goaingest.AddSipPayload{SourceID: sourceID.String(), Key: key},
+			claims: &auth.Claims{
+				Email: "nobody@example.com",
+				Name:  "Test User",
+				Iss:   "http://keycloak:7470/realms/artefactual",
+				Sub:   "1234567890",
+			},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().CreateSIP(
+					mockutil.Context(),
+					mockutil.Eq(&datatypes.SIP{
+						UUID:   sipUUID,
+						Name:   key,
+						Status: enums.SIPStatusQueued,
+						Uploader: &datatypes.User{
+							UUID:    userUUID,
+							Email:   "nobody@example.com",
+							Name:    "Test User",
+							OIDCIss: "http://keycloak:7470/realms/artefactual",
+							OIDCSub: "1234567890",
+						},
+					}),
+				).Return(nil)
+
+				tc.On(
+					"ExecuteWorkflow",
+					mock.AnythingOfType("*context.timerCtx"),
+					temporalsdk_client.StartWorkflowOptions{
+						ID:                    fmt.Sprintf("processing-workflow-%s", sipUUID.String()),
+						TaskQueue:             "test",
+						WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
+					},
+					ingest.ProcessingWorkflowName,
+					&ingest.ProcessingWorkflowRequest{
+						SIPUUID:     sipUUID,
+						SIPSourceID: sourceID,
+						SIPName:     key,
+						Type:        enums.WorkflowTypeCreateAip,
+						Key:         key,
+					},
+				).Return(nil, nil)
+			},
+			want: &goaingest.AddSipResult{UUID: sipUUID.String()},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc, psvc, tc := testSvc(t, nil, 0)
+			ctx := t.Context()
+			if tt.mock != nil {
+				tt.mock(ctx, psvc, tc)
+			}
+
+			if tt.claims != nil {
+				ctx = auth.WithUserClaims(ctx, tt.claims)
+			}
+
+			re, err := svc.AddSip(ctx, tt.payload)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, re, tt.want)
 		})
 	}
 }
