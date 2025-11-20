@@ -94,8 +94,8 @@ func (svc *ingestImpl) UploadSip(
 	); err != nil {
 		// Delete SIP from internal bucket.
 		err := errors.Join(err, svc.internalStorage.Delete(ctx, objectKey))
-		svc.logger.Error(err, "failed to init SIP ingest workflow after upload")
-		return nil, err
+		svc.logger.Error(err, "upload SIP")
+		return nil, ErrInternalError
 	}
 
 	return &goaingest.UploadSipResult{UUID: sipUUID.String()}, nil

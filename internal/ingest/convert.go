@@ -27,7 +27,7 @@ func sipToCreatedEvent(s *datatypes.SIP) *goaingest.SIPCreatedEvent {
 	}
 }
 
-// sipIngestAuditEvent returns a SIP ingest audit log event for SIP s.
+// sipIngestAuditEvent returns a SIP ingest audit log event.
 func sipIngestAuditEvent(s *datatypes.SIP) *auditlog.Event {
 	e := &auditlog.Event{
 		Level:      auditlog.LevelInfo,
@@ -192,4 +192,27 @@ func sipSourceObjectsToGoa(objects []*sipsource.Object) goaingest.SIPSourceObjec
 	}
 
 	return r
+}
+
+// batchToCreatedEvent returns the API representation of a Batch created event.
+func batchToCreatedEvent(b *datatypes.Batch) *goaingest.BatchCreatedEvent {
+	return &goaingest.BatchCreatedEvent{
+		UUID: b.UUID,
+		Item: b.Goa(),
+	}
+}
+
+// batchIngestAuditEvent returns a Batch ingest audit log event.
+func batchIngestAuditEvent(b *datatypes.Batch) *auditlog.Event {
+	e := &auditlog.Event{
+		Level:      auditlog.LevelInfo,
+		Msg:        "Batch ingest started",
+		Type:       "Batch.ingest",
+		ResourceID: b.UUID.String(),
+	}
+	if b.Uploader != nil {
+		e.User = b.Uploader.Email
+	}
+
+	return e
 }
