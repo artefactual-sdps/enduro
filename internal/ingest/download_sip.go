@@ -14,7 +14,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
-func (w *goaWrapper) readSIP(ctx context.Context, id string) (*datatypes.SIP, error) {
+func (svc *ingestImpl) readSIP(ctx context.Context, id string) (*datatypes.SIP, error) {
 	// Validate the payload UUID.
 	sipUUID, err := uuid.Parse(id)
 	if err != nil {
@@ -22,7 +22,7 @@ func (w *goaWrapper) readSIP(ctx context.Context, id string) (*datatypes.SIP, er
 	}
 
 	// Read the persisted SIP.
-	sip, err := w.perSvc.ReadSIP(ctx, sipUUID)
+	sip, err := svc.perSvc.ReadSIP(ctx, sipUUID)
 	if err != nil {
 		if errors.Is(err, persistence.ErrNotFound) {
 			return nil, &goaingest.SIPNotFound{UUID: id, Message: "SIP not found"}
@@ -34,11 +34,11 @@ func (w *goaWrapper) readSIP(ctx context.Context, id string) (*datatypes.SIP, er
 	return sip, nil
 }
 
-func (w *goaWrapper) DownloadSipRequest(
+func (svc *ingestImpl) DownloadSipRequest(
 	ctx context.Context,
 	payload *goaingest.DownloadSipRequestPayload,
 ) (*goaingest.DownloadSipRequestResult, error) {
-	sip, err := w.readSIP(ctx, payload.UUID)
+	sip, err := svc.readSIP(ctx, payload.UUID)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (w *goaWrapper) DownloadSipRequest(
 	}
 
 	// Check if the failed SIP/PIP exists in the internal bucket.
-	exists, err := w.internalStorage.Exists(ctx, sip.FailedKey)
+	exists, err := svc.internalStorage.Exists(ctx, sip.FailedKey)
 	if err != nil {
 		return nil, goaingest.MakeInternalError(errors.New("error checking SIP/PIP file"))
 	}
@@ -62,7 +62,7 @@ func (w *goaWrapper) DownloadSipRequest(
 	}
 
 	// Request a ticket.
-	ticket, err := w.ticketProvider.Request(ctx, nil)
+	ticket, err := svc.ticketProvider.Request(ctx, nil)
 	if err != nil {
 		return nil, goaingest.MakeInternalError(errors.New("ticket request failed"))
 	}
@@ -77,16 +77,16 @@ func (w *goaWrapper) DownloadSipRequest(
 	return res, nil
 }
 
-func (w *goaWrapper) DownloadSip(
+func (svc *ingestImpl) DownloadSip(
 	ctx context.Context,
 	payload *goaingest.DownloadSipPayload,
 ) (*goaingest.DownloadSipResult, io.ReadCloser, error) {
 	// Verify the ticket.
-	if err := w.ticketProvider.Check(ctx, payload.Ticket, nil); err != nil {
+	if err := svc.ticketProvider.Check(ctx, payload.Ticket, nil); err != nil {
 		return nil, nil, ErrUnauthorized
 	}
 
-	sip, err := w.readSIP(ctx, payload.UUID)
+	sip, err := svc.readSIP(ctx, payload.UUID)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -97,7 +97,7 @@ func (w *goaWrapper) DownloadSip(
 	}
 
 	// Get a reader from the internal storage for the SIP failed key.
-	reader, err := w.internalStorage.NewReader(ctx, sip.FailedKey, nil)
+	reader, err := svc.internalStorage.NewReader(ctx, sip.FailedKey, nil)
 	if err != nil {
 		if gcerrors.Code(err) == gcerrors.NotFound {
 			return nil, nil, &goaingest.SIPNotFound{

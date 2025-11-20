@@ -36,8 +36,8 @@ const (
 var ErrInvalid = errors.New("invalid")
 
 type Service interface {
-	// Goa returns an implementation of the goaingest Service.
-	Goa() goaingest.Service
+	goaingest.Service
+
 	CreateSIP(context.Context, *datatypes.SIP) error
 	UpdateSIP(context.Context, uuid.UUID, persistence.SIPUpdater) (*datatypes.SIP, error)
 	SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error
@@ -112,12 +112,6 @@ func NewService(params ServiceParams) *ingestImpl {
 		rander:          params.Rander,
 		sipSource:       params.SIPSource,
 		auditLogger:     params.AuditLogger,
-	}
-}
-
-func (svc *ingestImpl) Goa() goaingest.Service {
-	return &goaWrapper{
-		ingestImpl: svc,
 	}
 }
 

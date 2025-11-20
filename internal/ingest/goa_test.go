@@ -102,14 +102,12 @@ func TestJWTAuth(t *testing.T) {
 
 			tvMock := authfake.NewMockTokenVerifier(gomock.NewController(t))
 			tt.mock(tvMock, tt.claims)
-			gw := &goaWrapper{
-				ingestImpl: &ingestImpl{
-					logger:        logger,
-					tokenVerifier: tvMock,
-				},
-			}
+			svc := NewService(ServiceParams{
+				Logger:        logger,
+				TokenVerifier: tvMock,
+			})
 
-			ctx, err := gw.JWTAuth(context.Background(), "abc", &security.JWTScheme{RequiredScopes: tt.scopes})
+			ctx, err := svc.JWTAuth(context.Background(), "abc", &security.JWTScheme{RequiredScopes: tt.scopes})
 			assert.Equal(t, logged, tt.logged)
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)
@@ -381,20 +379,17 @@ func TestListSIPs(t *testing.T) {
 
 			ctx := t.Context()
 			ctrl := gomock.NewController(t)
-			svc := persistence_fake.NewMockService(ctrl)
+			perSvc := persistence_fake.NewMockService(ctrl)
 
 			if tt.mockRecorder != nil {
-				tt.mockRecorder(svc.EXPECT())
+				tt.mockRecorder(perSvc.EXPECT())
 			}
 
-			wrapper := goaWrapper{
-				ingestImpl: &ingestImpl{
-					logger: logr.Discard(),
-					perSvc: svc,
-				},
-			}
+			svc := NewService(ServiceParams{
+				PersistenceService: perSvc,
+			})
 
-			got, err := wrapper.ListSips(ctx, tt.payload)
+			got, err := svc.ListSips(ctx, tt.payload)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
@@ -555,20 +550,17 @@ func TestListUsers(t *testing.T) {
 
 			ctx := t.Context()
 			ctrl := gomock.NewController(t)
-			svc := persistence_fake.NewMockService(ctrl)
+			perSvc := persistence_fake.NewMockService(ctrl)
 
 			if tt.mockRecorder != nil {
-				tt.mockRecorder(svc.EXPECT())
+				tt.mockRecorder(perSvc.EXPECT())
 			}
 
-			wrapper := goaWrapper{
-				ingestImpl: &ingestImpl{
-					logger: logr.Discard(),
-					perSvc: svc,
-				},
-			}
+			svc := NewService(ServiceParams{
+				PersistenceService: perSvc,
+			})
 
-			got, err := wrapper.ListUsers(ctx, tt.payload)
+			got, err := svc.ListUsers(ctx, tt.payload)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
@@ -754,7 +746,7 @@ func TestListSIPSourceObjects(t *testing.T) {
 				SIPSource:     src,
 			})
 
-			got, err := svc.Goa().ListSipSourceObjects(t.Context(), tt.payload)
+			got, err := svc.ListSipSourceObjects(t.Context(), tt.payload)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

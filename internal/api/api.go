@@ -54,7 +54,7 @@ func HTTPServer(
 	}
 
 	// Ingest service.
-	ingestEndpoints := ingest.NewEndpoints(ingestsvc.Goa())
+	ingestEndpoints := ingest.NewEndpoints(ingestsvc)
 	ingestErrorHandler := errorHandler(logger, "Ingest error.")
 	ingestServer := ingestsvr.New(ingestEndpoints, mux, dec, enc, ingestErrorHandler, nil, websocketUpgrader, nil)
 	ingestServer.DownloadSip = middleware.WriteTimeout(0)(ingestServer.DownloadSip)
