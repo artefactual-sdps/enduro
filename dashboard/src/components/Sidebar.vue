@@ -6,14 +6,14 @@ import { useRouter } from "vue-router/auto";
 
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import IconAIPs from "~icons/clarity/bundle-line?raw&width=2em&height=2em";
+import IconAIPs from "~icons/clarity/bundle-line?width=2em&height=2em";
 import IconCaret from "~icons/clarity/caret-line";
-import IconHome from "~icons/clarity/home-line?raw&width=2em&height=2em";
-import IconLogout from "~icons/clarity/logout-line?raw&width=2em&height=2em";
-import IconUpload from "~icons/clarity/plus-circle-line?raw&width=2em&height=2em";
-import IconUser from "~icons/clarity/user-solid?raw&width=2em&height=2em";
-import IconSIPs from "~icons/octicon/package-dependencies-24?raw&width=2em&height=2em";
-import IconLocations from "~icons/octicon/server-24?raw&width=2em&height=2em";
+import IconHome from "~icons/clarity/home-line?width=2em&height=2em";
+import IconLogout from "~icons/clarity/logout-line?width=2em&height=2em";
+import IconUpload from "~icons/clarity/plus-circle-line?width=2em&height=2em";
+import IconUser from "~icons/clarity/user-solid?width=2em&height=2em";
+import IconSIPs from "~icons/octicon/package-dependencies-24?width=2em&height=2em";
+import IconLocations from "~icons/octicon/server-24?width=2em&height=2em";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();

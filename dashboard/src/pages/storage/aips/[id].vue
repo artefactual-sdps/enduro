@@ -8,7 +8,7 @@ import Tabs from "@/components/Tabs.vue";
 import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
 import IconAIPs from "~icons/clarity/bundle-line";
-import IconDetails from "~icons/clarity/details-line?raw&font-size=20px";
+import IconDetails from "~icons/clarity/details-line?font-size=20px";
 
 const route = useRoute("/storage/aips/[id]");
 const router = useRouter();
