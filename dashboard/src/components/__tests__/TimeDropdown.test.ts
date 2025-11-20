@@ -28,7 +28,6 @@ describe("TimeDropdown.vue", () => {
 
   afterEach(() => {
     vi.useRealTimers();
-    wrapper.unmount();
   });
 
   it("initializes with correct default values", async () => {

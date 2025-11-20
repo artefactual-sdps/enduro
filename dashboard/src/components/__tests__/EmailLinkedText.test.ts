@@ -1,14 +1,10 @@
 import { VueWrapper, mount } from "@vue/test-utils";
-import { afterEach, describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 
 import EmailLinkedText from "../EmailLinkedText.vue";
 
 describe("EmailLinkedText.vue", () => {
   let wrapper: VueWrapper;
-
-  afterEach(() => {
-    wrapper.unmount();
-  });
 
   it("renders simple text without emails", () => {
     wrapper = mount(EmailLinkedText, {

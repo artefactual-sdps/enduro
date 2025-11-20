@@ -44,8 +44,6 @@ describe("index.vue", () => {
     expect(wrapper.find('[role="status"]').exists()).toBe(false);
     expect(wrapper.text()).toContain("Welcome!");
     expect(wrapper.text()).toContain("Enduro is a new application");
-
-    wrapper.unmount();
   });
 
   it("shows default content with user name", async () => {
@@ -71,8 +69,6 @@ describe("index.vue", () => {
     expect(global.fetch).not.toHaveBeenCalled();
     expect(wrapper.text()).toContain("Welcome, John Doe!");
     expect(wrapper.text()).toContain("Enduro is a new application");
-
-    wrapper.unmount();
   });
 
   it("shows loading spinner while fetching custom content", async () => {
@@ -87,8 +83,6 @@ describe("index.vue", () => {
     expect(wrapper.text()).toContain("Loading...");
     expect(wrapper.text()).not.toContain("Welcome!");
     expect(wrapper.text()).not.toContain("Enduro is a new application");
-
-    wrapper.unmount();
   });
 
   it("shows custom content", async () => {
@@ -106,8 +100,6 @@ describe("index.vue", () => {
     expect(wrapper.text()).toContain("Custom content");
     expect(wrapper.text()).not.toContain("Welcome!");
     expect(wrapper.text()).not.toContain("Enduro is a new application");
-
-    wrapper.unmount();
   });
 
   it("sanitizes custom content", async () => {
@@ -127,8 +119,6 @@ describe("index.vue", () => {
     expect(wrapper.text()).not.toContain("alert");
     expect(wrapper.text()).not.toContain("Welcome!");
     expect(wrapper.text()).not.toContain("Enduro is a new application");
-
-    wrapper.unmount();
   });
 
   it("shows error when custom content fails to load", async () => {
@@ -143,8 +133,6 @@ describe("index.vue", () => {
     expect(wrapper.text()).toContain("Failed to load custom home content.");
     expect(wrapper.text()).toContain("Welcome!");
     expect(wrapper.text()).toContain("Enduro is a new application");
-
-    wrapper.unmount();
   });
 
   it("shows error when custom content fetch throws an error", async () => {
@@ -159,7 +147,5 @@ describe("index.vue", () => {
     expect(wrapper.text()).toContain("Failed to load custom home content.");
     expect(wrapper.text()).toContain("Welcome!");
     expect(wrapper.text()).toContain("Enduro is a new application");
-
-    wrapper.unmount();
   });
 });

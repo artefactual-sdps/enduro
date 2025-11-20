@@ -1,5 +1,5 @@
 import { VueWrapper, mount } from "@vue/test-utils";
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 
 import Task from "../Task.vue";
 
@@ -22,10 +22,6 @@ describe("Task.vue", () => {
         },
       },
     });
-  });
-
-  afterEach(() => {
-    wrapper.unmount();
   });
 
   it("renders the component", async () => {
