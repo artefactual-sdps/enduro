@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 
+import EmailLinkedText from "@/components/EmailLinkedText.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
-import { addEmailLinks } from "@/composables/addEmailLinks";
 import { formatDateTime } from "@/composables/format";
 import type {
   EnduroIngestSipTask,
@@ -74,10 +74,9 @@ const toggle = () => {
           </div>
         </div>
         <div class="flex-grow-1">
-          <span
-            :id="'pt-' + index + '-note'"
-            v-html="addEmailLinks(noteData.note)"
-          />
+          <span :id="'pt-' + index + '-note'">
+            <EmailLinkedText :text="noteData.note" />
+          </span>
           <span v-if="noteData.more">
             <span v-show="!isOpen">... </span>
             <Transition name="fade">
@@ -85,8 +84,9 @@ const toggle = () => {
                 v-show="isOpen"
                 :id="'pt-' + index + '-note-more'"
                 class="line-break"
-                v-html="addEmailLinks(noteData.more)"
-              />
+              >
+                <EmailLinkedText :text="noteData.more" />
+              </p>
             </Transition>
             <a
               :id="'pt-' + index + '-note-toggle'"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 
-import { addEmailLinks } from "@/composables/addEmailLinks";
+import EmailLinkedText from "@/components/EmailLinkedText.vue";
 import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
 
@@ -33,7 +33,9 @@ onMounted(() => {
 <template>
   <div v-if="aipStore.isPending" class="alert alert-info" role="alert">
     <h4 class="alert-heading">Task: Review AIP deletion request</h4>
-    <p class="line-break" v-html="addEmailLinks(note)" />
+    <p class="line-break">
+      <EmailLinkedText :text="note" />
+    </p>
     <div class="d-flex flex-wrap gap-2">
       <template v-if="canCancel">
         <hr />

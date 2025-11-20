@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import DOMPurify from "dompurify";
 import { onMounted, ref } from "vue";
 
 import { useAuthStore } from "@/stores/auth";
@@ -21,8 +20,8 @@ onMounted(async () => {
   try {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Response status: ${response.status}`);
-    const data = DOMPurify.sanitize(await response.text());
-    if (!data) throw new Error("Sanitized content is empty.");
+    const data = await response.text();
+    if (!data) throw new Error("Content is empty.");
     content.value = data;
   } catch (err) {
     console.error("Error loading custom home HTML:", err);
@@ -44,7 +43,7 @@ onMounted(async () => {
       <div v-else-if="error" class="alert alert-warning" role="alert">
         {{ error }}
       </div>
-      <div v-else-if="content" v-html="content" />
+      <SafeHtml v-else-if="content" :html="content" />
     </template>
 
     <!-- Default content -->

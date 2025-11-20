@@ -43,7 +43,6 @@ export default [
         },
       ],
       "vue/multi-word-component-names": "off", // doesn't work with auto-router paths.
-      "vue/no-v-html": "off", // must be fixed soon.
       "@typescript-eslint/naming-convention": [
         "error",
         {

@@ -132,7 +132,9 @@ const closeOffcanvas = () => {
                         : ''
                     "
                   >
-                    <span aria-hidden="true" v-html="item.icon" />
+                    <span aria-hidden="true">
+                      <component :is="item.icon" />
+                    </span>
                   </div>
                   <div
                     class="col-9 d-flex align-items-center"
@@ -170,11 +172,9 @@ const closeOffcanvas = () => {
                     : ''
                 "
               >
-                <span
-                  class="text-primary"
-                  aria-hidden="true"
-                  v-html="IconUser"
-                />
+                <span class="text-primary" aria-hidden="true">
+                  <component :is="IconUser" />
+                </span>
               </div>
               <div
                 class="col-9 d-flex align-items-center"
@@ -208,7 +208,9 @@ const closeOffcanvas = () => {
                       : ''
                   "
                 >
-                  <span aria-hidden="true" v-html="IconLogout" />
+                  <span aria-hidden="true">
+                    <component :is="IconLogout" />
+                  </span>
                 </div>
                 <div
                   class="col-9 d-flex align-items-center"

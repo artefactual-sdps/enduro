@@ -3,34 +3,41 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { User } from "oidc-client-ts";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+import SafeHtml from "@/components/SafeHtml.vue";
 import IndexPage from "@/pages/index.vue";
 
-describe("index.vue", () => {
-  let originalFetch: typeof global.fetch;
+function mountPage(initialState: Record<string, unknown> = {}) {
+  return mount(IndexPage, {
+    global: {
+      components: { SafeHtml },
+      plugins: [
+        createTestingPinia({
+          createSpy: vi.fn,
+          initialState: {
+            auth: {
+              config: { enabled: false },
+              user: null,
+              ...(initialState.auth ?? {}),
+            },
+          },
+        }),
+      ],
+    },
+  });
+}
 
+describe("index.vue", () => {
   beforeEach(() => {
-    originalFetch = global.fetch;
-    global.fetch = vi.fn();
+    vi.stubGlobal("fetch", vi.fn());
     vi.stubEnv("VITE_CUSTOM_HOME_URL", "");
   });
 
   afterEach(() => {
-    global.fetch = originalFetch;
-    vi.clearAllMocks();
-    vi.unstubAllEnvs();
+    vi.restoreAllMocks();
   });
 
   it("shows default content", async () => {
-    const wrapper = mount(IndexPage, {
-      global: {
-        plugins: [
-          createTestingPinia({
-            createSpy: vi.fn,
-            initialState: { auth: { config: { enabled: false } } },
-          }),
-        ],
-      },
-    });
+    const wrapper = mountPage();
 
     await flushPromises();
     expect(global.fetch).not.toHaveBeenCalled();
@@ -42,30 +49,21 @@ describe("index.vue", () => {
   });
 
   it("shows default content with user name", async () => {
-    const wrapper = mount(IndexPage, {
-      global: {
-        plugins: [
-          createTestingPinia({
-            createSpy: vi.fn,
-            initialState: {
-              auth: {
-                config: { enabled: true },
-                user: new User({
-                  access_token: "",
-                  token_type: "",
-                  profile: {
-                    aud: "",
-                    exp: 0,
-                    iat: 0,
-                    iss: "",
-                    sub: "",
-                    name: "John Doe",
-                  },
-                }),
-              },
-            },
-          }),
-        ],
+    const wrapper = mountPage({
+      auth: {
+        config: { enabled: true },
+        user: new User({
+          access_token: "",
+          token_type: "",
+          profile: {
+            aud: "",
+            exp: 0,
+            iat: 0,
+            iss: "",
+            sub: "",
+            name: "John Doe",
+          },
+        }),
       },
     });
 
@@ -81,16 +79,7 @@ describe("index.vue", () => {
     vi.stubEnv("VITE_CUSTOM_HOME_URL", "http://example.com/custom.html");
     global.fetch = vi.fn().mockReturnValue(new Promise(() => {}));
 
-    const wrapper = mount(IndexPage, {
-      global: {
-        plugins: [
-          createTestingPinia({
-            createSpy: vi.fn,
-            initialState: { auth: { config: { enabled: false } } },
-          }),
-        ],
-      },
-    });
+    const wrapper = mountPage();
 
     await flushPromises();
     expect(global.fetch).toHaveBeenCalledWith("http://example.com/custom.html");
@@ -109,16 +98,7 @@ describe("index.vue", () => {
       text: async () => "<h1>Custom Home Page</h1><p>Custom content</p>",
     });
 
-    const wrapper = mount(IndexPage, {
-      global: {
-        plugins: [
-          createTestingPinia({
-            createSpy: vi.fn,
-            initialState: { auth: { config: { enabled: false } } },
-          }),
-        ],
-      },
-    });
+    const wrapper = mountPage();
 
     await flushPromises();
     expect(global.fetch).toHaveBeenCalledWith("http://example.com/custom.html");
@@ -138,16 +118,7 @@ describe("index.vue", () => {
         "<h1>Title</h1><script>alert('XSS')</script><p>Content</p>",
     });
 
-    const wrapper = mount(IndexPage, {
-      global: {
-        plugins: [
-          createTestingPinia({
-            createSpy: vi.fn,
-            initialState: { auth: { config: { enabled: false } } },
-          }),
-        ],
-      },
-    });
+    const wrapper = mountPage();
 
     await flushPromises();
     expect(global.fetch).toHaveBeenCalledWith("http://example.com/custom.html");
@@ -164,16 +135,7 @@ describe("index.vue", () => {
     vi.stubEnv("VITE_CUSTOM_HOME_URL", "http://example.com/custom.html");
     global.fetch = vi.fn().mockResolvedValue({ ok: false, status: 404 });
 
-    const wrapper = mount(IndexPage, {
-      global: {
-        plugins: [
-          createTestingPinia({
-            createSpy: vi.fn,
-            initialState: { auth: { config: { enabled: false } } },
-          }),
-        ],
-      },
-    });
+    const wrapper = mountPage();
 
     await flushPromises();
     expect(global.fetch).toHaveBeenCalledWith("http://example.com/custom.html");
@@ -189,16 +151,7 @@ describe("index.vue", () => {
     vi.stubEnv("VITE_CUSTOM_HOME_URL", "http://example.com/custom.html");
     global.fetch = vi.fn().mockRejectedValue(new Error());
 
-    const wrapper = mount(IndexPage, {
-      global: {
-        plugins: [
-          createTestingPinia({
-            createSpy: vi.fn,
-            initialState: { auth: { config: { enabled: false } } },
-          }),
-        ],
-      },
-    });
+    const wrapper = mountPage();
 
     await flushPromises();
     expect(global.fetch).toHaveBeenCalledWith("http://example.com/custom.html");

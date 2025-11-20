@@ -17,7 +17,7 @@ describe("InstitutionLogo.vue", () => {
       },
     });
 
-    const logo = wrapper.get("#institution-logo");
+    const logo = wrapper.get("img");
 
     expect(wrapper.get("a").attributes("href")).toEqual(
       "http://localhost:8080",
@@ -25,6 +25,9 @@ describe("InstitutionLogo.vue", () => {
     expect(logo.attributes("alt")).toEqual("Artefactual Systems Inc.");
     expect(logo.attributes("src")).toEqual(
       "http://localhost:8080/artefactual-logo.png",
+    );
+    expect(wrapper.html()).toMatchInlineSnapshot(
+      `"<div data-v-5841bc2f="" class="d-none d-sm-block mx-3"><a data-v-5841bc2f="" href="http://localhost:8080" target="_blank" rel="external"><img data-v-5841bc2f="" src="http://localhost:8080/artefactual-logo.png" alt="Artefactual Systems Inc."></a></div>"`,
     );
   });
 
@@ -38,12 +41,15 @@ describe("InstitutionLogo.vue", () => {
       },
     });
 
-    const logo = wrapper.get("#institution-logo");
+    const logo = wrapper.get("img");
 
     expect(wrapper.find("a").exists()).toBe(false);
     expect(logo.attributes("alt")).toEqual("Artefactual Systems Inc.");
     expect(logo.attributes("src")).toEqual(
       "http://localhost:8080/artefactual-logo.png",
+    );
+    expect(wrapper.html()).toMatchInlineSnapshot(
+      `"<div data-v-5841bc2f="" class="d-none d-sm-block mx-3"><img data-v-5841bc2f="" src="http://localhost:8080/artefactual-logo.png" alt="Artefactual Systems Inc."></div>"`,
     );
   });
 
