@@ -83,6 +83,7 @@ paths:
                         - pending
                         - ingested
                         - canceled
+                        - failed
                   example: processing
                 - name: uploader_uuid
                   in: query
@@ -3181,6 +3182,7 @@ components:
                         - pending
                         - ingested
                         - canceled
+                        - failed
                 uploader_email:
                     type: string
                     description: Email of the user who uploaded the Batch
@@ -3263,6 +3265,7 @@ components:
                         - pending
                         - ingested
                         - canceled
+                        - failed
                 batch_uuid:
                     type: string
                     description: UUID of the related Batch

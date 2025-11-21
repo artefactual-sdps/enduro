@@ -2763,8 +2763,8 @@ func ValidateSIPResponseBody(body *SIPResponseBody) (err error) {
 		}
 	}
 	if body.BatchStatus != nil {
-		if !(*body.BatchStatus == "queued" || *body.BatchStatus == "processing" || *body.BatchStatus == "pending" || *body.BatchStatus == "ingested" || *body.BatchStatus == "canceled") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.batch_status", *body.BatchStatus, []any{"queued", "processing", "pending", "ingested", "canceled"}))
+		if !(*body.BatchStatus == "queued" || *body.BatchStatus == "processing" || *body.BatchStatus == "pending" || *body.BatchStatus == "ingested" || *body.BatchStatus == "canceled" || *body.BatchStatus == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.batch_status", *body.BatchStatus, []any{"queued", "processing", "pending", "ingested", "canceled", "failed"}))
 		}
 	}
 	return
@@ -2980,8 +2980,8 @@ func ValidateBatchResponseBody(body *BatchResponseBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "queued" || *body.Status == "processing" || *body.Status == "pending" || *body.Status == "ingested" || *body.Status == "canceled") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"queued", "processing", "pending", "ingested", "canceled"}))
+		if !(*body.Status == "queued" || *body.Status == "processing" || *body.Status == "pending" || *body.Status == "ingested" || *body.Status == "canceled" || *body.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"queued", "processing", "pending", "ingested", "canceled", "failed"}))
 		}
 	}
 	if body.CreatedAt != nil {

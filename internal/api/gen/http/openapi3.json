@@ -840,7 +840,8 @@
               "processing",
               "pending",
               "ingested",
-              "canceled"
+              "canceled",
+              "failed"
             ],
             "example": "processing",
             "type": "string"
@@ -949,7 +950,8 @@
               "processing",
               "pending",
               "ingested",
-              "canceled"
+              "canceled",
+              "failed"
             ],
             "example": "processing",
             "type": "string"
@@ -2981,7 +2983,8 @@
                 "processing",
                 "pending",
                 "ingested",
-                "canceled"
+                "canceled",
+                "failed"
               ],
               "example": "processing",
               "type": "string"

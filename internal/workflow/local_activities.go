@@ -238,3 +238,34 @@ func completeTaskLocalActivity(
 		params.Note,
 	)
 }
+
+type updateBatchLocalActivityParams struct {
+	UUID        uuid.UUID
+	Status      enums.BatchStatus
+	StartedAt   time.Time
+	CompletedAt time.Time
+}
+
+type updateBatchLocalActivityResult struct{}
+
+func updateBatchLocalActivity(
+	ctx context.Context,
+	ingestsvc ingest.Service,
+	params *updateBatchLocalActivityParams,
+) (*updateBatchLocalActivityResult, error) {
+	_, err := ingestsvc.UpdateBatch(
+		ctx,
+		params.UUID,
+		func(b *datatypes.Batch) (*datatypes.Batch, error) {
+			b.Status = params.Status
+			b.StartedAt = params.StartedAt
+			b.CompletedAt = params.CompletedAt
+			return b, nil
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &updateBatchLocalActivityResult{}, nil
+}
