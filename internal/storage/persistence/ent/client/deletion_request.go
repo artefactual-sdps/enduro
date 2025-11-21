@@ -109,7 +109,7 @@ func (c *Client) UpdateDeletionRequest(
 		SetReviewerIss(up.ReviewerIss).
 		SetReviewerSub(up.ReviewerSub).
 		SetStatus(up.Status).
-		SetDeletionReportKey(up.DeletionReportKey)
+		SetDeletionReportKey(up.ReportKey)
 
 	if !up.ReviewedAt.IsZero() {
 		q.SetReviewedAt(up.ReviewedAt)
@@ -148,20 +148,20 @@ func (c *Client) ReadDeletionRequest(
 
 func convertDeletionRequest(dbdr *db.DeletionRequest) *types.DeletionRequest {
 	dr := &types.DeletionRequest{
-		DBID:              dbdr.ID,
-		UUID:              dbdr.UUID,
-		Requester:         dbdr.Requester,
-		RequesterIss:      dbdr.RequesterIss,
-		RequesterSub:      dbdr.RequesterSub,
-		Reviewer:          dbdr.Reviewer,
-		ReviewerIss:       dbdr.ReviewerIss,
-		ReviewerSub:       dbdr.ReviewerSub,
-		Reason:            dbdr.Reason,
-		Status:            dbdr.Status,
-		RequestedAt:       dbdr.RequestedAt,
-		ReviewedAt:        dbdr.ReviewedAt,
-		WorkflowDBID:      dbdr.WorkflowID,
-		DeletionReportKey: dbdr.DeletionReportKey,
+		DBID:         dbdr.ID,
+		UUID:         dbdr.UUID,
+		Requester:    dbdr.Requester,
+		RequesterIss: dbdr.RequesterIss,
+		RequesterSub: dbdr.RequesterSub,
+		Reviewer:     dbdr.Reviewer,
+		ReviewerIss:  dbdr.ReviewerIss,
+		ReviewerSub:  dbdr.ReviewerSub,
+		Reason:       dbdr.Reason,
+		Status:       dbdr.Status,
+		RequestedAt:  dbdr.RequestedAt,
+		ReviewedAt:   dbdr.ReviewedAt,
+		WorkflowDBID: dbdr.WorkflowID,
+		ReportKey:    dbdr.DeletionReportKey,
 	}
 
 	if dbdr.Edges.Aip != nil {

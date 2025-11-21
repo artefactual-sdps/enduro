@@ -157,6 +157,10 @@ type ListAipWorkflowsResponseBody struct {
 	Workflows AIPWorkflowCollectionResponseBody `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
 }
 
+// ListDeletionRequestsResponseBody is the type of the "storage" service
+// "list_deletion_requests" endpoint HTTP response body.
+type ListDeletionRequestsResponseBody []*DeletionRequestResponse
+
 // ListLocationsResponseBody is the type of the "storage" service
 // "list_locations" endpoint HTTP response body.
 type ListLocationsResponseBody []*LocationResponse
@@ -586,6 +590,35 @@ type ListAipWorkflowsNotFoundResponseBody struct {
 	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
+// ListDeletionRequestsNotValidResponseBody is the type of the "storage"
+// service "list_deletion_requests" endpoint HTTP response body for the
+// "not_valid" error.
+type ListDeletionRequestsNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListDeletionRequestsNotFoundResponseBody is the type of the "storage"
+// service "list_deletion_requests" endpoint HTTP response body for the
+// "not_found" error.
+type ListDeletionRequestsNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing AIP
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
 // RequestAipDeletionNotFoundResponseBody is the type of the "storage" service
 // "request_aip_deletion" endpoint HTTP response body for the "not_found" error.
 type RequestAipDeletionNotFoundResponseBody struct {
@@ -722,6 +755,28 @@ type AIPTaskResponseBody struct {
 	Note        *string    `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
 	// Identifier of related workflow
 	WorkflowUUID *uuid.UUID `form:"workflow_uuid,omitempty" json:"workflow_uuid,omitempty" xml:"workflow_uuid,omitempty"`
+}
+
+// DeletionRequestResponse is used to define fields on response body types.
+type DeletionRequestResponse struct {
+	// Identifier of deletion request
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+	// Identifier of related AIP
+	AipUUID *uuid.UUID `form:"aip_uuid,omitempty" json:"aip_uuid,omitempty" xml:"aip_uuid,omitempty"`
+	// User who requested the deletion
+	Requester *string `form:"requester,omitempty" json:"requester,omitempty" xml:"requester,omitempty"`
+	// Time the deletion was requested
+	RequestedAt *string `form:"requested_at,omitempty" json:"requested_at,omitempty" xml:"requested_at,omitempty"`
+	// Reason for the deletion request
+	Reason *string `form:"reason,omitempty" json:"reason,omitempty" xml:"reason,omitempty"`
+	// Status of the deletion request
+	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
+	// User who reviewed the deletion request
+	Reviewer *string `form:"reviewer,omitempty" json:"reviewer,omitempty" xml:"reviewer,omitempty"`
+	// Time the deletion request was reviewed
+	ReviewedAt *string `form:"reviewed_at,omitempty" json:"reviewed_at,omitempty" xml:"reviewed_at,omitempty"`
+	// Object key of the deletion report
+	ReportKey *string `form:"report_key,omitempty" json:"report_key,omitempty" xml:"report_key,omitempty"`
 }
 
 // LocationResponse is used to define fields on response body types.
@@ -1574,6 +1629,59 @@ func NewListAipWorkflowsUnauthorized(body string) storage.Unauthorized {
 	return v
 }
 
+// NewListDeletionRequestsDeletionRequestCollectionOK builds a "storage"
+// service "list_deletion_requests" endpoint result from a HTTP "OK" response.
+func NewListDeletionRequestsDeletionRequestCollectionOK(body ListDeletionRequestsResponseBody) storageviews.DeletionRequestCollectionView {
+	v := make([]*storageviews.DeletionRequestView, len(body))
+	for i, val := range body {
+		v[i] = unmarshalDeletionRequestResponseToStorageviewsDeletionRequestView(val)
+	}
+
+	return v
+}
+
+// NewListDeletionRequestsNotValid builds a storage service
+// list_deletion_requests endpoint not_valid error.
+func NewListDeletionRequestsNotValid(body *ListDeletionRequestsNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListDeletionRequestsNotFound builds a storage service
+// list_deletion_requests endpoint not_found error.
+func NewListDeletionRequestsNotFound(body *ListDeletionRequestsNotFoundResponseBody) *storage.AIPNotFound {
+	v := &storage.AIPNotFound{
+		Message: *body.Message,
+		UUID:    *body.UUID,
+	}
+
+	return v
+}
+
+// NewListDeletionRequestsForbidden builds a storage service
+// list_deletion_requests endpoint forbidden error.
+func NewListDeletionRequestsForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewListDeletionRequestsUnauthorized builds a storage service
+// list_deletion_requests endpoint unauthorized error.
+func NewListDeletionRequestsUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
 // NewRequestAipDeletionNotFound builds a storage service request_aip_deletion
 // endpoint not_found error.
 func NewRequestAipDeletionNotFound(body *RequestAipDeletionNotFoundResponseBody) *storage.AIPNotFound {
@@ -2400,6 +2508,42 @@ func ValidateListAipWorkflowsNotFoundResponseBody(body *ListAipWorkflowsNotFound
 	return
 }
 
+// ValidateListDeletionRequestsNotValidResponseBody runs the validations
+// defined on list_deletion_requests_not_valid_response_body
+func ValidateListDeletionRequestsNotValidResponseBody(body *ListDeletionRequestsNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListDeletionRequestsNotFoundResponseBody runs the validations
+// defined on list_deletion_requests_not_found_response_body
+func ValidateListDeletionRequestsNotFoundResponseBody(body *ListDeletionRequestsNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
 // ValidateRequestAipDeletionNotFoundResponseBody runs the validations defined
 // on request_aip_deletion_not_found_response_body
 func ValidateRequestAipDeletionNotFoundResponseBody(body *RequestAipDeletionNotFoundResponseBody) (err error) {
@@ -2657,6 +2801,41 @@ func ValidateAIPTaskResponseBody(body *AIPTaskResponseBody) (err error) {
 	}
 	if body.CompletedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.completed_at", *body.CompletedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateDeletionRequestResponse runs the validations defined on
+// DeletionRequestResponse
+func ValidateDeletionRequestResponse(body *DeletionRequestResponse) (err error) {
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.AipUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("aip_uuid", "body"))
+	}
+	if body.Requester == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("requester", "body"))
+	}
+	if body.Reason == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("reason", "body"))
+	}
+	if body.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
+	}
+	if body.RequestedAt == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("requested_at", "body"))
+	}
+	if body.RequestedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.requested_at", *body.RequestedAt, goa.FormatDateTime))
+	}
+	if body.Status != nil {
+		if !(*body.Status == "pending" || *body.Status == "approved" || *body.Status == "rejected" || *body.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"pending", "approved", "rejected", "canceled"}))
+		}
+	}
+	if body.ReviewedAt != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.reviewed_at", *body.ReviewedAt, goa.FormatDateTime))
 	}
 	return
 }

@@ -164,7 +164,7 @@ func TestListDeletionRequests(t *testing.T) {
 					Status:       enums.DeletionRequestStatusApproved,
 					AIPUUID:      aipID,
 					WorkflowDBID: 2,
-					DeletionReportKey: storage.ReportPrefix +
+					ReportKey: storage.ReportPrefix +
 						"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 				},
 			},
@@ -218,7 +218,7 @@ func TestListDeletionRequests(t *testing.T) {
 					Status:       enums.DeletionRequestStatusApproved,
 					AIPUUID:      aipID,
 					WorkflowDBID: 2,
-					DeletionReportKey: storage.ReportPrefix +
+					ReportKey: storage.ReportPrefix +
 						"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 				},
 			},
@@ -296,7 +296,7 @@ func TestUpdateDeletionRequest(t *testing.T) {
 				dr.ReviewerSub = "sub2"
 				dr.ReviewedAt = reviewedAt
 				dr.Status = enums.DeletionRequestStatusApproved
-				dr.DeletionReportKey = storage.ReportPrefix +
+				dr.ReportKey = storage.ReportPrefix +
 					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf"
 				return dr, nil
 			},
@@ -315,7 +315,7 @@ func TestUpdateDeletionRequest(t *testing.T) {
 				Status:       enums.DeletionRequestStatusApproved,
 				AIPUUID:      aipID,
 				WorkflowDBID: 1,
-				DeletionReportKey: storage.ReportPrefix +
+				ReportKey: storage.ReportPrefix +
 					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 			},
 		},
@@ -423,7 +423,7 @@ func TestReadDeletionRequests(t *testing.T) {
 				ReviewedAt:   reviewedAt,
 				AIPUUID:      aipID,
 				WorkflowDBID: 1,
-				DeletionReportKey: storage.ReportPrefix +
+				ReportKey: storage.ReportPrefix +
 					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 			},
 		},

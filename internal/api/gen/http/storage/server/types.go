@@ -157,6 +157,10 @@ type ListAipWorkflowsResponseBody struct {
 	Workflows AIPWorkflowResponseBodyCollection `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
 }
 
+// DeletionRequestResponseCollection is the type of the "storage" service
+// "list_deletion_requests" endpoint HTTP response body.
+type DeletionRequestResponseCollection []*DeletionRequestResponse
+
 // LocationResponseCollection is the type of the "storage" service
 // "list_locations" endpoint HTTP response body.
 type LocationResponseCollection []*LocationResponse
@@ -576,6 +580,35 @@ type ListAipWorkflowsNotFoundResponseBody struct {
 	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
+// ListDeletionRequestsNotValidResponseBody is the type of the "storage"
+// service "list_deletion_requests" endpoint HTTP response body for the
+// "not_valid" error.
+type ListDeletionRequestsNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ListDeletionRequestsNotFoundResponseBody is the type of the "storage"
+// service "list_deletion_requests" endpoint HTTP response body for the
+// "not_found" error.
+type ListDeletionRequestsNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
 // RequestAipDeletionNotFoundResponseBody is the type of the "storage" service
 // "request_aip_deletion" endpoint HTTP response body for the "not_found" error.
 type RequestAipDeletionNotFoundResponseBody struct {
@@ -712,6 +745,28 @@ type AIPTaskResponseBody struct {
 	Note        *string   `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
 	// Identifier of related workflow
 	WorkflowUUID uuid.UUID `form:"workflow_uuid" json:"workflow_uuid" xml:"workflow_uuid"`
+}
+
+// DeletionRequestResponse is used to define fields on response body types.
+type DeletionRequestResponse struct {
+	// Identifier of deletion request
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+	// Identifier of related AIP
+	AipUUID uuid.UUID `form:"aip_uuid" json:"aip_uuid" xml:"aip_uuid"`
+	// User who requested the deletion
+	Requester string `form:"requester" json:"requester" xml:"requester"`
+	// Time the deletion was requested
+	RequestedAt string `form:"requested_at" json:"requested_at" xml:"requested_at"`
+	// Reason for the deletion request
+	Reason string `form:"reason" json:"reason" xml:"reason"`
+	// Status of the deletion request
+	Status string `form:"status" json:"status" xml:"status"`
+	// User who reviewed the deletion request
+	Reviewer *string `form:"reviewer,omitempty" json:"reviewer,omitempty" xml:"reviewer,omitempty"`
+	// Time the deletion request was reviewed
+	ReviewedAt *string `form:"reviewed_at,omitempty" json:"reviewed_at,omitempty" xml:"reviewed_at,omitempty"`
+	// Object key of the deletion report
+	ReportKey *string `form:"report_key,omitempty" json:"report_key,omitempty" xml:"report_key,omitempty"`
 }
 
 // LocationResponse is used to define fields on response body types.
@@ -864,6 +919,16 @@ func NewListAipWorkflowsResponseBody(res *storageviews.AIPWorkflowsView) *ListAi
 		for i, val := range res.Workflows {
 			body.Workflows[i] = marshalStorageviewsAIPWorkflowViewToAIPWorkflowResponseBody(val)
 		}
+	}
+	return body
+}
+
+// NewDeletionRequestResponseCollection builds the HTTP response body from the
+// result of the "list_deletion_requests" endpoint of the "storage" service.
+func NewDeletionRequestResponseCollection(res storageviews.DeletionRequestCollectionView) DeletionRequestResponseCollection {
+	body := make([]*DeletionRequestResponse, len(res))
+	for i, val := range res {
+		body[i] = marshalStorageviewsDeletionRequestViewToDeletionRequestResponse(val)
 	}
 	return body
 }
@@ -1234,6 +1299,32 @@ func NewListAipWorkflowsNotFoundResponseBody(res *storage.AIPNotFound) *ListAipW
 	return body
 }
 
+// NewListDeletionRequestsNotValidResponseBody builds the HTTP response body
+// from the result of the "list_deletion_requests" endpoint of the "storage"
+// service.
+func NewListDeletionRequestsNotValidResponseBody(res *goa.ServiceError) *ListDeletionRequestsNotValidResponseBody {
+	body := &ListDeletionRequestsNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewListDeletionRequestsNotFoundResponseBody builds the HTTP response body
+// from the result of the "list_deletion_requests" endpoint of the "storage"
+// service.
+func NewListDeletionRequestsNotFoundResponseBody(res *storage.AIPNotFound) *ListDeletionRequestsNotFoundResponseBody {
+	body := &ListDeletionRequestsNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
 // NewRequestAipDeletionNotFoundResponseBody builds the HTTP response body from
 // the result of the "request_aip_deletion" endpoint of the "storage" service.
 func NewRequestAipDeletionNotFoundResponseBody(res *storage.AIPNotFound) *RequestAipDeletionNotFoundResponseBody {
@@ -1447,6 +1538,17 @@ func NewListAipWorkflowsPayload(uuid string, status *string, type_ *string, toke
 	v.UUID = uuid
 	v.Status = status
 	v.Type = type_
+	v.Token = token
+
+	return v
+}
+
+// NewListDeletionRequestsPayload builds a storage service
+// list_deletion_requests endpoint payload.
+func NewListDeletionRequestsPayload(uuid string, status *string, token *string) *storage.ListDeletionRequestsPayload {
+	v := &storage.ListDeletionRequestsPayload{}
+	v.UUID = uuid
+	v.Status = status
 	v.Token = token
 
 	return v

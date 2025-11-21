@@ -2228,6 +2228,63 @@ func TestListDeletionRequests(t *testing.T) {
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
 
+		uuid0 := uuid.MustParse("113e4567-e89b-12d3-a456-426614174000")
+		aipUUID := uuid.MustParse("223e4567-e89b-12d3-a456-426614174000")
+		requestedAt := time.Date(2023, 1, 5, 9, 8, 7, 0, time.UTC)
+		reviewedAt := time.Date(2023, 1, 6, 12, 13, 14, 0, time.UTC)
+
+		attrs.persistenceMock.
+			EXPECT().
+			ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+				AIPUUID: &aipUUID,
+				Status:  ref.New(enums.DeletionRequestStatusApproved),
+			}).
+			Return([]*types.DeletionRequest{
+				{
+					DBID:        2,
+					UUID:        uuid0,
+					AIPUUID:     aipUUID,
+					Reason:      "Reason 2",
+					Status:      enums.DeletionRequestStatusApproved,
+					Requester:   "requester@example.com",
+					RequestedAt: requestedAt,
+					Reviewer:    "reviewer@example.com",
+					ReviewedAt:  reviewedAt,
+					ReportKey:   "reports/aip_deletion_report_223e4567-e89b-12d3-a456-426614174000.pdf",
+				},
+			}, nil)
+
+		got, err := svc.ListDeletionRequests(ctx, &goastorage.ListDeletionRequestsPayload{
+			UUID:   aipUUID.String(),
+			Status: ref.New(enums.DeletionRequestStatusApproved.String()),
+		})
+		assert.NilError(t, err)
+		assert.DeepEqual(t, got, goastorage.DeletionRequestCollection{
+			{
+				UUID:        uuid0,
+				AipUUID:     aipUUID,
+				Reason:      "Reason 2",
+				Status:      enums.DeletionRequestStatusApproved.String(),
+				Requester:   "requester@example.com",
+				RequestedAt: requestedAt.Format(time.RFC3339),
+				Reviewer:    ref.New("reviewer@example.com"),
+				ReviewedAt:  ref.New(reviewedAt.Format(time.RFC3339)),
+				ReportKey:   ref.New("reports/aip_deletion_report_223e4567-e89b-12d3-a456-426614174000.pdf"),
+			},
+		})
+	})
+}
+
+func TestListDeletionRequestsInternal(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Lists DeletionRequests (Internal)", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := setUpAttrs{}
+		svc := setUpService(t, &attrs)
+		ctx := context.Background()
+
 		drs := []*types.DeletionRequest{
 			{
 				DBID:        1,
@@ -2235,7 +2292,10 @@ func TestListDeletionRequests(t *testing.T) {
 				AIPUUID:     uuid.New(),
 				Reason:      "Reason 1",
 				Status:      enums.DeletionRequestStatusCanceled,
+				Requester:   "requester@example.com",
 				RequestedAt: time.Now(),
+				Reviewer:    "reviewer@example.com",
+				ReviewedAt:  time.Now(),
 			},
 			{
 				DBID:        2,
@@ -2252,7 +2312,7 @@ func TestListDeletionRequests(t *testing.T) {
 			ListDeletionRequests(ctx, nil).
 			Return(drs, nil)
 
-		re, err := svc.ListDeletionRequests(ctx, nil)
+		re, err := svc.ListDeletionRequestsInternal(ctx, nil)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, re, drs)
 	})

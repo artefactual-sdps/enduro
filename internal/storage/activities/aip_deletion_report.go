@@ -83,7 +83,7 @@ func (a *AIPDeletionReportActivity) Execute(
 		ctx,
 		data.DeletionRequestDBID,
 		func(d *types.DeletionRequest) (*types.DeletionRequest, error) {
-			d.DeletionReportKey = key
+			d.ReportKey = key
 			return d, nil
 		},
 	)
@@ -104,7 +104,7 @@ func (a *AIPDeletionReportActivity) loadData(
 		return nil, fmt.Errorf("AIP deletion report: load data: ReadAip: %v", err)
 	}
 
-	drs, err := a.storageSvc.ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+	drs, err := a.storageSvc.ListDeletionRequestsInternal(ctx, &persistence.DeletionRequestFilter{
 		AIPUUID: &aipID,
 		Status:  ref.New(enums.DeletionRequestStatusApproved),
 	})

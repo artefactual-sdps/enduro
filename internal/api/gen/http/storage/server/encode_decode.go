@@ -1447,6 +1447,119 @@ func EncodeListAipWorkflowsError(encoder func(context.Context, http.ResponseWrit
 	}
 }
 
+// EncodeListDeletionRequestsResponse returns an encoder for responses returned
+// by the storage list_deletion_requests endpoint.
+func EncodeListDeletionRequestsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res := v.(storageviews.DeletionRequestCollection)
+		enc := encoder(ctx, w)
+		body := NewDeletionRequestResponseCollection(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeListDeletionRequestsRequest returns a decoder for requests sent to the
+// storage list_deletion_requests endpoint.
+func DecodeListDeletionRequestsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*storage.ListDeletionRequestsPayload, error) {
+	return func(r *http.Request) (*storage.ListDeletionRequestsPayload, error) {
+		var (
+			uuid   string
+			status *string
+			token  *string
+			err    error
+
+			params = mux.Vars(r)
+		)
+		uuid = params["uuid"]
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		statusRaw := r.URL.Query().Get("status")
+		if statusRaw != "" {
+			status = &statusRaw
+		}
+		if status != nil {
+			if !(*status == "pending" || *status == "approved" || *status == "rejected" || *status == "canceled") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"pending", "approved", "rejected", "canceled"}))
+			}
+		}
+		tokenRaw := r.Header.Get("Authorization")
+		if tokenRaw != "" {
+			token = &tokenRaw
+		}
+		if err != nil {
+			return nil, err
+		}
+		payload := NewListDeletionRequestsPayload(uuid, status, token)
+		if payload.Token != nil {
+			if strings.Contains(*payload.Token, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.Token, " ", 2)[1]
+				payload.Token = &cred
+			}
+		}
+
+		return payload, nil
+	}
+}
+
+// EncodeListDeletionRequestsError returns an encoder for errors returned by
+// the list_deletion_requests storage endpoint.
+func EncodeListDeletionRequestsError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+	encodeError := goahttp.ErrorEncoder(encoder, formatter)
+	return func(ctx context.Context, w http.ResponseWriter, v error) error {
+		var en goa.GoaErrorNamer
+		if !errors.As(v, &en) {
+			return encodeError(ctx, w, v)
+		}
+		switch en.GoaErrorName() {
+		case "not_valid":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewListDeletionRequestsNotValidResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "not_found":
+			var res *storage.AIPNotFound
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewListDeletionRequestsNotFoundResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusNotFound)
+			return enc.Encode(body)
+		case "forbidden":
+			var res storage.Forbidden
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusForbidden)
+			return enc.Encode(body)
+		case "unauthorized":
+			var res storage.Unauthorized
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			body := res
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusUnauthorized)
+			return enc.Encode(body)
+		default:
+			return encodeError(ctx, w, v)
+		}
+	}
+}
+
 // EncodeRequestAipDeletionResponse returns an encoder for responses returned
 // by the storage request_aip_deletion endpoint.
 func EncodeRequestAipDeletionResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
@@ -2191,6 +2304,25 @@ func marshalStorageviewsAIPTaskViewToAIPTaskResponseBody(v *storageviews.AIPTask
 		CompletedAt:  v.CompletedAt,
 		Note:         v.Note,
 		WorkflowUUID: *v.WorkflowUUID,
+	}
+
+	return res
+}
+
+// marshalStorageviewsDeletionRequestViewToDeletionRequestResponse builds a
+// value of type *DeletionRequestResponse from a value of type
+// *storageviews.DeletionRequestView.
+func marshalStorageviewsDeletionRequestViewToDeletionRequestResponse(v *storageviews.DeletionRequestView) *DeletionRequestResponse {
+	res := &DeletionRequestResponse{
+		UUID:        *v.UUID,
+		AipUUID:     *v.AipUUID,
+		Requester:   *v.Requester,
+		RequestedAt: *v.RequestedAt,
+		Reason:      *v.Reason,
+		Status:      *v.Status,
+		Reviewer:    v.Reviewer,
+		ReviewedAt:  v.ReviewedAt,
+		ReportKey:   v.ReportKey,
 	}
 
 	return res

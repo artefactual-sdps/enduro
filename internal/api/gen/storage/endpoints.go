@@ -18,26 +18,27 @@ import (
 
 // Endpoints wraps the "storage" service endpoints.
 type Endpoints struct {
-	MonitorRequest     goa.Endpoint
-	Monitor            goa.Endpoint
-	ListAips           goa.Endpoint
-	CreateAip          goa.Endpoint
-	SubmitAip          goa.Endpoint
-	UpdateAip          goa.Endpoint
-	DownloadAipRequest goa.Endpoint
-	DownloadAip        goa.Endpoint
-	MoveAip            goa.Endpoint
-	MoveAipStatus      goa.Endpoint
-	RejectAip          goa.Endpoint
-	ShowAip            goa.Endpoint
-	ListAipWorkflows   goa.Endpoint
-	RequestAipDeletion goa.Endpoint
-	ReviewAipDeletion  goa.Endpoint
-	CancelAipDeletion  goa.Endpoint
-	ListLocations      goa.Endpoint
-	CreateLocation     goa.Endpoint
-	ShowLocation       goa.Endpoint
-	ListLocationAips   goa.Endpoint
+	MonitorRequest       goa.Endpoint
+	Monitor              goa.Endpoint
+	ListAips             goa.Endpoint
+	CreateAip            goa.Endpoint
+	SubmitAip            goa.Endpoint
+	UpdateAip            goa.Endpoint
+	DownloadAipRequest   goa.Endpoint
+	DownloadAip          goa.Endpoint
+	MoveAip              goa.Endpoint
+	MoveAipStatus        goa.Endpoint
+	RejectAip            goa.Endpoint
+	ShowAip              goa.Endpoint
+	ListAipWorkflows     goa.Endpoint
+	ListDeletionRequests goa.Endpoint
+	RequestAipDeletion   goa.Endpoint
+	ReviewAipDeletion    goa.Endpoint
+	CancelAipDeletion    goa.Endpoint
+	ListLocations        goa.Endpoint
+	CreateLocation       goa.Endpoint
+	ShowLocation         goa.Endpoint
+	ListLocationAips     goa.Endpoint
 }
 
 // MonitorEndpointInput holds both the payload and the server stream of the
@@ -63,26 +64,27 @@ func NewEndpoints(s Service) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
 	return &Endpoints{
-		MonitorRequest:     NewMonitorRequestEndpoint(s, a.JWTAuth),
-		Monitor:            NewMonitorEndpoint(s),
-		ListAips:           NewListAipsEndpoint(s, a.JWTAuth),
-		CreateAip:          NewCreateAipEndpoint(s, a.JWTAuth),
-		SubmitAip:          NewSubmitAipEndpoint(s, a.JWTAuth),
-		UpdateAip:          NewUpdateAipEndpoint(s, a.JWTAuth),
-		DownloadAipRequest: NewDownloadAipRequestEndpoint(s, a.JWTAuth),
-		DownloadAip:        NewDownloadAipEndpoint(s),
-		MoveAip:            NewMoveAipEndpoint(s, a.JWTAuth),
-		MoveAipStatus:      NewMoveAipStatusEndpoint(s, a.JWTAuth),
-		RejectAip:          NewRejectAipEndpoint(s, a.JWTAuth),
-		ShowAip:            NewShowAipEndpoint(s, a.JWTAuth),
-		ListAipWorkflows:   NewListAipWorkflowsEndpoint(s, a.JWTAuth),
-		RequestAipDeletion: NewRequestAipDeletionEndpoint(s, a.JWTAuth),
-		ReviewAipDeletion:  NewReviewAipDeletionEndpoint(s, a.JWTAuth),
-		CancelAipDeletion:  NewCancelAipDeletionEndpoint(s, a.JWTAuth),
-		ListLocations:      NewListLocationsEndpoint(s, a.JWTAuth),
-		CreateLocation:     NewCreateLocationEndpoint(s, a.JWTAuth),
-		ShowLocation:       NewShowLocationEndpoint(s, a.JWTAuth),
-		ListLocationAips:   NewListLocationAipsEndpoint(s, a.JWTAuth),
+		MonitorRequest:       NewMonitorRequestEndpoint(s, a.JWTAuth),
+		Monitor:              NewMonitorEndpoint(s),
+		ListAips:             NewListAipsEndpoint(s, a.JWTAuth),
+		CreateAip:            NewCreateAipEndpoint(s, a.JWTAuth),
+		SubmitAip:            NewSubmitAipEndpoint(s, a.JWTAuth),
+		UpdateAip:            NewUpdateAipEndpoint(s, a.JWTAuth),
+		DownloadAipRequest:   NewDownloadAipRequestEndpoint(s, a.JWTAuth),
+		DownloadAip:          NewDownloadAipEndpoint(s),
+		MoveAip:              NewMoveAipEndpoint(s, a.JWTAuth),
+		MoveAipStatus:        NewMoveAipStatusEndpoint(s, a.JWTAuth),
+		RejectAip:            NewRejectAipEndpoint(s, a.JWTAuth),
+		ShowAip:              NewShowAipEndpoint(s, a.JWTAuth),
+		ListAipWorkflows:     NewListAipWorkflowsEndpoint(s, a.JWTAuth),
+		ListDeletionRequests: NewListDeletionRequestsEndpoint(s, a.JWTAuth),
+		RequestAipDeletion:   NewRequestAipDeletionEndpoint(s, a.JWTAuth),
+		ReviewAipDeletion:    NewReviewAipDeletionEndpoint(s, a.JWTAuth),
+		CancelAipDeletion:    NewCancelAipDeletionEndpoint(s, a.JWTAuth),
+		ListLocations:        NewListLocationsEndpoint(s, a.JWTAuth),
+		CreateLocation:       NewCreateLocationEndpoint(s, a.JWTAuth),
+		ShowLocation:         NewShowLocationEndpoint(s, a.JWTAuth),
+		ListLocationAips:     NewListLocationAipsEndpoint(s, a.JWTAuth),
 	}
 }
 
@@ -101,6 +103,7 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.RejectAip = m(e.RejectAip)
 	e.ShowAip = m(e.ShowAip)
 	e.ListAipWorkflows = m(e.ListAipWorkflows)
+	e.ListDeletionRequests = m(e.ListDeletionRequests)
 	e.RequestAipDeletion = m(e.RequestAipDeletion)
 	e.ReviewAipDeletion = m(e.ReviewAipDeletion)
 	e.CancelAipDeletion = m(e.CancelAipDeletion)
@@ -118,7 +121,7 @@ func NewMonitorRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.En
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{},
 		}
 		var token string
@@ -150,7 +153,7 @@ func NewListAipsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:list"},
 		}
 		var token string
@@ -178,7 +181,7 @@ func NewCreateAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:create"},
 		}
 		var token string
@@ -206,7 +209,7 @@ func NewSubmitAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:submit"},
 		}
 		var token string
@@ -229,7 +232,7 @@ func NewUpdateAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:submit"},
 		}
 		var token string
@@ -252,7 +255,7 @@ func NewDownloadAipRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) go
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:download"},
 		}
 		var token string
@@ -288,7 +291,7 @@ func NewMoveAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint 
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:move"},
 		}
 		var token string
@@ -311,7 +314,7 @@ func NewMoveAipStatusEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.End
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:move"},
 		}
 		var token string
@@ -334,7 +337,7 @@ func NewRejectAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:review"},
 		}
 		var token string
@@ -357,7 +360,7 @@ func NewShowAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint 
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:read"},
 		}
 		var token string
@@ -385,7 +388,7 @@ func NewListAipWorkflowsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:workflows:list"},
 		}
 		var token string
@@ -405,6 +408,34 @@ func NewListAipWorkflowsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.
 	}
 }
 
+// NewListDeletionRequestsEndpoint returns an endpoint function that calls the
+// method "list_deletion_requests" of service "storage".
+func NewListDeletionRequestsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		p := req.(*ListDeletionRequestsPayload)
+		var err error
+		sc := security.JWTScheme{
+			Name:           "jwt",
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			RequiredScopes: []string{"storage:aips:deletion:list"},
+		}
+		var token string
+		if p.Token != nil {
+			token = *p.Token
+		}
+		ctx, err = authJWTFn(ctx, token, &sc)
+		if err != nil {
+			return nil, err
+		}
+		res, err := s.ListDeletionRequests(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		vres := NewViewedDeletionRequestCollection(res, "default")
+		return vres, nil
+	}
+}
+
 // NewRequestAipDeletionEndpoint returns an endpoint function that calls the
 // method "request_aip_deletion" of service "storage".
 func NewRequestAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
@@ -413,7 +444,7 @@ func NewRequestAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) go
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:deletion:request"},
 		}
 		var token string
@@ -436,7 +467,7 @@ func NewReviewAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:deletion:review"},
 		}
 		var token string
@@ -459,7 +490,7 @@ func NewCancelAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:deletion:request"},
 		}
 		var token string
@@ -482,7 +513,7 @@ func NewListLocationsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.End
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:locations:list"},
 		}
 		var token string
@@ -510,7 +541,7 @@ func NewCreateLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.En
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:locations:create"},
 		}
 		var token string
@@ -533,7 +564,7 @@ func NewShowLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endp
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:locations:read"},
 		}
 		var token string
@@ -561,7 +592,7 @@ func NewListLocationAipsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.
 		var err error
 		sc := security.JWTScheme{
 			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
+			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:locations:aips:list"},
 		}
 		var token string
