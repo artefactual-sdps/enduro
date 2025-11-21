@@ -90,7 +90,8 @@ export const EnduroIngestBatchStatusEnum = {
     Processing: 'processing',
     Pending: 'pending',
     Ingested: 'ingested',
-    Canceled: 'canceled'
+    Canceled: 'canceled',
+    Failed: 'failed'
 } as const;
 export type EnduroIngestBatchStatusEnum = typeof EnduroIngestBatchStatusEnum[keyof typeof EnduroIngestBatchStatusEnum];
 

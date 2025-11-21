@@ -1685,8 +1685,8 @@ func DecodeListBatchesRequest(mux goahttp.Muxer, decoder func(*http.Request) goa
 			status = &statusRaw
 		}
 		if status != nil {
-			if !(*status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested" || *status == "canceled") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"queued", "processing", "pending", "ingested", "canceled"}))
+			if !(*status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested" || *status == "canceled" || *status == "failed") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"queued", "processing", "pending", "ingested", "canceled", "failed"}))
 			}
 		}
 		uploaderUUIDRaw := qp.Get("uploader_uuid")

@@ -1039,8 +1039,8 @@ func ValidateBatchView(result *BatchView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
 	}
 	if result.Status != nil {
-		if !(*result.Status == "queued" || *result.Status == "processing" || *result.Status == "pending" || *result.Status == "ingested" || *result.Status == "canceled") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"queued", "processing", "pending", "ingested", "canceled"}))
+		if !(*result.Status == "queued" || *result.Status == "processing" || *result.Status == "pending" || *result.Status == "ingested" || *result.Status == "canceled" || *result.Status == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"queued", "processing", "pending", "ingested", "canceled", "failed"}))
 		}
 	}
 	if result.CreatedAt != nil {

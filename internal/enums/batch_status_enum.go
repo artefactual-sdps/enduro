@@ -22,6 +22,8 @@ const (
 	BatchStatusIngested BatchStatus = "ingested"
 	// Ingest canceled by user.
 	BatchStatusCanceled BatchStatus = "canceled"
+	// Ingest failed.
+	BatchStatusFailed BatchStatus = "failed"
 )
 
 var ErrInvalidBatchStatus = fmt.Errorf("not a valid BatchStatus, try [%s]", strings.Join(_BatchStatusNames, ", "))
@@ -32,6 +34,7 @@ var _BatchStatusNames = []string{
 	string(BatchStatusPending),
 	string(BatchStatusIngested),
 	string(BatchStatusCanceled),
+	string(BatchStatusFailed),
 }
 
 // BatchStatusNames returns a list of possible string values of BatchStatus.
@@ -59,6 +62,7 @@ var _BatchStatusValue = map[string]BatchStatus{
 	"pending":    BatchStatusPending,
 	"ingested":   BatchStatusIngested,
 	"canceled":   BatchStatusCanceled,
+	"failed":     BatchStatusFailed,
 }
 
 // ParseBatchStatus attempts to convert a string to a BatchStatus.
