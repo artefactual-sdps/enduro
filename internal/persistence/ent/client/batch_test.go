@@ -1,7 +1,6 @@
 package client_test
 
 import (
-	"database/sql"
 	"fmt"
 	"testing"
 	"time"
@@ -24,8 +23,8 @@ func TestCreateBatch(t *testing.T) {
 	t.Parallel()
 
 	batchUUID := uuid.New()
-	started := sql.NullTime{Time: time.Now(), Valid: true}
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
+	started := time.Now()
+	completed := started.Add(time.Second)
 	uploaderID := uuid.New()
 	uploaderID2 := uuid.New()
 
@@ -190,17 +189,10 @@ func TestUpdateBatch(t *testing.T) {
 	batchUUID2 := uuid.New()
 	uploaderID := uuid.New()
 
-	started := sql.NullTime{Time: time.Now(), Valid: true}
-	started2 := sql.NullTime{
-		Time: func() time.Time {
-			t, _ := time.Parse(time.RFC3339, "1980-01-01T09:30:00Z")
-			return t
-		}(),
-		Valid: true,
-	}
-
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
-	completed2 := sql.NullTime{Time: started2.Time.Add(time.Second), Valid: true}
+	started := time.Now()
+	started2 := time.Date(1980, 1, 1, 9, 30, 0, 0, time.UTC)
+	completed := started.Add(time.Second)
+	completed2 := started2.Add(time.Second)
 
 	type params struct {
 		batchUUID uuid.UUID
@@ -238,7 +230,7 @@ func TestUpdateBatch(t *testing.T) {
 					s.Identifier = "Updated Batch"
 					s.Status = enums.BatchStatusIngested
 					s.SIPSCount = 10
-					s.CreatedAt = started2.Time // No-op, can't update CreatedAt.
+					s.CreatedAt = started2 // No-op, can't update CreatedAt.
 					s.StartedAt = started2
 					s.CompletedAt = completed2
 					s.Uploader = &datatypes.User{UUID: uuid.New()} // No-op, can't update Uploader.
@@ -457,8 +449,8 @@ func TestReadBatch(t *testing.T) {
 				Status:      enums.BatchStatusCanceled,
 				SIPSCount:   5,
 				CreatedAt:   time.Now(),
-				StartedAt:   sql.NullTime{Time: time.Now().Add(time.Second), Valid: true},
-				CompletedAt: sql.NullTime{Time: time.Now().Add(time.Minute), Valid: true},
+				StartedAt:   time.Now().Add(time.Second),
+				CompletedAt: time.Now().Add(time.Minute),
 				Uploader: &datatypes.User{
 					UUID:      uploaderID,
 					Email:     "nobody@example.com",
@@ -491,8 +483,8 @@ func TestReadBatch(t *testing.T) {
 					SetStatus(tt.want.Status).
 					SetSipsCount(tt.want.SIPSCount).
 					SetCreatedAt(tt.want.CreatedAt).
-					SetStartedAt(tt.want.StartedAt.Time).
-					SetCompletedAt(tt.want.CompletedAt.Time).
+					SetStartedAt(tt.want.StartedAt).
+					SetCompletedAt(tt.want.CompletedAt).
 					SetUploader(user).
 					Save(ctx)
 				assert.NilError(t, err)
@@ -517,24 +509,10 @@ func TestListBatches(t *testing.T) {
 	batchUUID3 := uuid.New()
 	uploaderID := uuid.New()
 	uploaderID2 := uuid.New()
-
-	started := sql.NullTime{
-		Time: func() time.Time {
-			t, _ := time.Parse(time.RFC3339, "2024-09-25T09:31:11Z")
-			return t
-		}(),
-		Valid: true,
-	}
-	started2 := sql.NullTime{
-		Time: func() time.Time {
-			t, _ := time.Parse(time.RFC3339, "2024-09-25T10:03:42Z")
-			return t
-		}(),
-		Valid: true,
-	}
-
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
-	completed2 := sql.NullTime{Time: started2.Time.Add(time.Second), Valid: true}
+	started := time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC)
+	started2 := time.Date(2024, 9, 25, 10, 3, 42, 0, time.UTC)
+	completed := started.Add(time.Second)
+	completed2 := started2.Add(time.Second)
 
 	type results struct {
 		data []*datatypes.Batch
@@ -999,8 +977,8 @@ func TestListBatches(t *testing.T) {
 						SetStatus(batch.Status).
 						SetSipsCount(batch.SIPSCount).
 						SetCreatedAt(time.Now()).
-						SetStartedAt(batch.StartedAt.Time).
-						SetCompletedAt(batch.CompletedAt.Time)
+						SetStartedAt(batch.StartedAt).
+						SetCompletedAt(batch.CompletedAt)
 
 					if batch.Uploader != nil {
 						user, err := entc.User.Create().
