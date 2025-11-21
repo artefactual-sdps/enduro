@@ -97,21 +97,17 @@ func convertUser(dbu *db.User) *datatypes.User {
 func convertBatch(batch *db.Batch) *datatypes.Batch {
 	// Convert required fields.
 	b := datatypes.Batch{
-		ID:         batch.ID,
-		UUID:       batch.UUID,
-		Identifier: batch.Identifier,
-		SIPSCount:  batch.SipsCount,
-		Status:     batch.Status,
-		CreatedAt:  batch.CreatedAt,
+		ID:          batch.ID,
+		UUID:        batch.UUID,
+		Identifier:  batch.Identifier,
+		SIPSCount:   batch.SipsCount,
+		Status:      batch.Status,
+		CreatedAt:   batch.CreatedAt,
+		StartedAt:   batch.StartedAt,
+		CompletedAt: batch.CompletedAt,
 	}
 
 	// Convert optional fields.
-	if !batch.StartedAt.IsZero() {
-		b.StartedAt = sql.NullTime{Time: batch.StartedAt, Valid: true}
-	}
-	if !batch.CompletedAt.IsZero() {
-		b.CompletedAt = sql.NullTime{Time: batch.CompletedAt, Valid: true}
-	}
 	if batch.Edges.Uploader != nil {
 		b.Uploader = convertUser(batch.Edges.Uploader)
 	}
