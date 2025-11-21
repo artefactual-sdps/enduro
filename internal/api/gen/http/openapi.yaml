@@ -71,6 +71,7 @@ paths:
                     - pending
                     - ingested
                     - canceled
+                    - failed
                 - name: uploader_uuid
                   in: query
                   description: UUID of the Batch uploader
@@ -2216,6 +2217,7 @@ definitions:
                     - pending
                     - ingested
                     - canceled
+                    - failed
             uploader_email:
                 type: string
                 description: Email of the user who uploaded the Batch
@@ -2351,6 +2353,7 @@ definitions:
                     - pending
                     - ingested
                     - canceled
+                    - failed
             uploader_email:
                 type: string
                 description: Email of the user who uploaded the Batch

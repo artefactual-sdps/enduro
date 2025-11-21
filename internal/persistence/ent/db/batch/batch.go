@@ -89,7 +89,7 @@ var (
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s enums.BatchStatus) error {
 	switch s.String() {
-	case "queued", "processing", "pending", "ingested", "canceled":
+	case "queued", "processing", "pending", "ingested", "canceled", "failed":
 		return nil
 	default:
 		return fmt.Errorf("batch: invalid enum value for status field: %q", s)
