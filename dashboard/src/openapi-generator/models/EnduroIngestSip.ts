@@ -120,7 +120,8 @@ export const EnduroIngestSipBatchStatusEnum = {
     Processing: 'processing',
     Pending: 'pending',
     Ingested: 'ingested',
-    Canceled: 'canceled'
+    Canceled: 'canceled',
+    Failed: 'failed'
 } as const;
 export type EnduroIngestSipBatchStatusEnum = typeof EnduroIngestSipBatchStatusEnum[keyof typeof EnduroIngestSipBatchStatusEnum];
 

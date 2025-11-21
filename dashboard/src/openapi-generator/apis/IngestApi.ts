@@ -236,7 +236,7 @@ export interface IngestApiInterface {
      * @param {string} [identifier] 
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
-     * @param {'queued' | 'processing' | 'pending' | 'ingested' | 'canceled'} [status] 
+     * @param {'queued' | 'processing' | 'pending' | 'ingested' | 'canceled' | 'failed'} [status] 
      * @param {string} [uploaderUuid] UUID of the Batch uploader
      * @param {number} [limit] Limit number of results to return
      * @param {number} [offset] Offset from the beginning of the found set
@@ -1150,7 +1150,8 @@ export const IngestListBatchesStatusEnum = {
     Processing: 'processing',
     Pending: 'pending',
     Ingested: 'ingested',
-    Canceled: 'canceled'
+    Canceled: 'canceled',
+    Failed: 'failed'
 } as const;
 export type IngestListBatchesStatusEnum = typeof IngestListBatchesStatusEnum[keyof typeof IngestListBatchesStatusEnum];
 /**

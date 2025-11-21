@@ -1,4 +1,4 @@
-h1:RLusKPSsmqWLLnMMD8x4HLdb0xjpbZkRlMj4H2HVg/I=
+h1:hXMeh9Hrl/RQVQS3Y9gsIrVgVKzJc9KLnxbgWXXbJ5c=
 1570659451_init.up.sql h1:zyiKKl39RqMxuEhop5jeeiPTxPiSSq00Tn6u06gyNmk=
 1710442322_nullable_aip_id.up.sql h1:vL4eG5YELXr3k4ymhHuRD/R7KpNt3/DNRhH26t83x3A=
 20250207193001_rename_package_table.up.sql h1:d2RjfIturPoFYMMtFocrMvvjEXEqDXDdxQRttcknX/0=
@@ -16,3 +16,4 @@ h1:RLusKPSsmqWLLnMMD8x4HLdb0xjpbZkRlMj4H2HVg/I=
 20250709054510_add_uuid_columns.up.sql h1:7hdG5ZX+ZmUMKXLmM/9C2acdvmcXrc76K7eZ5+k+uQ0=
 20250807063231_add_unique_index_to_user.up.sql h1:6Jj6qFG61OnlYoVVPEX5VT0La74WqoT7bRuqONZxF5c=
 20251114163946_add_batch_table.up.sql h1:cvMYRBO1l4OfFdrNWmc9H2GK0oP4S4OU78Tk/JTyWqs=
+20251121205505_add_batch_failed_status.up.sql h1:jfxlOIIF7+9jpPsCcm0GZ4KNt2+tcm8AaWmO+DWqaOU=

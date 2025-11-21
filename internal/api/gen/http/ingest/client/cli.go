@@ -556,8 +556,8 @@ func BuildListBatchesPayload(ingestListBatchesIdentifier string, ingestListBatch
 	{
 		if ingestListBatchesStatus != "" {
 			status = &ingestListBatchesStatus
-			if !(*status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested" || *status == "canceled") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"queued", "processing", "pending", "ingested", "canceled"}))
+			if !(*status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested" || *status == "canceled" || *status == "failed") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"queued", "processing", "pending", "ingested", "canceled", "failed"}))
 			}
 			if err != nil {
 				return nil, err
