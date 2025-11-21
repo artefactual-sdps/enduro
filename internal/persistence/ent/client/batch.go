@@ -46,11 +46,11 @@ func (c *client) CreateBatch(ctx context.Context, b *datatypes.Batch) error {
 		SetCreatedAt(time.Now())
 
 	// Add optional fields.
-	if b.StartedAt.Valid {
-		q.SetStartedAt(b.StartedAt.Time)
+	if !b.StartedAt.IsZero() {
+		q.SetStartedAt(b.StartedAt)
 	}
-	if b.CompletedAt.Valid {
-		q.SetCompletedAt(b.CompletedAt.Time)
+	if !b.CompletedAt.IsZero() {
+		q.SetCompletedAt(b.CompletedAt)
 	}
 
 	// If Uploader is set, find or create the user and link it to the Batch.
@@ -132,11 +132,11 @@ func (c *client) UpdateBatch(
 	}
 
 	// Set optional column values.
-	if up.StartedAt.Valid {
-		q.SetStartedAt(up.StartedAt.Time)
+	if !up.StartedAt.IsZero() {
+		q.SetStartedAt(up.StartedAt)
 	}
-	if up.CompletedAt.Valid {
-		q.SetCompletedAt(up.CompletedAt.Time)
+	if !up.CompletedAt.IsZero() {
+		q.SetCompletedAt(up.CompletedAt)
 	}
 
 	// Save changes.

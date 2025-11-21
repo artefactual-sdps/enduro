@@ -1,7 +1,6 @@
 package datatypes
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -14,20 +13,14 @@ import (
 
 // Batch represents a Batch.
 type Batch struct {
-	ID         int
-	UUID       uuid.UUID
-	Identifier string
-	Status     enums.BatchStatus
-	SIPSCount  int
-
-	// It defaults to CURRENT_TIMESTAMP(6) so populated as soon as possible.
-	CreatedAt time.Time
-
-	// Nullable, populated as soon as processing starts.
-	StartedAt sql.NullTime
-
-	// Nullable, populated as soon as ingest completes.
-	CompletedAt sql.NullTime
+	ID          int
+	UUID        uuid.UUID
+	Identifier  string
+	Status      enums.BatchStatus
+	SIPSCount   int
+	CreatedAt   time.Time
+	StartedAt   time.Time
+	CompletedAt time.Time
 
 	// Uploader is the user that uploaded the Batch.
 	Uploader *User
@@ -40,13 +33,17 @@ func (b *Batch) Goa() *goaingest.Batch {
 	}
 
 	col := goaingest.Batch{
-		UUID:        b.UUID,
-		Identifier:  b.Identifier,
-		Status:      b.Status.String(),
-		SipsCount:   b.SIPSCount,
-		CreatedAt:   db.FormatTime(b.CreatedAt),
-		StartedAt:   db.FormatOptionalTime(b.StartedAt),
-		CompletedAt: db.FormatOptionalTime(b.CompletedAt),
+		UUID:       b.UUID,
+		Identifier: b.Identifier,
+		Status:     b.Status.String(),
+		SipsCount:  b.SIPSCount,
+		CreatedAt:  db.FormatTime(b.CreatedAt),
+	}
+	if !b.StartedAt.IsZero() {
+		col.StartedAt = ref.New(b.StartedAt.Format(time.RFC3339))
+	}
+	if !b.CompletedAt.IsZero() {
+		col.CompletedAt = ref.New(b.CompletedAt.Format(time.RFC3339))
 	}
 	if b.Uploader != nil {
 		col.UploaderUUID = ref.New(b.Uploader.UUID)
