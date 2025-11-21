@@ -287,3 +287,90 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 		})
 	}
 }
+
+func TestUpdateBatchLocalActivity(t *testing.T) {
+	t.Parallel()
+
+	batchUUID := uuid.New()
+	startedAt := time.Date(2024, 6, 13, 17, 50, 13, 0, time.UTC)
+	completedAt := time.Date(2024, 6, 13, 17, 50, 14, 0, time.UTC)
+
+	for _, tt := range []struct {
+		name      string
+		params    *updateBatchLocalActivityParams
+		mockCalls func(context.Context, *ingest_fake.MockService)
+		wantErr   string
+	}{
+		{
+			name: "Updates a batch",
+			params: &updateBatchLocalActivityParams{
+				UUID:        batchUUID,
+				Status:      enums.BatchStatusProcessing,
+				StartedAt:   startedAt,
+				CompletedAt: completedAt,
+			},
+			mockCalls: func(ctx context.Context, svc *ingest_fake.MockService) {
+				svc.EXPECT().
+					UpdateBatch(
+						ctx,
+						batchUUID,
+						mockutil.Func(
+							"should update batch",
+							func(updater persistence.BatchUpdater) error {
+								b, err := updater(&datatypes.Batch{})
+								assert.NilError(t, err)
+								assert.DeepEqual(t, b, &datatypes.Batch{
+									Status:      enums.BatchStatusProcessing,
+									StartedAt:   startedAt,
+									CompletedAt: completedAt,
+								})
+								return nil
+							},
+						),
+					).
+					Return(nil, nil)
+			},
+		},
+		{
+			name: "Fails to update a batch",
+			params: &updateBatchLocalActivityParams{
+				UUID:   batchUUID,
+				Status: enums.BatchStatusProcessing,
+			},
+			mockCalls: func(ctx context.Context, svc *ingest_fake.MockService) {
+				svc.EXPECT().
+					UpdateBatch(
+						ctx,
+						batchUUID,
+						mockutil.Func(
+							"should fail to update batch",
+							func(updater persistence.BatchUpdater) error {
+								_, err := updater(&datatypes.Batch{})
+								return err
+							},
+						),
+					).
+					Return(nil, errors.New("persistence error"))
+			},
+			wantErr: "persistence error",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := t.Context()
+			svc := ingest_fake.NewMockService(gomock.NewController(t))
+			if tt.mockCalls != nil {
+				tt.mockCalls(ctx, svc)
+			}
+
+			re, err := updateBatchLocalActivity(ctx, svc, tt.params)
+			if tt.wantErr != "" {
+				assert.ErrorContains(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+			assert.DeepEqual(t, re, &updateBatchLocalActivityResult{})
+		})
+	}
+}
