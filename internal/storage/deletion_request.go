@@ -90,7 +90,7 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 	}
 
 	// Ensure there is a pending deletion request for the AIP.
-	drs, err := s.ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+	drs, err := s.storagePersistence.ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
 		AIPUUID: &aipID,
 		Status:  ref.New(enums.DeletionRequestStatusPending),
 	})
@@ -136,7 +136,7 @@ func (s *serviceImpl) CancelAipDeletion(
 		return goastorage.MakeNotValid(errors.New("invalid UUID"))
 	}
 
-	drs, err := s.ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+	drs, err := s.storagePersistence.ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
 		AIPUUID: &aipID,
 		Status:  ref.New(enums.DeletionRequestStatusPending),
 	})

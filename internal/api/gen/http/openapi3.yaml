@@ -1623,6 +1623,87 @@ paths:
             security:
                 - jwt_header_Authorization:
                     - storage:aips:deletion:request
+    /storage/aips/{uuid}/deletion-requests:
+        get:
+            tags:
+                - storage
+            summary: list_deletion_requests storage
+            description: List AIP deletion requests
+            operationId: storage#list_deletion_requests
+            parameters:
+                - name: status
+                  in: query
+                  allowEmptyValue: true
+                  schema:
+                    type: string
+                    example: approved
+                    enum:
+                        - pending
+                        - approved
+                        - rejected
+                        - canceled
+                  example: approved
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            responses:
+                "200":
+                    description: OK response.
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/DeletionRequestCollection'
+                            example:
+                                - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                  reason: abc123
+                                  report_key: abc123
+                                  requested_at: "1970-01-01T00:00:01Z"
+                                  requester: abc123
+                                  reviewed_at: "1970-01-01T00:00:01Z"
+                                  reviewer: abc123
+                                  status: approved
+                                  uuid: abc123
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:deletion:list
     /storage/aips/{uuid}/deletion-review:
         post:
             tags:
@@ -3114,6 +3195,20 @@ components:
                 uuid: abc123
             required:
                 - uuid
+        DeletionRequestCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroStorageDeletionrequest'
+            example:
+                - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  reason: abc123
+                  report_key: abc123
+                  requested_at: "1970-01-01T00:00:01Z"
+                  requester: abc123
+                  reviewed_at: "1970-01-01T00:00:01Z"
+                  reviewer: abc123
+                  status: approved
+                  uuid: abc123
         EnduroAbout:
             type: object
             properties:
@@ -3903,6 +3998,70 @@ components:
             required:
                 - items
                 - page
+        EnduroStorageDeletionrequest:
+            type: object
+            properties:
+                aip_uuid:
+                    type: string
+                    description: Identifier of related AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                reason:
+                    type: string
+                    description: Reason for the deletion request
+                    example: abc123
+                report_key:
+                    type: string
+                    description: Object key of the deletion report
+                    example: abc123
+                requested_at:
+                    type: string
+                    description: Time the deletion was requested
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                requester:
+                    type: string
+                    description: User who requested the deletion
+                    example: abc123
+                reviewed_at:
+                    type: string
+                    description: Time the deletion request was reviewed
+                    example: "1970-01-01T00:00:01Z"
+                    format: date-time
+                reviewer:
+                    type: string
+                    description: User who reviewed the deletion request
+                    example: abc123
+                status:
+                    type: string
+                    description: Status of the deletion request
+                    example: approved
+                    enum:
+                        - pending
+                        - approved
+                        - rejected
+                        - canceled
+                uuid:
+                    type: string
+                    description: Identifier of deletion request
+                    example: abc123
+            description: DeletionRequest describes an AIP deletion request.
+            example:
+                aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                reason: abc123
+                report_key: abc123
+                requested_at: "1970-01-01T00:00:01Z"
+                requester: abc123
+                reviewed_at: "1970-01-01T00:00:01Z"
+                reviewer: abc123
+                status: approved
+                uuid: abc123
+            required:
+                - uuid
+                - aip_uuid
+                - requester
+                - reason
+                - status
+                - requested_at
         EnduroStorageLocation:
             type: object
             properties:

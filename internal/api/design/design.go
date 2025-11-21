@@ -31,6 +31,7 @@ var JWTAuth = JWTSecurity("jwt", func() {
 	Scope(auth.IngestSIPSourcesObjectsListAttr)
 	Scope(auth.IngestUsersListAttr)
 	Scope(auth.StorageAIPSCreateAttr)
+	Scope(auth.StorageAIPSDeletionListAttr)
 	Scope(auth.StorageAIPSDeletionRequestAttr)
 	Scope(auth.StorageAIPSDeletionReviewAttr)
 	Scope(auth.StorageAIPSDownloadAttr)

@@ -333,6 +333,32 @@ var _ = Service("storage", func() {
 			})
 		})
 	})
+	Method("list_deletion_requests", func() {
+		Description("List AIP deletion requests")
+		Security(JWTAuth, func() {
+			Scope(auth.StorageAIPSDeletionListAttr)
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of AIP")
+			Token("token", String)
+			Attribute("status", String, func() {
+				EnumDeletionRequestStatus()
+			})
+			Required("uuid")
+		})
+		Result(CollectionOf(DeletionRequest))
+		Error("not_found", AIPNotFound, "AIP not found")
+		Error("not_valid")
+		HTTP(func() {
+			GET("/aips/{uuid}/deletion-requests")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Params(func() {
+				Param("status")
+			})
+		})
+	})
 	Method("request_aip_deletion", func() {
 		Description("Request an AIP deletion")
 		Security(JWTAuth, func() {
@@ -728,4 +754,42 @@ var AIPTask = ResultType("application/vnd.enduro.storage.aip.task", func() {
 		TypedAttributeUUID("workflow_uuid", "Identifier of related workflow")
 	})
 	Required("uuid", "name", "status", "workflow_uuid")
+})
+
+var EnumDeletionRequestStatus = func() {
+	Enum(enums.DeletionRequestStatusInterfaces()...)
+}
+
+var DeletionRequest = ResultType("application/vnd.enduro.storage.deletionrequest", func() {
+	Description("DeletionRequest describes an AIP deletion request.")
+	TypeName("DeletionRequest")
+	Attributes(func() {
+		Attribute("uuid", String, "Identifier of deletion request", func() {
+			Meta("struct:field:type", "uuid.UUID", "github.com/google/uuid")
+		})
+		TypedAttributeUUID("aip_uuid", "Identifier of related AIP")
+		TypedAttributeUUID("workflow_uuid", "UUID of the deletion workflow")
+		Attribute("reason", String, "Reason for the deletion request")
+		Attribute("requested_at", String, "Time the deletion was requested", func() {
+			Format(FormatDateTime)
+		})
+		Attribute("requester", String, "User who requested the deletion")
+		Attribute("status", String, "Status of the deletion request", func() {
+			EnumDeletionRequestStatus()
+		})
+		Attribute("reviewed_at", String, "Time the deletion request was reviewed", func() {
+			Format(FormatDateTime)
+		})
+		Attribute("reviewer", String, "User who reviewed the deletion request")
+		Attribute("report_key", String, "Object key of the deletion report")
+	})
+	Required(
+		"uuid",
+		"aip_uuid",
+		"workflow_uuid",
+		"reason",
+		"requested_at",
+		"requester",
+		"status",
+	)
 })

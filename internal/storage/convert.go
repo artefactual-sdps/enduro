@@ -1,13 +1,16 @@
 package storage
 
 import (
+	"errors"
 	"time"
 
+	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -87,4 +90,52 @@ func deletionRequestAuditEvent(dr *types.DeletionRequest) *auditlog.Event {
 	}
 
 	return &ev
+}
+
+func deletionRequestFilterFromPayload(
+	payload *goastorage.ListDeletionRequestsPayload,
+) (*persistence.DeletionRequestFilter, error) {
+	if payload == nil {
+		return nil, nil
+	}
+
+	aipUUID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return nil, goastorage.MakeNotValid(errors.New("invalid UUID"))
+	}
+
+	f := &persistence.DeletionRequestFilter{AIPUUID: &aipUUID}
+
+	if payload.Status != nil {
+		status, err := enums.ParseDeletionRequestStatus(*payload.Status)
+		if err != nil {
+			return nil, goastorage.MakeNotValid(errors.New("invalid status"))
+		}
+		f.Status = &status
+	}
+
+	return f, nil
+}
+
+func deletionRequestAsGoa(dr *types.DeletionRequest) *goastorage.DeletionRequest {
+	g := &goastorage.DeletionRequest{
+		UUID:        dr.UUID,
+		AipUUID:     dr.AIPUUID,
+		Requester:   dr.Requester,
+		RequestedAt: dr.RequestedAt.Format(time.RFC3339),
+		Reason:      dr.Reason,
+		Status:      dr.Status.String(),
+	}
+
+	if dr.Reviewer != "" {
+		g.Reviewer = &dr.Reviewer
+	}
+	if !dr.ReviewedAt.IsZero() {
+		g.ReviewedAt = ref.New(dr.ReviewedAt.Format(time.RFC3339))
+	}
+	if dr.ReportKey != "" {
+		g.ReportKey = &dr.ReportKey
+	}
+
+	return g
 }

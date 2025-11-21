@@ -743,6 +743,25 @@
         ],
         "type": "object"
       },
+      "DeletionRequestCollection": {
+        "example": [
+          {
+            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "reason": "abc123",
+            "report_key": "abc123",
+            "requested_at": "1970-01-01T00:00:01Z",
+            "requester": "abc123",
+            "reviewed_at": "1970-01-01T00:00:01Z",
+            "reviewer": "abc123",
+            "status": "approved",
+            "uuid": "abc123"
+          }
+        ],
+        "items": {
+          "$ref": "#/components/schemas/EnduroStorageDeletionrequest"
+        },
+        "type": "array"
+      },
       "EnduroAbout": {
         "example": {
           "poststorage": [
@@ -1759,6 +1778,84 @@
         "required": [
           "items",
           "page"
+        ],
+        "type": "object"
+      },
+      "EnduroStorageDeletionrequest": {
+        "description": "DeletionRequest describes an AIP deletion request.",
+        "example": {
+          "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+          "reason": "abc123",
+          "report_key": "abc123",
+          "requested_at": "1970-01-01T00:00:01Z",
+          "requester": "abc123",
+          "reviewed_at": "1970-01-01T00:00:01Z",
+          "reviewer": "abc123",
+          "status": "approved",
+          "uuid": "abc123"
+        },
+        "properties": {
+          "aip_uuid": {
+            "description": "Identifier of related AIP",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
+          },
+          "reason": {
+            "description": "Reason for the deletion request",
+            "example": "abc123",
+            "type": "string"
+          },
+          "report_key": {
+            "description": "Object key of the deletion report",
+            "example": "abc123",
+            "type": "string"
+          },
+          "requested_at": {
+            "description": "Time the deletion was requested",
+            "example": "1970-01-01T00:00:01Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "requester": {
+            "description": "User who requested the deletion",
+            "example": "abc123",
+            "type": "string"
+          },
+          "reviewed_at": {
+            "description": "Time the deletion request was reviewed",
+            "example": "1970-01-01T00:00:01Z",
+            "format": "date-time",
+            "type": "string"
+          },
+          "reviewer": {
+            "description": "User who reviewed the deletion request",
+            "example": "abc123",
+            "type": "string"
+          },
+          "status": {
+            "description": "Status of the deletion request",
+            "enum": [
+              "pending",
+              "approved",
+              "rejected",
+              "canceled"
+            ],
+            "example": "approved",
+            "type": "string"
+          },
+          "uuid": {
+            "description": "Identifier of deletion request",
+            "example": "abc123",
+            "type": "string"
+          }
+        },
+        "required": [
+          "uuid",
+          "aip_uuid",
+          "requester",
+          "reason",
+          "status",
+          "requested_at"
         ],
         "type": "object"
       },
@@ -5308,6 +5405,127 @@
           }
         ],
         "summary": "request_aip_deletion storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
+    "/storage/aips/{uuid}/deletion-requests": {
+      "get": {
+        "description": "List AIP deletion requests",
+        "operationId": "storage#list_deletion_requests",
+        "parameters": [
+          {
+            "allowEmptyValue": true,
+            "example": "approved",
+            "in": "query",
+            "name": "status",
+            "schema": {
+              "enum": [
+                "pending",
+                "approved",
+                "rejected",
+                "canceled"
+              ],
+              "example": "approved",
+              "type": "string"
+            }
+          },
+          {
+            "description": "Identifier of AIP",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "schema": {
+              "description": "Identifier of AIP",
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "example": [
+                  {
+                    "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                    "reason": "abc123",
+                    "report_key": "abc123",
+                    "requested_at": "1970-01-01T00:00:01Z",
+                    "requester": "abc123",
+                    "reviewed_at": "1970-01-01T00:00:01Z",
+                    "reviewer": "abc123",
+                    "status": "approved",
+                    "uuid": "abc123"
+                  }
+                ],
+                "schema": {
+                  "$ref": "#/components/schemas/DeletionRequestCollection"
+                }
+              }
+            },
+            "description": "OK response."
+          },
+          "400": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_valid: Bad Request response."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
+          "404": {
+            "content": {
+              "application/json": {
+                "example": {
+                  "message": "abc123",
+                  "uuid": "abc123"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/AIPNotFound"
+                }
+              }
+            },
+            "description": "not_found: AIP not found"
+          }
+        },
+        "security": [
+          {
+            "jwt_header_Authorization": [
+              "storage:aips:deletion:list"
+            ]
+          }
+        ],
+        "summary": "list_deletion_requests storage",
         "tags": [
           "storage"
         ]

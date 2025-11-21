@@ -1814,6 +1814,153 @@ func DecodeListAipWorkflowsResponse(decoder func(*http.Response) goahttp.Decoder
 	}
 }
 
+// BuildListDeletionRequestsRequest instantiates a HTTP request object with
+// method and path set to call the "storage" service "list_deletion_requests"
+// endpoint
+func (c *Client) BuildListDeletionRequestsRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*storage.ListDeletionRequestsPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "list_deletion_requests", "*storage.ListDeletionRequestsPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ListDeletionRequestsStoragePath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "list_deletion_requests", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeListDeletionRequestsRequest returns an encoder for requests sent to
+// the storage list_deletion_requests server.
+func EncodeListDeletionRequestsRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.ListDeletionRequestsPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "list_deletion_requests", "*storage.ListDeletionRequestsPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		values := req.URL.Query()
+		if p.Status != nil {
+			values.Add("status", *p.Status)
+		}
+		req.URL.RawQuery = values.Encode()
+		return nil
+	}
+}
+
+// DecodeListDeletionRequestsResponse returns a decoder for responses returned
+// by the storage list_deletion_requests endpoint. restoreBody controls whether
+// the response body should be restored after having been read.
+// DecodeListDeletionRequestsResponse may return the following errors:
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeListDeletionRequestsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ListDeletionRequestsResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_deletion_requests", err)
+			}
+			p := NewListDeletionRequestsDeletionRequestCollectionOK(body)
+			view := "default"
+			vres := storageviews.DeletionRequestCollection{Projected: p, View: view}
+			if err = storageviews.ValidateDeletionRequestCollection(vres); err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_deletion_requests", err)
+			}
+			res := storage.NewDeletionRequestCollection(vres)
+			return res, nil
+		case http.StatusBadRequest:
+			var (
+				body ListDeletionRequestsNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_deletion_requests", err)
+			}
+			err = ValidateListDeletionRequestsNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_deletion_requests", err)
+			}
+			return nil, NewListDeletionRequestsNotValid(&body)
+		case http.StatusNotFound:
+			var (
+				body ListDeletionRequestsNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_deletion_requests", err)
+			}
+			err = ValidateListDeletionRequestsNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_deletion_requests", err)
+			}
+			return nil, NewListDeletionRequestsNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_deletion_requests", err)
+			}
+			return nil, NewListDeletionRequestsForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_deletion_requests", err)
+			}
+			return nil, NewListDeletionRequestsUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "list_deletion_requests", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildRequestAipDeletionRequest instantiates a HTTP request object with
 // method and path set to call the "storage" service "request_aip_deletion"
 // endpoint
@@ -2714,6 +2861,25 @@ func unmarshalAIPTaskResponseBodyToStorageviewsAIPTaskView(v *AIPTaskResponseBod
 		CompletedAt:  v.CompletedAt,
 		Note:         v.Note,
 		WorkflowUUID: v.WorkflowUUID,
+	}
+
+	return res
+}
+
+// unmarshalDeletionRequestResponseToStorageviewsDeletionRequestView builds a
+// value of type *storageviews.DeletionRequestView from a value of type
+// *DeletionRequestResponse.
+func unmarshalDeletionRequestResponseToStorageviewsDeletionRequestView(v *DeletionRequestResponse) *storageviews.DeletionRequestView {
+	res := &storageviews.DeletionRequestView{
+		UUID:        v.UUID,
+		AipUUID:     v.AipUUID,
+		Requester:   v.Requester,
+		RequestedAt: v.RequestedAt,
+		Reason:      v.Reason,
+		Status:      v.Status,
+		Reviewer:    v.Reviewer,
+		ReviewedAt:  v.ReviewedAt,
+		ReportKey:   v.ReportKey,
 	}
 
 	return res

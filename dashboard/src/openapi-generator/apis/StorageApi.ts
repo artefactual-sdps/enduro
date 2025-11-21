@@ -25,6 +25,7 @@ import type {
   EnduroStorageAip,
   EnduroStorageAipWorkflows,
   EnduroStorageAips,
+  EnduroStorageDeletionrequest,
   EnduroStorageLocation,
   LocationNotFound,
   LocationResponse,
@@ -56,6 +57,8 @@ import {
     EnduroStorageAipWorkflowsToJSON,
     EnduroStorageAipsFromJSON,
     EnduroStorageAipsToJSON,
+    EnduroStorageDeletionrequestFromJSON,
+    EnduroStorageDeletionrequestToJSON,
     EnduroStorageLocationFromJSON,
     EnduroStorageLocationToJSON,
     LocationNotFoundFromJSON,
@@ -111,6 +114,11 @@ export interface StorageListAipsRequest {
     status?: StorageListAipsStatusEnum;
     limit?: number;
     offset?: number;
+}
+
+export interface StorageListDeletionRequestsRequest {
+    uuid: string;
+    status?: StorageListDeletionRequestsStatusEnum;
 }
 
 export interface StorageListLocationAipsRequest {
@@ -288,6 +296,23 @@ export interface StorageApiInterface {
      * list_aips storage
      */
     storageListAips(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageAips>;
+
+    /**
+     * List AIP deletion requests
+     * @summary list_deletion_requests storage
+     * @param {string} uuid Identifier of AIP
+     * @param {'pending' | 'approved' | 'rejected' | 'canceled'} [status] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageListDeletionRequestsRaw(requestParameters: StorageListDeletionRequestsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<EnduroStorageDeletionrequest>>>;
+
+    /**
+     * List AIP deletion requests
+     * list_deletion_requests storage
+     */
+    storageListDeletionRequests(requestParameters: StorageListDeletionRequestsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EnduroStorageDeletionrequest>>;
 
     /**
      * List all the AIPs stored in the location with UUID
@@ -814,6 +839,50 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      */
     async storageListAips(requestParameters: StorageListAipsRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageAips> {
         const response = await this.storageListAipsRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * List AIP deletion requests
+     * list_deletion_requests storage
+     */
+    async storageListDeletionRequestsRaw(requestParameters: StorageListDeletionRequestsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<EnduroStorageDeletionrequest>>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageListDeletionRequests.');
+        }
+
+        const queryParameters: any = {};
+
+        if (requestParameters.status !== undefined) {
+            queryParameters['status'] = requestParameters.status;
+        }
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/storage/aips/{uuid}/deletion-requests`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(EnduroStorageDeletionrequestFromJSON));
+    }
+
+    /**
+     * List AIP deletion requests
+     * list_deletion_requests storage
+     */
+    async storageListDeletionRequests(requestParameters: StorageListDeletionRequestsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EnduroStorageDeletionrequest>> {
+        const response = await this.storageListDeletionRequestsRaw(requestParameters, initOverrides);
         return await response.value();
     }
 
@@ -1375,3 +1444,13 @@ export const StorageListAipsStatusEnum = {
     Queued: 'queued'
 } as const;
 export type StorageListAipsStatusEnum = typeof StorageListAipsStatusEnum[keyof typeof StorageListAipsStatusEnum];
+/**
+ * @export
+ */
+export const StorageListDeletionRequestsStatusEnum = {
+    Pending: 'pending',
+    Approved: 'approved',
+    Rejected: 'rejected',
+    Canceled: 'canceled'
+} as const;
+export type StorageListDeletionRequestsStatusEnum = typeof StorageListDeletionRequestsStatusEnum[keyof typeof StorageListDeletionRequestsStatusEnum];

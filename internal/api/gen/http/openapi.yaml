@@ -1168,6 +1168,65 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
+    /storage/aips/{uuid}/deletion-requests:
+        get:
+            tags:
+                - storage
+            summary: list_deletion_requests storage
+            description: |-
+                List AIP deletion requests
+
+                **Required security scopes for jwt**:
+                  * `storage:aips:deletion:list`
+            operationId: storage#list_deletion_requests
+            parameters:
+                - name: status
+                  in: query
+                  required: false
+                  type: string
+                  enum:
+                    - pending
+                    - approved
+                    - rejected
+                    - canceled
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/StorageDeletionRequestResponseCollection'
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/StorageListDeletionRequestsNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/AIPNotFound'
+                        required:
+                            - message
+                            - uuid
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
     /storage/aips/{uuid}/deletion-review:
         post:
             tags:
@@ -2282,6 +2341,71 @@ definitions:
             uuid: abc123
         required:
             - uuid
+    DeletionRequestResponse:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.deletionrequest; view=default'
+        type: object
+        properties:
+            aip_uuid:
+                type: string
+                description: Identifier of related AIP
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            reason:
+                type: string
+                description: Reason for the deletion request
+                example: abc123
+            report_key:
+                type: string
+                description: Object key of the deletion report
+                example: abc123
+            requested_at:
+                type: string
+                description: Time the deletion was requested
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            requester:
+                type: string
+                description: User who requested the deletion
+                example: abc123
+            reviewed_at:
+                type: string
+                description: Time the deletion request was reviewed
+                example: "1970-01-01T00:00:01Z"
+                format: date-time
+            reviewer:
+                type: string
+                description: User who reviewed the deletion request
+                example: abc123
+            status:
+                type: string
+                description: Status of the deletion request
+                example: approved
+                enum:
+                    - pending
+                    - approved
+                    - rejected
+                    - canceled
+            uuid:
+                type: string
+                description: Identifier of deletion request
+                example: abc123
+        description: DeletionRequest describes an AIP deletion request. (default view)
+        example:
+            aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            reason: abc123
+            report_key: abc123
+            requested_at: "1970-01-01T00:00:01Z"
+            requester: abc123
+            reviewed_at: "1970-01-01T00:00:01Z"
+            reviewer: abc123
+            status: approved
+            uuid: abc123
+        required:
+            - uuid
+            - aip_uuid
+            - requester
+            - reason
+            - status
+            - requested_at
     EnduroAbout:
         title: 'Mediatype identifier: application/vnd.enduro.about; view=default'
         type: object
@@ -4781,6 +4905,22 @@ definitions:
             - name
             - source
             - purpose
+    StorageDeletionRequestResponseCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.storage.deletionrequest; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/DeletionRequestResponse'
+        description: list_deletion_requests_response_body is the result type for an array of DeletionRequestResponse (default view)
+        example:
+            - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+              reason: abc123
+              report_key: abc123
+              requested_at: "1970-01-01T00:00:01Z"
+              requester: abc123
+              reviewed_at: "1970-01-01T00:00:01Z"
+              reviewer: abc123
+              status: approved
+              uuid: abc123
     StorageDownloadAipInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -5070,6 +5210,49 @@ definitions:
                 description: Is the error a timeout?
                 example: false
         description: list_aips_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    StorageListDeletionRequestsNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: list_deletion_requests_not_valid_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -5732,6 +5915,7 @@ securityDefinitions:
               * `ingest:sipsources:objects:list`: no description
               * `ingest:users:list`: no description
               * `storage:aips:create`: no description
+              * `storage:aips:deletion:list`: no description
               * `storage:aips:deletion:request`: no description
               * `storage:aips:deletion:review`: no description
               * `storage:aips:download`: no description

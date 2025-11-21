@@ -14,6 +14,7 @@ const (
 	IngestSIPSourcesObjectsListAttr = "ingest:sipsources:objects:list"
 	IngestUsersListAttr             = "ingest:users:list"
 	StorageAIPSCreateAttr           = "storage:aips:create"
+	StorageAIPSDeletionListAttr     = "storage:aips:deletion:list"
 	StorageAIPSDeletionRequestAttr  = "storage:aips:deletion:request"
 	StorageAIPSDeletionReviewAttr   = "storage:aips:deletion:review"
 	StorageAIPSDownloadAttr         = "storage:aips:download"

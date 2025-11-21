@@ -45,6 +45,7 @@ models/EnduroStorageAipTask.ts
 models/EnduroStorageAipWorkflow.ts
 models/EnduroStorageAipWorkflows.ts
 models/EnduroStorageAips.ts
+models/EnduroStorageDeletionrequest.ts
 models/EnduroStorageLocation.ts
 models/EnduroStorageLocationConfig.ts
 models/IngestEvent.ts

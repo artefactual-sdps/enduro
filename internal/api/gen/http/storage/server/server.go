@@ -24,28 +24,29 @@ import (
 
 // Server lists the storage service endpoint HTTP handlers.
 type Server struct {
-	Mounts             []*MountPoint
-	MonitorRequest     http.Handler
-	Monitor            http.Handler
-	ListAips           http.Handler
-	CreateAip          http.Handler
-	SubmitAip          http.Handler
-	UpdateAip          http.Handler
-	DownloadAipRequest http.Handler
-	DownloadAip        http.Handler
-	MoveAip            http.Handler
-	MoveAipStatus      http.Handler
-	RejectAip          http.Handler
-	ShowAip            http.Handler
-	ListAipWorkflows   http.Handler
-	RequestAipDeletion http.Handler
-	ReviewAipDeletion  http.Handler
-	CancelAipDeletion  http.Handler
-	ListLocations      http.Handler
-	CreateLocation     http.Handler
-	ShowLocation       http.Handler
-	ListLocationAips   http.Handler
-	CORS               http.Handler
+	Mounts               []*MountPoint
+	MonitorRequest       http.Handler
+	Monitor              http.Handler
+	ListAips             http.Handler
+	CreateAip            http.Handler
+	SubmitAip            http.Handler
+	UpdateAip            http.Handler
+	DownloadAipRequest   http.Handler
+	DownloadAip          http.Handler
+	MoveAip              http.Handler
+	MoveAipStatus        http.Handler
+	RejectAip            http.Handler
+	ShowAip              http.Handler
+	ListAipWorkflows     http.Handler
+	ListDeletionRequests http.Handler
+	RequestAipDeletion   http.Handler
+	ReviewAipDeletion    http.Handler
+	CancelAipDeletion    http.Handler
+	ListLocations        http.Handler
+	CreateLocation       http.Handler
+	ShowLocation         http.Handler
+	ListLocationAips     http.Handler
+	CORS                 http.Handler
 }
 
 // MountPoint holds information about the mounted endpoints.
@@ -93,6 +94,7 @@ func New(
 			{"RejectAip", "POST", "/storage/aips/{uuid}/reject"},
 			{"ShowAip", "GET", "/storage/aips/{uuid}"},
 			{"ListAipWorkflows", "GET", "/storage/aips/{uuid}/workflows"},
+			{"ListDeletionRequests", "GET", "/storage/aips/{uuid}/deletion-requests"},
 			{"RequestAipDeletion", "POST", "/storage/aips/{uuid}/deletion-request"},
 			{"ReviewAipDeletion", "POST", "/storage/aips/{uuid}/deletion-review"},
 			{"CancelAipDeletion", "POST", "/storage/aips/{uuid}/deletion-cancel"},
@@ -109,6 +111,7 @@ func New(
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/reject"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/workflows"},
+			{"CORS", "OPTIONS", "/storage/aips/{uuid}/deletion-requests"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/deletion-request"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/deletion-review"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/deletion-cancel"},
@@ -116,27 +119,28 @@ func New(
 			{"CORS", "OPTIONS", "/storage/locations/{uuid}"},
 			{"CORS", "OPTIONS", "/storage/locations/{uuid}/aips"},
 		},
-		MonitorRequest:     NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
-		Monitor:            NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
-		ListAips:           NewListAipsHandler(e.ListAips, mux, decoder, encoder, errhandler, formatter),
-		CreateAip:          NewCreateAipHandler(e.CreateAip, mux, decoder, encoder, errhandler, formatter),
-		SubmitAip:          NewSubmitAipHandler(e.SubmitAip, mux, decoder, encoder, errhandler, formatter),
-		UpdateAip:          NewUpdateAipHandler(e.UpdateAip, mux, decoder, encoder, errhandler, formatter),
-		DownloadAipRequest: NewDownloadAipRequestHandler(e.DownloadAipRequest, mux, decoder, encoder, errhandler, formatter),
-		DownloadAip:        NewDownloadAipHandler(e.DownloadAip, mux, decoder, encoder, errhandler, formatter),
-		MoveAip:            NewMoveAipHandler(e.MoveAip, mux, decoder, encoder, errhandler, formatter),
-		MoveAipStatus:      NewMoveAipStatusHandler(e.MoveAipStatus, mux, decoder, encoder, errhandler, formatter),
-		RejectAip:          NewRejectAipHandler(e.RejectAip, mux, decoder, encoder, errhandler, formatter),
-		ShowAip:            NewShowAipHandler(e.ShowAip, mux, decoder, encoder, errhandler, formatter),
-		ListAipWorkflows:   NewListAipWorkflowsHandler(e.ListAipWorkflows, mux, decoder, encoder, errhandler, formatter),
-		RequestAipDeletion: NewRequestAipDeletionHandler(e.RequestAipDeletion, mux, decoder, encoder, errhandler, formatter),
-		ReviewAipDeletion:  NewReviewAipDeletionHandler(e.ReviewAipDeletion, mux, decoder, encoder, errhandler, formatter),
-		CancelAipDeletion:  NewCancelAipDeletionHandler(e.CancelAipDeletion, mux, decoder, encoder, errhandler, formatter),
-		ListLocations:      NewListLocationsHandler(e.ListLocations, mux, decoder, encoder, errhandler, formatter),
-		CreateLocation:     NewCreateLocationHandler(e.CreateLocation, mux, decoder, encoder, errhandler, formatter),
-		ShowLocation:       NewShowLocationHandler(e.ShowLocation, mux, decoder, encoder, errhandler, formatter),
-		ListLocationAips:   NewListLocationAipsHandler(e.ListLocationAips, mux, decoder, encoder, errhandler, formatter),
-		CORS:               NewCORSHandler(),
+		MonitorRequest:       NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
+		Monitor:              NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
+		ListAips:             NewListAipsHandler(e.ListAips, mux, decoder, encoder, errhandler, formatter),
+		CreateAip:            NewCreateAipHandler(e.CreateAip, mux, decoder, encoder, errhandler, formatter),
+		SubmitAip:            NewSubmitAipHandler(e.SubmitAip, mux, decoder, encoder, errhandler, formatter),
+		UpdateAip:            NewUpdateAipHandler(e.UpdateAip, mux, decoder, encoder, errhandler, formatter),
+		DownloadAipRequest:   NewDownloadAipRequestHandler(e.DownloadAipRequest, mux, decoder, encoder, errhandler, formatter),
+		DownloadAip:          NewDownloadAipHandler(e.DownloadAip, mux, decoder, encoder, errhandler, formatter),
+		MoveAip:              NewMoveAipHandler(e.MoveAip, mux, decoder, encoder, errhandler, formatter),
+		MoveAipStatus:        NewMoveAipStatusHandler(e.MoveAipStatus, mux, decoder, encoder, errhandler, formatter),
+		RejectAip:            NewRejectAipHandler(e.RejectAip, mux, decoder, encoder, errhandler, formatter),
+		ShowAip:              NewShowAipHandler(e.ShowAip, mux, decoder, encoder, errhandler, formatter),
+		ListAipWorkflows:     NewListAipWorkflowsHandler(e.ListAipWorkflows, mux, decoder, encoder, errhandler, formatter),
+		ListDeletionRequests: NewListDeletionRequestsHandler(e.ListDeletionRequests, mux, decoder, encoder, errhandler, formatter),
+		RequestAipDeletion:   NewRequestAipDeletionHandler(e.RequestAipDeletion, mux, decoder, encoder, errhandler, formatter),
+		ReviewAipDeletion:    NewReviewAipDeletionHandler(e.ReviewAipDeletion, mux, decoder, encoder, errhandler, formatter),
+		CancelAipDeletion:    NewCancelAipDeletionHandler(e.CancelAipDeletion, mux, decoder, encoder, errhandler, formatter),
+		ListLocations:        NewListLocationsHandler(e.ListLocations, mux, decoder, encoder, errhandler, formatter),
+		CreateLocation:       NewCreateLocationHandler(e.CreateLocation, mux, decoder, encoder, errhandler, formatter),
+		ShowLocation:         NewShowLocationHandler(e.ShowLocation, mux, decoder, encoder, errhandler, formatter),
+		ListLocationAips:     NewListLocationAipsHandler(e.ListLocationAips, mux, decoder, encoder, errhandler, formatter),
+		CORS:                 NewCORSHandler(),
 	}
 }
 
@@ -158,6 +162,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.RejectAip = m(s.RejectAip)
 	s.ShowAip = m(s.ShowAip)
 	s.ListAipWorkflows = m(s.ListAipWorkflows)
+	s.ListDeletionRequests = m(s.ListDeletionRequests)
 	s.RequestAipDeletion = m(s.RequestAipDeletion)
 	s.ReviewAipDeletion = m(s.ReviewAipDeletion)
 	s.CancelAipDeletion = m(s.CancelAipDeletion)
@@ -186,6 +191,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountRejectAipHandler(mux, h.RejectAip)
 	MountShowAipHandler(mux, h.ShowAip)
 	MountListAipWorkflowsHandler(mux, h.ListAipWorkflows)
+	MountListDeletionRequestsHandler(mux, h.ListDeletionRequests)
 	MountRequestAipDeletionHandler(mux, h.RequestAipDeletion)
 	MountReviewAipDeletionHandler(mux, h.ReviewAipDeletion)
 	MountCancelAipDeletionHandler(mux, h.CancelAipDeletion)
@@ -946,6 +952,59 @@ func NewListAipWorkflowsHandler(
 	})
 }
 
+// MountListDeletionRequestsHandler configures the mux to serve the "storage"
+// service "list_deletion_requests" endpoint.
+func MountListDeletionRequestsHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/storage/aips/{uuid}/deletion-requests", otelhttp.WithRouteTag("/storage/aips/{uuid}/deletion-requests", f).ServeHTTP)
+}
+
+// NewListDeletionRequestsHandler creates a HTTP handler which loads the HTTP
+// request and calls the "storage" service "list_deletion_requests" endpoint.
+func NewListDeletionRequestsHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeListDeletionRequestsRequest(mux, decoder)
+		encodeResponse = EncodeListDeletionRequestsResponse(encoder)
+		encodeError    = EncodeListDeletionRequestsError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "list_deletion_requests")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			if errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+		}
+	})
+}
+
 // MountRequestAipDeletionHandler configures the mux to serve the "storage"
 // service "request_aip_deletion" endpoint.
 func MountRequestAipDeletionHandler(mux goahttp.Muxer, h http.Handler) {
@@ -1330,6 +1389,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}/reject", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}/workflows", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/storage/aips/{uuid}/deletion-requests", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}/deletion-request", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}/deletion-review", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}/deletion-cancel", h.ServeHTTP)

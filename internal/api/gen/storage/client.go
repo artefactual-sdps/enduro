@@ -17,51 +17,53 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	MonitorRequestEndpoint     goa.Endpoint
-	MonitorEndpoint            goa.Endpoint
-	ListAipsEndpoint           goa.Endpoint
-	CreateAipEndpoint          goa.Endpoint
-	SubmitAipEndpoint          goa.Endpoint
-	UpdateAipEndpoint          goa.Endpoint
-	DownloadAipRequestEndpoint goa.Endpoint
-	DownloadAipEndpoint        goa.Endpoint
-	MoveAipEndpoint            goa.Endpoint
-	MoveAipStatusEndpoint      goa.Endpoint
-	RejectAipEndpoint          goa.Endpoint
-	ShowAipEndpoint            goa.Endpoint
-	ListAipWorkflowsEndpoint   goa.Endpoint
-	RequestAipDeletionEndpoint goa.Endpoint
-	ReviewAipDeletionEndpoint  goa.Endpoint
-	CancelAipDeletionEndpoint  goa.Endpoint
-	ListLocationsEndpoint      goa.Endpoint
-	CreateLocationEndpoint     goa.Endpoint
-	ShowLocationEndpoint       goa.Endpoint
-	ListLocationAipsEndpoint   goa.Endpoint
+	MonitorRequestEndpoint       goa.Endpoint
+	MonitorEndpoint              goa.Endpoint
+	ListAipsEndpoint             goa.Endpoint
+	CreateAipEndpoint            goa.Endpoint
+	SubmitAipEndpoint            goa.Endpoint
+	UpdateAipEndpoint            goa.Endpoint
+	DownloadAipRequestEndpoint   goa.Endpoint
+	DownloadAipEndpoint          goa.Endpoint
+	MoveAipEndpoint              goa.Endpoint
+	MoveAipStatusEndpoint        goa.Endpoint
+	RejectAipEndpoint            goa.Endpoint
+	ShowAipEndpoint              goa.Endpoint
+	ListAipWorkflowsEndpoint     goa.Endpoint
+	ListDeletionRequestsEndpoint goa.Endpoint
+	RequestAipDeletionEndpoint   goa.Endpoint
+	ReviewAipDeletionEndpoint    goa.Endpoint
+	CancelAipDeletionEndpoint    goa.Endpoint
+	ListLocationsEndpoint        goa.Endpoint
+	CreateLocationEndpoint       goa.Endpoint
+	ShowLocationEndpoint         goa.Endpoint
+	ListLocationAipsEndpoint     goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, updateAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, updateAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, listDeletionRequests, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
-		MonitorRequestEndpoint:     monitorRequest,
-		MonitorEndpoint:            monitor,
-		ListAipsEndpoint:           listAips,
-		CreateAipEndpoint:          createAip,
-		SubmitAipEndpoint:          submitAip,
-		UpdateAipEndpoint:          updateAip,
-		DownloadAipRequestEndpoint: downloadAipRequest,
-		DownloadAipEndpoint:        downloadAip,
-		MoveAipEndpoint:            moveAip,
-		MoveAipStatusEndpoint:      moveAipStatus,
-		RejectAipEndpoint:          rejectAip,
-		ShowAipEndpoint:            showAip,
-		ListAipWorkflowsEndpoint:   listAipWorkflows,
-		RequestAipDeletionEndpoint: requestAipDeletion,
-		ReviewAipDeletionEndpoint:  reviewAipDeletion,
-		CancelAipDeletionEndpoint:  cancelAipDeletion,
-		ListLocationsEndpoint:      listLocations,
-		CreateLocationEndpoint:     createLocation,
-		ShowLocationEndpoint:       showLocation,
-		ListLocationAipsEndpoint:   listLocationAips,
+		MonitorRequestEndpoint:       monitorRequest,
+		MonitorEndpoint:              monitor,
+		ListAipsEndpoint:             listAips,
+		CreateAipEndpoint:            createAip,
+		SubmitAipEndpoint:            submitAip,
+		UpdateAipEndpoint:            updateAip,
+		DownloadAipRequestEndpoint:   downloadAipRequest,
+		DownloadAipEndpoint:          downloadAip,
+		MoveAipEndpoint:              moveAip,
+		MoveAipStatusEndpoint:        moveAipStatus,
+		RejectAipEndpoint:            rejectAip,
+		ShowAipEndpoint:              showAip,
+		ListAipWorkflowsEndpoint:     listAipWorkflows,
+		ListDeletionRequestsEndpoint: listDeletionRequests,
+		RequestAipDeletionEndpoint:   requestAipDeletion,
+		ReviewAipDeletionEndpoint:    reviewAipDeletion,
+		CancelAipDeletionEndpoint:    cancelAipDeletion,
+		ListLocationsEndpoint:        listLocations,
+		CreateLocationEndpoint:       createLocation,
+		ShowLocationEndpoint:         showLocation,
+		ListLocationAipsEndpoint:     listLocationAips,
 	}
 }
 
@@ -263,6 +265,23 @@ func (c *Client) ListAipWorkflows(ctx context.Context, p *ListAipWorkflowsPayloa
 		return
 	}
 	return ires.(*AIPWorkflows), nil
+}
+
+// ListDeletionRequests calls the "list_deletion_requests" endpoint of the
+// "storage" service.
+// ListDeletionRequests may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) ListDeletionRequests(ctx context.Context, p *ListDeletionRequestsPayload) (res DeletionRequestCollection, err error) {
+	var ires any
+	ires, err = c.ListDeletionRequestsEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(DeletionRequestCollection), nil
 }
 
 // RequestAipDeletion calls the "request_aip_deletion" endpoint of the

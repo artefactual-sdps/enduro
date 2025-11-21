@@ -443,6 +443,44 @@ func BuildListAipWorkflowsPayload(storageListAipWorkflowsUUID string, storageLis
 	return v, nil
 }
 
+// BuildListDeletionRequestsPayload builds the payload for the storage
+// list_deletion_requests endpoint from CLI flags.
+func BuildListDeletionRequestsPayload(storageListDeletionRequestsUUID string, storageListDeletionRequestsStatus string, storageListDeletionRequestsToken string) (*storage.ListDeletionRequestsPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = storageListDeletionRequestsUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var status *string
+	{
+		if storageListDeletionRequestsStatus != "" {
+			status = &storageListDeletionRequestsStatus
+			if !(*status == "pending" || *status == "approved" || *status == "rejected" || *status == "canceled") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"pending", "approved", "rejected", "canceled"}))
+			}
+			if err != nil {
+				return nil, err
+			}
+		}
+	}
+	var token *string
+	{
+		if storageListDeletionRequestsToken != "" {
+			token = &storageListDeletionRequestsToken
+		}
+	}
+	v := &storage.ListDeletionRequestsPayload{}
+	v.UUID = uuid
+	v.Status = status
+	v.Token = token
+
+	return v, nil
+}
+
 // BuildRequestAipDeletionPayload builds the payload for the storage
 // request_aip_deletion endpoint from CLI flags.
 func BuildRequestAipDeletionPayload(storageRequestAipDeletionBody string, storageRequestAipDeletionUUID string, storageRequestAipDeletionToken string) (*storage.RequestAipDeletionPayload, error) {
