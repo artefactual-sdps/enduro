@@ -23,7 +23,6 @@ import (
 	"go.artefactual.dev/tools/ref"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
-	temporalsdk_log "go.temporal.io/sdk/log"
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
@@ -42,7 +41,6 @@ import (
 )
 
 type ProcessingWorkflow struct {
-	logger    temporalsdk_log.Logger
 	cfg       config.Configuration
 	rng       io.Reader
 	ingestsvc ingest.Service
@@ -64,7 +62,7 @@ func NewProcessingWorkflow(
 }
 
 func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *workflowState) {
-	w.logger.Debug("Cleaning up workflow state")
+	state.logger.Debug("Cleaning up workflow state")
 
 	// Set workflow status to "error" unless it completed successfully or failed
 	// due to invalid contents.
@@ -111,7 +109,7 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 		},
 	).Get(activityOpts, nil)
 	if err != nil {
-		w.logger.Error("cleanup: error updating SIP status", "error", err.Error())
+		state.logger.Error("cleanup: error updating SIP status", "error", err.Error())
 	}
 
 	err = temporalsdk_workflow.ExecuteLocalActivity(
@@ -125,14 +123,14 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 		},
 	).Get(activityOpts, nil)
 	if err != nil {
-		w.logger.Error("cleanup: error completing workflow", "error", err.Error())
+		state.logger.Error("cleanup: error completing workflow", "error", err.Error())
 	}
 }
 
 func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, state *workflowState) {
 	if state.status != enums.WorkflowStatusDone && state.initialPath != "" {
 		if err := w.sendFailedToInternalBucket(ctx, state); err != nil {
-			w.logger.Error(
+			state.logger.Error(
 				"session cleanup: error sending failed SIP/PIP to internal bucket",
 				"error", err.Error(),
 			)
@@ -152,7 +150,7 @@ func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, st
 		removepaths.Params{Paths: state.tempDirs},
 	).Get(ctx, nil)
 	if err != nil {
-		w.logger.Error(
+		state.logger.Error(
 			"session cleanup: error(s) removing temporary directories",
 			"errors", err.Error(),
 		)
@@ -169,10 +167,8 @@ func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, st
 // not have a retry policy in place. The user could trigger a new instance via
 // the API.
 func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.ProcessingWorkflowRequest) error {
-	w.logger = temporalsdk_workflow.GetLogger(ctx)
-
 	// Create the initial workflow state.
-	state := newWorkflowState(req)
+	state := newWorkflowState(ctx, req)
 
 	// Persist the SIP as early as possible if the request comes from a watcher.
 	if state.req.WatcherName != "" {
@@ -229,7 +225,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 					return nil
 				}
 
-				w.logger.Error(
+				state.logger.Error(
 					"Session failed, will retry shortly (10s)...",
 					"err", ctx.Err(),
 					"attemptFailed", attempt,
@@ -255,7 +251,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 	// Schedule deletion or disposal of the original SIP.
 	if req.RetentionPeriod >= 0 {
 		if err := w.deleteOriginalSIP(ctx, state); err != nil {
-			w.logger.Error("Failed to delete original SIP", "err", err.Error())
+			state.logger.Error("Failed to delete original SIP", "err", err.Error())
 		}
 	} else if req.CompletedDir != "" {
 		activityOpts := withActivityOptsForLocalAction(ctx)
@@ -267,11 +263,11 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 			req.Key,
 		).Get(activityOpts, nil)
 		if err != nil {
-			w.logger.Error("Failed to dispose original SIP", "err", err.Error())
+			state.logger.Error("Failed to dispose original SIP", "err", err.Error())
 		}
 	}
 
-	w.logger.Info(
+	state.logger.Info(
 		"Workflow completed successfully!",
 		"SIPUUID", state.sip.uuid,
 		"watcher", req.WatcherName,

@@ -4,6 +4,8 @@ import (
 	"slices"
 
 	"github.com/google/uuid"
+	temporalsdk_log "go.temporal.io/sdk/log"
+	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -11,6 +13,9 @@ import (
 
 // workflowState is shared state that can be passed to activities.
 type workflowState struct {
+	// logger is the workflow logger.
+	logger temporalsdk_log.Logger
+
 	// req is populated by the workflow request.
 	req *ingest.ProcessingWorkflowRequest
 
@@ -37,8 +42,9 @@ type workflowState struct {
 	aip *aipInfo
 }
 
-func newWorkflowState(req *ingest.ProcessingWorkflowRequest) *workflowState {
+func newWorkflowState(ctx temporalsdk_workflow.Context, req *ingest.ProcessingWorkflowRequest) *workflowState {
 	return &workflowState{
+		logger: temporalsdk_workflow.GetLogger(ctx),
 		req:    req,
 		status: enums.WorkflowStatusUnspecified,
 		sip: &sipInfo{
