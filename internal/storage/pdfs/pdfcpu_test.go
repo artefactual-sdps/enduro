@@ -1,4 +1,4 @@
-package pdf_test
+package pdfs_test
 
 import (
 	"bytes"
@@ -7,7 +7,7 @@ import (
 
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/pdf"
+	"github.com/artefactual-sdps/enduro/internal/storage/pdfs"
 )
 
 func TestPDFCPU_FillForm(t *testing.T) {
@@ -35,7 +35,7 @@ func TestPDFCPU_FillForm(t *testing.T) {
 	}
 	defer src.Close()
 
-	ff := pdf.NewPDFCPU()
+	ff := pdfs.NewPDFCPU()
 	err = ff.FillForm(src, bytes.NewReader([]byte(jsonData)), buf)
 	assert.NilError(t, err)
 	assert.Assert(t, buf.Len() > 0)

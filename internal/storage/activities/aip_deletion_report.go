@@ -15,7 +15,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
-	"github.com/artefactual-sdps/enduro/internal/storage/pdf"
+	"github.com/artefactual-sdps/enduro/internal/storage/pdfs"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/artefactual-sdps/enduro/internal/version"
@@ -27,7 +27,7 @@ type AIPDeletionReportActivity struct {
 	cfg        storage.AIPDeletionConfig
 	clock      clockwork.Clock
 	storageSvc storage.Service
-	formFiller pdf.FormFiller
+	formFiller pdfs.FormFiller
 }
 
 type AIPDeletionReportActivityParams struct {
@@ -43,7 +43,7 @@ func NewAIPDeletionReportActivity(
 	clock clockwork.Clock,
 	cfg storage.AIPDeletionConfig,
 	svc storage.Service,
-	ff pdf.FormFiller,
+	ff pdfs.FormFiller,
 ) *AIPDeletionReportActivity {
 	return &AIPDeletionReportActivity{
 		cfg:        cfg,
@@ -62,9 +62,9 @@ func (a *AIPDeletionReportActivity) Execute(
 	}
 	if _, err := os.Stat(a.cfg.ReportTemplatePath); err != nil {
 		if os.IsNotExist(err) {
-			return nil, fmt.Errorf("AIP deletion report: template file does not exist: %s", a.cfg.ReportTemplatePath)
+			return nil, fmt.Errorf("AIP deletion report: template file not found: %s", a.cfg.ReportTemplatePath)
 		}
-		return nil, fmt.Errorf("AIP deletion report: error reading template file: %s", err)
+		return nil, fmt.Errorf("AIP deletion report: template file: %v", err)
 	}
 
 	key := fmt.Sprintf("%saip_deletion_report_%s.pdf", storage.ReportPrefix, params.AIPID.String())
@@ -75,7 +75,7 @@ func (a *AIPDeletionReportActivity) Execute(
 	}
 
 	if err := a.write(ctx, data, key); err != nil {
-		return nil, fmt.Errorf("AIP deletion report: %w", err)
+		return nil, fmt.Errorf("AIP deletion report: %v", err)
 	}
 
 	// Persist report key.
@@ -88,7 +88,7 @@ func (a *AIPDeletionReportActivity) Execute(
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("AIP deletion report: update deletion request: %w", err)
+		return nil, fmt.Errorf("AIP deletion report: update deletion request: %v", err)
 	}
 
 	return &AIPDeletionReportActivityResult{Key: key}, nil
@@ -148,18 +148,18 @@ func (a *AIPDeletionReportActivity) loadData(
 func (a *AIPDeletionReportActivity) bucketWriter(ctx context.Context, key string) (io.WriteCloser, error) {
 	loc, err := a.storageSvc.Location(ctx, uuid.Nil)
 	if err != nil {
-		return nil, fmt.Errorf("get storage location: %w", err)
+		return nil, fmt.Errorf("get storage location: %v", err)
 	}
 
 	b, err := loc.OpenBucket(ctx)
 	if err != nil {
-		return nil, fmt.Errorf("open storage bucket: %w", err)
+		return nil, fmt.Errorf("open storage bucket: %v", err)
 	}
 	defer b.Close()
 
 	w, err := b.NewWriter(ctx, key, nil)
 	if err != nil {
-		return nil, fmt.Errorf("open bucket writer: %w", err)
+		return nil, fmt.Errorf("open bucket writer: %v", err)
 	}
 
 	return w, nil
@@ -172,7 +172,7 @@ func (a *AIPDeletionReportActivity) write(ctx context.Context, data *types.Delet
 
 	src, err := os.Open(a.cfg.ReportTemplatePath)
 	if err != nil {
-		return fmt.Errorf("open template: %w", err)
+		return fmt.Errorf("open template: %v", err)
 	}
 	defer src.Close()
 
@@ -187,11 +187,11 @@ func (a *AIPDeletionReportActivity) write(ctx context.Context, data *types.Delet
 
 	jsonData, err := json.Marshal(data)
 	if err != nil {
-		return fmt.Errorf("marshal JSON: %w", err)
+		return fmt.Errorf("marshal JSON: %v", err)
 	}
 
 	if err := a.formFiller.FillForm(src, bytes.NewReader(jsonData), w); err != nil {
-		return fmt.Errorf("fill form: %w", err)
+		return fmt.Errorf("fill form: %v", err)
 	}
 
 	return nil

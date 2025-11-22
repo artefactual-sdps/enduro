@@ -22,8 +22,8 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/activities"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/fake"
-	"github.com/artefactual-sdps/enduro/internal/storage/pdf"
-	pdf_fake "github.com/artefactual-sdps/enduro/internal/storage/pdf/fake"
+	"github.com/artefactual-sdps/enduro/internal/storage/pdfs"
+	pdf_fake "github.com/artefactual-sdps/enduro/internal/storage/pdfs/fake"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
@@ -36,7 +36,7 @@ type StorageDeleteWorkflowTestSuite struct {
 	env        *temporalsdk_testsuite.TestWorkflowEnvironment
 	mockCtrl   *gomock.Controller
 	storagesvc storage.Service
-	formFiller pdf.FormFiller
+	formFiller pdfs.FormFiller
 
 	req        *storage.StorageDeleteWorkflowRequest
 	aip        *goastorage.AIP

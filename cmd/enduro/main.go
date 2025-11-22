@@ -45,7 +45,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/sipsource"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	storage_activities "github.com/artefactual-sdps/enduro/internal/storage/activities"
-	"github.com/artefactual-sdps/enduro/internal/storage/pdf"
+	"github.com/artefactual-sdps/enduro/internal/storage/pdfs"
 	storage_persistence "github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	storage_entclient "github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/client"
 	storage_entdb "github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
@@ -545,7 +545,7 @@ func main() {
 				clockwork.NewRealClock(),
 				cfg.Storage.AIPDeletion,
 				storagesvc,
-				pdf.NewPDFCPU(),
+				pdfs.NewPDFCPU(),
 			).Execute,
 			temporalsdk_activity.RegisterOptions{
 				Name: storage_activities.AIPDeletionReportActivityName,

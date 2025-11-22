@@ -21,7 +21,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/activities"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/fake"
-	pdf_fake "github.com/artefactual-sdps/enduro/internal/storage/pdf/fake"
+	pdf_fake "github.com/artefactual-sdps/enduro/internal/storage/pdfs/fake"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -158,7 +158,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 				AIPID:          aipID,
 				LocationSource: enums.LocationSourceAmss,
 			},
-			wantErr: "AIP deletion report: template file does not exist: non_existent.tmpl.pdf",
+			wantErr: "AIP deletion report: template file not found: non_existent.tmpl.pdf",
 		},
 		{
 			name:         "Errors if AIP is not found",
