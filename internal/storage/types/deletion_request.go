@@ -9,18 +9,19 @@ import (
 )
 
 type DeletionRequest struct {
-	DBID         int
-	UUID         uuid.UUID
-	Requester    string
-	RequesterIss string
-	RequesterSub string
-	Reviewer     string
-	ReviewerIss  string
-	ReviewerSub  string
-	Reason       string
-	Status       enums.DeletionRequestStatus
-	RequestedAt  time.Time
-	ReviewedAt   time.Time
-	AIPUUID      uuid.UUID
-	WorkflowDBID int
+	DBID              int
+	UUID              uuid.UUID
+	Requester         string
+	RequesterIss      string
+	RequesterSub      string
+	Reviewer          string
+	ReviewerIss       string
+	ReviewerSub       string
+	Reason            string
+	Status            enums.DeletionRequestStatus
+	RequestedAt       time.Time
+	ReviewedAt        time.Time
+	AIPUUID           uuid.UUID
+	WorkflowDBID      int
+	DeletionReportKey string
 }

@@ -117,6 +117,11 @@ func WorkflowID(v int) predicate.DeletionRequest {
 	return predicate.DeletionRequest(sql.FieldEQ(FieldWorkflowID, v))
 }
 
+// DeletionReportKey applies equality check predicate on the "deletion_report_key" field. It's identical to DeletionReportKeyEQ.
+func DeletionReportKey(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldEQ(FieldDeletionReportKey, v))
+}
+
 // UUIDEQ applies the EQ predicate on the "uuid" field.
 func UUIDEQ(v uuid.UUID) predicate.DeletionRequest {
 	return predicate.DeletionRequest(sql.FieldEQ(FieldUUID, v))
@@ -810,6 +815,81 @@ func WorkflowIDIsNil() predicate.DeletionRequest {
 // WorkflowIDNotNil applies the NotNil predicate on the "workflow_id" field.
 func WorkflowIDNotNil() predicate.DeletionRequest {
 	return predicate.DeletionRequest(sql.FieldNotNull(FieldWorkflowID))
+}
+
+// DeletionReportKeyEQ applies the EQ predicate on the "deletion_report_key" field.
+func DeletionReportKeyEQ(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldEQ(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyNEQ applies the NEQ predicate on the "deletion_report_key" field.
+func DeletionReportKeyNEQ(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldNEQ(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyIn applies the In predicate on the "deletion_report_key" field.
+func DeletionReportKeyIn(vs ...string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldIn(FieldDeletionReportKey, vs...))
+}
+
+// DeletionReportKeyNotIn applies the NotIn predicate on the "deletion_report_key" field.
+func DeletionReportKeyNotIn(vs ...string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldNotIn(FieldDeletionReportKey, vs...))
+}
+
+// DeletionReportKeyGT applies the GT predicate on the "deletion_report_key" field.
+func DeletionReportKeyGT(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldGT(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyGTE applies the GTE predicate on the "deletion_report_key" field.
+func DeletionReportKeyGTE(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldGTE(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyLT applies the LT predicate on the "deletion_report_key" field.
+func DeletionReportKeyLT(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldLT(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyLTE applies the LTE predicate on the "deletion_report_key" field.
+func DeletionReportKeyLTE(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldLTE(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyContains applies the Contains predicate on the "deletion_report_key" field.
+func DeletionReportKeyContains(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldContains(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyHasPrefix applies the HasPrefix predicate on the "deletion_report_key" field.
+func DeletionReportKeyHasPrefix(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldHasPrefix(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyHasSuffix applies the HasSuffix predicate on the "deletion_report_key" field.
+func DeletionReportKeyHasSuffix(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldHasSuffix(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyIsNil applies the IsNil predicate on the "deletion_report_key" field.
+func DeletionReportKeyIsNil() predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldIsNull(FieldDeletionReportKey))
+}
+
+// DeletionReportKeyNotNil applies the NotNil predicate on the "deletion_report_key" field.
+func DeletionReportKeyNotNil() predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldNotNull(FieldDeletionReportKey))
+}
+
+// DeletionReportKeyEqualFold applies the EqualFold predicate on the "deletion_report_key" field.
+func DeletionReportKeyEqualFold(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldEqualFold(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyContainsFold applies the ContainsFold predicate on the "deletion_report_key" field.
+func DeletionReportKeyContainsFold(v string) predicate.DeletionRequest {
+	return predicate.DeletionRequest(sql.FieldContainsFold(FieldDeletionReportKey, v))
 }
 
 // HasAip applies the HasEdge predicate on the "aip" edge.

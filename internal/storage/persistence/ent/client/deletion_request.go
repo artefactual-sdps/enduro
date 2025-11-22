@@ -108,7 +108,8 @@ func (c *Client) UpdateDeletionRequest(
 		SetReviewer(up.Reviewer).
 		SetReviewerIss(up.ReviewerIss).
 		SetReviewerSub(up.ReviewerSub).
-		SetStatus(up.Status)
+		SetStatus(up.Status).
+		SetDeletionReportKey(up.DeletionReportKey)
 
 	if !up.ReviewedAt.IsZero() {
 		q.SetReviewedAt(up.ReviewedAt)
@@ -119,7 +120,7 @@ func (c *Client) UpdateDeletionRequest(
 		return nil, rollback(tx, fmt.Errorf("update deletion request: %v", err))
 	}
 	if err = tx.Commit(); err != nil {
-		return nil, rollback(tx, fmt.Errorf("update deletion request: %v", err))
+		return nil, rollback(tx, fmt.Errorf("commit deletion request update: %v", err))
 	}
 
 	r := convertDeletionRequest(dr)
@@ -136,6 +137,7 @@ func (c *Client) ReadDeletionRequest(
 ) (*types.DeletionRequest, error) {
 	dr, err := c.c.DeletionRequest.Query().
 		Where(deletionrequest.UUID(id)).
+		WithAip().
 		Only(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("read deletion request: %v", err)
@@ -146,19 +148,20 @@ func (c *Client) ReadDeletionRequest(
 
 func convertDeletionRequest(dbdr *db.DeletionRequest) *types.DeletionRequest {
 	dr := &types.DeletionRequest{
-		DBID:         dbdr.ID,
-		UUID:         dbdr.UUID,
-		Requester:    dbdr.Requester,
-		RequesterIss: dbdr.RequesterIss,
-		RequesterSub: dbdr.RequesterSub,
-		Reviewer:     dbdr.Reviewer,
-		ReviewerIss:  dbdr.ReviewerIss,
-		ReviewerSub:  dbdr.ReviewerSub,
-		Reason:       dbdr.Reason,
-		Status:       dbdr.Status,
-		RequestedAt:  dbdr.RequestedAt,
-		ReviewedAt:   dbdr.ReviewedAt,
-		WorkflowDBID: dbdr.WorkflowID,
+		DBID:              dbdr.ID,
+		UUID:              dbdr.UUID,
+		Requester:         dbdr.Requester,
+		RequesterIss:      dbdr.RequesterIss,
+		RequesterSub:      dbdr.RequesterSub,
+		Reviewer:          dbdr.Reviewer,
+		ReviewerIss:       dbdr.ReviewerIss,
+		ReviewerSub:       dbdr.ReviewerSub,
+		Reason:            dbdr.Reason,
+		Status:            dbdr.Status,
+		RequestedAt:       dbdr.RequestedAt,
+		ReviewedAt:        dbdr.ReviewedAt,
+		WorkflowDBID:      dbdr.WorkflowID,
+		DeletionReportKey: dbdr.DeletionReportKey,
 	}
 
 	if dbdr.Edges.Aip != nil {
