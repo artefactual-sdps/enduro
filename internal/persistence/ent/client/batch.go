@@ -1,4 +1,4 @@
-package entclient
+package client
 
 import (
 	"context"
