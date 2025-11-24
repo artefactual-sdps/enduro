@@ -538,6 +538,8 @@ paths:
                         - processing
                         - pending
                         - ingested
+                        - validated
+                        - canceled
                   example: failed
                 - name: uploader_uuid
                   in: query
@@ -3311,6 +3313,8 @@ components:
                         - processing
                         - pending
                         - ingested
+                        - validated
+                        - canceled
                 uploader_email:
                     type: string
                     description: Email of the user who uploaded the SIP
@@ -3425,6 +3429,7 @@ components:
                         - queued
                         - pending
                         - failed
+                        - canceled
                 tasks:
                     $ref: '#/components/schemas/SIPTaskCollection'
                 temporal_id:
@@ -4415,6 +4420,8 @@ components:
                         - processing
                         - pending
                         - ingested
+                        - validated
+                        - canceled
                 uuid:
                     type: string
                     description: Identifier of SIP

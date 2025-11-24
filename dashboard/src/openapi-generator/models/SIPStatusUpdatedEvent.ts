@@ -43,7 +43,9 @@ export const SIPStatusUpdatedEventStatusEnum = {
     Queued: 'queued',
     Processing: 'processing',
     Pending: 'pending',
-    Ingested: 'ingested'
+    Ingested: 'ingested',
+    Validated: 'validated',
+    Canceled: 'canceled'
 } as const;
 export type SIPStatusUpdatedEventStatusEnum = typeof SIPStatusUpdatedEventStatusEnum[keyof typeof SIPStatusUpdatedEventStatusEnum];
 

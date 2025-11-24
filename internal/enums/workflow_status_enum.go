@@ -26,11 +26,13 @@ const (
 	WorkflowStatusPending
 	// Halted due to a policy violation.
 	WorkflowStatusFailed
+	// Canceled by Batch workflow.
+	WorkflowStatusCanceled
 )
 
 var ErrInvalidWorkflowStatus = fmt.Errorf("not a valid WorkflowStatus, try [%s]", strings.Join(_WorkflowStatusNames, ", "))
 
-const _WorkflowStatusName = "unspecifiedin progressdoneerrorqueuedpendingfailed"
+const _WorkflowStatusName = "unspecifiedin progressdoneerrorqueuedpendingfailedcanceled"
 
 var _WorkflowStatusNames = []string{
 	_WorkflowStatusName[0:11],
@@ -40,6 +42,7 @@ var _WorkflowStatusNames = []string{
 	_WorkflowStatusName[31:37],
 	_WorkflowStatusName[37:44],
 	_WorkflowStatusName[44:50],
+	_WorkflowStatusName[50:58],
 }
 
 // WorkflowStatusNames returns a list of possible string values of WorkflowStatus.
@@ -57,6 +60,7 @@ var _WorkflowStatusMap = map[WorkflowStatus]string{
 	WorkflowStatusQueued:      _WorkflowStatusName[31:37],
 	WorkflowStatusPending:     _WorkflowStatusName[37:44],
 	WorkflowStatusFailed:      _WorkflowStatusName[44:50],
+	WorkflowStatusCanceled:    _WorkflowStatusName[50:58],
 }
 
 // String implements the Stringer interface.
@@ -82,6 +86,7 @@ var _WorkflowStatusValue = map[string]WorkflowStatus{
 	_WorkflowStatusName[31:37]: WorkflowStatusQueued,
 	_WorkflowStatusName[37:44]: WorkflowStatusPending,
 	_WorkflowStatusName[44:50]: WorkflowStatusFailed,
+	_WorkflowStatusName[50:58]: WorkflowStatusCanceled,
 }
 
 // ParseWorkflowStatus attempts to convert a string to a WorkflowStatus.

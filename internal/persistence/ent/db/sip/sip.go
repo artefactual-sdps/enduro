@@ -107,7 +107,7 @@ var (
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
 func StatusValidator(s enums.SIPStatus) error {
 	switch s.String() {
-	case "error", "failed", "queued", "processing", "pending", "ingested":
+	case "error", "failed", "queued", "processing", "pending", "ingested", "validated", "canceled":
 		return nil
 	default:
 		return fmt.Errorf("sip: invalid enum value for status field: %q", s)

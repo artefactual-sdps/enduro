@@ -91,8 +91,8 @@ func BuildListSipsPayload(ingestListSipsName string, ingestListSipsAipUUID strin
 	{
 		if ingestListSipsStatus != "" {
 			status = &ingestListSipsStatus
-			if !(*status == "error" || *status == "failed" || *status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
+			if !(*status == "error" || *status == "failed" || *status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested" || *status == "validated" || *status == "canceled") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"error", "failed", "queued", "processing", "pending", "ingested", "validated", "canceled"}))
 			}
 			if err != nil {
 				return nil, err

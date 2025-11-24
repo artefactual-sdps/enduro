@@ -143,7 +143,9 @@ export const EnduroIngestSipStatusEnum = {
     Queued: 'queued',
     Processing: 'processing',
     Pending: 'pending',
-    Ingested: 'ingested'
+    Ingested: 'ingested',
+    Validated: 'validated',
+    Canceled: 'canceled'
 } as const;
 export type EnduroIngestSipStatusEnum = typeof EnduroIngestSipStatusEnum[keyof typeof EnduroIngestSipStatusEnum];
 

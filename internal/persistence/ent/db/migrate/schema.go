@@ -71,7 +71,7 @@ var (
 		{Name: "uuid", Type: field.TypeUUID, Unique: true},
 		{Name: "name", Type: field.TypeString, Size: 2048},
 		{Name: "aip_id", Type: field.TypeUUID, Nullable: true},
-		{Name: "status", Type: field.TypeEnum, Enums: []string{"error", "failed", "queued", "processing", "pending", "ingested"}},
+		{Name: "status", Type: field.TypeEnum, Enums: []string{"error", "failed", "queued", "processing", "pending", "ingested", "validated", "canceled"}},
 		{Name: "created_at", Type: field.TypeTime},
 		{Name: "started_at", Type: field.TypeTime, Nullable: true},
 		{Name: "completed_at", Type: field.TypeTime, Nullable: true},

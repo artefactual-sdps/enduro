@@ -293,7 +293,7 @@ export interface IngestApiInterface {
      * @param {string} [aipUuid] Identifier of AIP
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
-     * @param {'error' | 'failed' | 'queued' | 'processing' | 'pending' | 'ingested'} [status] 
+     * @param {'error' | 'failed' | 'queued' | 'processing' | 'pending' | 'ingested' | 'validated' | 'canceled'} [status] 
      * @param {string} [uploaderUuid] UUID of the SIP uploader
      * @param {string} [batchUuid] UUID of the related Batch
      * @param {number} [limit] Limit number of results to return
@@ -1163,6 +1163,8 @@ export const IngestListSipsStatusEnum = {
     Queued: 'queued',
     Processing: 'processing',
     Pending: 'pending',
-    Ingested: 'ingested'
+    Ingested: 'ingested',
+    Validated: 'validated',
+    Canceled: 'canceled'
 } as const;
 export type IngestListSipsStatusEnum = typeof IngestListSipsStatusEnum[keyof typeof IngestListSipsStatusEnum];

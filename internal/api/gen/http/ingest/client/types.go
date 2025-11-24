@@ -2741,8 +2741,8 @@ func ValidateSIPResponseBody(body *SIPResponseBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Status != nil {
-		if !(*body.Status == "error" || *body.Status == "failed" || *body.Status == "queued" || *body.Status == "processing" || *body.Status == "pending" || *body.Status == "ingested") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
+		if !(*body.Status == "error" || *body.Status == "failed" || *body.Status == "queued" || *body.Status == "processing" || *body.Status == "pending" || *body.Status == "ingested" || *body.Status == "validated" || *body.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"error", "failed", "queued", "processing", "pending", "ingested", "validated", "canceled"}))
 		}
 	}
 	if body.AipUUID != nil {
@@ -2825,8 +2825,8 @@ func ValidateSIPWorkflowResponseBody(body *SIPWorkflowResponseBody) (err error) 
 		}
 	}
 	if body.Status != nil {
-		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "failed") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed"}))
+		if !(*body.Status == "unspecified" || *body.Status == "in progress" || *body.Status == "done" || *body.Status == "error" || *body.Status == "queued" || *body.Status == "pending" || *body.Status == "failed" || *body.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed", "canceled"}))
 		}
 	}
 	if body.StartedAt != nil {

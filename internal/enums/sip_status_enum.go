@@ -24,6 +24,10 @@ const (
 	SIPStatusPending SIPStatus = "pending"
 	// Successfully ingested.
 	SIPStatusIngested SIPStatus = "ingested"
+	// Passed validation, waiting for other SIPs in the Batch.
+	SIPStatusValidated SIPStatus = "validated"
+	// Canceled as part of a Batch that failed.
+	SIPStatusCanceled SIPStatus = "canceled"
 )
 
 var ErrInvalidSIPStatus = fmt.Errorf("not a valid SIPStatus, try [%s]", strings.Join(_SIPStatusNames, ", "))
@@ -35,6 +39,8 @@ var _SIPStatusNames = []string{
 	string(SIPStatusProcessing),
 	string(SIPStatusPending),
 	string(SIPStatusIngested),
+	string(SIPStatusValidated),
+	string(SIPStatusCanceled),
 }
 
 // SIPStatusNames returns a list of possible string values of SIPStatus.
@@ -63,6 +69,8 @@ var _SIPStatusValue = map[string]SIPStatus{
 	"processing": SIPStatusProcessing,
 	"pending":    SIPStatusPending,
 	"ingested":   SIPStatusIngested,
+	"validated":  SIPStatusValidated,
+	"canceled":   SIPStatusCanceled,
 }
 
 // ParseSIPStatus attempts to convert a string to a SIPStatus.

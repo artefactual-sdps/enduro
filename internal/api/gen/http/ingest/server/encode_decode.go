@@ -238,8 +238,8 @@ func DecodeListSipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 			status = &statusRaw
 		}
 		if status != nil {
-			if !(*status == "error" || *status == "failed" || *status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
+			if !(*status == "error" || *status == "failed" || *status == "queued" || *status == "processing" || *status == "pending" || *status == "ingested" || *status == "validated" || *status == "canceled") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("status", *status, []any{"error", "failed", "queued", "processing", "pending", "ingested", "validated", "canceled"}))
 			}
 		}
 		uploaderUUIDRaw := qp.Get("uploader_uuid")
