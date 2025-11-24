@@ -751,7 +751,9 @@
             "queued",
             "processing",
             "pending",
-            "ingested"
+            "ingested",
+            "validated",
+            "canceled"
           ],
           "example": "failed",
           "type": "string"
@@ -3059,7 +3061,9 @@
             "queued",
             "processing",
             "pending",
-            "ingested"
+            "ingested",
+            "validated",
+            "canceled"
           ],
           "example": "failed",
           "type": "string"
@@ -3301,7 +3305,8 @@
             "error",
             "queued",
             "pending",
-            "failed"
+            "failed",
+            "canceled"
           ],
           "example": "in progress",
           "type": "string"
@@ -5317,7 +5322,9 @@
               "queued",
               "processing",
               "pending",
-              "ingested"
+              "ingested",
+              "validated",
+              "canceled"
             ],
             "in": "query",
             "name": "status",

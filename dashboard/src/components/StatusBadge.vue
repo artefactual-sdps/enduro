@@ -46,6 +46,12 @@ const packageStyle: {
   processing: ["text-dark", "bg-info-subtle", "border border-2 border-info"],
   pending: ["text-dark", "bg-warning-subtle", "border border-2 border-warning"],
   unspecified: ["text-dark", "bg-dark-subtle", "border border-2 border-dark"],
+  validated: [
+    "text-dark",
+    "bg-success-subtle",
+    "border border-2 border-success",
+  ],
+  canceled: ["text-dark", "bg-dark-subtle", "border border-2 border-dark"],
 };
 
 const workflowStyle: {

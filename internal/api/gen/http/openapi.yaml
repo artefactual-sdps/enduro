@@ -385,6 +385,8 @@ paths:
                     - processing
                     - pending
                     - ingested
+                    - validated
+                    - canceled
                 - name: uploader_uuid
                   in: query
                   description: UUID of the SIP uploader
@@ -2466,6 +2468,8 @@ definitions:
                     - processing
                     - pending
                     - ingested
+                    - validated
+                    - canceled
             uploader_email:
                 type: string
                 description: Email of the user who uploaded the SIP
@@ -4309,6 +4313,8 @@ definitions:
                     - processing
                     - pending
                     - ingested
+                    - validated
+                    - canceled
             uploader_email:
                 type: string
                 description: Email of the user who uploaded the SIP
@@ -4497,6 +4503,7 @@ definitions:
                     - queued
                     - pending
                     - failed
+                    - canceled
             tasks:
                 $ref: '#/definitions/SIPTaskResponseBodyCollection'
             temporal_id:

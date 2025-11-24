@@ -749,8 +749,8 @@ func ValidateSIPView(result *SIPView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
 	}
 	if result.Status != nil {
-		if !(*result.Status == "error" || *result.Status == "failed" || *result.Status == "queued" || *result.Status == "processing" || *result.Status == "pending" || *result.Status == "ingested") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
+		if !(*result.Status == "error" || *result.Status == "failed" || *result.Status == "queued" || *result.Status == "processing" || *result.Status == "pending" || *result.Status == "ingested" || *result.Status == "validated" || *result.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"error", "failed", "queued", "processing", "pending", "ingested", "validated", "canceled"}))
 		}
 	}
 	if result.AipUUID != nil {
@@ -800,8 +800,8 @@ func ValidateSIPStatusUpdatedEventView(result *SIPStatusUpdatedEventView) (err e
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
 	}
 	if result.Status != nil {
-		if !(*result.Status == "error" || *result.Status == "failed" || *result.Status == "queued" || *result.Status == "processing" || *result.Status == "pending" || *result.Status == "ingested") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"error", "failed", "queued", "processing", "pending", "ingested"}))
+		if !(*result.Status == "error" || *result.Status == "failed" || *result.Status == "queued" || *result.Status == "processing" || *result.Status == "pending" || *result.Status == "ingested" || *result.Status == "validated" || *result.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"error", "failed", "queued", "processing", "pending", "ingested", "validated", "canceled"}))
 		}
 	}
 	return
@@ -851,8 +851,8 @@ func ValidateSIPWorkflowViewSimple(result *SIPWorkflowView) (err error) {
 		}
 	}
 	if result.Status != nil {
-		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending" || *result.Status == "failed") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed"}))
+		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending" || *result.Status == "failed" || *result.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed", "canceled"}))
 		}
 	}
 	if result.StartedAt != nil {
@@ -891,8 +891,8 @@ func ValidateSIPWorkflowView(result *SIPWorkflowView) (err error) {
 		}
 	}
 	if result.Status != nil {
-		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending" || *result.Status == "failed") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed"}))
+		if !(*result.Status == "unspecified" || *result.Status == "in progress" || *result.Status == "done" || *result.Status == "error" || *result.Status == "queued" || *result.Status == "pending" || *result.Status == "failed" || *result.Status == "canceled") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"unspecified", "in progress", "done", "error", "queued", "pending", "failed", "canceled"}))
 		}
 	}
 	if result.StartedAt != nil {
