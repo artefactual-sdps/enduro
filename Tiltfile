@@ -1,4 +1,4 @@
-version_settings(constraint=">=0.22.2")
+version_settings(constraint=">=0.35.0")
 secret_settings(disable_scrub=True)
 ci_settings(timeout="10m", readiness_timeout="10m")
 load("ext://uibutton", "cmd_button", "text_input")

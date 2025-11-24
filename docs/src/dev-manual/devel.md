@@ -9,7 +9,7 @@ Kubernetes cluster. It has been tested with k3d, Minikube and Kind.
 
 - [Docker] (v18.09+)
 - [kubectl]
-- [Tilt] (v0.22.2+)
+- [Tilt] (v0.35.0+)
 
 A local Kubernetes cluster:
 
