@@ -1,6 +1,7 @@
 package am_test
 
 import (
+	"context"
 	"net/http"
 	"testing"
 	"time"
@@ -17,7 +18,9 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/am"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 var (
@@ -148,12 +151,21 @@ func TestPollTransferActivity(t *testing.T) {
 			},
 			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
 				// Second poll.
-				for _, job := range jobs {
-					task, _ := am.ConvertJobToTask(job)
-					task.WorkflowUUID = wUUID
-					m.CreateTask(mockutil.Context(), task).Return(nil)
-
-				}
+				m.CreateTasks(mockutil.Context(), gomock.Any()).
+					DoAndReturn(func(_ context.Context, seq persistence.TaskSequence) error {
+						var got []*datatypes.Task
+						seq(func(t *datatypes.Task) bool {
+							got = append(got, t)
+							return true
+						})
+						assert.Equal(t, len(got), len(jobs))
+						for i, job := range jobs {
+							task, _ := am.ConvertJobToTask(job)
+							task.WorkflowUUID = wUUID
+							assert.DeepEqual(t, got[i], task)
+						}
+						return nil
+					})
 			},
 			want: am.PollTransferActivityResult{
 				SIPID:     sipID,

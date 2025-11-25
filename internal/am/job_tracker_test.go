@@ -20,6 +20,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 func TestJobTracker(t *testing.T) {
@@ -100,18 +101,25 @@ func TestJobTracker(t *testing.T) {
 				)
 			},
 			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreateTask(
-					mockutil.Context(),
-					&datatypes.Task{
-						ID:           0,
-						UUID:         taskUUID,
-						Name:         "Extract zipped bag transfer",
-						Status:       enums.TaskStatusDone,
-						StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
-						CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
-						WorkflowUUID: wUUID,
-					},
-				).Return(nil)
+				m.CreateTasks(mockutil.Context(), gomock.Any()).
+					DoAndReturn(func(_ context.Context, seq persistence.TaskSequence) error {
+						var got []*datatypes.Task
+						seq(func(t *datatypes.Task) bool {
+							got = append(got, t)
+							return true
+						})
+						assert.Equal(t, len(got), 1)
+						assert.DeepEqual(t, got[0], &datatypes.Task{
+							ID:           0,
+							UUID:         taskUUID,
+							Name:         "Extract zipped bag transfer",
+							Status:       enums.TaskStatusDone,
+							StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
+							CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+							WorkflowUUID: wUUID,
+						})
+						return nil
+					})
 			},
 			want: 1,
 		},

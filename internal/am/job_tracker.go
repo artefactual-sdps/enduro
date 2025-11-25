@@ -4,6 +4,7 @@ import (
 	context "context"
 	"database/sql"
 	"fmt"
+	"slices"
 
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
@@ -12,6 +13,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 var keepJobs = map[string]struct{}{
@@ -130,8 +132,10 @@ func (jt *JobTracker) list(ctx context.Context, unitID string) ([]amclient.Job, 
 
 // saveTasks persists Archivematica jobs data as tasks.
 func (jt *JobTracker) saveTasks(ctx context.Context, jobs []amclient.Job) (int, error) {
-	var count int
+	var tasks []*datatypes.Task
+	var savedIDs []string
 	jobs = jt.filterJobs(jobs)
+
 	for _, job := range jobs {
 		// Wait until a job is complete (or failed) before saving it.
 		if job.Status == amclient.JobStatusProcessing {
@@ -143,18 +147,23 @@ func (jt *JobTracker) saveTasks(ctx context.Context, jobs []amclient.Job) (int, 
 			return 0, err
 		}
 		task.WorkflowUUID = jt.workflowUUID
-
-		err = jt.ingestsvc.CreateTask(ctx, task)
-		if err != nil {
-			return 0, err
-		}
-
-		// Add this job ID to the list of savedIDs.
-		jt.savedIDs[job.ID] = struct{}{}
-		count++
+		tasks = append(tasks, task)
+		savedIDs = append(savedIDs, job.ID)
 	}
 
-	return count, nil
+	if len(tasks) == 0 {
+		return 0, nil
+	}
+
+	if err := jt.ingestsvc.CreateTasks(ctx, persistence.TaskSequence(slices.Values(tasks))); err != nil {
+		return 0, err
+	}
+
+	for _, id := range savedIDs {
+		jt.savedIDs[id] = struct{}{}
+	}
+
+	return len(tasks), nil
 }
 
 // filterJobs filters out jobs that have an ID in saved and jobs without
