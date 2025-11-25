@@ -126,6 +126,19 @@ func (w *wrapper) CreateTask(ctx context.Context, task *datatypes.Task) error {
 	return nil
 }
 
+func (w *wrapper) CreateTasks(ctx context.Context, seq TaskSequence) error {
+	ctx, span := w.tracer.Start(ctx, "CreateTasks")
+	defer span.End()
+
+	err := w.wrapped.CreateTasks(ctx, seq)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return updateError(err, "CreateTasks")
+	}
+
+	return nil
+}
+
 func (w *wrapper) UpdateTask(
 	ctx context.Context,
 	id int,

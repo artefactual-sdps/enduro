@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -65,6 +66,94 @@ func (c *client) CreateTask(ctx context.Context, task *datatypes.Task) error {
 	}
 
 	task.ID = dbt.ID
+
+	return nil
+}
+
+func (c *client) CreateTasks(ctx context.Context, seq persistence.TaskSequence) error {
+	tx, err := c.ent.BeginTx(ctx, nil)
+	if err != nil {
+		return newDBErrorWithDetails(err, "create tasks")
+	}
+
+	workflowIDs := make(map[uuid.UUID]int)
+
+	for ck := range chunk(seq) {
+		if len(ck) == 0 {
+			continue
+		}
+
+		builders := make([]*db.TaskCreate, 0, len(ck))
+		originals := make([]*datatypes.Task, 0, len(ck))
+
+		for _, task := range ck {
+			if task.UUID == uuid.Nil {
+				return rollback(tx, newRequiredFieldError("UUID"))
+			}
+			if task.Name == "" {
+				return rollback(tx, newRequiredFieldError("Name"))
+			}
+			if task.WorkflowUUID == uuid.Nil {
+				return rollback(tx, newRequiredFieldError("WorkflowUUID"))
+			}
+
+			var startedAt *time.Time
+			if task.StartedAt.Valid {
+				startedAt = &task.StartedAt.Time
+			}
+
+			var completedAt *time.Time
+			if task.CompletedAt.Valid {
+				completedAt = &task.CompletedAt.Time
+			}
+
+			wID, ok := workflowIDs[task.WorkflowUUID]
+			if !ok {
+				wID, err = tx.Workflow.Query().
+					Where(workflow.UUID(task.WorkflowUUID)).
+					OnlyID(ctx)
+				if err != nil {
+					return rollback(tx, newDBErrorWithDetails(err, "create tasks"))
+				}
+				workflowIDs[task.WorkflowUUID] = wID
+			}
+
+			builder := tx.Task.Create().
+				SetUUID(task.UUID).
+				SetName(task.Name).
+				SetStatus(int8(task.Status)). // #nosec G115 -- constrained value.
+				SetNillableStartedAt(startedAt).
+				SetNillableCompletedAt(completedAt).
+				SetNote(task.Note).
+				SetWorkflowID(wID)
+
+			builders = append(builders, builder)
+			originals = append(originals, task)
+		}
+
+		created, err := tx.Task.CreateBulk(builders...).Save(ctx)
+		if err != nil {
+			return rollback(tx, newDBErrorWithDetails(err, "create tasks"))
+		}
+
+		if len(created) != len(originals) {
+			return rollback(
+				tx,
+				newDBErrorWithDetails(
+					fmt.Errorf("create tasks: created %d rows, expected %d", len(created), len(originals)),
+					"create tasks",
+				),
+			)
+		}
+
+		for i, dbt := range created {
+			originals[i].ID = dbt.ID
+		}
+	}
+
+	if err = tx.Commit(); err != nil {
+		return rollback(tx, newDBErrorWithDetails(err, "create tasks"))
+	}
 
 	return nil
 }

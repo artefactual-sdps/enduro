@@ -157,6 +157,44 @@ func (c *MockServiceCreateTaskCall) DoAndReturn(f func(context.Context, *datatyp
 	return c
 }
 
+// CreateTasks mocks base method.
+func (m *MockService) CreateTasks(arg0 context.Context, arg1 persistence.TaskSequence) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CreateTasks", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CreateTasks indicates an expected call of CreateTasks.
+func (mr *MockServiceMockRecorder) CreateTasks(arg0, arg1 any) *MockServiceCreateTasksCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTasks", reflect.TypeOf((*MockService)(nil).CreateTasks), arg0, arg1)
+	return &MockServiceCreateTasksCall{Call: call}
+}
+
+// MockServiceCreateTasksCall wrap *gomock.Call
+type MockServiceCreateTasksCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceCreateTasksCall) Return(arg0 error) *MockServiceCreateTasksCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceCreateTasksCall) Do(f func(context.Context, persistence.TaskSequence) error) *MockServiceCreateTasksCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceCreateTasksCall) DoAndReturn(f func(context.Context, persistence.TaskSequence) error) *MockServiceCreateTasksCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // CreateUser mocks base method.
 func (m *MockService) CreateUser(arg0 context.Context, arg1 *datatypes.User) error {
 	m.ctrl.T.Helper()

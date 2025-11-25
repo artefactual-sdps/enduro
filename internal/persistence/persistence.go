@@ -3,6 +3,7 @@ package persistence
 import (
 	"context"
 	"errors"
+	"iter"
 
 	"github.com/google/uuid"
 
@@ -26,6 +27,10 @@ type (
 	BatchUpdater func(*datatypes.Batch) (*datatypes.Batch, error)
 )
 
+// TaskSequence is a convenience alias for iter.Seq[*datatypes.Task]. Use
+// helpers such as slices.Values to convert an existing slice into the iterator.
+type TaskSequence = iter.Seq[*datatypes.Task]
+
 type Service interface {
 	// CreateSIP persists the given SIP to the data store then updates
 	// the SIP from the data store, adding auto-generated data
@@ -39,6 +44,15 @@ type Service interface {
 	CreateWorkflow(context.Context, *datatypes.Workflow) error
 
 	CreateTask(context.Context, *datatypes.Task) error
+	// CreateTasks persists all tasks yielded by the sequence. For very large
+	// sequences, the transaction may remain open for an extended period,
+	// potentially causing lock contention or timeout issues.
+	//
+	// Implementors must consume the sequence in batches and stop on the first
+	// error. Implementors must insert all batches within a single transaction
+	// for atomicity. On success, implementors must update yielded tasks in
+	// place with generated fields (e.g. database IDs).
+	CreateTasks(context.Context, TaskSequence) error
 	UpdateTask(ctx context.Context, id int, updater TaskUpdater) (*datatypes.Task, error)
 
 	// CreateUser persists a new user to the data store then updates the user

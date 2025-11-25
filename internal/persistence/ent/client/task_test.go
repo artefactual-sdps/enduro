@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 
@@ -124,6 +125,138 @@ func TestCreateTask(t *testing.T) {
 			assert.Equal(t, task.CompletedAt, tt.want.CompletedAt)
 			assert.Equal(t, task.Note, tt.want.Note)
 			assert.Equal(t, task.WorkflowUUID, tt.want.WorkflowUUID)
+		})
+	}
+}
+
+func TestCreateTasks(t *testing.T) {
+	t.Parallel()
+
+	started := sql.NullTime{Time: time.Now(), Valid: true}
+	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
+
+	tests := []struct {
+		name    string
+		make    func() []*datatypes.Task
+		wantIDs []int
+		wantErr string
+	}{
+		{
+			name: "Saves multiple tasks",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Task A",
+						Status:       enums.TaskStatusInProgress,
+						StartedAt:    started,
+						CompletedAt:  completed,
+						WorkflowUUID: wUUID,
+					},
+					{
+						UUID:         uuid.New(),
+						Name:         "Task B",
+						Status:       enums.TaskStatusDone,
+						WorkflowUUID: wUUID,
+					},
+				}
+			},
+			wantIDs: []int{1, 2},
+		},
+		{
+			name: "Returns validation error",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Status:       enums.TaskStatusInProgress,
+						WorkflowUUID: wUUID,
+					},
+				}
+			},
+			wantErr: "invalid data error: field \"Name\" is required",
+		},
+		{
+			name: "Workflow not found",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Missing workflow",
+						Status:       enums.TaskStatusInProgress,
+						WorkflowUUID: uuid.New(),
+					},
+				}
+			},
+			wantErr: "not found error",
+		},
+		{
+			name: "Accepts slices.Values iterator",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Slice Task 1",
+						Status:       enums.TaskStatusInProgress,
+						WorkflowUUID: wUUID,
+					},
+					{
+						UUID:         uuid.New(),
+						Name:         "Slice Task 2",
+						Status:       enums.TaskStatusDone,
+						WorkflowUUID: wUUID,
+					},
+				}
+			},
+			wantIDs: []int{1, 2},
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			entc, svc := setUpClient(t, logr.Discard())
+			ctx := t.Context()
+
+			sip, _ := createSIP(
+				t,
+				entc,
+				"Test SIP",
+				enums.SIPStatusIngested,
+			)
+			_, _ = createWorkflow(
+				t,
+				entc,
+				sip.ID,
+				enums.WorkflowStatusDone,
+			)
+
+			tasks := tt.make()
+			var seq persistence.TaskSequence
+			if tt.name == "Accepts slices.Values iterator" {
+				seq = persistence.TaskSequence(slices.Values(tasks))
+			} else {
+				seq = persistence.TaskSequence(func(yield func(*datatypes.Task) bool) {
+					for _, task := range tasks {
+						if !yield(task) {
+							return
+						}
+					}
+				})
+			}
+
+			err := svc.CreateTasks(ctx, seq)
+			if tt.wantErr != "" {
+				assert.ErrorContains(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			for i, want := range tt.wantIDs {
+				assert.Equal(t, want, tasks[i].ID)
+			}
 		})
 	}
 }

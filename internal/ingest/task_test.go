@@ -11,8 +11,10 @@ import (
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
 	"go.artefactual.dev/tools/ref"
+	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
+	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
@@ -50,10 +52,18 @@ func TestCreateTask(t *testing.T) {
 			},
 			mock: func(svc *persistence_fake.MockService, task datatypes.Task) *persistence_fake.MockService {
 				svc.EXPECT().
-					CreateTask(mockutil.Context(), &task).
+					CreateTasks(mockutil.Context(), gomock.Any()).
 					DoAndReturn(
-						func(ctx context.Context, task *datatypes.Task) error {
-							task.ID = 1
+						func(
+							ctx context.Context,
+							seq persistence.TaskSequence,
+						) error {
+							var seen []*datatypes.Task
+							seq(func(t *datatypes.Task) bool {
+								seen = append(seen, t)
+								return true
+							})
+							seen[0].ID = 1
 							return nil
 						},
 					)
@@ -79,10 +89,18 @@ func TestCreateTask(t *testing.T) {
 			},
 			mock: func(svc *persistence_fake.MockService, task datatypes.Task) *persistence_fake.MockService {
 				svc.EXPECT().
-					CreateTask(mockutil.Context(), &task).
+					CreateTasks(mockutil.Context(), gomock.Any()).
 					DoAndReturn(
-						func(ctx context.Context, task *datatypes.Task) error {
-							task.ID = 2
+						func(
+							ctx context.Context,
+							seq persistence.TaskSequence,
+						) error {
+							var seen []*datatypes.Task
+							seq(func(t *datatypes.Task) bool {
+								seen = append(seen, t)
+								return true
+							})
+							seen[0].ID = 2
 							return nil
 						},
 					)
@@ -110,7 +128,7 @@ func TestCreateTask(t *testing.T) {
 			task: datatypes.Task{},
 			mock: func(svc *persistence_fake.MockService, task datatypes.Task) *persistence_fake.MockService {
 				svc.EXPECT().
-					CreateTask(mockutil.Context(), &task).
+					CreateTasks(mockutil.Context(), gomock.Any()).
 					Return(
 						fmt.Errorf("invalid data error: field \"TaskID\" is required"),
 					)
@@ -122,7 +140,7 @@ func TestCreateTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+			ingestsvc, perSvc, _, _ := testSvc(t, nil, 0)
 			if tt.mock != nil {
 				tt.mock(perSvc, tt.task)
 			}
@@ -137,6 +155,127 @@ func TestCreateTask(t *testing.T) {
 
 			assert.NilError(t, err)
 			assert.DeepEqual(t, task, tt.want)
+		})
+	}
+}
+
+func TestCreateTasks(t *testing.T) {
+	t.Parallel()
+
+	tests := []struct {
+		name    string
+		make    func() []*datatypes.Task
+		mockErr error
+		wantErr string
+	}{
+		{
+			name: "Creates tasks in bulk",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Bulk task 1",
+						Status:       enums.TaskStatusInProgress,
+						WorkflowUUID: uuid.New(),
+					},
+					{
+						UUID:         uuid.New(),
+						Name:         "Bulk task 2",
+						Status:       enums.TaskStatusDone,
+						WorkflowUUID: uuid.New(),
+					},
+				}
+			},
+		},
+		{
+			name: "Returns persistence error",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Bulk failure",
+						Status:       enums.TaskStatusInProgress,
+						WorkflowUUID: uuid.New(),
+					},
+				}
+			},
+			mockErr: errors.New("persistence fail"),
+			wantErr: "persistence fail",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ingestsvc, perSvc, _, evsvc := testSvc(t, nil, 0)
+
+			sub, err := evsvc.Subscribe(t.Context())
+			assert.NilError(t, err)
+			defer sub.Close()
+
+			tasks := tt.make()
+
+			perSvc.EXPECT().
+				CreateTasks(mockutil.Context(), gomock.Any()).
+				DoAndReturn(
+					func(
+						ctx context.Context,
+						seq persistence.TaskSequence,
+					) error {
+						var seen []*datatypes.Task
+						seq(func(task *datatypes.Task) bool {
+							seen = append(seen, task)
+							return true
+						})
+						for i, task := range seen {
+							task.ID = i + 1
+						}
+
+						return tt.mockErr
+					},
+				)
+
+			err = ingestsvc.CreateTasks(t.Context(), persistence.TaskSequence(func(yield func(*datatypes.Task) bool) {
+				for _, task := range tasks {
+					if !yield(task) {
+						return
+					}
+				}
+			}))
+
+			if tt.wantErr != "" {
+				assert.ErrorContains(t, err, tt.wantErr)
+				select {
+				case evt := <-sub.C():
+					t.Fatalf("unexpected event %v", evt)
+				default:
+				}
+				return
+			}
+
+			assert.NilError(t, err)
+			for i, task := range tasks {
+				assert.Equal(t, i+1, task.ID)
+			}
+
+			events := make([]*goaingest.SIPTaskCreatedEvent, 0, len(tasks))
+			for range tasks {
+				select {
+				case evt := <-sub.C():
+					taskEvt, ok := evt.Value.(*goaingest.SIPTaskCreatedEvent)
+					if !ok {
+						t.Fatalf("unexpected event type %T", evt.Value)
+					}
+					events = append(events, taskEvt)
+				case <-time.After(time.Second):
+					t.Fatalf("missing event for task %d", len(events)+1)
+				}
+			}
+			assert.Equal(t, len(tasks), len(events))
+			for i, evt := range events {
+				assert.Equal(t, tasks[i].UUID, evt.UUID)
+			}
 		})
 	}
 }
@@ -284,7 +423,7 @@ func TestCompleteTask(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+			ingestsvc, perSvc, _, _ := testSvc(t, nil, 0)
 			task := datatypes.Task{
 				ID: 1,
 			}

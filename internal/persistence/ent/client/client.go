@@ -1,3 +1,5 @@
+// Package client provides an ent-based implementation of the persistence
+// service.
 package client
 
 import (
