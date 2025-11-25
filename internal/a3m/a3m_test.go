@@ -1,6 +1,7 @@
 package a3m_test
 
 import (
+	"context"
 	"database/sql"
 	"testing"
 	"time"
@@ -21,6 +22,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 func TestCreateAIPActivity(t *testing.T) {
@@ -65,14 +67,24 @@ func TestCreateAIPActivity(t *testing.T) {
 		)
 
 	ingestsvc := ingest_fake.NewMockService(ctrl)
-	ingestsvc.EXPECT().CreateTask(mockutil.Context(), &datatypes.Task{
-		UUID:   taskUUID,
-		Status: enums.TaskStatusDone,
-		StartedAt: sql.NullTime{
-			Time:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
-			Valid: true,
-		},
-	})
+	ingestsvc.EXPECT().CreateTasks(mockutil.Context(), gomock.Any()).
+		DoAndReturn(func(_ context.Context, seq persistence.TaskSequence) error {
+			var got []*datatypes.Task
+			seq(func(t *datatypes.Task) bool {
+				got = append(got, t)
+				return true
+			})
+			assert.Equal(t, len(got), 1)
+			assert.DeepEqual(t, got[0], &datatypes.Task{
+				UUID:   taskUUID,
+				Status: enums.TaskStatusDone,
+				StartedAt: sql.NullTime{
+					Time:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+					Valid: true,
+				},
+			})
+			return nil
+		})
 
 	env.RegisterActivityWithOptions(
 		a3m.NewCreateAIPActivity(
