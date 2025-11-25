@@ -14,6 +14,9 @@ import (
 )
 
 const (
+	// BatchSignalName is the name of the signal to continue processing a SIP.
+	BatchSignalName = "batch-signal"
+
 	// BatchWorkflowName is the name of the Batch processing workflow.
 	BatchWorkflowName = "batch-workflow"
 
@@ -25,6 +28,11 @@ const (
 )
 
 type (
+	BatchSignal struct {
+		// Continue indicates whether to continue processing the SIP.
+		Continue bool
+	}
+
 	BatchWorkflowRequest struct {
 		// Batch contains the Batch details.
 		Batch datatypes.Batch
@@ -73,6 +81,9 @@ type (
 		// Extension is the file extension of the original SIP. If it's missing and the SIP
 		// is not a directory, the workflow will try to obtain the value after download.
 		Extension string
+
+		// BatchUUID is the UUID of the batch this SIP belongs to, if any.
+		BatchUUID uuid.UUID
 	}
 
 	ReviewPerformedSignal struct {

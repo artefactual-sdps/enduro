@@ -64,9 +64,11 @@ func NewProcessingWorkflow(
 func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *workflowState) {
 	state.logger.Debug("Cleaning up workflow state")
 
-	// Set workflow status to "error" unless it completed successfully or failed
-	// due to invalid contents.
-	if state.status != enums.WorkflowStatusDone && state.status != enums.WorkflowStatusFailed {
+	// Set workflow status to "error" unless it completed successfully, failed
+	// due to invalid contents, or was canceled.
+	if state.status != enums.WorkflowStatusDone &&
+		state.status != enums.WorkflowStatusFailed &&
+		state.status != enums.WorkflowStatusCanceled {
 		state.status = enums.WorkflowStatusError
 	}
 
@@ -76,6 +78,8 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 		state.sip.status = enums.SIPStatusIngested
 	case enums.WorkflowStatusFailed:
 		state.sip.status = enums.SIPStatusFailed
+	case enums.WorkflowStatusCanceled:
+		state.sip.status = enums.SIPStatusCanceled
 	default:
 		// Mark SIP as an error because something went wrong.
 		state.sip.status = enums.SIPStatusError
@@ -128,7 +132,9 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 }
 
 func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, state *workflowState) {
-	if state.status != enums.WorkflowStatusDone && state.initialPath != "" {
+	if state.status != enums.WorkflowStatusDone &&
+		state.status != enums.WorkflowStatusCanceled &&
+		state.initialPath != "" {
 		if err := w.sendFailedToInternalBucket(ctx, state); err != nil {
 			state.logger.Error(
 				"session cleanup: error sending failed SIP/PIP to internal bucket",
@@ -543,6 +549,13 @@ func (w *ProcessingWorkflow) transferA3m(
 		return err
 	}
 
+	// If the SIP belongs to a batch, wait for a signal to continue.
+	if state.req.BatchUUID != uuid.Nil {
+		if err := w.waitForBatch(sessCtx, state); err != nil {
+			return err
+		}
+	}
+
 	// Send PIP to a3m for preservation.
 	{
 		activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
@@ -855,6 +868,13 @@ func (w *ProcessingWorkflow) transferAM(
 
 		// Delete the zipped PIP when the workflow completes.
 		state.addTempPath(zipResult.Path)
+	}
+
+	// If the SIP belongs to a batch, wait for a signal to continue.
+	if state.req.BatchUUID != uuid.Nil {
+		if err := w.waitForBatch(ctx, state); err != nil {
+			return err
+		}
 	}
 
 	// Upload the PIP to AMSS.
@@ -1298,4 +1318,68 @@ func (w *ProcessingWorkflow) updateSIPProcessing(ctx temporalsdk_workflow.Contex
 			Status:  enums.SIPStatusProcessing,
 		},
 	).Get(activityOpts, nil)
+}
+
+func (w *ProcessingWorkflow) waitForBatch(ctx temporalsdk_workflow.Context, state *workflowState) (e error) {
+	// Update SIP status to validated.
+	activityOpts := withLocalActivityOpts(ctx)
+	err := temporalsdk_workflow.ExecuteLocalActivity(
+		activityOpts, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusValidated,
+	).Get(activityOpts, nil)
+	if err != nil {
+		return err
+	}
+
+	// Create task for Batch waiting.
+	id, err := w.createTask(
+		ctx,
+		&datatypes.Task{
+			Name:         "Waiting for other SIPs in Batch",
+			Status:       enums.TaskStatusInProgress,
+			Note:         "The SIP has been validated and is waiting for other SIPs in the Batch to be validated.",
+			WorkflowUUID: state.workflowUUID,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("create Batch waiting task: %v", err)
+	}
+
+	// Set task default status and note.
+	task := datatypes.Task{
+		ID:     id,
+		Status: enums.TaskStatusDone,
+		Note:   "All SIPs in the Batch have been validated.",
+	}
+	defer func() {
+		// Complete Batch waiting task.
+		if err := w.completeTask(ctx, task); err != nil {
+			e = errors.Join(e, fmt.Errorf("complete Batch waiting task: %v", err))
+		}
+		// Update SIP status to processing if there are no errors.
+		// Otherwise, it will be updated in the cleanup.
+		if e == nil {
+			e = temporalsdk_workflow.ExecuteLocalActivity(
+				activityOpts, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusProcessing,
+			).Get(activityOpts, nil)
+		}
+	}()
+
+	// Wait for a Batch signal.
+	var signal ingest.BatchSignal
+	open := temporalsdk_workflow.GetSignalChannel(ctx, ingest.BatchSignalName).Receive(ctx, &signal)
+	if !open {
+		task.Status = enums.TaskStatusError
+		task.Note = "Could not determine if all SIPs in the Batch have been validated."
+		return fmt.Errorf("batch signal channel closed")
+	}
+
+	state.logger.Info("Received Batch signal", "signal", signal)
+
+	if !signal.Continue {
+		task.Note = "Some SIPs in the Batch have failed validation."
+		state.status = enums.WorkflowStatusCanceled
+		return fmt.Errorf("batch signal indicates not to continue")
+	}
+
+	return nil
 }
