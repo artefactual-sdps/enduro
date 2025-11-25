@@ -9,6 +9,9 @@ import (
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
+	"go.opentelemetry.io/otel/attribute"
+	"go.opentelemetry.io/otel/codes"
+	"go.opentelemetry.io/otel/trace"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -83,6 +86,8 @@ type JobTracker struct {
 	// savedIDs caches the ID of jobs that have already been saved so we don't
 	// create duplicates.
 	savedIDs map[string]struct{}
+
+	tracer trace.Tracer
 }
 
 func NewJobTracker(
@@ -90,6 +95,7 @@ func NewJobTracker(
 	jobSvc amclient.JobsService,
 	ingestsvc ingest.Service,
 	workflowUUID uuid.UUID,
+	tracer trace.Tracer,
 ) *JobTracker {
 	return &JobTracker{
 		clock:     clock,
@@ -98,6 +104,7 @@ func NewJobTracker(
 
 		workflowUUID: workflowUUID,
 		savedIDs:     make(map[string]struct{}),
+		tracer:       tracer,
 	}
 }
 
@@ -105,15 +112,28 @@ func NewJobTracker(
 // list of completed jobs related to the transfer or ingest identified by
 // unitID, then saves any new jobs as tasks.
 func (jt *JobTracker) SaveTasks(ctx context.Context, unitID string) (int, error) {
+	ctx, span := jt.tracer.Start(ctx, "JobTracker.SaveTasks")
+	defer span.End()
+	span.SetAttributes(
+		attribute.String("workflow.uuid", jt.workflowUUID.String()),
+		attribute.String("unit.id", unitID),
+	)
+
 	jobs, err := jt.list(ctx, unitID)
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "list jobs")
 		return 0, err
 	}
+	span.SetAttributes(attribute.Int("jobs.fetched", len(jobs)))
 
 	count, err := jt.saveTasks(ctx, jobs)
 	if err != nil {
+		span.RecordError(err)
+		span.SetStatus(codes.Error, "save tasks")
 		return 0, err
 	}
+	span.SetAttributes(attribute.Int("tasks.saved", count))
 
 	return count, nil
 }

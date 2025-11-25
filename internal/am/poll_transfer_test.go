@@ -12,6 +12,7 @@ import (
 	"go.artefactual.dev/amclient/amclienttest"
 	"go.artefactual.dev/tools/mockutil"
 	temporal_tools "go.artefactual.dev/tools/temporal"
+	"go.opentelemetry.io/otel/trace/noop"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
@@ -309,6 +310,7 @@ func TestPollTransferActivity(t *testing.T) {
 					trfSvc,
 					jobSvc,
 					ingestsvc,
+					noop.Tracer{},
 				).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.PollTransferActivityName,

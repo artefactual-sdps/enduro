@@ -13,6 +13,7 @@ import (
 	"go.artefactual.dev/amclient/amclienttest"
 	"go.artefactual.dev/tools/mockutil"
 	temporal_tools "go.artefactual.dev/tools/temporal"
+	"go.opentelemetry.io/otel/trace/noop"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
@@ -167,7 +168,7 @@ func TestJobTracker(t *testing.T) {
 				tt.ingestRec(ingestsvc.EXPECT())
 			}
 
-			jt := am.NewJobTracker(clock, jobsSvc, ingestsvc, wUUID)
+			jt := am.NewJobTracker(clock, jobsSvc, ingestsvc, wUUID, noop.Tracer{})
 			got, err := jt.SaveTasks(context.Background(), unitID)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
