@@ -35,10 +35,11 @@ const (
 	copySIPTaskID    = 100
 	valBagTaskID     = 101
 	valPREMISTaskID  = 102
-	uploadTaskID     = 103
-	reviewAIPTaskID  = 104
-	moveAIPTaskID    = 105
-	deleteSIPTaskID  = 106
+	batchWaitTaskID  = 103
+	uploadTaskID     = 104
+	reviewAIPTaskID  = 105
+	moveAIPTaskID    = 106
+	deleteSIPTaskID  = 107
 	sipName          = "name.zip"
 	key              = "transfer.zip"
 	watcherName      = "watcher"

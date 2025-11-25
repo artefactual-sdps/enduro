@@ -14,6 +14,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/artefactual-sdps/temporal-activities/bucketdownload"
 	"github.com/google/uuid"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
@@ -178,6 +179,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 // - PREMIS validation in the AM branch.
 // - Watched bucket download.
 // - Watched bucket retention period.
+// - Batch signal handling (continue).
 func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.SetupWorkflowTest(config.Configuration{
 		AM:             am.Config{ZipPIP: true, TransferDeadline: time.Second},
@@ -198,6 +200,24 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusDone, "", "PREMIS is valid")
 	expectations["completeTask"](s, params)
 	expectations["zipArchive"](s, params)
+
+	// Batch signal handler and expectations.
+	s.env.RegisterDelayedCallback(func() {
+		s.env.SignalWorkflow(ingest.BatchSignalName, ingest.BatchSignal{Continue: true})
+	}, 0)
+	params.sipStatus = enums.SIPStatusValidated
+	expectations["setStatus"](s, params)
+	params.updateTaskParams(
+		batchWaitTaskID,
+		enums.TaskStatusInProgress,
+		"Waiting for other SIPs in Batch",
+		"The SIP has been validated and is waiting for other SIPs in the Batch to be validated.",
+	)
+	expectations["createTask"](s, params)
+	params.updateTaskParams(batchWaitTaskID, enums.TaskStatusDone, "", "All SIPs in the Batch have been validated.")
+	expectations["completeTask"](s, params)
+	params.sipStatus = enums.SIPStatusProcessing
+	expectations["setStatus"](s, params)
 
 	// Archivematica specific expectations.
 	s.env.OnActivity(
@@ -258,6 +278,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		Key:             key,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
+		BatchUUID:       batchUUID,
 	}, false)
 }
 
@@ -799,4 +820,67 @@ func (s *ProcessingWorkflowTestSuite) TestSIPDeletionError() {
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
 	}, false)
+}
+
+// TestBatchSignalDoNotContinue tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - Watched bucket download.
+// - Batch signal handling (do not continue).
+func (s *ProcessingWorkflowTestSuite) TestBatchSignalDoNotContinue() {
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+	})
+
+	params := defaultParams()
+	downloadExpectations(s, params)
+	expectations["archiveExtract"](s, params)
+	expectations["classifySIP"](s, params)
+	expectations["bundle"](s, params)
+
+	// Batch signal handler and expectations.
+	s.env.RegisterDelayedCallback(func() {
+		s.env.SignalWorkflow(ingest.BatchSignalName, ingest.BatchSignal{Continue: false})
+	}, 0)
+	params.sipStatus = enums.SIPStatusValidated
+	expectations["setStatus"](s, params)
+	params.updateTaskParams(
+		batchWaitTaskID,
+		enums.TaskStatusInProgress,
+		"Waiting for other SIPs in Batch",
+		"The SIP has been validated and is waiting for other SIPs in the Batch to be validated.",
+	)
+	expectations["createTask"](s, params)
+	params.updateTaskParams(batchWaitTaskID, enums.TaskStatusDone, "", "Some SIPs in the Batch have failed validation.")
+	expectations["completeTask"](s, params)
+
+	// Cleanup expectations for canceled SIP.
+	expectations["removePaths"](s, params)
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		s.workflow.ingestsvc,
+		mock.MatchedBy(func(updateParams *updateSIPLocalActivityParams) bool {
+			return updateParams.UUID == sipUUID &&
+				updateParams.Name == sipName &&
+				updateParams.AIPUUID == "" &&
+				updateParams.Status == enums.SIPStatusCanceled &&
+				updateParams.FailedAs == "" &&
+				updateParams.FailedKey == "" &&
+				!updateParams.CompletedAt.IsZero()
+		}),
+	).Return(nil, nil)
+	expectations["completeWorkflow"](s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		WatcherName:     watcherName,
+		RetentionPeriod: params.retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAip,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+		BatchUUID:       batchUUID,
+	}, true)
 }
