@@ -3,6 +3,7 @@ package am_test
 import (
 	"context"
 	"net/http"
+	"slices"
 	"testing"
 	"time"
 
@@ -19,7 +20,6 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/am"
-	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
@@ -154,11 +154,7 @@ func TestPollTransferActivity(t *testing.T) {
 				// Second poll.
 				m.CreateTasks(mockutil.Context(), gomock.Any()).
 					DoAndReturn(func(_ context.Context, seq persistence.TaskSequence) error {
-						var got []*datatypes.Task
-						seq(func(t *datatypes.Task) bool {
-							got = append(got, t)
-							return true
-						})
+						got := slices.Collect(seq)
 						assert.Equal(t, len(got), len(jobs))
 						for i, job := range jobs {
 							task, _ := am.ConvertJobToTask(job)

@@ -3,6 +3,7 @@ package am_test
 import (
 	"context"
 	"net/http"
+	"slices"
 	"testing"
 	"time"
 
@@ -104,20 +105,17 @@ func TestJobTracker(t *testing.T) {
 			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
 				m.CreateTasks(mockutil.Context(), gomock.Any()).
 					DoAndReturn(func(_ context.Context, seq persistence.TaskSequence) error {
-						var got []*datatypes.Task
-						seq(func(t *datatypes.Task) bool {
-							got = append(got, t)
-							return true
-						})
-						assert.Equal(t, len(got), 1)
-						assert.DeepEqual(t, got[0], &datatypes.Task{
-							ID:           0,
-							UUID:         taskUUID,
-							Name:         "Extract zipped bag transfer",
-							Status:       enums.TaskStatusDone,
-							StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
-							CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
-							WorkflowUUID: wUUID,
+						got := slices.Collect(seq)
+						assert.DeepEqual(t, got, []*datatypes.Task{
+							{
+								ID:           0,
+								UUID:         taskUUID,
+								Name:         "Extract zipped bag transfer",
+								Status:       enums.TaskStatusDone,
+								StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
+								CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+								WorkflowUUID: wUUID,
+							},
 						})
 						return nil
 					})

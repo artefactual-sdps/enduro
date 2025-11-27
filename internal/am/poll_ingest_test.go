@@ -3,6 +3,7 @@ package am_test
 import (
 	"context"
 	"net/http"
+	"slices"
 	"testing"
 	"time"
 
@@ -167,26 +168,16 @@ func TestPollIngestActivity(t *testing.T) {
 				// Poll 2: save first job.
 				m.CreateTasks(mockutil.Context(), gomock.Any()).
 					DoAndReturn(func(_ context.Context, seq persistence.TaskSequence) error {
-						var got []*datatypes.Task
-						seq(func(t *datatypes.Task) bool {
-							got = append(got, t)
-							return true
-						})
-						assert.Equal(t, len(got), 1)
-						assert.DeepEqual(t, got[0], tasks[0])
+						got := slices.Collect(seq)
+						assert.DeepEqual(t, got, []*datatypes.Task{tasks[0]})
 						return nil
 					})
 
 				// Poll 3: save second job.
 				m.CreateTasks(mockutil.Context(), gomock.Any()).
 					DoAndReturn(func(_ context.Context, seq persistence.TaskSequence) error {
-						var got []*datatypes.Task
-						seq(func(t *datatypes.Task) bool {
-							got = append(got, t)
-							return true
-						})
-						assert.Equal(t, len(got), 1)
-						assert.DeepEqual(t, got[0], tasks[1])
+						got := slices.Collect(seq)
+						assert.DeepEqual(t, got, []*datatypes.Task{tasks[1]})
 						return nil
 					})
 			},

@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"slices"
 	"testing"
 	"time"
 
@@ -58,11 +59,7 @@ func TestCreateTask(t *testing.T) {
 							ctx context.Context,
 							seq persistence.TaskSequence,
 						) error {
-							var seen []*datatypes.Task
-							seq(func(t *datatypes.Task) bool {
-								seen = append(seen, t)
-								return true
-							})
+							seen := slices.Collect(seq)
 							seen[0].ID = 1
 							return nil
 						},
@@ -95,11 +92,7 @@ func TestCreateTask(t *testing.T) {
 							ctx context.Context,
 							seq persistence.TaskSequence,
 						) error {
-							var seen []*datatypes.Task
-							seq(func(t *datatypes.Task) bool {
-								seen = append(seen, t)
-								return true
-							})
+							seen := slices.Collect(seq)
 							seen[0].ID = 2
 							return nil
 						},
