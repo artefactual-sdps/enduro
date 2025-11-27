@@ -274,18 +274,20 @@ type DeletionRequest struct {
 	UUID uuid.UUID
 	// Identifier of related AIP
 	AipUUID uuid.UUID
-	// User who requested the deletion
-	Requester string
-	// Time the deletion was requested
-	RequestedAt string
+	// UUID of the deletion workflow
+	WorkflowUUID uuid.UUID
 	// Reason for the deletion request
 	Reason string
+	// Time the deletion was requested
+	RequestedAt string
+	// User who requested the deletion
+	Requester string
 	// Status of the deletion request
 	Status string
-	// User who reviewed the deletion request
-	Reviewer *string
 	// Time the deletion request was reviewed
 	ReviewedAt *string
+	// User who reviewed the deletion request
+	Reviewer *string
 	// Object key of the deletion report
 	ReportKey *string
 }
@@ -1147,8 +1149,8 @@ func newDeletionRequestCollectionView(res DeletionRequestCollection) storageview
 // DeletionRequest.
 func newDeletionRequest(vres *storageviews.DeletionRequestView) *DeletionRequest {
 	res := &DeletionRequest{
-		Reviewer:   vres.Reviewer,
 		ReviewedAt: vres.ReviewedAt,
+		Reviewer:   vres.Reviewer,
 		ReportKey:  vres.ReportKey,
 	}
 	if vres.UUID != nil {
@@ -1157,14 +1159,17 @@ func newDeletionRequest(vres *storageviews.DeletionRequestView) *DeletionRequest
 	if vres.AipUUID != nil {
 		res.AipUUID = *vres.AipUUID
 	}
-	if vres.Requester != nil {
-		res.Requester = *vres.Requester
+	if vres.WorkflowUUID != nil {
+		res.WorkflowUUID = *vres.WorkflowUUID
+	}
+	if vres.Reason != nil {
+		res.Reason = *vres.Reason
 	}
 	if vres.RequestedAt != nil {
 		res.RequestedAt = *vres.RequestedAt
 	}
-	if vres.Reason != nil {
-		res.Reason = *vres.Reason
+	if vres.Requester != nil {
+		res.Requester = *vres.Requester
 	}
 	if vres.Status != nil {
 		res.Status = *vres.Status
@@ -1176,15 +1181,16 @@ func newDeletionRequest(vres *storageviews.DeletionRequestView) *DeletionRequest
 // type DeletionRequestView using the "default" view.
 func newDeletionRequestView(res *DeletionRequest) *storageviews.DeletionRequestView {
 	vres := &storageviews.DeletionRequestView{
-		UUID:        &res.UUID,
-		AipUUID:     &res.AipUUID,
-		Requester:   &res.Requester,
-		RequestedAt: &res.RequestedAt,
-		Reason:      &res.Reason,
-		Status:      &res.Status,
-		Reviewer:    res.Reviewer,
-		ReviewedAt:  res.ReviewedAt,
-		ReportKey:   res.ReportKey,
+		UUID:         &res.UUID,
+		AipUUID:      &res.AipUUID,
+		WorkflowUUID: &res.WorkflowUUID,
+		Reason:       &res.Reason,
+		RequestedAt:  &res.RequestedAt,
+		Requester:    &res.Requester,
+		Status:       &res.Status,
+		ReviewedAt:   res.ReviewedAt,
+		Reviewer:     res.Reviewer,
+		ReportKey:    res.ReportKey,
 	}
 	return vres
 }

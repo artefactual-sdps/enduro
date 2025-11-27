@@ -1670,6 +1670,7 @@ paths:
                                   reviewer: abc123
                                   status: approved
                                   uuid: abc123
+                                  workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 "400":
                     description: 'not_valid: Bad Request response.'
                     content:
@@ -3209,6 +3210,7 @@ components:
                   reviewer: abc123
                   status: approved
                   uuid: abc123
+                  workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         EnduroAbout:
             type: object
             properties:
@@ -4044,6 +4046,10 @@ components:
                     type: string
                     description: Identifier of deletion request
                     example: abc123
+                workflow_uuid:
+                    type: string
+                    description: UUID of the deletion workflow
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             description: DeletionRequest describes an AIP deletion request.
             example:
                 aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -4055,13 +4061,15 @@ components:
                 reviewer: abc123
                 status: approved
                 uuid: abc123
+                workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             required:
                 - uuid
                 - aip_uuid
-                - requester
+                - workflow_uuid
                 - reason
-                - status
                 - requested_at
+                - requester
+                - status
         EnduroStorageLocation:
             type: object
             properties:

@@ -754,7 +754,8 @@
             "reviewed_at": "1970-01-01T00:00:01Z",
             "reviewer": "abc123",
             "status": "approved",
-            "uuid": "abc123"
+            "uuid": "abc123",
+            "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
           }
         ],
         "items": {
@@ -1792,7 +1793,8 @@
           "reviewed_at": "1970-01-01T00:00:01Z",
           "reviewer": "abc123",
           "status": "approved",
-          "uuid": "abc123"
+          "uuid": "abc123",
+          "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
         "properties": {
           "aip_uuid": {
@@ -1847,15 +1849,21 @@
             "description": "Identifier of deletion request",
             "example": "abc123",
             "type": "string"
+          },
+          "workflow_uuid": {
+            "description": "UUID of the deletion workflow",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "type": "string"
           }
         },
         "required": [
           "uuid",
           "aip_uuid",
-          "requester",
+          "workflow_uuid",
           "reason",
-          "status",
-          "requested_at"
+          "requested_at",
+          "requester",
+          "status"
         ],
         "type": "object"
       },
@@ -5459,7 +5467,8 @@
                     "reviewed_at": "1970-01-01T00:00:01Z",
                     "reviewer": "abc123",
                     "status": "approved",
-                    "uuid": "abc123"
+                    "uuid": "abc123",
+                    "workflow_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
                   }
                 ],
                 "schema": {

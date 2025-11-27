@@ -2388,6 +2388,10 @@ definitions:
                 type: string
                 description: Identifier of deletion request
                 example: abc123
+            workflow_uuid:
+                type: string
+                description: UUID of the deletion workflow
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         description: DeletionRequest describes an AIP deletion request. (default view)
         example:
             aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -2399,13 +2403,15 @@ definitions:
             reviewer: abc123
             status: approved
             uuid: abc123
+            workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
             - uuid
             - aip_uuid
-            - requester
+            - workflow_uuid
             - reason
-            - status
             - requested_at
+            - requester
+            - status
     EnduroAbout:
         title: 'Mediatype identifier: application/vnd.enduro.about; view=default'
         type: object
@@ -4921,6 +4927,7 @@ definitions:
               reviewer: abc123
               status: approved
               uuid: abc123
+              workflow_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     StorageDownloadAipInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object

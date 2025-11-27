@@ -73,6 +73,12 @@ export interface EnduroStorageDeletionrequest {
      * @memberof EnduroStorageDeletionrequest
      */
     uuid: string;
+    /**
+     * UUID of the deletion workflow
+     * @type {string}
+     * @memberof EnduroStorageDeletionrequest
+     */
+    workflowUuid: string;
 }
 
 
@@ -99,6 +105,7 @@ export function instanceOfEnduroStorageDeletionrequest(value: object): boolean {
     isInstance = isInstance && "requester" in value;
     isInstance = isInstance && "status" in value;
     isInstance = isInstance && "uuid" in value;
+    isInstance = isInstance && "workflowUuid" in value;
 
     return isInstance;
 }
@@ -122,6 +129,7 @@ export function EnduroStorageDeletionrequestFromJSONTyped(json: any, ignoreDiscr
         'reviewer': !exists(json, 'reviewer') ? undefined : json['reviewer'],
         'status': json['status'],
         'uuid': json['uuid'],
+        'workflowUuid': json['workflow_uuid'],
     };
 }
 
@@ -143,6 +151,7 @@ export function EnduroStorageDeletionrequestToJSON(value?: EnduroStorageDeletion
         'reviewer': value.reviewer,
         'status': value.status,
         'uuid': value.uuid,
+        'workflow_uuid': value.workflowUuid,
     };
 }
 

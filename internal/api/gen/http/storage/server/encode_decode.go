@@ -2314,15 +2314,16 @@ func marshalStorageviewsAIPTaskViewToAIPTaskResponseBody(v *storageviews.AIPTask
 // *storageviews.DeletionRequestView.
 func marshalStorageviewsDeletionRequestViewToDeletionRequestResponse(v *storageviews.DeletionRequestView) *DeletionRequestResponse {
 	res := &DeletionRequestResponse{
-		UUID:        *v.UUID,
-		AipUUID:     *v.AipUUID,
-		Requester:   *v.Requester,
-		RequestedAt: *v.RequestedAt,
-		Reason:      *v.Reason,
-		Status:      *v.Status,
-		Reviewer:    v.Reviewer,
-		ReviewedAt:  v.ReviewedAt,
-		ReportKey:   v.ReportKey,
+		UUID:         *v.UUID,
+		AipUUID:      *v.AipUUID,
+		WorkflowUUID: *v.WorkflowUUID,
+		Reason:       *v.Reason,
+		RequestedAt:  *v.RequestedAt,
+		Requester:    *v.Requester,
+		Status:       *v.Status,
+		ReviewedAt:   v.ReviewedAt,
+		Reviewer:     v.Reviewer,
+		ReportKey:    v.ReportKey,
 	}
 
 	return res

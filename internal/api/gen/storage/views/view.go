@@ -273,18 +273,20 @@ type DeletionRequestView struct {
 	UUID *uuid.UUID
 	// Identifier of related AIP
 	AipUUID *uuid.UUID
-	// User who requested the deletion
-	Requester *string
-	// Time the deletion was requested
-	RequestedAt *string
+	// UUID of the deletion workflow
+	WorkflowUUID *uuid.UUID
 	// Reason for the deletion request
 	Reason *string
+	// Time the deletion was requested
+	RequestedAt *string
+	// User who requested the deletion
+	Requester *string
 	// Status of the deletion request
 	Status *string
-	// User who reviewed the deletion request
-	Reviewer *string
 	// Time the deletion request was reviewed
 	ReviewedAt *string
+	// User who reviewed the deletion request
+	Reviewer *string
 	// Object key of the deletion report
 	ReportKey *string
 }
@@ -350,12 +352,13 @@ var (
 		"default": {
 			"uuid",
 			"aip_uuid",
-			"requester",
-			"requested_at",
+			"workflow_uuid",
 			"reason",
+			"requested_at",
+			"requester",
 			"status",
-			"reviewer",
 			"reviewed_at",
+			"reviewer",
 			"report_key",
 		},
 	}
@@ -480,12 +483,13 @@ var (
 		"default": {
 			"uuid",
 			"aip_uuid",
-			"requester",
-			"requested_at",
+			"workflow_uuid",
 			"reason",
+			"requested_at",
+			"requester",
 			"status",
-			"reviewer",
 			"reviewed_at",
+			"reviewer",
 			"report_key",
 		},
 	}
@@ -1095,17 +1099,20 @@ func ValidateDeletionRequestView(result *DeletionRequestView) (err error) {
 	if result.AipUUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("aip_uuid", "result"))
 	}
-	if result.Requester == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("requester", "result"))
+	if result.WorkflowUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_uuid", "result"))
 	}
 	if result.Reason == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("reason", "result"))
 	}
-	if result.Status == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
-	}
 	if result.RequestedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("requested_at", "result"))
+	}
+	if result.Requester == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("requester", "result"))
+	}
+	if result.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
 	}
 	if result.RequestedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.requested_at", *result.RequestedAt, goa.FormatDateTime))

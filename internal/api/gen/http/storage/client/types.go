@@ -763,18 +763,20 @@ type DeletionRequestResponse struct {
 	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 	// Identifier of related AIP
 	AipUUID *uuid.UUID `form:"aip_uuid,omitempty" json:"aip_uuid,omitempty" xml:"aip_uuid,omitempty"`
-	// User who requested the deletion
-	Requester *string `form:"requester,omitempty" json:"requester,omitempty" xml:"requester,omitempty"`
-	// Time the deletion was requested
-	RequestedAt *string `form:"requested_at,omitempty" json:"requested_at,omitempty" xml:"requested_at,omitempty"`
+	// UUID of the deletion workflow
+	WorkflowUUID *uuid.UUID `form:"workflow_uuid,omitempty" json:"workflow_uuid,omitempty" xml:"workflow_uuid,omitempty"`
 	// Reason for the deletion request
 	Reason *string `form:"reason,omitempty" json:"reason,omitempty" xml:"reason,omitempty"`
+	// Time the deletion was requested
+	RequestedAt *string `form:"requested_at,omitempty" json:"requested_at,omitempty" xml:"requested_at,omitempty"`
+	// User who requested the deletion
+	Requester *string `form:"requester,omitempty" json:"requester,omitempty" xml:"requester,omitempty"`
 	// Status of the deletion request
 	Status *string `form:"status,omitempty" json:"status,omitempty" xml:"status,omitempty"`
-	// User who reviewed the deletion request
-	Reviewer *string `form:"reviewer,omitempty" json:"reviewer,omitempty" xml:"reviewer,omitempty"`
 	// Time the deletion request was reviewed
 	ReviewedAt *string `form:"reviewed_at,omitempty" json:"reviewed_at,omitempty" xml:"reviewed_at,omitempty"`
+	// User who reviewed the deletion request
+	Reviewer *string `form:"reviewer,omitempty" json:"reviewer,omitempty" xml:"reviewer,omitempty"`
 	// Object key of the deletion report
 	ReportKey *string `form:"report_key,omitempty" json:"report_key,omitempty" xml:"report_key,omitempty"`
 }
@@ -2814,17 +2816,20 @@ func ValidateDeletionRequestResponse(body *DeletionRequestResponse) (err error) 
 	if body.AipUUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("aip_uuid", "body"))
 	}
-	if body.Requester == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("requester", "body"))
+	if body.WorkflowUUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_uuid", "body"))
 	}
 	if body.Reason == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("reason", "body"))
 	}
-	if body.Status == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
-	}
 	if body.RequestedAt == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("requested_at", "body"))
+	}
+	if body.Requester == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("requester", "body"))
+	}
+	if body.Status == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
 	}
 	if body.RequestedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.requested_at", *body.RequestedAt, goa.FormatDateTime))

@@ -753,18 +753,20 @@ type DeletionRequestResponse struct {
 	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 	// Identifier of related AIP
 	AipUUID uuid.UUID `form:"aip_uuid" json:"aip_uuid" xml:"aip_uuid"`
-	// User who requested the deletion
-	Requester string `form:"requester" json:"requester" xml:"requester"`
-	// Time the deletion was requested
-	RequestedAt string `form:"requested_at" json:"requested_at" xml:"requested_at"`
+	// UUID of the deletion workflow
+	WorkflowUUID uuid.UUID `form:"workflow_uuid" json:"workflow_uuid" xml:"workflow_uuid"`
 	// Reason for the deletion request
 	Reason string `form:"reason" json:"reason" xml:"reason"`
+	// Time the deletion was requested
+	RequestedAt string `form:"requested_at" json:"requested_at" xml:"requested_at"`
+	// User who requested the deletion
+	Requester string `form:"requester" json:"requester" xml:"requester"`
 	// Status of the deletion request
 	Status string `form:"status" json:"status" xml:"status"`
-	// User who reviewed the deletion request
-	Reviewer *string `form:"reviewer,omitempty" json:"reviewer,omitempty" xml:"reviewer,omitempty"`
 	// Time the deletion request was reviewed
 	ReviewedAt *string `form:"reviewed_at,omitempty" json:"reviewed_at,omitempty" xml:"reviewed_at,omitempty"`
+	// User who reviewed the deletion request
+	Reviewer *string `form:"reviewer,omitempty" json:"reviewer,omitempty" xml:"reviewer,omitempty"`
 	// Object key of the deletion report
 	ReportKey *string `form:"report_key,omitempty" json:"report_key,omitempty" xml:"report_key,omitempty"`
 }
