@@ -8,14 +8,52 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
 
+// batchWorkflowState maintains the state of a batch workflow execution.
+// It tracks the batch itself and the details of all SIPs being processed.
 type batchWorkflowState struct {
+	// logger is used for logging workflow execution details.
 	logger temporalsdk_log.Logger
-	batch  datatypes.Batch
+
+	// batch represents the batch being processed.
+	batch datatypes.Batch
+
+	// sipDetails contains details for each SIP in the batch.
+	sipDetails []*sipDetails
 }
 
+// sipDetails holds information about a single SIP within a batch workflow.
+// It includes references to its child workflow for tracking completion.
+type sipDetails struct {
+	// sip represents the SIP being processed.
+	sip datatypes.SIP
+
+	// workflowFuture is used to wait for workflow completion.
+	workflowFuture temporalsdk_workflow.ChildWorkflowFuture
+
+	// workflowExecution contains the execution details of the child workflow.
+	workflowExecution temporalsdk_workflow.Execution
+}
+
+// newBatchWorkflowState initializes a new batchWorkflowState with the given
+// workflow context and batch workflow request.
 func newBatchWorkflowState(ctx temporalsdk_workflow.Context, req *ingest.BatchWorkflowRequest) *batchWorkflowState {
 	return &batchWorkflowState{
-		logger: temporalsdk_workflow.GetLogger(ctx),
-		batch:  req.Batch,
+		logger:     temporalsdk_workflow.GetLogger(ctx),
+		batch:      req.Batch,
+		sipDetails: make([]*sipDetails, len(req.Keys)),
+	}
+}
+
+// addSIPDetails adds a new sipDetails entry to the batchWorkflowState at the specified index.
+func (s *batchWorkflowState) addSIPDetails(
+	index int,
+	sip datatypes.SIP,
+	wf temporalsdk_workflow.ChildWorkflowFuture,
+	we temporalsdk_workflow.Execution,
+) {
+	s.sipDetails[index] = &sipDetails{
+		sip:               sip,
+		workflowFuture:    wf,
+		workflowExecution: we,
 	}
 }
