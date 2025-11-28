@@ -15,6 +15,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
+	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
 type BatchWorkflow struct {
@@ -81,16 +82,62 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 		}
 	}
 
-	// TODO:
-	// - Consider errors in child workflows and handle retries or failures.
-	// - Wait for all SIPs validation and send signals to continue/stop processing.
-	// - Check for all SIPs final status and update batch status.
-	// - Handle retention periods here or in child workflows.
+	// TODO: consider errors in child workflows and handle failures, retries, or compensations.
 
-	// Wait for all SIP workflows to complete.
-	if err := w.waitForWorkflowsCompletion(ctx, state); err != nil {
+	defer func() {
+		// Always wait for all SIP workflows to complete from this point.
+		if err := w.waitForWorkflowsCompletion(ctx, state); err != nil {
+			e = errors.Join(e, err)
+		}
+	}()
+
+	// Poll SIP statuses until all are validated.
+	activityOpts := withActivityOptsForHeartbeatedPolling(ctx)
+	var pollValidatedResult activities.PollSIPStatusesActivityResult
+	err := temporalsdk_workflow.ExecuteActivity(
+		activityOpts,
+		activities.PollSIPStatusesActivityName,
+		&activities.PollSIPStatusesActivityParams{
+			BatchUUID:        state.batch.UUID,
+			ExpectedSIPCount: len(state.sipDetails),
+			ExpectedStatus:   enums.SIPStatusValidated,
+		},
+	).Get(activityOpts, &pollValidatedResult)
+	if err != nil {
 		return err
 	}
+
+	// Send signals to SIP workflows to continue or stop processing.
+	if err := w.signalWorkflows(ctx, state, pollValidatedResult.AllExpectedStatus); err != nil {
+		return err
+	}
+
+	// Fail workflow if not all SIPs reached "validated" status.
+	if !pollValidatedResult.AllExpectedStatus {
+		return fmt.Errorf("not all SIPs reached %q status", enums.SIPStatusValidated)
+	}
+
+	// Poll SIP statuses until all are ingested.
+	var pollIngestedResult activities.PollSIPStatusesActivityResult
+	err = temporalsdk_workflow.ExecuteActivity(
+		activityOpts,
+		activities.PollSIPStatusesActivityName,
+		&activities.PollSIPStatusesActivityParams{
+			BatchUUID:        state.batch.UUID,
+			ExpectedSIPCount: len(state.sipDetails),
+			ExpectedStatus:   enums.SIPStatusIngested,
+		},
+	).Get(activityOpts, &pollIngestedResult)
+	if err != nil {
+		return err
+	}
+
+	// Fail workflow if not all SIPs reached "ingested" status.
+	if !pollIngestedResult.AllExpectedStatus {
+		return fmt.Errorf("not all SIPs reached %q status", enums.SIPStatusIngested)
+	}
+
+	// TODO: handle retention period.
 
 	return nil
 }
@@ -168,8 +215,7 @@ func (w *BatchWorkflow) startSIPWorkflow(
 			SIPSourceID:     sourceID,
 			Type:            enums.WorkflowTypeCreateAip,
 			RetentionPeriod: -1 * time.Second,
-			// Don't pass BatchUUID yet to avoid waiting for validation.
-			// BatchUUID:       state.batch.UUID,
+			BatchUUID:       state.batch.UUID,
 		},
 	)
 	err = wf.GetChildWorkflowExecution().Get(processingCtx, &we)
@@ -179,6 +225,28 @@ func (w *BatchWorkflow) startSIPWorkflow(
 
 	// Store SIP details in the batch workflow state.
 	state.addSIPDetails(index, sip, wf, we)
+
+	return nil
+}
+
+func (w *BatchWorkflow) signalWorkflows(ctx temporalsdk_workflow.Context, state *batchWorkflowState, cont bool) error {
+	var signalErr error
+	for _, sd := range state.sipDetails {
+		err := temporalsdk_workflow.SignalExternalWorkflow(
+			ctx,
+			sd.workflowExecution.ID,
+			sd.workflowExecution.RunID,
+			ingest.BatchSignalName,
+			ingest.BatchSignal{Continue: cont},
+		).Get(ctx, nil)
+		if err != nil {
+			signalErr = errors.Join(signalErr, err)
+		}
+	}
+
+	if signalErr != nil {
+		return fmt.Errorf("signal workflows: %v", signalErr)
+	}
 
 	return nil
 }

@@ -67,3 +67,18 @@ func withLocalActivityOpts(ctx temporalsdk_workflow.Context) temporalsdk_workflo
 		},
 	})
 }
+
+// withActivityOptsForHeartbeatedPolling returns a workflow context with activity
+// options suited for long-running activities that poll with heartbeats.
+func withActivityOptsForHeartbeatedPolling(ctx temporalsdk_workflow.Context) temporalsdk_workflow.Context {
+	return temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
+		StartToCloseTimeout:    forever,
+		ScheduleToCloseTimeout: forever,
+		HeartbeatTimeout:       time.Minute,
+		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+			InitialInterval:    time.Minute,
+			BackoffCoefficient: 1,
+			MaximumAttempts:    10,
+		},
+	})
+}
