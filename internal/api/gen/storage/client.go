@@ -17,53 +17,57 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	MonitorRequestEndpoint       goa.Endpoint
-	MonitorEndpoint              goa.Endpoint
-	ListAipsEndpoint             goa.Endpoint
-	CreateAipEndpoint            goa.Endpoint
-	SubmitAipEndpoint            goa.Endpoint
-	UpdateAipEndpoint            goa.Endpoint
-	DownloadAipRequestEndpoint   goa.Endpoint
-	DownloadAipEndpoint          goa.Endpoint
-	MoveAipEndpoint              goa.Endpoint
-	MoveAipStatusEndpoint        goa.Endpoint
-	RejectAipEndpoint            goa.Endpoint
-	ShowAipEndpoint              goa.Endpoint
-	ListAipWorkflowsEndpoint     goa.Endpoint
-	ListDeletionRequestsEndpoint goa.Endpoint
-	RequestAipDeletionEndpoint   goa.Endpoint
-	ReviewAipDeletionEndpoint    goa.Endpoint
-	CancelAipDeletionEndpoint    goa.Endpoint
-	ListLocationsEndpoint        goa.Endpoint
-	CreateLocationEndpoint       goa.Endpoint
-	ShowLocationEndpoint         goa.Endpoint
-	ListLocationAipsEndpoint     goa.Endpoint
+	MonitorRequestEndpoint                goa.Endpoint
+	MonitorEndpoint                       goa.Endpoint
+	ListAipsEndpoint                      goa.Endpoint
+	CreateAipEndpoint                     goa.Endpoint
+	SubmitAipEndpoint                     goa.Endpoint
+	UpdateAipEndpoint                     goa.Endpoint
+	DownloadAipRequestEndpoint            goa.Endpoint
+	DownloadAipEndpoint                   goa.Endpoint
+	MoveAipEndpoint                       goa.Endpoint
+	MoveAipStatusEndpoint                 goa.Endpoint
+	RejectAipEndpoint                     goa.Endpoint
+	ShowAipEndpoint                       goa.Endpoint
+	ListAipWorkflowsEndpoint              goa.Endpoint
+	ListDeletionRequestsEndpoint          goa.Endpoint
+	RequestAipDeletionEndpoint            goa.Endpoint
+	ReviewAipDeletionEndpoint             goa.Endpoint
+	CancelAipDeletionEndpoint             goa.Endpoint
+	DownloadDeletionReportRequestEndpoint goa.Endpoint
+	DownloadDeletionReportEndpoint        goa.Endpoint
+	ListLocationsEndpoint                 goa.Endpoint
+	CreateLocationEndpoint                goa.Endpoint
+	ShowLocationEndpoint                  goa.Endpoint
+	ListLocationAipsEndpoint              goa.Endpoint
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, updateAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, listDeletionRequests, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, updateAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, listDeletionRequests, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, downloadDeletionReportRequest, downloadDeletionReport, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
-		MonitorRequestEndpoint:       monitorRequest,
-		MonitorEndpoint:              monitor,
-		ListAipsEndpoint:             listAips,
-		CreateAipEndpoint:            createAip,
-		SubmitAipEndpoint:            submitAip,
-		UpdateAipEndpoint:            updateAip,
-		DownloadAipRequestEndpoint:   downloadAipRequest,
-		DownloadAipEndpoint:          downloadAip,
-		MoveAipEndpoint:              moveAip,
-		MoveAipStatusEndpoint:        moveAipStatus,
-		RejectAipEndpoint:            rejectAip,
-		ShowAipEndpoint:              showAip,
-		ListAipWorkflowsEndpoint:     listAipWorkflows,
-		ListDeletionRequestsEndpoint: listDeletionRequests,
-		RequestAipDeletionEndpoint:   requestAipDeletion,
-		ReviewAipDeletionEndpoint:    reviewAipDeletion,
-		CancelAipDeletionEndpoint:    cancelAipDeletion,
-		ListLocationsEndpoint:        listLocations,
-		CreateLocationEndpoint:       createLocation,
-		ShowLocationEndpoint:         showLocation,
-		ListLocationAipsEndpoint:     listLocationAips,
+		MonitorRequestEndpoint:                monitorRequest,
+		MonitorEndpoint:                       monitor,
+		ListAipsEndpoint:                      listAips,
+		CreateAipEndpoint:                     createAip,
+		SubmitAipEndpoint:                     submitAip,
+		UpdateAipEndpoint:                     updateAip,
+		DownloadAipRequestEndpoint:            downloadAipRequest,
+		DownloadAipEndpoint:                   downloadAip,
+		MoveAipEndpoint:                       moveAip,
+		MoveAipStatusEndpoint:                 moveAipStatus,
+		RejectAipEndpoint:                     rejectAip,
+		ShowAipEndpoint:                       showAip,
+		ListAipWorkflowsEndpoint:              listAipWorkflows,
+		ListDeletionRequestsEndpoint:          listDeletionRequests,
+		RequestAipDeletionEndpoint:            requestAipDeletion,
+		ReviewAipDeletionEndpoint:             reviewAipDeletion,
+		CancelAipDeletionEndpoint:             cancelAipDeletion,
+		DownloadDeletionReportRequestEndpoint: downloadDeletionReportRequest,
+		DownloadDeletionReportEndpoint:        downloadDeletionReport,
+		ListLocationsEndpoint:                 listLocations,
+		CreateLocationEndpoint:                createLocation,
+		ShowLocationEndpoint:                  showLocation,
+		ListLocationAipsEndpoint:              listLocationAips,
 	}
 }
 
@@ -318,6 +322,43 @@ func (c *Client) ReviewAipDeletion(ctx context.Context, p *ReviewAipDeletionPayl
 func (c *Client) CancelAipDeletion(ctx context.Context, p *CancelAipDeletionPayload) (err error) {
 	_, err = c.CancelAipDeletionEndpoint(ctx, p)
 	return
+}
+
+// DownloadDeletionReportRequest calls the "download_deletion_report_request"
+// endpoint of the "storage" service.
+// DownloadDeletionReportRequest may return the following errors:
+//   - "not_found" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) DownloadDeletionReportRequest(ctx context.Context, p *DownloadDeletionReportRequestPayload) (res *DownloadDeletionReportRequestResult, err error) {
+	var ires any
+	ires, err = c.DownloadDeletionReportRequestEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*DownloadDeletionReportRequestResult), nil
+}
+
+// DownloadDeletionReport calls the "download_deletion_report" endpoint of the
+// "storage" service.
+// DownloadDeletionReport may return the following errors:
+//   - "not_found" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) DownloadDeletionReport(ctx context.Context, p *DownloadDeletionReportPayload) (res *DownloadDeletionReportResult, resp io.ReadCloser, err error) {
+	var ires any
+	ires, err = c.DownloadDeletionReportEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	o := ires.(*DownloadDeletionReportResponseData)
+	return o.Result, o.Body, nil
 }
 
 // ListLocations calls the "list_locations" endpoint of the "storage" service.
