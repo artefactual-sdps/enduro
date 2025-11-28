@@ -237,7 +237,7 @@ func TestUpload(t *testing.T) {
 
 			b := memblob.OpenBucket(nil)
 			r := io.NopCloser(strings.NewReader(tt.multipartBody))
-			svc, psvc, tc := testSvc(t, b, tt.maxUploadSize)
+			svc, psvc, tc, _ := testSvc(t, b, tt.maxUploadSize)
 			ctx := t.Context()
 			if tt.mock != nil {
 				tt.mock(ctx, psvc, tc)

@@ -12,6 +12,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 )
 
@@ -39,16 +40,22 @@ func SavePreprocessingTasksActivity(
 	params SavePreprocessingTasksActivityParams,
 ) (*SavePreprocessingTasksActivityResult, error) {
 	var res SavePreprocessingTasksActivityResult
-	for _, t := range params.Tasks {
-		task := preprocTaskToTask(t)
-		task.WorkflowUUID = params.WorkflowUUID
-		// TODO: Create deterministic UUIDs and make activities idempotent.
-		task.UUID = uuid.Must(uuid.NewRandomFromReader(params.RNG))
+	seq := persistence.TaskSequence(func(yield func(*datatypes.Task) bool) {
+		for _, t := range params.Tasks {
+			task := preprocTaskToTask(t)
+			task.WorkflowUUID = params.WorkflowUUID
+			// TODO: Create deterministic UUIDs and make activities idempotent.
+			task.UUID = uuid.Must(uuid.NewRandomFromReader(params.RNG))
 
-		if err := params.Ingestsvc.CreateTask(ctx, &task); err != nil {
-			return &res, fmt.Errorf("SavePreprocessingTasksActivity: %v", err)
+			if !yield(&task) {
+				return
+			}
+			res.Count++
 		}
-		res.Count++
+	})
+
+	if err := params.Ingestsvc.CreateTasks(ctx, seq); err != nil {
+		return &res, fmt.Errorf("SavePreprocessingTasksActivity: %v", err)
 	}
 
 	return &res, nil

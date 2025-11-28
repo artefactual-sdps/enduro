@@ -10,6 +10,7 @@ import (
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
 	temporal_tools "go.artefactual.dev/tools/temporal"
+	"go.opentelemetry.io/otel/trace"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -28,6 +29,7 @@ type PollTransferActivity struct {
 	tfrSvc    amclient.TransferService
 	jobSvc    amclient.JobsService
 	ingestsvc ingest.Service
+	tracer    trace.Tracer
 }
 
 type PollTransferActivityResult struct {
@@ -42,6 +44,7 @@ func NewPollTransferActivity(
 	tfrSvc amclient.TransferService,
 	jobSvc amclient.JobsService,
 	ingestsvc ingest.Service,
+	tracer trace.Tracer,
 ) *PollTransferActivity {
 	return &PollTransferActivity{
 		cfg:       cfg,
@@ -49,6 +52,7 @@ func NewPollTransferActivity(
 		jobSvc:    jobSvc,
 		ingestsvc: ingestsvc,
 		tfrSvc:    tfrSvc,
+		tracer:    tracer,
 	}
 }
 
@@ -74,7 +78,13 @@ func (a *PollTransferActivity) Execute(
 		"TransferID", params.TransferID,
 	)
 
-	jobTracker := NewJobTracker(a.clock, a.jobSvc, a.ingestsvc, params.WorkflowUUID)
+	jobTracker := NewJobTracker(
+		a.clock,
+		a.jobSvc,
+		a.ingestsvc,
+		params.WorkflowUUID,
+		a.tracer,
+	)
 	ticker := time.NewTicker(a.cfg.PollInterval)
 	defer ticker.Stop()
 

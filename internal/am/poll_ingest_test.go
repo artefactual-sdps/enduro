@@ -1,7 +1,9 @@
 package am_test
 
 import (
+	"context"
 	"net/http"
+	"slices"
 	"testing"
 	"time"
 
@@ -11,6 +13,7 @@ import (
 	"go.artefactual.dev/amclient/amclienttest"
 	"go.artefactual.dev/tools/mockutil"
 	temporal_tools "go.artefactual.dev/tools/temporal"
+	"go.opentelemetry.io/otel/trace/noop"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
@@ -19,6 +22,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 func TestPollIngestActivity(t *testing.T) {
@@ -162,10 +166,20 @@ func TestPollIngestActivity(t *testing.T) {
 				}
 
 				// Poll 2: save first job.
-				m.CreateTask(mockutil.Context(), tasks[0]).Return(nil)
+				m.CreateTasks(mockutil.Context(), gomock.Any()).
+					DoAndReturn(func(_ context.Context, seq persistence.TaskSequence) error {
+						got := slices.Collect(seq)
+						assert.DeepEqual(t, got, []*datatypes.Task{tasks[0]})
+						return nil
+					})
 
 				// Poll 3: save second job.
-				m.CreateTask(mockutil.Context(), tasks[1]).Return(nil)
+				m.CreateTasks(mockutil.Context(), gomock.Any()).
+					DoAndReturn(func(_ context.Context, seq persistence.TaskSequence) error {
+						got := slices.Collect(seq)
+						assert.DeepEqual(t, got, []*datatypes.Task{tasks[1]})
+						return nil
+					})
 			},
 			want: am.PollIngestActivityResult{
 				Status:    "COMPLETE",
@@ -267,6 +281,7 @@ func TestPollIngestActivity(t *testing.T) {
 					ingSvc,
 					jobSvc,
 					ingestsvc,
+					noop.Tracer{},
 				).Execute,
 				temporalsdk_activity.RegisterOptions{
 					Name: am.PollIngestActivityName,

@@ -3,6 +3,7 @@ package am_test
 import (
 	"context"
 	"net/http"
+	"slices"
 	"testing"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 	"go.artefactual.dev/amclient/amclienttest"
 	"go.artefactual.dev/tools/mockutil"
 	temporal_tools "go.artefactual.dev/tools/temporal"
+	"go.opentelemetry.io/otel/trace/noop"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
@@ -20,6 +22,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 func TestJobTracker(t *testing.T) {
@@ -100,18 +103,22 @@ func TestJobTracker(t *testing.T) {
 				)
 			},
 			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreateTask(
-					mockutil.Context(),
-					&datatypes.Task{
-						ID:           0,
-						UUID:         taskUUID,
-						Name:         "Extract zipped bag transfer",
-						Status:       enums.TaskStatusDone,
-						StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
-						CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
-						WorkflowUUID: wUUID,
-					},
-				).Return(nil)
+				m.CreateTasks(mockutil.Context(), gomock.Any()).
+					DoAndReturn(func(_ context.Context, seq persistence.TaskSequence) error {
+						got := slices.Collect(seq)
+						assert.DeepEqual(t, got, []*datatypes.Task{
+							{
+								ID:           0,
+								UUID:         taskUUID,
+								Name:         "Extract zipped bag transfer",
+								Status:       enums.TaskStatusDone,
+								StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
+								CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+								WorkflowUUID: wUUID,
+							},
+						})
+						return nil
+					})
 			},
 			want: 1,
 		},
@@ -159,7 +166,7 @@ func TestJobTracker(t *testing.T) {
 				tt.ingestRec(ingestsvc.EXPECT())
 			}
 
-			jt := am.NewJobTracker(clock, jobsSvc, ingestsvc, wUUID)
+			jt := am.NewJobTracker(clock, jobsSvc, ingestsvc, wUUID, noop.Tracer{})
 			got, err := jt.SaveTasks(context.Background(), unitID)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)

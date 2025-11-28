@@ -303,7 +303,7 @@ func TestAddSIP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			svc, psvc, tc := testSvc(t, nil, 0)
+			svc, psvc, tc, _ := testSvc(t, nil, 0)
 			ctx := t.Context()
 			if tt.mock != nil {
 				tt.mock(ctx, psvc, tc)

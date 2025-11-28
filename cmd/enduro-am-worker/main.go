@@ -311,6 +311,7 @@ func main() {
 				amc.Transfer,
 				amc.Jobs,
 				ingestsvc,
+				tp.Tracer("am"),
 			).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
 		)
@@ -321,6 +322,7 @@ func main() {
 				amc.Ingest,
 				amc.Jobs,
 				ingestsvc,
+				tp.Tracer("am"),
 			).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
 		)

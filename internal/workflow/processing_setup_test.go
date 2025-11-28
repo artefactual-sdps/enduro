@@ -199,6 +199,7 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 			amclienttest.NewMockTransferService(ctrl),
 			amclienttest.NewMockJobsService(ctrl),
 			ingestsvc,
+			noop.Tracer{},
 		).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.PollTransferActivityName},
 	)
@@ -209,6 +210,7 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 			amclienttest.NewMockIngestService(ctrl),
 			amclienttest.NewMockJobsService(ctrl),
 			ingestsvc,
+			noop.Tracer{},
 		).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
 	)

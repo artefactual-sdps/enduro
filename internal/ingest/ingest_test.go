@@ -32,21 +32,27 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/sipsource"
 )
 
-func testSvc(t *testing.T, internalBucket *blob.Bucket, uploadMaxSize int64) (
+func testSvc(
+	t *testing.T,
+	internalBucket *blob.Bucket,
+	uploadMaxSize int64,
+) (
 	ingest.Service,
 	*persistence_fake.MockService,
 	*temporalsdk_mocks.Client,
+	event.Service[*goaingest.IngestEvent],
 ) {
 	t.Helper()
 
 	psvc := persistence_fake.NewMockService(gomock.NewController(t))
 	temporalClient := new(temporalsdk_mocks.Client)
 	taskQueue := "test"
+	evsvc := event.NewServiceInMem[*goaingest.IngestEvent]()
 	ingestsvc := ingest.NewService(ingest.ServiceParams{
 		Logger:             logr.Discard(),
 		DB:                 &sql.DB{},
 		TemporalClient:     temporalClient,
-		EventService:       event.NewServiceNop[*goaingest.IngestEvent](),
+		EventService:       evsvc,
 		PersistenceService: psvc,
 		TokenVerifier:      &auth.NoopTokenVerifier{},
 		TicketProvider:     auth.NewTicketProvider(t.Context(), nil, nil),
@@ -60,7 +66,7 @@ func testSvc(t *testing.T, internalBucket *blob.Bucket, uploadMaxSize int64) (
 		}),
 	})
 
-	return ingestsvc, psvc, temporalClient
+	return ingestsvc, psvc, temporalClient, evsvc
 }
 
 func TestCreateSIP(t *testing.T) {
@@ -96,7 +102,7 @@ func TestCreateSIP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+			ingestsvc, perSvc, _, _ := testSvc(t, nil, 0)
 			if tt.mock != nil {
 				tt.mock(perSvc, tt.sip)
 			}
@@ -254,7 +260,7 @@ func TestUpdateSIP(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+			ingestsvc, perSvc, _, _ := testSvc(t, nil, 0)
 			tt.mock(perSvc, sip.UUID, updater)
 
 			s, err := ingestsvc.UpdateSIP(context.Background(), sip.UUID, updater)
@@ -350,7 +356,7 @@ func TestUpdateBatch(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+			ingestsvc, perSvc, _, _ := testSvc(t, nil, 0)
 			tt.mock(perSvc, batch.UUID, updater)
 
 			b, err := ingestsvc.UpdateBatch(context.Background(), batch.UUID, updater)

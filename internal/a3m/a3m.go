@@ -19,6 +19,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/telemetry"
 )
 
@@ -182,28 +183,38 @@ func saveTasks(
 		transferservice.Job_STATUS_FAILED:      enums.TaskStatusError,
 	}
 
-	for _, job := range jobs {
-		taskUUID, err := uuid.Parse(job.Id)
-		if err != nil {
-			err = fmt.Errorf("unable to parse task UUID from job ID: %q", job.Id)
-			telemetry.RecordError(span, err)
-			return err
+	var convErr error
+	seq := persistence.TaskSequence(func(yield func(*datatypes.Task) bool) {
+		for _, job := range jobs {
+			taskUUID, err := uuid.Parse(job.Id)
+			if err != nil {
+				convErr = fmt.Errorf("unable to parse task UUID from job ID: %q", job.Id)
+				return
+			}
+			task := datatypes.Task{
+				UUID:   taskUUID,
+				Name:   job.Name,
+				Status: jobStatusToTaskStatus[job.Status],
+				StartedAt: sql.NullTime{
+					Time:  job.StartTime.AsTime(),
+					Valid: true,
+				},
+				WorkflowUUID: wUUID,
+			}
+
+			if !yield(&task) {
+				return
+			}
 		}
-		task := datatypes.Task{
-			UUID:   taskUUID,
-			Name:   job.Name,
-			Status: jobStatusToTaskStatus[job.Status],
-			StartedAt: sql.NullTime{
-				Time:  job.StartTime.AsTime(),
-				Valid: true,
-			},
-			WorkflowUUID: wUUID,
-		}
-		err = ingestsvc.CreateTask(ctx, &task)
-		if err != nil {
-			telemetry.RecordError(span, err)
-			return err
-		}
+	})
+
+	if err := ingestsvc.CreateTasks(ctx, seq); err != nil {
+		telemetry.RecordError(span, err)
+		return err
+	}
+	if convErr != nil {
+		telemetry.RecordError(span, convErr)
+		return convErr
 	}
 
 	return nil
