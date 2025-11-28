@@ -391,6 +391,68 @@ var _ = Service("storage", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
+	Method("aip_deletion_report_request", func() {
+		Description("Request access to download a deletion report")
+		Security(JWTAuth, func() {
+			Scope(auth.StorageAIPSDeletionReportAttr)
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "UUID of the AIP")
+			Token("token", String)
+			Required("uuid")
+		})
+		Result(func() {
+			Attribute("ticket", String)
+		})
+		Error("not_found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			POST("/aips/{uuid}/deletion-report")
+			Response(StatusOK, func() {
+				Cookie("ticket:enduro-delreport-ticket")
+				CookieMaxAge(5)
+				CookieSecure()
+				CookieHTTPOnly()
+			})
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+		})
+	})
+	Method("aip_deletion_report", func() {
+		Description("Download deletion report by UUID")
+		// Disable JWTAuth security (it validates the previous method cookie).
+		NoSecurity()
+		Payload(func() {
+			AttributeUUID("uuid", "UUID of the AIP")
+			Attribute("ticket", String)
+			Required("uuid")
+		})
+		Result(Bytes)
+		Result(func() {
+			Attribute("content_type", String)
+			Attribute("content_length", Int64)
+			Attribute("content_disposition", String)
+			Required("content_type", "content_length", "content_disposition")
+		})
+		Error("not_found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			GET("/aips/{uuid}/deletion-report")
+			Cookie("ticket:enduro-delreport-ticket")
+			SkipResponseBodyEncodeDecode()
+			Response(func() {
+				Header("content_type:Content-Type")
+				Header("content_length:Content-Length")
+				Header("content_disposition:Content-Disposition")
+			})
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+		})
+	})
 	Method("list_locations", func() {
 		Description("List locations")
 		Security(JWTAuth, func() {

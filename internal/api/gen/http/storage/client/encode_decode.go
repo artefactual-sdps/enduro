@@ -2160,6 +2160,333 @@ func DecodeCancelAipDeletionResponse(decoder func(*http.Response) goahttp.Decode
 	}
 }
 
+// BuildAipDeletionReportRequestRequest instantiates a HTTP request object with
+// method and path set to call the "storage" service
+// "aip_deletion_report_request" endpoint
+func (c *Client) BuildAipDeletionReportRequestRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*storage.AipDeletionReportRequestPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "aip_deletion_report_request", "*storage.AipDeletionReportRequestPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AipDeletionReportRequestStoragePath(uuid)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "aip_deletion_report_request", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeAipDeletionReportRequestRequest returns an encoder for requests sent
+// to the storage aip_deletion_report_request server.
+func EncodeAipDeletionReportRequestRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.AipDeletionReportRequestPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "aip_deletion_report_request", "*storage.AipDeletionReportRequestPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeAipDeletionReportRequestResponse returns a decoder for responses
+// returned by the storage aip_deletion_report_request endpoint. restoreBody
+// controls whether the response body should be restored after having been read.
+// DecodeAipDeletionReportRequestResponse may return the following errors:
+//   - "not_found" (type *goa.ServiceError): http.StatusNotFound
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeAipDeletionReportRequestResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				ticket    *string
+				ticketRaw string
+
+				cookies = resp.Cookies()
+			)
+			for _, c := range cookies {
+				switch c.Name {
+				case "enduro-delreport-ticket":
+					ticketRaw = c.Value
+				}
+			}
+			if ticketRaw != "" {
+				ticket = &ticketRaw
+			}
+			res := NewAipDeletionReportRequestResultOK(ticket)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body AipDeletionReportRequestNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "aip_deletion_report_request", err)
+			}
+			err = ValidateAipDeletionReportRequestNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "aip_deletion_report_request", err)
+			}
+			return nil, NewAipDeletionReportRequestNotFound(&body)
+		case http.StatusBadRequest:
+			var (
+				body AipDeletionReportRequestNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "aip_deletion_report_request", err)
+			}
+			err = ValidateAipDeletionReportRequestNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "aip_deletion_report_request", err)
+			}
+			return nil, NewAipDeletionReportRequestNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body AipDeletionReportRequestInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "aip_deletion_report_request", err)
+			}
+			err = ValidateAipDeletionReportRequestInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "aip_deletion_report_request", err)
+			}
+			return nil, NewAipDeletionReportRequestInternalError(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "aip_deletion_report_request", err)
+			}
+			return nil, NewAipDeletionReportRequestForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "aip_deletion_report_request", err)
+			}
+			return nil, NewAipDeletionReportRequestUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "aip_deletion_report_request", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildAipDeletionReportRequest instantiates a HTTP request object with method
+// and path set to call the "storage" service "aip_deletion_report" endpoint
+func (c *Client) BuildAipDeletionReportRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*storage.AipDeletionReportPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "aip_deletion_report", "*storage.AipDeletionReportPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: AipDeletionReportStoragePath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "aip_deletion_report", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeAipDeletionReportRequest returns an encoder for requests sent to the
+// storage aip_deletion_report server.
+func EncodeAipDeletionReportRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.AipDeletionReportPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "aip_deletion_report", "*storage.AipDeletionReportPayload", v)
+		}
+		if p.Ticket != nil {
+			v := *p.Ticket
+			req.AddCookie(&http.Cookie{
+				Name:  "enduro-delreport-ticket",
+				Value: v,
+			})
+		}
+		return nil
+	}
+}
+
+// DecodeAipDeletionReportResponse returns a decoder for responses returned by
+// the storage aip_deletion_report endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeAipDeletionReportResponse may return the following errors:
+//   - "not_found" (type *goa.ServiceError): http.StatusNotFound
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeAipDeletionReportResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				contentType        string
+				contentLength      int64
+				contentDisposition string
+				err                error
+			)
+			contentTypeRaw := resp.Header.Get("Content-Type")
+			if contentTypeRaw == "" {
+				err = goa.MergeErrors(err, goa.MissingFieldError("content_type", "header"))
+			}
+			contentType = contentTypeRaw
+			{
+				contentLengthRaw := resp.Header.Get("Content-Length")
+				if contentLengthRaw == "" {
+					return nil, goahttp.ErrValidationError("storage", "aip_deletion_report", goa.MissingFieldError("content_length", "header"))
+				}
+				v, err2 := strconv.ParseInt(contentLengthRaw, 10, 64)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("content_length", contentLengthRaw, "integer"))
+				}
+				contentLength = v
+			}
+			contentDispositionRaw := resp.Header.Get("Content-Disposition")
+			if contentDispositionRaw == "" {
+				err = goa.MergeErrors(err, goa.MissingFieldError("content_disposition", "header"))
+			}
+			contentDisposition = contentDispositionRaw
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "aip_deletion_report", err)
+			}
+			res := NewAipDeletionReportResultOK(contentType, contentLength, contentDisposition)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body AipDeletionReportNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "aip_deletion_report", err)
+			}
+			err = ValidateAipDeletionReportNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "aip_deletion_report", err)
+			}
+			return nil, NewAipDeletionReportNotFound(&body)
+		case http.StatusBadRequest:
+			var (
+				body AipDeletionReportNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "aip_deletion_report", err)
+			}
+			err = ValidateAipDeletionReportNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "aip_deletion_report", err)
+			}
+			return nil, NewAipDeletionReportNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body AipDeletionReportInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "aip_deletion_report", err)
+			}
+			err = ValidateAipDeletionReportInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "aip_deletion_report", err)
+			}
+			return nil, NewAipDeletionReportInternalError(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "aip_deletion_report", err)
+			}
+			return nil, NewAipDeletionReportForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "aip_deletion_report", err)
+			}
+			return nil, NewAipDeletionReportUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "aip_deletion_report", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildListLocationsRequest instantiates a HTTP request object with method and
 // path set to call the "storage" service "list_locations" endpoint
 func (c *Client) BuildListLocationsRequest(ctx context.Context, v any) (*http.Request, error) {
