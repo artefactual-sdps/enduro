@@ -28,6 +28,8 @@ const (
 	FieldObjectKey = "object_key"
 	// FieldCreatedAt holds the string denoting the created_at field in the database.
 	FieldCreatedAt = "created_at"
+	// FieldDeletionReportKey holds the string denoting the deletion_report_key field in the database.
+	FieldDeletionReportKey = "deletion_report_key"
 	// EdgeLocation holds the string denoting the location edge name in mutations.
 	EdgeLocation = "location"
 	// EdgeWorkflows holds the string denoting the workflows edge name in mutations.
@@ -68,6 +70,7 @@ var Columns = []string{
 	FieldStatus,
 	FieldObjectKey,
 	FieldCreatedAt,
+	FieldDeletionReportKey,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -131,6 +134,11 @@ func ByObjectKey(opts ...sql.OrderTermOption) OrderOption {
 // ByCreatedAt orders the results by the created_at field.
 func ByCreatedAt(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldCreatedAt, opts...).ToFunc()
+}
+
+// ByDeletionReportKey orders the results by the deletion_report_key field.
+func ByDeletionReportKey(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldDeletionReportKey, opts...).ToFunc()
 }
 
 // ByLocationField orders the results by location field.

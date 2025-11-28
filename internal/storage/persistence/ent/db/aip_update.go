@@ -108,6 +108,26 @@ func (_u *AIPUpdate) SetNillableObjectKey(v *uuid.UUID) *AIPUpdate {
 	return _u
 }
 
+// SetDeletionReportKey sets the "deletion_report_key" field.
+func (_u *AIPUpdate) SetDeletionReportKey(v string) *AIPUpdate {
+	_u.mutation.SetDeletionReportKey(v)
+	return _u
+}
+
+// SetNillableDeletionReportKey sets the "deletion_report_key" field if the given value is not nil.
+func (_u *AIPUpdate) SetNillableDeletionReportKey(v *string) *AIPUpdate {
+	if v != nil {
+		_u.SetDeletionReportKey(*v)
+	}
+	return _u
+}
+
+// ClearDeletionReportKey clears the value of the "deletion_report_key" field.
+func (_u *AIPUpdate) ClearDeletionReportKey() *AIPUpdate {
+	_u.mutation.ClearDeletionReportKey()
+	return _u
+}
+
 // SetLocation sets the "location" edge to the Location entity.
 func (_u *AIPUpdate) SetLocation(v *Location) *AIPUpdate {
 	return _u.SetLocationID(v.ID)
@@ -256,6 +276,12 @@ func (_u *AIPUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if value, ok := _u.mutation.ObjectKey(); ok {
 		_spec.SetField(aip.FieldObjectKey, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.DeletionReportKey(); ok {
+		_spec.SetField(aip.FieldDeletionReportKey, field.TypeString, value)
+	}
+	if _u.mutation.DeletionReportKeyCleared() {
+		_spec.ClearField(aip.FieldDeletionReportKey, field.TypeString)
 	}
 	if _u.mutation.LocationCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -472,6 +498,26 @@ func (_u *AIPUpdateOne) SetNillableObjectKey(v *uuid.UUID) *AIPUpdateOne {
 	return _u
 }
 
+// SetDeletionReportKey sets the "deletion_report_key" field.
+func (_u *AIPUpdateOne) SetDeletionReportKey(v string) *AIPUpdateOne {
+	_u.mutation.SetDeletionReportKey(v)
+	return _u
+}
+
+// SetNillableDeletionReportKey sets the "deletion_report_key" field if the given value is not nil.
+func (_u *AIPUpdateOne) SetNillableDeletionReportKey(v *string) *AIPUpdateOne {
+	if v != nil {
+		_u.SetDeletionReportKey(*v)
+	}
+	return _u
+}
+
+// ClearDeletionReportKey clears the value of the "deletion_report_key" field.
+func (_u *AIPUpdateOne) ClearDeletionReportKey() *AIPUpdateOne {
+	_u.mutation.ClearDeletionReportKey()
+	return _u
+}
+
 // SetLocation sets the "location" edge to the Location entity.
 func (_u *AIPUpdateOne) SetLocation(v *Location) *AIPUpdateOne {
 	return _u.SetLocationID(v.ID)
@@ -650,6 +696,12 @@ func (_u *AIPUpdateOne) sqlSave(ctx context.Context) (_node *AIP, err error) {
 	}
 	if value, ok := _u.mutation.ObjectKey(); ok {
 		_spec.SetField(aip.FieldObjectKey, field.TypeUUID, value)
+	}
+	if value, ok := _u.mutation.DeletionReportKey(); ok {
+		_spec.SetField(aip.FieldDeletionReportKey, field.TypeString, value)
+	}
+	if _u.mutation.DeletionReportKeyCleared() {
+		_spec.ClearField(aip.FieldDeletionReportKey, field.TypeString)
 	}
 	if _u.mutation.LocationCleared() {
 		edge := &sqlgraph.EdgeSpec{

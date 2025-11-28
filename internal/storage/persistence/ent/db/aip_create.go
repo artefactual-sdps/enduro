@@ -79,6 +79,20 @@ func (_c *AIPCreate) SetNillableCreatedAt(v *time.Time) *AIPCreate {
 	return _c
 }
 
+// SetDeletionReportKey sets the "deletion_report_key" field.
+func (_c *AIPCreate) SetDeletionReportKey(v string) *AIPCreate {
+	_c.mutation.SetDeletionReportKey(v)
+	return _c
+}
+
+// SetNillableDeletionReportKey sets the "deletion_report_key" field if the given value is not nil.
+func (_c *AIPCreate) SetNillableDeletionReportKey(v *string) *AIPCreate {
+	if v != nil {
+		_c.SetDeletionReportKey(*v)
+	}
+	return _c
+}
+
 // SetLocation sets the "location" edge to the Location entity.
 func (_c *AIPCreate) SetLocation(v *Location) *AIPCreate {
 	return _c.SetLocationID(v.ID)
@@ -223,6 +237,10 @@ func (_c *AIPCreate) createSpec() (*AIP, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.CreatedAt(); ok {
 		_spec.SetField(aip.FieldCreatedAt, field.TypeTime, value)
 		_node.CreatedAt = value
+	}
+	if value, ok := _c.mutation.DeletionReportKey(); ok {
+		_spec.SetField(aip.FieldDeletionReportKey, field.TypeString, value)
+		_node.DeletionReportKey = value
 	}
 	if nodes := _c.mutation.LocationIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -391,6 +409,24 @@ func (u *AIPUpsert) UpdateObjectKey() *AIPUpsert {
 	return u
 }
 
+// SetDeletionReportKey sets the "deletion_report_key" field.
+func (u *AIPUpsert) SetDeletionReportKey(v string) *AIPUpsert {
+	u.Set(aip.FieldDeletionReportKey, v)
+	return u
+}
+
+// UpdateDeletionReportKey sets the "deletion_report_key" field to the value that was provided on create.
+func (u *AIPUpsert) UpdateDeletionReportKey() *AIPUpsert {
+	u.SetExcluded(aip.FieldDeletionReportKey)
+	return u
+}
+
+// ClearDeletionReportKey clears the value of the "deletion_report_key" field.
+func (u *AIPUpsert) ClearDeletionReportKey() *AIPUpsert {
+	u.SetNull(aip.FieldDeletionReportKey)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -510,6 +546,27 @@ func (u *AIPUpsertOne) SetObjectKey(v uuid.UUID) *AIPUpsertOne {
 func (u *AIPUpsertOne) UpdateObjectKey() *AIPUpsertOne {
 	return u.Update(func(s *AIPUpsert) {
 		s.UpdateObjectKey()
+	})
+}
+
+// SetDeletionReportKey sets the "deletion_report_key" field.
+func (u *AIPUpsertOne) SetDeletionReportKey(v string) *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetDeletionReportKey(v)
+	})
+}
+
+// UpdateDeletionReportKey sets the "deletion_report_key" field to the value that was provided on create.
+func (u *AIPUpsertOne) UpdateDeletionReportKey() *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateDeletionReportKey()
+	})
+}
+
+// ClearDeletionReportKey clears the value of the "deletion_report_key" field.
+func (u *AIPUpsertOne) ClearDeletionReportKey() *AIPUpsertOne {
+	return u.Update(func(s *AIPUpsert) {
+		s.ClearDeletionReportKey()
 	})
 }
 
@@ -798,6 +855,27 @@ func (u *AIPUpsertBulk) SetObjectKey(v uuid.UUID) *AIPUpsertBulk {
 func (u *AIPUpsertBulk) UpdateObjectKey() *AIPUpsertBulk {
 	return u.Update(func(s *AIPUpsert) {
 		s.UpdateObjectKey()
+	})
+}
+
+// SetDeletionReportKey sets the "deletion_report_key" field.
+func (u *AIPUpsertBulk) SetDeletionReportKey(v string) *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.SetDeletionReportKey(v)
+	})
+}
+
+// UpdateDeletionReportKey sets the "deletion_report_key" field to the value that was provided on create.
+func (u *AIPUpsertBulk) UpdateDeletionReportKey() *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.UpdateDeletionReportKey()
+	})
+}
+
+// ClearDeletionReportKey clears the value of the "deletion_report_key" field.
+func (u *AIPUpsertBulk) ClearDeletionReportKey() *AIPUpsertBulk {
+	return u.Update(func(s *AIPUpsert) {
+		s.ClearDeletionReportKey()
 	})
 }
 

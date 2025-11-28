@@ -32,6 +32,8 @@ type AIP struct {
 	ObjectKey uuid.UUID `json:"object_key,omitempty"`
 	// CreatedAt holds the value of the "created_at" field.
 	CreatedAt time.Time `json:"created_at,omitempty"`
+	// DeletionReportKey holds the value of the "deletion_report_key" field.
+	DeletionReportKey string `json:"deletion_report_key,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the AIPQuery when eager-loading is set.
 	Edges        AIPEdges `json:"edges"`
@@ -87,7 +89,7 @@ func (*AIP) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case aip.FieldID, aip.FieldLocationID:
 			values[i] = new(sql.NullInt64)
-		case aip.FieldName, aip.FieldStatus:
+		case aip.FieldName, aip.FieldStatus, aip.FieldDeletionReportKey:
 			values[i] = new(sql.NullString)
 		case aip.FieldCreatedAt:
 			values[i] = new(sql.NullTime)
@@ -149,6 +151,12 @@ func (_m *AIP) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field created_at", values[i])
 			} else if value.Valid {
 				_m.CreatedAt = value.Time
+			}
+		case aip.FieldDeletionReportKey:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field deletion_report_key", values[i])
+			} else if value.Valid {
+				_m.DeletionReportKey = value.String
 			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
@@ -218,6 +226,9 @@ func (_m *AIP) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("created_at=")
 	builder.WriteString(_m.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("deletion_report_key=")
+	builder.WriteString(_m.DeletionReportKey)
 	builder.WriteByte(')')
 	return builder.String()
 }

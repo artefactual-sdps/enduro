@@ -174,26 +174,6 @@ func (_u *DeletionRequestUpdate) ClearWorkflowID() *DeletionRequestUpdate {
 	return _u
 }
 
-// SetReportKey sets the "report_key" field.
-func (_u *DeletionRequestUpdate) SetReportKey(v string) *DeletionRequestUpdate {
-	_u.mutation.SetReportKey(v)
-	return _u
-}
-
-// SetNillableReportKey sets the "report_key" field if the given value is not nil.
-func (_u *DeletionRequestUpdate) SetNillableReportKey(v *string) *DeletionRequestUpdate {
-	if v != nil {
-		_u.SetReportKey(*v)
-	}
-	return _u
-}
-
-// ClearReportKey clears the value of the "report_key" field.
-func (_u *DeletionRequestUpdate) ClearReportKey() *DeletionRequestUpdate {
-	_u.mutation.ClearReportKey()
-	return _u
-}
-
 // SetAip sets the "aip" edge to the AIP entity.
 func (_u *DeletionRequestUpdate) SetAip(v *AIP) *DeletionRequestUpdate {
 	return _u.SetAipID(v.ID)
@@ -312,12 +292,6 @@ func (_u *DeletionRequestUpdate) sqlSave(ctx context.Context) (_node int, err er
 	}
 	if _u.mutation.ReviewedAtCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewedAt, field.TypeTime)
-	}
-	if value, ok := _u.mutation.ReportKey(); ok {
-		_spec.SetField(deletionrequest.FieldReportKey, field.TypeString, value)
-	}
-	if _u.mutation.ReportKeyCleared() {
-		_spec.ClearField(deletionrequest.FieldReportKey, field.TypeString)
 	}
 	if _u.mutation.AipCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -539,26 +513,6 @@ func (_u *DeletionRequestUpdateOne) ClearWorkflowID() *DeletionRequestUpdateOne 
 	return _u
 }
 
-// SetReportKey sets the "report_key" field.
-func (_u *DeletionRequestUpdateOne) SetReportKey(v string) *DeletionRequestUpdateOne {
-	_u.mutation.SetReportKey(v)
-	return _u
-}
-
-// SetNillableReportKey sets the "report_key" field if the given value is not nil.
-func (_u *DeletionRequestUpdateOne) SetNillableReportKey(v *string) *DeletionRequestUpdateOne {
-	if v != nil {
-		_u.SetReportKey(*v)
-	}
-	return _u
-}
-
-// ClearReportKey clears the value of the "report_key" field.
-func (_u *DeletionRequestUpdateOne) ClearReportKey() *DeletionRequestUpdateOne {
-	_u.mutation.ClearReportKey()
-	return _u
-}
-
 // SetAip sets the "aip" edge to the AIP entity.
 func (_u *DeletionRequestUpdateOne) SetAip(v *AIP) *DeletionRequestUpdateOne {
 	return _u.SetAipID(v.ID)
@@ -707,12 +661,6 @@ func (_u *DeletionRequestUpdateOne) sqlSave(ctx context.Context) (_node *Deletio
 	}
 	if _u.mutation.ReviewedAtCleared() {
 		_spec.ClearField(deletionrequest.FieldReviewedAt, field.TypeTime)
-	}
-	if value, ok := _u.mutation.ReportKey(); ok {
-		_spec.SetField(deletionrequest.FieldReportKey, field.TypeString, value)
-	}
-	if _u.mutation.ReportKeyCleared() {
-		_spec.ClearField(deletionrequest.FieldReportKey, field.TypeString)
 	}
 	if _u.mutation.AipCleared() {
 		edge := &sqlgraph.EdgeSpec{

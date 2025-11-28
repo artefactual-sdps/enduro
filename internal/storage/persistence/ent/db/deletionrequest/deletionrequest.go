@@ -42,8 +42,6 @@ const (
 	FieldAipID = "aip_id"
 	// FieldWorkflowID holds the string denoting the workflow_id field in the database.
 	FieldWorkflowID = "workflow_id"
-	// FieldReportKey holds the string denoting the report_key field in the database.
-	FieldReportKey = "report_key"
 	// EdgeAip holds the string denoting the aip edge name in mutations.
 	EdgeAip = "aip"
 	// EdgeWorkflow holds the string denoting the workflow edge name in mutations.
@@ -82,7 +80,6 @@ var Columns = []string{
 	FieldReviewedAt,
 	FieldAipID,
 	FieldWorkflowID,
-	FieldReportKey,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -187,11 +184,6 @@ func ByAipID(opts ...sql.OrderTermOption) OrderOption {
 // ByWorkflowID orders the results by the workflow_id field.
 func ByWorkflowID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldWorkflowID, opts...).ToFunc()
-}
-
-// ByReportKey orders the results by the report_key field.
-func ByReportKey(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldReportKey, opts...).ToFunc()
 }
 
 // ByAipField orders the results by aip field.
