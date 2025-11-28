@@ -11,7 +11,6 @@ import (
 	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
@@ -164,8 +163,6 @@ func TestListDeletionRequests(t *testing.T) {
 					Status:       enums.DeletionRequestStatusApproved,
 					AIPUUID:      aipID,
 					WorkflowDBID: 2,
-					ReportKey: storage.ReportPrefix +
-						"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 				},
 			},
 		},
@@ -218,8 +215,6 @@ func TestListDeletionRequests(t *testing.T) {
 					Status:       enums.DeletionRequestStatusApproved,
 					AIPUUID:      aipID,
 					WorkflowDBID: 2,
-					ReportKey: storage.ReportPrefix +
-						"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 				},
 			},
 		},
@@ -260,8 +255,6 @@ func TestListDeletionRequests(t *testing.T) {
 				SetStatus(enums.DeletionRequestStatusApproved).
 				SetAipID(1).
 				SetWorkflowID(2).
-				SetReportKey(storage.ReportPrefix +
-					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf").
 				SaveX(ctx)
 
 			r, err := c.ListDeletionRequests(ctx, tc.filter)
@@ -296,8 +289,6 @@ func TestUpdateDeletionRequest(t *testing.T) {
 				dr.ReviewerSub = "sub2"
 				dr.ReviewedAt = reviewedAt
 				dr.Status = enums.DeletionRequestStatusApproved
-				dr.ReportKey = storage.ReportPrefix +
-					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf"
 				return dr, nil
 			},
 			want: &types.DeletionRequest{
@@ -315,8 +306,6 @@ func TestUpdateDeletionRequest(t *testing.T) {
 				Status:       enums.DeletionRequestStatusApproved,
 				AIPUUID:      aipID,
 				WorkflowDBID: 1,
-				ReportKey: storage.ReportPrefix +
-					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 			},
 		},
 		{
@@ -423,8 +412,6 @@ func TestReadDeletionRequests(t *testing.T) {
 				ReviewedAt:   reviewedAt,
 				AIPUUID:      aipID,
 				WorkflowDBID: 1,
-				ReportKey: storage.ReportPrefix +
-					"aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
 			},
 		},
 		{
@@ -454,9 +441,6 @@ func TestReadDeletionRequests(t *testing.T) {
 				SetReviewedAt(reviewedAt).
 				SetAipID(1).
 				SetWorkflowID(1).
-				SetReportKey(
-					storage.ReportPrefix + "aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
-				).
 				SaveX(ctx)
 
 			r, err := c.ReadDeletionRequest(ctx, tc.id)
