@@ -331,6 +331,8 @@ func main() {
 			storageHttpClient.RequestAipDeletion(),
 			storageHttpClient.ReviewAipDeletion(),
 			storageHttpClient.CancelAipDeletion(),
+			storageHttpClient.DownloadDeletionReportRequest(),
+			storageHttpClient.DownloadDeletionReport(),
 			storageHttpClient.ListLocations(),
 			storageHttpClient.CreateLocation(),
 			storageHttpClient.ShowLocation(),

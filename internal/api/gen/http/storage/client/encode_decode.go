@@ -2307,6 +2307,335 @@ func DecodeCancelAipDeletionResponse(decoder func(*http.Response) goahttp.Decode
 	}
 }
 
+// BuildDownloadDeletionReportRequestRequest instantiates a HTTP request object
+// with method and path set to call the "storage" service
+// "download_deletion_report_request" endpoint
+func (c *Client) BuildDownloadDeletionReportRequestRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*storage.DownloadDeletionReportRequestPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "download_deletion_report_request", "*storage.DownloadDeletionReportRequestPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DownloadDeletionReportRequestStoragePath(uuid)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "download_deletion_report_request", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeDownloadDeletionReportRequestRequest returns an encoder for requests
+// sent to the storage download_deletion_report_request server.
+func EncodeDownloadDeletionReportRequestRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.DownloadDeletionReportRequestPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "download_deletion_report_request", "*storage.DownloadDeletionReportRequestPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeDownloadDeletionReportRequestResponse returns a decoder for responses
+// returned by the storage download_deletion_report_request endpoint.
+// restoreBody controls whether the response body should be restored after
+// having been read.
+// DecodeDownloadDeletionReportRequestResponse may return the following errors:
+//   - "not_found" (type *goa.ServiceError): http.StatusNotFound
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeDownloadDeletionReportRequestResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				ticket    *string
+				ticketRaw string
+
+				cookies = resp.Cookies()
+			)
+			for _, c := range cookies {
+				switch c.Name {
+				case "enduro-delreport-ticket":
+					ticketRaw = c.Value
+				}
+			}
+			if ticketRaw != "" {
+				ticket = &ticketRaw
+			}
+			res := NewDownloadDeletionReportRequestResultOK(ticket)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body DownloadDeletionReportRequestNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_deletion_report_request", err)
+			}
+			err = ValidateDownloadDeletionReportRequestNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_deletion_report_request", err)
+			}
+			return nil, NewDownloadDeletionReportRequestNotFound(&body)
+		case http.StatusBadRequest:
+			var (
+				body DownloadDeletionReportRequestNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_deletion_report_request", err)
+			}
+			err = ValidateDownloadDeletionReportRequestNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_deletion_report_request", err)
+			}
+			return nil, NewDownloadDeletionReportRequestNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body DownloadDeletionReportRequestInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_deletion_report_request", err)
+			}
+			err = ValidateDownloadDeletionReportRequestInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_deletion_report_request", err)
+			}
+			return nil, NewDownloadDeletionReportRequestInternalError(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_deletion_report_request", err)
+			}
+			return nil, NewDownloadDeletionReportRequestForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_deletion_report_request", err)
+			}
+			return nil, NewDownloadDeletionReportRequestUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "download_deletion_report_request", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildDownloadDeletionReportRequest instantiates a HTTP request object with
+// method and path set to call the "storage" service "download_deletion_report"
+// endpoint
+func (c *Client) BuildDownloadDeletionReportRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*storage.DownloadDeletionReportPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("storage", "download_deletion_report", "*storage.DownloadDeletionReportPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: DownloadDeletionReportStoragePath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("storage", "download_deletion_report", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeDownloadDeletionReportRequest returns an encoder for requests sent to
+// the storage download_deletion_report server.
+func EncodeDownloadDeletionReportRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*storage.DownloadDeletionReportPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("storage", "download_deletion_report", "*storage.DownloadDeletionReportPayload", v)
+		}
+		if p.Ticket != nil {
+			v := *p.Ticket
+			req.AddCookie(&http.Cookie{
+				Name:  "enduro-delreport-ticket",
+				Value: v,
+			})
+		}
+		return nil
+	}
+}
+
+// DecodeDownloadDeletionReportResponse returns a decoder for responses
+// returned by the storage download_deletion_report endpoint. restoreBody
+// controls whether the response body should be restored after having been read.
+// DecodeDownloadDeletionReportResponse may return the following errors:
+//   - "not_found" (type *goa.ServiceError): http.StatusNotFound
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "forbidden" (type storage.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeDownloadDeletionReportResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				contentType        string
+				contentLength      int64
+				contentDisposition string
+				err                error
+			)
+			contentTypeRaw := resp.Header.Get("Content-Type")
+			if contentTypeRaw == "" {
+				err = goa.MergeErrors(err, goa.MissingFieldError("content_type", "header"))
+			}
+			contentType = contentTypeRaw
+			{
+				contentLengthRaw := resp.Header.Get("Content-Length")
+				if contentLengthRaw == "" {
+					return nil, goahttp.ErrValidationError("storage", "download_deletion_report", goa.MissingFieldError("content_length", "header"))
+				}
+				v, err2 := strconv.ParseInt(contentLengthRaw, 10, 64)
+				if err2 != nil {
+					err = goa.MergeErrors(err, goa.InvalidFieldTypeError("content_length", contentLengthRaw, "integer"))
+				}
+				contentLength = v
+			}
+			contentDispositionRaw := resp.Header.Get("Content-Disposition")
+			if contentDispositionRaw == "" {
+				err = goa.MergeErrors(err, goa.MissingFieldError("content_disposition", "header"))
+			}
+			contentDisposition = contentDispositionRaw
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_deletion_report", err)
+			}
+			res := NewDownloadDeletionReportResultOK(contentType, contentLength, contentDisposition)
+			return res, nil
+		case http.StatusNotFound:
+			var (
+				body DownloadDeletionReportNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_deletion_report", err)
+			}
+			err = ValidateDownloadDeletionReportNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_deletion_report", err)
+			}
+			return nil, NewDownloadDeletionReportNotFound(&body)
+		case http.StatusBadRequest:
+			var (
+				body DownloadDeletionReportNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_deletion_report", err)
+			}
+			err = ValidateDownloadDeletionReportNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_deletion_report", err)
+			}
+			return nil, NewDownloadDeletionReportNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body DownloadDeletionReportInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_deletion_report", err)
+			}
+			err = ValidateDownloadDeletionReportInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "download_deletion_report", err)
+			}
+			return nil, NewDownloadDeletionReportInternalError(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_deletion_report", err)
+			}
+			return nil, NewDownloadDeletionReportForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "download_deletion_report", err)
+			}
+			return nil, NewDownloadDeletionReportUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("storage", "download_deletion_report", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildListLocationsRequest instantiates a HTTP request object with method and
 // path set to call the "storage" service "list_locations" endpoint
 func (c *Client) BuildListLocationsRequest(ctx context.Context, v any) (*http.Request, error) {

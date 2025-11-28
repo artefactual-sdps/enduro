@@ -28,7 +28,7 @@ func UsageCommands() []string {
 	return []string{
 		"about about",
 		"ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects|add-batch|list-batches|show-batch)",
-		"storage (monitor-request|monitor|list-aips|create-aip|submit-aip|update-aip|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|list-deletion-requests|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)",
+		"storage (monitor-request|monitor|list-aips|create-aip|submit-aip|update-aip|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|list-deletion-requests|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|download-deletion-report-request|download-deletion-report|list-locations|create-location|show-location|list-location-aips)",
 	}
 }
 
@@ -225,6 +225,14 @@ func ParseEndpoint(
 		storageCancelAipDeletionUUIDFlag  = storageCancelAipDeletionFlags.String("uuid", "REQUIRED", "Identifier of AIP")
 		storageCancelAipDeletionTokenFlag = storageCancelAipDeletionFlags.String("token", "", "")
 
+		storageDownloadDeletionReportRequestFlags     = flag.NewFlagSet("download-deletion-report-request", flag.ExitOnError)
+		storageDownloadDeletionReportRequestUUIDFlag  = storageDownloadDeletionReportRequestFlags.String("uuid", "REQUIRED", "UUID of the deletion report to download")
+		storageDownloadDeletionReportRequestTokenFlag = storageDownloadDeletionReportRequestFlags.String("token", "", "")
+
+		storageDownloadDeletionReportFlags      = flag.NewFlagSet("download-deletion-report", flag.ExitOnError)
+		storageDownloadDeletionReportUUIDFlag   = storageDownloadDeletionReportFlags.String("uuid", "REQUIRED", "UUID of the deletion report to download")
+		storageDownloadDeletionReportTicketFlag = storageDownloadDeletionReportFlags.String("ticket", "", "")
+
 		storageListLocationsFlags     = flag.NewFlagSet("list-locations", flag.ExitOnError)
 		storageListLocationsTokenFlag = storageListLocationsFlags.String("token", "", "")
 
@@ -279,6 +287,8 @@ func ParseEndpoint(
 	storageRequestAipDeletionFlags.Usage = storageRequestAipDeletionUsage
 	storageReviewAipDeletionFlags.Usage = storageReviewAipDeletionUsage
 	storageCancelAipDeletionFlags.Usage = storageCancelAipDeletionUsage
+	storageDownloadDeletionReportRequestFlags.Usage = storageDownloadDeletionReportRequestUsage
+	storageDownloadDeletionReportFlags.Usage = storageDownloadDeletionReportUsage
 	storageListLocationsFlags.Usage = storageListLocationsUsage
 	storageCreateLocationFlags.Usage = storageCreateLocationUsage
 	storageShowLocationFlags.Usage = storageShowLocationUsage
@@ -432,6 +442,12 @@ func ParseEndpoint(
 			case "cancel-aip-deletion":
 				epf = storageCancelAipDeletionFlags
 
+			case "download-deletion-report-request":
+				epf = storageDownloadDeletionReportRequestFlags
+
+			case "download-deletion-report":
+				epf = storageDownloadDeletionReportFlags
+
 			case "list-locations":
 				epf = storageListLocationsFlags
 
@@ -582,6 +598,12 @@ func ParseEndpoint(
 			case "cancel-aip-deletion":
 				endpoint = c.CancelAipDeletion()
 				data, err = storagec.BuildCancelAipDeletionPayload(*storageCancelAipDeletionBodyFlag, *storageCancelAipDeletionUUIDFlag, *storageCancelAipDeletionTokenFlag)
+			case "download-deletion-report-request":
+				endpoint = c.DownloadDeletionReportRequest()
+				data, err = storagec.BuildDownloadDeletionReportRequestPayload(*storageDownloadDeletionReportRequestUUIDFlag, *storageDownloadDeletionReportRequestTokenFlag)
+			case "download-deletion-report":
+				endpoint = c.DownloadDeletionReport()
+				data, err = storagec.BuildDownloadDeletionReportPayload(*storageDownloadDeletionReportUUIDFlag, *storageDownloadDeletionReportTicketFlag)
 			case "list-locations":
 				endpoint = c.ListLocations()
 				data, err = storagec.BuildListLocationsPayload(*storageListLocationsTokenFlag)
@@ -1064,6 +1086,8 @@ func storageUsage() {
 	fmt.Fprintln(os.Stderr, `    request-aip-deletion: Request an AIP deletion`)
 	fmt.Fprintln(os.Stderr, `    review-aip-deletion: Review an AIP deletion request`)
 	fmt.Fprintln(os.Stderr, `    cancel-aip-deletion: Cancel an AIP deletion request`)
+	fmt.Fprintln(os.Stderr, `    download-deletion-report-request: Request access to download a deletion report`)
+	fmt.Fprintln(os.Stderr, `    download-deletion-report: Download deletion report by UUID`)
 	fmt.Fprintln(os.Stderr, `    list-locations: List locations`)
 	fmt.Fprintln(os.Stderr, `    create-location: Create a storage location`)
 	fmt.Fprintln(os.Stderr, `    show-location: Show location by UUID`)
@@ -1465,6 +1489,48 @@ func storageCancelAipDeletionUsage() {
 	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `storage cancel-aip-deletion --body '{
       "check": false
    }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"`)
+}
+
+func storageDownloadDeletionReportRequestUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] storage download-deletion-report-request", os.Args[0])
+	fmt.Fprint(os.Stderr, " -uuid STRING")
+	fmt.Fprint(os.Stderr, " -token STRING")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `Request access to download a deletion report`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -uuid STRING: UUID of the deletion report to download`)
+	fmt.Fprintln(os.Stderr, `    -token STRING: `)
+
+	// Example block: pass example as parameter to avoid format parsing of % characters
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `storage download-deletion-report-request --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"`)
+}
+
+func storageDownloadDeletionReportUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] storage download-deletion-report", os.Args[0])
+	fmt.Fprint(os.Stderr, " -uuid STRING")
+	fmt.Fprint(os.Stderr, " -ticket STRING")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `Download deletion report by UUID`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -uuid STRING: UUID of the deletion report to download`)
+	fmt.Fprintln(os.Stderr, `    -ticket STRING: `)
+
+	// Example block: pass example as parameter to avoid format parsing of % characters
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `storage download-deletion-report --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --ticket "abc123"`)
 }
 
 func storageListLocationsUsage() {
