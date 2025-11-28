@@ -545,6 +545,56 @@ func BuildCancelAipDeletionPayload(storageCancelAipDeletionBody string, storageC
 	return v, nil
 }
 
+// BuildAipDeletionReportRequestPayload builds the payload for the storage
+// aip_deletion_report_request endpoint from CLI flags.
+func BuildAipDeletionReportRequestPayload(storageAipDeletionReportRequestUUID string, storageAipDeletionReportRequestToken string) (*storage.AipDeletionReportRequestPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = storageAipDeletionReportRequestUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageAipDeletionReportRequestToken != "" {
+			token = &storageAipDeletionReportRequestToken
+		}
+	}
+	v := &storage.AipDeletionReportRequestPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildAipDeletionReportPayload builds the payload for the storage
+// aip_deletion_report endpoint from CLI flags.
+func BuildAipDeletionReportPayload(storageAipDeletionReportUUID string, storageAipDeletionReportTicket string) (*storage.AipDeletionReportPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = storageAipDeletionReportUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var ticket *string
+	{
+		if storageAipDeletionReportTicket != "" {
+			ticket = &storageAipDeletionReportTicket
+		}
+	}
+	v := &storage.AipDeletionReportPayload{}
+	v.UUID = uuid
+	v.Ticket = ticket
+
+	return v, nil
+}
+
 // BuildListLocationsPayload builds the payload for the storage list_locations
 // endpoint from CLI flags.
 func BuildListLocationsPayload(storageListLocationsToken string) (*storage.ListLocationsPayload, error) {

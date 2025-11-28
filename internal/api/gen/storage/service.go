@@ -56,6 +56,14 @@ type Service interface {
 	ReviewAipDeletion(context.Context, *ReviewAipDeletionPayload) (err error)
 	// Cancel an AIP deletion request
 	CancelAipDeletion(context.Context, *CancelAipDeletionPayload) (err error)
+	// Request access to download a deletion report
+	AipDeletionReportRequest(context.Context, *AipDeletionReportRequestPayload) (res *AipDeletionReportRequestResult, err error)
+	// Download deletion report by UUID
+
+	// If body implements [io.WriterTo], that implementation will be used instead.
+	// Consider [goa.design/goa/v3/pkg.SkipResponseWriter] to adapt existing
+	// implementations.
+	AipDeletionReport(context.Context, *AipDeletionReportPayload) (res *AipDeletionReportResult, body io.ReadCloser, err error)
 	// List locations
 	ListLocations(context.Context, *ListLocationsPayload) (res LocationCollection, err error)
 	// Create a storage location
@@ -86,7 +94,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [20]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "submit_aip_complete", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [22]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "submit_aip_complete", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "aip_deletion_report_request", "aip_deletion_report", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // MonitorServerStream allows streaming instances of *StorageEvent to the
 // client.
@@ -220,6 +228,36 @@ type AMSSConfig struct {
 	APIKey   string
 	URL      string
 	Username string
+}
+
+// AipDeletionReportPayload is the payload type of the storage service
+// aip_deletion_report method.
+type AipDeletionReportPayload struct {
+	// UUID of the deletion report to download
+	UUID   string
+	Ticket *string
+}
+
+// AipDeletionReportRequestPayload is the payload type of the storage service
+// aip_deletion_report_request method.
+type AipDeletionReportRequestPayload struct {
+	// UUID of the deletion report to download
+	UUID  string
+	Token *string
+}
+
+// AipDeletionReportRequestResult is the result type of the storage service
+// aip_deletion_report_request method.
+type AipDeletionReportRequestResult struct {
+	Ticket *string
+}
+
+// AipDeletionReportResult is the result type of the storage service
+// aip_deletion_report method.
+type AipDeletionReportResult struct {
+	ContentType        string
+	ContentLength      int64
+	ContentDisposition string
 }
 
 // CancelAipDeletionPayload is the payload type of the storage service
@@ -634,6 +672,11 @@ func MakeNotValid(err error) *goa.ServiceError {
 // MakeFailedDependency builds a goa.ServiceError from an error.
 func MakeFailedDependency(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "failed_dependency", false, false, false)
+}
+
+// MakeNotFound builds a goa.ServiceError from an error.
+func MakeNotFound(err error) *goa.ServiceError {
+	return goa.NewServiceError(err, "not_found", false, false, false)
 }
 
 // NewAIPs initializes result type AIPs from viewed result type AIPs.

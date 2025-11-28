@@ -608,6 +608,118 @@ type CancelAipDeletionNotFoundResponseBody struct {
 	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
+// AipDeletionReportRequestNotFoundResponseBody is the type of the "storage"
+// service "aip_deletion_report_request" endpoint HTTP response body for the
+// "not_found" error.
+type AipDeletionReportRequestNotFoundResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// AipDeletionReportRequestNotValidResponseBody is the type of the "storage"
+// service "aip_deletion_report_request" endpoint HTTP response body for the
+// "not_valid" error.
+type AipDeletionReportRequestNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// AipDeletionReportRequestInternalErrorResponseBody is the type of the
+// "storage" service "aip_deletion_report_request" endpoint HTTP response body
+// for the "internal_error" error.
+type AipDeletionReportRequestInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// AipDeletionReportNotFoundResponseBody is the type of the "storage" service
+// "aip_deletion_report" endpoint HTTP response body for the "not_found" error.
+type AipDeletionReportNotFoundResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// AipDeletionReportNotValidResponseBody is the type of the "storage" service
+// "aip_deletion_report" endpoint HTTP response body for the "not_valid" error.
+type AipDeletionReportNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// AipDeletionReportInternalErrorResponseBody is the type of the "storage"
+// service "aip_deletion_report" endpoint HTTP response body for the
+// "internal_error" error.
+type AipDeletionReportInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // CreateLocationNotValidResponseBody is the type of the "storage" service
 // "create_location" endpoint HTTP response body for the "not_valid" error.
 type CreateLocationNotValidResponseBody struct {
@@ -1276,6 +1388,94 @@ func NewCancelAipDeletionNotFoundResponseBody(res *storage.AIPNotFound) *CancelA
 	return body
 }
 
+// NewAipDeletionReportRequestNotFoundResponseBody builds the HTTP response
+// body from the result of the "aip_deletion_report_request" endpoint of the
+// "storage" service.
+func NewAipDeletionReportRequestNotFoundResponseBody(res *goa.ServiceError) *AipDeletionReportRequestNotFoundResponseBody {
+	body := &AipDeletionReportRequestNotFoundResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewAipDeletionReportRequestNotValidResponseBody builds the HTTP response
+// body from the result of the "aip_deletion_report_request" endpoint of the
+// "storage" service.
+func NewAipDeletionReportRequestNotValidResponseBody(res *goa.ServiceError) *AipDeletionReportRequestNotValidResponseBody {
+	body := &AipDeletionReportRequestNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewAipDeletionReportRequestInternalErrorResponseBody builds the HTTP
+// response body from the result of the "aip_deletion_report_request" endpoint
+// of the "storage" service.
+func NewAipDeletionReportRequestInternalErrorResponseBody(res *goa.ServiceError) *AipDeletionReportRequestInternalErrorResponseBody {
+	body := &AipDeletionReportRequestInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewAipDeletionReportNotFoundResponseBody builds the HTTP response body from
+// the result of the "aip_deletion_report" endpoint of the "storage" service.
+func NewAipDeletionReportNotFoundResponseBody(res *goa.ServiceError) *AipDeletionReportNotFoundResponseBody {
+	body := &AipDeletionReportNotFoundResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewAipDeletionReportNotValidResponseBody builds the HTTP response body from
+// the result of the "aip_deletion_report" endpoint of the "storage" service.
+func NewAipDeletionReportNotValidResponseBody(res *goa.ServiceError) *AipDeletionReportNotValidResponseBody {
+	body := &AipDeletionReportNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewAipDeletionReportInternalErrorResponseBody builds the HTTP response body
+// from the result of the "aip_deletion_report" endpoint of the "storage"
+// service.
+func NewAipDeletionReportInternalErrorResponseBody(res *goa.ServiceError) *AipDeletionReportInternalErrorResponseBody {
+	body := &AipDeletionReportInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewCreateLocationNotValidResponseBody builds the HTTP response body from the
 // result of the "create_location" endpoint of the "storage" service.
 func NewCreateLocationNotValidResponseBody(res *goa.ServiceError) *CreateLocationNotValidResponseBody {
@@ -1497,6 +1697,26 @@ func NewCancelAipDeletionPayload(body *CancelAipDeletionRequestBody, uuid string
 	}
 	v.UUID = uuid
 	v.Token = token
+
+	return v
+}
+
+// NewAipDeletionReportRequestPayload builds a storage service
+// aip_deletion_report_request endpoint payload.
+func NewAipDeletionReportRequestPayload(uuid string, token *string) *storage.AipDeletionReportRequestPayload {
+	v := &storage.AipDeletionReportRequestPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v
+}
+
+// NewAipDeletionReportPayload builds a storage service aip_deletion_report
+// endpoint payload.
+func NewAipDeletionReportPayload(uuid string, ticket *string) *storage.AipDeletionReportPayload {
+	v := &storage.AipDeletionReportPayload{}
+	v.UUID = uuid
+	v.Ticket = ticket
 
 	return v
 }

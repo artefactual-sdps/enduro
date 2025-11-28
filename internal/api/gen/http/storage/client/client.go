@@ -85,6 +85,14 @@ type Client struct {
 	// cancel_aip_deletion endpoint.
 	CancelAipDeletionDoer goahttp.Doer
 
+	// AipDeletionReportRequest Doer is the HTTP client used to make requests to
+	// the aip_deletion_report_request endpoint.
+	AipDeletionReportRequestDoer goahttp.Doer
+
+	// AipDeletionReport Doer is the HTTP client used to make requests to the
+	// aip_deletion_report endpoint.
+	AipDeletionReportDoer goahttp.Doer
+
 	// ListLocations Doer is the HTTP client used to make requests to the
 	// list_locations endpoint.
 	ListLocationsDoer goahttp.Doer
@@ -131,34 +139,36 @@ func NewClient(
 		cfn = &ConnConfigurer{}
 	}
 	return &Client{
-		MonitorRequestDoer:     doer,
-		MonitorDoer:            doer,
-		ListAipsDoer:           doer,
-		CreateAipDoer:          doer,
-		SubmitAipDoer:          doer,
-		SubmitAipCompleteDoer:  doer,
-		DownloadAipRequestDoer: doer,
-		DownloadAipDoer:        doer,
-		MoveAipDoer:            doer,
-		MoveAipStatusDoer:      doer,
-		RejectAipDoer:          doer,
-		ShowAipDoer:            doer,
-		ListAipWorkflowsDoer:   doer,
-		RequestAipDeletionDoer: doer,
-		ReviewAipDeletionDoer:  doer,
-		CancelAipDeletionDoer:  doer,
-		ListLocationsDoer:      doer,
-		CreateLocationDoer:     doer,
-		ShowLocationDoer:       doer,
-		ListLocationAipsDoer:   doer,
-		CORSDoer:               doer,
-		RestoreResponseBody:    restoreBody,
-		scheme:                 scheme,
-		host:                   host,
-		decoder:                dec,
-		encoder:                enc,
-		dialer:                 dialer,
-		configurer:             cfn,
+		MonitorRequestDoer:           doer,
+		MonitorDoer:                  doer,
+		ListAipsDoer:                 doer,
+		CreateAipDoer:                doer,
+		SubmitAipDoer:                doer,
+		SubmitAipCompleteDoer:        doer,
+		DownloadAipRequestDoer:       doer,
+		DownloadAipDoer:              doer,
+		MoveAipDoer:                  doer,
+		MoveAipStatusDoer:            doer,
+		RejectAipDoer:                doer,
+		ShowAipDoer:                  doer,
+		ListAipWorkflowsDoer:         doer,
+		RequestAipDeletionDoer:       doer,
+		ReviewAipDeletionDoer:        doer,
+		CancelAipDeletionDoer:        doer,
+		AipDeletionReportRequestDoer: doer,
+		AipDeletionReportDoer:        doer,
+		ListLocationsDoer:            doer,
+		CreateLocationDoer:           doer,
+		ShowLocationDoer:             doer,
+		ListLocationAipsDoer:         doer,
+		CORSDoer:                     doer,
+		RestoreResponseBody:          restoreBody,
+		scheme:                       scheme,
+		host:                         host,
+		decoder:                      dec,
+		encoder:                      enc,
+		dialer:                       dialer,
+		configurer:                   cfn,
 	}
 }
 
@@ -566,6 +576,59 @@ func (c *Client) CancelAipDeletion() goa.Endpoint {
 			return nil, goahttp.ErrRequestError("storage", "cancel_aip_deletion", err)
 		}
 		return decodeResponse(resp)
+	}
+}
+
+// AipDeletionReportRequest returns an endpoint that makes HTTP requests to the
+// storage service aip_deletion_report_request server.
+func (c *Client) AipDeletionReportRequest() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeAipDeletionReportRequestRequest(c.encoder)
+		decodeResponse = DecodeAipDeletionReportRequestResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildAipDeletionReportRequestRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.AipDeletionReportRequestDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "aip_deletion_report_request", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// AipDeletionReport returns an endpoint that makes HTTP requests to the
+// storage service aip_deletion_report server.
+func (c *Client) AipDeletionReport() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeAipDeletionReportRequest(c.encoder)
+		decodeResponse = DecodeAipDeletionReportResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildAipDeletionReportRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.AipDeletionReportDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("storage", "aip_deletion_report", err)
+		}
+		res, err := decodeResponse(resp)
+		if err != nil {
+			resp.Body.Close()
+			return nil, err
+		}
+		return &storage.AipDeletionReportResponseData{Result: res.(*storage.AipDeletionReportResult), Body: resp.Body}, nil
 	}
 }
 

@@ -76,6 +76,15 @@ import {
     SubmitAipRequestBodyToJSON,
 } from '../models/index';
 
+export interface StorageAipDeletionReportRequest {
+    uuid: string;
+    enduroDelreportTicket?: string;
+}
+
+export interface StorageAipDeletionReportRequestRequest {
+    uuid: string;
+}
+
 export interface StorageCancelAipDeletionRequest {
     uuid: string;
     cancelAipDeletionRequestBody: CancelAipDeletionRequestBody;
@@ -168,6 +177,39 @@ export interface StorageSubmitAipCompleteRequest {
  * @interface StorageApiInterface
  */
 export interface StorageApiInterface {
+    /**
+     * Download deletion report by UUID
+     * @summary aip_deletion_report storage
+     * @param {string} uuid UUID of the deletion report to download
+     * @param {string} [enduroDelreportTicket] 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageAipDeletionReportRaw(requestParameters: StorageAipDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>>;
+
+    /**
+     * Download deletion report by UUID
+     * aip_deletion_report storage
+     */
+    storageAipDeletionReport(requestParameters: StorageAipDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
+
+    /**
+     * Request access to download a deletion report
+     * @summary aip_deletion_report_request storage
+     * @param {string} uuid UUID of the deletion report to download
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageAipDeletionReportRequestRaw(requestParameters: StorageAipDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Request access to download a deletion report
+     * aip_deletion_report_request storage
+     */
+    storageAipDeletionReportRequest(requestParameters: StorageAipDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
     /**
      * Cancel an AIP deletion request
      * @summary cancel_aip_deletion storage
@@ -505,6 +547,77 @@ export interface StorageApiInterface {
  * 
  */
 export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
+
+    /**
+     * Download deletion report by UUID
+     * aip_deletion_report storage
+     */
+    async storageAipDeletionReportRaw(requestParameters: StorageAipDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageAipDeletionReport.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        const response = await this.request({
+            path: `/storage/aips/{uuid}/deletion-report`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.BlobApiResponse(response);
+    }
+
+    /**
+     * Download deletion report by UUID
+     * aip_deletion_report storage
+     */
+    async storageAipDeletionReport(requestParameters: StorageAipDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
+        const response = await this.storageAipDeletionReportRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Request access to download a deletion report
+     * aip_deletion_report_request storage
+     */
+    async storageAipDeletionReportRequestRaw(requestParameters: StorageAipDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageAipDeletionReportRequest.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/storage/aips/{uuid}/deletion-report`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Request access to download a deletion report
+     * aip_deletion_report_request storage
+     */
+    async storageAipDeletionReportRequest(requestParameters: StorageAipDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageAipDeletionReportRequestRaw(requestParameters, initOverrides);
+    }
 
     /**
      * Cancel an AIP deletion request

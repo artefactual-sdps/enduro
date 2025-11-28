@@ -123,6 +123,7 @@ data:
               "ingest:sips:workflows:list",
               "ingest:sipsources:objects:list",
               "ingest:users:list",
+              "storage:aips:deletion:report",
               "storage:aips:deletion:request",
               "storage:aips:download",
               "storage:aips:list",
