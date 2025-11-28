@@ -3,6 +3,7 @@ import Tooltip from "bootstrap/js/dist/tooltip";
 import { onMounted, ref } from "vue";
 
 import AipLocationCard from "@/components/AipLocationCard.vue";
+import AipReportsCard from "@/components/AipReportsCard.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import WorkflowCollapse from "@/components/WorkflowCollapse.vue";
@@ -48,6 +49,7 @@ onMounted(() => {
       </div>
       <div class="col-md-6">
         <AipLocationCard />
+        <AipReportsCard v-if="aipStore.isDeleted" />
       </div>
     </div>
     <div
