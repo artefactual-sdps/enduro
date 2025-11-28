@@ -37,15 +37,6 @@ type AIPWorkflows struct {
 	View string
 }
 
-// DeletionRequestCollection is the viewed result type that is projected based
-// on a view.
-type DeletionRequestCollection struct {
-	// Type to project
-	Projected DeletionRequestCollectionView
-	// View to render
-	View string
-}
-
 // LocationCollection is the viewed result type that is projected based on a
 // view.
 type LocationCollection struct {
@@ -263,34 +254,6 @@ type AIPWorkflowsView struct {
 // type.
 type AIPWorkflowCollectionView []*AIPWorkflowView
 
-// DeletionRequestCollectionView is a type that runs validations on a projected
-// type.
-type DeletionRequestCollectionView []*DeletionRequestView
-
-// DeletionRequestView is a type that runs validations on a projected type.
-type DeletionRequestView struct {
-	// Identifier of deletion request
-	UUID *uuid.UUID
-	// Identifier of related AIP
-	AipUUID *uuid.UUID
-	// UUID of the deletion workflow
-	WorkflowUUID *uuid.UUID
-	// Reason for the deletion request
-	Reason *string
-	// Time the deletion was requested
-	RequestedAt *string
-	// User who requested the deletion
-	Requester *string
-	// Status of the deletion request
-	Status *string
-	// Time the deletion request was reviewed
-	ReviewedAt *string
-	// User who reviewed the deletion request
-	Reviewer *string
-	// Object key of the deletion report
-	ReportKey *string
-}
-
 // LocationCollectionView is a type that runs validations on a projected type.
 type LocationCollectionView []*LocationView
 
@@ -344,22 +307,6 @@ var (
 	AIPWorkflowsMap = map[string][]string{
 		"default": {
 			"workflows",
-		},
-	}
-	// DeletionRequestCollectionMap is a map indexing the attribute names of
-	// DeletionRequestCollection by view name.
-	DeletionRequestCollectionMap = map[string][]string{
-		"default": {
-			"uuid",
-			"aip_uuid",
-			"workflow_uuid",
-			"reason",
-			"requested_at",
-			"requester",
-			"status",
-			"reviewed_at",
-			"reviewer",
-			"report_key",
 		},
 	}
 	// LocationCollectionMap is a map indexing the attribute names of
@@ -477,22 +424,6 @@ var (
 			"tasks",
 		},
 	}
-	// DeletionRequestMap is a map indexing the attribute names of DeletionRequest
-	// by view name.
-	DeletionRequestMap = map[string][]string{
-		"default": {
-			"uuid",
-			"aip_uuid",
-			"workflow_uuid",
-			"reason",
-			"requested_at",
-			"requester",
-			"status",
-			"reviewed_at",
-			"reviewer",
-			"report_key",
-		},
-	}
 )
 
 // ValidateAIPs runs the validations defined on the viewed result type AIPs.
@@ -523,18 +454,6 @@ func ValidateAIPWorkflows(result *AIPWorkflows) (err error) {
 	switch result.View {
 	case "default", "":
 		err = ValidateAIPWorkflowsView(result.Projected)
-	default:
-		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
-	}
-	return
-}
-
-// ValidateDeletionRequestCollection runs the validations defined on the viewed
-// result type DeletionRequestCollection.
-func ValidateDeletionRequestCollection(result DeletionRequestCollection) (err error) {
-	switch result.View {
-	case "default", "":
-		err = ValidateDeletionRequestCollectionView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
@@ -1075,55 +994,6 @@ func ValidateAIPWorkflowCollectionView(result AIPWorkflowCollectionView) (err er
 		if err2 := ValidateAIPWorkflowView(item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
-	}
-	return
-}
-
-// ValidateDeletionRequestCollectionView runs the validations defined on
-// DeletionRequestCollectionView using the "default" view.
-func ValidateDeletionRequestCollectionView(result DeletionRequestCollectionView) (err error) {
-	for _, item := range result {
-		if err2 := ValidateDeletionRequestView(item); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	return
-}
-
-// ValidateDeletionRequestView runs the validations defined on
-// DeletionRequestView using the "default" view.
-func ValidateDeletionRequestView(result *DeletionRequestView) (err error) {
-	if result.UUID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
-	}
-	if result.AipUUID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("aip_uuid", "result"))
-	}
-	if result.WorkflowUUID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_uuid", "result"))
-	}
-	if result.Reason == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("reason", "result"))
-	}
-	if result.RequestedAt == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("requested_at", "result"))
-	}
-	if result.Requester == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("requester", "result"))
-	}
-	if result.Status == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
-	}
-	if result.RequestedAt != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("result.requested_at", *result.RequestedAt, goa.FormatDateTime))
-	}
-	if result.Status != nil {
-		if !(*result.Status == "pending" || *result.Status == "approved" || *result.Status == "rejected" || *result.Status == "canceled") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.status", *result.Status, []any{"pending", "approved", "rejected", "canceled"}))
-		}
-	}
-	if result.ReviewedAt != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("result.reviewed_at", *result.ReviewedAt, goa.FormatDateTime))
 	}
 	return
 }

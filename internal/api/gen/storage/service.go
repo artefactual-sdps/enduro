@@ -50,8 +50,6 @@ type Service interface {
 	ShowAip(context.Context, *ShowAipPayload) (res *AIP, err error)
 	// List workflows related to an AIP
 	ListAipWorkflows(context.Context, *ListAipWorkflowsPayload) (res *AIPWorkflows, err error)
-	// List AIP deletion requests
-	ListDeletionRequests(context.Context, *ListDeletionRequestsPayload) (res DeletionRequestCollection, err error)
 	// Request an AIP deletion
 	RequestAipDeletion(context.Context, *RequestAipDeletionPayload) (err error)
 	// Review an AIP deletion request
@@ -96,7 +94,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [23]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "update_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "list_deletion_requests", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "download_deletion_report_request", "download_deletion_report", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [22]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "update_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "download_deletion_report_request", "download_deletion_report", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // MonitorServerStream allows streaming instances of *StorageEvent to the
 // client.
@@ -276,34 +274,6 @@ type CreateLocationResult struct {
 	UUID string
 }
 
-// DeletionRequest describes an AIP deletion request.
-type DeletionRequest struct {
-	// Identifier of deletion request
-	UUID uuid.UUID
-	// Identifier of related AIP
-	AipUUID uuid.UUID
-	// UUID of the deletion workflow
-	WorkflowUUID uuid.UUID
-	// Reason for the deletion request
-	Reason string
-	// Time the deletion was requested
-	RequestedAt string
-	// User who requested the deletion
-	Requester string
-	// Status of the deletion request
-	Status string
-	// Time the deletion request was reviewed
-	ReviewedAt *string
-	// User who reviewed the deletion request
-	Reviewer *string
-	// Object key of the deletion report
-	ReportKey *string
-}
-
-// DeletionRequestCollection is the result type of the storage service
-// list_deletion_requests method.
-type DeletionRequestCollection []*DeletionRequest
-
 // DownloadAipPayload is the payload type of the storage service download_aip
 // method.
 type DownloadAipPayload struct {
@@ -395,15 +365,6 @@ type ListAipsPayload struct {
 	// Offset from the beginning of the found set
 	Offset *int
 	Token  *string
-}
-
-// ListDeletionRequestsPayload is the payload type of the storage service
-// list_deletion_requests method.
-type ListDeletionRequestsPayload struct {
-	// Identifier of AIP
-	UUID   string
-	Token  *string
-	Status *string
 }
 
 // ListLocationAipsPayload is the payload type of the storage service
@@ -751,20 +712,6 @@ func NewAIPWorkflows(vres *storageviews.AIPWorkflows) *AIPWorkflows {
 func NewViewedAIPWorkflows(res *AIPWorkflows, view string) *storageviews.AIPWorkflows {
 	p := newAIPWorkflowsView(res)
 	return &storageviews.AIPWorkflows{Projected: p, View: "default"}
-}
-
-// NewDeletionRequestCollection initializes result type
-// DeletionRequestCollection from viewed result type DeletionRequestCollection.
-func NewDeletionRequestCollection(vres storageviews.DeletionRequestCollection) DeletionRequestCollection {
-	return newDeletionRequestCollection(vres.Projected)
-}
-
-// NewViewedDeletionRequestCollection initializes viewed result type
-// DeletionRequestCollection from result type DeletionRequestCollection using
-// the given view.
-func NewViewedDeletionRequestCollection(res DeletionRequestCollection, view string) storageviews.DeletionRequestCollection {
-	p := newDeletionRequestCollectionView(res)
-	return storageviews.DeletionRequestCollection{Projected: p, View: "default"}
 }
 
 // NewLocationCollection initializes result type LocationCollection from viewed
@@ -1163,77 +1110,6 @@ func newAIPWorkflowCollectionView(res AIPWorkflowCollection) storageviews.AIPWor
 	vres := make(storageviews.AIPWorkflowCollectionView, len(res))
 	for i, n := range res {
 		vres[i] = newAIPWorkflowView(n)
-	}
-	return vres
-}
-
-// newDeletionRequestCollection converts projected type
-// DeletionRequestCollection to service type DeletionRequestCollection.
-func newDeletionRequestCollection(vres storageviews.DeletionRequestCollectionView) DeletionRequestCollection {
-	res := make(DeletionRequestCollection, len(vres))
-	for i, n := range vres {
-		res[i] = newDeletionRequest(n)
-	}
-	return res
-}
-
-// newDeletionRequestCollectionView projects result type
-// DeletionRequestCollection to projected type DeletionRequestCollectionView
-// using the "default" view.
-func newDeletionRequestCollectionView(res DeletionRequestCollection) storageviews.DeletionRequestCollectionView {
-	vres := make(storageviews.DeletionRequestCollectionView, len(res))
-	for i, n := range res {
-		vres[i] = newDeletionRequestView(n)
-	}
-	return vres
-}
-
-// newDeletionRequest converts projected type DeletionRequest to service type
-// DeletionRequest.
-func newDeletionRequest(vres *storageviews.DeletionRequestView) *DeletionRequest {
-	res := &DeletionRequest{
-		ReviewedAt: vres.ReviewedAt,
-		Reviewer:   vres.Reviewer,
-		ReportKey:  vres.ReportKey,
-	}
-	if vres.UUID != nil {
-		res.UUID = *vres.UUID
-	}
-	if vres.AipUUID != nil {
-		res.AipUUID = *vres.AipUUID
-	}
-	if vres.WorkflowUUID != nil {
-		res.WorkflowUUID = *vres.WorkflowUUID
-	}
-	if vres.Reason != nil {
-		res.Reason = *vres.Reason
-	}
-	if vres.RequestedAt != nil {
-		res.RequestedAt = *vres.RequestedAt
-	}
-	if vres.Requester != nil {
-		res.Requester = *vres.Requester
-	}
-	if vres.Status != nil {
-		res.Status = *vres.Status
-	}
-	return res
-}
-
-// newDeletionRequestView projects result type DeletionRequest to projected
-// type DeletionRequestView using the "default" view.
-func newDeletionRequestView(res *DeletionRequest) *storageviews.DeletionRequestView {
-	vres := &storageviews.DeletionRequestView{
-		UUID:         &res.UUID,
-		AipUUID:      &res.AipUUID,
-		WorkflowUUID: &res.WorkflowUUID,
-		Reason:       &res.Reason,
-		RequestedAt:  &res.RequestedAt,
-		Requester:    &res.Requester,
-		Status:       &res.Status,
-		ReviewedAt:   res.ReviewedAt,
-		Reviewer:     res.Reviewer,
-		ReportKey:    res.ReportKey,
 	}
 	return vres
 }

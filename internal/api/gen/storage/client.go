@@ -30,7 +30,6 @@ type Client struct {
 	RejectAipEndpoint                     goa.Endpoint
 	ShowAipEndpoint                       goa.Endpoint
 	ListAipWorkflowsEndpoint              goa.Endpoint
-	ListDeletionRequestsEndpoint          goa.Endpoint
 	RequestAipDeletionEndpoint            goa.Endpoint
 	ReviewAipDeletionEndpoint             goa.Endpoint
 	CancelAipDeletionEndpoint             goa.Endpoint
@@ -43,7 +42,7 @@ type Client struct {
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, updateAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, listDeletionRequests, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, downloadDeletionReportRequest, downloadDeletionReport, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, updateAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, downloadDeletionReportRequest, downloadDeletionReport, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:                monitorRequest,
 		MonitorEndpoint:                       monitor,
@@ -58,7 +57,6 @@ func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, updateAi
 		RejectAipEndpoint:                     rejectAip,
 		ShowAipEndpoint:                       showAip,
 		ListAipWorkflowsEndpoint:              listAipWorkflows,
-		ListDeletionRequestsEndpoint:          listDeletionRequests,
 		RequestAipDeletionEndpoint:            requestAipDeletion,
 		ReviewAipDeletionEndpoint:             reviewAipDeletion,
 		CancelAipDeletionEndpoint:             cancelAipDeletion,
@@ -269,23 +267,6 @@ func (c *Client) ListAipWorkflows(ctx context.Context, p *ListAipWorkflowsPayloa
 		return
 	}
 	return ires.(*AIPWorkflows), nil
-}
-
-// ListDeletionRequests calls the "list_deletion_requests" endpoint of the
-// "storage" service.
-// ListDeletionRequests may return the following errors:
-//   - "not_found" (type *AIPNotFound): AIP not found
-//   - "not_valid" (type *goa.ServiceError)
-//   - "unauthorized" (type Unauthorized)
-//   - "forbidden" (type Forbidden)
-//   - error: internal error
-func (c *Client) ListDeletionRequests(ctx context.Context, p *ListDeletionRequestsPayload) (res DeletionRequestCollection, err error) {
-	var ires any
-	ires, err = c.ListDeletionRequestsEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(DeletionRequestCollection), nil
 }
 
 // RequestAipDeletion calls the "request_aip_deletion" endpoint of the

@@ -31,7 +31,6 @@ type Endpoints struct {
 	RejectAip                     goa.Endpoint
 	ShowAip                       goa.Endpoint
 	ListAipWorkflows              goa.Endpoint
-	ListDeletionRequests          goa.Endpoint
 	RequestAipDeletion            goa.Endpoint
 	ReviewAipDeletion             goa.Endpoint
 	CancelAipDeletion             goa.Endpoint
@@ -88,7 +87,6 @@ func NewEndpoints(s Service) *Endpoints {
 		RejectAip:                     NewRejectAipEndpoint(s, a.JWTAuth),
 		ShowAip:                       NewShowAipEndpoint(s, a.JWTAuth),
 		ListAipWorkflows:              NewListAipWorkflowsEndpoint(s, a.JWTAuth),
-		ListDeletionRequests:          NewListDeletionRequestsEndpoint(s, a.JWTAuth),
 		RequestAipDeletion:            NewRequestAipDeletionEndpoint(s, a.JWTAuth),
 		ReviewAipDeletion:             NewReviewAipDeletionEndpoint(s, a.JWTAuth),
 		CancelAipDeletion:             NewCancelAipDeletionEndpoint(s, a.JWTAuth),
@@ -116,7 +114,6 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.RejectAip = m(e.RejectAip)
 	e.ShowAip = m(e.ShowAip)
 	e.ListAipWorkflows = m(e.ListAipWorkflows)
-	e.ListDeletionRequests = m(e.ListDeletionRequests)
 	e.RequestAipDeletion = m(e.RequestAipDeletion)
 	e.ReviewAipDeletion = m(e.ReviewAipDeletion)
 	e.CancelAipDeletion = m(e.CancelAipDeletion)
@@ -419,34 +416,6 @@ func NewListAipWorkflowsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.
 			return nil, err
 		}
 		vres := NewViewedAIPWorkflows(res, "default")
-		return vres, nil
-	}
-}
-
-// NewListDeletionRequestsEndpoint returns an endpoint function that calls the
-// method "list_deletion_requests" of service "storage".
-func NewListDeletionRequestsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
-	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*ListDeletionRequestsPayload)
-		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
-			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:sips:create", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:list", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:deletion_report:download", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
-			RequiredScopes: []string{"storage:aips:deletion:list"},
-		}
-		var token string
-		if p.Token != nil {
-			token = *p.Token
-		}
-		ctx, err = authJWTFn(ctx, token, &sc)
-		if err != nil {
-			return nil, err
-		}
-		res, err := s.ListDeletionRequests(ctx, p)
-		if err != nil {
-			return nil, err
-		}
-		vres := NewViewedDeletionRequestCollection(res, "default")
 		return vres, nil
 	}
 }

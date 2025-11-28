@@ -73,10 +73,6 @@ type Client struct {
 	// list_aip_workflows endpoint.
 	ListAipWorkflowsDoer goahttp.Doer
 
-	// ListDeletionRequests Doer is the HTTP client used to make requests to the
-	// list_deletion_requests endpoint.
-	ListDeletionRequestsDoer goahttp.Doer
-
 	// RequestAipDeletion Doer is the HTTP client used to make requests to the
 	// request_aip_deletion endpoint.
 	RequestAipDeletionDoer goahttp.Doer
@@ -156,7 +152,6 @@ func NewClient(
 		RejectAipDoer:                     doer,
 		ShowAipDoer:                       doer,
 		ListAipWorkflowsDoer:              doer,
-		ListDeletionRequestsDoer:          doer,
 		RequestAipDeletionDoer:            doer,
 		ReviewAipDeletionDoer:             doer,
 		CancelAipDeletionDoer:             doer,
@@ -507,30 +502,6 @@ func (c *Client) ListAipWorkflows() goa.Endpoint {
 		resp, err := c.ListAipWorkflowsDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "list_aip_workflows", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// ListDeletionRequests returns an endpoint that makes HTTP requests to the
-// storage service list_deletion_requests server.
-func (c *Client) ListDeletionRequests() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeListDeletionRequestsRequest(c.encoder)
-		decodeResponse = DecodeListDeletionRequestsResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildListDeletionRequestsRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.ListDeletionRequestsDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "list_deletion_requests", err)
 		}
 		return decodeResponse(resp)
 	}

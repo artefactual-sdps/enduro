@@ -333,32 +333,6 @@ var _ = Service("storage", func() {
 			})
 		})
 	})
-	Method("list_deletion_requests", func() {
-		Description("List AIP deletion requests")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSDeletionListAttr)
-		})
-		Payload(func() {
-			AttributeUUID("uuid", "Identifier of AIP")
-			Token("token", String)
-			Attribute("status", String, func() {
-				EnumDeletionRequestStatus()
-			})
-			Required("uuid")
-		})
-		Result(CollectionOf(DeletionRequest))
-		Error("not_found", AIPNotFound, "AIP not found")
-		Error("not_valid")
-		HTTP(func() {
-			GET("/aips/{uuid}/deletion-requests")
-			Response(StatusOK)
-			Response("not_found", StatusNotFound)
-			Response("not_valid", StatusBadRequest)
-			Params(func() {
-				Param("status")
-			})
-		})
-	})
 	Method("request_aip_deletion", func() {
 		Description("Request an AIP deletion")
 		Security(JWTAuth, func() {

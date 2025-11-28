@@ -327,7 +327,6 @@ func main() {
 			storageHttpClient.RejectAip(),
 			storageHttpClient.ShowAip(),
 			storageHttpClient.ListAipWorkflows(),
-			storageHttpClient.ListDeletionRequests(),
 			storageHttpClient.RequestAipDeletion(),
 			storageHttpClient.ReviewAipDeletion(),
 			storageHttpClient.CancelAipDeletion(),

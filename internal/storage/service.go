@@ -676,28 +676,6 @@ func (svc *serviceImpl) CreateDeletionRequest(ctx context.Context, dr *types.Del
 	return nil
 }
 
-func (svc *serviceImpl) ListDeletionRequests(
-	ctx context.Context,
-	payload *goastorage.ListDeletionRequestsPayload,
-) (goastorage.DeletionRequestCollection, error) {
-	f, err := deletionRequestFilterFromPayload(payload)
-	if err != nil {
-		return nil, err
-	}
-
-	r, err := svc.storagePersistence.ListDeletionRequests(ctx, f)
-	if err != nil {
-		return nil, err
-	}
-
-	res := make(goastorage.DeletionRequestCollection, len(r))
-	for i, dr := range r {
-		res[i] = deletionRequestAsGoa(dr)
-	}
-
-	return res, nil
-}
-
 func (svc *serviceImpl) ListDeletionRequestsInternal(
 	ctx context.Context,
 	f *persistence.DeletionRequestFilter,
