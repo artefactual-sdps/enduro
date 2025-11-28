@@ -108,8 +108,7 @@ func (c *Client) UpdateDeletionRequest(
 		SetReviewer(up.Reviewer).
 		SetReviewerIss(up.ReviewerIss).
 		SetReviewerSub(up.ReviewerSub).
-		SetStatus(up.Status).
-		SetReportKey(up.ReportKey)
+		SetStatus(up.Status)
 
 	if !up.ReviewedAt.IsZero() {
 		q.SetReviewedAt(up.ReviewedAt)
@@ -161,7 +160,6 @@ func convertDeletionRequest(dbdr *db.DeletionRequest) *types.DeletionRequest {
 		RequestedAt:  dbdr.RequestedAt,
 		ReviewedAt:   dbdr.ReviewedAt,
 		WorkflowDBID: dbdr.WorkflowID,
-		ReportKey:    dbdr.ReportKey,
 	}
 
 	if dbdr.Edges.Aip != nil {
