@@ -80,7 +80,17 @@ func taskToGoa(task *datatypes.Task) *goaingest.SIPTask {
 func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistence.SIPFilter, error) {
 	aipID, err := stringToUUIDPtr(payload.AipUUID)
 	if err != nil {
-		return nil, goaingest.MakeNotValid(errors.New("aip_id: invalid UUID"))
+		return nil, goaingest.MakeNotValid(errors.New("aip_uuid: invalid UUID"))
+	}
+
+	batchID, err := stringToUUIDPtr(payload.BatchUUID)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(errors.New("batch_uuid: invalid UUID"))
+	}
+
+	uploaderID, err := stringToUUIDPtr(payload.UploaderUUID)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(errors.New("uploader_uuid: invalid UUID"))
 	}
 
 	var status *enums.SIPStatus
@@ -97,21 +107,13 @@ func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistenc
 		return nil, goaingest.MakeNotValid(fmt.Errorf("created at: %v", err))
 	}
 
-	var uploaderID *uuid.UUID
-	if payload.UploaderUUID != nil {
-		id, err := uuid.Parse(*payload.UploaderUUID)
-		if err != nil {
-			return nil, goaingest.MakeNotValid(errors.New("uploader_id: invalid UUID"))
-		}
-		uploaderID = &id
-	}
-
 	pf := persistence.SIPFilter{
 		AIPID:      aipID,
 		Name:       payload.Name,
 		Status:     status,
 		CreatedAt:  createdAt,
 		UploaderID: uploaderID,
+		BatchID:    batchID,
 		Sort:       entfilter.NewSort().AddCol("id", true),
 		Page: persistence.Page{
 			Limit:  ref.DerefZero(payload.Limit),
