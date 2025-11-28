@@ -44,6 +44,9 @@ func (AIP) Fields() []ent.Field {
 		field.Time("created_at").
 			Immutable().
 			Default(time.Now),
+		field.String("deletion_report_key").
+			Annotations(entsql.Annotation{Size: 1024}).
+			Optional(),
 	}
 }
 

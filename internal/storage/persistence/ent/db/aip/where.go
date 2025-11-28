@@ -82,6 +82,11 @@ func CreatedAt(v time.Time) predicate.AIP {
 	return predicate.AIP(sql.FieldEQ(FieldCreatedAt, v))
 }
 
+// DeletionReportKey applies equality check predicate on the "deletion_report_key" field. It's identical to DeletionReportKeyEQ.
+func DeletionReportKey(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldEQ(FieldDeletionReportKey, v))
+}
+
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.AIP {
 	return predicate.AIP(sql.FieldEQ(FieldName, v))
@@ -325,6 +330,81 @@ func CreatedAtLT(v time.Time) predicate.AIP {
 // CreatedAtLTE applies the LTE predicate on the "created_at" field.
 func CreatedAtLTE(v time.Time) predicate.AIP {
 	return predicate.AIP(sql.FieldLTE(FieldCreatedAt, v))
+}
+
+// DeletionReportKeyEQ applies the EQ predicate on the "deletion_report_key" field.
+func DeletionReportKeyEQ(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldEQ(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyNEQ applies the NEQ predicate on the "deletion_report_key" field.
+func DeletionReportKeyNEQ(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldNEQ(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyIn applies the In predicate on the "deletion_report_key" field.
+func DeletionReportKeyIn(vs ...string) predicate.AIP {
+	return predicate.AIP(sql.FieldIn(FieldDeletionReportKey, vs...))
+}
+
+// DeletionReportKeyNotIn applies the NotIn predicate on the "deletion_report_key" field.
+func DeletionReportKeyNotIn(vs ...string) predicate.AIP {
+	return predicate.AIP(sql.FieldNotIn(FieldDeletionReportKey, vs...))
+}
+
+// DeletionReportKeyGT applies the GT predicate on the "deletion_report_key" field.
+func DeletionReportKeyGT(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldGT(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyGTE applies the GTE predicate on the "deletion_report_key" field.
+func DeletionReportKeyGTE(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldGTE(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyLT applies the LT predicate on the "deletion_report_key" field.
+func DeletionReportKeyLT(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldLT(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyLTE applies the LTE predicate on the "deletion_report_key" field.
+func DeletionReportKeyLTE(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldLTE(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyContains applies the Contains predicate on the "deletion_report_key" field.
+func DeletionReportKeyContains(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldContains(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyHasPrefix applies the HasPrefix predicate on the "deletion_report_key" field.
+func DeletionReportKeyHasPrefix(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldHasPrefix(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyHasSuffix applies the HasSuffix predicate on the "deletion_report_key" field.
+func DeletionReportKeyHasSuffix(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldHasSuffix(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyIsNil applies the IsNil predicate on the "deletion_report_key" field.
+func DeletionReportKeyIsNil() predicate.AIP {
+	return predicate.AIP(sql.FieldIsNull(FieldDeletionReportKey))
+}
+
+// DeletionReportKeyNotNil applies the NotNil predicate on the "deletion_report_key" field.
+func DeletionReportKeyNotNil() predicate.AIP {
+	return predicate.AIP(sql.FieldNotNull(FieldDeletionReportKey))
+}
+
+// DeletionReportKeyEqualFold applies the EqualFold predicate on the "deletion_report_key" field.
+func DeletionReportKeyEqualFold(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldEqualFold(FieldDeletionReportKey, v))
+}
+
+// DeletionReportKeyContainsFold applies the ContainsFold predicate on the "deletion_report_key" field.
+func DeletionReportKeyContainsFold(v string) predicate.AIP {
+	return predicate.AIP(sql.FieldContainsFold(FieldDeletionReportKey, v))
 }
 
 // HasLocation applies the HasEdge predicate on the "location" edge.

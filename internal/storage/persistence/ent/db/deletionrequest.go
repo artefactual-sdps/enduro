@@ -47,8 +47,6 @@ type DeletionRequest struct {
 	AipID int `json:"aip_id,omitempty"`
 	// WorkflowID holds the value of the "workflow_id" field.
 	WorkflowID int `json:"workflow_id,omitempty"`
-	// ReportKey holds the value of the "report_key" field.
-	ReportKey string `json:"report_key,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the DeletionRequestQuery when eager-loading is set.
 	Edges        DeletionRequestEdges `json:"edges"`
@@ -95,7 +93,7 @@ func (*DeletionRequest) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case deletionrequest.FieldID, deletionrequest.FieldAipID, deletionrequest.FieldWorkflowID:
 			values[i] = new(sql.NullInt64)
-		case deletionrequest.FieldRequester, deletionrequest.FieldRequesterIss, deletionrequest.FieldRequesterSub, deletionrequest.FieldReviewer, deletionrequest.FieldReviewerIss, deletionrequest.FieldReviewerSub, deletionrequest.FieldReason, deletionrequest.FieldStatus, deletionrequest.FieldReportKey:
+		case deletionrequest.FieldRequester, deletionrequest.FieldRequesterIss, deletionrequest.FieldRequesterSub, deletionrequest.FieldReviewer, deletionrequest.FieldReviewerIss, deletionrequest.FieldReviewerSub, deletionrequest.FieldReason, deletionrequest.FieldStatus:
 			values[i] = new(sql.NullString)
 		case deletionrequest.FieldRequestedAt, deletionrequest.FieldReviewedAt:
 			values[i] = new(sql.NullTime)
@@ -200,12 +198,6 @@ func (_m *DeletionRequest) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.WorkflowID = int(value.Int64)
 			}
-		case deletionrequest.FieldReportKey:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field report_key", values[i])
-			} else if value.Valid {
-				_m.ReportKey = value.String
-			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -290,9 +282,6 @@ func (_m *DeletionRequest) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("workflow_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.WorkflowID))
-	builder.WriteString(", ")
-	builder.WriteString("report_key=")
-	builder.WriteString(_m.ReportKey)
 	builder.WriteByte(')')
 	return builder.String()
 }
