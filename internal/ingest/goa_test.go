@@ -467,6 +467,7 @@ func TestListSIPs(t *testing.T) {
 				EarliestCreatedTime: ref.New("2024-09-25T09:30:00Z"),
 				LatestCreatedTime:   ref.New("2024-09-25T09:40:00Z"),
 				Status:              ref.New(enums.SIPStatusIngested.String()),
+				BatchUUID:           ref.New("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
 				UploaderUUID:        ref.New("0b075937-458c-43d9-b46c-222a072d62a9"),
 				Limit:               ref.New(10),
 				Offset:              ref.New(1),
@@ -482,6 +483,7 @@ func TestListSIPs(t *testing.T) {
 							End:   time.Date(2024, 9, 25, 9, 40, 0, 0, time.UTC),
 						},
 						Status:     ref.New(enums.SIPStatusIngested),
+						BatchID:    ref.New(uuid.MustParse("ffdb12f4-1735-4022-b746-a9bf4a32109b")),
 						UploaderID: ref.New(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
 						Sort:       entfilter.NewSort().AddCol("id", true),
 						Page: persistence.Page{
@@ -537,11 +539,25 @@ func TestListSIPs(t *testing.T) {
 			wantErr: "not found error",
 		},
 		{
-			name: "Errors on a bad aip_id",
+			name: "Errors on a bad aip_uuid",
 			payload: &goaingest.ListSipsPayload{
 				AipUUID: ref.New("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"),
 			},
-			wantErr: "aip_id: invalid UUID",
+			wantErr: "aip_uuid: invalid UUID",
+		},
+		{
+			name: "Errors on a bad batch_uuid",
+			payload: &goaingest.ListSipsPayload{
+				BatchUUID: ref.New("invalid"),
+			},
+			wantErr: "batch_uuid: invalid UUID",
+		},
+		{
+			name: "Errors on a bad uploader_uuid",
+			payload: &goaingest.ListSipsPayload{
+				UploaderUUID: ref.New("invalid"),
+			},
+			wantErr: "uploader_uuid: invalid UUID",
 		},
 		{
 			name: "Errors on a bad status",
@@ -571,13 +587,6 @@ func TestListSIPs(t *testing.T) {
 				LatestCreatedTime:   ref.New("2023-10-01T17:43:52Z"),
 			},
 			wantErr: "created at: time range: end cannot be before start",
-		},
-		{
-			name: "Errors on a bad uploader_id",
-			payload: &goaingest.ListSipsPayload{
-				UploaderUUID: ref.New("invalid"),
-			},
-			wantErr: "uploader_id: invalid UUID",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
