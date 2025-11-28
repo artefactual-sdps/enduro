@@ -92,16 +92,6 @@ func CancelAipDeletionStoragePath(uuid string) string {
 	return fmt.Sprintf("/storage/aips/%v/deletion-cancel", uuid)
 }
 
-// DownloadDeletionReportRequestStoragePath returns the URL path to the storage service download_deletion_report_request HTTP endpoint.
-func DownloadDeletionReportRequestStoragePath(key string) string {
-	return fmt.Sprintf("/storage/deletion_report/%v/download", key)
-}
-
-// DownloadDeletionReportStoragePath returns the URL path to the storage service download_deletion_report HTTP endpoint.
-func DownloadDeletionReportStoragePath(key string) string {
-	return fmt.Sprintf("/storage/deletion_report/%v/download", key)
-}
-
 // ListLocationsStoragePath returns the URL path to the storage service list_locations HTTP endpoint.
 func ListLocationsStoragePath() string {
 	return "/storage/locations"

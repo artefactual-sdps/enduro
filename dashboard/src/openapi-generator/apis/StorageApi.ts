@@ -98,15 +98,6 @@ export interface StorageDownloadAipRequestRequest {
     uuid: string;
 }
 
-export interface StorageDownloadDeletionReportRequest {
-    key: string;
-    enduroDelreportTicket?: string;
-}
-
-export interface StorageDownloadDeletionReportRequestRequest {
-    key: string;
-}
-
 export interface StorageListAipWorkflowsRequest {
     uuid: string;
     status?: StorageListAipWorkflowsStatusEnum;
@@ -258,39 +249,6 @@ export interface StorageApiInterface {
      * download_aip_request storage
      */
     storageDownloadAipRequest(requestParameters: StorageDownloadAipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
-
-    /**
-     * Download deletion report by key
-     * @summary download_deletion_report storage
-     * @param {string} key Key of the deletion report to download
-     * @param {string} [enduroDelreportTicket] 
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof StorageApiInterface
-     */
-    storageDownloadDeletionReportRaw(requestParameters: StorageDownloadDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>>;
-
-    /**
-     * Download deletion report by key
-     * download_deletion_report storage
-     */
-    storageDownloadDeletionReport(requestParameters: StorageDownloadDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
-
-    /**
-     * Request access to download a deletion report
-     * @summary download_deletion_report_request storage
-     * @param {string} key Key of the deletion report to download
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof StorageApiInterface
-     */
-    storageDownloadDeletionReportRequestRaw(requestParameters: StorageDownloadDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
-
-    /**
-     * Request access to download a deletion report
-     * download_deletion_report_request storage
-     */
-    storageDownloadDeletionReportRequest(requestParameters: StorageDownloadDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * List workflows related to an AIP
@@ -749,77 +707,6 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
      */
     async storageDownloadAipRequest(requestParameters: StorageDownloadAipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.storageDownloadAipRequestRaw(requestParameters, initOverrides);
-    }
-
-    /**
-     * Download deletion report by key
-     * download_deletion_report storage
-     */
-    async storageDownloadDeletionReportRaw(requestParameters: StorageDownloadDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
-        if (requestParameters.key === null || requestParameters.key === undefined) {
-            throw new runtime.RequiredError('key','Required parameter requestParameters.key was null or undefined when calling storageDownloadDeletionReport.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        const response = await this.request({
-            path: `/storage/deletion_report/{key}/download`.replace(`{${"key"}}`, encodeURIComponent(String(requestParameters.key))),
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.BlobApiResponse(response);
-    }
-
-    /**
-     * Download deletion report by key
-     * download_deletion_report storage
-     */
-    async storageDownloadDeletionReport(requestParameters: StorageDownloadDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob> {
-        const response = await this.storageDownloadDeletionReportRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Request access to download a deletion report
-     * download_deletion_report_request storage
-     */
-    async storageDownloadDeletionReportRequestRaw(requestParameters: StorageDownloadDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.key === null || requestParameters.key === undefined) {
-            throw new runtime.RequiredError('key','Required parameter requestParameters.key was null or undefined when calling storageDownloadDeletionReportRequest.');
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        if (this.configuration && this.configuration.accessToken) {
-            const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
-
-            if (tokenString) {
-                headerParameters["Authorization"] = `Bearer ${tokenString}`;
-            }
-        }
-        const response = await this.request({
-            path: `/storage/deletion_report/{key}/download`.replace(`{${"key"}}`, encodeURIComponent(String(requestParameters.key))),
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-        }, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     * Request access to download a deletion report
-     * download_deletion_report_request storage
-     */
-    async storageDownloadDeletionReportRequest(requestParameters: StorageDownloadDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.storageDownloadDeletionReportRequestRaw(requestParameters, initOverrides);
     }
 
     /**
