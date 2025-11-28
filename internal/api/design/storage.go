@@ -391,6 +391,68 @@ var _ = Service("storage", func() {
 			Response("not_found", StatusNotFound)
 		})
 	})
+	Method("download_deletion_report_request", func() {
+		Description("Request access to download a deletion report")
+		Security(JWTAuth, func() {
+			Scope(auth.StorageDeletionReportDownloadAttr)
+		})
+		Payload(func() {
+			AttributeUUID("key", "Key of the deletion report to download")
+			Token("token", String)
+			Required("key")
+		})
+		Result(func() {
+			Attribute("ticket", String)
+		})
+		Error("not_found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			POST("/deletion_report/{key}/download")
+			Response(StatusOK, func() {
+				Cookie("ticket:enduro-delreport-ticket")
+				CookieMaxAge(5)
+				CookieSecure()
+				CookieHTTPOnly()
+			})
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+		})
+	})
+	Method("download_deletion_report", func() {
+		Description("Download deletion report by key")
+		// Disable JWTAuth security (it validates the previous method cookie).
+		NoSecurity()
+		Payload(func() {
+			AttributeUUID("key", "Key of the deletion report to download")
+			Attribute("ticket", String)
+			Required("key")
+		})
+		Result(Bytes)
+		Result(func() {
+			Attribute("content_type", String)
+			Attribute("content_length", Int64)
+			Attribute("content_disposition", String)
+			Required("content_type", "content_length", "content_disposition")
+		})
+		Error("not_found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			GET("/deletion_report/{key}/download")
+			Cookie("ticket:enduro-delreport-ticket")
+			SkipResponseBodyEncodeDecode()
+			Response(func() {
+				Header("content_type:Content-Type")
+				Header("content_length:Content-Length")
+				Header("content_disposition:Content-Disposition")
+			})
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+		})
+	})
 	Method("list_locations", func() {
 		Description("List locations")
 		Security(JWTAuth, func() {

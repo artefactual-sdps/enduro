@@ -6255,6 +6255,230 @@
         ]
       }
     },
+    "/storage/deletion_report/{key}/download": {
+      "get": {
+        "description": "Download deletion report by key",
+        "operationId": "storage#download_deletion_report",
+        "parameters": [
+          {
+            "description": "Key of the deletion report to download",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "description": "Key of the deletion report to download",
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
+            }
+          },
+          {
+            "allowEmptyValue": true,
+            "example": "abc123",
+            "in": "cookie",
+            "name": "enduro-delreport-ticket",
+            "schema": {
+              "example": "abc123",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "OK response.",
+            "headers": {
+              "Content-Disposition": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              },
+              "Content-Length": {
+                "example": 1,
+                "schema": {
+                  "example": 1,
+                  "format": "int64",
+                  "type": "integer"
+                }
+              },
+              "Content-Type": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_valid: Bad Request response."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
+          "404": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_found: Not Found response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
+          }
+        },
+        "summary": "download_deletion_report storage",
+        "tags": [
+          "storage"
+        ]
+      },
+      "post": {
+        "description": "Request access to download a deletion report",
+        "operationId": "storage#download_deletion_report_request",
+        "parameters": [
+          {
+            "description": "Key of the deletion report to download",
+            "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+            "in": "path",
+            "name": "key",
+            "required": true,
+            "schema": {
+              "description": "Key of the deletion report to download",
+              "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+              "format": "uuid",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK response.",
+            "headers": {
+              "Set-Cookie": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_valid: Bad Request response."
+          },
+          "401": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "unauthorized: Unauthorized response."
+          },
+          "403": {
+            "content": {
+              "application/json": {
+                "example": "abc123",
+                "schema": {
+                  "example": "abc123",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "forbidden: Forbidden response."
+          },
+          "404": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "not_found: Not Found response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
+          }
+        },
+        "security": [
+          {
+            "jwt_header_Authorization": [
+              "storage:deletion_report:download"
+            ]
+          }
+        ],
+        "summary": "download_deletion_report_request storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
     "/storage/locations": {
       "get": {
         "description": "List locations",

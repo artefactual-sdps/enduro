@@ -613,6 +613,120 @@ type CancelAipDeletionNotFoundResponseBody struct {
 	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
+// DownloadDeletionReportRequestNotFoundResponseBody is the type of the
+// "storage" service "download_deletion_report_request" endpoint HTTP response
+// body for the "not_found" error.
+type DownloadDeletionReportRequestNotFoundResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// DownloadDeletionReportRequestNotValidResponseBody is the type of the
+// "storage" service "download_deletion_report_request" endpoint HTTP response
+// body for the "not_valid" error.
+type DownloadDeletionReportRequestNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// DownloadDeletionReportRequestInternalErrorResponseBody is the type of the
+// "storage" service "download_deletion_report_request" endpoint HTTP response
+// body for the "internal_error" error.
+type DownloadDeletionReportRequestInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// DownloadDeletionReportNotFoundResponseBody is the type of the "storage"
+// service "download_deletion_report" endpoint HTTP response body for the
+// "not_found" error.
+type DownloadDeletionReportNotFoundResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// DownloadDeletionReportNotValidResponseBody is the type of the "storage"
+// service "download_deletion_report" endpoint HTTP response body for the
+// "not_valid" error.
+type DownloadDeletionReportNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// DownloadDeletionReportInternalErrorResponseBody is the type of the "storage"
+// service "download_deletion_report" endpoint HTTP response body for the
+// "internal_error" error.
+type DownloadDeletionReportInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // CreateLocationNotValidResponseBody is the type of the "storage" service
 // "create_location" endpoint HTTP response body for the "not_valid" error.
 type CreateLocationNotValidResponseBody struct {
@@ -1655,6 +1769,148 @@ func NewCancelAipDeletionUnauthorized(body string) storage.Unauthorized {
 	return v
 }
 
+// NewDownloadDeletionReportRequestResultOK builds a "storage" service
+// "download_deletion_report_request" endpoint result from a HTTP "OK" response.
+func NewDownloadDeletionReportRequestResultOK(ticket *string) *storage.DownloadDeletionReportRequestResult {
+	v := &storage.DownloadDeletionReportRequestResult{}
+	v.Ticket = ticket
+
+	return v
+}
+
+// NewDownloadDeletionReportRequestNotFound builds a storage service
+// download_deletion_report_request endpoint not_found error.
+func NewDownloadDeletionReportRequestNotFound(body *DownloadDeletionReportRequestNotFoundResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewDownloadDeletionReportRequestNotValid builds a storage service
+// download_deletion_report_request endpoint not_valid error.
+func NewDownloadDeletionReportRequestNotValid(body *DownloadDeletionReportRequestNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewDownloadDeletionReportRequestInternalError builds a storage service
+// download_deletion_report_request endpoint internal_error error.
+func NewDownloadDeletionReportRequestInternalError(body *DownloadDeletionReportRequestInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewDownloadDeletionReportRequestForbidden builds a storage service
+// download_deletion_report_request endpoint forbidden error.
+func NewDownloadDeletionReportRequestForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewDownloadDeletionReportRequestUnauthorized builds a storage service
+// download_deletion_report_request endpoint unauthorized error.
+func NewDownloadDeletionReportRequestUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
+// NewDownloadDeletionReportResultOK builds a "storage" service
+// "download_deletion_report" endpoint result from a HTTP "OK" response.
+func NewDownloadDeletionReportResultOK(contentType string, contentLength int64, contentDisposition string) *storage.DownloadDeletionReportResult {
+	v := &storage.DownloadDeletionReportResult{}
+	v.ContentType = contentType
+	v.ContentLength = contentLength
+	v.ContentDisposition = contentDisposition
+
+	return v
+}
+
+// NewDownloadDeletionReportNotFound builds a storage service
+// download_deletion_report endpoint not_found error.
+func NewDownloadDeletionReportNotFound(body *DownloadDeletionReportNotFoundResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewDownloadDeletionReportNotValid builds a storage service
+// download_deletion_report endpoint not_valid error.
+func NewDownloadDeletionReportNotValid(body *DownloadDeletionReportNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewDownloadDeletionReportInternalError builds a storage service
+// download_deletion_report endpoint internal_error error.
+func NewDownloadDeletionReportInternalError(body *DownloadDeletionReportInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewDownloadDeletionReportForbidden builds a storage service
+// download_deletion_report endpoint forbidden error.
+func NewDownloadDeletionReportForbidden(body string) storage.Forbidden {
+	v := storage.Forbidden(body)
+
+	return v
+}
+
+// NewDownloadDeletionReportUnauthorized builds a storage service
+// download_deletion_report endpoint unauthorized error.
+func NewDownloadDeletionReportUnauthorized(body string) storage.Unauthorized {
+	v := storage.Unauthorized(body)
+
+	return v
+}
+
 // NewListLocationsLocationCollectionOK builds a "storage" service
 // "list_locations" endpoint result from a HTTP "OK" response.
 func NewListLocationsLocationCollectionOK(body ListLocationsResponseBody) storageviews.LocationCollectionView {
@@ -2432,6 +2688,153 @@ func ValidateCancelAipDeletionNotFoundResponseBody(body *CancelAipDeletionNotFou
 	}
 	if body.UUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
+// ValidateDownloadDeletionReportRequestNotFoundResponseBody runs the
+// validations defined on
+// download_deletion_report_request_not_found_response_body
+func ValidateDownloadDeletionReportRequestNotFoundResponseBody(body *DownloadDeletionReportRequestNotFoundResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateDownloadDeletionReportRequestNotValidResponseBody runs the
+// validations defined on
+// download_deletion_report_request_not_valid_response_body
+func ValidateDownloadDeletionReportRequestNotValidResponseBody(body *DownloadDeletionReportRequestNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateDownloadDeletionReportRequestInternalErrorResponseBody runs the
+// validations defined on
+// download_deletion_report_request_internal_error_response_body
+func ValidateDownloadDeletionReportRequestInternalErrorResponseBody(body *DownloadDeletionReportRequestInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateDownloadDeletionReportNotFoundResponseBody runs the validations
+// defined on download_deletion_report_not_found_response_body
+func ValidateDownloadDeletionReportNotFoundResponseBody(body *DownloadDeletionReportNotFoundResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateDownloadDeletionReportNotValidResponseBody runs the validations
+// defined on download_deletion_report_not_valid_response_body
+func ValidateDownloadDeletionReportNotValidResponseBody(body *DownloadDeletionReportNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateDownloadDeletionReportInternalErrorResponseBody runs the validations
+// defined on download_deletion_report_internal_error_response_body
+func ValidateDownloadDeletionReportInternalErrorResponseBody(body *DownloadDeletionReportInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
 	}
 	return
 }
