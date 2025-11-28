@@ -1320,6 +1320,10 @@ func (w *ProcessingWorkflow) updateSIPProcessing(ctx temporalsdk_workflow.Contex
 	).Get(activityOpts, nil)
 }
 
+// waitForBatch waits for a signal indicating that all SIPs in the Batch have been validated. If the signal
+// indicates that not all SIPs in the Batch have been validated successfully, the workflow status is set to
+// canceled and an error is returned. This function blocks the worker session until the signal is received,
+// this requires that the available workers have enough capacity to handle all SIPs in the running Batches.
 func (w *ProcessingWorkflow) waitForBatch(ctx temporalsdk_workflow.Context, state *workflowState) (e error) {
 	// Update SIP status to validated.
 	activityOpts := withLocalActivityOpts(ctx)
@@ -1365,6 +1369,9 @@ func (w *ProcessingWorkflow) waitForBatch(ctx temporalsdk_workflow.Context, stat
 	}()
 
 	// Wait for a Batch signal.
+	// TODO: Consider releasing the session:
+	// - Put the SIP in the internal bucket while waiting for the signal.
+	// - Add configuration to indicate there is only one session worker.
 	var signal ingest.BatchSignal
 	open := temporalsdk_workflow.GetSignalChannel(ctx, ingest.BatchSignalName).Receive(ctx, &signal)
 	if !open {

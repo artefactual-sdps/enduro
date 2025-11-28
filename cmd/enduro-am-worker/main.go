@@ -223,10 +223,14 @@ func main() {
 
 		done := make(chan struct{})
 		workerOpts := temporalsdk_worker.Options{
-			DisableWorkflowWorker:              true,
-			EnableSessionWorker:                true,
-			MaxConcurrentSessionExecutionSize:  cfg.AM.Capacity,
-			MaxConcurrentActivityExecutionSize: 1,
+			DisableWorkflowWorker: true,
+			EnableSessionWorker:   true,
+			// Sets the maximum number of concurrent workflow sessions. All SIPs in a batch
+			// run simultaneously and synchronize mid-workflow, so each SIP takes one slot.
+			MaxConcurrentSessionExecutionSize: cfg.AM.Capacity,
+			// Match concurrent sessions and concurrent activities to allow each session to
+			// run its activities sequentially without waiting for other sessions.
+			MaxConcurrentActivityExecutionSize: cfg.AM.Capacity,
 			Interceptors: []temporalsdk_interceptor.WorkerInterceptor{
 				temporal_tools.NewLoggerInterceptor(logger),
 			},

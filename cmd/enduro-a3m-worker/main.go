@@ -227,9 +227,14 @@ func main() {
 
 		done := make(chan struct{})
 		workerOpts := temporalsdk_worker.Options{
-			DisableWorkflowWorker:              true,
-			EnableSessionWorker:                true,
-			MaxConcurrentSessionExecutionSize:  cfg.A3m.Capacity,
+			DisableWorkflowWorker: true,
+			EnableSessionWorker:   true,
+			// Sets the maximum number of concurrent workflow sessions. All SIPs in a batch
+			// run simultaneously and synchronize mid-workflow, so each SIP takes one slot.
+			MaxConcurrentSessionExecutionSize: cfg.A3m.Capacity,
+			// Limit concurrent activities to one as a3m is not concurrency safe. This makes
+			// sure that only one "create-aip" activity is executed at a time while multiple
+			// sessions are running.
 			MaxConcurrentActivityExecutionSize: 1,
 			Interceptors: []temporalsdk_interceptor.WorkerInterceptor{
 				temporal_tools.NewLoggerInterceptor(logger),
