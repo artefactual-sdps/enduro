@@ -59,7 +59,10 @@ type Service interface {
 	UpdateTask(context.Context, int, persistence.TaskUpdater) (*types.Task, error)
 
 	CreateDeletionRequest(context.Context, *types.DeletionRequest) error
-	ListDeletionRequests(context.Context, *persistence.DeletionRequestFilter) ([]*types.DeletionRequest, error)
+	ListDeletionRequestsInternal(
+		ctx context.Context,
+		f *persistence.DeletionRequestFilter,
+	) ([]*types.DeletionRequest, error)
 	ReadDeletionRequest(ctx context.Context, drID uuid.UUID) (*types.DeletionRequest, error)
 	UpdateDeletionRequest(context.Context, int, persistence.DeletionRequestUpdater) (*types.DeletionRequest, error)
 }
@@ -674,6 +677,28 @@ func (svc *serviceImpl) CreateDeletionRequest(ctx context.Context, dr *types.Del
 }
 
 func (svc *serviceImpl) ListDeletionRequests(
+	ctx context.Context,
+	payload *goastorage.ListDeletionRequestsPayload,
+) (goastorage.DeletionRequestCollection, error) {
+	f, err := deletionRequestFilterFromPayload(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	r, err := svc.storagePersistence.ListDeletionRequests(ctx, f)
+	if err != nil {
+		return nil, err
+	}
+
+	res := make(goastorage.DeletionRequestCollection, len(r))
+	for i, dr := range r {
+		res[i] = deletionRequestAsGoa(dr)
+	}
+
+	return res, nil
+}
+
+func (svc *serviceImpl) ListDeletionRequestsInternal(
 	ctx context.Context,
 	f *persistence.DeletionRequestFilter,
 ) ([]*types.DeletionRequest, error) {

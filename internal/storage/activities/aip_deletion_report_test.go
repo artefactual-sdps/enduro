@@ -38,7 +38,7 @@ func expectReadAIP(msvc *fake.MockService, id uuid.UUID) {
 
 func expectListDeletionRequests(msvc *fake.MockService, aipID uuid.UUID) {
 	msvc.EXPECT().
-		ListDeletionRequests(mockutil.Context(), &persistence.DeletionRequestFilter{
+		ListDeletionRequestsInternal(mockutil.Context(), &persistence.DeletionRequestFilter{
 			AIPUUID: ref.New(aipID),
 			Status:  ref.New(enums.DeletionRequestStatusApproved),
 		}).
@@ -186,7 +186,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 			expectedSvc: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 				expectReadAIP(msvc, aipID)
 				msvc.EXPECT().
-					ListDeletionRequests(mockutil.Context(), &persistence.DeletionRequestFilter{
+					ListDeletionRequestsInternal(mockutil.Context(), &persistence.DeletionRequestFilter{
 						AIPUUID: ref.New(aipID),
 						Status:  ref.New(enums.DeletionRequestStatusApproved),
 					}).
@@ -203,7 +203,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 			expectedSvc: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 				expectReadAIP(msvc, aipID)
 				msvc.EXPECT().
-					ListDeletionRequests(mockutil.Context(), &persistence.DeletionRequestFilter{
+					ListDeletionRequestsInternal(mockutil.Context(), &persistence.DeletionRequestFilter{
 						AIPUUID: ref.New(aipID),
 						Status:  ref.New(enums.DeletionRequestStatusApproved),
 					}).

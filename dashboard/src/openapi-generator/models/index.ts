@@ -41,6 +41,7 @@ export * from './EnduroStorageAipTask';
 export * from './EnduroStorageAipWorkflow';
 export * from './EnduroStorageAipWorkflows';
 export * from './EnduroStorageAips';
+export * from './EnduroStorageDeletionrequest';
 export * from './EnduroStorageLocation';
 export * from './EnduroStorageLocationConfig';
 export * from './IngestEvent';

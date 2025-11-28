@@ -2224,26 +2224,282 @@ func TestListDeletionRequests(t *testing.T) {
 	t.Run("Lists DeletionRequests", func(t *testing.T) {
 		t.Parallel()
 
+		uuid0 := uuid.MustParse("113e4567-e89b-12d3-a456-426614174000")
+		uuid1 := uuid.MustParse("223e4567-e89b-12d3-a456-426614174000")
+		aipUUID := uuid.MustParse("333e4567-e89b-12d3-a456-426614174000")
+		requestedAt := time.Date(2023, 1, 5, 9, 8, 7, 0, time.UTC)
+		reviewedAt := time.Date(2023, 1, 6, 12, 13, 14, 0, time.UTC)
+
+		type test struct {
+			name     string
+			payload  *goastorage.ListDeletionRequestsPayload
+			expected func(msvc *fake.MockStorageMockRecorder)
+			want     goastorage.DeletionRequestCollection
+			wantErr  string
+		}
+		for _, tc := range []test{
+			{
+				name: "Lists all deletion requests",
+				expected: func(msvc *fake.MockStorageMockRecorder) {
+					msvc.
+						ListDeletionRequests(mockutil.Context(), nil).
+						Return(
+							[]*types.DeletionRequest{
+								{
+									DBID:        1,
+									UUID:        uuid0,
+									AIPUUID:     aipUUID,
+									Reason:      "Reason 1",
+									Status:      enums.DeletionRequestStatusRejected,
+									Requester:   "requester@example.com",
+									RequestedAt: requestedAt,
+									Reviewer:    "reviewer@example.com",
+									ReviewedAt:  reviewedAt,
+								},
+								{
+									DBID:        2,
+									UUID:        uuid1,
+									AIPUUID:     aipUUID,
+									Reason:      "Reason 2",
+									Status:      enums.DeletionRequestStatusApproved,
+									Requester:   "requester@example.com",
+									RequestedAt: requestedAt,
+									Reviewer:    "reviewer@example.com",
+									ReviewedAt:  reviewedAt,
+									ReportKey:   "reports/aip_deletion_report_223e4567-e89b-12d3-a456-426614174000.pdf",
+								},
+							},
+							nil,
+						)
+				},
+				want: goastorage.DeletionRequestCollection{
+					{
+						UUID:        uuid0,
+						AipUUID:     aipUUID,
+						Reason:      "Reason 1",
+						Status:      enums.DeletionRequestStatusRejected.String(),
+						Requester:   "requester@example.com",
+						RequestedAt: requestedAt.Format(time.RFC3339),
+						Reviewer:    ref.New("reviewer@example.com"),
+						ReviewedAt:  ref.New(reviewedAt.Format(time.RFC3339)),
+					},
+					{
+						UUID:        uuid1,
+						AipUUID:     aipUUID,
+						Reason:      "Reason 2",
+						Status:      enums.DeletionRequestStatusApproved.String(),
+						Requester:   "requester@example.com",
+						RequestedAt: requestedAt.Format(time.RFC3339),
+						Reviewer:    ref.New("reviewer@example.com"),
+						ReviewedAt:  ref.New(reviewedAt.Format(time.RFC3339)),
+						ReportKey:   ref.New("reports/aip_deletion_report_223e4567-e89b-12d3-a456-426614174000.pdf"),
+					},
+				},
+			},
+			{
+				name: "List deletion request by AIP UUID",
+				payload: &goastorage.ListDeletionRequestsPayload{
+					UUID: aipUUID.String(),
+				},
+				expected: func(msvc *fake.MockStorageMockRecorder) {
+					msvc.ListDeletionRequests(
+						mockutil.Context(),
+						&persistence.DeletionRequestFilter{
+							AIPUUID: &aipUUID,
+						},
+					).Return(
+						[]*types.DeletionRequest{
+							{
+								DBID:        1,
+								UUID:        uuid0,
+								AIPUUID:     aipUUID,
+								Reason:      "Reason 1",
+								Status:      enums.DeletionRequestStatusRejected,
+								Requester:   "requester@example.com",
+								RequestedAt: requestedAt,
+								Reviewer:    "reviewer@example.com",
+								ReviewedAt:  reviewedAt,
+							},
+							{
+								DBID:        2,
+								UUID:        uuid1,
+								AIPUUID:     aipUUID,
+								Reason:      "Reason 2",
+								Status:      enums.DeletionRequestStatusApproved,
+								Requester:   "requester@example.com",
+								RequestedAt: requestedAt,
+								Reviewer:    "reviewer@example.com",
+								ReviewedAt:  reviewedAt,
+								ReportKey:   "reports/aip_deletion_report_223e4567-e89b-12d3-a456-426614174000.pdf",
+							},
+						},
+						nil,
+					)
+				},
+				want: goastorage.DeletionRequestCollection{
+					{
+						UUID:        uuid0,
+						AipUUID:     aipUUID,
+						Reason:      "Reason 1",
+						Status:      enums.DeletionRequestStatusRejected.String(),
+						Requester:   "requester@example.com",
+						RequestedAt: requestedAt.Format(time.RFC3339),
+						Reviewer:    ref.New("reviewer@example.com"),
+						ReviewedAt:  ref.New(reviewedAt.Format(time.RFC3339)),
+					},
+					{
+						UUID:        uuid1,
+						AipUUID:     aipUUID,
+						Reason:      "Reason 2",
+						Status:      enums.DeletionRequestStatusApproved.String(),
+						Requester:   "requester@example.com",
+						RequestedAt: requestedAt.Format(time.RFC3339),
+						Reviewer:    ref.New("reviewer@example.com"),
+						ReviewedAt:  ref.New(reviewedAt.Format(time.RFC3339)),
+						ReportKey:   ref.New("reports/aip_deletion_report_223e4567-e89b-12d3-a456-426614174000.pdf"),
+					},
+				},
+			},
+			{
+				name: "List deletion request with status filter",
+				payload: &goastorage.ListDeletionRequestsPayload{
+					UUID:   aipUUID.String(),
+					Status: ref.New(enums.DeletionRequestStatusApproved.String()),
+				},
+				expected: func(rec *fake.MockStorageMockRecorder) {
+					rec.ListDeletionRequests(
+						mockutil.Context(),
+						&persistence.DeletionRequestFilter{
+							AIPUUID: &aipUUID,
+							Status:  ref.New(enums.DeletionRequestStatusApproved),
+						},
+					).Return(
+						[]*types.DeletionRequest{
+							{
+								DBID:        2,
+								UUID:        uuid0,
+								AIPUUID:     aipUUID,
+								Reason:      "Reason 2",
+								Status:      enums.DeletionRequestStatusApproved,
+								Requester:   "requester@example.com",
+								RequestedAt: requestedAt,
+								Reviewer:    "reviewer@example.com",
+								ReviewedAt:  reviewedAt,
+								ReportKey:   "reports/aip_deletion_report_223e4567-e89b-12d3-a456-426614174000.pdf",
+							},
+						},
+						nil,
+					)
+				},
+				want: goastorage.DeletionRequestCollection{
+					{
+						UUID:        uuid0,
+						AipUUID:     aipUUID,
+						Reason:      "Reason 2",
+						Status:      enums.DeletionRequestStatusApproved.String(),
+						Requester:   "requester@example.com",
+						RequestedAt: requestedAt.Format(time.RFC3339),
+						Reviewer:    ref.New("reviewer@example.com"),
+						ReviewedAt:  ref.New(reviewedAt.Format(time.RFC3339)),
+						ReportKey:   ref.New("reports/aip_deletion_report_223e4567-e89b-12d3-a456-426614174000.pdf"),
+					},
+				},
+			},
+			{
+				name: "Returns an empty result if no DeletionRequests found",
+				payload: &goastorage.ListDeletionRequestsPayload{
+					UUID: "444e4567-e89b-12d3-a456-426614174000",
+				},
+				expected: func(rec *fake.MockStorageMockRecorder) {
+					rec.ListDeletionRequests(
+						mockutil.Context(),
+						&persistence.DeletionRequestFilter{
+							AIPUUID: ref.New(uuid.MustParse("444e4567-e89b-12d3-a456-426614174000")),
+						},
+					).Return(
+						[]*types.DeletionRequest{},
+						nil,
+					)
+				},
+				want: goastorage.DeletionRequestCollection{},
+			},
+			{
+				name: "Returns an error if AIP UUID is invalid",
+				payload: &goastorage.ListDeletionRequestsPayload{
+					UUID: "invalid-uuid",
+				},
+				wantErr: "invalid UUID",
+			},
+			{
+				name: "Returns an error if status is invalid",
+				payload: &goastorage.ListDeletionRequestsPayload{
+					UUID:   aipUUID.String(),
+					Status: ref.New("foobar"),
+				},
+				wantErr: "invalid status",
+			},
+			{
+				name: "Returns a persistence error",
+				payload: &goastorage.ListDeletionRequestsPayload{
+					UUID: aipUUID.String(),
+				},
+				expected: func(rec *fake.MockStorageMockRecorder) {
+					rec.ListDeletionRequests(
+						mockutil.Context(),
+						&persistence.DeletionRequestFilter{
+							AIPUUID: &aipUUID,
+						},
+					).Return(
+						nil,
+						errors.New("list deletion requests: db: connection error"),
+					)
+				},
+				wantErr: "list deletion requests: db: connection error",
+			},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				attrs := setUpAttrs{}
+				svc := setUpService(t, &attrs)
+				ctx := context.Background()
+
+				if tc.expected != nil {
+					tc.expected(attrs.persistenceMock.EXPECT())
+				}
+
+				got, err := svc.ListDeletionRequests(ctx, tc.payload)
+				if tc.wantErr != "" {
+					assert.ErrorContains(t, err, tc.wantErr)
+					return
+				}
+				assert.NilError(t, err)
+				assert.DeepEqual(t, got, tc.want)
+			})
+		}
+	})
+}
+
+func TestListDeletionRequestsInternal(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Lists DeletionRequests (Internal)", func(t *testing.T) {
+		t.Parallel()
+
 		attrs := setUpAttrs{}
 		svc := setUpService(t, &attrs)
 		ctx := context.Background()
-
 		drs := []*types.DeletionRequest{
 			{
 				DBID:        1,
-				UUID:        uuid.New(),
-				AIPUUID:     uuid.New(),
+				UUID:        uuid.MustParse("223e4567-e89b-12d3-a456-426614174000"),
+				AIPUUID:     uuid.MustParse("333e4567-e89b-12d3-a456-426614174000"),
 				Reason:      "Reason 1",
-				Status:      enums.DeletionRequestStatusCanceled,
-				RequestedAt: time.Now(),
-			},
-			{
-				DBID:        2,
-				UUID:        uuid.New(),
-				AIPUUID:     uuid.New(),
-				Reason:      "Reason 2",
 				Status:      enums.DeletionRequestStatusApproved,
-				RequestedAt: time.Now(),
+				Requester:   "requester@example.com",
+				RequestedAt: time.Date(2025, 11, 25, 9, 8, 7, 0, time.UTC),
+				Reviewer:    "reviewer@example.com",
+				ReviewedAt:  time.Date(2025, 11, 26, 12, 13, 14, 0, time.UTC),
 			},
 		}
 
@@ -2252,7 +2508,7 @@ func TestListDeletionRequests(t *testing.T) {
 			ListDeletionRequests(ctx, nil).
 			Return(drs, nil)
 
-		re, err := svc.ListDeletionRequests(ctx, nil)
+		re, err := svc.ListDeletionRequestsInternal(ctx, nil)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, re, drs)
 	})
