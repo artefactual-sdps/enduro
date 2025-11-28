@@ -1,0 +1,116 @@
+package activities
+
+import (
+	"context"
+	"fmt"
+	"slices"
+	"time"
+
+	"github.com/google/uuid"
+	"go.artefactual.dev/tools/ref"
+	temporal_tools "go.artefactual.dev/tools/temporal"
+
+	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
+)
+
+const PollSIPStatusesActivityName = "poll-sip-statuses-activity"
+
+type PollSIPStatusesActivityParams struct {
+	BatchUUID        uuid.UUID
+	ExpectedSIPCount int
+	ExpectedStatus   enums.SIPStatus
+}
+
+type PollSIPStatusesActivityResult struct {
+	AllExpectedStatus bool
+}
+
+type PollSIPStatusesActivity struct {
+	ingestsvc    ingest.Service
+	pollInterval time.Duration
+}
+
+func NewPollSIPStatusesActivity(ingestsvc ingest.Service, pollInterval time.Duration) *PollSIPStatusesActivity {
+	return &PollSIPStatusesActivity{
+		ingestsvc:    ingestsvc,
+		pollInterval: pollInterval,
+	}
+}
+
+func (a *PollSIPStatusesActivity) Execute(
+	ctx context.Context,
+	params *PollSIPStatusesActivityParams,
+) (*PollSIPStatusesActivityResult, error) {
+	h := temporal_tools.StartAutoHeartbeat(ctx)
+	defer h.Stop()
+
+	ticker := time.NewTicker(a.pollInterval)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		case <-ticker.C:
+			result, err := a.checkSIPStatuses(ctx, params.BatchUUID, params.ExpectedSIPCount, params.ExpectedStatus)
+			if err != nil {
+				return nil, fmt.Errorf("check SIP statuses: %v", err)
+			}
+			if result.done {
+				return &PollSIPStatusesActivityResult{AllExpectedStatus: result.allExpected}, nil
+			}
+		}
+	}
+}
+
+type checkResult struct {
+	done        bool
+	allExpected bool
+}
+
+func (a *PollSIPStatusesActivity) checkSIPStatuses(
+	ctx context.Context,
+	batchUUID uuid.UUID,
+	expectedSIPCount int,
+	expectedStatus enums.SIPStatus,
+) (*checkResult, error) {
+	// Query all SIPs for this batch.
+	result, err := a.ingestsvc.ListSips(ctx, &goaingest.ListSipsPayload{
+		BatchUUID: ref.New(batchUUID.String()),
+		Limit:     ref.New(50_000),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("list SIPs: %v", err)
+	}
+
+	// Fail if we don't have the expected number of SIPs.
+	if len(result.Items) != expectedSIPCount {
+		return nil, fmt.Errorf("expected %d SIPs but found %d", expectedSIPCount, len(result.Items))
+	}
+
+	expectedStatusCount := 0
+	otherFinalStatuses := []enums.SIPStatus{
+		enums.SIPStatusFailed,
+		enums.SIPStatusError,
+		enums.SIPStatusCanceled,
+	}
+
+	for _, sip := range result.Items {
+		status, err := enums.ParseSIPStatus(sip.Status)
+		if err != nil {
+			return nil, fmt.Errorf("parse SIP status: %v", err)
+		}
+
+		// Check if this SIP has the expected status.
+		// If not and it's not in a final status, keep polling.
+		if status == expectedStatus {
+			expectedStatusCount++
+		} else if !slices.Contains(otherFinalStatuses, status) {
+			return &checkResult{done: false}, nil
+		}
+	}
+
+	return &checkResult{done: true, allExpected: expectedStatusCount == expectedSIPCount}, nil
+}
