@@ -17,6 +17,7 @@ var (
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"unspecified", "stored", "pending", "processing", "deleted", "queued"}},
 		{Name: "object_key", Type: field.TypeUUID, Unique: true},
 		{Name: "created_at", Type: field.TypeTime},
+		{Name: "deletion_report_key", Type: field.TypeString, Nullable: true, Size: 1024},
 		{Name: "location_id", Type: field.TypeInt, Nullable: true},
 	}
 	// AipTable holds the schema information for the "aip" table.
@@ -27,7 +28,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "aip_location_location",
-				Columns:    []*schema.Column{AipColumns[6]},
+				Columns:    []*schema.Column{AipColumns[7]},
 				RefColumns: []*schema.Column{LocationColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -59,7 +60,6 @@ var (
 		{Name: "status", Type: field.TypeEnum, Enums: []string{"pending", "approved", "rejected", "canceled"}, Default: "pending"},
 		{Name: "requested_at", Type: field.TypeTime},
 		{Name: "reviewed_at", Type: field.TypeTime, Nullable: true},
-		{Name: "report_key", Type: field.TypeString, Nullable: true, Size: 1024},
 		{Name: "aip_id", Type: field.TypeInt},
 		{Name: "workflow_id", Type: field.TypeInt, Unique: true, Nullable: true},
 	}
@@ -71,13 +71,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "deletion_request_aip_deletion_requests",
-				Columns:    []*schema.Column{DeletionRequestColumns[13]},
+				Columns:    []*schema.Column{DeletionRequestColumns[12]},
 				RefColumns: []*schema.Column{AipColumns[0]},
 				OnDelete:   schema.Cascade,
 			},
 			{
 				Symbol:     "deletion_request_workflow_deletion_request",
-				Columns:    []*schema.Column{DeletionRequestColumns[14]},
+				Columns:    []*schema.Column{DeletionRequestColumns[13]},
 				RefColumns: []*schema.Column{WorkflowColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
