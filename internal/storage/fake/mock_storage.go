@@ -434,6 +434,85 @@ func (c *MockServiceDownloadAipRequestCall) DoAndReturn(f func(context.Context, 
 	return c
 }
 
+// DownloadDeletionReport mocks base method.
+func (m *MockService) DownloadDeletionReport(arg0 context.Context, arg1 *storage.DownloadDeletionReportPayload) (*storage.DownloadDeletionReportResult, io.ReadCloser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DownloadDeletionReport", arg0, arg1)
+	ret0, _ := ret[0].(*storage.DownloadDeletionReportResult)
+	ret1, _ := ret[1].(io.ReadCloser)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// DownloadDeletionReport indicates an expected call of DownloadDeletionReport.
+func (mr *MockServiceMockRecorder) DownloadDeletionReport(arg0, arg1 any) *MockServiceDownloadDeletionReportCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadDeletionReport", reflect.TypeOf((*MockService)(nil).DownloadDeletionReport), arg0, arg1)
+	return &MockServiceDownloadDeletionReportCall{Call: call}
+}
+
+// MockServiceDownloadDeletionReportCall wrap *gomock.Call
+type MockServiceDownloadDeletionReportCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceDownloadDeletionReportCall) Return(res *storage.DownloadDeletionReportResult, body io.ReadCloser, err error) *MockServiceDownloadDeletionReportCall {
+	c.Call = c.Call.Return(res, body, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceDownloadDeletionReportCall) Do(f func(context.Context, *storage.DownloadDeletionReportPayload) (*storage.DownloadDeletionReportResult, io.ReadCloser, error)) *MockServiceDownloadDeletionReportCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceDownloadDeletionReportCall) DoAndReturn(f func(context.Context, *storage.DownloadDeletionReportPayload) (*storage.DownloadDeletionReportResult, io.ReadCloser, error)) *MockServiceDownloadDeletionReportCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// DownloadDeletionReportRequest mocks base method.
+func (m *MockService) DownloadDeletionReportRequest(arg0 context.Context, arg1 *storage.DownloadDeletionReportRequestPayload) (*storage.DownloadDeletionReportRequestResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DownloadDeletionReportRequest", arg0, arg1)
+	ret0, _ := ret[0].(*storage.DownloadDeletionReportRequestResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DownloadDeletionReportRequest indicates an expected call of DownloadDeletionReportRequest.
+func (mr *MockServiceMockRecorder) DownloadDeletionReportRequest(arg0, arg1 any) *MockServiceDownloadDeletionReportRequestCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DownloadDeletionReportRequest", reflect.TypeOf((*MockService)(nil).DownloadDeletionReportRequest), arg0, arg1)
+	return &MockServiceDownloadDeletionReportRequestCall{Call: call}
+}
+
+// MockServiceDownloadDeletionReportRequestCall wrap *gomock.Call
+type MockServiceDownloadDeletionReportRequestCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceDownloadDeletionReportRequestCall) Return(res *storage.DownloadDeletionReportRequestResult, err error) *MockServiceDownloadDeletionReportRequestCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceDownloadDeletionReportRequestCall) Do(f func(context.Context, *storage.DownloadDeletionReportRequestPayload) (*storage.DownloadDeletionReportRequestResult, error)) *MockServiceDownloadDeletionReportRequestCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceDownloadDeletionReportRequestCall) DoAndReturn(f func(context.Context, *storage.DownloadDeletionReportRequestPayload) (*storage.DownloadDeletionReportRequestResult, error)) *MockServiceDownloadDeletionReportRequestCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ListAipWorkflows mocks base method.
 func (m *MockService) ListAipWorkflows(arg0 context.Context, arg1 *storage.ListAipWorkflowsPayload) (*storage.AIPWorkflows, error) {
 	m.ctrl.T.Helper()
