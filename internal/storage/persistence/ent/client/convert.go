@@ -65,6 +65,10 @@ func aipAsGoa(ctx context.Context, a *db.AIP) *goastorage.AIP {
 		CreatedAt: a.CreatedAt.Format(time.RFC3339),
 	}
 
+	if a.DeletionReportKey != "" {
+		p.DeletionReportKey = &a.DeletionReportKey
+	}
+
 	// TODO: should we use UUID as the foreign key?
 	l, err := a.QueryLocation().Only(ctx)
 	if err == nil {

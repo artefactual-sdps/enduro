@@ -1910,6 +1910,10 @@ definitions:
                 description: Creation datetime
                 example: "1970-01-01T00:00:01Z"
                 format: date-time
+            deletion_report_key:
+                type: string
+                description: Deletion report key
+                example: abc123
             location_uuid:
                 type: string
                 description: Identifier of storage location
@@ -1938,6 +1942,7 @@ definitions:
         description: An AIP describes an AIP retrieved by the storage service. (default view)
         example:
             created_at: "1970-01-01T00:00:01Z"
+            deletion_report_key: abc123
             location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
             object_key: abc123
@@ -1958,6 +1963,10 @@ definitions:
                 description: Creation datetime
                 example: "1970-01-01T00:00:01Z"
                 format: date-time
+            deletion_report_key:
+                type: string
+                description: Deletion report key
+                example: abc123
             location_uuid:
                 type: string
                 description: Identifier of storage location
@@ -1986,6 +1995,7 @@ definitions:
         description: An AIP describes an AIP retrieved by the storage service. (default view)
         example:
             created_at: "1970-01-01T00:00:01Z"
+            deletion_report_key: abc123
             location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
             object_key: abc123
@@ -2005,6 +2015,7 @@ definitions:
         description: AIPCollectionResponseBody is the result type for an array of AIPResponseBody (default view)
         example:
             - created_at: "1970-01-01T00:00:01Z"
+              deletion_report_key: abc123
               location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               name: abc123
               object_key: abc123
@@ -2692,6 +2703,10 @@ definitions:
                 description: Creation datetime
                 example: "1970-01-01T00:00:01Z"
                 format: date-time
+            deletion_report_key:
+                type: string
+                description: Deletion report key
+                example: abc123
             location_uuid:
                 type: string
                 description: Identifier of storage location
@@ -2720,6 +2735,7 @@ definitions:
         description: create_aip_response_body result type (default view)
         example:
             created_at: "1970-01-01T00:00:01Z"
+            deletion_report_key: abc123
             location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             name: abc123
             object_key: abc123
@@ -2767,6 +2783,7 @@ definitions:
         example:
             items:
                 - created_at: "1970-01-01T00:00:01Z"
+                  deletion_report_key: abc123
                   location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   name: abc123
                   object_key: abc123
@@ -4573,6 +4590,7 @@ definitions:
         description: list_location_aips_response_body is the result type for an array of AIPResponse (default view)
         example:
             - created_at: "1970-01-01T00:00:01Z"
+              deletion_report_key: abc123
               location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
               name: abc123
               object_key: abc123

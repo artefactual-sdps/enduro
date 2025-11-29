@@ -123,6 +123,8 @@ type CreateAipResponseBody struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
+	// Deletion report key
+	DeletionReportKey *string `form:"deletion_report_key,omitempty" json:"deletion_report_key,omitempty" xml:"deletion_report_key,omitempty"`
 }
 
 // SubmitAipResponseBody is the type of the "storage" service "submit_aip"
@@ -149,6 +151,8 @@ type ShowAipResponseBody struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
+	// Deletion report key
+	DeletionReportKey *string `form:"deletion_report_key,omitempty" json:"deletion_report_key,omitempty" xml:"deletion_report_key,omitempty"`
 }
 
 // ListAipWorkflowsResponseBody is the type of the "storage" service
@@ -679,6 +683,8 @@ type AIPResponseBody struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
+	// Deletion report key
+	DeletionReportKey *string `form:"deletion_report_key,omitempty" json:"deletion_report_key,omitempty" xml:"deletion_report_key,omitempty"`
 }
 
 // EnduroPageResponseBody is used to define fields on response body types.
@@ -760,6 +766,8 @@ type AIPResponse struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
+	// Deletion report key
+	DeletionReportKey *string `form:"deletion_report_key,omitempty" json:"deletion_report_key,omitempty" xml:"deletion_report_key,omitempty"`
 }
 
 // NewCreateAipRequestBody builds the HTTP request body from the payload of the
@@ -1047,12 +1055,13 @@ func NewListAipsUnauthorized(body string) storage.Unauthorized {
 // from a HTTP "OK" response.
 func NewCreateAipAIPOK(body *CreateAipResponseBody) *storageviews.AIPView {
 	v := &storageviews.AIPView{
-		Name:         body.Name,
-		UUID:         body.UUID,
-		Status:       body.Status,
-		ObjectKey:    body.ObjectKey,
-		LocationUUID: body.LocationUUID,
-		CreatedAt:    body.CreatedAt,
+		Name:              body.Name,
+		UUID:              body.UUID,
+		Status:            body.Status,
+		ObjectKey:         body.ObjectKey,
+		LocationUUID:      body.LocationUUID,
+		CreatedAt:         body.CreatedAt,
+		DeletionReportKey: body.DeletionReportKey,
 	}
 
 	return v
@@ -1495,12 +1504,13 @@ func NewRejectAipUnauthorized(body string) storage.Unauthorized {
 // HTTP "OK" response.
 func NewShowAipAIPOK(body *ShowAipResponseBody) *storageviews.AIPView {
 	v := &storageviews.AIPView{
-		Name:         body.Name,
-		UUID:         body.UUID,
-		Status:       body.Status,
-		ObjectKey:    body.ObjectKey,
-		LocationUUID: body.LocationUUID,
-		CreatedAt:    body.CreatedAt,
+		Name:              body.Name,
+		UUID:              body.UUID,
+		Status:            body.Status,
+		ObjectKey:         body.ObjectKey,
+		LocationUUID:      body.LocationUUID,
+		CreatedAt:         body.CreatedAt,
+		DeletionReportKey: body.DeletionReportKey,
 	}
 
 	return v

@@ -586,6 +586,7 @@ var AIP = ResultType("application/vnd.enduro.storage.aip", func() {
 		Attribute("created_at", String, "Creation datetime", func() {
 			Format(FormatDateTime)
 		})
+		Attribute("deletion_report_key", String, "Deletion report key")
 		Required("name", "uuid", "status", "object_key", "created_at")
 	})
 
@@ -596,6 +597,7 @@ var AIP = ResultType("application/vnd.enduro.storage.aip", func() {
 		Attribute("object_key")
 		Attribute("location_uuid")
 		Attribute("created_at")
+		Attribute("deletion_report_key")
 	})
 })
 

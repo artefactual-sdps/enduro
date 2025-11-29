@@ -123,6 +123,8 @@ type CreateAipResponseBody struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
+	// Deletion report key
+	DeletionReportKey *string `form:"deletion_report_key,omitempty" json:"deletion_report_key,omitempty" xml:"deletion_report_key,omitempty"`
 }
 
 // SubmitAipResponseBody is the type of the "storage" service "submit_aip"
@@ -149,6 +151,8 @@ type ShowAipResponseBody struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
+	// Deletion report key
+	DeletionReportKey *string `form:"deletion_report_key,omitempty" json:"deletion_report_key,omitempty" xml:"deletion_report_key,omitempty"`
 }
 
 // ListAipWorkflowsResponseBody is the type of the "storage" service
@@ -669,6 +673,8 @@ type AIPResponseBody struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
+	// Deletion report key
+	DeletionReportKey *string `form:"deletion_report_key,omitempty" json:"deletion_report_key,omitempty" xml:"deletion_report_key,omitempty"`
 }
 
 // EnduroPageResponseBody is used to define fields on response body types.
@@ -740,6 +746,8 @@ type AIPResponse struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 	// Creation datetime
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
+	// Deletion report key
+	DeletionReportKey *string `form:"deletion_report_key,omitempty" json:"deletion_report_key,omitempty" xml:"deletion_report_key,omitempty"`
 }
 
 // NewMonitorResponseBody builds the HTTP response body from the result of the
@@ -813,12 +821,13 @@ func NewListAipsResponseBody(res *storageviews.AIPsView) *ListAipsResponseBody {
 // the "create_aip" endpoint of the "storage" service.
 func NewCreateAipResponseBody(res *storageviews.AIPView) *CreateAipResponseBody {
 	body := &CreateAipResponseBody{
-		Name:         *res.Name,
-		UUID:         *res.UUID,
-		Status:       *res.Status,
-		ObjectKey:    *res.ObjectKey,
-		LocationUUID: res.LocationUUID,
-		CreatedAt:    *res.CreatedAt,
+		Name:              *res.Name,
+		UUID:              *res.UUID,
+		Status:            *res.Status,
+		ObjectKey:         *res.ObjectKey,
+		LocationUUID:      res.LocationUUID,
+		CreatedAt:         *res.CreatedAt,
+		DeletionReportKey: res.DeletionReportKey,
 	}
 	return body
 }
@@ -845,12 +854,13 @@ func NewMoveAipStatusResponseBody(res *storage.MoveStatusResult) *MoveAipStatusR
 // "show_aip" endpoint of the "storage" service.
 func NewShowAipResponseBody(res *storageviews.AIPView) *ShowAipResponseBody {
 	body := &ShowAipResponseBody{
-		Name:         *res.Name,
-		UUID:         *res.UUID,
-		Status:       *res.Status,
-		ObjectKey:    *res.ObjectKey,
-		LocationUUID: res.LocationUUID,
-		CreatedAt:    *res.CreatedAt,
+		Name:              *res.Name,
+		UUID:              *res.UUID,
+		Status:            *res.Status,
+		ObjectKey:         *res.ObjectKey,
+		LocationUUID:      res.LocationUUID,
+		CreatedAt:         *res.CreatedAt,
+		DeletionReportKey: res.DeletionReportKey,
 	}
 	return body
 }

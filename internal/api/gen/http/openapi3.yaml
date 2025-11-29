@@ -1352,6 +1352,7 @@ paths:
                             example:
                                 items:
                                     - created_at: "1970-01-01T00:00:01Z"
+                                      deletion_report_key: abc123
                                       location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                       name: abc123
                                       object_key: abc123
@@ -1419,6 +1420,7 @@ paths:
                                 $ref: '#/components/schemas/EnduroStorageAip'
                             example:
                                 created_at: "1970-01-01T00:00:01Z"
+                                deletion_report_key: abc123
                                 location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                 name: abc123
                                 object_key: abc123
@@ -1476,6 +1478,7 @@ paths:
                                 $ref: '#/components/schemas/EnduroStorageAip'
                             example:
                                 created_at: "1970-01-01T00:00:01Z"
+                                deletion_report_key: abc123
                                 location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                 name: abc123
                                 object_key: abc123
@@ -2422,6 +2425,7 @@ paths:
                                 $ref: '#/components/schemas/AIPResponseCollection'
                             example:
                                 - created_at: "1970-01-01T00:00:01Z"
+                                  deletion_report_key: abc123
                                   location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                   name: abc123
                                   object_key: abc123
@@ -2556,6 +2560,7 @@ components:
                 $ref: '#/components/schemas/EnduroStorageAip'
             example:
                 - created_at: "1970-01-01T00:00:01Z"
+                  deletion_report_key: abc123
                   location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   name: abc123
                   object_key: abc123
@@ -2573,6 +2578,7 @@ components:
             example:
                 item:
                     created_at: "1970-01-01T00:00:01Z"
+                    deletion_report_key: abc123
                     location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     name: abc123
                     object_key: abc123
@@ -2625,6 +2631,10 @@ components:
                     description: Creation datetime
                     example: "1970-01-01T00:00:01Z"
                     format: date-time
+                deletion_report_key:
+                    type: string
+                    description: Deletion report key
+                    example: abc123
                 location_uuid:
                     type: string
                     description: Identifier of storage location
@@ -2653,6 +2663,7 @@ components:
             description: An AIP describes an AIP retrieved by the storage service. (default view)
             example:
                 created_at: "1970-01-01T00:00:01Z"
+                deletion_report_key: abc123
                 location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 name: abc123
                 object_key: abc123
@@ -2671,6 +2682,7 @@ components:
             description: list_location_aips_response_body is the result type for an array of AIPResponse (default view)
             example:
                 - created_at: "1970-01-01T00:00:01Z"
+                  deletion_report_key: abc123
                   location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   name: abc123
                   object_key: abc123
@@ -3706,6 +3718,10 @@ components:
                     description: Creation datetime
                     example: "1970-01-01T00:00:01Z"
                     format: date-time
+                deletion_report_key:
+                    type: string
+                    description: Deletion report key
+                    example: abc123
                 location_uuid:
                     type: string
                     description: Identifier of storage location
@@ -3734,6 +3750,7 @@ components:
             description: An AIP describes an AIP retrieved by the storage service.
             example:
                 created_at: "1970-01-01T00:00:01Z"
+                deletion_report_key: abc123
                 location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 name: abc123
                 object_key: abc123
@@ -3891,6 +3908,7 @@ components:
             example:
                 items:
                     - created_at: "1970-01-01T00:00:01Z"
+                      deletion_report_key: abc123
                       location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                       name: abc123
                       object_key: abc123

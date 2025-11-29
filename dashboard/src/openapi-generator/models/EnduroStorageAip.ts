@@ -26,6 +26,12 @@ export interface EnduroStorageAip {
      */
     createdAt: Date;
     /**
+     * Deletion report key
+     * @type {string}
+     * @memberof EnduroStorageAip
+     */
+    deletionReportKey?: string;
+    /**
      * Identifier of storage location
      * @type {string}
      * @memberof EnduroStorageAip
@@ -97,6 +103,7 @@ export function EnduroStorageAipFromJSONTyped(json: any, ignoreDiscriminator: bo
     return {
         
         'createdAt': (new Date(json['created_at'])),
+        'deletionReportKey': !exists(json, 'deletion_report_key') ? undefined : json['deletion_report_key'],
         'locationUuid': !exists(json, 'location_uuid') ? undefined : json['location_uuid'],
         'name': json['name'],
         'objectKey': json['object_key'],
@@ -115,6 +122,7 @@ export function EnduroStorageAipToJSON(value?: EnduroStorageAip | null): any {
     return {
         
         'created_at': (value.createdAt.toISOString()),
+        'deletion_report_key': value.deletionReportKey,
         'location_uuid': value.locationUuid,
         'name': value.name,
         'object_key': value.objectKey,
