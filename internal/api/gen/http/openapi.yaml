@@ -6084,7 +6084,6 @@ securityDefinitions:
               * `ingest:sipsources:objects:list`: no description
               * `ingest:users:list`: no description
               * `storage:aips:create`: no description
-              * `storage:aips:deletion:list`: no description
               * `storage:aips:deletion:request`: no description
               * `storage:aips:deletion:review`: no description
               * `storage:aips:download`: no description
