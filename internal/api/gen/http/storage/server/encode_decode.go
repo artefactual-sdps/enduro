@@ -2370,12 +2370,13 @@ func EncodeListLocationAipsError(encoder func(context.Context, http.ResponseWrit
 // *AIPResponseBody from a value of type *storageviews.AIPView.
 func marshalStorageviewsAIPViewToAIPResponseBody(v *storageviews.AIPView) *AIPResponseBody {
 	res := &AIPResponseBody{
-		Name:         *v.Name,
-		UUID:         *v.UUID,
-		Status:       *v.Status,
-		ObjectKey:    *v.ObjectKey,
-		LocationUUID: v.LocationUUID,
-		CreatedAt:    *v.CreatedAt,
+		Name:              *v.Name,
+		UUID:              *v.UUID,
+		Status:            *v.Status,
+		ObjectKey:         *v.ObjectKey,
+		LocationUUID:      v.LocationUUID,
+		CreatedAt:         *v.CreatedAt,
+		DeletionReportKey: v.DeletionReportKey,
 	}
 
 	return res
@@ -2458,12 +2459,13 @@ func marshalStorageviewsLocationViewToLocationResponse(v *storageviews.LocationV
 // from a value of type *storageviews.AIPView.
 func marshalStorageviewsAIPViewToAIPResponse(v *storageviews.AIPView) *AIPResponse {
 	res := &AIPResponse{
-		Name:         *v.Name,
-		UUID:         *v.UUID,
-		Status:       *v.Status,
-		ObjectKey:    *v.ObjectKey,
-		LocationUUID: v.LocationUUID,
-		CreatedAt:    *v.CreatedAt,
+		Name:              *v.Name,
+		UUID:              *v.UUID,
+		Status:            *v.Status,
+		ObjectKey:         *v.ObjectKey,
+		LocationUUID:      v.LocationUUID,
+		CreatedAt:         *v.CreatedAt,
+		DeletionReportKey: v.DeletionReportKey,
 	}
 
 	return res

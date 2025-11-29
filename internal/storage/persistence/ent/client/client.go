@@ -44,6 +44,11 @@ func (c *Client) CreateAIP(ctx context.Context, goaaip *goastorage.AIP) (*goasto
 		SetObjectKey(goaaip.ObjectKey).
 		SetStatus(status)
 
+	// Set optional fields.
+	if goaaip.DeletionReportKey != nil {
+		q.SetDeletionReportKey(*goaaip.DeletionReportKey)
+	}
+
 	if goaaip.LocationUUID != nil {
 		id, err := c.c.Location.Query().
 			Where(location.UUID(*goaaip.LocationUUID)).
