@@ -26,6 +26,12 @@ export interface AIPResponse {
      */
     createdAt: Date;
     /**
+     * Deletion report key
+     * @type {string}
+     * @memberof AIPResponse
+     */
+    deletionReportKey?: string;
+    /**
      * Identifier of storage location
      * @type {string}
      * @memberof AIPResponse
@@ -97,6 +103,7 @@ export function AIPResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean
     return {
         
         'createdAt': (new Date(json['created_at'])),
+        'deletionReportKey': !exists(json, 'deletion_report_key') ? undefined : json['deletion_report_key'],
         'locationUuid': !exists(json, 'location_uuid') ? undefined : json['location_uuid'],
         'name': json['name'],
         'objectKey': json['object_key'],
@@ -115,6 +122,7 @@ export function AIPResponseToJSON(value?: AIPResponse | null): any {
     return {
         
         'created_at': (value.createdAt.toISOString()),
+        'deletion_report_key': value.deletionReportKey,
         'location_uuid': value.locationUuid,
         'name': value.name,
         'object_key': value.objectKey,

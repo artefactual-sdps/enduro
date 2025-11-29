@@ -80,6 +80,8 @@ func setUpClientWithHooks(t *testing.T) (*db.Client, *client.Client) {
 func TestCreateAIP(t *testing.T) {
 	t.Parallel()
 
+	deletionReportKey := fmt.Sprintf("reports/aip_deletion_report_%s", aipID)
+
 	type test struct {
 		name    string
 		params  *goastorage.AIP
@@ -106,19 +108,21 @@ func TestCreateAIP(t *testing.T) {
 		{
 			name: "Creates an AIP with all data",
 			params: &goastorage.AIP{
-				Name:         "test_aip",
-				UUID:         aipID,
-				ObjectKey:    objectKey,
-				Status:       "stored",
-				LocationUUID: ref.New(locationID),
+				Name:              "test_aip",
+				UUID:              aipID,
+				ObjectKey:         objectKey,
+				Status:            "stored",
+				LocationUUID:      ref.New(locationID),
+				DeletionReportKey: &deletionReportKey,
 			},
 			want: &goastorage.AIP{
-				Name:         "test_aip",
-				UUID:         aipID,
-				ObjectKey:    objectKey,
-				Status:       "stored",
-				LocationUUID: ref.New(locationID),
-				CreatedAt:    fakeNow().Format(time.RFC3339),
+				Name:              "test_aip",
+				UUID:              aipID,
+				ObjectKey:         objectKey,
+				Status:            "stored",
+				LocationUUID:      ref.New(locationID),
+				CreatedAt:         fakeNow().Format(time.RFC3339),
+				DeletionReportKey: &deletionReportKey,
 			},
 		},
 		{
@@ -461,6 +465,7 @@ func TestReadAIP(t *testing.T) {
 	t.Parallel()
 
 	t.Run("Returns valid result", func(t *testing.T) {
+		reportKey := fmt.Sprintf("reports/aip_deletion_report_%s", aipID)
 		entc, c := setUpClientWithHooks(t)
 
 		entc.AIP.Create().
@@ -468,17 +473,19 @@ func TestReadAIP(t *testing.T) {
 			SetAipID(aipID).
 			SetObjectKey(objectKey).
 			SetStatus(enums.AIPStatusStored).
+			SetDeletionReportKey(reportKey).
 			SaveX(context.Background())
 
 		aip, err := c.ReadAIP(context.Background(), aipID)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, aip, &goastorage.AIP{
-			Name:         "AIP",
-			UUID:         aipID,
-			Status:       "stored",
-			ObjectKey:    objectKey,
-			LocationUUID: nil,
-			CreatedAt:    "2013-02-03T19:54:00Z",
+			Name:              "AIP",
+			UUID:              aipID,
+			Status:            "stored",
+			ObjectKey:         objectKey,
+			LocationUUID:      nil,
+			CreatedAt:         "2013-02-03T19:54:00Z",
+			DeletionReportKey: &reportKey,
 		})
 	})
 

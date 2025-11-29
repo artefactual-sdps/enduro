@@ -116,6 +116,8 @@ type AIP struct {
 	LocationUUID *uuid.UUID
 	// Creation datetime
 	CreatedAt string
+	// Deletion report key
+	DeletionReportKey *string
 }
 
 // AIPCollection is the result type of the storage service list_location_aips
@@ -756,7 +758,8 @@ func newLocationView(res *Location) *storageviews.LocationView {
 // newAIP converts projected type AIP to service type AIP.
 func newAIP(vres *storageviews.AIPView) *AIP {
 	res := &AIP{
-		LocationUUID: vres.LocationUUID,
+		LocationUUID:      vres.LocationUUID,
+		DeletionReportKey: vres.DeletionReportKey,
 	}
 	if vres.Name != nil {
 		res.Name = *vres.Name
@@ -783,12 +786,13 @@ func newAIP(vres *storageviews.AIPView) *AIP {
 // "default" view.
 func newAIPView(res *AIP) *storageviews.AIPView {
 	vres := &storageviews.AIPView{
-		Name:         &res.Name,
-		UUID:         &res.UUID,
-		Status:       &res.Status,
-		ObjectKey:    &res.ObjectKey,
-		LocationUUID: res.LocationUUID,
-		CreatedAt:    &res.CreatedAt,
+		Name:              &res.Name,
+		UUID:              &res.UUID,
+		Status:            &res.Status,
+		ObjectKey:         &res.ObjectKey,
+		LocationUUID:      res.LocationUUID,
+		CreatedAt:         &res.CreatedAt,
+		DeletionReportKey: res.DeletionReportKey,
 	}
 	return vres
 }

@@ -2650,12 +2650,13 @@ func DecodeListLocationAipsResponse(decoder func(*http.Response) goahttp.Decoder
 // *storageviews.AIPView from a value of type *AIPResponseBody.
 func unmarshalAIPResponseBodyToStorageviewsAIPView(v *AIPResponseBody) *storageviews.AIPView {
 	res := &storageviews.AIPView{
-		Name:         v.Name,
-		UUID:         v.UUID,
-		Status:       v.Status,
-		ObjectKey:    v.ObjectKey,
-		LocationUUID: v.LocationUUID,
-		CreatedAt:    v.CreatedAt,
+		Name:              v.Name,
+		UUID:              v.UUID,
+		Status:            v.Status,
+		ObjectKey:         v.ObjectKey,
+		LocationUUID:      v.LocationUUID,
+		CreatedAt:         v.CreatedAt,
+		DeletionReportKey: v.DeletionReportKey,
 	}
 
 	return res
@@ -2758,12 +2759,13 @@ func unmarshalLocationResponseToStorageviewsLocationView(v *LocationResponse) *s
 // *storageviews.AIPView from a value of type *AIPResponse.
 func unmarshalAIPResponseToStorageviewsAIPView(v *AIPResponse) *storageviews.AIPView {
 	res := &storageviews.AIPView{
-		Name:         v.Name,
-		UUID:         v.UUID,
-		Status:       v.Status,
-		ObjectKey:    v.ObjectKey,
-		LocationUUID: v.LocationUUID,
-		CreatedAt:    v.CreatedAt,
+		Name:              v.Name,
+		UUID:              v.UUID,
+		Status:            v.Status,
+		ObjectKey:         v.ObjectKey,
+		LocationUUID:      v.LocationUUID,
+		CreatedAt:         v.CreatedAt,
+		DeletionReportKey: v.DeletionReportKey,
 	}
 
 	return res

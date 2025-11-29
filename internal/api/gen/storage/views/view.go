@@ -149,6 +149,8 @@ type AIPView struct {
 	LocationUUID *uuid.UUID
 	// Creation datetime
 	CreatedAt *string
+	// Deletion report key
+	DeletionReportKey *string
 }
 
 // AIPStatusUpdatedEventView is a type that runs validations on a projected
@@ -300,6 +302,7 @@ var (
 			"object_key",
 			"location_uuid",
 			"created_at",
+			"deletion_report_key",
 		},
 	}
 	// AIPWorkflowsMap is a map indexing the attribute names of AIPWorkflows by
@@ -342,6 +345,7 @@ var (
 			"object_key",
 			"location_uuid",
 			"created_at",
+			"deletion_report_key",
 		},
 	}
 	// AIPWorkflowMap is a map indexing the attribute names of AIPWorkflow by view
