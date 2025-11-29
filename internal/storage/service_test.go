@@ -2218,10 +2218,10 @@ func TestCreateDeletionRequest(t *testing.T) {
 	})
 }
 
-func TestListDeletionRequestsInternal(t *testing.T) {
+func TestListDeletionRequests(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Lists DeletionRequests (Internal)", func(t *testing.T) {
+	t.Run("Lists DeletionRequests", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
@@ -2246,7 +2246,7 @@ func TestListDeletionRequestsInternal(t *testing.T) {
 			ListDeletionRequests(ctx, nil).
 			Return(drs, nil)
 
-		re, err := svc.ListDeletionRequestsInternal(ctx, nil)
+		re, err := svc.ListDeletionRequests(ctx, nil)
 		assert.NilError(t, err)
 		assert.DeepEqual(t, re, drs)
 	})

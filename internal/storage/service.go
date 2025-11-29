@@ -59,10 +59,7 @@ type Service interface {
 	UpdateTask(context.Context, int, persistence.TaskUpdater) (*types.Task, error)
 
 	CreateDeletionRequest(context.Context, *types.DeletionRequest) error
-	ListDeletionRequestsInternal(
-		ctx context.Context,
-		f *persistence.DeletionRequestFilter,
-	) ([]*types.DeletionRequest, error)
+	ListDeletionRequests(ctx context.Context, f *persistence.DeletionRequestFilter) ([]*types.DeletionRequest, error)
 	ReadDeletionRequest(ctx context.Context, drID uuid.UUID) (*types.DeletionRequest, error)
 	UpdateDeletionRequest(context.Context, int, persistence.DeletionRequestUpdater) (*types.DeletionRequest, error)
 }
@@ -676,7 +673,7 @@ func (svc *serviceImpl) CreateDeletionRequest(ctx context.Context, dr *types.Del
 	return nil
 }
 
-func (svc *serviceImpl) ListDeletionRequestsInternal(
+func (svc *serviceImpl) ListDeletionRequests(
 	ctx context.Context,
 	f *persistence.DeletionRequestFilter,
 ) ([]*types.DeletionRequest, error) {

@@ -591,41 +591,41 @@ func (c *MockServiceListAipsCall) DoAndReturn(f func(context.Context, *storage.L
 	return c
 }
 
-// ListDeletionRequestsInternal mocks base method.
-func (m *MockService) ListDeletionRequestsInternal(ctx context.Context, f *persistence.DeletionRequestFilter) ([]*types.DeletionRequest, error) {
+// ListDeletionRequests mocks base method.
+func (m *MockService) ListDeletionRequests(ctx context.Context, f *persistence.DeletionRequestFilter) ([]*types.DeletionRequest, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "ListDeletionRequestsInternal", ctx, f)
+	ret := m.ctrl.Call(m, "ListDeletionRequests", ctx, f)
 	ret0, _ := ret[0].([]*types.DeletionRequest)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListDeletionRequestsInternal indicates an expected call of ListDeletionRequestsInternal.
-func (mr *MockServiceMockRecorder) ListDeletionRequestsInternal(ctx, f any) *MockServiceListDeletionRequestsInternalCall {
+// ListDeletionRequests indicates an expected call of ListDeletionRequests.
+func (mr *MockServiceMockRecorder) ListDeletionRequests(ctx, f any) *MockServiceListDeletionRequestsCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDeletionRequestsInternal", reflect.TypeOf((*MockService)(nil).ListDeletionRequestsInternal), ctx, f)
-	return &MockServiceListDeletionRequestsInternalCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDeletionRequests", reflect.TypeOf((*MockService)(nil).ListDeletionRequests), ctx, f)
+	return &MockServiceListDeletionRequestsCall{Call: call}
 }
 
-// MockServiceListDeletionRequestsInternalCall wrap *gomock.Call
-type MockServiceListDeletionRequestsInternalCall struct {
+// MockServiceListDeletionRequestsCall wrap *gomock.Call
+type MockServiceListDeletionRequestsCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceListDeletionRequestsInternalCall) Return(arg0 []*types.DeletionRequest, arg1 error) *MockServiceListDeletionRequestsInternalCall {
+func (c *MockServiceListDeletionRequestsCall) Return(arg0 []*types.DeletionRequest, arg1 error) *MockServiceListDeletionRequestsCall {
 	c.Call = c.Call.Return(arg0, arg1)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceListDeletionRequestsInternalCall) Do(f func(context.Context, *persistence.DeletionRequestFilter) ([]*types.DeletionRequest, error)) *MockServiceListDeletionRequestsInternalCall {
+func (c *MockServiceListDeletionRequestsCall) Do(f func(context.Context, *persistence.DeletionRequestFilter) ([]*types.DeletionRequest, error)) *MockServiceListDeletionRequestsCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceListDeletionRequestsInternalCall) DoAndReturn(f func(context.Context, *persistence.DeletionRequestFilter) ([]*types.DeletionRequest, error)) *MockServiceListDeletionRequestsInternalCall {
+func (c *MockServiceListDeletionRequestsCall) DoAndReturn(f func(context.Context, *persistence.DeletionRequestFilter) ([]*types.DeletionRequest, error)) *MockServiceListDeletionRequestsCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
