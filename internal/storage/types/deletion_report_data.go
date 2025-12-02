@@ -8,21 +8,20 @@ import (
 )
 
 type DeletionReportData struct {
-	DeletionRequestDBID int
-	AIPName             string
-	AIPUUID             uuid.UUID
-	DeletedAt           time.Time
-	EnduroVersion       string
-	PreservationSystem  string
-	Reason              string
-	ReportTimestamp     time.Time
-	RequestedAt         time.Time
-	Requester           string
-	ReviewedAt          time.Time
-	Reviewer            string
-	Status              string
-	StorageLocation     string
-	StorageSystem       string
+	AIPName            string
+	AIPUUID            uuid.UUID
+	DeletedAt          time.Time
+	EnduroVersion      string
+	PreservationSystem string
+	Reason             string
+	ReportTimestamp    time.Time
+	RequestedAt        time.Time
+	Requester          string
+	ReviewedAt         time.Time
+	Reviewer           string
+	Status             string
+	StorageLocation    string
+	StorageSystem      string
 }
 
 func (d *DeletionReportData) MarshalJSON() ([]byte, error) {
