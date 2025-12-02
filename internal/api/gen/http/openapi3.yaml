@@ -2092,13 +2092,13 @@ paths:
             security:
                 - jwt_header_Authorization:
                     - storage:aips:submit
-    /storage/aips/{uuid}/update:
+    /storage/aips/{uuid}/submit-complete:
         post:
             tags:
                 - storage
-            summary: update_aip storage
+            summary: submit_aip_complete storage
             description: Signal that an AIP submission is complete
-            operationId: storage#update_aip
+            operationId: storage#submit_aip_complete
             parameters:
                 - name: uuid
                   in: path

@@ -231,6 +231,28 @@ func (s *serviceImpl) SubmitAip(
 	return result, nil
 }
 
+func (s *serviceImpl) SubmitAipComplete(ctx context.Context, payload *goastorage.SubmitAipCompletePayload) error {
+	aipID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
+	}
+
+	signal := UploadDoneSignal{}
+	workflowID := fmt.Sprintf("%s-%s", StorageUploadWorkflowName, aipID)
+	err = s.tc.SignalWorkflow(ctx, workflowID, "", UploadDoneSignalName, signal)
+	if err != nil {
+		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	// Update AIP status to pending.
+	err = s.UpdateAipStatus(ctx, aipID, enums.AIPStatusPending)
+	if err != nil {
+		return goastorage.MakeNotValid(errors.New("cannot update AIP status"))
+	}
+
+	return nil
+}
+
 func (s *serviceImpl) CreateAip(ctx context.Context, payload *goastorage.CreateAipPayload) (*goastorage.AIP, error) {
 	aipID, err := uuid.Parse(payload.UUID)
 	if err != nil {
@@ -261,28 +283,6 @@ func (s *serviceImpl) CreateAip(ctx context.Context, payload *goastorage.CreateA
 	})
 
 	return aip, nil
-}
-
-func (s *serviceImpl) UpdateAip(ctx context.Context, payload *goastorage.UpdateAipPayload) error {
-	aipID, err := uuid.Parse(payload.UUID)
-	if err != nil {
-		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
-	}
-
-	signal := UploadDoneSignal{}
-	workflowID := fmt.Sprintf("%s-%s", StorageUploadWorkflowName, aipID)
-	err = s.tc.SignalWorkflow(ctx, workflowID, "", UploadDoneSignalName, signal)
-	if err != nil {
-		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
-	}
-
-	// Update AIP status to pending.
-	err = s.UpdateAipStatus(ctx, aipID, enums.AIPStatusPending)
-	if err != nil {
-		return goastorage.MakeNotValid(errors.New("cannot update AIP status"))
-	}
-
-	return nil
 }
 
 func (s *serviceImpl) ListLocations(

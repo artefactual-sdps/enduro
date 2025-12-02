@@ -157,7 +157,7 @@ export interface StorageSubmitAipRequest {
     submitAipRequestBody: SubmitAipRequestBody;
 }
 
-export interface StorageUpdateAipRequest {
+export interface StorageSubmitAipCompleteRequest {
     uuid: string;
 }
 
@@ -485,19 +485,19 @@ export interface StorageApiInterface {
 
     /**
      * Signal that an AIP submission is complete
-     * @summary update_aip storage
+     * @summary submit_aip_complete storage
      * @param {string} uuid Identifier of AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageUpdateAipRaw(requestParameters: StorageUpdateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+    storageSubmitAipCompleteRaw(requestParameters: StorageSubmitAipCompleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * Signal that an AIP submission is complete
-     * update_aip storage
+     * submit_aip_complete storage
      */
-    storageUpdateAip(requestParameters: StorageUpdateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    storageSubmitAipComplete(requestParameters: StorageSubmitAipCompleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
 }
 
@@ -1301,11 +1301,11 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
      * Signal that an AIP submission is complete
-     * update_aip storage
+     * submit_aip_complete storage
      */
-    async storageUpdateAipRaw(requestParameters: StorageUpdateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async storageSubmitAipCompleteRaw(requestParameters: StorageSubmitAipCompleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
         if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageUpdateAip.');
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageSubmitAipComplete.');
         }
 
         const queryParameters: any = {};
@@ -1321,7 +1321,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
             }
         }
         const response = await this.request({
-            path: `/storage/aips/{uuid}/update`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            path: `/storage/aips/{uuid}/submit-complete`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
@@ -1332,10 +1332,10 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
      * Signal that an AIP submission is complete
-     * update_aip storage
+     * submit_aip_complete storage
      */
-    async storageUpdateAip(requestParameters: StorageUpdateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.storageUpdateAipRaw(requestParameters, initOverrides);
+    async storageSubmitAipComplete(requestParameters: StorageSubmitAipCompleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageSubmitAipCompleteRaw(requestParameters, initOverrides);
     }
 
 }

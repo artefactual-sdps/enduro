@@ -6052,10 +6052,10 @@
         ]
       }
     },
-    "/storage/aips/{uuid}/update": {
+    "/storage/aips/{uuid}/submit-complete": {
       "post": {
         "description": "Signal that an AIP submission is complete",
-        "operationId": "storage#update_aip",
+        "operationId": "storage#submit_aip_complete",
         "parameters": [
           {
             "description": "Identifier of AIP",
@@ -6127,7 +6127,7 @@
             ]
           }
         ],
-        "summary": "update_aip storage",
+        "summary": "submit_aip_complete storage",
         "tags": [
           "storage"
         ]

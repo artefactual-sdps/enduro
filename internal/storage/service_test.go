@@ -1150,9 +1150,10 @@ func TestServiceUpdate(t *testing.T) {
 		attrs := &setUpAttrs{}
 		svc := setUpService(t, attrs)
 
-		err := svc.UpdateAip(context.Background(), &goastorage.UpdateAipPayload{
-			UUID: aipID,
-		})
+		err := svc.SubmitAipComplete(
+			t.Context(),
+			&goastorage.SubmitAipCompletePayload{UUID: aipID},
+		)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
@@ -1177,9 +1178,10 @@ func TestServiceUpdate(t *testing.T) {
 				errors.New("something went wrong"),
 			)
 
-		err := svc.UpdateAip(ctx, &goastorage.UpdateAipPayload{
-			UUID: aipID.String(),
-		})
+		err := svc.SubmitAipComplete(
+			ctx,
+			&goastorage.SubmitAipCompletePayload{UUID: aipID.String()},
+		)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_available")
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
@@ -1215,9 +1217,10 @@ func TestServiceUpdate(t *testing.T) {
 				errors.New("unexpected error"),
 			)
 
-		err := svc.UpdateAip(ctx, &goastorage.UpdateAipPayload{
-			UUID: aipID.String(),
-		})
+		err := svc.SubmitAipComplete(
+			ctx,
+			&goastorage.SubmitAipCompletePayload{UUID: aipID.String()},
+		)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
 		assert.ErrorContains(t, err, "cannot update AIP status")
 	})
@@ -1253,9 +1256,10 @@ func TestServiceUpdate(t *testing.T) {
 				nil,
 			)
 
-		err := svc.UpdateAip(ctx, &goastorage.UpdateAipPayload{
-			UUID: aipID.String(),
-		})
+		err := svc.SubmitAipComplete(
+			ctx,
+			&goastorage.SubmitAipCompletePayload{UUID: aipID.String()},
+		)
 		assert.NilError(t, err)
 	})
 }

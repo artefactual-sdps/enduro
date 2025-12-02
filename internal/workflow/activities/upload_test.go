@@ -53,9 +53,9 @@ func TestUploadActivity(t *testing.T) {
 				nil,
 			)
 		mockClient.EXPECT().
-			UpdateAip(
+			SubmitAipComplete(
 				mockutil.Context(),
-				&goastorage.UpdateAipPayload{UUID: aipUUID},
+				&goastorage.SubmitAipCompletePayload{UUID: aipUUID},
 			).
 			Return(nil)
 
@@ -95,9 +95,9 @@ func TestUploadActivity(t *testing.T) {
 				nil,
 			)
 		mockClient.EXPECT().
-			UpdateAip(
+			SubmitAipComplete(
 				mockutil.Context(),
-				&goastorage.UpdateAipPayload{UUID: aipUUID},
+				&goastorage.SubmitAipCompletePayload{UUID: aipUUID},
 			).
 			Return(errors.New("update failed"))
 

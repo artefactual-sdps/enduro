@@ -327,9 +327,10 @@ type SubmitAipNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// UpdateAipNotAvailableResponseBody is the type of the "storage" service
-// "update_aip" endpoint HTTP response body for the "not_available" error.
-type UpdateAipNotAvailableResponseBody struct {
+// SubmitAipCompleteNotAvailableResponseBody is the type of the "storage"
+// service "submit_aip_complete" endpoint HTTP response body for the
+// "not_available" error.
+type SubmitAipCompleteNotAvailableResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -345,9 +346,9 @@ type UpdateAipNotAvailableResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// UpdateAipNotValidResponseBody is the type of the "storage" service
-// "update_aip" endpoint HTTP response body for the "not_valid" error.
-type UpdateAipNotValidResponseBody struct {
+// SubmitAipCompleteNotValidResponseBody is the type of the "storage" service
+// "submit_aip_complete" endpoint HTTP response body for the "not_valid" error.
+type SubmitAipCompleteNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -1154,9 +1155,9 @@ func NewSubmitAipUnauthorized(body string) storage.Unauthorized {
 	return v
 }
 
-// NewUpdateAipNotAvailable builds a storage service update_aip endpoint
-// not_available error.
-func NewUpdateAipNotAvailable(body *UpdateAipNotAvailableResponseBody) *goa.ServiceError {
+// NewSubmitAipCompleteNotAvailable builds a storage service
+// submit_aip_complete endpoint not_available error.
+func NewSubmitAipCompleteNotAvailable(body *SubmitAipCompleteNotAvailableResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -1169,9 +1170,9 @@ func NewUpdateAipNotAvailable(body *UpdateAipNotAvailableResponseBody) *goa.Serv
 	return v
 }
 
-// NewUpdateAipNotValid builds a storage service update_aip endpoint not_valid
-// error.
-func NewUpdateAipNotValid(body *UpdateAipNotValidResponseBody) *goa.ServiceError {
+// NewSubmitAipCompleteNotValid builds a storage service submit_aip_complete
+// endpoint not_valid error.
+func NewSubmitAipCompleteNotValid(body *SubmitAipCompleteNotValidResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -1184,17 +1185,17 @@ func NewUpdateAipNotValid(body *UpdateAipNotValidResponseBody) *goa.ServiceError
 	return v
 }
 
-// NewUpdateAipForbidden builds a storage service update_aip endpoint forbidden
-// error.
-func NewUpdateAipForbidden(body string) storage.Forbidden {
+// NewSubmitAipCompleteForbidden builds a storage service submit_aip_complete
+// endpoint forbidden error.
+func NewSubmitAipCompleteForbidden(body string) storage.Forbidden {
 	v := storage.Forbidden(body)
 
 	return v
 }
 
-// NewUpdateAipUnauthorized builds a storage service update_aip endpoint
-// unauthorized error.
-func NewUpdateAipUnauthorized(body string) storage.Unauthorized {
+// NewSubmitAipCompleteUnauthorized builds a storage service
+// submit_aip_complete endpoint unauthorized error.
+func NewSubmitAipCompleteUnauthorized(body string) storage.Unauthorized {
 	v := storage.Unauthorized(body)
 
 	return v
@@ -2062,9 +2063,9 @@ func ValidateSubmitAipNotValidResponseBody(body *SubmitAipNotValidResponseBody) 
 	return
 }
 
-// ValidateUpdateAipNotAvailableResponseBody runs the validations defined on
-// update_aip_not_available_response_body
-func ValidateUpdateAipNotAvailableResponseBody(body *UpdateAipNotAvailableResponseBody) (err error) {
+// ValidateSubmitAipCompleteNotAvailableResponseBody runs the validations
+// defined on submit_aip_complete_not_available_response_body
+func ValidateSubmitAipCompleteNotAvailableResponseBody(body *SubmitAipCompleteNotAvailableResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -2086,9 +2087,9 @@ func ValidateUpdateAipNotAvailableResponseBody(body *UpdateAipNotAvailableRespon
 	return
 }
 
-// ValidateUpdateAipNotValidResponseBody runs the validations defined on
-// update_aip_not_valid_response_body
-func ValidateUpdateAipNotValidResponseBody(body *UpdateAipNotValidResponseBody) (err error) {
+// ValidateSubmitAipCompleteNotValidResponseBody runs the validations defined
+// on submit_aip_complete_not_valid_response_body
+func ValidateSubmitAipCompleteNotValidResponseBody(body *SubmitAipCompleteNotValidResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

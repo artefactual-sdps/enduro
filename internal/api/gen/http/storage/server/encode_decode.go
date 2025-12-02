@@ -555,19 +555,19 @@ func EncodeSubmitAipError(encoder func(context.Context, http.ResponseWriter) goa
 	}
 }
 
-// EncodeUpdateAipResponse returns an encoder for responses returned by the
-// storage update_aip endpoint.
-func EncodeUpdateAipResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+// EncodeSubmitAipCompleteResponse returns an encoder for responses returned by
+// the storage submit_aip_complete endpoint.
+func EncodeSubmitAipCompleteResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
 	return func(ctx context.Context, w http.ResponseWriter, v any) error {
 		w.WriteHeader(http.StatusAccepted)
 		return nil
 	}
 }
 
-// DecodeUpdateAipRequest returns a decoder for requests sent to the storage
-// update_aip endpoint.
-func DecodeUpdateAipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*storage.UpdateAipPayload, error) {
-	return func(r *http.Request) (*storage.UpdateAipPayload, error) {
+// DecodeSubmitAipCompleteRequest returns a decoder for requests sent to the
+// storage submit_aip_complete endpoint.
+func DecodeSubmitAipCompleteRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*storage.SubmitAipCompletePayload, error) {
+	return func(r *http.Request) (*storage.SubmitAipCompletePayload, error) {
 		var (
 			uuid  string
 			token *string
@@ -584,7 +584,7 @@ func DecodeUpdateAipRequest(mux goahttp.Muxer, decoder func(*http.Request) goaht
 		if err != nil {
 			return nil, err
 		}
-		payload := NewUpdateAipPayload(uuid, token)
+		payload := NewSubmitAipCompletePayload(uuid, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")
@@ -597,9 +597,9 @@ func DecodeUpdateAipRequest(mux goahttp.Muxer, decoder func(*http.Request) goaht
 	}
 }
 
-// EncodeUpdateAipError returns an encoder for errors returned by the
-// update_aip storage endpoint.
-func EncodeUpdateAipError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
+// EncodeSubmitAipCompleteError returns an encoder for errors returned by the
+// submit_aip_complete storage endpoint.
+func EncodeSubmitAipCompleteError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
 	encodeError := goahttp.ErrorEncoder(encoder, formatter)
 	return func(ctx context.Context, w http.ResponseWriter, v error) error {
 		var en goa.GoaErrorNamer
@@ -615,7 +615,7 @@ func EncodeUpdateAipError(encoder func(context.Context, http.ResponseWriter) goa
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewUpdateAipNotAvailableResponseBody(res)
+				body = NewSubmitAipCompleteNotAvailableResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusConflict)
@@ -628,7 +628,7 @@ func EncodeUpdateAipError(encoder func(context.Context, http.ResponseWriter) goa
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewUpdateAipNotValidResponseBody(res)
+				body = NewSubmitAipCompleteNotValidResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)

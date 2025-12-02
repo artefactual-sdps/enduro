@@ -142,7 +142,7 @@ var _ = Service("storage", func() {
 			Response("not_valid", StatusBadRequest)
 		})
 	})
-	Method("update_aip", func() {
+	Method("submit_aip_complete", func() {
 		Description("Signal that an AIP submission is complete")
 		Security(JWTAuth, func() {
 			Scope(auth.StorageAIPSSubmitAttr)
@@ -156,7 +156,7 @@ var _ = Service("storage", func() {
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
-			POST("/aips/{uuid}/update")
+			POST("/aips/{uuid}/submit-complete")
 			Response(StatusAccepted)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)

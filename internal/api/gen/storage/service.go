@@ -31,7 +31,7 @@ type Service interface {
 	// Start the submission of an AIP
 	SubmitAip(context.Context, *SubmitAipPayload) (res *SubmitAIPResult, err error)
 	// Signal that an AIP submission is complete
-	UpdateAip(context.Context, *UpdateAipPayload) (err error)
+	SubmitAipComplete(context.Context, *SubmitAipCompletePayload) (err error)
 	// Request access to AIP download
 	DownloadAipRequest(context.Context, *DownloadAipRequestPayload) (res *DownloadAipRequestResult, err error)
 	// Download AIP by AIPID
@@ -86,7 +86,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [20]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "update_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [20]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "submit_aip_complete", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // MonitorServerStream allows streaming instances of *StorageEvent to the
 // client.
@@ -495,6 +495,14 @@ type SubmitAIPResult struct {
 	URL string
 }
 
+// SubmitAipCompletePayload is the payload type of the storage service
+// submit_aip_complete method.
+type SubmitAipCompletePayload struct {
+	// Identifier of AIP
+	UUID  string
+	Token *string
+}
+
 // SubmitAipPayload is the payload type of the storage service submit_aip
 // method.
 type SubmitAipPayload struct {
@@ -506,14 +514,6 @@ type SubmitAipPayload struct {
 
 type URLConfig struct {
 	URL string
-}
-
-// UpdateAipPayload is the payload type of the storage service update_aip
-// method.
-type UpdateAipPayload struct {
-	// Identifier of AIP
-	UUID  string
-	Token *string
 }
 
 // Forbidden
