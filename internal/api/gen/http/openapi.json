@@ -4517,6 +4517,112 @@
       "title": "StorageReviewAipDeletionRequestBody",
       "type": "object"
     },
+    "StorageSubmitAipCompleteNotAvailableResponseBody": {
+      "description": "submit_aip_complete_not_available_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageSubmitAipCompleteNotValidResponseBody": {
+      "description": "submit_aip_complete_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
     "StorageSubmitAipNotAvailableResponseBody": {
       "description": "submit_aip_not_available_response_body result type (default view)",
       "example": {
@@ -4637,112 +4743,6 @@
         "name"
       ],
       "title": "StorageSubmitAipRequestBody",
-      "type": "object"
-    },
-    "StorageUpdateAipNotAvailableResponseBody": {
-      "description": "update_aip_not_available_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
-    "StorageUpdateAipNotValidResponseBody": {
-      "description": "update_aip_not_valid_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
     "SubmitAIPResult": {
@@ -6986,10 +6986,10 @@
         ]
       }
     },
-    "/storage/aips/{uuid}/update": {
+    "/storage/aips/{uuid}/submit-complete": {
       "post": {
         "description": "Signal that an AIP submission is complete\n\n**Required security scopes for jwt**:\n  * `storage:aips:submit`",
-        "operationId": "storage#update_aip",
+        "operationId": "storage#submit_aip_complete",
         "parameters": [
           {
             "description": "Identifier of AIP",
@@ -7013,7 +7013,7 @@
           "400": {
             "description": "Bad Request response.",
             "schema": {
-              "$ref": "#/definitions/StorageUpdateAipNotValidResponseBody"
+              "$ref": "#/definitions/StorageSubmitAipCompleteNotValidResponseBody"
             }
           },
           "401": {
@@ -7031,7 +7031,7 @@
           "409": {
             "description": "Conflict response.",
             "schema": {
-              "$ref": "#/definitions/StorageUpdateAipNotAvailableResponseBody"
+              "$ref": "#/definitions/StorageSubmitAipCompleteNotAvailableResponseBody"
             }
           }
         },
@@ -7043,7 +7043,7 @@
             "jwt_header_Authorization": null
           }
         ],
-        "summary": "update_aip storage",
+        "summary": "submit_aip_complete storage",
         "tags": [
           "storage"
         ]
@@ -7480,7 +7480,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:batches:create`: no description\n  * `ingest:batches:list`: no description\n  * `ingest:batches:read`: no description\n  * `ingest:sips:create`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:batches:create`: no description\n  * `ingest:batches:list`: no description\n  * `ingest:batches:read`: no description\n  * `ingest:sips:create`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:download-deletion-report`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

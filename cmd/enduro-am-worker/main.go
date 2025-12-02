@@ -470,7 +470,7 @@ func newStorageClient(tp trace.TracerProvider, cfg config.Configuration) *goasto
 		storageHttpClient.ListAips(),
 		storageHttpClient.CreateAip(),
 		storageHttpClient.SubmitAip(),
-		storageHttpClient.UpdateAip(),
+		storageHttpClient.SubmitAipComplete(),
 		storageHttpClient.DownloadAipRequest(),
 		storageHttpClient.DownloadAip(),
 		storageHttpClient.MoveAip(),

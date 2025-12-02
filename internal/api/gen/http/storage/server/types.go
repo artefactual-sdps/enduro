@@ -317,9 +317,10 @@ type SubmitAipNotValidResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// UpdateAipNotAvailableResponseBody is the type of the "storage" service
-// "update_aip" endpoint HTTP response body for the "not_available" error.
-type UpdateAipNotAvailableResponseBody struct {
+// SubmitAipCompleteNotAvailableResponseBody is the type of the "storage"
+// service "submit_aip_complete" endpoint HTTP response body for the
+// "not_available" error.
+type SubmitAipCompleteNotAvailableResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -335,9 +336,9 @@ type UpdateAipNotAvailableResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// UpdateAipNotValidResponseBody is the type of the "storage" service
-// "update_aip" endpoint HTTP response body for the "not_valid" error.
-type UpdateAipNotValidResponseBody struct {
+// SubmitAipCompleteNotValidResponseBody is the type of the "storage" service
+// "submit_aip_complete" endpoint HTTP response body for the "not_valid" error.
+type SubmitAipCompleteNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -1019,10 +1020,11 @@ func NewSubmitAipNotValidResponseBody(res *goa.ServiceError) *SubmitAipNotValidR
 	return body
 }
 
-// NewUpdateAipNotAvailableResponseBody builds the HTTP response body from the
-// result of the "update_aip" endpoint of the "storage" service.
-func NewUpdateAipNotAvailableResponseBody(res *goa.ServiceError) *UpdateAipNotAvailableResponseBody {
-	body := &UpdateAipNotAvailableResponseBody{
+// NewSubmitAipCompleteNotAvailableResponseBody builds the HTTP response body
+// from the result of the "submit_aip_complete" endpoint of the "storage"
+// service.
+func NewSubmitAipCompleteNotAvailableResponseBody(res *goa.ServiceError) *SubmitAipCompleteNotAvailableResponseBody {
+	body := &SubmitAipCompleteNotAvailableResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -1033,10 +1035,10 @@ func NewUpdateAipNotAvailableResponseBody(res *goa.ServiceError) *UpdateAipNotAv
 	return body
 }
 
-// NewUpdateAipNotValidResponseBody builds the HTTP response body from the
-// result of the "update_aip" endpoint of the "storage" service.
-func NewUpdateAipNotValidResponseBody(res *goa.ServiceError) *UpdateAipNotValidResponseBody {
-	body := &UpdateAipNotValidResponseBody{
+// NewSubmitAipCompleteNotValidResponseBody builds the HTTP response body from
+// the result of the "submit_aip_complete" endpoint of the "storage" service.
+func NewSubmitAipCompleteNotValidResponseBody(res *goa.ServiceError) *SubmitAipCompleteNotValidResponseBody {
+	body := &SubmitAipCompleteNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -1383,9 +1385,10 @@ func NewSubmitAipPayload(body *SubmitAipRequestBody, uuid string, token *string)
 	return v
 }
 
-// NewUpdateAipPayload builds a storage service update_aip endpoint payload.
-func NewUpdateAipPayload(uuid string, token *string) *storage.UpdateAipPayload {
-	v := &storage.UpdateAipPayload{}
+// NewSubmitAipCompletePayload builds a storage service submit_aip_complete
+// endpoint payload.
+func NewSubmitAipCompletePayload(uuid string, token *string) *storage.SubmitAipCompletePayload {
+	v := &storage.SubmitAipCompletePayload{}
 	v.UUID = uuid
 	v.Token = token
 

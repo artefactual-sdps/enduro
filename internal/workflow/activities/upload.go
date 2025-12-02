@@ -46,7 +46,7 @@ func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityPara
 		if err != nil {
 			return &UploadActivityResult{}, err
 		}
-		defer f.Close() //#nosec G307 -- Errors returned by Close() here do not require specific handling.
+		defer f.Close()
 
 		uploadReq, err := http.NewRequestWithContext(ctx, http.MethodPut, res.URL, f)
 		if err != nil {
@@ -73,7 +73,7 @@ func (a *UploadActivity) Execute(ctx context.Context, params *UploadActivityPara
 
 	childCtx, cancel = context.WithTimeout(ctx, time.Second*5)
 	defer cancel()
-	err = a.storageClient.UpdateAip(childCtx, &goastorage.UpdateAipPayload{UUID: params.AIPID})
+	err = a.storageClient.SubmitAipComplete(childCtx, &goastorage.SubmitAipCompletePayload{UUID: params.AIPID})
 
 	return &UploadActivityResult{}, err
 }

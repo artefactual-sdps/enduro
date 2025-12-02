@@ -22,7 +22,7 @@ type Client struct {
 	ListAipsEndpoint           goa.Endpoint
 	CreateAipEndpoint          goa.Endpoint
 	SubmitAipEndpoint          goa.Endpoint
-	UpdateAipEndpoint          goa.Endpoint
+	SubmitAipCompleteEndpoint  goa.Endpoint
 	DownloadAipRequestEndpoint goa.Endpoint
 	DownloadAipEndpoint        goa.Endpoint
 	MoveAipEndpoint            goa.Endpoint
@@ -40,14 +40,14 @@ type Client struct {
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, updateAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, submitAipComplete, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:     monitorRequest,
 		MonitorEndpoint:            monitor,
 		ListAipsEndpoint:           listAips,
 		CreateAipEndpoint:          createAip,
 		SubmitAipEndpoint:          submitAip,
-		UpdateAipEndpoint:          updateAip,
+		SubmitAipCompleteEndpoint:  submitAipComplete,
 		DownloadAipRequestEndpoint: downloadAipRequest,
 		DownloadAipEndpoint:        downloadAip,
 		MoveAipEndpoint:            moveAip,
@@ -143,16 +143,17 @@ func (c *Client) SubmitAip(ctx context.Context, p *SubmitAipPayload) (res *Submi
 	return ires.(*SubmitAIPResult), nil
 }
 
-// UpdateAip calls the "update_aip" endpoint of the "storage" service.
-// UpdateAip may return the following errors:
+// SubmitAipComplete calls the "submit_aip_complete" endpoint of the "storage"
+// service.
+// SubmitAipComplete may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
-func (c *Client) UpdateAip(ctx context.Context, p *UpdateAipPayload) (err error) {
-	_, err = c.UpdateAipEndpoint(ctx, p)
+func (c *Client) SubmitAipComplete(ctx context.Context, p *SubmitAipCompletePayload) (err error) {
+	_, err = c.SubmitAipCompleteEndpoint(ctx, p)
 	return
 }
 

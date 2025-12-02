@@ -28,7 +28,7 @@ func UsageCommands() []string {
 	return []string{
 		"about about",
 		"ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects|add-batch|list-batches|show-batch)",
-		"storage (monitor-request|monitor|list-aips|create-aip|submit-aip|update-aip|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)",
+		"storage (monitor-request|monitor|list-aips|create-aip|submit-aip|submit-aip-complete|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|list-locations|create-location|show-location|list-location-aips)",
 	}
 }
 
@@ -170,9 +170,9 @@ func ParseEndpoint(
 		storageSubmitAipUUIDFlag  = storageSubmitAipFlags.String("uuid", "REQUIRED", "Identifier of AIP")
 		storageSubmitAipTokenFlag = storageSubmitAipFlags.String("token", "", "")
 
-		storageUpdateAipFlags     = flag.NewFlagSet("update-aip", flag.ExitOnError)
-		storageUpdateAipUUIDFlag  = storageUpdateAipFlags.String("uuid", "REQUIRED", "Identifier of AIP")
-		storageUpdateAipTokenFlag = storageUpdateAipFlags.String("token", "", "")
+		storageSubmitAipCompleteFlags     = flag.NewFlagSet("submit-aip-complete", flag.ExitOnError)
+		storageSubmitAipCompleteUUIDFlag  = storageSubmitAipCompleteFlags.String("uuid", "REQUIRED", "Identifier of AIP")
+		storageSubmitAipCompleteTokenFlag = storageSubmitAipCompleteFlags.String("token", "", "")
 
 		storageDownloadAipRequestFlags     = flag.NewFlagSet("download-aip-request", flag.ExitOnError)
 		storageDownloadAipRequestUUIDFlag  = storageDownloadAipRequestFlags.String("uuid", "REQUIRED", "Identifier of the AIP to download")
@@ -262,7 +262,7 @@ func ParseEndpoint(
 	storageListAipsFlags.Usage = storageListAipsUsage
 	storageCreateAipFlags.Usage = storageCreateAipUsage
 	storageSubmitAipFlags.Usage = storageSubmitAipUsage
-	storageUpdateAipFlags.Usage = storageUpdateAipUsage
+	storageSubmitAipCompleteFlags.Usage = storageSubmitAipCompleteUsage
 	storageDownloadAipRequestFlags.Usage = storageDownloadAipRequestUsage
 	storageDownloadAipFlags.Usage = storageDownloadAipUsage
 	storageMoveAipFlags.Usage = storageMoveAipUsage
@@ -390,8 +390,8 @@ func ParseEndpoint(
 			case "submit-aip":
 				epf = storageSubmitAipFlags
 
-			case "update-aip":
-				epf = storageUpdateAipFlags
+			case "submit-aip-complete":
+				epf = storageSubmitAipCompleteFlags
 
 			case "download-aip-request":
 				epf = storageDownloadAipRequestFlags
@@ -537,9 +537,9 @@ func ParseEndpoint(
 			case "submit-aip":
 				endpoint = c.SubmitAip()
 				data, err = storagec.BuildSubmitAipPayload(*storageSubmitAipBodyFlag, *storageSubmitAipUUIDFlag, *storageSubmitAipTokenFlag)
-			case "update-aip":
-				endpoint = c.UpdateAip()
-				data, err = storagec.BuildUpdateAipPayload(*storageUpdateAipUUIDFlag, *storageUpdateAipTokenFlag)
+			case "submit-aip-complete":
+				endpoint = c.SubmitAipComplete()
+				data, err = storagec.BuildSubmitAipCompletePayload(*storageSubmitAipCompleteUUIDFlag, *storageSubmitAipCompleteTokenFlag)
 			case "download-aip-request":
 				endpoint = c.DownloadAipRequest()
 				data, err = storagec.BuildDownloadAipRequestPayload(*storageDownloadAipRequestUUIDFlag, *storageDownloadAipRequestTokenFlag)
@@ -1040,7 +1040,7 @@ func storageUsage() {
 	fmt.Fprintln(os.Stderr, `    list-aips: List all AIPs`)
 	fmt.Fprintln(os.Stderr, `    create-aip: Create a new AIP`)
 	fmt.Fprintln(os.Stderr, `    submit-aip: Start the submission of an AIP`)
-	fmt.Fprintln(os.Stderr, `    update-aip: Signal that an AIP submission is complete`)
+	fmt.Fprintln(os.Stderr, `    submit-aip-complete: Signal that an AIP submission is complete`)
 	fmt.Fprintln(os.Stderr, `    download-aip-request: Request access to AIP download`)
 	fmt.Fprintln(os.Stderr, `    download-aip: Download AIP by AIPID`)
 	fmt.Fprintln(os.Stderr, `    move-aip: Move an AIP to a permanent storage location`)
@@ -1180,9 +1180,9 @@ func storageSubmitAipUsage() {
    }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"`)
 }
 
-func storageUpdateAipUsage() {
+func storageSubmitAipCompleteUsage() {
 	// Header with flags
-	fmt.Fprintf(os.Stderr, "%s [flags] storage update-aip", os.Args[0])
+	fmt.Fprintf(os.Stderr, "%s [flags] storage submit-aip-complete", os.Args[0])
 	fmt.Fprint(os.Stderr, " -uuid STRING")
 	fmt.Fprint(os.Stderr, " -token STRING")
 	fmt.Fprintln(os.Stderr)
@@ -1198,7 +1198,7 @@ func storageUpdateAipUsage() {
 	// Example block: pass example as parameter to avoid format parsing of % characters
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `storage update-aip --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"`)
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `storage submit-aip-complete --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"`)
 }
 
 func storageDownloadAipRequestUsage() {

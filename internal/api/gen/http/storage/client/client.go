@@ -41,9 +41,9 @@ type Client struct {
 	// endpoint.
 	SubmitAipDoer goahttp.Doer
 
-	// UpdateAip Doer is the HTTP client used to make requests to the update_aip
-	// endpoint.
-	UpdateAipDoer goahttp.Doer
+	// SubmitAipComplete Doer is the HTTP client used to make requests to the
+	// submit_aip_complete endpoint.
+	SubmitAipCompleteDoer goahttp.Doer
 
 	// DownloadAipRequest Doer is the HTTP client used to make requests to the
 	// download_aip_request endpoint.
@@ -136,7 +136,7 @@ func NewClient(
 		ListAipsDoer:           doer,
 		CreateAipDoer:          doer,
 		SubmitAipDoer:          doer,
-		UpdateAipDoer:          doer,
+		SubmitAipCompleteDoer:  doer,
 		DownloadAipRequestDoer: doer,
 		DownloadAipDoer:        doer,
 		MoveAipDoer:            doer,
@@ -300,15 +300,15 @@ func (c *Client) SubmitAip() goa.Endpoint {
 	}
 }
 
-// UpdateAip returns an endpoint that makes HTTP requests to the storage
-// service update_aip server.
-func (c *Client) UpdateAip() goa.Endpoint {
+// SubmitAipComplete returns an endpoint that makes HTTP requests to the
+// storage service submit_aip_complete server.
+func (c *Client) SubmitAipComplete() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeUpdateAipRequest(c.encoder)
-		decodeResponse = DecodeUpdateAipResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest  = EncodeSubmitAipCompleteRequest(c.encoder)
+		decodeResponse = DecodeSubmitAipCompleteResponse(c.decoder, c.RestoreResponseBody)
 	)
 	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildUpdateAipRequest(ctx, v)
+		req, err := c.BuildSubmitAipCompleteRequest(ctx, v)
 		if err != nil {
 			return nil, err
 		}
@@ -316,9 +316,9 @@ func (c *Client) UpdateAip() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		resp, err := c.UpdateAipDoer.Do(req)
+		resp, err := c.SubmitAipCompleteDoer.Do(req)
 		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "update_aip", err)
+			return nil, goahttp.ErrRequestError("storage", "submit_aip_complete", err)
 		}
 		return decodeResponse(resp)
 	}

@@ -12,8 +12,8 @@ type Client interface {
 	Monitor(context.Context, *goastorage.MonitorPayload) (goastorage.MonitorClientStream, error)
 	ListAips(context.Context, *goastorage.ListAipsPayload) (*goastorage.AIPs, error)
 	SubmitAip(context.Context, *goastorage.SubmitAipPayload) (*goastorage.SubmitAIPResult, error)
+	SubmitAipComplete(context.Context, *goastorage.SubmitAipCompletePayload) error
 	CreateAip(context.Context, *goastorage.CreateAipPayload) (*goastorage.AIP, error)
-	UpdateAip(context.Context, *goastorage.UpdateAipPayload) error
 	DownloadAipRequest(
 		context.Context,
 		*goastorage.DownloadAipRequestPayload,

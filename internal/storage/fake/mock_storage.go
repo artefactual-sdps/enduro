@@ -1209,40 +1209,40 @@ func (c *MockServiceSubmitAipCall) DoAndReturn(f func(context.Context, *storage.
 	return c
 }
 
-// UpdateAip mocks base method.
-func (m *MockService) UpdateAip(arg0 context.Context, arg1 *storage.UpdateAipPayload) error {
+// SubmitAipComplete mocks base method.
+func (m *MockService) SubmitAipComplete(arg0 context.Context, arg1 *storage.SubmitAipCompletePayload) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateAip", arg0, arg1)
+	ret := m.ctrl.Call(m, "SubmitAipComplete", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateAip indicates an expected call of UpdateAip.
-func (mr *MockServiceMockRecorder) UpdateAip(arg0, arg1 any) *MockServiceUpdateAipCall {
+// SubmitAipComplete indicates an expected call of SubmitAipComplete.
+func (mr *MockServiceMockRecorder) SubmitAipComplete(arg0, arg1 any) *MockServiceSubmitAipCompleteCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAip", reflect.TypeOf((*MockService)(nil).UpdateAip), arg0, arg1)
-	return &MockServiceUpdateAipCall{Call: call}
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitAipComplete", reflect.TypeOf((*MockService)(nil).SubmitAipComplete), arg0, arg1)
+	return &MockServiceSubmitAipCompleteCall{Call: call}
 }
 
-// MockServiceUpdateAipCall wrap *gomock.Call
-type MockServiceUpdateAipCall struct {
+// MockServiceSubmitAipCompleteCall wrap *gomock.Call
+type MockServiceSubmitAipCompleteCall struct {
 	*gomock.Call
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockServiceUpdateAipCall) Return(err error) *MockServiceUpdateAipCall {
+func (c *MockServiceSubmitAipCompleteCall) Return(err error) *MockServiceSubmitAipCompleteCall {
 	c.Call = c.Call.Return(err)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockServiceUpdateAipCall) Do(f func(context.Context, *storage.UpdateAipPayload) error) *MockServiceUpdateAipCall {
+func (c *MockServiceSubmitAipCompleteCall) Do(f func(context.Context, *storage.SubmitAipCompletePayload) error) *MockServiceSubmitAipCompleteCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceUpdateAipCall) DoAndReturn(f func(context.Context, *storage.UpdateAipPayload) error) *MockServiceUpdateAipCall {
+func (c *MockServiceSubmitAipCompleteCall) DoAndReturn(f func(context.Context, *storage.SubmitAipCompletePayload) error) *MockServiceSubmitAipCompleteCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

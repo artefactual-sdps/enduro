@@ -676,23 +676,23 @@ func DecodeSubmitAipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 	}
 }
 
-// BuildUpdateAipRequest instantiates a HTTP request object with method and
-// path set to call the "storage" service "update_aip" endpoint
-func (c *Client) BuildUpdateAipRequest(ctx context.Context, v any) (*http.Request, error) {
+// BuildSubmitAipCompleteRequest instantiates a HTTP request object with method
+// and path set to call the "storage" service "submit_aip_complete" endpoint
+func (c *Client) BuildSubmitAipCompleteRequest(ctx context.Context, v any) (*http.Request, error) {
 	var (
 		uuid string
 	)
 	{
-		p, ok := v.(*storage.UpdateAipPayload)
+		p, ok := v.(*storage.SubmitAipCompletePayload)
 		if !ok {
-			return nil, goahttp.ErrInvalidType("storage", "update_aip", "*storage.UpdateAipPayload", v)
+			return nil, goahttp.ErrInvalidType("storage", "submit_aip_complete", "*storage.SubmitAipCompletePayload", v)
 		}
 		uuid = p.UUID
 	}
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: UpdateAipStoragePath(uuid)}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: SubmitAipCompleteStoragePath(uuid)}
 	req, err := http.NewRequest("POST", u.String(), nil)
 	if err != nil {
-		return nil, goahttp.ErrInvalidURL("storage", "update_aip", u.String(), err)
+		return nil, goahttp.ErrInvalidURL("storage", "submit_aip_complete", u.String(), err)
 	}
 	if ctx != nil {
 		req = req.WithContext(ctx)
@@ -701,13 +701,13 @@ func (c *Client) BuildUpdateAipRequest(ctx context.Context, v any) (*http.Reques
 	return req, nil
 }
 
-// EncodeUpdateAipRequest returns an encoder for requests sent to the storage
-// update_aip server.
-func EncodeUpdateAipRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+// EncodeSubmitAipCompleteRequest returns an encoder for requests sent to the
+// storage submit_aip_complete server.
+func EncodeSubmitAipCompleteRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
 	return func(req *http.Request, v any) error {
-		p, ok := v.(*storage.UpdateAipPayload)
+		p, ok := v.(*storage.SubmitAipCompletePayload)
 		if !ok {
-			return goahttp.ErrInvalidType("storage", "update_aip", "*storage.UpdateAipPayload", v)
+			return goahttp.ErrInvalidType("storage", "submit_aip_complete", "*storage.SubmitAipCompletePayload", v)
 		}
 		if p.Token != nil {
 			head := *p.Token
@@ -721,16 +721,16 @@ func EncodeUpdateAipRequest(encoder func(*http.Request) goahttp.Encoder) func(*h
 	}
 }
 
-// DecodeUpdateAipResponse returns a decoder for responses returned by the
-// storage update_aip endpoint. restoreBody controls whether the response body
-// should be restored after having been read.
-// DecodeUpdateAipResponse may return the following errors:
+// DecodeSubmitAipCompleteResponse returns a decoder for responses returned by
+// the storage submit_aip_complete endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeSubmitAipCompleteResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
-func DecodeUpdateAipResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+func DecodeSubmitAipCompleteResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
 	return func(resp *http.Response) (any, error) {
 		if restoreBody {
 			b, err := io.ReadAll(resp.Body)
@@ -749,32 +749,32 @@ func DecodeUpdateAipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 			return nil, nil
 		case http.StatusConflict:
 			var (
-				body UpdateAipNotAvailableResponseBody
+				body SubmitAipCompleteNotAvailableResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "update_aip", err)
+				return nil, goahttp.ErrDecodingError("storage", "submit_aip_complete", err)
 			}
-			err = ValidateUpdateAipNotAvailableResponseBody(&body)
+			err = ValidateSubmitAipCompleteNotAvailableResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "update_aip", err)
+				return nil, goahttp.ErrValidationError("storage", "submit_aip_complete", err)
 			}
-			return nil, NewUpdateAipNotAvailable(&body)
+			return nil, NewSubmitAipCompleteNotAvailable(&body)
 		case http.StatusBadRequest:
 			var (
-				body UpdateAipNotValidResponseBody
+				body SubmitAipCompleteNotValidResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "update_aip", err)
+				return nil, goahttp.ErrDecodingError("storage", "submit_aip_complete", err)
 			}
-			err = ValidateUpdateAipNotValidResponseBody(&body)
+			err = ValidateSubmitAipCompleteNotValidResponseBody(&body)
 			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "update_aip", err)
+				return nil, goahttp.ErrValidationError("storage", "submit_aip_complete", err)
 			}
-			return nil, NewUpdateAipNotValid(&body)
+			return nil, NewSubmitAipCompleteNotValid(&body)
 		case http.StatusForbidden:
 			var (
 				body string
@@ -782,9 +782,9 @@ func DecodeUpdateAipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "update_aip", err)
+				return nil, goahttp.ErrDecodingError("storage", "submit_aip_complete", err)
 			}
-			return nil, NewUpdateAipForbidden(body)
+			return nil, NewSubmitAipCompleteForbidden(body)
 		case http.StatusUnauthorized:
 			var (
 				body string
@@ -792,12 +792,12 @@ func DecodeUpdateAipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "update_aip", err)
+				return nil, goahttp.ErrDecodingError("storage", "submit_aip_complete", err)
 			}
-			return nil, NewUpdateAipUnauthorized(body)
+			return nil, NewSubmitAipCompleteUnauthorized(body)
 		default:
 			body, _ := io.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("storage", "update_aip", resp.StatusCode, string(body))
+			return nil, goahttp.ErrInvalidResponse("storage", "submit_aip_complete", resp.StatusCode, string(body))
 		}
 	}
 }

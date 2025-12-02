@@ -208,13 +208,13 @@ func BuildSubmitAipPayload(storageSubmitAipBody string, storageSubmitAipUUID str
 	return v, nil
 }
 
-// BuildUpdateAipPayload builds the payload for the storage update_aip endpoint
-// from CLI flags.
-func BuildUpdateAipPayload(storageUpdateAipUUID string, storageUpdateAipToken string) (*storage.UpdateAipPayload, error) {
+// BuildSubmitAipCompletePayload builds the payload for the storage
+// submit_aip_complete endpoint from CLI flags.
+func BuildSubmitAipCompletePayload(storageSubmitAipCompleteUUID string, storageSubmitAipCompleteToken string) (*storage.SubmitAipCompletePayload, error) {
 	var err error
 	var uuid string
 	{
-		uuid = storageUpdateAipUUID
+		uuid = storageSubmitAipCompleteUUID
 		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
 		if err != nil {
 			return nil, err
@@ -222,11 +222,11 @@ func BuildUpdateAipPayload(storageUpdateAipUUID string, storageUpdateAipToken st
 	}
 	var token *string
 	{
-		if storageUpdateAipToken != "" {
-			token = &storageUpdateAipToken
+		if storageSubmitAipCompleteToken != "" {
+			token = &storageSubmitAipCompleteToken
 		}
 	}
-	v := &storage.UpdateAipPayload{}
+	v := &storage.SubmitAipCompletePayload{}
 	v.UUID = uuid
 	v.Token = token
 
