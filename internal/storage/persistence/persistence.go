@@ -11,6 +11,7 @@ import (
 )
 
 type (
+	AIPUpdater             func(*types.AIP) (*types.AIP, error)
 	WorkflowUpdater        func(*types.Workflow) (*types.Workflow, error)
 	TaskUpdater            func(*types.Task) (*types.Task, error)
 	DeletionRequestUpdater func(*types.DeletionRequest) (*types.DeletionRequest, error)
@@ -21,6 +22,7 @@ type Storage interface {
 	CreateAIP(ctx context.Context, aip *goastorage.AIP) (*goastorage.AIP, error)
 	ListAIPs(ctx context.Context, payload *goastorage.ListAipsPayload) (*goastorage.AIPs, error)
 	ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
+	UpdateAIP(ctx context.Context, aipID uuid.UUID, updater AIPUpdater) (*types.AIP, error)
 	UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 
