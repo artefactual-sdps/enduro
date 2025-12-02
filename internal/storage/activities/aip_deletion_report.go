@@ -79,16 +79,16 @@ func (a *AIPDeletionReportActivity) Execute(
 	}
 
 	// Persist report key.
-	_, err = a.storageSvc.UpdateDeletionRequest(
+	_, err = a.storageSvc.UpdateAIP(
 		ctx,
-		data.DeletionRequestDBID,
-		func(d *types.DeletionRequest) (*types.DeletionRequest, error) {
-			d.ReportKey = key
-			return d, nil
+		params.AIPID,
+		func(aip *types.AIP) (*types.AIP, error) {
+			aip.DeletionReportKey = &key
+			return aip, nil
 		},
 	)
 	if err != nil {
-		return nil, fmt.Errorf("AIP deletion report: update deletion request: %v", err)
+		return nil, fmt.Errorf("AIP deletion report: update AIP: %v", err)
 	}
 
 	return &AIPDeletionReportActivityResult{Key: key}, nil
@@ -121,20 +121,19 @@ func (a *AIPDeletionReportActivity) loadData(
 	}
 
 	d := types.DeletionReportData{
-		DeletionRequestDBID: drs[0].DBID,
-		AIPName:             aip.Name,
-		AIPUUID:             aip.UUID,
-		DeletedAt:           wf.CompletedAt,
-		EnduroVersion:       version.Long,
-		PreservationSystem:  "a3m",
-		Reason:              drs[0].Reason,
-		RequestedAt:         drs[0].RequestedAt,
-		Requester:           drs[0].Requester,
-		ReviewedAt:          drs[0].ReviewedAt,
-		Reviewer:            drs[0].Reviewer,
-		Status:              drs[0].Status.String(),
-		StorageLocation:     aip.LocationUUID.String(),
-		StorageSystem:       "Enduro Storage Service",
+		AIPName:            aip.Name,
+		AIPUUID:            aip.UUID,
+		DeletedAt:          wf.CompletedAt,
+		EnduroVersion:      version.Long,
+		PreservationSystem: "a3m",
+		Reason:             drs[0].Reason,
+		RequestedAt:        drs[0].RequestedAt,
+		Requester:          drs[0].Requester,
+		ReviewedAt:         drs[0].ReviewedAt,
+		Reviewer:           drs[0].Reviewer,
+		Status:             drs[0].Status.String(),
+		StorageLocation:    aip.LocationUUID.String(),
+		StorageSystem:      "Enduro Storage Service",
 	}
 
 	if locationSource == enums.LocationSourceAmss {

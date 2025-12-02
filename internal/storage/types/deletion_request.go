@@ -23,5 +23,4 @@ type DeletionRequest struct {
 	ReviewedAt   time.Time
 	AIPUUID      uuid.UUID
 	WorkflowDBID int
-	ReportKey    string
 }

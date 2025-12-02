@@ -80,24 +80,26 @@ func expectLocation(t *testing.T, msvc *fake.MockService) {
 		Return(loc, nil)
 }
 
-func expectUpdateDeletionRequest(t *testing.T, msvc *fake.MockService, drDBID int) {
+func expectUpdateAIP(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 	msvc.EXPECT().
-		UpdateDeletionRequest(
+		UpdateAIP(
 			mockutil.Context(),
-			drDBID,
+			aipID,
 			mockutil.Func(
-				"Updates deletion report key",
-				func(updater persistence.DeletionRequestUpdater) error {
-					got, err := updater(&types.DeletionRequest{})
+				"Updates AIP deletion report key",
+				func(updater persistence.AIPUpdater) error {
+					got, err := updater(&types.AIP{})
 					assert.NilError(t, err)
-					assert.DeepEqual(t, got, &types.DeletionRequest{
-						ReportKey: storage.ReportPrefix + "aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
+					assert.DeepEqual(t, got, &types.AIP{
+						DeletionReportKey: ref.New(
+							storage.ReportPrefix + "aip_deletion_report_123e4567-e89b-12d3-a456-426614174000.pdf",
+						),
 					})
 					return nil
 				},
 			),
 		).
-		Return(&types.DeletionRequest{}, nil)
+		Return(&types.AIP{}, nil)
 }
 
 func expectSvc(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
@@ -107,7 +109,7 @@ func expectSvc(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 	expectListDeletionRequests(msvc, aipID)
 	expectReadWorkflows(msvc, 1)
 	expectLocation(t, msvc)
-	expectUpdateDeletionRequest(t, msvc, 1)
+	expectUpdateAIP(t, msvc, aipID)
 }
 
 func expectFormFill(t *testing.T, mff *pdf_fake.MockFormFiller, aipID uuid.UUID) {
@@ -230,7 +232,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 			wantErr: "AIP deletion report: load data: ReadWorkflow: internal error",
 		},
 		{
-			name:         "Errors if updating deletion request fails",
+			name:         "Errors if updating AIP fails",
 			templatePath: templatePath,
 			expectedSvc: func(t *testing.T, msvc *fake.MockService, aipID uuid.UUID) {
 				expectReadAIP(msvc, aipID)
@@ -238,13 +240,13 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 				expectReadWorkflows(msvc, 1)
 				expectLocation(t, msvc)
 				msvc.EXPECT().
-					UpdateDeletionRequest(
+					UpdateAIP(
 						mockutil.Context(),
-						1,
+						aipID,
 						mockutil.Func(
 							"Updates deletion report key",
-							func(updater persistence.DeletionRequestUpdater) error {
-								_, err := updater(&types.DeletionRequest{})
+							func(updater persistence.AIPUpdater) error {
+								_, err := updater(&types.AIP{})
 								return err
 							},
 						),
@@ -255,7 +257,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 			params: activities.AIPDeletionReportActivityParams{
 				AIPID: uuid.MustParse("123e4567-e89b-12d3-a456-426614174000"),
 			},
-			wantErr: "AIP deletion report: update deletion request: internal error",
+			wantErr: "AIP deletion report: update AIP: internal error",
 		},
 		{
 			name:         "Errors if form filling fails",
