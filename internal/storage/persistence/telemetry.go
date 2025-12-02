@@ -72,6 +72,19 @@ func (w *wrapper) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP
 	return r, nil
 }
 
+func (w *wrapper) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater AIPUpdater) (*types.AIP, error) {
+	ctx, span := w.tracer.Start(ctx, "UpdateAIP")
+	defer span.End()
+
+	r, err := w.wrapped.UpdateAIP(ctx, aipID, updater)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "UpdateAIP")
+	}
+
+	return r, nil
+}
+
 func (w *wrapper) UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {
 	ctx, span := w.tracer.Start(ctx, "UpdateAIPStatus")
 	defer span.End()

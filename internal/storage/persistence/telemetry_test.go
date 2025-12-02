@@ -17,6 +17,89 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
+func TestUpdateAIP(t *testing.T) {
+	t.Parallel()
+
+	aipID := uuid.MustParse("123e4567-e89b-12d3-a456-426614174000")
+
+	type test struct {
+		name    string
+		mock    func(*fake.MockStorage)
+		want    *types.AIP
+		wantErr string
+	}
+	for _, tc := range []test{
+		{
+			name: "Updates an AIP successfully",
+			mock: func(svc *fake.MockStorage) {
+				svc.EXPECT().
+					UpdateAIP(
+						mockutil.Context(),
+						aipID,
+						mockutil.Func(
+							"updater function",
+							func(updater persistence.AIPUpdater) error {
+								updater(&types.AIP{})
+								return nil
+							},
+						),
+					).
+					Return(
+						&types.AIP{
+							UUID: aipID,
+							Name: "test",
+						},
+						nil,
+					)
+			},
+			want: &types.AIP{
+				UUID: aipID,
+				Name: "test",
+			},
+		},
+		{
+			name: "Errors when updating an AIP",
+			mock: func(svc *fake.MockStorage) {
+				svc.EXPECT().
+					UpdateAIP(
+						mockutil.Context(),
+						aipID,
+						gomock.Any(),
+					).
+					Return(nil, errors.New("update aip: not found"))
+			},
+			wantErr: "UpdateAIP: update aip: not found",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc := fake.NewMockStorage(gomock.NewController(t))
+			if tc.mock != nil {
+				tc.mock(svc)
+			}
+
+			tracer := noop.NewTracerProvider().Tracer("test")
+			w := persistence.WithTelemetry(svc, tracer)
+
+			got, err := w.UpdateAIP(
+				t.Context(),
+				aipID,
+				func(aip *types.AIP) (*types.AIP, error) {
+					aip.Name = "test"
+					return aip, nil
+				})
+			if tc.wantErr != "" {
+				assert.Error(t, err, tc.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tc.want)
+		})
+	}
+}
+
 func TestReadWorkflow(t *testing.T) {
 	t.Parallel()
 

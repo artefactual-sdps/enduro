@@ -500,6 +500,122 @@ func TestReadAIP(t *testing.T) {
 	})
 }
 
+func TestUpdateAIP(t *testing.T) {
+	t.Parallel()
+
+	locID1 := uuid.MustParse("a06a155c-9cf0-4416-a2b6-e90e58ef3186")
+	locID2 := uuid.MustParse("f1508f95-cab7-447f-b6a2-e01bf7c64558")
+	locIDInvalid := uuid.MustParse("11111111-1111-1111-1111-111111111111")
+
+	type test struct {
+		name    string
+		aipID   uuid.UUID
+		updater func(aip *types.AIP) (*types.AIP, error)
+		want    *types.AIP
+		wantErr string
+	}
+	for _, tc := range []test{
+		{
+			name:  "Updates an AIP",
+			aipID: aipID,
+			updater: func(aip *types.AIP) (*types.AIP, error) {
+				aip.Status = enums.AIPStatusDeleted
+				aip.LocationUUID = &locID2
+				aip.DeletionReportKey = ref.New("reports/deletion_report.pdf")
+				return aip, nil
+			},
+			want: &types.AIP{
+				UUID:              aipID,
+				Name:              "AIP",
+				CreatedAt:         fakeNow(),
+				ObjectKey:         objectKey,
+				Status:            enums.AIPStatusDeleted,
+				LocationUUID:      &locID2,
+				DeletionReportKey: ref.New("reports/deletion_report.pdf"),
+			},
+		},
+		{
+			name:  "Ignores unchanged fields",
+			aipID: aipID,
+			updater: func(aip *types.AIP) (*types.AIP, error) {
+				aip.Status = enums.AIPStatusProcessing
+				return aip, nil
+			},
+			want: &types.AIP{
+				UUID:         aipID,
+				Name:         "AIP",
+				CreatedAt:    fakeNow(),
+				ObjectKey:    objectKey,
+				Status:       enums.AIPStatusProcessing,
+				LocationUUID: &locID1,
+			},
+		},
+		{
+			name:  "Errors if AIP not found",
+			aipID: uuid.MustParse("f1508f95-cab7-447f-b6a2-e01bf7c64558"),
+			updater: func(aip *types.AIP) (*types.AIP, error) {
+				return aip, nil
+			},
+			wantErr: "load AIP: not found",
+		},
+		{
+			name:  "Errors if location not found",
+			aipID: aipID,
+			updater: func(aip *types.AIP) (*types.AIP, error) {
+				aip.LocationUUID = &locIDInvalid
+				return aip, nil
+			},
+			wantErr: "load location: not found",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			entc, c := setUpClientWithHooks(t)
+			ctx := t.Context()
+
+			l1 := entc.Location.Create().
+				SetName("perma-aips-1").
+				SetDescription("").
+				SetSource(enums.LocationSourceMinio).
+				SetPurpose(enums.LocationPurposeAipStore).
+				SetConfig(types.LocationConfig{
+					Value: &types.S3Config{Bucket: "perma-aips-1"},
+				}).
+				SetUUID(locID1).
+				SaveX(ctx)
+
+			entc.Location.Create().
+				SetName("perma-aips-2").
+				SetDescription("").
+				SetSource(enums.LocationSourceMinio).
+				SetPurpose(enums.LocationPurposeAipStore).
+				SetConfig(types.LocationConfig{
+					Value: &types.S3Config{Bucket: "perma-aips-1"},
+				}).
+				SetUUID(locID2).
+				SaveX(ctx)
+
+			entc.AIP.Create().
+				SetName("AIP").
+				SetAipID(aipID).
+				SetObjectKey(objectKey).
+				SetLocationID(l1.ID).
+				SetStatus(enums.AIPStatusProcessing).
+				SaveX(ctx)
+
+			got, err := c.UpdateAIP(context.Background(), tc.aipID, tc.updater)
+			if tc.wantErr != "" {
+				assert.Error(t, err, tc.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tc.want)
+		})
+	}
+}
+
 func TestUpdateAIPStatus(t *testing.T) {
 	t.Parallel()
 

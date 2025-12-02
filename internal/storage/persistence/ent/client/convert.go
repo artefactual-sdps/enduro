@@ -132,3 +132,24 @@ func taskAsGoa(dbt *db.Task) *goastorage.AIPTask {
 
 	return t
 }
+
+func convertDBAIP(dba *db.AIP) *types.AIP {
+	aip := &types.AIP{
+		UUID:              dba.AipID,
+		Name:              dba.Name,
+		CreatedAt:         dba.CreatedAt,
+		ObjectKey:         dba.ObjectKey,
+		Status:            dba.Status,
+		DeletionReportKey: nil,
+	}
+
+	if dba.Edges.Location != nil {
+		aip.LocationUUID = ref.New(dba.Edges.Location.UUID)
+	}
+
+	if dba.DeletionReportKey != "" {
+		aip.DeletionReportKey = ref.New(dba.DeletionReportKey)
+	}
+
+	return aip
+}

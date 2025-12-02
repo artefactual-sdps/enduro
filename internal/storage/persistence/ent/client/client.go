@@ -20,7 +20,10 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
-var ErrUnexpectedUpdateResults = errors.New("update operation had unexpected results")
+var (
+	ErrNotFound                = errors.New("not found")
+	ErrUnexpectedUpdateResults = errors.New("update operation had unexpected results")
+)
 
 type Client struct {
 	c *db.Client
@@ -188,6 +191,84 @@ func (c *Client) UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid
 	}
 
 	return nil
+}
+
+// UpdateAIP updates an AIP using the provided updater function the returns the
+// updated AIP. The AIP fields "id", "uuid", "created_at", and "object_key" are
+// immutable and cannot be updated.
+func (c *Client) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persistence.AIPUpdater) (*types.AIP, error) {
+	var updated bool
+	var locUUID *uuid.UUID
+
+	// Load existing AIP.
+	dbAIP, err := c.c.AIP.Query().
+		WithLocation().
+		Where(aip.AipID(aipID)).
+		Only(ctx)
+	if err != nil {
+		if db.IsNotFound(err) {
+			return nil, fmt.Errorf("load AIP: %w", ErrNotFound)
+		}
+		return nil, fmt.Errorf("load AIP: %v", err)
+	}
+
+	if dbAIP.Edges.Location != nil {
+		locUUID = ref.New(dbAIP.Edges.Location.UUID)
+	}
+
+	// Apply the updater function to the loaded AIP.
+	up, err := updater(convertDBAIP(dbAIP))
+	if err != nil {
+		return nil, err
+	}
+
+	// Build a query to update the AIP in the database.
+	q := c.c.AIP.UpdateOneID(dbAIP.ID)
+
+	if up.Status != "" && up.Status != dbAIP.Status {
+		q.SetStatus(up.Status)
+		updated = true
+	}
+
+	if up.LocationUUID != nil && up.LocationUUID.String() != locUUID.String() {
+		loc, err := c.c.Location.Query().
+			Select(location.FieldID, location.FieldUUID).
+			Where(location.UUID(*up.LocationUUID)).
+			Only(ctx)
+		if err != nil {
+			if db.IsNotFound(err) {
+				return nil, fmt.Errorf("load location: %w", ErrNotFound)
+			}
+			return nil, fmt.Errorf("load location: %v", err)
+		}
+		q.SetLocationID(loc.ID)
+		locUUID = ref.New(loc.UUID)
+		updated = true
+	}
+
+	if up.DeletionReportKey != nil && *up.DeletionReportKey != dbAIP.DeletionReportKey {
+		q.SetDeletionReportKey(*up.DeletionReportKey)
+		updated = true
+	}
+
+	// If no changes were made return the existing AIP.
+	if !updated {
+		return convertDBAIP(dbAIP), nil
+	}
+
+	// Save updates.
+	s, err := q.Save(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	res := convertDBAIP(s)
+
+	// Add the location UUID to the returned AIP because the AIP returned by the
+	// db update doesn't include the location.
+	res.LocationUUID = locUUID
+
+	return res, nil
 }
 
 func (c *Client) ListWorkflows(
