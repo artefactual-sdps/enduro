@@ -7,6 +7,7 @@ export * from './AIPResponse';
 export * from './AIPStatusUpdatedEvent';
 export * from './AIPTaskCreatedEvent';
 export * from './AIPTaskUpdatedEvent';
+export * from './AIPUpdatedEvent';
 export * from './AIPWorkflowCreatedEvent';
 export * from './AIPWorkflowUpdatedEvent';
 export * from './AMSSConfig';

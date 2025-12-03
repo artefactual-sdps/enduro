@@ -5337,6 +5337,7 @@ definitions:
                             - "storage_ping_event"
                             - "location_created_event"
                             - "aip_created_event"
+                            - "aip_updated_event"
                             - "aip_status_updated_event"
                             - "aip_location_updated_event"
                             - "aip_workflow_created_event"
@@ -5348,6 +5349,7 @@ definitions:
                             - storage_ping_event
                             - location_created_event
                             - aip_created_event
+                            - aip_updated_event
                             - aip_status_updated_event
                             - aip_location_updated_event
                             - aip_workflow_created_event

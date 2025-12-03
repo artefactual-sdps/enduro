@@ -589,12 +589,13 @@ func (c *MockStorageReadWorkflowCall) DoAndReturn(f func(context.Context, int) (
 }
 
 // UpdateAIP mocks base method.
-func (m *MockStorage) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persistence.AIPUpdater) (*types.AIP, error) {
+func (m *MockStorage) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persistence.AIPUpdater) (*types.AIP, *storage.AIP, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAIP", ctx, aipID, updater)
 	ret0, _ := ret[0].(*types.AIP)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret1, _ := ret[1].(*storage.AIP)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
 }
 
 // UpdateAIP indicates an expected call of UpdateAIP.
@@ -610,19 +611,19 @@ type MockStorageUpdateAIPCall struct {
 }
 
 // Return rewrite *gomock.Call.Return
-func (c *MockStorageUpdateAIPCall) Return(arg0 *types.AIP, arg1 error) *MockStorageUpdateAIPCall {
-	c.Call = c.Call.Return(arg0, arg1)
+func (c *MockStorageUpdateAIPCall) Return(arg0 *types.AIP, arg1 *storage.AIP, arg2 error) *MockStorageUpdateAIPCall {
+	c.Call = c.Call.Return(arg0, arg1, arg2)
 	return c
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockStorageUpdateAIPCall) Do(f func(context.Context, uuid.UUID, persistence.AIPUpdater) (*types.AIP, error)) *MockStorageUpdateAIPCall {
+func (c *MockStorageUpdateAIPCall) Do(f func(context.Context, uuid.UUID, persistence.AIPUpdater) (*types.AIP, *storage.AIP, error)) *MockStorageUpdateAIPCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockStorageUpdateAIPCall) DoAndReturn(f func(context.Context, uuid.UUID, persistence.AIPUpdater) (*types.AIP, error)) *MockStorageUpdateAIPCall {
+func (c *MockStorageUpdateAIPCall) DoAndReturn(f func(context.Context, uuid.UUID, persistence.AIPUpdater) (*types.AIP, *storage.AIP, error)) *MockStorageUpdateAIPCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

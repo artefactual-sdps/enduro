@@ -22,7 +22,12 @@ type Storage interface {
 	CreateAIP(ctx context.Context, aip *goastorage.AIP) (*goastorage.AIP, error)
 	ListAIPs(ctx context.Context, payload *goastorage.ListAipsPayload) (*goastorage.AIPs, error)
 	ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
-	UpdateAIP(ctx context.Context, aipID uuid.UUID, updater AIPUpdater) (*types.AIP, error)
+	// TODO: normalize type usage between *goastorage.AIP and *types.AIP.
+	// For now, we return both types from this method to minimize changes and be able to publish an event
+	// with the *goastorage.AIP representation from the storage service. We should consider this alongside
+	// the ingest service implementation, and decide if we want to use our own types or goa-generated types
+	// in the persistence layer.
+	UpdateAIP(ctx context.Context, aipID uuid.UUID, updater AIPUpdater) (*types.AIP, *goastorage.AIP, error)
 	UpdateAIPStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 

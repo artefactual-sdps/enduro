@@ -387,7 +387,17 @@ func (s *serviceImpl) UpdateAIP(
 	aipID uuid.UUID,
 	updater persistence.AIPUpdater,
 ) (*types.AIP, error) {
-	return s.storagePersistence.UpdateAIP(ctx, aipID, updater)
+	aip, goaaip, err := s.storagePersistence.UpdateAIP(ctx, aipID, updater)
+	if err != nil {
+		return nil, err
+	}
+
+	PublishEvent(ctx, s.evsvc, &goastorage.AIPUpdatedEvent{
+		UUID: aipID,
+		Item: goaaip,
+	})
+
+	return aip, nil
 }
 
 func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {

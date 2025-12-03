@@ -2914,6 +2914,28 @@ components:
             required:
                 - uuid
                 - item
+        AIPUpdatedEvent:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/EnduroStorageAip'
+                uuid:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            example:
+                item:
+                    created_at: "1970-01-01T00:00:01Z"
+                    deletion_report_key: abc123
+                    location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    name: abc123
+                    object_key: abc123
+                    status: stored
+                    uuid: abc123
+                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            required:
+                - uuid
+                - item
         AIPWorkflowCollection:
             type: array
             items:
@@ -4789,6 +4811,7 @@ components:
                         - $ref: '#/components/schemas/StoragePingEvent'
                         - $ref: '#/components/schemas/LocationCreatedEvent'
                         - $ref: '#/components/schemas/AIPCreatedEvent'
+                        - $ref: '#/components/schemas/AIPUpdatedEvent'
                         - $ref: '#/components/schemas/AIPStatusUpdatedEvent'
                         - $ref: '#/components/schemas/AIPLocationUpdatedEvent'
                         - $ref: '#/components/schemas/AIPWorkflowCreatedEvent'
@@ -4827,6 +4850,7 @@ components:
                                 - "storage_ping_event"
                                 - "location_created_event"
                                 - "aip_created_event"
+                                - "aip_updated_event"
                                 - "aip_status_updated_event"
                                 - "aip_location_updated_event"
                                 - "aip_workflow_created_event"
@@ -4838,6 +4862,7 @@ components:
                                 - storage_ping_event
                                 - location_created_event
                                 - aip_created_event
+                                - aip_updated_event
                                 - aip_status_updated_event
                                 - aip_location_updated_event
                                 - aip_workflow_created_event

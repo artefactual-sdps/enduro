@@ -97,12 +97,9 @@ func (s *serviceImpl) Monitor(
 				if !claims.CheckAttributes([]string{auth.StorageAIPSListAttr}) {
 					continue
 				}
-			case *goastorage.AIPStatusUpdatedEvent:
-				if !claims.CheckAttributes([]string{auth.StorageAIPSListAttr}) &&
-					!claims.CheckAttributes([]string{auth.StorageAIPSReadAttr}) {
-					continue
-				}
-			case *goastorage.AIPLocationUpdatedEvent:
+			case *goastorage.AIPUpdatedEvent,
+				*goastorage.AIPStatusUpdatedEvent,
+				*goastorage.AIPLocationUpdatedEvent:
 				if !claims.CheckAttributes([]string{auth.StorageAIPSListAttr}) &&
 					!claims.CheckAttributes([]string{auth.StorageAIPSReadAttr}) {
 					continue

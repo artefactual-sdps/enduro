@@ -24,6 +24,7 @@ export interface StorageEvent2Value {
      * - "storage_ping_event"
      * - "location_created_event"
      * - "aip_created_event"
+     * - "aip_updated_event"
      * - "aip_status_updated_event"
      * - "aip_location_updated_event"
      * - "aip_workflow_created_event"
@@ -50,6 +51,7 @@ export const StorageEvent2ValueTypeEnum = {
     StoragePingEvent: 'storage_ping_event',
     LocationCreatedEvent: 'location_created_event',
     AipCreatedEvent: 'aip_created_event',
+    AipUpdatedEvent: 'aip_updated_event',
     AipStatusUpdatedEvent: 'aip_status_updated_event',
     AipLocationUpdatedEvent: 'aip_location_updated_event',
     AipWorkflowCreatedEvent: 'aip_workflow_created_event',

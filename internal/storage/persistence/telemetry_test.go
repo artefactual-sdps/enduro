@@ -50,6 +50,7 @@ func TestUpdateAIP(t *testing.T) {
 							Name: "test",
 						},
 						nil,
+						nil,
 					)
 			},
 			want: &types.AIP{
@@ -66,7 +67,7 @@ func TestUpdateAIP(t *testing.T) {
 						aipID,
 						gomock.Any(),
 					).
-					Return(nil, errors.New("update aip: not found"))
+					Return(nil, nil, errors.New("update aip: not found"))
 			},
 			wantErr: "UpdateAIP: update aip: not found",
 		},
@@ -82,7 +83,7 @@ func TestUpdateAIP(t *testing.T) {
 			tracer := noop.NewTracerProvider().Tracer("test")
 			w := persistence.WithTelemetry(svc, tracer)
 
-			got, err := w.UpdateAIP(
+			got, _, err := w.UpdateAIP(
 				t.Context(),
 				aipID,
 				func(aip *types.AIP) (*types.AIP, error) {

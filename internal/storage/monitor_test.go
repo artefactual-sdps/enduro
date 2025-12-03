@@ -125,6 +125,7 @@ func TestMonitor(t *testing.T) {
 	allEvents := []*goastorage.StorageEvent{
 		{Value: &goastorage.LocationCreatedEvent{UUID: testUUID}},
 		{Value: &goastorage.AIPCreatedEvent{UUID: testUUID}},
+		{Value: &goastorage.AIPUpdatedEvent{UUID: testUUID}},
 		{Value: &goastorage.AIPStatusUpdatedEvent{UUID: testUUID}},
 		{Value: &goastorage.AIPLocationUpdatedEvent{UUID: testUUID}},
 		{Value: &goastorage.AIPWorkflowCreatedEvent{UUID: testUUID}},
@@ -136,6 +137,7 @@ func TestMonitor(t *testing.T) {
 		&goastorage.StoragePingEvent{Message: ref.New("Hello")},
 		&goastorage.LocationCreatedEvent{UUID: testUUID},
 		&goastorage.AIPCreatedEvent{UUID: testUUID},
+		&goastorage.AIPUpdatedEvent{UUID: testUUID},
 		&goastorage.AIPStatusUpdatedEvent{UUID: testUUID},
 		&goastorage.AIPLocationUpdatedEvent{UUID: testUUID},
 		&goastorage.AIPWorkflowCreatedEvent{UUID: testUUID},
@@ -195,6 +197,7 @@ func TestMonitor(t *testing.T) {
 			wantEvents: []any{
 				&goastorage.StoragePingEvent{Message: ref.New("Hello")},
 				&goastorage.LocationCreatedEvent{UUID: testUUID},
+				&goastorage.AIPUpdatedEvent{UUID: testUUID},
 				&goastorage.AIPStatusUpdatedEvent{UUID: testUUID},
 				&goastorage.AIPLocationUpdatedEvent{UUID: testUUID},
 			},

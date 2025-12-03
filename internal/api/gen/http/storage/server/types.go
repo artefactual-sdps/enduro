@@ -92,6 +92,7 @@ type MonitorResponseBody struct {
 		// - "storage_ping_event"
 		// - "location_created_event"
 		// - "aip_created_event"
+		// - "aip_updated_event"
 		// - "aip_status_updated_event"
 		// - "aip_location_updated_event"
 		// - "aip_workflow_created_event"
@@ -877,6 +878,8 @@ func NewMonitorResponseBody(res *storage.StorageEvent) *MonitorResponseBody {
 			name = "location_created_event"
 		case *storage.AIPCreatedEvent:
 			name = "aip_created_event"
+		case *storage.AIPUpdatedEvent:
+			name = "aip_updated_event"
 		case *storage.AIPStatusUpdatedEvent:
 			name = "aip_status_updated_event"
 		case *storage.AIPLocationUpdatedEvent:
@@ -895,6 +898,7 @@ func NewMonitorResponseBody(res *storage.StorageEvent) *MonitorResponseBody {
 			// - "storage_ping_event"
 			// - "location_created_event"
 			// - "aip_created_event"
+			// - "aip_updated_event"
 			// - "aip_status_updated_event"
 			// - "aip_location_updated_event"
 			// - "aip_workflow_created_event"

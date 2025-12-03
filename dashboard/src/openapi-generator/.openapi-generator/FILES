@@ -11,6 +11,7 @@ models/AIPResponse.ts
 models/AIPStatusUpdatedEvent.ts
 models/AIPTaskCreatedEvent.ts
 models/AIPTaskUpdatedEvent.ts
+models/AIPUpdatedEvent.ts
 models/AIPWorkflowCreatedEvent.ts
 models/AIPWorkflowUpdatedEvent.ts
 models/AMSSConfig.ts

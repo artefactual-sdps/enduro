@@ -92,6 +92,7 @@ type MonitorResponseBody struct {
 		// - "storage_ping_event"
 		// - "location_created_event"
 		// - "aip_created_event"
+		// - "aip_updated_event"
 		// - "aip_status_updated_event"
 		// - "aip_location_updated_event"
 		// - "aip_workflow_created_event"
@@ -1042,6 +1043,10 @@ func NewMonitorStorageEventOK(body *MonitorResponseBody) *storage.StorageEvent {
 			v.Value = val
 		case "aip_created_event":
 			var val *storage.AIPCreatedEvent
+			json.Unmarshal([]byte(*body.Value.Value), &val)
+			v.Value = val
+		case "aip_updated_event":
+			var val *storage.AIPUpdatedEvent
 			json.Unmarshal([]byte(*body.Value.Value), &val)
 			v.Value = val
 		case "aip_status_updated_event":
@@ -2114,8 +2119,8 @@ func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
 			err = goa.MergeErrors(err, goa.MissingFieldError("Value", "body.value"))
 		}
 		if body.Value.Type != nil {
-			if !(*body.Value.Type == "storage_ping_event" || *body.Value.Type == "location_created_event" || *body.Value.Type == "aip_created_event" || *body.Value.Type == "aip_status_updated_event" || *body.Value.Type == "aip_location_updated_event" || *body.Value.Type == "aip_workflow_created_event" || *body.Value.Type == "aip_workflow_updated_event" || *body.Value.Type == "aip_task_created_event" || *body.Value.Type == "aip_task_updated_event") {
-				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.value.Type", *body.Value.Type, []any{"storage_ping_event", "location_created_event", "aip_created_event", "aip_status_updated_event", "aip_location_updated_event", "aip_workflow_created_event", "aip_workflow_updated_event", "aip_task_created_event", "aip_task_updated_event"}))
+			if !(*body.Value.Type == "storage_ping_event" || *body.Value.Type == "location_created_event" || *body.Value.Type == "aip_created_event" || *body.Value.Type == "aip_updated_event" || *body.Value.Type == "aip_status_updated_event" || *body.Value.Type == "aip_location_updated_event" || *body.Value.Type == "aip_workflow_created_event" || *body.Value.Type == "aip_workflow_updated_event" || *body.Value.Type == "aip_task_created_event" || *body.Value.Type == "aip_task_updated_event") {
+				err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.value.Type", *body.Value.Type, []any{"storage_ping_event", "location_created_event", "aip_created_event", "aip_updated_event", "aip_status_updated_event", "aip_location_updated_event", "aip_workflow_created_event", "aip_workflow_updated_event", "aip_task_created_event", "aip_task_updated_event"}))
 			}
 		}
 	}

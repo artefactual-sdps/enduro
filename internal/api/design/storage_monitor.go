@@ -12,6 +12,8 @@ var StorageEvent = Type("StorageEvent", func() {
 		Attribute("storage_ping_event", StoragePingEvent)
 		Attribute("location_created_event", LocationCreatedEvent)
 		Attribute("aip_created_event", AIPCreatedEvent)
+		Attribute("aip_updated_event", AIPUpdatedEvent)
+		// TODO: remove specific AIP fields updated events and use the one above.
 		Attribute("aip_status_updated_event", AIPStatusUpdatedEvent)
 		Attribute("aip_location_updated_event", AIPLocationUpdatedEvent)
 		Attribute("aip_workflow_created_event", AIPWorkflowCreatedEvent)
@@ -32,6 +34,12 @@ var LocationCreatedEvent = Type("LocationCreatedEvent", func() {
 })
 
 var AIPCreatedEvent = Type("AIPCreatedEvent", func() {
+	TypedAttributeUUID("uuid", "Identifier of AIP")
+	Attribute("item", AIP)
+	Required("uuid", "item")
+})
+
+var AIPUpdatedEvent = Type("AIPUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of AIP")
 	Attribute("item", AIP)
 	Required("uuid", "item")

@@ -604,7 +604,7 @@ func TestUpdateAIP(t *testing.T) {
 				SetStatus(enums.AIPStatusProcessing).
 				SaveX(ctx)
 
-			got, err := c.UpdateAIP(context.Background(), tc.aipID, tc.updater)
+			got, _, err := c.UpdateAIP(context.Background(), tc.aipID, tc.updater)
 			if tc.wantErr != "" {
 				assert.Error(t, err, tc.wantErr)
 				return

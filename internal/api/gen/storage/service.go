@@ -185,6 +185,12 @@ type AIPTaskUpdatedEvent struct {
 	Item *AIPTask
 }
 
+type AIPUpdatedEvent struct {
+	// Identifier of AIP
+	UUID uuid.UUID
+	Item *AIP
+}
+
 // AIPWorkflow describes a workflow of an AIP.
 type AIPWorkflow struct {
 	UUID        uuid.UUID
@@ -637,6 +643,8 @@ func (*AIPStatusUpdatedEvent) valueVal() {}
 func (*AIPTaskCreatedEvent) valueVal() {}
 
 func (*AIPTaskUpdatedEvent) valueVal() {}
+
+func (*AIPUpdatedEvent) valueVal() {}
 
 func (*AIPWorkflowCreatedEvent) valueVal() {}
 

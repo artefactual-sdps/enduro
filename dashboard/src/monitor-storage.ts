@@ -14,6 +14,7 @@ const handlers: {
   [StorageEvent2ValueTypeEnum.StoragePingEvent]: () => {},
   [StorageEvent2ValueTypeEnum.LocationCreatedEvent]: handleLocationCreated,
   [StorageEvent2ValueTypeEnum.AipCreatedEvent]: handleAipCreated,
+  [StorageEvent2ValueTypeEnum.AipUpdatedEvent]: handleAipUpdated,
   [StorageEvent2ValueTypeEnum.AipStatusUpdatedEvent]: handleAipStatusUpdated,
   [StorageEvent2ValueTypeEnum.AipLocationUpdatedEvent]:
     handleAipLocationUpdated,
@@ -33,6 +34,14 @@ function handleLocationCreated() {
 function handleAipCreated() {
   const aipStore = useAipStore();
   aipStore.fetchAipsDebounced(1);
+}
+
+function handleAipUpdated(data: unknown) {
+  const event = api.AIPUpdatedEventFromJSON(data);
+  const aipStore = useAipStore();
+  aipStore.fetchAipsDebounced(1);
+  if (aipStore.current?.uuid != event.uuid) return;
+  Object.assign(aipStore.current, event.item);
 }
 
 function handleAipStatusUpdated(data: unknown) {

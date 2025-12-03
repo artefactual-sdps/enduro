@@ -35,6 +35,7 @@ type Event interface {
 	*goastorage.StoragePingEvent |
 		*goastorage.LocationCreatedEvent |
 		*goastorage.AIPCreatedEvent |
+		*goastorage.AIPUpdatedEvent |
 		*goastorage.AIPStatusUpdatedEvent |
 		*goastorage.AIPLocationUpdatedEvent |
 		*goastorage.AIPWorkflowCreatedEvent |

@@ -694,7 +694,7 @@ func TestServiceUpdateAIP(t *testing.T) {
 					},
 				),
 			).
-			Return(nil, errors.New("something is wrong"))
+			Return(nil, nil, errors.New("something is wrong"))
 
 		_, err := svc.UpdateAIP(ctx, aipID, func(aip *types.AIP) (*types.AIP, error) {
 			aip.Status = enums.AIPStatusStored

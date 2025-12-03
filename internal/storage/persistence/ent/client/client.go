@@ -196,7 +196,11 @@ func (c *Client) UpdateAIPLocationID(ctx context.Context, aipID, locationID uuid
 // UpdateAIP updates an AIP using the provided updater function the returns the
 // updated AIP. The AIP fields "id", "uuid", "created_at", and "object_key" are
 // immutable and cannot be updated.
-func (c *Client) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persistence.AIPUpdater) (*types.AIP, error) {
+func (c *Client) UpdateAIP(
+	ctx context.Context,
+	aipID uuid.UUID,
+	updater persistence.AIPUpdater,
+) (*types.AIP, *goastorage.AIP, error) {
 	var updated bool
 	var locUUID *uuid.UUID
 
@@ -207,9 +211,9 @@ func (c *Client) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persist
 		Only(ctx)
 	if err != nil {
 		if db.IsNotFound(err) {
-			return nil, fmt.Errorf("load AIP: %w", ErrNotFound)
+			return nil, nil, fmt.Errorf("load AIP: %w", ErrNotFound)
 		}
-		return nil, fmt.Errorf("load AIP: %v", err)
+		return nil, nil, fmt.Errorf("load AIP: %v", err)
 	}
 
 	if dbAIP.Edges.Location != nil {
@@ -219,7 +223,7 @@ func (c *Client) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persist
 	// Apply the updater function to the loaded AIP.
 	up, err := updater(convertDBAIP(dbAIP))
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	// Build a query to update the AIP in the database.
@@ -237,9 +241,9 @@ func (c *Client) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persist
 			Only(ctx)
 		if err != nil {
 			if db.IsNotFound(err) {
-				return nil, fmt.Errorf("load location: %w", ErrNotFound)
+				return nil, nil, fmt.Errorf("load location: %w", ErrNotFound)
 			}
-			return nil, fmt.Errorf("load location: %v", err)
+			return nil, nil, fmt.Errorf("load location: %v", err)
 		}
 		q.SetLocationID(loc.ID)
 		locUUID = ref.New(loc.UUID)
@@ -253,13 +257,13 @@ func (c *Client) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persist
 
 	// If no changes were made return the existing AIP.
 	if !updated {
-		return convertDBAIP(dbAIP), nil
+		return convertDBAIP(dbAIP), aipAsGoa(ctx, dbAIP), nil
 	}
 
 	// Save updates.
 	s, err := q.Save(ctx)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	res := convertDBAIP(s)
@@ -268,7 +272,7 @@ func (c *Client) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persist
 	// db update doesn't include the location.
 	res.LocationUUID = locUUID
 
-	return res, nil
+	return res, aipAsGoa(ctx, s), nil
 }
 
 func (c *Client) ListWorkflows(

@@ -43,6 +43,12 @@ import {
     AIPTaskUpdatedEventFromJSONTyped,
     AIPTaskUpdatedEventToJSON,
 } from './AIPTaskUpdatedEvent';
+import type { AIPUpdatedEvent } from './AIPUpdatedEvent';
+import {
+    AIPUpdatedEventFromJSON,
+    AIPUpdatedEventFromJSONTyped,
+    AIPUpdatedEventToJSON,
+} from './AIPUpdatedEvent';
 import type { AIPWorkflowCreatedEvent } from './AIPWorkflowCreatedEvent';
 import {
     AIPWorkflowCreatedEventFromJSON,

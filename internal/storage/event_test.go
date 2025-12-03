@@ -21,6 +21,7 @@ func TestPublishEventTypes(t *testing.T) {
 	storage.PublishEvent(ctx, svc, &goastorage.StoragePingEvent{})
 	storage.PublishEvent(ctx, svc, &goastorage.LocationCreatedEvent{})
 	storage.PublishEvent(ctx, svc, &goastorage.AIPCreatedEvent{})
+	storage.PublishEvent(ctx, svc, &goastorage.AIPUpdatedEvent{})
 	storage.PublishEvent(ctx, svc, &goastorage.AIPStatusUpdatedEvent{})
 	storage.PublishEvent(ctx, svc, &goastorage.AIPLocationUpdatedEvent{})
 	storage.PublishEvent(ctx, svc, &goastorage.AIPWorkflowCreatedEvent{})

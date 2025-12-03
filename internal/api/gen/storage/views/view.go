@@ -153,6 +153,13 @@ type AIPView struct {
 	DeletionReportKey *string
 }
 
+// AIPUpdatedEventView is a type that runs validations on a projected type.
+type AIPUpdatedEventView struct {
+	// Identifier of AIP
+	UUID *uuid.UUID
+	Item *AIPView
+}
+
 // AIPStatusUpdatedEventView is a type that runs validations on a projected
 // type.
 type AIPStatusUpdatedEventView struct {
@@ -272,6 +279,8 @@ func (*StoragePingEventView) valueVal() {}
 func (*LocationCreatedEventView) valueVal() {}
 
 func (*AIPCreatedEventView) valueVal() {}
+
+func (*AIPUpdatedEventView) valueVal() {}
 
 func (*AIPStatusUpdatedEventView) valueVal() {}
 
@@ -517,6 +526,13 @@ func ValidateStorageEventView(result *StorageEventView) (err error) {
 			}
 		}
 
+	case *AIPUpdatedEventView:
+		if v != nil {
+			if err2 := ValidateAIPUpdatedEventView(v); err2 != nil {
+				err = goa.MergeErrors(err, err2)
+			}
+		}
+
 	case *AIPStatusUpdatedEventView:
 		if v != nil {
 			if err2 := ValidateAIPStatusUpdatedEventView(v); err2 != nil {
@@ -705,6 +721,23 @@ func ValidateAIPView(result *AIPView) (err error) {
 	}
 	if result.CreatedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("result.created_at", *result.CreatedAt, goa.FormatDateTime))
+	}
+	return
+}
+
+// ValidateAIPUpdatedEventView runs the validations defined on
+// AIPUpdatedEventView.
+func ValidateAIPUpdatedEventView(result *AIPUpdatedEventView) (err error) {
+	if result.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "result"))
+	}
+	if result.Item == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("item", "result"))
+	}
+	if result.Item != nil {
+		if err2 := ValidateAIPView(result.Item); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
 	}
 	return
 }
