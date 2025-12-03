@@ -5250,13 +5250,13 @@
         "operationId": "storage#aip_deletion_report",
         "parameters": [
           {
-            "description": "UUID of the deletion report to download",
+            "description": "UUID of the AIP",
             "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "in": "path",
             "name": "uuid",
             "required": true,
             "schema": {
-              "description": "UUID of the deletion report to download",
+              "description": "UUID of the AIP",
               "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
               "format": "uuid",
               "type": "string"
@@ -5374,13 +5374,13 @@
         "operationId": "storage#aip_deletion_report_request",
         "parameters": [
           {
-            "description": "UUID of the deletion report to download",
+            "description": "UUID of the AIP",
             "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
             "in": "path",
             "name": "uuid",
             "required": true,
             "schema": {
-              "description": "UUID of the deletion report to download",
+              "description": "UUID of the AIP",
               "example": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
               "format": "uuid",
               "type": "string"

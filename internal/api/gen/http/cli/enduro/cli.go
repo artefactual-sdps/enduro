@@ -221,11 +221,11 @@ func ParseEndpoint(
 		storageCancelAipDeletionTokenFlag = storageCancelAipDeletionFlags.String("token", "", "")
 
 		storageAipDeletionReportRequestFlags     = flag.NewFlagSet("aip-deletion-report-request", flag.ExitOnError)
-		storageAipDeletionReportRequestUUIDFlag  = storageAipDeletionReportRequestFlags.String("uuid", "REQUIRED", "UUID of the deletion report to download")
+		storageAipDeletionReportRequestUUIDFlag  = storageAipDeletionReportRequestFlags.String("uuid", "REQUIRED", "UUID of the AIP")
 		storageAipDeletionReportRequestTokenFlag = storageAipDeletionReportRequestFlags.String("token", "", "")
 
 		storageAipDeletionReportFlags      = flag.NewFlagSet("aip-deletion-report", flag.ExitOnError)
-		storageAipDeletionReportUUIDFlag   = storageAipDeletionReportFlags.String("uuid", "REQUIRED", "UUID of the deletion report to download")
+		storageAipDeletionReportUUIDFlag   = storageAipDeletionReportFlags.String("uuid", "REQUIRED", "UUID of the AIP")
 		storageAipDeletionReportTicketFlag = storageAipDeletionReportFlags.String("ticket", "", "")
 
 		storageListLocationsFlags     = flag.NewFlagSet("list-locations", flag.ExitOnError)
@@ -1467,7 +1467,7 @@ func storageAipDeletionReportRequestUsage() {
 	fmt.Fprintln(os.Stderr, `Request access to download a deletion report`)
 
 	// Flags list
-	fmt.Fprintln(os.Stderr, `    -uuid STRING: UUID of the deletion report to download`)
+	fmt.Fprintln(os.Stderr, `    -uuid STRING: UUID of the AIP`)
 	fmt.Fprintln(os.Stderr, `    -token STRING: `)
 
 	// Example block: pass example as parameter to avoid format parsing of % characters
@@ -1488,7 +1488,7 @@ func storageAipDeletionReportUsage() {
 	fmt.Fprintln(os.Stderr, `Download deletion report by UUID`)
 
 	// Flags list
-	fmt.Fprintln(os.Stderr, `    -uuid STRING: UUID of the deletion report to download`)
+	fmt.Fprintln(os.Stderr, `    -uuid STRING: UUID of the AIP`)
 	fmt.Fprintln(os.Stderr, `    -ticket STRING: `)
 
 	// Example block: pass example as parameter to avoid format parsing of % characters

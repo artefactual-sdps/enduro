@@ -6714,7 +6714,7 @@
         "operationId": "storage#aip_deletion_report",
         "parameters": [
           {
-            "description": "UUID of the deletion report to download",
+            "description": "UUID of the AIP",
             "format": "uuid",
             "in": "path",
             "name": "uuid",
@@ -6781,7 +6781,7 @@
         "operationId": "storage#aip_deletion_report_request",
         "parameters": [
           {
-            "description": "UUID of the deletion report to download",
+            "description": "UUID of the AIP",
             "format": "uuid",
             "in": "path",
             "name": "uuid",

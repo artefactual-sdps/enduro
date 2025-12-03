@@ -233,7 +233,7 @@ type AMSSConfig struct {
 // AipDeletionReportPayload is the payload type of the storage service
 // aip_deletion_report method.
 type AipDeletionReportPayload struct {
-	// UUID of the deletion report to download
+	// UUID of the AIP
 	UUID   string
 	Ticket *string
 }
@@ -241,7 +241,7 @@ type AipDeletionReportPayload struct {
 // AipDeletionReportRequestPayload is the payload type of the storage service
 // aip_deletion_report_request method.
 type AipDeletionReportRequestPayload struct {
-	// UUID of the deletion report to download
+	// UUID of the AIP
 	UUID  string
 	Token *string
 }

@@ -1127,7 +1127,7 @@ paths:
             parameters:
                 - name: uuid
                   in: path
-                  description: UUID of the deletion report to download
+                  description: UUID of the AIP
                   required: true
                   type: string
                   format: uuid
@@ -1176,7 +1176,7 @@ paths:
             parameters:
                 - name: uuid
                   in: path
-                  description: UUID of the deletion report to download
+                  description: UUID of the AIP
                   required: true
                   type: string
                   format: uuid

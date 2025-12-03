@@ -180,7 +180,7 @@ export interface StorageApiInterface {
     /**
      * Download deletion report by UUID
      * @summary aip_deletion_report storage
-     * @param {string} uuid UUID of the deletion report to download
+     * @param {string} uuid UUID of the AIP
      * @param {string} [enduroDelreportTicket] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -197,7 +197,7 @@ export interface StorageApiInterface {
     /**
      * Request access to download a deletion report
      * @summary aip_deletion_report_request storage
-     * @param {string} uuid UUID of the deletion report to download
+     * @param {string} uuid UUID of the AIP
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
