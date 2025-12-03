@@ -8,6 +8,13 @@ requests.
 
 ## [Unreleased]
 
+## [0.21.0] - 2025-12-03
+
+### Added
+
+- Configurable approval for AMSS AIP deletions ([#1401])
+- AIP deletion report generation and download ([#1207])
+
 ## [0.20.0] - 2025-10-31
 
 ### Changed
@@ -253,7 +260,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.20.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.21.0...HEAD
+[0.21.0]: https://github.com/artefactual-sdps/enduro/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/artefactual-sdps/enduro/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/artefactual-sdps/enduro/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/artefactual-sdps/enduro/compare/v0.17.0...v0.18.0
@@ -274,6 +282,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1401]: https://github.com/artefactual-sdps/enduro/issues/1401
 [#1383]: https://github.com/artefactual-sdps/enduro/issues/1383
 [#1373]: https://github.com/artefactual-sdps/enduro/issues/1373
 [#1355]: https://github.com/artefactual-sdps/enduro/issues/1355
@@ -296,6 +305,7 @@ Initial release.
 [#1218]: https://github.com/artefactual-sdps/enduro/issues/1218
 [#1210]: https://github.com/artefactual-sdps/enduro/issues/1210
 [#1209]: https://github.com/artefactual-sdps/enduro/issues/1209
+[#1207]: https://github.com/artefactual-sdps/enduro/issues/1207
 [#1202]: https://github.com/artefactual-sdps/enduro/issues/1202
 [#1189]: https://github.com/artefactual-sdps/enduro/issues/1189
 [#1186]: https://github.com/artefactual-sdps/enduro/issues/1186
