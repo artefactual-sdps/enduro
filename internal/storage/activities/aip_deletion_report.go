@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 
 	"github.com/google/uuid"
@@ -144,26 +143,6 @@ func (a *AIPDeletionReportActivity) loadData(
 	return &d, nil
 }
 
-func (a *AIPDeletionReportActivity) bucketWriter(ctx context.Context, key string) (io.WriteCloser, error) {
-	loc, err := a.storageSvc.Location(ctx, uuid.Nil)
-	if err != nil {
-		return nil, fmt.Errorf("get storage location: %v", err)
-	}
-
-	b, err := loc.OpenBucket(ctx)
-	if err != nil {
-		return nil, fmt.Errorf("open storage bucket: %v", err)
-	}
-	defer b.Close()
-
-	w, err := b.NewWriter(ctx, key, nil)
-	if err != nil {
-		return nil, fmt.Errorf("open bucket writer: %v", err)
-	}
-
-	return w, nil
-}
-
 func (a *AIPDeletionReportActivity) write(ctx context.Context, data *types.DeletionReportData, key string) error {
 	if data == nil {
 		return errors.New("data is nil")
@@ -175,11 +154,21 @@ func (a *AIPDeletionReportActivity) write(ctx context.Context, data *types.Delet
 	}
 	defer src.Close()
 
-	w, err := a.bucketWriter(ctx, key)
+	loc, err := a.storageSvc.Location(ctx, uuid.Nil)
 	if err != nil {
-		return err
+		return fmt.Errorf("get storage location: %v", err)
 	}
-	defer w.Close()
+
+	b, err := loc.OpenBucket(ctx)
+	if err != nil {
+		return fmt.Errorf("open storage bucket: %v", err)
+	}
+	defer b.Close()
+
+	w, err := b.NewWriter(ctx, key, nil)
+	if err != nil {
+		return fmt.Errorf("open bucket writer: %v", err)
+	}
 
 	// Set the report generation timestamp to now.
 	data.ReportTimestamp = a.clock.Now().UTC()
@@ -191,6 +180,11 @@ func (a *AIPDeletionReportActivity) write(ctx context.Context, data *types.Delet
 
 	if err := a.formFiller.FillForm(src, bytes.NewReader(jsonData), w); err != nil {
 		return fmt.Errorf("fill form: %v", err)
+	}
+
+	// Explicitly close writer and check for errors.
+	if err := w.Close(); err != nil {
+		return fmt.Errorf("close bucket writer: %v", err)
 	}
 
 	return nil

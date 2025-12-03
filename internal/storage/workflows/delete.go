@@ -84,21 +84,24 @@ func (w *StorageDeleteWorkflow) Execute(
 			workflowStatus = enums.WorkflowStatusError
 		}
 
-		// Complete persistence workflow.
-		if err := completeWorkflow(ctx, w.storagesvc, workflowDBID, workflowStatus); err != nil {
-			e = errors.Join(e, err)
-		}
-
 		// Set AIP status to stored/deleted.
 		if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, aipStatus); err != nil {
+			workflowStatus = enums.WorkflowStatusError
 			e = errors.Join(e, err)
 		}
 
 		// Generate AIP deletion report.
+		// TODO: Create a task to capture possible errors during report generation.
 		if aipStatus == enums.AIPStatusDeleted && workflowStatus == enums.WorkflowStatusDone {
 			if err := w.generateAIPDeletionReport(ctx, req.AIPID, locationSource); err != nil {
+				workflowStatus = enums.WorkflowStatusError
 				e = errors.Join(e, err)
 			}
+		}
+
+		// Complete persistence workflow.
+		if err := completeWorkflow(ctx, w.storagesvc, workflowDBID, workflowStatus); err != nil {
+			e = errors.Join(e, err)
 		}
 	}()
 
