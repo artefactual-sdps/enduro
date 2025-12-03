@@ -671,6 +671,39 @@ func TestServiceReadAip(t *testing.T) {
 	assert.DeepEqual(t, aip, &goastorage.AIP{})
 }
 
+func TestServiceUpdateAIP(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Errors if persistence failed", func(t *testing.T) {
+		t.Parallel()
+
+		attrs := setUpAttrs{}
+		svc := setUpService(t, &attrs)
+		ctx := context.Background()
+
+		attrs.persistenceMock.
+			EXPECT().
+			UpdateAIP(
+				mockutil.Context(),
+				aipID,
+				mockutil.Func(
+					"updates AIP status to stored",
+					func(updater persistence.AIPUpdater) error {
+						updater(&types.AIP{})
+						return nil
+					},
+				),
+			).
+			Return(nil, errors.New("something is wrong"))
+
+		_, err := svc.UpdateAIP(ctx, aipID, func(aip *types.AIP) (*types.AIP, error) {
+			aip.Status = enums.AIPStatusStored
+			return aip, nil
+		})
+		assert.Error(t, err, "something is wrong")
+	})
+}
+
 func TestServiceUpdateAipStatus(t *testing.T) {
 	t.Parallel()
 

@@ -48,6 +48,7 @@ type Service interface {
 
 	DeleteAip(ctx context.Context, aipID uuid.UUID) (err error)
 	ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error)
+	UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persistence.AIPUpdater) (*types.AIP, error)
 	UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error
 	UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error
 
@@ -379,6 +380,14 @@ func (s *serviceImpl) ShowAip(ctx context.Context, payload *goastorage.ShowAipPa
 
 func (s *serviceImpl) ReadAip(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP, error) {
 	return s.storagePersistence.ReadAIP(ctx, aipID)
+}
+
+func (s *serviceImpl) UpdateAIP(
+	ctx context.Context,
+	aipID uuid.UUID,
+	updater persistence.AIPUpdater,
+) (*types.AIP, error) {
+	return s.storagePersistence.UpdateAIP(ctx, aipID, updater)
 }
 
 func (s *serviceImpl) UpdateAipStatus(ctx context.Context, aipID uuid.UUID, status enums.AIPStatus) error {

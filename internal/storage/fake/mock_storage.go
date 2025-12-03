@@ -1247,6 +1247,45 @@ func (c *MockServiceSubmitAipCompleteCall) DoAndReturn(f func(context.Context, *
 	return c
 }
 
+// UpdateAIP mocks base method.
+func (m *MockService) UpdateAIP(ctx context.Context, aipID uuid.UUID, updater persistence.AIPUpdater) (*types.AIP, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateAIP", ctx, aipID, updater)
+	ret0, _ := ret[0].(*types.AIP)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateAIP indicates an expected call of UpdateAIP.
+func (mr *MockServiceMockRecorder) UpdateAIP(ctx, aipID, updater any) *MockServiceUpdateAIPCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateAIP", reflect.TypeOf((*MockService)(nil).UpdateAIP), ctx, aipID, updater)
+	return &MockServiceUpdateAIPCall{Call: call}
+}
+
+// MockServiceUpdateAIPCall wrap *gomock.Call
+type MockServiceUpdateAIPCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceUpdateAIPCall) Return(arg0 *types.AIP, arg1 error) *MockServiceUpdateAIPCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceUpdateAIPCall) Do(f func(context.Context, uuid.UUID, persistence.AIPUpdater) (*types.AIP, error)) *MockServiceUpdateAIPCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceUpdateAIPCall) DoAndReturn(f func(context.Context, uuid.UUID, persistence.AIPUpdater) (*types.AIP, error)) *MockServiceUpdateAIPCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // UpdateAipLocationID mocks base method.
 func (m *MockService) UpdateAipLocationID(ctx context.Context, aipID, locationID uuid.UUID) error {
 	m.ctrl.T.Helper()
