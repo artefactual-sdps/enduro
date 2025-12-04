@@ -508,16 +508,53 @@ func TestUpdateAIP(t *testing.T) {
 	locIDInvalid := uuid.MustParse("11111111-1111-1111-1111-111111111111")
 
 	type test struct {
-		name    string
-		aipID   uuid.UUID
-		updater func(aip *types.AIP) (*types.AIP, error)
-		want    *types.AIP
-		wantErr string
+		name         string
+		aipID        uuid.UUID
+		initLocation bool
+		updater      persistence.AIPUpdater
+		want         *types.AIP
+		wantErr      string
 	}
 	for _, tc := range []test{
 		{
 			name:  "Updates an AIP",
 			aipID: aipID,
+			updater: func(aip *types.AIP) (*types.AIP, error) {
+				aip.Status = enums.AIPStatusDeleted
+				aip.LocationUUID = &locID1
+				aip.DeletionReportKey = ref.New("reports/deletion_report.pdf")
+				return aip, nil
+			},
+			want: &types.AIP{
+				UUID:              aipID,
+				Name:              "AIP",
+				CreatedAt:         fakeNow(),
+				ObjectKey:         objectKey,
+				Status:            enums.AIPStatusDeleted,
+				LocationUUID:      &locID1,
+				DeletionReportKey: ref.New("reports/deletion_report.pdf"),
+			},
+		},
+		{
+			name:  "Keeps nil location when only status changes",
+			aipID: aipID,
+			updater: func(aip *types.AIP) (*types.AIP, error) {
+				aip.Status = enums.AIPStatusDeleted
+				return aip, nil
+			},
+			want: &types.AIP{
+				UUID:         aipID,
+				Name:         "AIP",
+				CreatedAt:    fakeNow(),
+				ObjectKey:    objectKey,
+				Status:       enums.AIPStatusDeleted,
+				LocationUUID: nil,
+			},
+		},
+		{
+			name:         "Updates an AIP with a previous location",
+			aipID:        aipID,
+			initLocation: true,
 			updater: func(aip *types.AIP) (*types.AIP, error) {
 				aip.Status = enums.AIPStatusDeleted
 				aip.LocationUUID = &locID2
@@ -535,10 +572,29 @@ func TestUpdateAIP(t *testing.T) {
 			},
 		},
 		{
-			name:  "Ignores unchanged fields",
-			aipID: aipID,
+			name:         "Keeps existing location when updater sets it to nil",
+			aipID:        aipID,
+			initLocation: true,
+			updater: func(aip *types.AIP) (*types.AIP, error) {
+				aip.LocationUUID = nil
+				return aip, nil
+			},
+			want: &types.AIP{
+				UUID:         aipID,
+				Name:         "AIP",
+				CreatedAt:    fakeNow(),
+				ObjectKey:    objectKey,
+				Status:       enums.AIPStatusProcessing,
+				LocationUUID: &locID1,
+			},
+		},
+		{
+			name:         "Ignores unchanged fields",
+			aipID:        aipID,
+			initLocation: true,
 			updater: func(aip *types.AIP) (*types.AIP, error) {
 				aip.Status = enums.AIPStatusProcessing
+				aip.LocationUUID = &locID1
 				return aip, nil
 			},
 			want: &types.AIP{
@@ -574,7 +630,7 @@ func TestUpdateAIP(t *testing.T) {
 			entc, c := setUpClientWithHooks(t)
 			ctx := t.Context()
 
-			l1 := entc.Location.Create().
+			loc1 := entc.Location.Create().
 				SetName("perma-aips-1").
 				SetDescription("").
 				SetSource(enums.LocationSourceMinio).
@@ -596,13 +652,15 @@ func TestUpdateAIP(t *testing.T) {
 				SetUUID(locID2).
 				SaveX(ctx)
 
-			entc.AIP.Create().
+			q := entc.AIP.Create().
 				SetName("AIP").
 				SetAipID(aipID).
 				SetObjectKey(objectKey).
-				SetLocationID(l1.ID).
-				SetStatus(enums.AIPStatusProcessing).
-				SaveX(ctx)
+				SetStatus(enums.AIPStatusProcessing)
+			if tc.initLocation {
+				q.SetLocationID(loc1.ID)
+			}
+			q.SaveX(ctx)
 
 			got, _, err := c.UpdateAIP(context.Background(), tc.aipID, tc.updater)
 			if tc.wantErr != "" {
