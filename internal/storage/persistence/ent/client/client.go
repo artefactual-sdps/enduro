@@ -202,51 +202,57 @@ func (c *Client) UpdateAIP(
 	updater persistence.AIPUpdater,
 ) (*types.AIP, *goastorage.AIP, error) {
 	var updated bool
-	var locUUID *uuid.UUID
+	var locUUID uuid.UUID
+
+	// Start a database transaction.
+	tx, err := c.c.Tx(ctx)
+	if err != nil {
+		return nil, nil, fmt.Errorf("begin transaction: %v", err)
+	}
 
 	// Load existing AIP.
-	dbAIP, err := c.c.AIP.Query().
+	dbAIP, err := tx.AIP.Query().
 		WithLocation().
 		Where(aip.AipID(aipID)).
 		Only(ctx)
 	if err != nil {
 		if db.IsNotFound(err) {
-			return nil, nil, fmt.Errorf("load AIP: %w", ErrNotFound)
+			return nil, nil, rollback(tx, fmt.Errorf("load AIP: %w", ErrNotFound))
 		}
-		return nil, nil, fmt.Errorf("load AIP: %v", err)
+		return nil, nil, rollback(tx, fmt.Errorf("load AIP: %v", err))
 	}
 
 	if dbAIP.Edges.Location != nil {
-		locUUID = ref.New(dbAIP.Edges.Location.UUID)
+		locUUID = dbAIP.Edges.Location.UUID
 	}
 
 	// Apply the updater function to the loaded AIP.
 	up, err := updater(convertDBAIP(dbAIP))
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, rollback(tx, err)
 	}
 
 	// Build a query to update the AIP in the database.
-	q := c.c.AIP.UpdateOneID(dbAIP.ID)
+	q := tx.AIP.UpdateOneID(dbAIP.ID)
 
 	if up.Status != "" && up.Status != dbAIP.Status {
 		q.SetStatus(up.Status)
 		updated = true
 	}
 
-	if up.LocationUUID != nil && up.LocationUUID.String() != locUUID.String() {
-		loc, err := c.c.Location.Query().
+	if up.LocationUUID != nil && *up.LocationUUID != locUUID {
+		loc, err := tx.Location.Query().
 			Select(location.FieldID, location.FieldUUID).
 			Where(location.UUID(*up.LocationUUID)).
 			Only(ctx)
 		if err != nil {
 			if db.IsNotFound(err) {
-				return nil, nil, fmt.Errorf("load location: %w", ErrNotFound)
+				return nil, nil, rollback(tx, fmt.Errorf("load location: %w", ErrNotFound))
 			}
-			return nil, nil, fmt.Errorf("load location: %v", err)
+			return nil, nil, rollback(tx, fmt.Errorf("load location: %v", err))
 		}
 		q.SetLocationID(loc.ID)
-		locUUID = ref.New(loc.UUID)
+		locUUID = loc.UUID
 		updated = true
 	}
 
@@ -257,20 +263,25 @@ func (c *Client) UpdateAIP(
 
 	// If no changes were made return the existing AIP.
 	if !updated {
-		return convertDBAIP(dbAIP), aipAsGoa(ctx, dbAIP), nil
+		return convertDBAIP(dbAIP), aipAsGoa(ctx, dbAIP), rollback(tx, nil)
 	}
 
 	// Save updates.
 	s, err := q.Save(ctx)
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, rollback(tx, err)
+	}
+	if err = tx.Commit(); err != nil {
+		return nil, nil, rollback(tx, err)
 	}
 
 	res := convertDBAIP(s)
 
-	// Add the location UUID to the returned AIP because the AIP returned by the
-	// db update doesn't include the location.
-	res.LocationUUID = locUUID
+	// Add location UUID to the returned AIP when present (ent update result
+	// lacks the edge).
+	if locUUID != uuid.Nil {
+		res.LocationUUID = &locUUID
+	}
 
 	return res, aipAsGoa(ctx, s), nil
 }
