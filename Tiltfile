@@ -139,6 +139,7 @@ if PRES_SYS == 'am':
 # Observability
 k8s_resource("prometheus-server", labels=["Observability"], port_forwards="7491:9090")
 k8s_resource("grafana-alloy", labels=["Observability"])
+k8s_resource("grafana-loki", labels=["Observability"])
 k8s_resource("grafana-tempo", labels=["Observability"])
 k8s_resource("grafana", labels=["Observability"], port_forwards="7490:3000")
 
