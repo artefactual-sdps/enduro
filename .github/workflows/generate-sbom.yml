@@ -1,0 +1,70 @@
+name: SBOM (Dependency-Track)
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+
+concurrency:
+  group: sbom-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  PROJECT_NAME:
+    ${{ github.repository_owner }}-${{ github.event.repository.name }}
+  PROJECT_VERSION:
+    ${{ (github.event_name == 'release' && github.event.release.tag_name) || github.ref_name }}
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    env:
+      DEPENDENCY_TRACK_URL: ${{ secrets.DEPENDENCY_TRACK_URL }}
+      DEPENDENCY_TRACK_API_KEY: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+    steps:
+      - name: Validate Dependency-Track secrets
+        run: |
+          if [ -z "${DEPENDENCY_TRACK_URL}" ] || [ -z "${DEPENDENCY_TRACK_API_KEY}" ]; then
+            echo "Dependency-Track secrets not configured; set DEPENDENCY_TRACK_URL and DEPENDENCY_TRACK_API_KEY."
+            exit 1
+          fi
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.PROJECT_VERSION }}
+
+      - name: Set up Trivy cache
+        uses: actions/cache@v4
+        with:
+          path: .trivycache
+          key: ${{ runner.os }}-trivy-${{ hashFiles('**/go.sum', '**/package-lock.json', '**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-trivy-
+
+      - name: Generate SBOM (CycloneDX JSON)
+        uses: aquasecurity/trivy-action@0.33.1
+        env:
+          TRIVY_NO_PROGRESS: "true"
+        with:
+          scan-type: fs
+          format: cyclonedx
+          output: sbom.cdx.json
+          cache-dir: .trivycache
+          exit-code: '0'
+
+      - name: Upload to Dependency-Track
+        run: |
+          curl --fail-with-body --silent --show-error \
+            -X POST "${DEPENDENCY_TRACK_URL%/}/api/v1/bom" \
+            -H "X-Api-Key: ${DEPENDENCY_TRACK_API_KEY}" \
+            -F "autoCreate=true" \
+            -F "projectName=${PROJECT_NAME}" \
+            -F "projectVersion=${PROJECT_VERSION}" \
+            -F "parentName=artefactual-sdps-enduro" \
+            -F "bom=@sbom.cdx.json"
