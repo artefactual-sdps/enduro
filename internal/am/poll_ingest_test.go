@@ -1,6 +1,7 @@
 package am_test
 
 import (
+	"context"
 	"net/http"
 	"testing"
 	"time"
@@ -162,10 +163,20 @@ func TestPollIngestActivity(t *testing.T) {
 				}
 
 				// Poll 2: save first job.
-				m.CreateTask(mockutil.Context(), tasks[0]).Return(nil)
+				m.CreateTasks(mockutil.Context(), gomock.Any()).
+					DoAndReturn(func(_ context.Context, got []*datatypes.Task) error {
+						assert.Equal(t, len(got), 1)
+						assert.DeepEqual(t, got[0], tasks[0])
+						return nil
+					})
 
 				// Poll 3: save second job.
-				m.CreateTask(mockutil.Context(), tasks[1]).Return(nil)
+				m.CreateTasks(mockutil.Context(), gomock.Any()).
+					DoAndReturn(func(_ context.Context, got []*datatypes.Task) error {
+						assert.Equal(t, len(got), 1)
+						assert.DeepEqual(t, got[0], tasks[1])
+						return nil
+					})
 			},
 			want: am.PollIngestActivityResult{
 				Status:    "COMPLETE",

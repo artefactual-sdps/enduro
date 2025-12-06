@@ -100,18 +100,20 @@ func TestJobTracker(t *testing.T) {
 				)
 			},
 			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreateTask(
-					mockutil.Context(),
-					&datatypes.Task{
-						ID:           0,
-						UUID:         taskUUID,
-						Name:         "Extract zipped bag transfer",
-						Status:       enums.TaskStatusDone,
-						StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
-						CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
-						WorkflowUUID: wUUID,
-					},
-				).Return(nil)
+				m.CreateTasks(mockutil.Context(), gomock.Any()).
+					DoAndReturn(func(_ context.Context, tasks []*datatypes.Task) error {
+						assert.Equal(t, len(tasks), 1)
+						assert.DeepEqual(t, tasks[0], &datatypes.Task{
+							ID:           0,
+							UUID:         taskUUID,
+							Name:         "Extract zipped bag transfer",
+							Status:       enums.TaskStatusDone,
+							StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
+							CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+							WorkflowUUID: wUUID,
+						})
+						return nil
+					})
 			},
 			want: 1,
 		},
