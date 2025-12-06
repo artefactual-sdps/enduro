@@ -128,7 +128,7 @@ func TestCreateTask(t *testing.T) {
 			}
 
 			task := tt.task
-			err := ingestsvc.CreateTask(context.Background(), &task)
+			err := ingestsvc.CreateTask(t.Context(), &task)
 
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
@@ -137,6 +137,76 @@ func TestCreateTask(t *testing.T) {
 
 			assert.NilError(t, err)
 			assert.DeepEqual(t, task, tt.want)
+		})
+	}
+}
+
+func TestCreateTasks(t *testing.T) {
+	t.Parallel()
+
+	wUUID := uuid.New()
+	tasks := []*datatypes.Task{
+		{
+			UUID:         uuid.New(),
+			Name:         "task-1",
+			Status:       enums.TaskStatusInProgress,
+			WorkflowUUID: wUUID,
+		},
+		{
+			UUID:         uuid.New(),
+			Name:         "task-2",
+			Status:       enums.TaskStatusDone,
+			WorkflowUUID: wUUID,
+		},
+	}
+
+	tests := []struct {
+		name    string
+		mock    func(*persistence_fake.MockService)
+		wantIDs []int
+		wantErr string
+	}{
+		{
+			name: "creates multiple tasks and sets IDs",
+			mock: func(svc *persistence_fake.MockService) {
+				svc.EXPECT().
+					CreateTasks(mockutil.Context(), tasks).
+					DoAndReturn(func(_ context.Context, ts []*datatypes.Task) error {
+						ts[0].ID = 11
+						ts[1].ID = 12
+						return nil
+					})
+			},
+			wantIDs: []int{11, 12},
+		},
+		{
+			name: "returns wrapped error on failure",
+			mock: func(svc *persistence_fake.MockService) {
+				svc.EXPECT().
+					CreateTasks(mockutil.Context(), tasks).
+					Return(errors.New("boom"))
+			},
+			wantErr: "tasks: create: boom",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+			tt.mock(perSvc)
+
+			err := ingestsvc.CreateTasks(t.Context(), tasks)
+
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			got := []int{tasks[0].ID, tasks[1].ID}
+			assert.DeepEqual(t, got, tt.wantIDs)
 		})
 	}
 }
