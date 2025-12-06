@@ -65,14 +65,19 @@ func TestCreateAIPActivity(t *testing.T) {
 		)
 
 	ingestsvc := ingest_fake.NewMockService(ctrl)
-	ingestsvc.EXPECT().CreateTask(mockutil.Context(), &datatypes.Task{
-		UUID:   taskUUID,
-		Status: enums.TaskStatusDone,
-		StartedAt: sql.NullTime{
-			Time:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
-			Valid: true,
+	ingestsvc.EXPECT().CreateTasks(
+		mockutil.Context(),
+		[]*datatypes.Task{
+			{
+				UUID:   taskUUID,
+				Status: enums.TaskStatusDone,
+				StartedAt: sql.NullTime{
+					Time:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+					Valid: true,
+				},
+			},
 		},
-	})
+	).Return(nil)
 
 	env.RegisterActivityWithOptions(
 		a3m.NewCreateAIPActivity(
