@@ -88,7 +88,10 @@ func TestIsInstant(t *testing.T) {
 	t.Run("Returns false when start and end time are not equal", func(t *testing.T) {
 		t.Parallel()
 
-		r, err := timerange.New(time.Now(), time.Now())
+		start := time.Date(2024, 9, 17, 0, 0, 0, 0, time.UTC)
+		end := time.Date(2024, 9, 18, 0, 0, 0, 0, time.UTC)
+
+		r, err := timerange.New(start, end)
 		assert.NilError(t, err)
 		assert.Assert(t, !r.IsInstant())
 	})
