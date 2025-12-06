@@ -51,6 +51,7 @@ type Service interface {
 		completedAt time.Time,
 	) error
 	CreateTask(ctx context.Context, task *datatypes.Task) error
+	CreateTasks(ctx context.Context, tasks []*datatypes.Task) error
 	CompleteTask(
 		ctx context.Context,
 		ID int,
