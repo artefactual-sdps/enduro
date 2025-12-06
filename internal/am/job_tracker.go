@@ -150,7 +150,8 @@ func (jt *JobTracker) list(ctx context.Context, unitID string) ([]amclient.Job, 
 
 // saveTasks persists Archivematica jobs data as tasks.
 func (jt *JobTracker) saveTasks(ctx context.Context, jobs []amclient.Job) (int, error) {
-	var count int
+	tasks := make([]*datatypes.Task, 0, len(jobs))
+	savedIDs := make([]string, 0, len(jobs))
 	jobs = jt.filterJobs(jobs)
 	for _, job := range jobs {
 		// Wait until a job is complete (or failed) before saving it.
@@ -164,17 +165,23 @@ func (jt *JobTracker) saveTasks(ctx context.Context, jobs []amclient.Job) (int, 
 		}
 		task.WorkflowUUID = jt.workflowUUID
 
-		err = jt.ingestsvc.CreateTask(ctx, task)
-		if err != nil {
-			return 0, err
-		}
-
-		// Add this job ID to the list of savedIDs.
-		jt.savedIDs[job.ID] = struct{}{}
-		count++
+		tasks = append(tasks, task)
+		savedIDs = append(savedIDs, job.ID)
 	}
 
-	return count, nil
+	if len(tasks) == 0 {
+		return 0, nil
+	}
+
+	if err := jt.ingestsvc.CreateTasks(ctx, tasks); err != nil {
+		return 0, err
+	}
+
+	for _, id := range savedIDs {
+		jt.savedIDs[id] = struct{}{}
+	}
+
+	return len(tasks), nil
 }
 
 // filterJobs filters out jobs that have an ID in saved and jobs without

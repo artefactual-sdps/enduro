@@ -101,18 +101,19 @@ func TestJobTracker(t *testing.T) {
 				)
 			},
 			ingestRec: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreateTask(
+				m.CreateTasks(
 					mockutil.Context(),
-					&datatypes.Task{
-						ID:           0,
-						UUID:         taskUUID,
-						Name:         "Extract zipped bag transfer",
-						Status:       enums.TaskStatusDone,
-						StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
-						CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
-						WorkflowUUID: wUUID,
-					},
-				).Return(nil)
+					[]*datatypes.Task{
+						{
+							ID:           0,
+							UUID:         taskUUID,
+							Name:         "Extract zipped bag transfer",
+							Status:       enums.TaskStatusDone,
+							StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
+							CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+							WorkflowUUID: wUUID,
+						},
+					}).Return(nil)
 			},
 			want: 1,
 		},

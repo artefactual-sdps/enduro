@@ -163,10 +163,10 @@ func TestPollIngestActivity(t *testing.T) {
 				}
 
 				// Poll 2: save first job.
-				m.CreateTask(mockutil.Context(), tasks[0]).Return(nil)
+				m.CreateTasks(mockutil.Context(), append([]*datatypes.Task(nil), tasks[0:1]...)).Return(nil)
 
 				// Poll 3: save second job.
-				m.CreateTask(mockutil.Context(), tasks[1]).Return(nil)
+				m.CreateTasks(mockutil.Context(), append([]*datatypes.Task(nil), tasks[1:2]...)).Return(nil)
 			},
 			want: am.PollIngestActivityResult{
 				Status:    "COMPLETE",
