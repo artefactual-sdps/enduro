@@ -1,6 +1,7 @@
 package persistence_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -16,6 +17,89 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
+
+func TestCreateTasks(t *testing.T) {
+	t.Parallel()
+
+	type test struct {
+		name    string
+		mock    func(*fake.MockService, []*datatypes.Task)
+		make    func() []*datatypes.Task
+		wantIDs []int
+		wantErr string
+	}
+	for _, tt := range []test{
+		{
+			name: "Creates multiple tasks",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Task A",
+						WorkflowUUID: uuid.New(),
+					},
+					{
+						UUID:         uuid.New(),
+						Name:         "Task B",
+						WorkflowUUID: uuid.New(),
+					},
+				}
+			},
+			mock: func(svc *fake.MockService, tasks []*datatypes.Task) {
+				svc.EXPECT().
+					CreateTasks(mockutil.Context(), tasks).
+					DoAndReturn(func(_ context.Context, tasks []*datatypes.Task) error {
+						tasks[0].ID = 10
+						tasks[1].ID = 11
+						return nil
+					})
+			},
+			wantIDs: []int{10, 11},
+		},
+		{
+			name: "Errors when creating tasks",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Task A",
+						WorkflowUUID: uuid.New(),
+					},
+				}
+			},
+			mock: func(svc *fake.MockService, tasks []*datatypes.Task) {
+				svc.EXPECT().
+					CreateTasks(mockutil.Context(), tasks).
+					Return(errors.New("boom"))
+			},
+			wantErr: "CreateTasks: boom",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc := fake.NewMockService(gomock.NewController(t))
+			tasks := tt.make()
+			if tt.mock != nil {
+				tt.mock(svc, tasks)
+			}
+
+			tracer := noop.NewTracerProvider().Tracer("test")
+			w := persistence.WithTelemetry(svc, tracer)
+
+			err := w.CreateTasks(t.Context(), tasks)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			for i, id := range tt.wantIDs {
+				assert.Equal(t, id, tasks[i].ID)
+			}
+		})
+	}
+}
 
 func TestCreateUser(t *testing.T) {
 	t.Parallel()

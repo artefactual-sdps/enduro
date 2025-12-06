@@ -2,6 +2,7 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -13,58 +14,115 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 )
 
+// defaultBatchSize keeps bulk inserts well below MySQL’s default
+// max_allowed_packet (64MB) while still reducing round-trips versus single-row
+// inserts. Adjust if operational data shows it’s either too small or
+// approaching packet limits.
+const defaultBatchSize = 200
+
 func (c *client) CreateTask(ctx context.Context, task *datatypes.Task) error {
-	// Validate required fields.
-	if task.UUID == uuid.Nil {
-		return newRequiredFieldError("UUID")
-	}
-	if task.Name == "" {
-		return newRequiredFieldError("Name")
-	}
-	if task.WorkflowUUID == uuid.Nil {
-		return newRequiredFieldError("WorkflowUUID")
-	}
-	// TODO: Validate Status.
-
-	// Handle nullable fields.
-	var startedAt *time.Time
-	if task.StartedAt.Valid {
-		startedAt = &task.StartedAt.Time
+	if task == nil {
+		return newRequiredFieldError("task")
 	}
 
-	var completedAt *time.Time
-	if task.CompletedAt.Valid {
-		completedAt = &task.CompletedAt.Time
+	return c.CreateTasks(ctx, []*datatypes.Task{task})
+}
+
+func (c *client) CreateTasks(ctx context.Context, tasks []*datatypes.Task) error {
+	if len(tasks) == 0 {
+		return nil
 	}
 
 	tx, err := c.ent.BeginTx(ctx, nil)
 	if err != nil {
-		return newDBErrorWithDetails(err, "create task")
+		return newDBErrorWithDetails(err, "create tasks")
 	}
 
-	wDBID, err := tx.Workflow.Query().Where(workflow.UUID(task.WorkflowUUID)).OnlyID(ctx)
-	if err != nil {
-		return rollback(tx, newDBErrorWithDetails(err, "create task"))
+	workflowIDs := make(map[uuid.UUID]int)
+
+	for start := 0; start < len(tasks); start += defaultBatchSize {
+		end := start + defaultBatchSize
+		if end > len(tasks) {
+			end = len(tasks)
+		}
+		batch := tasks[start:end]
+
+		builders := make([]*db.TaskCreate, 0, len(batch))
+
+		for _, task := range batch {
+			if task == nil {
+				return rollback(tx, newRequiredFieldError("task"))
+			}
+			if task.UUID == uuid.Nil {
+				return rollback(tx, newRequiredFieldError("UUID"))
+			}
+			if task.Name == "" {
+				return rollback(tx, newRequiredFieldError("Name"))
+			}
+			if task.WorkflowUUID == uuid.Nil {
+				return rollback(tx, newRequiredFieldError("WorkflowUUID"))
+			}
+
+			var startedAt *time.Time
+			if task.StartedAt.Valid {
+				startedAt = &task.StartedAt.Time
+			}
+
+			var completedAt *time.Time
+			if task.CompletedAt.Valid {
+				completedAt = &task.CompletedAt.Time
+			}
+
+			wID, ok := workflowIDs[task.WorkflowUUID]
+			if !ok {
+				wID, err = tx.Workflow.Query().
+					Where(workflow.UUID(task.WorkflowUUID)).
+					OnlyID(ctx)
+				if err != nil {
+					return rollback(tx, newDBErrorWithDetails(err, "create tasks"))
+				}
+				workflowIDs[task.WorkflowUUID] = wID
+			}
+
+			builder := tx.Task.Create().
+				SetUUID(task.UUID).
+				SetName(task.Name).
+				SetStatus(int8(task.Status)). // #nosec G115 -- constrained value.
+				SetNillableStartedAt(startedAt).
+				SetNillableCompletedAt(completedAt).
+				SetNote(task.Note).
+				SetWorkflowID(wID)
+
+			builders = append(builders, builder)
+		}
+
+		created, err := tx.Task.CreateBulk(builders...).Save(ctx)
+		if err != nil {
+			return rollback(tx, newDBErrorWithDetails(err, "create tasks"))
+		}
+
+		if len(created) != len(batch) {
+			return rollback(
+				tx,
+				newDBErrorWithDetails(
+					fmt.Errorf(
+						"create tasks: created %d rows, expected %d",
+						len(created),
+						len(batch),
+					),
+					"create tasks",
+				),
+			)
+		}
+
+		for i, dbt := range created {
+			batch[i].ID = dbt.ID
+		}
 	}
 
-	q := tx.Task.Create().
-		SetUUID(task.UUID).
-		SetName(task.Name).
-		SetStatus(int8(task.Status)). // #nosec G115 -- constrained value.
-		SetNillableStartedAt(startedAt).
-		SetNillableCompletedAt(completedAt).
-		SetNote(task.Note).
-		SetWorkflowID(wDBID)
-
-	dbt, err := q.Save(ctx)
-	if err != nil {
-		return rollback(tx, newDBErrorWithDetails(err, "create task"))
-	}
 	if err = tx.Commit(); err != nil {
-		return rollback(tx, newDBErrorWithDetails(err, "create task"))
+		return rollback(tx, newDBErrorWithDetails(err, "create tasks"))
 	}
-
-	task.ID = dbt.ID
 
 	return nil
 }
