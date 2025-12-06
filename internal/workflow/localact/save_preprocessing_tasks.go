@@ -39,16 +39,20 @@ func SavePreprocessingTasksActivity(
 	params SavePreprocessingTasksActivityParams,
 ) (*SavePreprocessingTasksActivityResult, error) {
 	var res SavePreprocessingTasksActivityResult
+
+	tasks := make([]*datatypes.Task, 0, len(params.Tasks))
 	for _, t := range params.Tasks {
 		task := preprocTaskToTask(t)
 		task.WorkflowUUID = params.WorkflowUUID
 		// TODO: Create deterministic UUIDs and make activities idempotent.
 		task.UUID = uuid.Must(uuid.NewRandomFromReader(params.RNG))
 
-		if err := params.Ingestsvc.CreateTask(ctx, &task); err != nil {
-			return &res, fmt.Errorf("SavePreprocessingTasksActivity: %v", err)
-		}
+		tasks = append(tasks, &task)
 		res.Count++
+	}
+
+	if err := params.Ingestsvc.CreateTasks(ctx, tasks); err != nil {
+		return &res, fmt.Errorf("SavePreprocessingTasksActivity: %v", err)
 	}
 
 	return &res, nil
