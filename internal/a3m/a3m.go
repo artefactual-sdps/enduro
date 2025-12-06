@@ -182,6 +182,8 @@ func saveTasks(
 		transferservice.Job_STATUS_FAILED:      enums.TaskStatusError,
 	}
 
+	tasks := make([]*datatypes.Task, 0, len(jobs))
+
 	for _, job := range jobs {
 		taskUUID, err := uuid.Parse(job.Id)
 		if err != nil {
@@ -189,7 +191,7 @@ func saveTasks(
 			telemetry.RecordError(span, err)
 			return err
 		}
-		task := datatypes.Task{
+		task := &datatypes.Task{
 			UUID:   taskUUID,
 			Name:   job.Name,
 			Status: jobStatusToTaskStatus[job.Status],
@@ -199,11 +201,13 @@ func saveTasks(
 			},
 			WorkflowUUID: wUUID,
 		}
-		err = ingestsvc.CreateTask(ctx, &task)
-		if err != nil {
-			telemetry.RecordError(span, err)
-			return err
-		}
+
+		tasks = append(tasks, task)
+	}
+
+	if err := ingestsvc.CreateTasks(ctx, tasks); err != nil {
+		telemetry.RecordError(span, err)
+		return err
 	}
 
 	return nil

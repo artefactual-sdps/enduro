@@ -1,6 +1,7 @@
 package a3m_test
 
 import (
+	"context"
 	"database/sql"
 	"testing"
 	"time"
@@ -65,14 +66,19 @@ func TestCreateAIPActivity(t *testing.T) {
 		)
 
 	ingestsvc := ingest_fake.NewMockService(ctrl)
-	ingestsvc.EXPECT().CreateTask(mockutil.Context(), &datatypes.Task{
-		UUID:   taskUUID,
-		Status: enums.TaskStatusDone,
-		StartedAt: sql.NullTime{
-			Time:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
-			Valid: true,
-		},
-	})
+	ingestsvc.EXPECT().CreateTasks(mockutil.Context(), gomock.Any()).
+		DoAndReturn(func(_ context.Context, tasks []*datatypes.Task) error {
+			assert.Equal(t, len(tasks), 1)
+			assert.DeepEqual(t, tasks[0], &datatypes.Task{
+				UUID:   taskUUID,
+				Status: enums.TaskStatusDone,
+				StartedAt: sql.NullTime{
+					Time:  time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+					Valid: true,
+				},
+			})
+			return nil
+		})
 
 	env.RegisterActivityWithOptions(
 		a3m.NewCreateAIPActivity(
