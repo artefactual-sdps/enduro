@@ -38,7 +38,12 @@ type Service interface {
 
 	CreateWorkflow(context.Context, *datatypes.Workflow) error
 
+	// CreateTask persists the given task and updates the input task with the
+	// generated database identifier.
 	CreateTask(context.Context, *datatypes.Task) error
+	// CreateTasks persists all tasks in a single transaction and updates the
+	// input tasks with the generated database identifiers.
+	CreateTasks(context.Context, []*datatypes.Task) error
 	UpdateTask(ctx context.Context, id int, updater TaskUpdater) (*datatypes.Task, error)
 
 	// CreateUser persists a new user to the data store then updates the user

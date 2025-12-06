@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/enttest"
 )
 
 func addDBFixtures(t *testing.T, entc *db.Client) {
@@ -126,6 +128,151 @@ func TestCreateTask(t *testing.T) {
 			assert.Equal(t, task.WorkflowUUID, tt.want.WorkflowUUID)
 		})
 	}
+}
+
+func TestCreateTasks(t *testing.T) {
+	t.Parallel()
+
+	started := sql.NullTime{Time: time.Now(), Valid: true}
+	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
+
+	tests := []struct {
+		name    string
+		make    func() []*datatypes.Task
+		wantIDs []int
+		wantErr string
+	}{
+		{
+			name: "Saves multiple tasks",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Task A",
+						Status:       enums.TaskStatusInProgress,
+						StartedAt:    started,
+						CompletedAt:  completed,
+						WorkflowUUID: wUUID,
+					},
+					{
+						UUID:         uuid.New(),
+						Name:         "Task B",
+						Status:       enums.TaskStatusDone,
+						WorkflowUUID: wUUID,
+					},
+				}
+			},
+			wantIDs: []int{1, 2},
+		},
+		{
+			name: "Returns validation error",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Status:       enums.TaskStatusInProgress,
+						WorkflowUUID: wUUID,
+					},
+				}
+			},
+			wantErr: "invalid data error: field \"Name\" is required",
+		},
+		{
+			name: "Workflow not found",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Missing workflow",
+						Status:       enums.TaskStatusInProgress,
+						WorkflowUUID: uuid.New(),
+					},
+				}
+			},
+			wantErr: "not found error",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			entc, svc := setUpClient(t, logr.Discard())
+			ctx := t.Context()
+
+			sip, _ := createSIP(
+				t,
+				entc,
+				"Test SIP",
+				enums.SIPStatusIngested,
+			)
+			_, _ = createWorkflow(
+				t,
+				entc,
+				sip.ID,
+				enums.WorkflowStatusDone,
+			)
+
+			tasks := tt.make()
+
+			err := svc.CreateTasks(ctx, tasks)
+			if tt.wantErr != "" {
+				assert.ErrorContains(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			for i, want := range tt.wantIDs {
+				assert.Equal(t, want, tasks[i].ID)
+			}
+		})
+	}
+}
+
+func TestCreateTasksUsesBatching(t *testing.T) {
+	t.Parallel()
+
+	var begins, inserts int
+	entc, svc := setUpClientWithOpts(
+		t,
+		logr.Discard(),
+		enttest.WithOptions(
+			db.Debug(),
+			db.Log(func(args ...any) {
+				q := strings.ToUpper(fmt.Sprint(args...))
+				if strings.Contains(q, "BEGIN") {
+					begins++
+				}
+				if strings.Contains(q, "INSERT") {
+					inserts++
+				}
+			}),
+		),
+	)
+
+	ctx := t.Context()
+	sip, err := createSIP(t, entc, "Test SIP", enums.SIPStatusIngested)
+	assert.NilError(t, err)
+	_, err = createWorkflow(t, entc, sip.ID, enums.WorkflowStatusDone)
+	assert.NilError(t, err)
+
+	// Reset counters to ignore INSERTs performed while seeding fixtures.
+	begins, inserts = 0, 0
+
+	tasks := make([]*datatypes.Task, 400)
+	for i := range tasks {
+		tasks[i] = &datatypes.Task{
+			UUID:         uuid.New(),
+			Name:         fmt.Sprintf("Task %03d", i),
+			Status:       enums.TaskStatusInProgress,
+			WorkflowUUID: wUUID,
+		}
+	}
+
+	assert.NilError(t, svc.CreateTasks(ctx, tasks))
+	assert.Equal(t, 1, begins)
+	assert.Equal(t, 2, inserts)
 }
 
 func TestUpdateTask(t *testing.T) {

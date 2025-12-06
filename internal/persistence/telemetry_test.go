@@ -8,6 +8,9 @@ import (
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
+	"go.opentelemetry.io/otel/codes"
+	otelsdktrace "go.opentelemetry.io/otel/sdk/trace"
+	"go.opentelemetry.io/otel/sdk/trace/tracetest"
 	"go.opentelemetry.io/otel/trace/noop"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
@@ -16,6 +19,101 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
+
+func newTracerWithRecorder(t *testing.T) (*tracetest.SpanRecorder, *otelsdktrace.TracerProvider) {
+	t.Helper()
+
+	recorder := tracetest.NewSpanRecorder()
+	tp := otelsdktrace.NewTracerProvider(otelsdktrace.WithSpanProcessor(recorder))
+	t.Cleanup(func() { _ = tp.Shutdown(t.Context()) })
+
+	return recorder, tp
+}
+
+func TestCreateTasks(t *testing.T) {
+	t.Parallel()
+
+	type test struct {
+		name    string
+		mock    func(*fake.MockService, []*datatypes.Task)
+		make    func() []*datatypes.Task
+		wantErr string
+		status  codes.Code
+	}
+	for _, tt := range []test{
+		{
+			name: "Creates multiple tasks",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Task A",
+						WorkflowUUID: uuid.New(),
+					},
+					{
+						UUID:         uuid.New(),
+						Name:         "Task B",
+						WorkflowUUID: uuid.New(),
+					},
+				}
+			},
+			mock: func(svc *fake.MockService, tasks []*datatypes.Task) {
+				svc.EXPECT().
+					CreateTasks(mockutil.Context(), tasks).
+					Return(nil)
+			},
+			status: codes.Unset,
+		},
+		{
+			name: "Errors when creating tasks",
+			make: func() []*datatypes.Task {
+				return []*datatypes.Task{
+					{
+						UUID:         uuid.New(),
+						Name:         "Task A",
+						WorkflowUUID: uuid.New(),
+					},
+				}
+			},
+			mock: func(svc *fake.MockService, tasks []*datatypes.Task) {
+				svc.EXPECT().
+					CreateTasks(mockutil.Context(), tasks).
+					Return(errors.New("boom"))
+			},
+			wantErr: "CreateTasks: boom",
+			status:  codes.Error,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc := fake.NewMockService(gomock.NewController(t))
+			tasks := tt.make()
+			if tt.mock != nil {
+				tt.mock(svc, tasks)
+			}
+
+			recorder, tp := newTracerWithRecorder(t)
+			w := persistence.WithTelemetry(svc, tp.Tracer("test"))
+
+			err := w.CreateTasks(t.Context(), tasks)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				spans := recorder.Ended()
+				assert.Equal(t, 1, len(spans))
+				assert.Equal(t, "CreateTasks", spans[0].Name())
+				assert.Equal(t, codes.Error, spans[0].Status().Code)
+				return
+			}
+
+			assert.NilError(t, err)
+			spans := recorder.Ended()
+			assert.Equal(t, 1, len(spans))
+			assert.Equal(t, "CreateTasks", spans[0].Name())
+			assert.Equal(t, tt.status, spans[0].Status().Code)
+		})
+	}
+}
 
 func TestCreateUser(t *testing.T) {
 	t.Parallel()
