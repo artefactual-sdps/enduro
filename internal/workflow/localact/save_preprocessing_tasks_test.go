@@ -51,15 +51,20 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 				},
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreateTask(mockutil.Context(), &datatypes.Task{
-					UUID:         taskUUID,
-					Name:         "Validate SIP structure",
-					Status:       enums.TaskStatusDone,
-					StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
-					CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
-					Note:         "SIP structure matches validation criteria",
-					WorkflowUUID: wUUID,
-				}).Return(nil)
+				m.CreateTasks(
+					mockutil.Context(),
+					[]*datatypes.Task{
+						{
+							UUID:         taskUUID,
+							Name:         "Validate SIP structure",
+							Status:       enums.TaskStatusDone,
+							StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
+							CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+							Note:         "SIP structure matches validation criteria",
+							WorkflowUUID: wUUID,
+						},
+					},
+				).Return(nil)
 			},
 			want: &localact.SavePreprocessingTasksActivityResult{
 				Count: 1,
@@ -79,14 +84,19 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 				},
 			},
 			mockCalls: func(m *ingest_fake.MockServiceMockRecorder) {
-				m.CreateTask(mockutil.Context(), &datatypes.Task{
-					UUID:         taskUUID,
-					Status:       enums.TaskStatusDone,
-					StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
-					CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
-					Note:         "SIP structure matches validation criteria",
-					WorkflowUUID: wUUID,
-				}).Return(errors.New(
+				m.CreateTasks(
+					mockutil.Context(),
+					[]*datatypes.Task{
+						{
+							UUID:         taskUUID,
+							Status:       enums.TaskStatusDone,
+							StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
+							CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+							Note:         "SIP structure matches validation criteria",
+							WorkflowUUID: wUUID,
+						},
+					},
+				).Return(errors.New(
 					"task: create: invalid data error: field Name is required",
 				))
 			},
