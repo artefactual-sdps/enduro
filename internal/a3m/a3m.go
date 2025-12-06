@@ -135,6 +135,9 @@ func (a *CreateAIPActivity) Execute(
 						continue
 					}
 
+					// At this point, a3m has finished processing (successfully,
+					// failed, or rejected). Save all tasks from the completed
+					// transfer.
 					err = saveTasks(ctx, a.tracer, readResp.Jobs, a.ingestsvc, opts.WorkflowUUID)
 					if err != nil {
 						return err
@@ -165,6 +168,14 @@ func (a *CreateAIPActivity) Execute(
 	return result, nil
 }
 
+// a3mJobToTaskStatus maps a3m job statuses to Enduro task statuses.
+var a3mJobToTaskStatus = map[transferservice.Job_Status]enums.TaskStatus{
+	transferservice.Job_STATUS_UNSPECIFIED: enums.TaskStatusUnspecified,
+	transferservice.Job_STATUS_COMPLETE:    enums.TaskStatusDone,
+	transferservice.Job_STATUS_PROCESSING:  enums.TaskStatusInProgress,
+	transferservice.Job_STATUS_FAILED:      enums.TaskStatusError,
+}
+
 func saveTasks(
 	ctx context.Context,
 	tracer trace.Tracer,
@@ -175,35 +186,30 @@ func saveTasks(
 	ctx, span := tracer.Start(ctx, "saveTasks")
 	defer span.End()
 
-	jobStatusToTaskStatus := map[transferservice.Job_Status]enums.TaskStatus{
-		transferservice.Job_STATUS_UNSPECIFIED: enums.TaskStatusUnspecified,
-		transferservice.Job_STATUS_COMPLETE:    enums.TaskStatusDone,
-		transferservice.Job_STATUS_PROCESSING:  enums.TaskStatusInProgress,
-		transferservice.Job_STATUS_FAILED:      enums.TaskStatusError,
-	}
+	tasks := make([]*datatypes.Task, len(jobs))
 
-	for _, job := range jobs {
+	for i, job := range jobs {
 		taskUUID, err := uuid.Parse(job.Id)
 		if err != nil {
 			err = fmt.Errorf("unable to parse task UUID from job ID: %q", job.Id)
 			telemetry.RecordError(span, err)
 			return err
 		}
-		task := datatypes.Task{
+		tasks[i] = &datatypes.Task{
 			UUID:   taskUUID,
 			Name:   job.Name,
-			Status: jobStatusToTaskStatus[job.Status],
+			Status: a3mJobToTaskStatus[job.Status],
 			StartedAt: sql.NullTime{
 				Time:  job.StartTime.AsTime(),
 				Valid: true,
 			},
 			WorkflowUUID: wUUID,
 		}
-		err = ingestsvc.CreateTask(ctx, &task)
-		if err != nil {
-			telemetry.RecordError(span, err)
-			return err
-		}
+	}
+
+	if err := ingestsvc.CreateTasks(ctx, tasks); err != nil {
+		telemetry.RecordError(span, err)
+		return err
 	}
 
 	return nil
