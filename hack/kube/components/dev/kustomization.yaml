@@ -8,7 +8,3 @@ resources:
   - minio-secret.yaml
   - mysql-secret.yaml
   - temporal-ui-secret.yaml
-  - prometheus.yaml
-  - grafana-alloy.yaml
-  - grafana-tempo.yaml
-  - grafana.yaml

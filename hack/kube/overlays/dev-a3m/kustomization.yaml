@@ -15,8 +15,3 @@ images:
   - name: ghcr.io/artefactual-sdps/enduro-dashboard:main
     newName: enduro-dashboard
     newTag: dev
-patches:
-  - target:
-      kind: StatefulSet
-      name: enduro-a3m
-    path: enduro-a3m-patch.yaml

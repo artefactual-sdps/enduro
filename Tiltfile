@@ -136,11 +136,13 @@ k8s_resource("mysql-create-locations", labels=["Tools"])
 if PRES_SYS == 'am':
   k8s_resource("mysql-create-amss-location", labels=["Tools"])
 
-# Observability
-k8s_resource("prometheus-server", labels=["Observability"], port_forwards="7491:9090")
-k8s_resource("grafana-alloy", labels=["Observability"])
-k8s_resource("grafana-tempo", labels=["Observability"])
-k8s_resource("grafana", labels=["Observability"], port_forwards="7490:3000")
+# Observability (not in CI mode)
+if config.tilt_subcommand != "ci":
+  k8s_yaml(kustomize("hack/kube/overlays/observability"))
+  k8s_resource("prometheus-server", labels=["Observability"], port_forwards="7491:9090")
+  k8s_resource("grafana-alloy", labels=["Observability"])
+  k8s_resource("grafana-tempo", labels=["Observability"])
+  k8s_resource("grafana", labels=["Observability"], port_forwards="7490:3000")
 
 # Buttons
 cmd_button(
