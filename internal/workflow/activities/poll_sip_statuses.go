@@ -16,6 +16,15 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
 
+// finalStatuses lists all SIP statuses that are considered terminal. Any SIP
+// reporting one of these statuses is treated as final by the polling logic,
+// except the caller's ExpectedStatus, which is checked separately for success.
+var finalStatuses = []enums.SIPStatus{
+	enums.SIPStatusFailed,
+	enums.SIPStatusError,
+	enums.SIPStatusCanceled,
+}
+
 const PollSIPStatusesActivityName = "poll-sip-statuses-activity"
 
 type PollSIPStatusesActivityParams struct {
@@ -28,6 +37,9 @@ type PollSIPStatusesActivityResult struct {
 	AllExpectedStatus bool
 }
 
+// PollSIPStatusesActivity polls the ingest service until all SIPs in a batch
+// reach a final state, failing immediately if the SIP count differs from
+// ExpectedSIPCount or any SIP reports an invalid final status.
 type PollSIPStatusesActivity struct {
 	ingestsvc    ingest.Service
 	pollInterval time.Duration
@@ -93,12 +105,6 @@ func (a *PollSIPStatusesActivity) checkSIPStatuses(
 	}
 
 	expectedStatusCount := 0
-	otherFinalStatuses := []enums.SIPStatus{
-		enums.SIPStatusFailed,
-		enums.SIPStatusError,
-		enums.SIPStatusCanceled,
-	}
-
 	for _, sip := range result.Items {
 		status, err := enums.ParseSIPStatus(sip.Status)
 		if err != nil {
@@ -109,7 +115,7 @@ func (a *PollSIPStatusesActivity) checkSIPStatuses(
 		// If not and it's not in a final status, keep polling.
 		if status == expectedStatus {
 			expectedStatusCount++
-		} else if !slices.Contains(otherFinalStatuses, status) {
+		} else if !slices.Contains(finalStatuses, status) {
 			return &checkResult{done: false}, nil
 		}
 	}
