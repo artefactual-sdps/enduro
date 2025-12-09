@@ -11,6 +11,7 @@ import (
 	temporal_tools "go.artefactual.dev/tools/temporal"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
@@ -76,10 +77,11 @@ func (a *PollSIPStatusesActivity) checkSIPStatuses(
 	expectedSIPCount int,
 	expectedStatus enums.SIPStatus,
 ) (*checkResult, error) {
-	// Query all SIPs for this batch.
+	// Query all SIPs for this batch. Limit to the maximum page size for now,
+	// we may switch to a stats-based or aggregated query approach in the future.
 	result, err := a.ingestsvc.ListSips(ctx, &goaingest.ListSipsPayload{
 		BatchUUID: ref.New(batchUUID.String()),
-		Limit:     ref.New(50_000),
+		Limit:     ref.New(entfilter.MaxPageSize),
 	})
 	if err != nil {
 		return nil, fmt.Errorf("list SIPs: %v", err)
