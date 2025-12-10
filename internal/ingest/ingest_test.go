@@ -365,3 +365,60 @@ func TestUpdateBatch(t *testing.T) {
 		})
 	}
 }
+
+func TestSetStatus(t *testing.T) {
+	t.Parallel()
+
+	sipUUID := uuid.New()
+	status := enums.SIPStatusProcessing
+
+	ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+	perSvc.EXPECT().
+		UpdateSIP(
+			mockutil.Context(),
+			sipUUID,
+			mockutil.Func(
+				"should update SIP status",
+				func(upd persistence.SIPUpdater) error {
+					updated, err := upd(&datatypes.SIP{})
+					assert.NilError(t, err)
+					assert.Equal(t, updated.Status, status)
+					return nil
+				},
+			),
+		).
+		Return(&datatypes.SIP{UUID: sipUUID, Status: status}, nil)
+
+	assert.NilError(t, ingestsvc.SetStatus(t.Context(), sipUUID, status))
+}
+
+func TestSetStatusInProgress(t *testing.T) {
+	t.Parallel()
+
+	sipUUID := uuid.New()
+	startedAt := time.Now().UTC()
+
+	ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+	perSvc.EXPECT().
+		UpdateSIP(
+			mockutil.Context(),
+			sipUUID,
+			mockutil.Func(
+				"should update SIP started at",
+				func(upd persistence.SIPUpdater) error {
+					updated, err := upd(&datatypes.SIP{})
+					assert.NilError(t, err)
+					assert.Equal(t, updated.Status, enums.SIPStatusProcessing)
+					assert.DeepEqual(t, updated.StartedAt, sql.NullTime{Time: startedAt, Valid: true})
+					return nil
+				},
+			),
+		).
+		Return(&datatypes.SIP{
+			UUID:      sipUUID,
+			Status:    enums.SIPStatusProcessing,
+			StartedAt: sql.NullTime{Time: startedAt, Valid: true},
+		}, nil)
+
+	assert.NilError(t, ingestsvc.SetStatusInProgress(t.Context(), sipUUID, startedAt))
+}

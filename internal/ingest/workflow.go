@@ -2,6 +2,7 @@ package ingest
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"time"
 
@@ -33,24 +34,19 @@ func (svc *ingestImpl) SetWorkflowStatus(
 	ID int,
 	status enums.WorkflowStatus,
 ) error {
-	query := `UPDATE workflow SET status = ? WHERE id = ?`
-	args := []any{
-		status,
-		ID,
-	}
-
-	_, err := svc.db.ExecContext(ctx, query, args...)
+	w, err := svc.perSvc.UpdateWorkflow(ctx, ID, func(w *datatypes.Workflow) (*datatypes.Workflow, error) {
+		w.Status = status
+		return w, nil
+	})
 	if err != nil {
 		return fmt.Errorf("error updating workflow: %w", err)
 	}
 
-	if item, err := svc.readWorkflow(ctx, ID); err == nil {
-		PublishEvent(
-			ctx,
-			svc.evsvc,
-			&goaingest.SIPWorkflowUpdatedEvent{UUID: item.UUID, Item: item},
-		)
-	}
+	PublishEvent(
+		ctx,
+		svc.evsvc,
+		&goaingest.SIPWorkflowUpdatedEvent{UUID: w.UUID, Item: workflowToGoa(w)},
+	)
 
 	return nil
 }
@@ -61,53 +57,23 @@ func (svc *ingestImpl) CompleteWorkflow(
 	status enums.WorkflowStatus,
 	completedAt time.Time,
 ) error {
-	query := `UPDATE workflow SET status = ?, completed_at = ? WHERE id = ?`
-	args := []any{
-		status,
-		completedAt,
-		ID,
-	}
-
-	_, err := svc.db.ExecContext(ctx, query, args...)
+	w, err := svc.perSvc.UpdateWorkflow(ctx, ID, func(w *datatypes.Workflow) (*datatypes.Workflow, error) {
+		w.Status = status
+		w.CompletedAt = sql.NullTime{
+			Time:  completedAt,
+			Valid: !completedAt.IsZero(),
+		}
+		return w, nil
+	})
 	if err != nil {
 		return fmt.Errorf("error updating workflow: %w", err)
 	}
 
-	if item, err := svc.readWorkflow(ctx, ID); err == nil {
-		PublishEvent(
-			ctx,
-			svc.evsvc,
-			&goaingest.SIPWorkflowUpdatedEvent{UUID: item.UUID, Item: item},
-		)
-	}
+	PublishEvent(
+		ctx,
+		svc.evsvc,
+		&goaingest.SIPWorkflowUpdatedEvent{UUID: w.UUID, Item: workflowToGoa(w)},
+	)
 
 	return nil
-}
-
-func (svc *ingestImpl) readWorkflow(
-	ctx context.Context,
-	ID int,
-) (*goaingest.SIPWorkflow, error) {
-	query := `
-		SELECT
-			workflow.id,
-			workflow.uuid,
-			workflow.temporal_id,
-			workflow.type,
-			workflow.status,
-			CONVERT_TZ(workflow.started_at, @@session.time_zone, '+00:00') AS started_at,
-			CONVERT_TZ(workflow.completed_at, @@session.time_zone, '+00:00') AS completed_at,
-			sip.uuid as sip_uuid
-		FROM workflow
-		LEFT JOIN sip ON (workflow.sip_id = sip.id)
-		WHERE workflow.id = ?
-	`
-
-	args := []any{ID}
-	w := datatypes.Workflow{}
-	if err := svc.db.GetContext(ctx, &w, query, args...); err != nil {
-		return nil, err
-	}
-
-	return workflowToGoa(&w), nil
 }

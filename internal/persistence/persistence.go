@@ -21,9 +21,10 @@ var (
 )
 
 type (
-	SIPUpdater   func(*datatypes.SIP) (*datatypes.SIP, error)
-	TaskUpdater  func(*datatypes.Task) (*datatypes.Task, error)
-	BatchUpdater func(*datatypes.Batch) (*datatypes.Batch, error)
+	SIPUpdater      func(*datatypes.SIP) (*datatypes.SIP, error)
+	TaskUpdater     func(*datatypes.Task) (*datatypes.Task, error)
+	BatchUpdater    func(*datatypes.Batch) (*datatypes.Batch, error)
+	WorkflowUpdater func(*datatypes.Workflow) (*datatypes.Workflow, error)
 )
 
 type Service interface {
@@ -37,6 +38,9 @@ type Service interface {
 	ListSIPs(context.Context, *SIPFilter) ([]*datatypes.SIP, *Page, error)
 
 	CreateWorkflow(context.Context, *datatypes.Workflow) error
+	UpdateWorkflow(context.Context, int, WorkflowUpdater) (*datatypes.Workflow, error)
+	ReadWorkflow(context.Context, int) (*datatypes.Workflow, error)
+	ListWorkflowsBySIP(context.Context, uuid.UUID) ([]*datatypes.Workflow, error)
 
 	// CreateTask persists the given task and updates the input task with the
 	// generated database identifier.

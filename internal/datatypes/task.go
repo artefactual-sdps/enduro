@@ -11,14 +11,14 @@ import (
 
 // Task represents a workflow task in the task table.
 type Task struct {
-	ID           int              `db:"id"`
-	UUID         uuid.UUID        `db:"uuid"`
-	Name         string           `db:"name"`
-	Status       enums.TaskStatus `db:"status"`
-	StartedAt    sql.NullTime     `db:"started_at"`
-	CompletedAt  sql.NullTime     `db:"completed_at"`
-	Note         string           `db:"note"`
-	WorkflowUUID uuid.UUID        `db:"workflow_uuid"`
+	ID           int
+	UUID         uuid.UUID
+	Name         string
+	Status       enums.TaskStatus
+	StartedAt    sql.NullTime
+	CompletedAt  sql.NullTime
+	Note         string
+	WorkflowUUID uuid.UUID
 }
 
 // SystemError indicates that a system error occurred during task execution.
