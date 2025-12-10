@@ -10,7 +10,6 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
-	"github.com/jmoiron/sqlx"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	"gocloud.dev/blob"
 
@@ -63,7 +62,6 @@ type Service interface {
 
 type ingestImpl struct {
 	logger                logr.Logger
-	db                    *sqlx.DB
 	tc                    temporalsdk_client.Client
 	evsvc                 event.Service[*goaingest.IngestEvent]
 	perSvc                persistence.Service
@@ -100,7 +98,6 @@ type ServiceParams struct {
 func NewService(params ServiceParams) *ingestImpl {
 	return &ingestImpl{
 		logger:          params.Logger,
-		db:              sqlx.NewDb(params.DB, "mysql"),
 		tc:              params.TemporalClient,
 		evsvc:           params.EventService,
 		perSvc:          params.PersistenceService,
@@ -146,14 +143,12 @@ func (svc *ingestImpl) UpdateSIP(
 }
 
 func (svc *ingestImpl) SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error {
-	query := `UPDATE sip SET status = ? WHERE uuid = ?`
-	args := []any{
-		status,
-		id.String(),
-	}
-
-	if err := svc.updateRow(ctx, query, args); err != nil {
-		return err
+	_, err := svc.perSvc.UpdateSIP(ctx, id, func(s *datatypes.SIP) (*datatypes.SIP, error) {
+		s.Status = status
+		return s, nil
+	})
+	if err != nil {
+		return fmt.Errorf("error updating SIP: %v", err)
 	}
 
 	ev := &goaingest.SIPStatusUpdatedEvent{UUID: id, Status: status.String()}
@@ -163,34 +158,24 @@ func (svc *ingestImpl) SetStatus(ctx context.Context, id uuid.UUID, status enums
 }
 
 func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, id uuid.UUID, startedAt time.Time) error {
-	var query string
-	args := []any{enums.SIPStatusProcessing}
-
-	if !startedAt.IsZero() {
-		query = `UPDATE sip SET status = ?, started_at = ? WHERE uuid = ?`
-		args = append(args, startedAt, id.String())
-	} else {
-		query = `UPDATE sip SET status = ? WHERE uuid = ?`
-		args = append(args, id.String())
-	}
-
-	if err := svc.updateRow(ctx, query, args); err != nil {
-		return err
+	_, err := svc.perSvc.UpdateSIP(ctx, id, func(s *datatypes.SIP) (*datatypes.SIP, error) {
+		s.Status = enums.SIPStatusProcessing
+		if !startedAt.IsZero() {
+			s.StartedAt = sql.NullTime{
+				Time:  startedAt,
+				Valid: true,
+			}
+		}
+		return s, nil
+	})
+	if err != nil {
+		return fmt.Errorf("error updating SIP: %v", err)
 	}
 
 	PublishEvent(ctx, svc.evsvc, &goaingest.SIPStatusUpdatedEvent{
 		UUID:   id,
 		Status: enums.SIPStatusProcessing.String(),
 	})
-
-	return nil
-}
-
-func (svc *ingestImpl) updateRow(ctx context.Context, query string, args []any) error {
-	_, err := svc.db.ExecContext(ctx, query, args...)
-	if err != nil {
-		return fmt.Errorf("error updating SIP: %v", err)
-	}
 
 	return nil
 }

@@ -1,6 +1,7 @@
 package persistence_test
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -13,6 +14,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
@@ -525,6 +527,172 @@ func TestDeleteBatch(t *testing.T) {
 			}
 
 			assert.NilError(t, err)
+		})
+	}
+}
+
+func TestUpdateWorkflow(t *testing.T) {
+	t.Parallel()
+
+	sipID := uuid.New()
+	wf := datatypes.Workflow{
+		ID:         7,
+		UUID:       uuid.New(),
+		TemporalID: "tid",
+		Type:       enums.WorkflowTypeCreateAip,
+		Status:     enums.WorkflowStatusQueued,
+		SIPUUID:    sipID,
+	}
+
+	type test struct {
+		name    string
+		mock    func(*fake.MockService)
+		wantErr string
+	}
+
+	for _, tt := range []test{
+		{
+			name: "Updates workflow",
+			mock: func(svc *fake.MockService) {
+				svc.EXPECT().
+					UpdateWorkflow(mockutil.Context(), wf.ID, gomock.Any()).
+					DoAndReturn(func(ctx context.Context, id int, upd persistence.WorkflowUpdater) (*datatypes.Workflow, error) {
+						return upd(&wf)
+					})
+			},
+		},
+		{
+			name: "Errors when updating workflow",
+			mock: func(svc *fake.MockService) {
+				svc.EXPECT().
+					UpdateWorkflow(mockutil.Context(), wf.ID, gomock.Any()).
+					Return(nil, errors.New("not found error: db: workflow not found"))
+			},
+			wantErr: "UpdateWorkflow: not found error: db: workflow not found",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc := fake.NewMockService(gomock.NewController(t))
+			tt.mock(svc)
+			tracer := noop.NewTracerProvider().Tracer("test")
+			w := persistence.WithTelemetry(svc, tracer)
+
+			_, err := w.UpdateWorkflow(t.Context(), wf.ID, func(wf *datatypes.Workflow) (*datatypes.Workflow, error) {
+				wf.Status = enums.WorkflowStatusDone
+				return wf, nil
+			})
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+		})
+	}
+}
+
+func TestReadWorkflow(t *testing.T) {
+	t.Parallel()
+
+	wf := datatypes.Workflow{ID: 11, UUID: uuid.New()}
+
+	type test struct {
+		name    string
+		mock    func(*fake.MockService)
+		want    *datatypes.Workflow
+		wantErr string
+	}
+
+	for _, tt := range []test{
+		{
+			name: "Reads workflow",
+			mock: func(svc *fake.MockService) {
+				svc.EXPECT().
+					ReadWorkflow(mockutil.Context(), wf.ID).
+					Return(&wf, nil)
+			},
+			want: &wf,
+		},
+		{
+			name: "Errors when reading workflow",
+			mock: func(svc *fake.MockService) {
+				svc.EXPECT().
+					ReadWorkflow(mockutil.Context(), wf.ID).
+					Return(nil, errors.New("internal error: db: down"))
+			},
+			wantErr: "ReadWorkflow: internal error: db: down",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc := fake.NewMockService(gomock.NewController(t))
+			tt.mock(svc)
+			tracer := noop.NewTracerProvider().Tracer("test")
+			w := persistence.WithTelemetry(svc, tracer)
+
+			got, err := w.ReadWorkflow(t.Context(), wf.ID)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
+		})
+	}
+}
+
+func TestListWorkflowsBySIP(t *testing.T) {
+	t.Parallel()
+
+	sipID := uuid.New()
+	wf := &datatypes.Workflow{UUID: uuid.New(), SIPUUID: sipID}
+
+	type test struct {
+		name    string
+		mock    func(*fake.MockService)
+		want    []*datatypes.Workflow
+		wantErr string
+	}
+
+	for _, tt := range []test{
+		{
+			name: "Lists workflows by SIP",
+			mock: func(svc *fake.MockService) {
+				svc.EXPECT().
+					ListWorkflowsBySIP(mockutil.Context(), sipID).
+					Return([]*datatypes.Workflow{wf}, nil)
+			},
+			want: []*datatypes.Workflow{wf},
+		},
+		{
+			name: "Errors when listing workflows by SIP",
+			mock: func(svc *fake.MockService) {
+				svc.EXPECT().
+					ListWorkflowsBySIP(mockutil.Context(), sipID).
+					Return(nil, persistence.ErrInternal)
+			},
+			wantErr: fmt.Sprintf("ListWorkflowsBySIP: %v", persistence.ErrInternal),
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc := fake.NewMockService(gomock.NewController(t))
+			tt.mock(svc)
+			tracer := noop.NewTracerProvider().Tracer("test")
+			w := persistence.WithTelemetry(svc, tracer)
+
+			got, err := w.ListWorkflowsBySIP(t.Context(), sipID)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
 		})
 	}
 }

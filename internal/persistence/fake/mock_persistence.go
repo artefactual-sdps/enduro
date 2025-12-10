@@ -429,6 +429,45 @@ func (c *MockServiceListUsersCall) DoAndReturn(f func(context.Context, *persiste
 	return c
 }
 
+// ListWorkflowsBySIP mocks base method.
+func (m *MockService) ListWorkflowsBySIP(arg0 context.Context, arg1 uuid.UUID) ([]*datatypes.Workflow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ListWorkflowsBySIP", arg0, arg1)
+	ret0, _ := ret[0].([]*datatypes.Workflow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListWorkflowsBySIP indicates an expected call of ListWorkflowsBySIP.
+func (mr *MockServiceMockRecorder) ListWorkflowsBySIP(arg0, arg1 any) *MockServiceListWorkflowsBySIPCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListWorkflowsBySIP", reflect.TypeOf((*MockService)(nil).ListWorkflowsBySIP), arg0, arg1)
+	return &MockServiceListWorkflowsBySIPCall{Call: call}
+}
+
+// MockServiceListWorkflowsBySIPCall wrap *gomock.Call
+type MockServiceListWorkflowsBySIPCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceListWorkflowsBySIPCall) Return(arg0 []*datatypes.Workflow, arg1 error) *MockServiceListWorkflowsBySIPCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceListWorkflowsBySIPCall) Do(f func(context.Context, uuid.UUID) ([]*datatypes.Workflow, error)) *MockServiceListWorkflowsBySIPCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceListWorkflowsBySIPCall) DoAndReturn(f func(context.Context, uuid.UUID) ([]*datatypes.Workflow, error)) *MockServiceListWorkflowsBySIPCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ReadBatch mocks base method.
 func (m *MockService) ReadBatch(arg0 context.Context, arg1 uuid.UUID) (*datatypes.Batch, error) {
 	m.ctrl.T.Helper()
@@ -585,6 +624,45 @@ func (c *MockServiceReadUserCall) DoAndReturn(f func(context.Context, uuid.UUID)
 	return c
 }
 
+// ReadWorkflow mocks base method.
+func (m *MockService) ReadWorkflow(arg0 context.Context, arg1 int) (*datatypes.Workflow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReadWorkflow", arg0, arg1)
+	ret0, _ := ret[0].(*datatypes.Workflow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadWorkflow indicates an expected call of ReadWorkflow.
+func (mr *MockServiceMockRecorder) ReadWorkflow(arg0, arg1 any) *MockServiceReadWorkflowCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadWorkflow", reflect.TypeOf((*MockService)(nil).ReadWorkflow), arg0, arg1)
+	return &MockServiceReadWorkflowCall{Call: call}
+}
+
+// MockServiceReadWorkflowCall wrap *gomock.Call
+type MockServiceReadWorkflowCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceReadWorkflowCall) Return(arg0 *datatypes.Workflow, arg1 error) *MockServiceReadWorkflowCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceReadWorkflowCall) Do(f func(context.Context, int) (*datatypes.Workflow, error)) *MockServiceReadWorkflowCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceReadWorkflowCall) DoAndReturn(f func(context.Context, int) (*datatypes.Workflow, error)) *MockServiceReadWorkflowCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // UpdateBatch mocks base method.
 func (m *MockService) UpdateBatch(arg0 context.Context, arg1 uuid.UUID, arg2 persistence.BatchUpdater) (*datatypes.Batch, error) {
 	m.ctrl.T.Helper()
@@ -698,6 +776,45 @@ func (c *MockServiceUpdateTaskCall) Do(f func(context.Context, int, persistence.
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
 func (c *MockServiceUpdateTaskCall) DoAndReturn(f func(context.Context, int, persistence.TaskUpdater) (*datatypes.Task, error)) *MockServiceUpdateTaskCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// UpdateWorkflow mocks base method.
+func (m *MockService) UpdateWorkflow(arg0 context.Context, arg1 int, arg2 persistence.WorkflowUpdater) (*datatypes.Workflow, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateWorkflow", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*datatypes.Workflow)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateWorkflow indicates an expected call of UpdateWorkflow.
+func (mr *MockServiceMockRecorder) UpdateWorkflow(arg0, arg1, arg2 any) *MockServiceUpdateWorkflowCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateWorkflow", reflect.TypeOf((*MockService)(nil).UpdateWorkflow), arg0, arg1, arg2)
+	return &MockServiceUpdateWorkflowCall{Call: call}
+}
+
+// MockServiceUpdateWorkflowCall wrap *gomock.Call
+type MockServiceUpdateWorkflowCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceUpdateWorkflowCall) Return(arg0 *datatypes.Workflow, arg1 error) *MockServiceUpdateWorkflowCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceUpdateWorkflowCall) Do(f func(context.Context, int, persistence.WorkflowUpdater) (*datatypes.Workflow, error)) *MockServiceUpdateWorkflowCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceUpdateWorkflowCall) DoAndReturn(f func(context.Context, int, persistence.WorkflowUpdater) (*datatypes.Workflow, error)) *MockServiceUpdateWorkflowCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

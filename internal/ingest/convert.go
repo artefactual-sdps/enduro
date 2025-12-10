@@ -46,10 +46,10 @@ func sipIngestAuditEvent(s *datatypes.SIP) *auditlog.Event {
 func workflowToGoa(w *datatypes.Workflow) *goaingest.SIPWorkflow {
 	var startedAt string
 	if w.StartedAt.Valid {
-		startedAt = w.StartedAt.Time.Format(time.RFC3339)
+		startedAt = w.StartedAt.Time.In(time.UTC).Format(time.RFC3339)
 	}
 
-	return &goaingest.SIPWorkflow{
+	res := &goaingest.SIPWorkflow{
 		UUID:        w.UUID,
 		TemporalID:  w.TemporalID,
 		Type:        w.Type.String(),
@@ -58,6 +58,15 @@ func workflowToGoa(w *datatypes.Workflow) *goaingest.SIPWorkflow {
 		CompletedAt: db.FormatOptionalTime(w.CompletedAt),
 		SipUUID:     w.SIPUUID,
 	}
+
+	if len(w.Tasks) > 0 {
+		res.Tasks = make([]*goaingest.SIPTask, 0, len(w.Tasks))
+		for _, task := range w.Tasks {
+			res.Tasks = append(res.Tasks, taskToGoa(task))
+		}
+	}
+
+	return res
 }
 
 // taskToGoa returns the API representation of a task.
@@ -69,7 +78,7 @@ func taskToGoa(task *datatypes.Task) *goaingest.SIPTask {
 
 		// TODO: Make Goa StartedAt a pointer to a string to avoid having to
 		// convert a null time to an empty (zero value) string.
-		StartedAt: ref.DerefZero(db.FormatOptionalTime(task.CompletedAt)),
+		StartedAt: ref.DerefZero(db.FormatOptionalTime(task.StartedAt)),
 
 		CompletedAt:  db.FormatOptionalTime(task.CompletedAt),
 		Note:         &task.Note,

@@ -13,6 +13,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
 
@@ -141,4 +142,81 @@ func TestCreateWorkflow(t *testing.T) {
 			assert.DeepEqual(t, w, tt.want)
 		})
 	}
+}
+
+func TestSetWorkflowStatus(t *testing.T) {
+	t.Parallel()
+
+	status := enums.WorkflowStatusDone
+	workflowUUID := uuid.New()
+
+	ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+	perSvc.EXPECT().
+		UpdateWorkflow(
+			mockutil.Context(),
+			42,
+			mockutil.Func(
+				"should update workflow status",
+				func(upd persistence.WorkflowUpdater) error {
+					updated, err := upd(&datatypes.Workflow{UUID: workflowUUID})
+					if err != nil {
+						return err
+					}
+					assert.Equal(t, updated.Status, status)
+					return nil
+				},
+			),
+		).
+		DoAndReturn(
+			func(
+				ctx context.Context,
+				id int,
+				upd persistence.WorkflowUpdater,
+			) (*datatypes.Workflow, error) {
+				return upd(&datatypes.Workflow{ID: id, UUID: workflowUUID})
+			},
+		)
+
+	err := ingestsvc.SetWorkflowStatus(context.Background(), 42, status)
+	assert.NilError(t, err)
+}
+
+func TestCompleteWorkflow(t *testing.T) {
+	t.Parallel()
+
+	status := enums.WorkflowStatusDone
+	completedAt := time.Now().UTC()
+	workflowUUID := uuid.New()
+
+	ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+	perSvc.EXPECT().
+		UpdateWorkflow(
+			mockutil.Context(),
+			101,
+			mockutil.Func(
+				"should update workflow completion",
+				func(upd persistence.WorkflowUpdater) error {
+					updated, err := upd(&datatypes.Workflow{UUID: workflowUUID})
+					if err != nil {
+						return err
+					}
+					assert.Equal(t, updated.Status, status)
+					assert.Assert(t, updated.CompletedAt.Valid)
+					assert.Equal(t, updated.CompletedAt.Time, completedAt)
+					return nil
+				},
+			),
+		).
+		DoAndReturn(
+			func(
+				ctx context.Context,
+				id int,
+				upd persistence.WorkflowUpdater,
+			) (*datatypes.Workflow, error) {
+				return upd(&datatypes.Workflow{ID: id, UUID: workflowUUID})
+			},
+		)
+
+	err := ingestsvc.CompleteWorkflow(context.Background(), 101, status, completedAt)
+	assert.NilError(t, err)
 }

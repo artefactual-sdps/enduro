@@ -113,6 +113,52 @@ func (w *wrapper) CreateWorkflow(ctx context.Context, workflow *datatypes.Workfl
 	return nil
 }
 
+func (w *wrapper) UpdateWorkflow(
+	ctx context.Context,
+	id int,
+	updater WorkflowUpdater,
+) (*datatypes.Workflow, error) {
+	ctx, span := w.tracer.Start(ctx, "UpdateWorkflow")
+	defer span.End()
+	span.SetAttributes(attribute.Int("id", id))
+
+	r, err := w.wrapped.UpdateWorkflow(ctx, id, updater)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "UpdateWorkflow")
+	}
+
+	return r, nil
+}
+
+func (w *wrapper) ReadWorkflow(ctx context.Context, id int) (*datatypes.Workflow, error) {
+	ctx, span := w.tracer.Start(ctx, "ReadWorkflow")
+	defer span.End()
+	span.SetAttributes(attribute.Int("id", id))
+
+	r, err := w.wrapped.ReadWorkflow(ctx, id)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ReadWorkflow")
+	}
+
+	return r, nil
+}
+
+func (w *wrapper) ListWorkflowsBySIP(ctx context.Context, sipUUID uuid.UUID) ([]*datatypes.Workflow, error) {
+	ctx, span := w.tracer.Start(ctx, "ListWorkflowsBySIP")
+	defer span.End()
+	span.SetAttributes(attribute.String("sip_uuid", sipUUID.String()))
+
+	r, err := w.wrapped.ListWorkflowsBySIP(ctx, sipUUID)
+	if err != nil {
+		telemetry.RecordError(span, err)
+		return nil, updateError(err, "ListWorkflowsBySIP")
+	}
+
+	return r, nil
+}
+
 func (w *wrapper) CreateTask(ctx context.Context, task *datatypes.Task) error {
 	ctx, span := w.tracer.Start(ctx, "CreateTask")
 	defer span.End()

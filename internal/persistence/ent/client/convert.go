@@ -49,12 +49,12 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 func convertTask(task *db.Task) *datatypes.Task {
 	var started sql.NullTime
 	if !task.StartedAt.IsZero() {
-		started = sql.NullTime{Time: task.StartedAt, Valid: true}
+		started = sql.NullTime{Time: task.StartedAt.UTC(), Valid: true}
 	}
 
 	var completed sql.NullTime
 	if !task.CompletedAt.IsZero() {
-		completed = sql.NullTime{Time: task.CompletedAt, Valid: true}
+		completed = sql.NullTime{Time: task.CompletedAt.UTC(), Valid: true}
 	}
 
 	var status uint
@@ -113,4 +113,38 @@ func convertBatch(batch *db.Batch) *datatypes.Batch {
 	}
 
 	return &b
+}
+
+func convertWorkflow(dbw *db.Workflow) *datatypes.Workflow {
+	// ent stores status as int8 constrained by schema; direct cast is safe.
+	w := &datatypes.Workflow{
+		ID:         dbw.ID,
+		UUID:       dbw.UUID,
+		TemporalID: dbw.TemporalID,
+		Type:       dbw.Type,
+		Status:     enums.WorkflowStatus(uint(dbw.Status)), // #nosec G115 -- constrained value.
+	}
+
+	if !dbw.StartedAt.IsZero() {
+		w.StartedAt = sql.NullTime{Time: dbw.StartedAt.UTC(), Valid: true}
+	}
+	if !dbw.CompletedAt.IsZero() {
+		w.CompletedAt = sql.NullTime{Time: dbw.CompletedAt.UTC(), Valid: true}
+	}
+	if dbw.Edges.Sip != nil {
+		w.SIPUUID = dbw.Edges.Sip.UUID
+	}
+
+	if len(dbw.Edges.Tasks) > 0 {
+		w.Tasks = make([]*datatypes.Task, 0, len(dbw.Edges.Tasks))
+		for _, dbt := range dbw.Edges.Tasks {
+			t := convertTask(dbt)
+			if t.WorkflowUUID == uuid.Nil {
+				t.WorkflowUUID = dbw.UUID
+			}
+			w.Tasks = append(w.Tasks, t)
+		}
+	}
+
+	return w
 }

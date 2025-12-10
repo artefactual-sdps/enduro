@@ -2,9 +2,7 @@ package ingest
 
 import (
 	"context"
-	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
@@ -177,56 +175,22 @@ func (svc *ingestImpl) ListSipWorkflows(
 		return nil, goaingest.MakeNotValid(errors.New("invalid UUID"))
 	}
 
-	s, err := svc.perSvc.ReadSIP(ctx, sipUUID)
-	if err == sql.ErrNoRows {
+	if _, err := svc.perSvc.ReadSIP(ctx, sipUUID); err == persistence.ErrNotFound {
 		return nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP not found"}
 	} else if err != nil {
 		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	query := "SELECT id, uuid, temporal_id, type, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at FROM workflow WHERE sip_id = ? ORDER BY started_at DESC"
-	args := []any{s.ID}
-
-	rows, err := svc.db.QueryxContext(ctx, query, args...)
+	workflows, err := svc.perSvc.ListWorkflowsBySIP(ctx, sipUUID)
 	if err != nil {
-		return nil, fmt.Errorf("error querying the database: %w", err)
-	}
-	defer rows.Close()
-
-	workflows := []*goaingest.SIPWorkflow{}
-	for rows.Next() {
-		workflow := datatypes.Workflow{}
-		if err := rows.StructScan(&workflow); err != nil {
-			return nil, fmt.Errorf("error scanning database result: %w", err)
-		}
-		workflow.SIPUUID = s.UUID
-		goaworkflow := workflowToGoa(&workflow)
-
-		ptQuery := "SELECT id, uuid, name, status, CONVERT_TZ(started_at, @@session.time_zone, '+00:00') AS started_at, CONVERT_TZ(completed_at, @@session.time_zone, '+00:00') AS completed_at, note FROM task WHERE workflow_id = ?"
-		ptQueryArgs := []any{workflow.ID}
-
-		ptRows, err := svc.db.QueryxContext(ctx, ptQuery, ptQueryArgs...)
-		if err != nil {
-			return nil, fmt.Errorf("error querying the database: %w", err)
-		}
-		defer ptRows.Close()
-
-		tasks := []*goaingest.SIPTask{}
-		for ptRows.Next() {
-			task := datatypes.Task{}
-			if err := ptRows.StructScan(&task); err != nil {
-				return nil, fmt.Errorf("error scanning database result: %w", err)
-			}
-			task.WorkflowUUID = workflow.UUID
-			tasks = append(tasks, taskToGoa(&task))
-		}
-
-		goaworkflow.Tasks = tasks
-		workflows = append(workflows, goaworkflow)
+		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
 	result := &goaingest.SIPWorkflows{
-		Workflows: workflows,
+		Workflows: make([]*goaingest.SIPWorkflow, len(workflows)),
+	}
+	for i, w := range workflows {
+		result.Workflows[i] = workflowToGoa(w)
 	}
 
 	return result, nil
