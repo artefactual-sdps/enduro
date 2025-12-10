@@ -205,12 +205,12 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		var sessErr error
 		maxAttempts := 5
 
-		activityOpts := temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
+		ctx = temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Minute,
 			TaskQueue:           w.cfg.Preservation.TaskQueue,
 		})
 		for attempt := 1; attempt <= maxAttempts; attempt++ {
-			sessCtx, err := temporalsdk_workflow.CreateSession(activityOpts, &temporalsdk_workflow.SessionOptions{
+			sessCtx, err := temporalsdk_workflow.CreateSession(ctx, &temporalsdk_workflow.SessionOptions{
 				CreationTimeout:  forever,
 				ExecutionTimeout: forever,
 			})
@@ -218,7 +218,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 				return fmt.Errorf("error creating session: %v", err)
 			}
 
-			sessErr = w.SessionHandler(sessCtx, attempt, state)
+			sessErr = w.SessionHandler(ctx, sessCtx, attempt, state)
 
 			// We want to retry the session if it has been canceled as a result
 			// of losing the worker but not otherwise. This scenario seems to be
@@ -287,12 +287,10 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 
 // SessionHandler runs activities that belong to the same session.
 func (w *ProcessingWorkflow) SessionHandler(
-	sessCtx temporalsdk_workflow.Context,
-	attempt int,
-	state *workflowState,
+	ctx, sessCtx temporalsdk_workflow.Context, attempt int, state *workflowState,
 ) error {
 	// Cleanup session files on exit.
-	defer w.sessionCleanup(sessCtx, state)
+	defer func() { w.sessionCleanup(sessCtx, state) }()
 
 	sipStartedAt := temporalsdk_workflow.Now(sessCtx).UTC()
 
@@ -484,9 +482,9 @@ func (w *ProcessingWorkflow) SessionHandler(
 	{
 		var err error
 		if w.cfg.Preservation.TaskQueue == temporal.AmWorkerTaskQueue {
-			err = w.transferAM(sessCtx, state)
+			sessCtx, err = w.transferAM(ctx, sessCtx, state)
 		} else {
-			err = w.transferA3m(sessCtx, state)
+			sessCtx, err = w.transferA3m(ctx, sessCtx, state)
 		}
 		if err != nil {
 			return err
@@ -511,9 +509,8 @@ func (w *ProcessingWorkflow) waitForReview(ctx temporalsdk_workflow.Context) *in
 }
 
 func (w *ProcessingWorkflow) transferA3m(
-	sessCtx temporalsdk_workflow.Context,
-	state *workflowState,
-) error {
+	ctx, sessCtx temporalsdk_workflow.Context, state *workflowState,
+) (temporalsdk_workflow.Context, error) {
 	// Bundle SIP as an Archivematica standard transfer.
 	{
 		activityOpts := withActivityOptsForLongLivedRequest(sessCtx)
@@ -528,7 +525,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			},
 		).Get(activityOpts, &bundleResult)
 		if err != nil {
-			return err
+			return sessCtx, err
 		}
 
 		state.sip.path = bundleResult.FullPath
@@ -546,13 +543,14 @@ func (w *ProcessingWorkflow) transferA3m(
 		state.workflowUUID,
 	)
 	if err != nil {
-		return err
+		return sessCtx, err
 	}
 
 	// If the SIP belongs to a batch, wait for a signal to continue.
 	if state.req.BatchUUID != uuid.Nil {
-		if err := w.waitForBatch(sessCtx, state); err != nil {
-			return err
+		sessCtx, err = w.waitForBatch(ctx, sessCtx, state)
+		if err != nil {
+			return sessCtx, err
 		}
 	}
 
@@ -576,7 +574,7 @@ func (w *ProcessingWorkflow) transferA3m(
 		err := temporalsdk_workflow.ExecuteActivity(activityOpts, a3m.CreateAIPActivityName, params).
 			Get(sessCtx, &result)
 		if err != nil {
-			return err
+			return sessCtx, err
 		}
 
 		state.aip = &aipInfo{
@@ -587,7 +585,7 @@ func (w *ProcessingWorkflow) transferA3m(
 
 	// Persist the SIP adding the AIP UUID.
 	if err := w.updateSIPProcessing(sessCtx, state); err != nil {
-		return fmt.Errorf("update SIP: %v", err)
+		return sessCtx, fmt.Errorf("update SIP: %v", err)
 	}
 
 	// Identifier of the task for upload to AIPs bucket.
@@ -605,7 +603,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			},
 		)
 		if err != nil {
-			return err
+			return sessCtx, err
 		}
 		uploadTaskID = id
 	}
@@ -627,7 +625,7 @@ func (w *ProcessingWorkflow) transferA3m(
 		}).
 			Get(activityOpts, nil)
 		if err != nil {
-			return err
+			return sessCtx, err
 		}
 	}
 
@@ -641,7 +639,7 @@ func (w *ProcessingWorkflow) transferA3m(
 		}).
 			Get(ctx, nil)
 		if err != nil {
-			return err
+			return sessCtx, err
 		}
 	}
 
@@ -661,7 +659,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusPending).Get(ctx, nil)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 		}
 
@@ -670,7 +668,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, state.workflowID, enums.WorkflowStatusPending).Get(ctx, nil)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 		}
 
@@ -686,7 +684,7 @@ func (w *ProcessingWorkflow) transferA3m(
 				},
 			)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 			reviewTaskID = id
 		}
@@ -698,7 +696,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusProcessing).Get(ctx, nil)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 		}
 
@@ -707,7 +705,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			ctx := withLocalActivityOpts(sessCtx)
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, state.workflowID, enums.WorkflowStatusInProgress).Get(ctx, nil)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 		}
 	}
@@ -723,7 +721,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			}).
 				Get(ctx, nil)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 		}
 
@@ -742,7 +740,7 @@ func (w *ProcessingWorkflow) transferA3m(
 				},
 			)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 			moveTaskID = id
 		}
@@ -756,7 +754,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			}).
 				Get(activityOpts, nil)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 		}
 
@@ -768,7 +766,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			}).
 				Get(activityOpts, nil)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 		}
 
@@ -782,12 +780,12 @@ func (w *ProcessingWorkflow) transferA3m(
 			}).
 				Get(ctx, nil)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 		}
 
 		if err := w.poststorage(sessCtx, state.aip.id); err != nil {
-			return err
+			return sessCtx, err
 		}
 	} else if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
 		// Record SIP/AIP rejection in review task.
@@ -799,7 +797,7 @@ func (w *ProcessingWorkflow) transferA3m(
 				Note:   ref.New("Reviewed and rejected"),
 			}).Get(ctx, nil)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 		}
 
@@ -810,23 +808,22 @@ func (w *ProcessingWorkflow) transferA3m(
 				AIPID: state.aip.id,
 			}).Get(activityOpts, nil)
 			if err != nil {
-				return err
+				return sessCtx, err
 			}
 		}
 	}
 
-	return nil
+	return sessCtx, nil
 }
 
 func (w *ProcessingWorkflow) transferAM(
-	ctx temporalsdk_workflow.Context,
-	state *workflowState,
-) error {
+	ctx, sessCtx temporalsdk_workflow.Context, state *workflowState,
+) (temporalsdk_workflow.Context, error) {
 	var err error
 
 	// Bag the SIP if it's not already a bag.
 	if state.sip.sipType != enums.SIPTypeBagIt {
-		lctx := withActivityOptsForLocalAction(ctx)
+		lctx := withActivityOptsForLocalAction(sessCtx)
 		var result bagcreate.Result
 		err = temporalsdk_workflow.ExecuteActivity(
 			lctx,
@@ -834,7 +831,7 @@ func (w *ProcessingWorkflow) transferAM(
 			&bagcreate.Params{SourcePath: state.sip.path},
 		).Get(lctx, &result)
 		if err != nil {
-			return err
+			return sessCtx, err
 		}
 		state.sip.isDir = true
 		state.sip.sipType = enums.SIPTypeBagIt
@@ -842,17 +839,17 @@ func (w *ProcessingWorkflow) transferAM(
 	}
 
 	err = w.validatePREMIS(
-		ctx,
+		sessCtx,
 		filepath.Join(state.sip.path, "data", "metadata", "premis.xml"),
 		state.workflowUUID,
 	)
 	if err != nil {
-		return err
+		return sessCtx, err
 	}
 
 	// Zip PIP, if necessary.
 	if w.cfg.AM.ZipPIP {
-		activityOpts := withActivityOptsForLocalAction(ctx)
+		activityOpts := withActivityOptsForLocalAction(sessCtx)
 		var zipResult archivezip.Result
 		err = temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
@@ -860,7 +857,7 @@ func (w *ProcessingWorkflow) transferAM(
 			&archivezip.Params{SourceDir: state.sip.path},
 		).Get(activityOpts, &zipResult)
 		if err != nil {
-			return err
+			return sessCtx, err
 		}
 
 		state.sip.path = zipResult.Path
@@ -872,13 +869,14 @@ func (w *ProcessingWorkflow) transferAM(
 
 	// If the SIP belongs to a batch, wait for a signal to continue.
 	if state.req.BatchUUID != uuid.Nil {
-		if err := w.waitForBatch(ctx, state); err != nil {
-			return err
+		sessCtx, err = w.waitForBatch(ctx, sessCtx, state)
+		if err != nil {
+			return sessCtx, err
 		}
 	}
 
 	// Upload the PIP to AMSS.
-	activityOpts := temporalsdk_workflow.WithActivityOptions(ctx,
+	activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx,
 		temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
 			HeartbeatTimeout:    2 * w.cfg.AM.PollInterval,
@@ -899,11 +897,11 @@ func (w *ProcessingWorkflow) transferAM(
 		&am.UploadTransferActivityParams{SourcePath: state.sip.path},
 	).Get(activityOpts, &uploadResult)
 	if err != nil {
-		return err
+		return sessCtx, err
 	}
 
 	// Start AM transfer.
-	activityOpts = withActivityOptsForRequest(ctx)
+	activityOpts = withActivityOptsForRequest(sessCtx)
 	transferResult := am.StartTransferActivityResult{}
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
@@ -915,11 +913,11 @@ func (w *ProcessingWorkflow) transferAM(
 		},
 	).Get(activityOpts, &transferResult)
 	if err != nil {
-		return err
+		return sessCtx, err
 	}
 
 	pollOpts := temporalsdk_workflow.WithActivityOptions(
-		ctx,
+		sessCtx,
 		temporalsdk_workflow.ActivityOptions{
 			HeartbeatTimeout:    2 * w.cfg.AM.PollInterval,
 			StartToCloseTimeout: w.cfg.AM.TransferDeadline,
@@ -943,7 +941,7 @@ func (w *ProcessingWorkflow) transferAM(
 		},
 	).Get(pollOpts, &pollTransferResult)
 	if err != nil {
-		return err
+		return sessCtx, err
 	}
 
 	// Set AIP id to Archivematica SIP ID.
@@ -960,12 +958,12 @@ func (w *ProcessingWorkflow) transferAM(
 		},
 	).Get(pollOpts, &pollIngestResult)
 	if err != nil {
-		return err
+		return sessCtx, err
 	}
 
 	// Create storage AIP record and set location to AMSS location.
 	{
-		activityOpts := withLocalActivityOpts(ctx)
+		activityOpts := withLocalActivityOpts(sessCtx)
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			activities.CreateStorageAIPActivityName,
@@ -978,30 +976,30 @@ func (w *ProcessingWorkflow) transferAM(
 			}).
 			Get(activityOpts, nil)
 		if err != nil {
-			return err
+			return sessCtx, err
 		}
 	}
 
-	if err := w.poststorage(ctx, state.aip.id); err != nil {
-		return err
+	if err := w.poststorage(sessCtx, state.aip.id); err != nil {
+		return sessCtx, err
 	}
 
 	// Delete the PIP from the Archivematica transfer source directory.
-	activityOpts = withActivityOptsForRequest(ctx)
+	activityOpts = withActivityOptsForRequest(sessCtx)
 	err = temporalsdk_workflow.ExecuteActivity(activityOpts, am.DeleteTransferActivityName, am.DeleteTransferActivityParams{
 		Destination: uploadResult.RemoteRelativePath,
 	}).
 		Get(activityOpts, nil)
 	if err != nil {
-		return err
+		return sessCtx, err
 	}
 
 	// Persist the SIP adding the AIP UUID.
-	if err := w.updateSIPProcessing(ctx, state); err != nil {
-		return fmt.Errorf("update SIP: %v", err)
+	if err := w.updateSIPProcessing(sessCtx, state); err != nil {
+		return sessCtx, fmt.Errorf("update SIP: %v", err)
 	}
 
-	return nil
+	return sessCtx, nil
 }
 
 func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, state *workflowState) error {
@@ -1322,21 +1320,25 @@ func (w *ProcessingWorkflow) updateSIPProcessing(ctx temporalsdk_workflow.Contex
 
 // waitForBatch waits for a signal indicating that all SIPs in the Batch have been validated. If the signal
 // indicates that not all SIPs in the Batch have been validated successfully, the workflow status is set to
-// canceled and an error is returned. This function blocks the worker session until the signal is received,
-// this requires that the available workers have enough capacity to handle all SIPs in the running Batches.
-func (w *ProcessingWorkflow) waitForBatch(ctx temporalsdk_workflow.Context, state *workflowState) (e error) {
+// canceled and an error is returned. This function returns a context for the recreated session on success.
+// On failure, the returned context is the original context. If the failure occurs after the session has been
+// completed (waiting for the signal or recreating the session), the returned context won't include a running
+// session, which could make the cleanup fail if the activities are picked up by a different worker.
+func (w *ProcessingWorkflow) waitForBatch(
+	ctx, sessCtx temporalsdk_workflow.Context, state *workflowState,
+) (c temporalsdk_workflow.Context, e error) {
 	// Update SIP status to validated.
-	activityOpts := withLocalActivityOpts(ctx)
+	activityOpts := withLocalActivityOpts(sessCtx)
 	err := temporalsdk_workflow.ExecuteLocalActivity(
 		activityOpts, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusValidated,
 	).Get(activityOpts, nil)
 	if err != nil {
-		return err
+		return sessCtx, err
 	}
 
 	// Create task for Batch waiting.
 	id, err := w.createTask(
-		ctx,
+		sessCtx,
 		&datatypes.Task{
 			Name:         "Waiting for other SIPs in Batch",
 			Status:       enums.TaskStatusInProgress,
@@ -1345,7 +1347,7 @@ func (w *ProcessingWorkflow) waitForBatch(ctx temporalsdk_workflow.Context, stat
 		},
 	)
 	if err != nil {
-		return fmt.Errorf("create Batch waiting task: %v", err)
+		return sessCtx, fmt.Errorf("create Batch waiting task: %v", err)
 	}
 
 	// Set task default status and note.
@@ -1356,37 +1358,56 @@ func (w *ProcessingWorkflow) waitForBatch(ctx temporalsdk_workflow.Context, stat
 	}
 	defer func() {
 		// Complete Batch waiting task.
-		if err := w.completeTask(ctx, task); err != nil {
+		if err := w.completeTask(sessCtx, task); err != nil {
 			e = errors.Join(e, fmt.Errorf("complete Batch waiting task: %v", err))
 		}
 		// Update SIP status to processing if there are no errors.
 		// Otherwise, it will be updated in the cleanup.
 		if e == nil {
+			activityOpts := withLocalActivityOpts(sessCtx)
 			e = temporalsdk_workflow.ExecuteLocalActivity(
 				activityOpts, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusProcessing,
 			).Get(activityOpts, nil)
 		}
 	}()
 
+	// Get token to recreate the session and end the current one.
+	// This releases the session slot for other workflows while waiting.
+	// Use SideEffect to ensure determinism when getting the recreate token.
+	var token []byte
+	err = temporalsdk_workflow.SideEffect(sessCtx, func(ctx temporalsdk_workflow.Context) any {
+		return temporalsdk_workflow.GetSessionInfo(ctx).GetRecreateToken()
+	}).Get(&token)
+	if err != nil {
+		return sessCtx, fmt.Errorf("get session recreate token: %v", err)
+	}
+	temporalsdk_workflow.CompleteSession(sessCtx)
+
 	// Wait for a Batch signal.
-	// TODO: Consider releasing the session:
-	// - Put the SIP in the internal bucket while waiting for the signal.
-	// - Add configuration to indicate there is only one session worker.
 	var signal ingest.BatchSignal
 	open := temporalsdk_workflow.GetSignalChannel(ctx, ingest.BatchSignalName).Receive(ctx, &signal)
 	if !open {
 		task.Status = enums.TaskStatusError
 		task.Note = "Could not determine if all SIPs in the Batch have been validated."
-		return fmt.Errorf("batch signal channel closed")
+		return ctx, fmt.Errorf("batch signal channel closed")
 	}
 
 	state.logger.Info("Received Batch signal", "signal", signal)
 
+	// Recreate session.
+	sessCtx, err = temporalsdk_workflow.RecreateSession(ctx, token, &temporalsdk_workflow.SessionOptions{
+		CreationTimeout:  forever,
+		ExecutionTimeout: forever,
+	})
+	if err != nil {
+		return ctx, fmt.Errorf("recreate session: %v", err)
+	}
+
 	if !signal.Continue {
 		task.Note = "Some SIPs in the Batch have failed validation."
 		state.status = enums.WorkflowStatusCanceled
-		return fmt.Errorf("batch signal indicates not to continue")
+		return sessCtx, fmt.Errorf("batch signal indicates not to continue")
 	}
 
-	return nil
+	return sessCtx, nil
 }
