@@ -148,10 +148,9 @@ address = "127.0.0.1:7000"
 shareDir = "/home/a3m/.local/share/a3m/share"
 
 # capacity limits concurrent SIPs per worker. All SIPs in a batch run simultaneously
-# and synchronize mid-workflow, so each SIP in the batch takes one capacity slot.
-# Single worker: capacity >= sum of all concurrent batches (e.g., 300+500+800 = 1600)
-# Multiple workers: (workers × capacity) >= total SIPs (e.g., 2 workers × 800 = 1600)
-# Default: 1000.
+# and synchronize mid-workflow. During this sync (wait) phase, the session is closed,
+# releasing the slot so the batch can proceed even if capacity is set to 1, though
+# higher capacity is recommended for parallelism. Default: 1000.
 capacity = 1000
 
 [a3m.processing]
@@ -178,10 +177,9 @@ apiKey = ""
 processingConfig = "automated"
 
 # capacity limits concurrent SIPs per worker. All SIPs in a batch run simultaneously
-# and synchronize mid-workflow, so each SIP in the batch takes one capacity slot.
-# Single worker: capacity >= sum of all concurrent batches (e.g., 300+500+800 = 1600)
-# Multiple workers: (workers × capacity) >= total SIPs (e.g., 2 workers × 800 = 1600)
-# Default: 1000.
+# and synchronize mid-workflow. During this sync (wait) phase, the session is closed,
+# releasing the slot so the batch can proceed even if capacity is set to 1, though
+# higher capacity is recommended for parallelism. Default: 1000.
 capacity = 1000
 
 # pollInterval is the time to wait between AM polling requests in a string

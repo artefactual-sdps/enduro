@@ -226,11 +226,18 @@ func main() {
 			DisableWorkflowWorker: true,
 			EnableSessionWorker:   true,
 			// Sets the maximum number of concurrent workflow sessions. All SIPs in a batch
-			// run simultaneously and synchronize mid-workflow, so each SIP takes one slot.
+			// run simultaneously and synchronize mid-workflow. During this sync (wait) phase,
+			// the session is completed and recreated, releasing the slot so the batch can
+			// proceed even if capacity is set to 1, though higher capacity is recommended for
+			// parallelism.
 			MaxConcurrentSessionExecutionSize: cfg.AM.Capacity,
-			// Match concurrent sessions and concurrent activities to allow each session to
-			// run its activities sequentially without waiting for other sessions.
-			MaxConcurrentActivityExecutionSize: cfg.AM.Capacity,
+			// Must be double the session capacity because recreating the session uses a long
+			// running "internalSessionCreationActivity" in the same worker that holds one slot
+			// open for the session's duration. The second slot is needed for the functional
+			// activities to execute within that session. With only 1x capacity, the session
+			// activity could consume all available slots, causing a deadlock where functional
+			// activities could not be scheduled.
+			MaxConcurrentActivityExecutionSize: 2 * cfg.AM.Capacity,
 			Interceptors: []temporalsdk_interceptor.WorkerInterceptor{
 				temporal_tools.NewLoggerInterceptor(logger),
 			},
