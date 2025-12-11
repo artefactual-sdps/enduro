@@ -143,13 +143,12 @@ retentionPeriod = "0"
 [preservation]
 taskqueue = "a3m"
 
+# a3m configuration. There is no capacity setting here like there is for AM, as
+# a3m is not concurrency safe. To enable parallel processing, deploy multiple
+# a3m workers with separate a3m instances.
 [a3m]
 address = "127.0.0.1:7000"
 shareDir = "/home/a3m/.local/share/a3m/share"
-
-# capacity limits the number of transfers a worker can process at one time
-# (default: 1)
-capacity = 1
 
 [a3m.processing]
 AssignUuidsToDirectories = true

@@ -16,10 +16,6 @@ type Config struct {
 	ShareDir string
 	Address  string
 
-	// Capacity sets the maximum number of worker sessions the worker can
-	// handle at one time (default: 1).
-	Capacity int
-
 	Processing
 }
 

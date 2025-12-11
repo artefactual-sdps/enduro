@@ -223,13 +223,12 @@ func main() {
 
 	// Activity worker.
 	{
-		logger.V(1).Info("a3m worker config", "capacity", cfg.A3m.Capacity)
-
 		done := make(chan struct{})
 		workerOpts := temporalsdk_worker.Options{
-			DisableWorkflowWorker:              true,
-			EnableSessionWorker:                true,
-			MaxConcurrentSessionExecutionSize:  cfg.A3m.Capacity,
+			DisableWorkflowWorker: true,
+			EnableSessionWorker:   true,
+			// Allow only one concurrent session as a3m is not concurrency safe.
+			MaxConcurrentSessionExecutionSize:  1,
 			MaxConcurrentActivityExecutionSize: 1,
 			Interceptors: []temporalsdk_interceptor.WorkerInterceptor{
 				temporal_tools.NewLoggerInterceptor(logger),

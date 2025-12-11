@@ -99,7 +99,6 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.AddConfigPath("$HOME/.config/")
 	v.AddConfigPath("/etc")
 	v.SetConfigName("enduro")
-	v.SetDefault("a3m.capacity", 1)
 	v.SetDefault("a3m.processing", a3m.ProcessingDefault)
 	v.SetDefault("am.capacity", 1)
 	v.SetDefault("am.pollInterval", 10*time.Second)
