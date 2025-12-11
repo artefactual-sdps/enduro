@@ -519,6 +519,12 @@ func main() {
 			temporalsdk_workflow.RegisterOptions{Name: ingest.BatchWorkflowName},
 		)
 
+		// a3m semaphore workflow.
+		w.RegisterWorkflowWithOptions(
+			workflow.NewA3mSemaphoreWorkflow().Execute,
+			temporalsdk_workflow.RegisterOptions{Name: workflow.A3mSemaphoreWorkflowName},
+		)
+
 		w.RegisterWorkflowWithOptions(
 			storage_workflows.NewStorageDeleteWorkflow(
 				cfg.Storage.AIPDeletion,

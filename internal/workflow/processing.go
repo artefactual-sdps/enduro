@@ -558,6 +558,16 @@ func (w *ProcessingWorkflow) transferA3m(
 
 	// Send PIP to a3m for preservation.
 	{
+		// Acquire a3m access through the semaphore workflow.
+		if err := w.acquireA3mAccess(sessCtx); err != nil {
+			return err
+		}
+		defer func() {
+			if err := w.releaseA3mAccess(sessCtx); err != nil {
+				state.logger.Error("Failed to release a3m access", "error", err.Error())
+			}
+		}()
+
 		activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 24,
 			HeartbeatTimeout:    time.Second * 5,
@@ -1379,6 +1389,54 @@ func (w *ProcessingWorkflow) waitForBatch(ctx temporalsdk_workflow.Context, stat
 		task.Note = "Some SIPs in the Batch have failed validation."
 		state.status = enums.WorkflowStatusCanceled
 		return fmt.Errorf("batch signal indicates not to continue")
+	}
+
+	return nil
+}
+
+// acquireA3mAccess requests access to a3m from the semaphore workflow.
+// It will block until access is granted.
+func (w *ProcessingWorkflow) acquireA3mAccess(ctx temporalsdk_workflow.Context) error {
+	workflowInfo := temporalsdk_workflow.GetInfo(ctx)
+
+	// Signal the semaphore workflow to request access.
+	err := temporalsdk_workflow.SignalExternalWorkflow(
+		ctx,
+		A3mSemaphoreWorkflowID,
+		"",
+		A3mAcquireSignalName,
+		A3mSemaphoreAcquireSignal{
+			WorkflowID: workflowInfo.WorkflowExecution.ID,
+			RunID:      workflowInfo.WorkflowExecution.RunID,
+		},
+	).Get(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to signal semaphore for acquire: %w", err)
+	}
+
+	// Wait for the semaphore to signal back that we can proceed.
+	readyChan := temporalsdk_workflow.GetSignalChannel(ctx, "a3m-ready")
+	readyChan.Receive(ctx, nil)
+
+	return nil
+}
+
+// releaseA3mAccess releases access to a3m, allowing another workflow to proceed.
+func (w *ProcessingWorkflow) releaseA3mAccess(ctx temporalsdk_workflow.Context) error {
+	workflowInfo := temporalsdk_workflow.GetInfo(ctx)
+
+	err := temporalsdk_workflow.SignalExternalWorkflow(
+		ctx,
+		A3mSemaphoreWorkflowID,
+		"",
+		A3mReleaseSignalName,
+		A3mSemaphoreReleaseSignal{
+			WorkflowID: workflowInfo.WorkflowExecution.ID,
+			RunID:      workflowInfo.WorkflowExecution.RunID,
+		},
+	).Get(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("failed to signal semaphore for release: %w", err)
 	}
 
 	return nil

@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/http/httptrace"
@@ -31,6 +32,8 @@ import (
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
+	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
+	temporalapi_serviceerror "go.temporal.io/api/serviceerror"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_contrib_opentelemetry "go.temporal.io/sdk/contrib/opentelemetry"
@@ -54,6 +57,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
+	"github.com/artefactual-sdps/enduro/internal/workflow"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
@@ -220,6 +224,31 @@ func main() {
 	}
 
 	var g run.Group
+
+	// Start the a3m semaphore workflow to manage concurrent access to a3m.
+	{
+		_, err := temporalClient.ExecuteWorkflow(
+			ctx,
+			temporalsdk_client.StartWorkflowOptions{
+				ID:                       workflow.A3mSemaphoreWorkflowID,
+				TaskQueue:                cfg.Temporal.TaskQueue,
+				WorkflowIDReusePolicy:    temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
+				WorkflowExecutionTimeout: 0, // Run forever
+			},
+			workflow.A3mSemaphoreWorkflowName,
+		)
+		if err != nil {
+			// Check if workflow is already running by checking the error type.
+			var alreadyStartedErr *temporalapi_serviceerror.WorkflowExecutionAlreadyStarted
+			if errors.As(err, &alreadyStartedErr) {
+				logger.V(1).Info("a3m semaphore workflow already running")
+			} else {
+				logger.Error(err, "Failed to start a3m semaphore workflow")
+			}
+		} else {
+			logger.Info("Started a3m semaphore workflow")
+		}
+	}
 
 	// Activity worker.
 	{
