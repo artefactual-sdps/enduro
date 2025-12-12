@@ -16,6 +16,8 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/otel/trace/noop"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/status"
 )
 
 // TracerProvider provides Tracers that are used by instrumentation code to
@@ -46,6 +48,9 @@ func TracerProvider(
 			MaxInterval:     30 * time.Second,
 			MaxElapsedTime:  0,
 		}),
+		otlptracegrpc.WithDialOption(
+			grpc.WithUnaryInterceptor(errorLoggingInterceptor(logger)),
+		),
 	)
 	if err != nil {
 		return nil, nil, fmt.Errorf("TracerProvider: exporter init: %v", err)
@@ -86,4 +91,27 @@ func TracerProvider(
 func RecordError(span trace.Span, err error) {
 	span.SetStatus(codes.Error, "Operation failed.")
 	span.RecordError(err)
+}
+
+// errorLoggingInterceptor returns a gRPC interceptor that logs export errors.
+func errorLoggingInterceptor(logger logr.Logger) grpc.UnaryClientInterceptor {
+	return func(
+		ctx context.Context,
+		method string,
+		req, reply any,
+		cc *grpc.ClientConn,
+		invoker grpc.UnaryInvoker,
+		opts ...grpc.CallOption,
+	) error {
+		err := invoker(ctx, method, req, reply, cc, opts...)
+		if err != nil {
+			s := status.Convert(err)
+			logger.Info("Trace export failed.",
+				"method", method,
+				"code", s.Code().String(),
+				"err", err,
+			)
+		}
+		return err
+	}
 }
