@@ -47,6 +47,8 @@ data:
     [server]
     domain = ''
     root_url = http://localhost:7490
+    [auth]
+    disable_login_form = true
     [users]
     default_theme = system
     [dashboards]
@@ -54,6 +56,7 @@ data:
     [auth.generic_oauth]
     enabled = true
     name = Keycloak
+    auto_login = true
     allow_sign_up = true
     client_id = grafana
     client_secret = wi8sSTRwP5lA2NuogV5bL6GmIyzVF2HP
