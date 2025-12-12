@@ -3,6 +3,8 @@ package telemetry
 import (
 	"context"
 	"fmt"
+	"net"
+	"time"
 
 	"github.com/go-logr/logr"
 	"go.opentelemetry.io/otel"
@@ -14,8 +16,6 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.37.0"
 	"go.opentelemetry.io/otel/trace"
 	"go.opentelemetry.io/otel/trace/noop"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 // TracerProvider provides Tracers that are used by instrumentation code to
@@ -26,26 +26,29 @@ func TracerProvider(
 	cfg Config,
 	appName, appVersion string,
 ) (trace.TracerProvider, ShutdownProvider, error) {
+	logger = logger.WithValues("enabled", cfg.Traces.Enabled, "addr", cfg.Traces.Address)
 	if !cfg.Traces.Enabled || cfg.Traces.Address == "" {
-		logger.V(1).
-			Info("Tracing system is disabled.", "enabled", cfg.Traces.Enabled, "addr", cfg.Traces.Address, "sampling-ration", cfg.Traces.SamplingRatio)
+		logger.V(1).Info("Tracing system is disabled.")
 		shutdown := func(context.Context) error { return nil }
 		return noop.NewTracerProvider(), shutdown, nil
 	}
 
-	conn, err := grpc.DialContext( //nolint SA1019: grpc.DialContext is deprecated: use NewClient instead.
-		ctx,
-		cfg.Traces.Address,
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(), //nolint SA1019: grpc.WithBlock is deprecated: this DialOption is not supported by NewClient.
-	)
-	if err != nil {
-		return nil, nil, fmt.Errorf("TracerProvider: connect to collector: %v", err)
+	if _, _, err := net.SplitHostPort(cfg.Traces.Address); err != nil {
+		return nil, nil, fmt.Errorf("TracerProvider: invalid traces address %q: %w", cfg.Traces.Address, err)
 	}
 
-	exporter, err := otlptracegrpc.New(ctx, otlptracegrpc.WithGRPCConn(conn))
+	exporter, err := otlptracegrpc.New(ctx,
+		otlptracegrpc.WithEndpoint(cfg.Traces.Address),
+		otlptracegrpc.WithInsecure(),
+		otlptracegrpc.WithRetry(otlptracegrpc.RetryConfig{
+			Enabled:         true,
+			InitialInterval: time.Second,
+			MaxInterval:     30 * time.Second,
+			MaxElapsedTime:  0,
+		}),
+	)
 	if err != nil {
-		return nil, nil, fmt.Errorf("TracerProvider: new exporter: %v", err)
+		return nil, nil, fmt.Errorf("TracerProvider: exporter init: %v", err)
 	}
 
 	resource, err := otelsdk_resource.Merge(
@@ -75,7 +78,7 @@ func TracerProvider(
 
 	otel.SetTextMapPropagator(propagation.TraceContext{})
 
-	logger.V(1).Info("Using OTel gRPC tracer provider.", "addr", cfg.Traces.Address, "ratio", ratio)
+	logger.V(1).Info("Using OTel gRPC tracer provider; exporter will retry on failure.")
 
 	return tp, shutdown, nil
 }
