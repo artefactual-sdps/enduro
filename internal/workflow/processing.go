@@ -878,6 +878,9 @@ func (w *ProcessingWorkflow) transferAM(
 	}
 
 	// Upload the PIP to AMSS.
+	// Upload from the parent directory of the PIP (already unique)
+	// to prevent file collisions in the AM transfer source.
+	parentDir, baseName := filepath.Split(state.sip.path)
 	activityOpts := temporalsdk_workflow.WithActivityOptions(ctx,
 		temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 2,
@@ -896,7 +899,7 @@ func (w *ProcessingWorkflow) transferAM(
 	err = temporalsdk_workflow.ExecuteActivity(
 		activityOpts,
 		am.UploadTransferActivityName,
-		&am.UploadTransferActivityParams{SourcePath: state.sip.path},
+		&am.UploadTransferActivityParams{SourcePath: parentDir},
 	).Get(activityOpts, &uploadResult)
 	if err != nil {
 		return err
@@ -910,7 +913,7 @@ func (w *ProcessingWorkflow) transferAM(
 		am.StartTransferActivityName,
 		&am.StartTransferActivityParams{
 			Name:         state.sip.name,
-			RelativePath: uploadResult.RemoteRelativePath,
+			RelativePath: filepath.Join(uploadResult.RemoteRelativePath, baseName),
 			ZipPIP:       w.cfg.AM.ZipPIP,
 		},
 	).Get(activityOpts, &transferResult)

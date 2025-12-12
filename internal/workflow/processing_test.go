@@ -220,17 +220,18 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	expectations["setStatus"](s, params)
 
 	// Archivematica specific expectations.
+	baseName := filepath.Base(extractPath)
 	s.env.OnActivity(
 		am.UploadTransferActivityName,
 		sessionCtx,
-		&am.UploadTransferActivityParams{SourcePath: extractPath + "/" + key},
-	).Return(&am.UploadTransferActivityResult{RemoteRelativePath: key}, nil)
+		&am.UploadTransferActivityParams{SourcePath: extractPath + "/"},
+	).Return(&am.UploadTransferActivityResult{RemoteRelativePath: baseName}, nil)
 	s.env.OnActivity(
 		am.StartTransferActivityName,
 		sessionCtx,
 		&am.StartTransferActivityParams{
 			Name:         sipName,
-			RelativePath: key,
+			RelativePath: filepath.Join(baseName, key),
 			ZipPIP:       true,
 		},
 	).Return(&am.StartTransferActivityResult{TransferID: transferID.String()}, nil)
@@ -264,7 +265,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.env.OnActivity(
 		am.DeleteTransferActivityName,
 		sessionCtx,
-		&am.DeleteTransferActivityParams{Destination: key},
+		&am.DeleteTransferActivityParams{Destination: baseName},
 	).Return(nil, nil)
 
 	expectations["updateSIPProcessing"](s, params)
@@ -555,7 +556,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	s.env.OnActivity(
 		am.UploadTransferActivityName,
 		sessionCtx,
-		&am.UploadTransferActivityParams{SourcePath: extractPath + "/transfer.zip"},
+		&am.UploadTransferActivityParams{SourcePath: extractPath + "/"},
 	).Return(nil, fmt.Errorf("AM error"))
 
 	params.removePaths = []string{tempPath, extractPath + "/transfer.zip"}
