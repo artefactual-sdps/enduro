@@ -89,7 +89,7 @@ func TestConfig(t *testing.T) {
 
 		// Valued defaults.
 		assert.Equal(t, c.A3m.Processing, a3m.ProcessingDefault)
-		assert.Equal(t, c.AM.Capacity, 1)
+		assert.Equal(t, c.AM.Capacity, 20)
 		assert.Equal(t, c.AM.PollInterval, 10*time.Second)
 		assert.Equal(t, c.AM.ZipPIP, false)
 		assert.Equal(t, c.API.Listen, "127.0.0.1:9000")

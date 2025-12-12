@@ -100,7 +100,7 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.AddConfigPath("/etc")
 	v.SetConfigName("enduro")
 	v.SetDefault("a3m.processing", a3m.ProcessingDefault)
-	v.SetDefault("am.capacity", 1)
+	v.SetDefault("am.capacity", 20)
 	v.SetDefault("am.pollInterval", 10*time.Second)
 	v.SetDefault("api.listen", "127.0.0.1:9000")
 	v.SetDefault("debugListen", "127.0.0.1:9001")

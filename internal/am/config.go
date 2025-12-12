@@ -35,7 +35,7 @@ type Config struct {
 	ZipPIP bool
 
 	// Capacity sets the maximum number of worker sessions the worker can
-	// handle at one time (default: 1).
+	// handle at one time (default: 20).
 	Capacity int
 
 	// PollInterval is the time to wait between poll requests to the AM API.

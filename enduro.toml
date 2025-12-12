@@ -173,9 +173,9 @@ user = ""
 apiKey = ""
 processingConfig = "automated"
 
-# capacity limits the number of transfers a worker can process at one time
-# (default: 1)
-capacity = 1
+# capacity limits the number of transfers a worker can start in AM at one time
+# (default: 20)
+capacity = 20
 
 # pollInterval is the time to wait between AM polling requests in a string
 # format compatible with https://pkg.go.dev/time#ParseDuration (Default: 10s).
