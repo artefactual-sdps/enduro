@@ -64,6 +64,12 @@ spec:
               value: $(MINIO_USER)
             - name: ENDURO_WATCHER_EMBEDDED_SECRET
               value: $(MINIO_PASSWORD)
+            - name: ENDURO_TELEMETRY_TRACES_ENABLED
+              value: "true"
+            - name: ENDURO_TELEMETRY_TRACES_ADDRESS
+              value: "grafana-alloy.enduro-sdps:4317"
+            - name: ENDURO_TELEMETRY_TRACES_SAMPLING_RATIO
+              value: "1.0"
             - name: ENDURO_PRESERVATION_TASKQUEUE
               value: "am"
             - name: ENDURO_AM_ADDRESS
