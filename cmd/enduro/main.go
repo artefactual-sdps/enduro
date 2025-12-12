@@ -488,6 +488,7 @@ func main() {
 			os.Exit(1)
 		}
 
+		// Ingest processing workflow and activities.
 		w.RegisterWorkflowWithOptions(
 			workflow.NewProcessingWorkflow(cfg, rand.Reader, ingestsvc, wsvc).Execute,
 			temporalsdk_workflow.RegisterOptions{Name: ingest.ProcessingWorkflowName},
@@ -513,12 +514,17 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.DisposeOriginalActivityName},
 		)
 
-		// Batch workflow.
+		// Ingest batch workflow and activities.
 		w.RegisterWorkflowWithOptions(
 			workflow.NewBatchWorkflow(cfg, rand.Reader, ingestsvc, temporalClient).Execute,
 			temporalsdk_workflow.RegisterOptions{Name: ingest.BatchWorkflowName},
 		)
+		w.RegisterActivityWithOptions(
+			activities.NewPollSIPStatusesActivity(ingestsvc, time.Second*60).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.PollSIPStatusesActivityName},
+		)
 
+		// Storage workflows and activities.
 		w.RegisterWorkflowWithOptions(
 			storage_workflows.NewStorageDeleteWorkflow(
 				cfg.Storage.AIPDeletion,
