@@ -30,8 +30,9 @@ data:
             grpc:
               endpoint: 0.0.0.0:4317
       log_received_spans:
-        enabled: true
-        include_all_attributes: true
+        # Enable for verbose ingest debugging (very noisy).
+        enabled: false
+        include_all_attributes: false
     server:
       http_listen_port: 3200
     storage:
