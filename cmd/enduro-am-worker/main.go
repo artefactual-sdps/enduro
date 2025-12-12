@@ -223,10 +223,12 @@ func main() {
 
 		done := make(chan struct{})
 		workerOpts := temporalsdk_worker.Options{
-			DisableWorkflowWorker:              true,
-			EnableSessionWorker:                true,
-			MaxConcurrentSessionExecutionSize:  cfg.AM.Capacity,
-			MaxConcurrentActivityExecutionSize: 1,
+			DisableWorkflowWorker:             true,
+			EnableSessionWorker:               true,
+			MaxConcurrentSessionExecutionSize: cfg.AM.Capacity,
+			// Allow two concurrent activities, recreated sessions require a long
+			// running activity slot in the same worker where the session is held.
+			MaxConcurrentActivityExecutionSize: 2 * cfg.AM.Capacity,
 			Interceptors: []temporalsdk_interceptor.WorkerInterceptor{
 				temporal_tools.NewLoggerInterceptor(logger),
 			},

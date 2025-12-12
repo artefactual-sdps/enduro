@@ -228,8 +228,10 @@ func main() {
 			DisableWorkflowWorker: true,
 			EnableSessionWorker:   true,
 			// Allow only one concurrent session as a3m is not concurrency safe.
-			MaxConcurrentSessionExecutionSize:  1,
-			MaxConcurrentActivityExecutionSize: 1,
+			MaxConcurrentSessionExecutionSize: 1,
+			// Allow two concurrent activities, recreated sessions require a long
+			// running activity slot in the same worker where the session is held.
+			MaxConcurrentActivityExecutionSize: 2,
 			Interceptors: []temporalsdk_interceptor.WorkerInterceptor{
 				temporal_tools.NewLoggerInterceptor(logger),
 			},
