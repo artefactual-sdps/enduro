@@ -2,6 +2,7 @@ package client
 
 import (
 	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -15,22 +16,18 @@ import (
 func convertSIP(sip *db.SIP) *datatypes.SIP {
 	// Convert required fields.
 	s := datatypes.SIP{
-		ID:        sip.ID,
-		UUID:      sip.UUID,
-		Name:      sip.Name,
-		Status:    sip.Status,
-		CreatedAt: sip.CreatedAt,
-		FailedAs:  sip.FailedAs,
-		FailedKey: sip.FailedKey,
+		ID:          sip.ID,
+		UUID:        sip.UUID,
+		Name:        sip.Name,
+		Status:      sip.Status,
+		CreatedAt:   sip.CreatedAt,
+		StartedAt:   nullTime(sip.StartedAt),
+		CompletedAt: nullTime(sip.CompletedAt),
+		FailedAs:    sip.FailedAs,
+		FailedKey:   sip.FailedKey,
 	}
 
 	// Convert optional fields.
-	if !sip.StartedAt.IsZero() {
-		s.StartedAt = sql.NullTime{Time: sip.StartedAt, Valid: true}
-	}
-	if !sip.CompletedAt.IsZero() {
-		s.CompletedAt = sql.NullTime{Time: sip.CompletedAt, Valid: true}
-	}
 	if sip.AipID != uuid.Nil {
 		s.AIPID = uuid.NullUUID{UUID: sip.AipID, Valid: true}
 	}
@@ -47,16 +44,6 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 // convertTask converts an entgo `db.Task` representation
 // to a `datatypes.Task` representation.
 func convertTask(task *db.Task) *datatypes.Task {
-	var started sql.NullTime
-	if !task.StartedAt.IsZero() {
-		started = sql.NullTime{Time: task.StartedAt.UTC(), Valid: true}
-	}
-
-	var completed sql.NullTime
-	if !task.CompletedAt.IsZero() {
-		completed = sql.NullTime{Time: task.CompletedAt.UTC(), Valid: true}
-	}
-
 	var status uint
 	if task.Status > 0 {
 		status = uint(task.Status) // #nosec G115 -- range validated.
@@ -72,8 +59,8 @@ func convertTask(task *db.Task) *datatypes.Task {
 		UUID:         task.UUID,
 		Name:         task.Name,
 		Status:       enums.TaskStatus(status),
-		StartedAt:    started,
-		CompletedAt:  completed,
+		StartedAt:    nullTime(task.StartedAt),
+		CompletedAt:  nullTime(task.CompletedAt),
 		Note:         task.Note,
 		WorkflowUUID: wUUID,
 	}
@@ -115,22 +102,19 @@ func convertBatch(batch *db.Batch) *datatypes.Batch {
 	return &b
 }
 
+// convertWorkflow converts an entgo `db.Workflow` representation
+// to a `datatypes.Task` representation.
 func convertWorkflow(dbw *db.Workflow) *datatypes.Workflow {
-	// ent stores status as int8 constrained by schema; direct cast is safe.
 	w := &datatypes.Workflow{
-		ID:         dbw.ID,
-		UUID:       dbw.UUID,
-		TemporalID: dbw.TemporalID,
-		Type:       dbw.Type,
-		Status:     enums.WorkflowStatus(uint(dbw.Status)), // #nosec G115 -- constrained value.
+		ID:          dbw.ID,
+		UUID:        dbw.UUID,
+		TemporalID:  dbw.TemporalID,
+		Type:        dbw.Type,
+		Status:      enums.WorkflowStatus(uint(dbw.Status)), // #nosec G115 -- constrained value.
+		StartedAt:   nullTime(dbw.StartedAt),
+		CompletedAt: nullTime(dbw.CompletedAt),
 	}
 
-	if !dbw.StartedAt.IsZero() {
-		w.StartedAt = sql.NullTime{Time: dbw.StartedAt.UTC(), Valid: true}
-	}
-	if !dbw.CompletedAt.IsZero() {
-		w.CompletedAt = sql.NullTime{Time: dbw.CompletedAt.UTC(), Valid: true}
-	}
 	if dbw.Edges.Sip != nil {
 		w.SIPUUID = dbw.Edges.Sip.UUID
 	}
@@ -148,4 +132,11 @@ func convertWorkflow(dbw *db.Workflow) *datatypes.Workflow {
 	}
 
 	return w
+}
+
+func nullTime(t time.Time) sql.NullTime {
+	if t.IsZero() {
+		return sql.NullTime{}
+	}
+	return sql.NullTime{Time: t.UTC(), Valid: true}
 }
