@@ -364,7 +364,12 @@ func TestCompleteWorkflow(t *testing.T) {
 				tt.mock(perSvc)
 			}
 
-			err := ingestsvc.CompleteWorkflow(context.Background(), tt.params.id, tt.params.status, tt.params.completedAt)
+			err := ingestsvc.CompleteWorkflow(
+				context.Background(),
+				tt.params.id,
+				tt.params.status,
+				tt.params.completedAt,
+			)
 
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)

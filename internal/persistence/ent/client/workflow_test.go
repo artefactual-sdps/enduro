@@ -7,13 +7,13 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
-	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 )
 
 func TestCreateWorkflow(t *testing.T) {
@@ -123,76 +123,104 @@ func TestCreateWorkflow(t *testing.T) {
 func TestUpdateWorkflow(t *testing.T) {
 	t.Parallel()
 
+	workflowUUID := uuid.New()
+	started := sql.NullTime{Time: time.Now(), Valid: true}
+	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
+
+	type params struct {
+		workflow *datatypes.Workflow
+		updater  persistence.WorkflowUpdater
+	}
 	tests := []struct {
 		name    string
-		setup   func(t *testing.T) (svc persistence.Service, wfID int, expect time.Time)
-		updater persistence.WorkflowUpdater
+		args    params
+		want    *datatypes.Workflow
 		wantErr string
 	}{
 		{
 			name: "Updates status and completion",
-			setup: func(t *testing.T) (persistence.Service, int, time.Time) {
-				entc, svc := setUpClient(t, logr.Discard())
-				sip, err := createSIP(t, entc, "update", enums.SIPStatusProcessing)
-				assert.NilError(t, err)
-				wf, err := createWorkflow(t, entc, sip.ID, enums.WorkflowStatusQueued)
-				assert.NilError(t, err)
-				return svc, wf.ID, time.Now().UTC()
+			args: params{
+				workflow: &datatypes.Workflow{
+					UUID:       workflowUUID,
+					TemporalID: "processing-workflow-1",
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusQueued,
+					StartedAt:  started,
+					SIPUUID:    sipUUID,
+				},
+				updater: func(w *datatypes.Workflow) (*datatypes.Workflow, error) {
+					w.Status = enums.WorkflowStatusDone
+					w.CompletedAt = completed
+					return w, nil
+				},
 			},
-			updater: func(w *datatypes.Workflow) (*datatypes.Workflow, error) {
-				w.Status = enums.WorkflowStatusDone
-				w.CompletedAt = sql.NullTime{Time: time.Now().UTC(), Valid: true}
-				return w, nil
+			want: &datatypes.Workflow{
+				ID:          1,
+				UUID:        workflowUUID,
+				TemporalID:  "processing-workflow-1",
+				Type:        enums.WorkflowTypeCreateAip,
+				Status:      enums.WorkflowStatusDone,
+				StartedAt:   started,
+				CompletedAt: completed,
+				SIPUUID:     sipUUID,
 			},
 		},
 		{
 			name: "Propagates updater error",
-			setup: func(t *testing.T) (persistence.Service, int, time.Time) {
-				entc, svc := setUpClient(t, logr.Discard())
-				sip, err := createSIP(t, entc, "update", enums.SIPStatusProcessing)
-				assert.NilError(t, err)
-				wf, err := createWorkflow(t, entc, sip.ID, enums.WorkflowStatusQueued)
-				assert.NilError(t, err)
-				return svc, wf.ID, time.Time{}
-			},
-			updater: func(w *datatypes.Workflow) (*datatypes.Workflow, error) {
-				return nil, errors.New("boom")
+			args: params{
+				workflow: &datatypes.Workflow{
+					UUID:       workflowUUID,
+					TemporalID: "processing-workflow-2",
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusQueued,
+					SIPUUID:    sipUUID,
+				},
+				updater: func(w *datatypes.Workflow) (*datatypes.Workflow, error) {
+					return nil, errors.New("boom")
+				},
 			},
 			wantErr: "invalid data error: updater error: boom",
 		},
 		{
 			name: "Returns not found when workflow missing",
-			setup: func(t *testing.T) (persistence.Service, int, time.Time) {
-				_, svc := setUpClient(t, logr.Discard())
-				return svc, 9999, time.Time{}
-			},
-			updater: func(w *datatypes.Workflow) (*datatypes.Workflow, error) {
-				return w, nil
+			args: params{
+				updater: func(w *datatypes.Workflow) (*datatypes.Workflow, error) {
+					return w, nil
+				},
 			},
 			wantErr: "not found error: db: workflow not found",
 		},
 	}
-
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			svc, wfID, expectedTime := tt.setup(t)
+			ctx := t.Context()
+			entc, svc := setUpClient(t, logr.Discard())
+			sip, _ := createSIP(t, entc, "Test SIP", enums.SIPStatusProcessing)
 
-			updated, err := svc.UpdateWorkflow(t.Context(), wfID, tt.updater)
+			var id int
+			if tt.args.workflow != nil {
+				wf, err := entc.Workflow.Create().
+					SetUUID(tt.args.workflow.UUID).
+					SetTemporalID(tt.args.workflow.TemporalID).
+					SetType(tt.args.workflow.Type).
+					SetStatus(int8(tt.args.workflow.Status)). // #nosec G115 -- constrained value.
+					SetStartedAt(tt.args.workflow.StartedAt.Time).
+					SetSipID(sip.ID).
+					Save(ctx)
+				assert.NilError(t, err)
+				id = wf.ID
+			}
+
+			workflow, err := svc.UpdateWorkflow(ctx, id, tt.args.updater)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
 			}
 
-			assert.NilError(t, err)
-			assert.Equal(t, updated.Status, enums.WorkflowStatusDone)
-			if expectedTime.IsZero() {
-				assert.Assert(t, updated.CompletedAt.Valid || true) // ensure field exists
-			} else {
-				assert.Assert(t, updated.CompletedAt.Valid)
-				assert.Equal(t, updated.CompletedAt.Time.Truncate(time.Second), expectedTime.Truncate(time.Second))
-			}
+			tt.want.ID = id
+			assert.DeepEqual(t, workflow, tt.want, cmpopts.EquateEmpty())
 		})
 	}
 }
@@ -200,47 +228,60 @@ func TestUpdateWorkflow(t *testing.T) {
 func TestReadWorkflow(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
+	workflowUUID := uuid.New()
+	started := sql.NullTime{Time: time.Now(), Valid: true}
+
+	for _, tt := range []struct {
 		name    string
-		setup   func(t *testing.T) (svc persistence.Service, wfID int, sipUUID uuid.UUID)
+		want    *datatypes.Workflow
 		wantErr string
 	}{
 		{
-			name: "Reads workflow",
-			setup: func(t *testing.T) (persistence.Service, int, uuid.UUID) {
-				entc, svc := setUpClient(t, logr.Discard())
-				sip, err := createSIP(t, entc, "read", enums.SIPStatusProcessing)
-				assert.NilError(t, err)
-				wf, err := createWorkflow(t, entc, sip.ID, enums.WorkflowStatusQueued)
-				assert.NilError(t, err)
-				return svc, wf.ID, sip.UUID
+			name: "Reads a workflow",
+			want: &datatypes.Workflow{
+				ID:         1,
+				UUID:       workflowUUID,
+				TemporalID: "processing-workflow-1",
+				Type:       enums.WorkflowTypeCreateAip,
+				Status:     enums.WorkflowStatusQueued,
+				StartedAt:  started,
+				SIPUUID:    sipUUID,
 			},
 		},
 		{
-			name: "Returns not found",
-			setup: func(t *testing.T) (persistence.Service, int, uuid.UUID) {
-				_, svc := setUpClient(t, logr.Discard())
-				return svc, 12345, uuid.Nil
-			},
+			name:    "Returns not found for missing workflow",
 			wantErr: "not found error: db: workflow not found",
 		},
-	}
-
-	for _, tt := range tests {
+	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			svc, wfID, sipUUID := tt.setup(t)
-			got, err := svc.ReadWorkflow(t.Context(), wfID)
+			ctx := t.Context()
+			entc, svc := setUpClient(t, logr.Discard())
+			sip, _ := createSIP(t, entc, "Test SIP", enums.SIPStatusProcessing)
+
+			var id int
+			if tt.want != nil {
+				wf, err := entc.Workflow.Create().
+					SetUUID(tt.want.UUID).
+					SetTemporalID(tt.want.TemporalID).
+					SetType(tt.want.Type).
+					SetStatus(int8(tt.want.Status)). // #nosec G115 -- constrained value.
+					SetStartedAt(tt.want.StartedAt.Time).
+					SetSipID(sip.ID).
+					Save(ctx)
+				assert.NilError(t, err)
+				id = wf.ID
+			}
+
+			workflow, err := svc.ReadWorkflow(ctx, id)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
 			}
 
-			assert.NilError(t, err)
-			assert.Assert(t, got != nil)
-			assert.Equal(t, got.ID, wfID)
-			assert.Equal(t, got.SIPUUID, sipUUID)
+			tt.want.ID = id
+			assert.DeepEqual(t, workflow, tt.want, cmpopts.EquateEmpty())
 		})
 	}
 }
@@ -248,91 +289,89 @@ func TestReadWorkflow(t *testing.T) {
 func TestListWorkflowsBySIP(t *testing.T) {
 	t.Parallel()
 
-	tests := []struct {
-		name    string
-		setup   func(t *testing.T) (svc persistence.Service, sipUUID uuid.UUID)
-		expect  int
-		check   func(t *testing.T, w []*datatypes.Workflow)
-		wantErr string
+	workflowUUID1 := uuid.New()
+	workflowUUID2 := uuid.New()
+	started := sql.NullTime{Time: time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC), Valid: true}
+	started2 := sql.NullTime{Time: time.Date(2024, 9, 25, 10, 3, 42, 0, time.UTC), Valid: true}
+
+	for _, tt := range []struct {
+		name      string
+		workflows []*datatypes.Workflow
+		want      []*datatypes.Workflow
+		wantErr   string
 	}{
 		{
 			name: "Returns workflows ordered by started_at desc",
-			setup: func(t *testing.T) (persistence.Service, uuid.UUID) {
-				entc, svc := setUpClient(t, logr.Discard())
-				sip, err := createSIP(t, entc, "list", enums.SIPStatusProcessing)
-				assert.NilError(t, err)
-				// older
-				_, err = createWorkflowWithTimes(
-					t,
-					entc,
-					sip.ID,
-					enums.WorkflowStatusQueued,
-					time.Now().Add(-2*time.Hour),
-				)
-				assert.NilError(t, err)
-				// newer
-				_, err = createWorkflowWithTimes(t, entc, sip.ID, enums.WorkflowStatusQueued, time.Now())
-				assert.NilError(t, err)
-				return svc, sip.UUID
+			workflows: []*datatypes.Workflow{
+				{
+					UUID:       workflowUUID1,
+					TemporalID: "processing-workflow-1",
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusQueued,
+					StartedAt:  started,
+					SIPUUID:    sipUUID,
+				},
+				{
+					UUID:       workflowUUID2,
+					TemporalID: "processing-workflow-2",
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusInProgress,
+					StartedAt:  started2,
+					SIPUUID:    sipUUID,
+				},
 			},
-			expect: 2,
-			check: func(t *testing.T, w []*datatypes.Workflow) {
-				assert.Assert(
-					t,
-					w[0].StartedAt.Time.After(w[1].StartedAt.Time) || w[0].StartedAt.Time.Equal(w[1].StartedAt.Time),
-				)
+			want: []*datatypes.Workflow{
+				{
+					ID:         2, // Newer first.
+					UUID:       workflowUUID2,
+					TemporalID: "processing-workflow-2",
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusInProgress,
+					StartedAt:  started2,
+					SIPUUID:    sipUUID,
+				},
+				{
+					ID:         1, // Older second.
+					UUID:       workflowUUID1,
+					TemporalID: "processing-workflow-1",
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusQueued,
+					StartedAt:  started,
+					SIPUUID:    sipUUID,
+				},
 			},
 		},
 		{
 			name: "Returns empty when none",
-			setup: func(t *testing.T) (persistence.Service, uuid.UUID) {
-				entc, svc := setUpClient(t, logr.Discard())
-				sip, err := createSIP(t, entc, "empty", enums.SIPStatusProcessing)
-				assert.NilError(t, err)
-				return svc, sip.UUID
-			},
-			expect: 0,
-			check: func(t *testing.T, w []*datatypes.Workflow) {
-				assert.Equal(t, len(w), 0)
-			},
+			want: []*datatypes.Workflow{},
 		},
-	}
-
-	for _, tt := range tests {
+	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			svc, sipUUID := tt.setup(t)
-			got, err := svc.ListWorkflowsBySIP(t.Context(), sipUUID)
+			ctx := t.Context()
+			entc, svc := setUpClient(t, logr.Discard())
+			sip, _ := createSIP(t, entc, "Test SIP", enums.SIPStatusProcessing)
+
+			for _, wf := range tt.workflows {
+				_, err := entc.Workflow.Create().
+					SetUUID(wf.UUID).
+					SetTemporalID(wf.TemporalID).
+					SetType(wf.Type).
+					SetStatus(int8(wf.Status)). // #nosec G115 -- constrained value.
+					SetStartedAt(wf.StartedAt.Time).
+					SetSipID(sip.ID).
+					Save(ctx)
+				assert.NilError(t, err)
+			}
+
+			got, err := svc.ListWorkflowsBySIP(ctx, sipUUID)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return
 			}
 			assert.NilError(t, err)
-			assert.Equal(t, len(got), tt.expect)
-			if tt.check != nil {
-				tt.check(t, got)
-			}
+			assert.DeepEqual(t, got, tt.want, cmpopts.EquateEmpty())
 		})
 	}
-}
-
-func createWorkflowWithTimes(
-	t *testing.T,
-	entc *db.Client,
-	sipID int,
-	status enums.WorkflowStatus,
-	started time.Time,
-) (*db.Workflow, error) {
-	t.Helper()
-	wf, err := entc.Workflow.
-		Create().
-		SetUUID(uuid.New()).
-		SetTemporalID("tid").
-		SetType(enums.WorkflowTypeCreateAip).
-		SetStatus(int8(status)). // #nosec G115 -- enum values fit in int8.
-		SetStartedAt(started).
-		SetSipID(sipID).
-		Save(t.Context())
-	return wf, err
 }
