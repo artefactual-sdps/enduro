@@ -101,9 +101,13 @@ func (c *client) UpdateWorkflow(
 	}
 	if up.StartedAt.Valid {
 		q.SetStartedAt(up.StartedAt.Time.UTC())
+	} else {
+		q.ClearStartedAt()
 	}
 	if up.CompletedAt.Valid {
 		q.SetCompletedAt(up.CompletedAt.Time.UTC())
+	} else {
+		q.ClearCompletedAt()
 	}
 
 	dbw, err = q.Save(ctx)
