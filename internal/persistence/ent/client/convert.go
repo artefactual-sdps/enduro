@@ -135,7 +135,8 @@ func convertWorkflow(dbw *db.Workflow) *datatypes.Workflow {
 		w.SIPUUID = dbw.Edges.Sip.UUID
 	}
 
-	if len(dbw.Edges.Tasks) > 0 {
+	// Only populate Tasks if they were loaded, preserving nil vs empty semantics.
+	if dbw.Edges.Tasks != nil {
 		w.Tasks = make([]*datatypes.Task, 0, len(dbw.Edges.Tasks))
 		for _, dbt := range dbw.Edges.Tasks {
 			t := convertTask(dbt)
