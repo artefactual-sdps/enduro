@@ -46,7 +46,7 @@ func sipIngestAuditEvent(s *datatypes.SIP) *auditlog.Event {
 func workflowToGoa(w *datatypes.Workflow) *goaingest.SIPWorkflow {
 	var startedAt string
 	if w.StartedAt.Valid {
-		startedAt = w.StartedAt.Time.In(time.UTC).Format(time.RFC3339)
+		startedAt = w.StartedAt.Time.Format(time.RFC3339)
 	}
 
 	res := &goaingest.SIPWorkflow{
