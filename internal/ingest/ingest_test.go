@@ -381,9 +381,7 @@ func TestSetStatus(t *testing.T) {
 				"should update SIP status",
 				func(upd persistence.SIPUpdater) error {
 					updated, err := upd(&datatypes.SIP{})
-					if err != nil {
-						return err
-					}
+					assert.NilError(t, err)
 					assert.Equal(t, updated.Status, status)
 					return nil
 				},
@@ -391,7 +389,7 @@ func TestSetStatus(t *testing.T) {
 		).
 		Return(&datatypes.SIP{UUID: sipUUID, Status: status}, nil)
 
-	assert.NilError(t, ingestsvc.SetStatus(context.Background(), sipUUID, status))
+	assert.NilError(t, ingestsvc.SetStatus(t.Context(), sipUUID, status))
 }
 
 func TestSetStatusInProgress(t *testing.T) {
@@ -409,12 +407,9 @@ func TestSetStatusInProgress(t *testing.T) {
 				"should update SIP started at",
 				func(upd persistence.SIPUpdater) error {
 					updated, err := upd(&datatypes.SIP{})
-					if err != nil {
-						return err
-					}
+					assert.NilError(t, err)
 					assert.Equal(t, updated.Status, enums.SIPStatusProcessing)
-					assert.Assert(t, updated.StartedAt.Valid)
-					assert.Equal(t, updated.StartedAt.Time, startedAt)
+					assert.DeepEqual(t, updated.StartedAt, sql.NullTime{Time: startedAt, Valid: true})
 					return nil
 				},
 			),
@@ -425,5 +420,5 @@ func TestSetStatusInProgress(t *testing.T) {
 			StartedAt: sql.NullTime{Time: startedAt, Valid: true},
 		}, nil)
 
-	assert.NilError(t, ingestsvc.SetStatusInProgress(context.Background(), sipUUID, startedAt))
+	assert.NilError(t, ingestsvc.SetStatusInProgress(t.Context(), sipUUID, startedAt))
 }
