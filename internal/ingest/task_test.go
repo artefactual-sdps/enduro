@@ -186,7 +186,7 @@ func TestCreateTasks(t *testing.T) {
 					CreateTasks(mockutil.Context(), tasks).
 					Return(errors.New("boom"))
 			},
-			wantErr: "tasks: create: boom",
+			wantErr: "task: bulk create: boom",
 		},
 	}
 

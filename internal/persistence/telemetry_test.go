@@ -1,7 +1,6 @@
 package persistence_test
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"testing"
@@ -26,7 +25,7 @@ func newTracerWithRecorder(t *testing.T) (*tracetest.SpanRecorder, *otelsdktrace
 
 	recorder := tracetest.NewSpanRecorder()
 	tp := otelsdktrace.NewTracerProvider(otelsdktrace.WithSpanProcessor(recorder))
-	t.Cleanup(func() { _ = tp.Shutdown(context.Background()) })
+	t.Cleanup(func() { _ = tp.Shutdown(t.Context()) })
 
 	return recorder, tp
 }

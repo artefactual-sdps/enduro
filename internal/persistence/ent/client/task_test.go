@@ -1,15 +1,13 @@
 package client_test
 
 import (
-	"context"
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"testing"
 	"time"
 
-	"entgo.io/ent/dialect"
-	entsql "entgo.io/ent/dialect/sql"
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"gotest.tools/v3/assert"
@@ -17,7 +15,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
-	entclient "github.com/artefactual-sdps/enduro/internal/persistence/ent/client"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/enttest"
 )
@@ -235,28 +232,32 @@ func TestCreateTasks(t *testing.T) {
 func TestCreateTasksUsesBatching(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-	dsn := fmt.Sprintf("file:%s?mode=memory&cache=shared&_fk=1", t.Name())
+	var begins, inserts int
+	entc, svc := setUpClientWithOpts(
+		t,
+		logr.Discard(),
+		enttest.WithOptions(
+			db.Debug(),
+			db.Log(func(args ...any) {
+				q := strings.ToUpper(fmt.Sprint(args...))
+				if strings.Contains(q, "BEGIN") {
+					begins++
+				}
+				if strings.Contains(q, "INSERT") {
+					inserts++
+				}
+			}),
+		),
+	)
 
-	sqlDB, err := sql.Open("sqlite3", dsn)
-	assert.NilError(t, err)
-	t.Cleanup(func() { sqlDB.Close() })
-
-	drv := entsql.OpenDB(dialect.SQLite, sqlDB)
-	cdrv := &countingDriver{Driver: drv}
-
-	entc := enttest.NewClient(t, enttest.WithOptions(db.Driver(cdrv)))
-	t.Cleanup(func() { entc.Close() })
-
-	svc := entclient.New(logr.Discard(), entc)
-
+	ctx := t.Context()
 	sip, err := createSIP(t, entc, "Test SIP", enums.SIPStatusIngested)
 	assert.NilError(t, err)
 	_, err = createWorkflow(t, entc, sip.ID, enums.WorkflowStatusDone)
 	assert.NilError(t, err)
 
-	// Ignore INSERTs performed while seeding fixtures.
-	cdrv.reset()
+	// Reset counters to ignore INSERTs performed while seeding fixtures.
+	begins, inserts = 0, 0
 
 	tasks := make([]*datatypes.Task, 400)
 	for i := range tasks {
@@ -269,8 +270,8 @@ func TestCreateTasksUsesBatching(t *testing.T) {
 	}
 
 	assert.NilError(t, svc.CreateTasks(ctx, tasks))
-	assert.Equal(t, 1, cdrv.begins)
-	assert.Equal(t, 2, len(cdrv.execs))
+	assert.Equal(t, 1, begins)
+	assert.Equal(t, 2, inserts)
 }
 
 func TestUpdateTask(t *testing.T) {

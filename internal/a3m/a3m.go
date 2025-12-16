@@ -168,8 +168,8 @@ func (a *CreateAIPActivity) Execute(
 	return result, nil
 }
 
-// taskStatusesByA3mJobStatuses maps a3m job statuses to Enduro task statuses.
-var taskStatusesByA3mJobStatuses = map[transferservice.Job_Status]enums.TaskStatus{
+// a3mJobToTaskStatus maps a3m job statuses to Enduro task statuses.
+var a3mJobToTaskStatus = map[transferservice.Job_Status]enums.TaskStatus{
 	transferservice.Job_STATUS_UNSPECIFIED: enums.TaskStatusUnspecified,
 	transferservice.Job_STATUS_COMPLETE:    enums.TaskStatusDone,
 	transferservice.Job_STATUS_PROCESSING:  enums.TaskStatusInProgress,
@@ -186,27 +186,25 @@ func saveTasks(
 	ctx, span := tracer.Start(ctx, "saveTasks")
 	defer span.End()
 
-	tasks := make([]*datatypes.Task, 0, len(jobs))
+	tasks := make([]*datatypes.Task, len(jobs))
 
-	for _, job := range jobs {
+	for i, job := range jobs {
 		taskUUID, err := uuid.Parse(job.Id)
 		if err != nil {
 			err = fmt.Errorf("unable to parse task UUID from job ID: %q", job.Id)
 			telemetry.RecordError(span, err)
 			return err
 		}
-		task := &datatypes.Task{
+		tasks[i] = &datatypes.Task{
 			UUID:   taskUUID,
 			Name:   job.Name,
-			Status: taskStatusesByA3mJobStatuses[job.Status],
+			Status: a3mJobToTaskStatus[job.Status],
 			StartedAt: sql.NullTime{
 				Time:  job.StartTime.AsTime(),
 				Valid: true,
 			},
 			WorkflowUUID: wUUID,
 		}
-
-		tasks = append(tasks, task)
 	}
 
 	if err := ingestsvc.CreateTasks(ctx, tasks); err != nil {

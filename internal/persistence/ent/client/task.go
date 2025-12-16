@@ -21,10 +21,6 @@ import (
 const defaultBatchSize = 200
 
 func (c *client) CreateTask(ctx context.Context, task *datatypes.Task) error {
-	if task == nil {
-		return newRequiredFieldError("task")
-	}
-
 	return c.CreateTasks(ctx, []*datatypes.Task{task})
 }
 
@@ -41,10 +37,7 @@ func (c *client) CreateTasks(ctx context.Context, tasks []*datatypes.Task) error
 	workflowIDs := make(map[uuid.UUID]int)
 
 	for start := 0; start < len(tasks); start += defaultBatchSize {
-		end := start + defaultBatchSize
-		if end > len(tasks) {
-			end = len(tasks)
-		}
+		end := min(start+defaultBatchSize, len(tasks))
 		batch := tasks[start:end]
 
 		builders := make([]*db.TaskCreate, 0, len(batch))

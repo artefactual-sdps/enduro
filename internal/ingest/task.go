@@ -32,7 +32,7 @@ func (svc *ingestImpl) CreateTasks(ctx context.Context, tasks []*datatypes.Task)
 
 	err := svc.perSvc.CreateTasks(ctx, tasks)
 	if err != nil {
-		return fmt.Errorf("tasks: create: %v", err)
+		return fmt.Errorf("task: bulk create: %v", err)
 	}
 
 	for _, task := range tasks {

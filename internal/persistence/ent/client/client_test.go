@@ -24,9 +24,18 @@ var (
 
 func setUpClient(t *testing.T, logger logr.Logger) (*db.Client, persistence.Service) {
 	t.Helper()
+	return setUpClientWithOpts(t, logger)
+}
+
+func setUpClientWithOpts(
+	t *testing.T,
+	logger logr.Logger,
+	opts ...enttest.Option,
+) (*db.Client, persistence.Service) {
+	t.Helper()
 
 	dsn := fmt.Sprintf("file:%s?mode=memory&cache=shared&_fk=1", t.Name())
-	entc := enttest.Open(t, "sqlite3", dsn)
+	entc := enttest.Open(t, "sqlite3", dsn, opts...)
 	t.Cleanup(func() { entc.Close() })
 
 	c := entclient.New(logger, entc)
