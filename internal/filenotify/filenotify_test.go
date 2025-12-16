@@ -1,13 +1,13 @@
 package filenotify_test
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/fsnotify/fsnotify"
+	"gotest.tools/v3/poll"
 
 	"github.com/artefactual-sdps/enduro/internal/filenotify"
 )
@@ -45,22 +45,26 @@ func TestPollerEvent(t *testing.T) {
 	if err := os.WriteFile(path, []byte("hello"), 0o600); err != nil {
 		t.Fatal(err)
 	}
-	if err := assertEvent(w, fsnotify.Create); err != nil {
-		t.Fatal(err)
-	}
+	assertEvent(t, w, fsnotify.Create)
 }
 
-func assertEvent(w filenotify.FileWatcher, eType fsnotify.Op) error {
-	var err error
-	select {
-	case e := <-w.Events():
-		if e.Op != eType {
-			err = fmt.Errorf("got wrong event type, expected %q: %v", eType, e.Op)
+func assertEvent(t *testing.T, w filenotify.FileWatcher, eType fsnotify.Op) {
+	t.Helper()
+
+	poll.WaitOn(t, func(t poll.LogT) poll.Result {
+		select {
+		case e := <-w.Events():
+			if e.Op == eType {
+				return poll.Success()
+			}
+			return poll.Continue("got wrong event type, expected %q: %v", eType, e.Op)
+		case err := <-w.Errors():
+			return poll.Error(err)
+		default:
+			return poll.Continue("no event yet")
 		}
-	case e := <-w.Errors():
-		err = fmt.Errorf("got unexpected error waiting for events %v: %v", eType, e)
-	case <-time.After(pollInterval * 2):
-		err = fmt.Errorf("timeout waiting for event %v", eType)
-	}
-	return err
+	},
+		poll.WithTimeout(pollInterval*20),
+		poll.WithDelay(pollInterval),
+	)
 }
