@@ -103,7 +103,7 @@ func convertBatch(batch *db.Batch) *datatypes.Batch {
 }
 
 // convertWorkflow converts an entgo `db.Workflow` representation
-// to a `datatypes.Task` representation.
+// to a `datatypes.Workflow` representation.
 func convertWorkflow(dbw *db.Workflow) *datatypes.Workflow {
 	w := &datatypes.Workflow{
 		ID:          dbw.ID,
@@ -121,13 +121,13 @@ func convertWorkflow(dbw *db.Workflow) *datatypes.Workflow {
 
 	// Only populate Tasks if they were loaded, preserving nil vs empty semantics.
 	if dbw.Edges.Tasks != nil {
-		w.Tasks = make([]*datatypes.Task, 0, len(dbw.Edges.Tasks))
-		for _, dbt := range dbw.Edges.Tasks {
+		w.Tasks = make([]*datatypes.Task, len(dbw.Edges.Tasks))
+		for i, dbt := range dbw.Edges.Tasks {
 			t := convertTask(dbt)
 			if t.WorkflowUUID == uuid.Nil {
 				t.WorkflowUUID = dbw.UUID
 			}
-			w.Tasks = append(w.Tasks, t)
+			w.Tasks[i] = t
 		}
 	}
 

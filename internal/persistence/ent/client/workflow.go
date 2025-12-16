@@ -9,6 +9,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 )
@@ -82,12 +83,16 @@ func (c *client) UpdateWorkflow(
 
 	dbw, err := tx.Workflow.Query().
 		Where(workflow.ID(id)).
-		WithSip().
-		WithTasks().
+		WithSip(func(q *db.SIPQuery) {
+			q.Select(sip.FieldUUID)
+		}).
 		Only(ctx)
 	if err != nil {
 		return nil, rollback(tx, newDBError(err))
 	}
+
+	// Keep track of the SIP UUID to include it in the workflow after conversion.
+	sipUUID := dbw.Edges.Sip.UUID
 
 	up, err := updater(convertWorkflow(dbw))
 	if err != nil {
@@ -115,20 +120,14 @@ func (c *client) UpdateWorkflow(
 		return nil, rollback(tx, newDBError(err))
 	}
 
-	dbw, err = tx.Workflow.Query().
-		Where(workflow.ID(dbw.ID)).
-		WithSip().
-		WithTasks().
-		Only(ctx)
-	if err != nil {
-		return nil, rollback(tx, newDBError(err))
-	}
-
 	if err = tx.Commit(); err != nil {
 		return nil, rollback(tx, newDBError(err))
 	}
 
-	return convertWorkflow(dbw), nil
+	w := convertWorkflow(dbw)
+	w.SIPUUID = sipUUID
+
+	return w, nil
 }
 
 func (c *client) ReadWorkflow(ctx context.Context, id int) (*datatypes.Workflow, error) {
@@ -146,7 +145,9 @@ func (c *client) ReadWorkflow(ctx context.Context, id int) (*datatypes.Workflow,
 
 func (c *client) ListWorkflowsBySIP(ctx context.Context, sipUUID uuid.UUID) ([]*datatypes.Workflow, error) {
 	dbw, err := c.ent.Workflow.Query().
-		WithSip().
+		WithSip(func(q *db.SIPQuery) {
+			q.Select(sip.FieldUUID)
+		}).
 		WithTasks().
 		Where(workflow.HasSipWith(sip.UUID(sipUUID))).
 		Order(workflow.ByStartedAt(entsql.OrderDesc())).
