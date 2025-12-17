@@ -51,21 +51,40 @@ onMounted(() => {
           <dd>
             {{ uploader(sipStore.current) }}
           </dd>
-          <dt>Started</dt>
-          <dd>{{ $filters.formatDateTime(createAipWorkflow?.startedAt) }}</dd>
-          <dt v-if="createAipWorkflow?.completedAt">Completed</dt>
-          <dd v-if="createAipWorkflow?.completedAt">
-            {{ $filters.formatDateTime(createAipWorkflow.completedAt) }}
-            <div class="pt-2">
-              (took
-              {{
-                $filters.formatDuration(
-                  createAipWorkflow.startedAt,
-                  createAipWorkflow.completedAt,
-                )
-              }})
-            </div>
-          </dd>
+          <template v-if="sipStore.current.batchUuid">
+            <dt>Batch</dt>
+            <dd>
+              <RouterLink
+                v-if="authStore.checkAttributes(['ingest:batches:read'])"
+                :to="{
+                  name: '/ingest/batches/[id]/',
+                  params: { id: sipStore.current.batchUuid },
+                }"
+              >
+                {{ sipStore.current.batchIdentifier }}
+              </RouterLink>
+              <span v-else>{{ sipStore.current.batchIdentifier }}</span>
+            </dd>
+          </template>
+          <template v-if="createAipWorkflow?.startedAt">
+            <dt>Started</dt>
+            <dd>{{ $filters.formatDateTime(createAipWorkflow?.startedAt) }}</dd>
+          </template>
+          <template v-if="createAipWorkflow?.completedAt">
+            <dt>Completed</dt>
+            <dd>
+              {{ $filters.formatDateTime(createAipWorkflow.completedAt) }}
+              <div class="pt-2">
+                (took
+                {{
+                  $filters.formatDuration(
+                    createAipWorkflow.startedAt,
+                    createAipWorkflow.completedAt,
+                  )
+                }})
+              </div>
+            </dd>
+          </template>
         </dl>
       </div>
       <div class="col-md-6">
