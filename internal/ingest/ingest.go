@@ -159,7 +159,7 @@ func (svc *ingestImpl) SetStatus(ctx context.Context, id uuid.UUID, status enums
 }
 
 func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, id uuid.UUID, startedAt time.Time) error {
-	_, err := svc.perSvc.UpdateSIP(ctx, id, func(s *datatypes.SIP) (*datatypes.SIP, error) {
+	sip, err := svc.perSvc.UpdateSIP(ctx, id, func(s *datatypes.SIP) (*datatypes.SIP, error) {
 		s.Status = enums.SIPStatusProcessing
 		if !startedAt.IsZero() {
 			s.StartedAt = sql.NullTime{
@@ -173,10 +173,7 @@ func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, id uuid.UUID, st
 		return fmt.Errorf("error updating SIP: %v", err)
 	}
 
-	PublishEvent(ctx, svc.evsvc, &goaingest.SIPStatusUpdatedEvent{
-		UUID:   id,
-		Status: enums.SIPStatusProcessing.String(),
-	})
+	PublishEvent(ctx, svc.evsvc, &goaingest.SIPUpdatedEvent{UUID: id, Item: sip.Goa()})
 
 	return nil
 }
