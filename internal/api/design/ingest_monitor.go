@@ -28,53 +28,43 @@ var IngestPingEvent = Type("IngestPingEvent", func() {
 
 var SIPCreatedEvent = Type("SIPCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of SIP")
-	Attribute("item", SIP, func() { View("default") })
+	Attribute("item", SIP)
 	Required("uuid", "item")
 })
 
 var SIPUpdatedEvent = Type("SIPUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of SIP")
-	Attribute("item", SIP, func() { View("default") })
+	Attribute("item", SIP)
 	Required("uuid", "item")
 })
 
 var SIPStatusUpdatedEvent = Type("SIPStatusUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of SIP")
-	Attribute("status", String, func() {
-		EnumSIPStatus()
-	})
+	Attribute("status", String, func() { EnumSIPStatus() })
 	Required("uuid", "status")
 })
 
 var SIPWorkflowCreatedEvent = Type("SIPWorkflowCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of workflow")
-	Attribute("item", SIPWorkflow, func() {
-		View("simple")
-	})
+	Attribute("item", SIPWorkflow, func() { View("simple") })
 	Required("uuid", "item")
 })
 
 var SIPWorkflowUpdatedEvent = Type("SIPWorkflowUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of workflow")
-	Attribute("item", SIPWorkflow, func() {
-		View("simple")
-	})
+	Attribute("item", SIPWorkflow, func() { View("simple") })
 	Required("uuid", "item")
 })
 
 var SIPTaskCreatedEvent = Type("SIPTaskCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of task")
-	Attribute("item", SIPTask, func() {
-		View("default")
-	})
+	Attribute("item", SIPTask)
 	Required("uuid", "item")
 })
 
 var SIPTaskUpdatedEvent = Type("SIPTaskUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of task")
-	Attribute("item", SIPTask, func() {
-		View("default")
-	})
+	Attribute("item", SIPTask)
 	Required("uuid", "item")
 })
 

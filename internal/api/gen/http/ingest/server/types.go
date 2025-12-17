@@ -90,6 +90,12 @@ type ShowSipResponseBody struct {
 	UploaderEmail *string `form:"uploader_email,omitempty" json:"uploader_email,omitempty" xml:"uploader_email,omitempty"`
 	// Name of the user who uploaded the SIP
 	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
+	// UUID of the related Batch
+	BatchUUID *uuid.UUID `form:"batch_uuid,omitempty" json:"batch_uuid,omitempty" xml:"batch_uuid,omitempty"`
+	// Identifier of the related Batch
+	BatchIdentifier *string `form:"batch_identifier,omitempty" json:"batch_identifier,omitempty" xml:"batch_identifier,omitempty"`
+	// Status of the related Batch
+	BatchStatus *string `form:"batch_status,omitempty" json:"batch_status,omitempty" xml:"batch_status,omitempty"`
 }
 
 // ListSipWorkflowsResponseBody is the type of the "ingest" service
@@ -769,6 +775,12 @@ type SIPResponseBody struct {
 	UploaderEmail *string `form:"uploader_email,omitempty" json:"uploader_email,omitempty" xml:"uploader_email,omitempty"`
 	// Name of the user who uploaded the SIP
 	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
+	// UUID of the related Batch
+	BatchUUID *uuid.UUID `form:"batch_uuid,omitempty" json:"batch_uuid,omitempty" xml:"batch_uuid,omitempty"`
+	// Identifier of the related Batch
+	BatchIdentifier *string `form:"batch_identifier,omitempty" json:"batch_identifier,omitempty" xml:"batch_identifier,omitempty"`
+	// Status of the related Batch
+	BatchStatus *string `form:"batch_status,omitempty" json:"batch_status,omitempty" xml:"batch_status,omitempty"`
 }
 
 // EnduroPageResponseBody is used to define fields on response body types.
@@ -948,18 +960,21 @@ func NewListSipsResponseBody(res *ingestviews.SIPsView) *ListSipsResponseBody {
 // "show_sip" endpoint of the "ingest" service.
 func NewShowSipResponseBody(res *ingestviews.SIPView) *ShowSipResponseBody {
 	body := &ShowSipResponseBody{
-		UUID:          *res.UUID,
-		Name:          res.Name,
-		Status:        *res.Status,
-		AipUUID:       res.AipUUID,
-		CreatedAt:     *res.CreatedAt,
-		StartedAt:     res.StartedAt,
-		CompletedAt:   res.CompletedAt,
-		FailedAs:      res.FailedAs,
-		FailedKey:     res.FailedKey,
-		UploaderUUID:  res.UploaderUUID,
-		UploaderEmail: res.UploaderEmail,
-		UploaderName:  res.UploaderName,
+		UUID:            *res.UUID,
+		Name:            res.Name,
+		Status:          *res.Status,
+		AipUUID:         res.AipUUID,
+		CreatedAt:       *res.CreatedAt,
+		StartedAt:       res.StartedAt,
+		CompletedAt:     res.CompletedAt,
+		FailedAs:        res.FailedAs,
+		FailedKey:       res.FailedKey,
+		UploaderUUID:    res.UploaderUUID,
+		UploaderEmail:   res.UploaderEmail,
+		UploaderName:    res.UploaderName,
+		BatchUUID:       res.BatchUUID,
+		BatchIdentifier: res.BatchIdentifier,
+		BatchStatus:     res.BatchStatus,
 	}
 	return body
 }

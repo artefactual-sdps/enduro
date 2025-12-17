@@ -47,9 +47,7 @@ var AIPUpdatedEvent = Type("AIPUpdatedEvent", func() {
 
 var AIPStatusUpdatedEvent = Type("AIPStatusUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of AIP")
-	Attribute("status", String, func() {
-		EnumAIPStatus()
-	})
+	Attribute("status", String, func() { EnumAIPStatus() })
 	Required("uuid", "status")
 })
 
@@ -61,13 +59,13 @@ var AIPLocationUpdatedEvent = Type("AIPLocationUpdatedEvent", func() {
 
 var AIPWorkflowCreatedEvent = Type("AIPWorkflowCreatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of workflow")
-	Attribute("item", AIPWorkflow)
+	Attribute("item", AIPWorkflow, func() { View("simple") })
 	Required("uuid", "item")
 })
 
 var AIPWorkflowUpdatedEvent = Type("AIPWorkflowUpdatedEvent", func() {
 	TypedAttributeUUID("uuid", "Identifier of workflow")
-	Attribute("item", AIPWorkflow)
+	Attribute("item", AIPWorkflow, func() { View("simple") })
 	Required("uuid", "item")
 })
 

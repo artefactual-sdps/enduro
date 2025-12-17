@@ -516,20 +516,6 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 			EnumBatchStatus()
 		})
 	})
-	View("default", func() {
-		Attribute("uuid")
-		Attribute("name")
-		Attribute("status")
-		Attribute("aip_uuid")
-		Attribute("created_at")
-		Attribute("started_at")
-		Attribute("completed_at")
-		Attribute("failed_as")
-		Attribute("failed_key")
-		Attribute("uploader_uuid")
-		Attribute("uploader_email")
-		Attribute("uploader_name")
-	})
 	Required("uuid", "status", "created_at")
 })
 
@@ -572,16 +558,6 @@ var User = ResultType("application/vnd.enduro.ingest.user", func() {
 		Attribute("created_at", String, "Creation date & time of the user", func() {
 			Format(FormatDateTime)
 		})
-	})
-	View("default", func() {
-		Attribute("uuid")
-		Attribute("email", func() {
-			Example("nobody@example.com")
-		})
-		Attribute("name", func() {
-			Example("Jane Doe")
-		})
-		Attribute("created_at")
 	})
 	Required("uuid", "email", "name", "created_at")
 })

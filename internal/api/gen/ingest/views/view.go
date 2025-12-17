@@ -361,6 +361,9 @@ var (
 			"uploader_uuid",
 			"uploader_email",
 			"uploader_name",
+			"batch_uuid",
+			"batch_identifier",
+			"batch_status",
 		},
 	}
 	// SIPWorkflowsMap is a map indexing the attribute names of SIPWorkflows by
@@ -472,6 +475,9 @@ var (
 			"uploader_uuid",
 			"uploader_email",
 			"uploader_name",
+			"batch_uuid",
+			"batch_identifier",
+			"batch_status",
 		},
 	}
 	// EnduroPageMap is a map indexing the attribute names of EnduroPage by view
@@ -768,6 +774,11 @@ func ValidateSIPView(result *SIPView) (err error) {
 	if result.FailedAs != nil {
 		if !(*result.FailedAs == "SIP" || *result.FailedAs == "PIP") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.failed_as", *result.FailedAs, []any{"SIP", "PIP"}))
+		}
+	}
+	if result.BatchStatus != nil {
+		if !(*result.BatchStatus == "queued" || *result.BatchStatus == "processing" || *result.BatchStatus == "pending" || *result.BatchStatus == "ingested" || *result.BatchStatus == "canceled" || *result.BatchStatus == "failed") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.batch_status", *result.BatchStatus, []any{"queued", "processing", "pending", "ingested", "canceled", "failed"}))
 		}
 	}
 	return

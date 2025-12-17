@@ -1916,18 +1916,21 @@ func EncodeShowBatchError(encoder func(context.Context, http.ResponseWriter) goa
 // *SIPResponseBody from a value of type *ingestviews.SIPView.
 func marshalIngestviewsSIPViewToSIPResponseBody(v *ingestviews.SIPView) *SIPResponseBody {
 	res := &SIPResponseBody{
-		UUID:          *v.UUID,
-		Name:          v.Name,
-		Status:        *v.Status,
-		AipUUID:       v.AipUUID,
-		CreatedAt:     *v.CreatedAt,
-		StartedAt:     v.StartedAt,
-		CompletedAt:   v.CompletedAt,
-		FailedAs:      v.FailedAs,
-		FailedKey:     v.FailedKey,
-		UploaderUUID:  v.UploaderUUID,
-		UploaderEmail: v.UploaderEmail,
-		UploaderName:  v.UploaderName,
+		UUID:            *v.UUID,
+		Name:            v.Name,
+		Status:          *v.Status,
+		AipUUID:         v.AipUUID,
+		CreatedAt:       *v.CreatedAt,
+		StartedAt:       v.StartedAt,
+		CompletedAt:     v.CompletedAt,
+		FailedAs:        v.FailedAs,
+		FailedKey:       v.FailedKey,
+		UploaderUUID:    v.UploaderUUID,
+		UploaderEmail:   v.UploaderEmail,
+		UploaderName:    v.UploaderName,
+		BatchUUID:       v.BatchUUID,
+		BatchIdentifier: v.BatchIdentifier,
+		BatchStatus:     v.BatchStatus,
 	}
 
 	return res

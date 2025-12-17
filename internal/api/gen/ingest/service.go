@@ -751,15 +751,18 @@ func NewViewedBatch(res *Batch, view string) *ingestviews.Batch {
 // newSIP converts projected type SIP to service type SIP.
 func newSIP(vres *ingestviews.SIPView) *SIP {
 	res := &SIP{
-		Name:          vres.Name,
-		AipUUID:       vres.AipUUID,
-		StartedAt:     vres.StartedAt,
-		CompletedAt:   vres.CompletedAt,
-		FailedAs:      vres.FailedAs,
-		FailedKey:     vres.FailedKey,
-		UploaderUUID:  vres.UploaderUUID,
-		UploaderEmail: vres.UploaderEmail,
-		UploaderName:  vres.UploaderName,
+		Name:            vres.Name,
+		AipUUID:         vres.AipUUID,
+		StartedAt:       vres.StartedAt,
+		CompletedAt:     vres.CompletedAt,
+		FailedAs:        vres.FailedAs,
+		FailedKey:       vres.FailedKey,
+		UploaderUUID:    vres.UploaderUUID,
+		UploaderEmail:   vres.UploaderEmail,
+		UploaderName:    vres.UploaderName,
+		BatchUUID:       vres.BatchUUID,
+		BatchIdentifier: vres.BatchIdentifier,
+		BatchStatus:     vres.BatchStatus,
 	}
 	if vres.UUID != nil {
 		res.UUID = *vres.UUID
@@ -777,18 +780,21 @@ func newSIP(vres *ingestviews.SIPView) *SIP {
 // "default" view.
 func newSIPView(res *SIP) *ingestviews.SIPView {
 	vres := &ingestviews.SIPView{
-		UUID:          &res.UUID,
-		Name:          res.Name,
-		Status:        &res.Status,
-		AipUUID:       res.AipUUID,
-		CreatedAt:     &res.CreatedAt,
-		StartedAt:     res.StartedAt,
-		CompletedAt:   res.CompletedAt,
-		FailedAs:      res.FailedAs,
-		FailedKey:     res.FailedKey,
-		UploaderUUID:  res.UploaderUUID,
-		UploaderEmail: res.UploaderEmail,
-		UploaderName:  res.UploaderName,
+		UUID:            &res.UUID,
+		Name:            res.Name,
+		Status:          &res.Status,
+		AipUUID:         res.AipUUID,
+		CreatedAt:       &res.CreatedAt,
+		StartedAt:       res.StartedAt,
+		CompletedAt:     res.CompletedAt,
+		FailedAs:        res.FailedAs,
+		FailedKey:       res.FailedKey,
+		UploaderUUID:    res.UploaderUUID,
+		UploaderEmail:   res.UploaderEmail,
+		UploaderName:    res.UploaderName,
+		BatchUUID:       res.BatchUUID,
+		BatchIdentifier: res.BatchIdentifier,
+		BatchStatus:     res.BatchStatus,
 	}
 	return vres
 }

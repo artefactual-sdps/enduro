@@ -573,7 +573,6 @@ var LocationNotFound = Type("LocationNotFound", func() {
 var Location = ResultType("application/vnd.enduro.storage.location", func() {
 	Description("A Location describes a location retrieved by the storage service.")
 	TypeName("Location")
-
 	Attributes(func() {
 		Attribute("name", String, "Name of location")
 		Attribute("description", String, "Description of the location")
@@ -597,9 +596,7 @@ var Location = ResultType("application/vnd.enduro.storage.location", func() {
 		Attribute("created_at", String, "Creation datetime", func() {
 			Format(FormatDateTime)
 		})
-		Required("name", "source", "purpose", "uuid", "created_at")
 	})
-
 	View("default", func() {
 		Attribute("name")
 		Attribute("description")
@@ -608,6 +605,7 @@ var Location = ResultType("application/vnd.enduro.storage.location", func() {
 		Attribute("uuid")
 		Attribute("created_at")
 	})
+	Required("name", "source", "purpose", "uuid", "created_at")
 })
 
 var EnumLocationPurpose = func() {
@@ -631,7 +629,6 @@ var MoveStatusResult = Type("MoveStatusResult", func() {
 var AIP = ResultType("application/vnd.enduro.storage.aip", func() {
 	Description("An AIP describes an AIP retrieved by the storage service.")
 	TypeName("AIP")
-
 	Attributes(func() {
 		Attribute("name", String)
 		Attribute("uuid", String, func() {
@@ -649,18 +646,8 @@ var AIP = ResultType("application/vnd.enduro.storage.aip", func() {
 			Format(FormatDateTime)
 		})
 		Attribute("deletion_report_key", String, "Deletion report key")
-		Required("name", "uuid", "status", "object_key", "created_at")
 	})
-
-	View("default", func() {
-		Attribute("name")
-		Attribute("uuid")
-		Attribute("status")
-		Attribute("object_key")
-		Attribute("location_uuid")
-		Attribute("created_at")
-		Attribute("deletion_report_key")
-	})
+	Required("name", "uuid", "status", "object_key", "created_at")
 })
 
 var AIPs = ResultType("application/vnd.enduro.storage.aips", func() {
