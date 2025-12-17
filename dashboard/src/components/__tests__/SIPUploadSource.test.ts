@@ -127,7 +127,9 @@ describe("SIPUploadSource.vue", () => {
         { key: "sip-2", size: 456, modTime: "2024-01-02T00:00:00Z" },
       ],
     });
-    ingestAddBatch.mockResolvedValueOnce({});
+    ingestAddBatch.mockResolvedValueOnce({
+      uuid: "ffdb12f4-1735-4022-b746-a9bf4a32109b",
+    });
 
     const wrapper = mount(SIPUploadSource, mountOptions());
     await flushPromises();
@@ -146,14 +148,19 @@ describe("SIPUploadSource.vue", () => {
       },
     });
     expect(ingestAddSip).not.toHaveBeenCalled();
-    expect(push).toHaveBeenCalledWith({ path: "/ingest/sips" });
+    expect(push).toHaveBeenCalledWith({
+      name: "/ingest/batches/[id]/",
+      params: { id: "ffdb12f4-1735-4022-b746-a9bf4a32109b" },
+    });
   });
 
   it("uploads a batch without identifier", async () => {
     ingestListSipSourceObjects.mockResolvedValueOnce({
       objects: [{ key: "sip-1", size: 123, modTime: "2024-01-01T00:00:00Z" }],
     });
-    ingestAddBatch.mockResolvedValueOnce({});
+    ingestAddBatch.mockResolvedValueOnce({
+      uuid: "ffdb12f4-1735-4022-b746-a9bf4a32109b",
+    });
 
     const wrapper = mount(SIPUploadSource, mountOptions());
     await flushPromises();
@@ -170,7 +177,10 @@ describe("SIPUploadSource.vue", () => {
       },
     });
     expect(ingestAddSip).not.toHaveBeenCalled();
-    expect(push).toHaveBeenCalledWith({ path: "/ingest/sips" });
+    expect(push).toHaveBeenCalledWith({
+      name: "/ingest/batches/[id]/",
+      params: { id: "ffdb12f4-1735-4022-b746-a9bf4a32109b" },
+    });
   });
 
   it("shows an error when ingest fails", async () => {

@@ -71,15 +71,18 @@ const startIngest = async () => {
       };
       const identifier = batchID.value.trim();
       if (identifier) addBatchRequestBody.identifier = identifier;
-      await client.ingest.ingestAddBatch({ addBatchRequestBody });
+      const { uuid } = await client.ingest.ingestAddBatch({
+        addBatchRequestBody,
+      });
+      router.push({ name: "/ingest/batches/[id]/", params: { id: uuid } });
     } else {
       // Group request promises.
       const ingestPromises = selectedSips.value.map((key) => {
         return client.ingest.ingestAddSip({ key, sourceId });
       });
       await Promise.all(ingestPromises);
+      router.push({ path: "/ingest/sips" });
     }
-    router.push({ path: "/ingest/sips" });
   } catch (error) {
     console.error("Failed to start ingest:", error);
     errorMessage.value = "Failed to start ingest.";
