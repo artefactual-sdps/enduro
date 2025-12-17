@@ -52,10 +52,15 @@ const tabs = computed(() => [
       name: "/ingest/upload/",
       query: { ...route.query, from: "source" },
     }),
-    show: authStore.checkAttributes([
-      "ingest:sipsources:objects:list",
-      "ingest:sips:create",
-    ]),
+    show:
+      authStore.checkAttributes([
+        "ingest:sipsources:objects:list",
+        "ingest:sips:create",
+      ]) ||
+      authStore.checkAttributes([
+        "ingest:sipsources:objects:list",
+        "ingest:batches:create",
+      ]),
   },
 ]);
 </script>

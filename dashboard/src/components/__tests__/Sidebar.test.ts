@@ -43,8 +43,8 @@ describe("Sidebar.vue", () => {
 
     getByRole("navigation", { name: "Navigation" });
     const homeLink = getByRole("link", { name: "Home" });
+    const uploadLink = getByRole("link", { name: "Upload" });
     const sipsLink = getByRole("link", { name: "SIPs" });
-    const uploadLink = getByRole("link", { name: "Upload SIPs" });
     const locationsLink = getByRole("link", { name: "Locations" });
     const aipsLink = getByRole("link", { name: "AIPs" });
 
@@ -92,8 +92,8 @@ describe("Sidebar.vue", () => {
 
     getByRole("navigation", { name: "Navigation" });
     getByRole("link", { name: "Home" });
+    expect(queryByRole("link", { name: "Upload" })).toBeNull();
     expect(queryByRole("link", { name: "SIPs" })).toBeNull();
-    expect(queryByRole("link", { name: "Upload SIPs" })).toBeNull();
     expect(queryByRole("link", { name: "Locations" })).toBeNull();
     expect(queryByRole("link", { name: "AIPs" })).toBeNull();
   });

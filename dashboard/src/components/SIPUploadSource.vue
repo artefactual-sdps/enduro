@@ -5,8 +5,10 @@ import { useRouter } from "vue-router/auto";
 
 import { api, client } from "@/client";
 import { humanFileSize } from "@/composables/format";
+import { useAuthStore } from "@/stores/auth";
 import IconBundle from "~icons/clarity/bundle-line";
 
+const authStore = useAuthStore();
 const router = useRouter();
 
 // Hardcoded source ID that must match the one in the backend configuration.
@@ -17,6 +19,12 @@ const selectedSips = ref<string[]>([]);
 const nextCursor = ref<string | undefined>(undefined);
 const listContainer = ref<HTMLElement>();
 const errorMessage = ref<string | null>(null);
+
+// At this point, the user must have at least one of the permissions
+// to create SIP or batches. Determine whether to default to batch ingest.
+// The switch will be disabled if the user doesn't have both permissions.
+const isBatch = ref(!authStore.checkAttributes(["ingest:sips:create"]));
+const batchID = ref("");
 
 const { execute, isLoading } = useAsyncState(
   async (cursor?: string | undefined) => {
@@ -56,11 +64,21 @@ const startIngest = async () => {
   errorMessage.value = null;
 
   try {
-    // Group request promises.
-    const ingestPromises = selectedSips.value.map((key) => {
-      return client.ingest.ingestAddSip({ key, sourceId });
-    });
-    await Promise.all(ingestPromises);
+    if (isBatch.value) {
+      const addBatchRequestBody: api.AddBatchRequestBody = {
+        keys: selectedSips.value,
+        sourceId,
+      };
+      const identifier = batchID.value.trim();
+      if (identifier) addBatchRequestBody.identifier = identifier;
+      await client.ingest.ingestAddBatch({ addBatchRequestBody });
+    } else {
+      // Group request promises.
+      const ingestPromises = selectedSips.value.map((key) => {
+        return client.ingest.ingestAddSip({ key, sourceId });
+      });
+      await Promise.all(ingestPromises);
+    }
     router.push({ path: "/ingest/sips" });
   } catch (error) {
     console.error("Failed to start ingest:", error);
@@ -159,12 +177,46 @@ const clickSip = (key: string) => {
         </tbody>
       </table>
     </div>
-    <div class="form-text text-end">
+    <div v-if="!isBatch" class="form-text text-end">
       Each SIP uploaded will be ingested separately in its own workflow.
     </div>
   </div>
 
-  <h2 class="mb-3">2. Launch Ingest</h2>
+  <div>
+    <h2 class="mb-3">2. Configure Ingest</h2>
+    <div class="form-check form-switch mb-3">
+      <input
+        id="batch-switch"
+        v-model="isBatch"
+        class="form-check-input"
+        type="checkbox"
+        role="switch"
+        :disabled="
+          !authStore.checkAttributes([
+            'ingest:sips:create',
+            'ingest:batches:create',
+          ])
+        "
+      />
+      <label class="form-check-label" for="batch-switch">
+        Treat this ingest as a batch?
+      </label>
+    </div>
+    <div v-if="isBatch" class="mb-3">
+      <label class="form-label" for="batch-id"
+        >Enter custom batch identifier (optional)</label
+      >
+      <input
+        id="batch-id"
+        v-model="batchID"
+        type="text"
+        class="form-control"
+        placeholder="Batch identifier"
+      />
+    </div>
+  </div>
+
+  <h2 class="mb-3">3. Launch Ingest</h2>
   <button
     class="btn btn-primary"
     :disabled="selectedSips.length === 0"

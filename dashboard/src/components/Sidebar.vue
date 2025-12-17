@@ -31,21 +31,25 @@ const menuItems = [
     show: authStore.checkAttributes(["ingest:sips:list"]),
   },
   {
-    route: router.resolve("/ingest/sips/"),
-    icon: IconSIPs,
-    text: "SIPs",
-    show: authStore.checkAttributes(["ingest:sips:list"]),
-  },
-  {
     route: router.resolve("/ingest/upload"),
     icon: IconUpload,
-    text: "Upload SIPs",
+    text: "Upload",
     show:
       authStore.checkAttributes(["ingest:sips:upload"]) ||
       authStore.checkAttributes([
         "ingest:sipsources:objects:list",
         "ingest:sips:create",
+      ]) ||
+      authStore.checkAttributes([
+        "ingest:sipsources:objects:list",
+        "ingest:batches:create",
       ]),
+  },
+  {
+    route: router.resolve("/ingest/sips/"),
+    icon: IconSIPs,
+    text: "SIPs",
+    show: authStore.checkAttributes(["ingest:sips:list"]),
   },
   {
     text: "STORAGE",
