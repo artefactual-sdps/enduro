@@ -49,9 +49,9 @@ export const useBatchStore = defineStore("batch", {
       ]);
 
       // TODO: add filtering and pagination for SIPs in batch view.
-      await client.ingest.ingestListSips({ batchUuid: uuid }).then((resp) => {
-        this.currentSips = resp.items;
-      });
+      await client.ingest
+        .ingestListSips({ batchUuid: uuid, limit: -1 })
+        .then((resp) => (this.currentSips = resp.items));
     },
     async fetchBatches(page: number) {
       return client.ingest

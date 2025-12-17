@@ -58,29 +58,25 @@ onMounted(() => {
         authStore.checkAttributes(['storage:aips:workflows:list'])
       "
     >
-      <div>
-        <h2 class="mb-0">
-          Workflows
-          <a
-            id="workflowHelpToggle"
-            ref="el"
-            href="#workflowHelp"
-            role="button"
-            aria-expanded="false"
-            aria-controls="workflowHelp"
-            data-bs-toggle="tooltip"
-            data-bs-title="Toggle help"
-            @click="toggleHelp"
-            ><IconHelp alt="help"
-          /></a>
-        </h2>
-      </div>
+      <h2 class="mb-3">
+        Workflows
+        <a
+          id="workflowHelpToggle"
+          ref="el"
+          href="#workflowHelp"
+          role="button"
+          aria-expanded="false"
+          aria-controls="workflowHelp"
+          data-bs-toggle="tooltip"
+          data-bs-title="Toggle help"
+          @click="toggleHelp"
+          ><IconHelp alt="help"
+        /></a>
+      </h2>
       <WorkflowHelp
         :show="showHelp"
         @update:show="(value) => (showHelp = value)"
       />
-
-      <hr />
 
       <div id="workflows" class="accordion mb-2">
         <WorkflowCollapse

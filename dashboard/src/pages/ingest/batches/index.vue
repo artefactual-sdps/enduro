@@ -461,7 +461,18 @@ onMounted(() => {
         </thead>
         <tbody>
           <tr v-for="batch in batchStore.batches" :key="batch.uuid">
-            <td>{{ batch.identifier }}</td>
+            <td>
+              <RouterLink
+                v-if="authStore.checkAttributes(['ingest:batches:read'])"
+                :to="{
+                  name: '/ingest/batches/[id]/',
+                  params: { id: batch.uuid },
+                }"
+              >
+                {{ batch.identifier }}
+              </RouterLink>
+              <span v-else>{{ batch.identifier }}</span>
+            </td>
             <td>{{ batch.sipsCount }}</td>
             <td>{{ uploader(batch) }}</td>
             <td>{{ $filters.formatDateTime(batch.startedAt) }}</td>

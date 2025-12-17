@@ -23,6 +23,8 @@ declare module 'vue-router/auto-routes' {
     '/ingest': RouteRecordInfo<'/ingest', '/ingest', Record<never, never>, Record<never, never>>,
     '/ingest/batches': RouteRecordInfo<'/ingest/batches', '/ingest/batches', Record<never, never>, Record<never, never>>,
     '/ingest/batches/': RouteRecordInfo<'/ingest/batches/', '/ingest/batches', Record<never, never>, Record<never, never>>,
+    '/ingest/batches/[id]': RouteRecordInfo<'/ingest/batches/[id]', '/ingest/batches/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
+    '/ingest/batches/[id]/': RouteRecordInfo<'/ingest/batches/[id]/', '/ingest/batches/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
     '/ingest/sips': RouteRecordInfo<'/ingest/sips', '/ingest/sips', Record<never, never>, Record<never, never>>,
     '/ingest/sips/': RouteRecordInfo<'/ingest/sips/', '/ingest/sips', Record<never, never>, Record<never, never>>,
     '/ingest/sips/[id]': RouteRecordInfo<'/ingest/sips/[id]', '/ingest/sips/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,
