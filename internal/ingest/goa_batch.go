@@ -10,6 +10,7 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
 var ErrNotImplemented error = goaingest.MakeNotImplemented(errors.New("not implemented"))
@@ -60,7 +61,7 @@ func (svc *ingestImpl) AddBatch(
 	}
 
 	if err := svc.perSvc.CreateBatch(ctx, b); err != nil {
-		svc.logger.Error(err, "add Batch")
+		svc.logger.Error(err, "AddBatch")
 		return nil, ErrInternalError
 	}
 
@@ -73,7 +74,7 @@ func (svc *ingestImpl) AddBatch(
 	if err := InitBatchWorkflow(ctx, svc.tc, svc.taskQueue, &req); err != nil {
 		// Delete Batch from persistence.
 		err = errors.Join(err, svc.perSvc.DeleteBatch(ctx, b.UUID))
-		svc.logger.Error(err, "add Batch")
+		svc.logger.Error(err, "AddBatch")
 		return nil, ErrInternalError
 	}
 
@@ -94,5 +95,18 @@ func (svc *ingestImpl) ShowBatch(
 	ctx context.Context,
 	payload *goaingest.ShowBatchPayload,
 ) (*goaingest.Batch, error) {
-	return nil, ErrNotImplemented
+	batchUUID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(errors.New("invalid UUID"))
+	}
+
+	b, err := svc.perSvc.ReadBatch(ctx, batchUUID)
+	if err == persistence.ErrNotFound {
+		return nil, &goaingest.BatchNotFound{UUID: payload.UUID, Message: "Batch not found"}
+	} else if err != nil {
+		svc.logger.Error(err, "ShowBatch")
+		return nil, ErrInternalError
+	}
+
+	return b.Goa(), nil
 }

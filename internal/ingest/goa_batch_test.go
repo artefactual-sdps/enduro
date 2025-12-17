@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -20,6 +21,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
+	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 )
 
@@ -211,6 +213,97 @@ func TestAddBatch(t *testing.T) {
 
 			assert.NilError(t, err)
 			assert.DeepEqual(t, re, tt.want)
+		})
+	}
+}
+
+func TestShowBatch(t *testing.T) {
+	t.Parallel()
+
+	batchUUID := uuid.New()
+	userUUID := uuid.New()
+	createdAt := time.Date(2024, 9, 25, 9, 31, 10, 0, time.UTC)
+	startedAt := time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC)
+	completedAt := time.Date(2024, 9, 25, 9, 31, 12, 0, time.UTC)
+
+	for _, tt := range []struct {
+		name    string
+		payload *goaingest.ShowBatchPayload
+		mock    func(context.Context, *persistence_fake.MockService)
+		want    *goaingest.Batch
+		wantErr string
+	}{
+		{
+			name:    "Returns not valid error (invalid UUID)",
+			payload: &goaingest.ShowBatchPayload{UUID: "invalid"},
+			wantErr: "invalid UUID",
+		},
+		{
+			name:    "Returns not found error",
+			payload: &goaingest.ShowBatchPayload{UUID: batchUUID.String()},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService) {
+				psvc.EXPECT().ReadBatch(ctx, batchUUID).Return(nil, persistence.ErrNotFound)
+			},
+			wantErr: "Batch not found.",
+		},
+		{
+			name:    "Returns internal error",
+			payload: &goaingest.ShowBatchPayload{UUID: batchUUID.String()},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService) {
+				psvc.EXPECT().ReadBatch(ctx, batchUUID).Return(nil, persistence.ErrInternal)
+			},
+			wantErr: "internal error",
+		},
+		{
+			name:    "Returns batch",
+			payload: &goaingest.ShowBatchPayload{UUID: batchUUID.String()},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService) {
+				psvc.EXPECT().ReadBatch(ctx, batchUUID).Return(&datatypes.Batch{
+					UUID:        batchUUID,
+					Identifier:  "batch-identifier",
+					Status:      enums.BatchStatusIngested,
+					SIPSCount:   3,
+					CreatedAt:   createdAt,
+					StartedAt:   startedAt,
+					CompletedAt: completedAt,
+					Uploader: &datatypes.User{
+						UUID:  userUUID,
+						Email: "nobody@example.com",
+						Name:  "Test User",
+					},
+				}, nil)
+			},
+			want: &goaingest.Batch{
+				UUID:          batchUUID,
+				Identifier:    "batch-identifier",
+				Status:        enums.BatchStatusIngested.String(),
+				SipsCount:     3,
+				CreatedAt:     createdAt.Format(time.RFC3339),
+				StartedAt:     ref.New(startedAt.Format(time.RFC3339)),
+				CompletedAt:   ref.New(completedAt.Format(time.RFC3339)),
+				UploaderUUID:  ref.New(userUUID),
+				UploaderEmail: ref.New("nobody@example.com"),
+				UploaderName:  ref.New("Test User"),
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc, psvc, _ := testSvc(t, nil, 0)
+			ctx := t.Context()
+			if tt.mock != nil {
+				tt.mock(ctx, psvc)
+			}
+
+			got, err := svc.ShowBatch(ctx, tt.payload)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
 		})
 	}
 }
