@@ -1,6 +1,7 @@
 import { api } from "@/client";
 import { transformKeys } from "@/helpers/transform";
 import { IngestEvent2ValueTypeEnum } from "@/openapi-generator";
+import { useBatchStore } from "@/stores/batch";
 import { useSipStore } from "@/stores/sip";
 
 export function handleIngestEvent(event: api.IngestEvent2Value) {
@@ -22,25 +23,32 @@ const handlers: {
   [IngestEvent2ValueTypeEnum.BatchUpdatedEvent]: handleBatchUpdated,
 };
 
-function handleSipCreated() {
+function handleSipCreated(data: unknown) {
   const store = useSipStore();
   store.fetchSipsDebounced(1);
+  const event = api.SIPCreatedEventFromJSON(data);
+  updateBatchCurrentSips(event.item);
 }
 
 function handleSipUpdated(data: unknown) {
   const event = api.SIPUpdatedEventFromJSON(data);
   const store = useSipStore();
   store.fetchSipsDebounced(1);
-  if (store.current?.uuid != event.uuid) return;
-  Object.assign(store.current, event.item);
+  if (store.current?.uuid === event.uuid)
+    Object.assign(store.current, event.item);
+  updateBatchCurrentSips(event.item);
 }
 
 function handleSipStatusUpdated(data: unknown) {
   const event = api.SIPStatusUpdatedEventFromJSON(data);
   const store = useSipStore();
   store.fetchSipsDebounced(1);
-  if (store.current?.uuid != event.uuid) return;
-  store.current.status = event.status;
+  if (store.current?.uuid === event.uuid) store.current.status = event.status;
+  const batchStore = useBatchStore();
+  const index = batchStore.currentSips.findIndex((s) => s.uuid === event.uuid);
+  if (index !== -1) {
+    batchStore.currentSips[index].status = event.status;
+  }
 }
 
 function handleSipWorkflowCreated(data: unknown) {
@@ -97,19 +105,27 @@ function handleSipTaskUpdated(data: unknown) {
   Object.assign(task, event.item);
 }
 
-function handleBatchCreated(data: unknown) {
-  console.log("Batch created event received:", data);
-  // TODO: add batch store and update it here.
-  // const store = useBatchStore();
-  // store.fetchBatchesDebounced(1);
+function handleBatchCreated() {
+  const store = useBatchStore();
+  store.fetchBatchesDebounced(1);
 }
 
 function handleBatchUpdated(data: unknown) {
-  console.log("Batch updated event received:", data);
-  // TODO: add batch store and update it here.
-  // const event = api.BatchUpdatedEventFromJSON(data);
-  // const store = useBatchStore();
-  // store.fetchBatchesDebounced(1);
-  // if (store.current?.uuid != event.uuid) return;
-  // Object.assign(store.current, event.item);
+  const event = api.BatchUpdatedEventFromJSON(data);
+  const store = useBatchStore();
+  store.fetchBatchesDebounced(1);
+  if (store.current?.uuid != event.uuid) return;
+  Object.assign(store.current, event.item);
+}
+
+function updateBatchCurrentSips(sip: api.EnduroIngestSip) {
+  if (!sip.batchUuid) return;
+  const store = useBatchStore();
+  if (store.current?.uuid !== sip.batchUuid) return;
+  const index = store.currentSips.findIndex((s) => s.uuid === sip.uuid);
+  if (index !== -1) {
+    Object.assign(store.currentSips[index], sip);
+  } else {
+    store.currentSips.unshift(sip);
+  }
 }
