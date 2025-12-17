@@ -19,10 +19,12 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
+	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
+	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
 func TestAddBatch(t *testing.T) {
@@ -297,6 +299,235 @@ func TestShowBatch(t *testing.T) {
 			}
 
 			got, err := svc.ShowBatch(ctx, tt.payload)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
+		})
+	}
+}
+
+func TestListBatches(t *testing.T) {
+	t.Parallel()
+
+	batchUUID1 := uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54")
+	batchUUID2 := uuid.MustParse("ffdb12f4-1735-4022-b746-a9bf4a32109b")
+	batchUUID3 := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	uploaderUUID := uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")
+
+	testBatches := []*datatypes.Batch{
+		{
+			ID:          1,
+			UUID:        batchUUID1,
+			Identifier:  "Batch 1",
+			SIPSCount:   2,
+			Status:      enums.BatchStatusIngested,
+			CreatedAt:   time.Date(2024, 9, 25, 9, 31, 10, 0, time.UTC),
+			StartedAt:   time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC),
+			CompletedAt: time.Date(2024, 9, 25, 9, 31, 12, 0, time.UTC),
+			Uploader: &datatypes.User{
+				UUID:  uploaderUUID,
+				Email: "uploader@example.com",
+				Name:  "Test Uploader",
+			},
+		},
+		{
+			ID:         2,
+			UUID:       batchUUID2,
+			Identifier: "Batch 2",
+			SIPSCount:  3,
+			Status:     enums.BatchStatusProcessing,
+			CreatedAt:  time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
+			StartedAt:  time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
+		},
+		{
+			ID:         3,
+			UUID:       batchUUID3,
+			Identifier: "Batch 3",
+			SIPSCount:  1,
+			Status:     enums.BatchStatusFailed,
+			CreatedAt:  time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
+		},
+	}
+
+	for _, tt := range []struct {
+		name         string
+		payload      *goaingest.ListBatchesPayload
+		mockRecorder func(*persistence_fake.MockServiceMockRecorder)
+		want         *goaingest.Batches
+		wantErr      string
+	}{
+		{
+			name: "Returns all batches",
+			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
+				mr.ListBatches(
+					mockutil.Context(),
+					&persistence.BatchFilter{
+						Sort: entfilter.NewSort().AddCol("id", true),
+					},
+				).Return(
+					testBatches,
+					&persistence.Page{Limit: 20, Total: 3},
+					nil,
+				)
+			},
+			want: &goaingest.Batches{
+				Items: goaingest.BatchCollection{
+					{
+						UUID:          batchUUID1,
+						Identifier:    "Batch 1",
+						SipsCount:     2,
+						Status:        enums.BatchStatusIngested.String(),
+						CreatedAt:     "2024-09-25T09:31:10Z",
+						StartedAt:     ref.New("2024-09-25T09:31:11Z"),
+						CompletedAt:   ref.New("2024-09-25T09:31:12Z"),
+						UploaderUUID:  ref.New(uploaderUUID),
+						UploaderEmail: ref.New("uploader@example.com"),
+						UploaderName:  ref.New("Test Uploader"),
+					},
+					{
+						UUID:       batchUUID2,
+						Identifier: "Batch 2",
+						SipsCount:  3,
+						Status:     enums.BatchStatusProcessing.String(),
+						CreatedAt:  "2024-10-01T17:13:26Z",
+						StartedAt:  ref.New("2024-10-01T17:13:27Z"),
+					},
+					{
+						UUID:       batchUUID3,
+						Identifier: "Batch 3",
+						SipsCount:  1,
+						Status:     enums.BatchStatusFailed.String(),
+						CreatedAt:  "2024-10-01T17:13:26Z",
+					},
+				},
+				Page: &goaingest.EnduroPage{
+					Limit: 20,
+					Total: 3,
+				},
+			},
+		},
+		{
+			name: "Returns filtered batches",
+			payload: &goaingest.ListBatchesPayload{
+				Identifier:          ref.New("Batch 1"),
+				EarliestCreatedTime: ref.New("2024-09-25T09:30:00Z"),
+				LatestCreatedTime:   ref.New("2024-09-25T09:40:00Z"),
+				Status:              ref.New(enums.BatchStatusIngested.String()),
+				UploaderUUID:        ref.New("0b075937-458c-43d9-b46c-222a072d62a9"),
+				Limit:               ref.New(10),
+				Offset:              ref.New(1),
+			},
+			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
+				mr.ListBatches(
+					mockutil.Context(),
+					&persistence.BatchFilter{
+						Identifier: ref.New("Batch 1"),
+						Status:     ref.New(enums.BatchStatusIngested),
+						CreatedAt: &timerange.Range{
+							Start: time.Date(2024, 9, 25, 9, 30, 0, 0, time.UTC),
+							End:   time.Date(2024, 9, 25, 9, 40, 0, 0, time.UTC),
+						},
+						UploaderID: ref.New(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
+						Sort:       entfilter.NewSort().AddCol("id", true),
+						Page: persistence.Page{
+							Limit:  10,
+							Offset: 1,
+						},
+					},
+				).Return(
+					testBatches[0:1],
+					&persistence.Page{Limit: 10, Total: 1},
+					nil,
+				)
+			},
+			want: &goaingest.Batches{
+				Items: goaingest.BatchCollection{
+					{
+						UUID:          batchUUID1,
+						Identifier:    "Batch 1",
+						SipsCount:     2,
+						Status:        enums.BatchStatusIngested.String(),
+						CreatedAt:     "2024-09-25T09:31:10Z",
+						StartedAt:     ref.New("2024-09-25T09:31:11Z"),
+						CompletedAt:   ref.New("2024-09-25T09:31:12Z"),
+						UploaderUUID:  ref.New(uploaderUUID),
+						UploaderEmail: ref.New("uploader@example.com"),
+						UploaderName:  ref.New("Test Uploader"),
+					},
+				},
+				Page: &goaingest.EnduroPage{
+					Limit: 10,
+					Total: 1,
+				},
+			},
+		},
+		{
+			name: "Errors on an internal service error",
+			payload: &goaingest.ListBatchesPayload{
+				Identifier: ref.New("Batch 42"),
+			},
+			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
+				mr.ListBatches(
+					mockutil.Context(),
+					&persistence.BatchFilter{
+						Identifier: ref.New("Batch 42"),
+						Sort:       entfilter.NewSort().AddCol("id", true),
+					},
+				).Return(nil, nil, persistence.ErrInternal)
+			},
+			wantErr: "internal error",
+		},
+		{
+			name: "Errors on a bad uploader_uuid",
+			payload: &goaingest.ListBatchesPayload{
+				UploaderUUID: ref.New("invalid"),
+			},
+			wantErr: "uploader_uuid: invalid UUID",
+		},
+		{
+			name: "Errors on a bad status",
+			payload: &goaingest.ListBatchesPayload{
+				Status: ref.New("meditating"),
+			},
+			wantErr: "status: invalid value",
+		},
+		{
+			name: "Errors on a bad earliest_created_time",
+			payload: &goaingest.ListBatchesPayload{
+				EarliestCreatedTime: ref.New("2024-15-15T25:83:52Z"),
+			},
+			wantErr: "created at: time range: cannot parse start time",
+		},
+		{
+			name: "Errors on a bad latest_created_time",
+			payload: &goaingest.ListBatchesPayload{
+				LatestCreatedTime: ref.New("2024-15-15T25:83:52Z"),
+			},
+			wantErr: "created at: time range: cannot parse end time",
+		},
+		{
+			name: "Errors on a bad created at range",
+			payload: &goaingest.ListBatchesPayload{
+				EarliestCreatedTime: ref.New("2024-10-01T17:43:52Z"),
+				LatestCreatedTime:   ref.New("2023-10-01T17:43:52Z"),
+			},
+			wantErr: "created at: time range: end cannot be before start",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc, psvc, _ := testSvc(t, nil, 0)
+
+			if tt.mockRecorder != nil {
+				tt.mockRecorder(psvc.EXPECT())
+			}
+
+			got, err := svc.ListBatches(t.Context(), tt.payload)
 			if tt.wantErr != "" {
 				assert.Error(t, err, tt.wantErr)
 				return

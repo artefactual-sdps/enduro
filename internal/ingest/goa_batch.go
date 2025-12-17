@@ -13,8 +13,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
 
-var ErrNotImplemented error = goaingest.MakeNotImplemented(errors.New("not implemented"))
-
 func (svc *ingestImpl) AddBatch(
 	ctx context.Context,
 	payload *goaingest.AddBatchPayload,
@@ -88,7 +86,32 @@ func (svc *ingestImpl) ListBatches(
 	ctx context.Context,
 	payload *goaingest.ListBatchesPayload,
 ) (*goaingest.Batches, error) {
-	return nil, ErrNotImplemented
+	if payload == nil {
+		payload = &goaingest.ListBatchesPayload{}
+	}
+
+	pf, err := listBatchesPayloadToBatchFilter(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	r, pg, err := svc.perSvc.ListBatches(ctx, pf)
+	if err != nil {
+		svc.logger.Error(err, "ListBatches")
+		return nil, ErrInternalError
+	}
+
+	items := make([]*goaingest.Batch, len(r))
+	for i, batch := range r {
+		items[i] = batch.Goa()
+	}
+
+	res := &goaingest.Batches{
+		Items: items,
+		Page:  pg.Goa(),
+	}
+
+	return res, nil
 }
 
 func (svc *ingestImpl) ShowBatch(

@@ -160,6 +160,41 @@ func listUsersPayloadToUserFilter(payload *goaingest.ListUsersPayload) (*persist
 	return &f, nil
 }
 
+func listBatchesPayloadToBatchFilter(payload *goaingest.ListBatchesPayload) (*persistence.BatchFilter, error) {
+	uploaderID, err := stringToUUIDPtr(payload.UploaderUUID)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(errors.New("uploader_uuid: invalid UUID"))
+	}
+
+	var status *enums.BatchStatus
+	if payload.Status != nil {
+		s, err := enums.ParseBatchStatus(*payload.Status)
+		if err != nil {
+			return nil, goaingest.MakeNotValid(errors.New("status: invalid value"))
+		}
+		status = &s
+	}
+
+	createdAt, err := timerange.Parse(payload.EarliestCreatedTime, payload.LatestCreatedTime)
+	if err != nil {
+		return nil, goaingest.MakeNotValid(fmt.Errorf("created at: %v", err))
+	}
+
+	pf := persistence.BatchFilter{
+		Identifier: payload.Identifier,
+		Status:     status,
+		CreatedAt:  createdAt,
+		UploaderID: uploaderID,
+		Sort:       entfilter.NewSort().AddCol("id", true),
+		Page: persistence.Page{
+			Limit:  ref.DerefZero(payload.Limit),
+			Offset: ref.DerefZero(payload.Offset),
+		},
+	}
+
+	return &pf, nil
+}
+
 func stringToUUIDPtr(s *string) (*uuid.UUID, error) {
 	if s == nil {
 		return nil, nil
