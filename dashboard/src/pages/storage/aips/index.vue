@@ -223,7 +223,7 @@ watch(
 const showLegend = ref(false);
 const toggleLegend = () => {
   showLegend.value = !showLegend.value;
-  if (tooltip) tooltip.hide();
+  tooltip?.hide();
 };
 
 const statuses = [

@@ -14,8 +14,9 @@ const router = createRouter({
   history: createMemoryHistory(),
   routes: [
     { name: "index", path: "", component: {} },
-    { name: "sips", path: "/ingest/sips", component: {} },
     { name: "upload", path: "/ingest/upload", component: {} },
+    { name: "sips", path: "/ingest/sips", component: {} },
+    { name: "batches", path: "/ingest/batches", component: {} },
     { name: "locations", path: "/storage/locations", component: {} },
     { name: "aips", path: "/storage/aips", component: {} },
   ],
@@ -45,6 +46,7 @@ describe("Sidebar.vue", () => {
     const homeLink = getByRole("link", { name: "Home" });
     const uploadLink = getByRole("link", { name: "Upload" });
     const sipsLink = getByRole("link", { name: "SIPs" });
+    const batchesLink = getByRole("link", { name: "Batches" });
     const locationsLink = getByRole("link", { name: "Locations" });
     const aipsLink = getByRole("link", { name: "AIPs" });
 
@@ -52,13 +54,17 @@ describe("Sidebar.vue", () => {
     await flushPromises();
     expect(homeLink.getAttribute("aria-current")).toEqual("page");
 
+    fireEvent.click(uploadLink);
+    await flushPromises();
+    expect(uploadLink.getAttribute("aria-current")).toEqual("page");
+
     fireEvent.click(sipsLink);
     await flushPromises();
     expect(sipsLink.getAttribute("aria-current")).toEqual("page");
 
-    fireEvent.click(uploadLink);
+    fireEvent.click(batchesLink);
     await flushPromises();
-    expect(uploadLink.getAttribute("aria-current")).toEqual("page");
+    expect(batchesLink.getAttribute("aria-current")).toEqual("page");
 
     fireEvent.click(locationsLink);
     await flushPromises();
@@ -94,6 +100,7 @@ describe("Sidebar.vue", () => {
     getByRole("link", { name: "Home" });
     expect(queryByRole("link", { name: "Upload" })).toBeNull();
     expect(queryByRole("link", { name: "SIPs" })).toBeNull();
+    expect(queryByRole("link", { name: "Batches" })).toBeNull();
     expect(queryByRole("link", { name: "Locations" })).toBeNull();
     expect(queryByRole("link", { name: "AIPs" })).toBeNull();
   });

@@ -21,7 +21,7 @@ let tooltip: Tooltip | null = null;
 const showHelp = ref(false);
 const toggleHelp = () => {
   showHelp.value = !showHelp.value;
-  if (tooltip) tooltip.hide();
+  tooltip?.hide();
 };
 
 onMounted(() => {

@@ -21,6 +21,8 @@ declare module 'vue-router/auto-routes' {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/[...path]': RouteRecordInfo<'/[...path]', '/:path(.*)', { path: ParamValue<true> }, { path: ParamValue<false> }>,
     '/ingest': RouteRecordInfo<'/ingest', '/ingest', Record<never, never>, Record<never, never>>,
+    '/ingest/batches': RouteRecordInfo<'/ingest/batches', '/ingest/batches', Record<never, never>, Record<never, never>>,
+    '/ingest/batches/': RouteRecordInfo<'/ingest/batches/', '/ingest/batches', Record<never, never>, Record<never, never>>,
     '/ingest/sips': RouteRecordInfo<'/ingest/sips', '/ingest/sips', Record<never, never>, Record<never, never>>,
     '/ingest/sips/': RouteRecordInfo<'/ingest/sips/', '/ingest/sips', Record<never, never>, Record<never, never>>,
     '/ingest/sips/[id]': RouteRecordInfo<'/ingest/sips/[id]', '/ingest/sips/:id', { id: ParamValue<true> }, { id: ParamValue<false> }>,

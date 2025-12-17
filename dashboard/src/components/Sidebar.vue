@@ -9,6 +9,7 @@ import { useLayoutStore } from "@/stores/layout";
 import IconAIPs from "~icons/clarity/bundle-line?width=2em&height=2em";
 import IconCaret from "~icons/clarity/caret-line";
 import IconHome from "~icons/clarity/home-line?width=2em&height=2em";
+import IconBatches from "~icons/clarity/layers-line?width=2em&height=2em";
 import IconLogout from "~icons/clarity/logout-line?width=2em&height=2em";
 import IconUpload from "~icons/clarity/plus-circle-line?width=2em&height=2em";
 import IconUser from "~icons/clarity/user-solid?width=2em&height=2em";
@@ -50,6 +51,12 @@ const menuItems = [
     icon: IconSIPs,
     text: "SIPs",
     show: authStore.checkAttributes(["ingest:sips:list"]),
+  },
+  {
+    route: router.resolve("/ingest/batches/"),
+    icon: IconBatches,
+    text: "Batches",
+    show: authStore.checkAttributes(["ingest:batches:list"]),
   },
   {
     text: "STORAGE",

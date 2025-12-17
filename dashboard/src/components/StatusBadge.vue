@@ -1,6 +1,7 @@
 <script lang="ts">
 type PackageEnum =
   | api.EnduroIngestSipStatusEnum
+  | api.EnduroIngestBatchStatusEnum
   | api.EnduroStorageAipStatusEnum;
 type WorkflowEnum =
   | api.EnduroIngestSipWorkflowStatusEnum

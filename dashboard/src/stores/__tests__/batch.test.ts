@@ -50,8 +50,7 @@ describe("useBatchStore", () => {
     const layoutStore = useLayoutStore();
     expect(layoutStore.breadcrumb).toEqual([
       { text: "Ingest" },
-      //{ route: expect.any(Object), text: "Batches" },
-      { text: "Batches" },
+      { route: expect.any(Object), text: "Batches" },
       { text: mockBatch.identifier },
     ]);
   });

@@ -7,7 +7,7 @@ import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
 import WorkflowCollapse from "@/components/WorkflowCollapse.vue";
 import WorkflowHelp from "@/components/WorkflowHelp.vue";
-import uploader from "@/composables/sipUploader";
+import uploader from "@/composables/uploader";
 import { useAuthStore } from "@/stores/auth";
 import { useSipStore } from "@/stores/sip";
 import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
@@ -20,7 +20,7 @@ const showHelp = ref(false);
 
 const toggleHelp = () => {
   showHelp.value = !showHelp.value;
-  if (tooltip) tooltip.hide();
+  tooltip?.hide();
 };
 
 const createAipWorkflow = computed(

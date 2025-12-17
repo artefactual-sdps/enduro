@@ -15,26 +15,26 @@ import StatusLegend from "@/components/StatusLegend.vue";
 import Tabs from "@/components/Tabs.vue";
 import TimeDropdown from "@/components/TimeDropdown.vue";
 import uploader from "@/composables/uploader";
-import type { IngestListSipsStatusEnum } from "@/openapi-generator";
+import type { IngestListBatchesStatusEnum } from "@/openapi-generator";
 import { useAuthStore } from "@/stores/auth";
+import { useBatchStore } from "@/stores/batch";
 import { useLayoutStore } from "@/stores/layout";
-import { useSipStore } from "@/stores/sip";
 import { useUserStore } from "@/stores/user";
 import IconInfo from "~icons/akar-icons/info-fill";
 import IconAll from "~icons/clarity/blocks-group-line?font-size=20px";
 import IconClose from "~icons/clarity/close-line";
-import IconError from "~icons/clarity/flame-line?font-size=20px";
+import IconCanceled from "~icons/clarity/cursor-hand-open-line?font-size=20px";
 import IconQueued from "~icons/clarity/hourglass-line?font-size=20px";
+import IconBatches from "~icons/clarity/layers-line";
 import IconFailed from "~icons/clarity/remove-line?font-size=20px";
 import IconSearch from "~icons/clarity/search-line";
 import IconIngested from "~icons/clarity/success-standard-line?font-size=20px";
 import IconProcessing from "~icons/clarity/sync-line?font-size=20px";
 import IconPending from "~icons/clarity/warning-standard-line?font-size=20px";
-import IconSIPs from "~icons/octicon/package-dependencies-24";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
-const sipStore = useSipStore();
+const batchStore = useBatchStore();
 const userStore = useUserStore();
 
 const uploaderEl = ref<HTMLElement | null>(null);
@@ -44,7 +44,7 @@ const uploaderDDLabel = ref("Ingested by");
 const route = useRoute();
 const router = useRouter();
 
-layoutStore.updateBreadcrumb([{ text: "Ingest" }, { text: "SIPs" }]);
+layoutStore.updateBreadcrumb([{ text: "Ingest" }, { text: "Batches" }]);
 
 const el = ref<HTMLElement | null>(null);
 let tooltip: Tooltip | null = null;
@@ -60,7 +60,7 @@ const tabs = computed(() => [
     icon: IconAll,
     text: "All",
     route: router.resolve({
-      name: "/ingest/sips/",
+      name: "/ingest/batches/",
       query: { ...route.query, status: undefined, page: undefined },
     }),
     show: true,
@@ -69,7 +69,7 @@ const tabs = computed(() => [
     icon: IconIngested,
     text: "Ingested",
     route: router.resolve({
-      name: "/ingest/sips/",
+      name: "/ingest/batches/",
       query: { ...route.query, status: "ingested", page: undefined },
     }),
     show: true,
@@ -78,17 +78,17 @@ const tabs = computed(() => [
     icon: IconFailed,
     text: "Failed",
     route: router.resolve({
-      name: "/ingest/sips/",
+      name: "/ingest/batches/",
       query: { ...route.query, status: "failed", page: undefined },
     }),
     show: true,
   },
   {
-    icon: IconError,
-    text: "Error",
+    icon: IconCanceled,
+    text: "Canceled",
     route: router.resolve({
-      name: "/ingest/sips/",
-      query: { ...route.query, status: "error", page: undefined },
+      name: "/ingest/batches/",
+      query: { ...route.query, status: "canceled", page: undefined },
     }),
     show: true,
   },
@@ -96,7 +96,7 @@ const tabs = computed(() => [
     icon: IconProcessing,
     text: "Processing",
     route: router.resolve({
-      name: "/ingest/sips/",
+      name: "/ingest/batches/",
       query: { ...route.query, status: "processing", page: undefined },
     }),
     show: true,
@@ -105,7 +105,7 @@ const tabs = computed(() => [
     icon: IconQueued,
     text: "Queued",
     route: router.resolve({
-      name: "/ingest/sips/",
+      name: "/ingest/batches/",
       query: { ...route.query, status: "queued", page: undefined },
     }),
     show: true,
@@ -114,7 +114,7 @@ const tabs = computed(() => [
     icon: IconPending,
     text: "Pending",
     route: router.resolve({
-      name: "/ingest/sips/",
+      name: "/ingest/batches/",
       query: { ...route.query, status: "pending", page: undefined },
     }),
     show: true,
@@ -123,32 +123,31 @@ const tabs = computed(() => [
 
 const statuses = [
   {
-    status: api.EnduroIngestSipStatusEnum.Ingested,
-    description: "The SIP has successfully completed all ingest processing.",
+    status: api.EnduroIngestBatchStatusEnum.Ingested,
+    description: "The batch has successfully completed ingest processing.",
   },
   {
-    status: api.EnduroIngestSipStatusEnum.Failed,
+    status: api.EnduroIngestBatchStatusEnum.Failed,
     description:
-      "The SIP has failed to meet the policy-defined criteria for ingest, halting the workflow.",
+      "The batch failed to meet the policy-defined criteria for ingest.",
   },
   {
-    status: api.EnduroIngestSipStatusEnum.Processing,
+    status: api.EnduroIngestBatchStatusEnum.Processing,
     description:
-      "The SIP is currently part of an active workflow and is undergoing processing.",
+      "The batch is currently part of an active workflow and is processing.",
   },
   {
-    status: api.EnduroIngestSipStatusEnum.Pending,
-    description: "The SIP is part of a workflow awaiting a user decision.",
+    status: api.EnduroIngestBatchStatusEnum.Pending,
+    description: "The batch is part of a workflow awaiting a user decision.",
   },
   {
-    status: api.EnduroIngestSipStatusEnum.Queued,
+    status: api.EnduroIngestBatchStatusEnum.Queued,
     description:
-      "The SIP is about to be part of an active workflow and is awaiting processing.",
+      "The batch is about to be part of an active workflow and is awaiting processing.",
   },
   {
-    status: api.EnduroIngestSipStatusEnum.Error,
-    description:
-      "The SIP workflow encountered a system error and ingest was aborted.",
+    status: api.EnduroIngestBatchStatusEnum.Canceled,
+    description: "The batch was canceled before it finished processing.",
   },
 ];
 
@@ -161,17 +160,17 @@ const changePage = (page: number) => {
   }
 
   router.push({
-    name: "/ingest/sips/",
+    name: "/ingest/batches/",
     query: q,
   });
 };
 
-const searchByName = () => {
+const searchByIdentifier = () => {
   let q = { ...route.query };
-  if (sipStore.filters.name === "") {
-    delete q.name;
+  if (batchStore.filters.identifier === "") {
+    delete q.identifier;
   } else {
-    q.name = <LocationQueryValue>sipStore.filters.name;
+    q.identifier = <LocationQueryValue>batchStore.filters.identifier;
   }
 
   // Reset the page number because the found results may reduce the total number
@@ -179,7 +178,7 @@ const searchByName = () => {
   delete q.page;
 
   router.push({
-    name: "/ingest/sips/",
+    name: "/ingest/batches/",
     query: q,
   });
 };
@@ -225,7 +224,7 @@ const updateDateFilter = (
   delete q.page;
 
   router.push({
-    name: "/ingest/sips/",
+    name: "/ingest/batches/",
     query: q,
   });
 };
@@ -233,8 +232,8 @@ const updateDateFilter = (
 const updateUploaderFilter = () => {
   let q = { ...route.query };
 
-  if (sipStore.filters.uploaderId) {
-    q.uploaderId = sipStore.filters.uploaderId as LocationQueryValue;
+  if (batchStore.filters.uploaderId) {
+    q.uploaderId = batchStore.filters.uploaderId as LocationQueryValue;
   } else {
     delete q.uploaderId;
   }
@@ -244,47 +243,47 @@ const updateUploaderFilter = () => {
   delete q.page;
 
   router.push({
-    name: "/ingest/sips/",
+    name: "/ingest/batches/",
     query: q,
   });
 };
 
 const { execute, error } = useAsyncState(() => {
-  if (route.query.name) {
-    sipStore.filters.name = <string>route.query.name;
+  if (route.query.identifier) {
+    batchStore.filters.identifier = <string>route.query.identifier;
   } else {
-    delete sipStore.filters.name;
+    delete batchStore.filters.identifier;
   }
 
   if (route.query.status) {
-    sipStore.filters.status = <IngestListSipsStatusEnum>route.query.status;
+    batchStore.filters.status = <IngestListBatchesStatusEnum>route.query.status;
   } else {
-    delete sipStore.filters.status;
+    delete batchStore.filters.status;
   }
 
   if (route.query.earliestCreatedTime) {
-    sipStore.filters.earliestCreatedTime = new Date(
+    batchStore.filters.earliestCreatedTime = new Date(
       route.query.earliestCreatedTime as string,
     );
   } else {
-    delete sipStore.filters.earliestCreatedTime;
+    delete batchStore.filters.earliestCreatedTime;
   }
 
   if (route.query.latestCreatedTime) {
-    sipStore.filters.latestCreatedTime = new Date(
+    batchStore.filters.latestCreatedTime = new Date(
       route.query.latestCreatedTime as string,
     );
   } else {
-    delete sipStore.filters.latestCreatedTime;
+    delete batchStore.filters.latestCreatedTime;
   }
 
   if (route.query.uploaderId) {
-    sipStore.filters.uploaderId = <string>route.query.uploaderId;
+    batchStore.filters.uploaderId = <string>route.query.uploaderId;
   } else {
-    delete sipStore.filters.uploaderId;
+    delete batchStore.filters.uploaderId;
   }
 
-  return sipStore.fetchSips(
+  return batchStore.fetchBatches(
     route.query.page ? parseInt(<string>route.query.page) : 1,
   );
 }, null);
@@ -292,7 +291,7 @@ const { execute, error } = useAsyncState(() => {
 watch(
   () => route.query,
   () => {
-    // Execute fetchSips when the query changes.
+    // Execute fetchBatches when the query changes.
     execute();
   },
 );
@@ -313,13 +312,13 @@ onMounted(() => {
 
 <template>
   <div class="container-xxl">
-    <h1 class="d-flex mb-0"><IconSIPs class="me-3 text-dark" />SIPs</h1>
+    <h1 class="d-flex mb-0"><IconBatches class="me-3 text-dark" />Batches</h1>
 
     <div class="text-muted mb-3">
       <ResultCounter
-        :offset="sipStore.page.offset"
-        :limit="sipStore.page.limit"
-        :total="sipStore.page.total"
+        :offset="batchStore.page.offset"
+        :limit="batchStore.page.limit"
+        :total="batchStore.page.total"
       />
     </div>
 
@@ -327,23 +326,23 @@ onMounted(() => {
 
     <div class="d-flex flex-wrap gap-3 mb-3">
       <div>
-        <form id="sipSearch" @submit.prevent="searchByName">
+        <form id="batchSearch" @submit.prevent="searchByIdentifier">
           <div class="input-group">
             <input
-              v-model.trim="sipStore.filters.name"
+              v-model.trim="batchStore.filters.identifier"
               type="text"
               class="form-control"
-              name="name"
-              placeholder="Search by name"
-              aria-label="Search by name"
+              name="identifier"
+              placeholder="Search by identifier"
+              aria-label="Search by identifier"
             />
             <button
               class="btn btn-secondary"
               type="reset"
               aria-label="Reset search"
               @click="
-                sipStore.filters.name = '';
-                searchByName();
+                batchStore.filters.identifier = '';
+                searchByIdentifier();
               "
             >
               <IconClose />
@@ -375,13 +374,13 @@ onMounted(() => {
             {{ uploaderDDLabel }}
           </button>
           <button
-            v-show="sipStore.filters.uploaderId !== ''"
+            v-show="batchStore.filters.uploaderId !== ''"
             id="dd-uploader-reset"
             class="btn btn-secondary"
             type="reset"
             aria-label="Reset 'Ingested by' filter"
             @click="
-              sipStore.filters.uploaderId = '';
+              batchStore.filters.uploaderId = '';
               uploaderDDLabel = 'Ingested by';
               updateUploaderFilter();
             "
@@ -398,7 +397,7 @@ onMounted(() => {
                 class="dropdown-item"
                 href="#"
                 @click.prevent="
-                  sipStore.filters.uploaderId = user.uuid;
+                  batchStore.filters.uploaderId = user.uuid;
                   uploaderDDLabel = userStore.getHandle(user);
                   updateUploaderFilter();
                 "
@@ -412,8 +411,8 @@ onMounted(() => {
         <TimeDropdown
           name="createdAt"
           label="Started"
-          :start="sipStore.filters.earliestCreatedTime"
-          :end="sipStore.filters.latestCreatedTime"
+          :start="batchStore.filters.earliestCreatedTime"
+          :end="batchStore.filters.latestCreatedTime"
           @change="
             (
               name: string,
@@ -436,7 +435,8 @@ onMounted(() => {
       <table class="table table-bordered mb-0">
         <thead>
           <tr>
-            <th scope="col">Name</th>
+            <th scope="col">Identifier</th>
+            <th scope="col">SIPs</th>
             <th scope="col">Ingested by</th>
             <th scope="col">Started</th>
             <th scope="col">
@@ -451,44 +451,39 @@ onMounted(() => {
                   @click="toggleLegend"
                 >
                   <IconInfo style="font-size: 1.2em" aria-hidden="true" />
-                  <span class="visually-hidden">Toggle SIP status legend</span>
+                  <span class="visually-hidden"
+                    >Toggle batch status legend</span
+                  >
                 </button>
               </span>
             </th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="sip in sipStore.sips" :key="sip.uuid">
+          <tr v-for="batch in batchStore.batches" :key="batch.uuid">
+            <td>{{ batch.identifier }}</td>
+            <td>{{ batch.sipsCount }}</td>
+            <td>{{ uploader(batch) }}</td>
+            <td>{{ $filters.formatDateTime(batch.startedAt) }}</td>
             <td>
-              <RouterLink
-                v-if="authStore.checkAttributes(['ingest:sips:read'])"
-                :to="{ name: '/ingest/sips/[id]/', params: { id: sip.uuid } }"
-              >
-                {{ sip.name }}
-              </RouterLink>
-              <span v-else>{{ sip.name }}</span>
-            </td>
-            <td>{{ uploader(sip) }}</td>
-            <td>{{ $filters.formatDateTime(sip.startedAt) }}</td>
-            <td>
-              <StatusBadge :status="sip.status" type="package" />
+              <StatusBadge :status="batch.status" type="package" />
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <div v-if="sipStore.page.total > sipStore.page.limit">
+    <div v-if="batchStore.page.total > batchStore.page.limit">
       <Pager
-        :offset="sipStore.page.offset"
-        :limit="sipStore.page.limit"
-        :total="sipStore.page.total"
+        :offset="batchStore.page.offset"
+        :limit="batchStore.page.limit"
+        :total="batchStore.page.total"
         @page-change="(page) => changePage(page)"
       />
       <div class="text-muted mb-3 text-center">
         <ResultCounter
-          :offset="sipStore.page.offset"
-          :limit="sipStore.page.limit"
-          :total="sipStore.page.total"
+          :offset="batchStore.page.offset"
+          :limit="batchStore.page.limit"
+          :total="batchStore.page.total"
         />
       </div>
     </div>

@@ -5,7 +5,7 @@ import {
   IngestListBatchesStatusEnum,
   ResponseError,
 } from "@/openapi-generator";
-// import router from "@/router";
+import router from "@/router";
 import { useLayoutStore } from "@/stores/layout";
 
 const defaultPageSize = 20;
@@ -42,7 +42,7 @@ export const useBatchStore = defineStore("batch", {
       layoutStore.updateBreadcrumb([
         { text: "Ingest" },
         {
-          // route: router.resolve({ name: "/ingest/batches/" }),
+          route: router.resolve({ name: "/ingest/batches/" }),
           text: "Batches",
         },
         { text: this.current.identifier },
