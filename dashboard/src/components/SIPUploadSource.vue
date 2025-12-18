@@ -124,7 +124,7 @@ const clickSip = (key: string) => {
       <span aria-hidden="true">•</span>
       <a href="#" @click.prevent="selectedSips = []">Clear selections</a>
     </div>
-    <div class="table-responsive overflow-auto" style="max-height: 500px">
+    <div class="table-responsive overflow-auto">
       <table ref="listContainer" class="table table-hover mb-1">
         <thead>
           <tr class="sticky-top">
@@ -233,5 +233,9 @@ const clickSip = (key: string) => {
 /* Remove top border from selected items when the previous item is also selected. */
 .list-group-item.border-primary + .list-group-item.border-primary {
   border-top: none !important;
+}
+
+.table-responsive {
+  max-height: 500px;
 }
 </style>

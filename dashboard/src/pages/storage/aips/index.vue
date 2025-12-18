@@ -363,7 +363,7 @@ const statuses = [
                   data-bs-title="Toggle legend"
                   @click="toggleLegend"
                 >
-                  <IconInfo style="font-size: 1.2em" aria-hidden="true" />
+                  <IconInfo class="fs-6" aria-hidden="true" />
                   <span class="visually-hidden">Toggle AIP status legend</span>
                 </button>
               </span>

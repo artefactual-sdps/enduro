@@ -25,17 +25,13 @@ const institution: { logo: string; name: string; url: string } = {
       <!-- Open offcanvas button, only visible in sm. -->
       <button
         type="button"
-        class="navbar-toggler btn btn-link text-decoration-none p-3"
+        class="navbar-toggler btn btn-link text-decoration-none border-0 p-3"
         data-bs-toggle="offcanvas"
         data-bs-target="#menu-offcanvas"
         aria-controls="menu-offcanvas"
         aria-label="Open navigation"
       >
-        <IconMenu
-          class="text-dark mx-1"
-          style="font-size: 1.5em"
-          aria-hidden="true"
-        />
+        <IconMenu class="text-dark fs-4 mx-1" aria-hidden="true" />
       </button>
 
       <!-- Collapse/expand sidebar button, visible in md or higher. -->
@@ -48,11 +44,7 @@ const institution: { logo: string; name: string; url: string } = {
         "
         @click="layoutStore.toggleSidebar()"
       >
-        <IconMenu
-          class="text-dark mx-1"
-          style="font-size: 1.5em"
-          aria-hidden="true"
-        />
+        <IconMenu class="text-dark fs-4 mx-1" aria-hidden="true" />
       </button>
 
       <RouterLink
@@ -80,8 +72,7 @@ const institution: { logo: string; name: string; url: string } = {
         aria-label="About Enduro"
       >
         <IconInfo
-          class="text-primary mx-1"
-          style="font-size: 1.5em"
+          class="text-primary fs-4 mx-1"
           aria-hidden="true"
           @click="showAbout"
         />

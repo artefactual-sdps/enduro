@@ -10,7 +10,7 @@ import IconLogin from "~icons/clarity/login-line";
       type="button"
       @click="useAuthStore().signinRedirect()"
     >
-      <IconLogin aria-hidden="true" class="me-2" style="font-size: 25px" />
+      <IconLogin aria-hidden="true" class="me-2 fs-4" />
       Sign in
     </button>
   </div>
