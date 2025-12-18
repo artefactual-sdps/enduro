@@ -15,8 +15,17 @@ export type StatusEnum = PackageEnum | WorkflowEnum | TaskEnum;
 
 <script setup lang="ts">
 import { computed } from "vue";
+import type { Component } from "vue";
 
 import { api } from "@/client";
+import IconValidated from "~icons/clarity/checkbox-list-line";
+import IconCanceled from "~icons/clarity/cursor-hand-open-line";
+import IconError from "~icons/clarity/flame-line";
+import IconQueued from "~icons/clarity/hourglass-line";
+import IconFailed from "~icons/clarity/remove-line";
+import IconIngested from "~icons/clarity/success-standard-line";
+import IconProcessing from "~icons/clarity/sync-line";
+import IconPending from "~icons/clarity/warning-standard-line";
 
 type BadgeType = "package" | "workflow";
 type BadgeStyle = string[];
@@ -51,6 +60,20 @@ const packageStyle: {
   canceled: ["text-dark", "bg-dark-subtle", "border border-2 border-dark"],
 };
 
+const packageIcon: Record<PackageEnum, Component | undefined> = {
+  ingested: IconIngested,
+  stored: IconIngested,
+  deleted: IconFailed,
+  failed: IconFailed,
+  error: IconError,
+  queued: IconQueued,
+  processing: IconProcessing,
+  pending: IconPending,
+  unspecified: undefined,
+  validated: IconValidated,
+  canceled: IconCanceled,
+};
+
 const workflowStyle: {
   [key in WorkflowEnum | TaskEnum]: BadgeStyle;
 } = {
@@ -76,11 +99,28 @@ const colorClass = computed(() => {
 
   return getBadgeStyle(props.type).join(" ");
 });
+
+const icon = computed<Component | undefined>(() => {
+  if (props.type !== "package") {
+    return undefined;
+  }
+
+  return packageIcon[props.status as PackageEnum];
+});
 </script>
 
 <template>
   <span>
-    <span :class="['badge', colorClass]">
+    <span
+      :class="[
+        'badge',
+        'd-inline-flex',
+        'align-items-center',
+        'gap-2',
+        colorClass,
+      ]"
+    >
+      <component :is="icon" v-if="icon" aria-hidden="true" />
       {{ props.status.toUpperCase() }}
       <div
         v-if="props.status == api.EnduroIngestSipWorkflowStatusEnum.InProgress"
