@@ -24,6 +24,14 @@ $accordion-icon-active-color: $primary;
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/variables-dark";
 
+// Extend theme colors with blue.
+$theme-colors: map-merge(
+  $theme-colors,
+  (
+    "blue": $blue,
+  )
+);
+
 // Default map overrides.
 @import "bootstrap/scss/maps";
 @import "bootstrap/scss/mixins";

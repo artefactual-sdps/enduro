@@ -52,6 +52,16 @@ const statuses = [
     description:
       "The SIP workflow encountered a system error and ingest was aborted.",
   },
+  {
+    status: api.EnduroIngestSipStatusEnum.Canceled,
+    description:
+      "The SIP workflow has been canceled as part of a failed batch.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Validated,
+    description:
+      "The SIP has passed validation and it is waiting for other SIPs in the batch to validate.",
+  },
 ];
 
 onMounted(() => {

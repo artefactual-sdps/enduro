@@ -1,7 +1,25 @@
-@import "bootstrap/scss/root";
+@import "bootstrap/scss/utilities";
+
+// Extend utilities with blue subtle background.
+$utilities: map-merge(
+  $utilities,
+  (
+    "subtle-background-color": map-merge(
+        map-get($utilities, "subtle-background-color"),
+        (
+          values: map-merge(
+              map-get(map-get($utilities, "subtle-background-color"), "values"),
+              (
+                "blue-subtle": tint-color($blue, 80%),
+              )
+            ),
+        )
+      ),
+  )
+);
 
 // Other Boostrap includes.
-@import "bootstrap/scss/utilities";
+@import "bootstrap/scss/root";
 @import "bootstrap/scss/reboot";
 @import "bootstrap/scss/type";
 @import "bootstrap/scss/images";

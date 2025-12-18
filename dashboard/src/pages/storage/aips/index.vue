@@ -59,7 +59,11 @@ const tabs = computed(() => [
     text: "Stored",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: "stored", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroStorageAipStatusEnum.Stored,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -68,7 +72,11 @@ const tabs = computed(() => [
     text: "Deleted",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: "deleted", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroStorageAipStatusEnum.Deleted,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -77,7 +85,11 @@ const tabs = computed(() => [
     text: "Queued",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: "queued", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroStorageAipStatusEnum.Queued,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -86,7 +98,11 @@ const tabs = computed(() => [
     text: "Pending",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: "pending", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroStorageAipStatusEnum.Pending,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -95,7 +111,11 @@ const tabs = computed(() => [
     text: "Processing",
     route: router.resolve({
       name: "/storage/aips/",
-      query: { ...route.query, status: "processing", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroStorageAipStatusEnum.Processing,
+        page: undefined,
+      },
     }),
     show: true,
   },

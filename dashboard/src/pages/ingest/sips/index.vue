@@ -22,7 +22,9 @@ import { useSipStore } from "@/stores/sip";
 import { useUserStore } from "@/stores/user";
 import IconInfo from "~icons/akar-icons/info-fill";
 import IconAll from "~icons/clarity/blocks-group-line?font-size=20px";
+import IconValidated from "~icons/clarity/checkbox-list-line?font-size=20px";
 import IconClose from "~icons/clarity/close-line";
+import IconCanceled from "~icons/clarity/cursor-hand-open-line?font-size=20px";
 import IconError from "~icons/clarity/flame-line?font-size=20px";
 import IconQueued from "~icons/clarity/hourglass-line?font-size=20px";
 import IconFailed from "~icons/clarity/remove-line?font-size=20px";
@@ -70,7 +72,11 @@ const tabs = computed(() => [
     text: "Ingested",
     route: router.resolve({
       name: "/ingest/sips/",
-      query: { ...route.query, status: "ingested", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestSipStatusEnum.Ingested,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -79,7 +85,11 @@ const tabs = computed(() => [
     text: "Failed",
     route: router.resolve({
       name: "/ingest/sips/",
-      query: { ...route.query, status: "failed", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestSipStatusEnum.Failed,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -88,7 +98,24 @@ const tabs = computed(() => [
     text: "Error",
     route: router.resolve({
       name: "/ingest/sips/",
-      query: { ...route.query, status: "error", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestSipStatusEnum.Error,
+        page: undefined,
+      },
+    }),
+    show: true,
+  },
+  {
+    icon: IconCanceled,
+    text: "Canceled",
+    route: router.resolve({
+      name: "/ingest/sips/",
+      query: {
+        ...route.query,
+        status: api.EnduroIngestSipStatusEnum.Canceled,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -97,7 +124,11 @@ const tabs = computed(() => [
     text: "Processing",
     route: router.resolve({
       name: "/ingest/sips/",
-      query: { ...route.query, status: "processing", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestSipStatusEnum.Processing,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -106,7 +137,11 @@ const tabs = computed(() => [
     text: "Queued",
     route: router.resolve({
       name: "/ingest/sips/",
-      query: { ...route.query, status: "queued", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestSipStatusEnum.Queued,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -115,7 +150,24 @@ const tabs = computed(() => [
     text: "Pending",
     route: router.resolve({
       name: "/ingest/sips/",
-      query: { ...route.query, status: "pending", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestSipStatusEnum.Pending,
+        page: undefined,
+      },
+    }),
+    show: true,
+  },
+  {
+    icon: IconValidated,
+    text: "Validated",
+    route: router.resolve({
+      name: "/ingest/sips/",
+      query: {
+        ...route.query,
+        status: api.EnduroIngestSipStatusEnum.Validated,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -149,6 +201,16 @@ const statuses = [
     status: api.EnduroIngestSipStatusEnum.Error,
     description:
       "The SIP workflow encountered a system error and ingest was aborted.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Canceled,
+    description:
+      "The SIP workflow has been canceled as part of a failed batch.",
+  },
+  {
+    status: api.EnduroIngestSipStatusEnum.Validated,
+    description:
+      "The SIP has passed validation and it is waiting for other SIPs in the batch to validate.",
   },
 ];
 

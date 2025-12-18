@@ -70,7 +70,11 @@ const tabs = computed(() => [
     text: "Ingested",
     route: router.resolve({
       name: "/ingest/batches/",
-      query: { ...route.query, status: "ingested", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestBatchStatusEnum.Ingested,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -79,7 +83,11 @@ const tabs = computed(() => [
     text: "Failed",
     route: router.resolve({
       name: "/ingest/batches/",
-      query: { ...route.query, status: "failed", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestBatchStatusEnum.Failed,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -88,7 +96,11 @@ const tabs = computed(() => [
     text: "Canceled",
     route: router.resolve({
       name: "/ingest/batches/",
-      query: { ...route.query, status: "canceled", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestBatchStatusEnum.Canceled,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -97,7 +109,11 @@ const tabs = computed(() => [
     text: "Processing",
     route: router.resolve({
       name: "/ingest/batches/",
-      query: { ...route.query, status: "processing", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestBatchStatusEnum.Processing,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -106,7 +122,11 @@ const tabs = computed(() => [
     text: "Queued",
     route: router.resolve({
       name: "/ingest/batches/",
-      query: { ...route.query, status: "queued", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestBatchStatusEnum.Queued,
+        page: undefined,
+      },
     }),
     show: true,
   },
@@ -115,7 +135,11 @@ const tabs = computed(() => [
     text: "Pending",
     route: router.resolve({
       name: "/ingest/batches/",
-      query: { ...route.query, status: "pending", page: undefined },
+      query: {
+        ...route.query,
+        status: api.EnduroIngestBatchStatusEnum.Pending,
+        page: undefined,
+      },
     }),
     show: true,
   },
