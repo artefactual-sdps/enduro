@@ -56,7 +56,7 @@ const institution: { logo: string; name: string; url: string } = {
         Enduro
       </RouterLink>
 
-      <div class="flex-grow-1 d-none d-md-block">
+      <div class="flex-grow-1 d-none d-md-block overflow-hidden">
         <Breadcrumb />
       </div>
 

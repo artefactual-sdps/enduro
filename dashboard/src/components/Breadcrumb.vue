@@ -5,14 +5,19 @@ const layoutStore = useLayoutStore();
 </script>
 
 <template>
-  <span v-if="layoutStore.breadcrumb.length" class="text-muted me-2">/</span>
-  <nav aria-label="Breadcrumb" class="d-inline-block">
-    <ol class="breadcrumb mb-0">
+  <nav aria-label="Breadcrumb" class="d-flex">
+    <span v-if="layoutStore.breadcrumb.length" class="text-muted me-2">/</span>
+    <ol class="breadcrumb mb-0 flex-nowrap overflow-hidden">
       <li
         v-for="(item, i) in layoutStore.breadcrumb"
         :key="'breadcrumb-' + i"
-        class="breadcrumb-item"
-        :class="i == layoutStore.breadcrumb.length - 1 ? 'active' : ''"
+        :class="[
+          'breadcrumb-item',
+          'text-nowrap',
+          i === layoutStore.breadcrumb.length - 1
+            ? 'active text-truncate'
+            : 'flex-shrink-0',
+        ]"
         :aria-current="
           i == layoutStore.breadcrumb.length - 1 ? 'page' : undefined
         "
