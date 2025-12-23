@@ -4,6 +4,7 @@ namespace: enduro-sdps
 resources:
   - ../../base
   - ../../components/dev
+  - ../../components/ambox
   - enduro-am.yaml
   - mysql-create-amss-location-job.yaml
 images:
@@ -16,16 +17,11 @@ images:
   - name: ghcr.io/artefactual-sdps/enduro-dashboard:main
     newName: enduro-dashboard
     newTag: dev
+  - name: ambox
+    newName: artefactual/ambox
+    newTag: test
 patches:
   - target:
       kind: Deployment
       name: enduro
     path: enduro-patch.yaml
-secretGenerator:
-  - name: enduro-am-secret
-    behavior: replace
-    envs:
-      - .am.secret
-    files:
-      - .id_ed25519.secret
-      - .known_hosts.secret

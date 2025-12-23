@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: ambox
+  labels:
+    app: ambox
+spec:
+  selector:
+    app: ambox
+  ports:
+    - name: am-dashboard
+      port: 64080
+      targetPort: 64080
+    - name: am-ss
+      port: 64081
+      targetPort: 64081
+    - name: am-sftp
+      port: 64022
+      targetPort: 64022
