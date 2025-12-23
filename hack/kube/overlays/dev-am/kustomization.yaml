@@ -4,6 +4,8 @@ namespace: enduro-sdps
 resources:
   - ../../base
   - ../../components/dev
+  - ambox.yaml
+  - enduro-am-secret.yaml
   - enduro-am.yaml
   - mysql-create-amss-location-job.yaml
 images:
@@ -21,11 +23,3 @@ patches:
       kind: Deployment
       name: enduro
     path: enduro-patch.yaml
-secretGenerator:
-  - name: enduro-am-secret
-    behavior: replace
-    envs:
-      - .am.secret
-    files:
-      - .id_ed25519.secret
-      - .known_hosts.secret

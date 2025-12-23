@@ -1,0 +1,111 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ambox
+  labels:
+    app: ambox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ambox
+  template:
+    metadata:
+      labels:
+        app: ambox
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: ambox
+          image: docker.io/artefactual/ambox:1.0.9
+          ports:
+            - name: am-dashboard
+              containerPort: 64080
+            - name: am-ss
+              containerPort: 64081
+            - name: am-sftp
+              containerPort: 64022
+          volumeMounts:
+            - name: am-shared-directory
+              mountPath: /var/archivematica/sharedDirectory
+            - name: am-home
+              mountPath: /home/archivematica
+            - name: ambox-hostkey
+              mountPath: /etc/sftpgo/keys/host_ed25519
+              subPath: host_ed25519
+              readOnly: true
+            - name: ambox-config
+              mountPath: /etc/ambox/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: am-shared-directory
+          emptyDir: {}
+        - name: am-home
+          emptyDir: {}
+        - name: ambox-hostkey
+          secret:
+            secretName: ambox-hostkey
+            items:
+              - key: host_ed25519
+                path: host_ed25519
+                mode: 0640
+        - name: ambox-config
+          configMap:
+            name: ambox-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ambox
+  labels:
+    app: ambox
+spec:
+  selector:
+    app: ambox
+  ports:
+    - name: am-dashboard
+      port: 64080
+      targetPort: 64080
+    - name: am-ss
+      port: 64081
+      targetPort: 64081
+    - name: am-sftp
+      port: 64022
+      targetPort: 64022
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ambox-hostkey
+  labels:
+    app: ambox
+type: Opaque
+stringData:
+  host_ed25519: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+    QyNTUxOQAAACDGjcA9OMF7WaRKF7GmIapVbjDixiYKWNVyHftCmdYGQwAAAJjnao2s52qN
+    rAAAAAtzc2gtZWQyNTUxOQAAACDGjcA9OMF7WaRKF7GmIapVbjDixiYKWNVyHftCmdYGQw
+    AAAEDV0g3EjFUxwhHkSmPceORX5hZWDnGrweyOIWy259byk8aNwD04wXtZpEoXsaYhqlVu
+    MOLGJgpY1XId+0KZ1gZDAAAAEWplc3VzQGNhc2lvLmxvY2FsAQIDBA==
+    -----END OPENSSH PRIVATE KEY-----
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ambox-config
+  labels:
+    app: ambox
+data:
+  # https://github.com/sevein/ambox/tree/dev/ambox/hack/box/config
+  config.yaml: |
+    version: v1
+    sftpgo:
+      host_key: /etc/sftpgo/keys/host_ed25519
+    processing:
+      configs:
+        - name: automated
+          extends: automated
+          config:
+            normalize: do_not_normalize
