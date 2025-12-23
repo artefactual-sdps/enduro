@@ -27,6 +27,33 @@ spec:
               "-c",
               "until echo STATUS | nc -w 2 temporal.enduro-sdps 7233; do echo waiting for temporal to start; sleep 1; done;",
             ]
+        - name: ambox-known-hosts
+          image: alpine:3.20
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              apk add --no-cache openssh-client >/dev/null
+              # Create a private SSH dir owned by the worker user (uid/gid 1000).
+              install -d /ssh
+              chown 1000:1000 /ssh
+              chmod 0700 /ssh
+              # Copy the private key with strict perms for the worker user.
+              cp /ssh-secret/id_ed25519 /ssh/id_ed25519
+              chown 1000:1000 /ssh/id_ed25519
+              chmod 0600 /ssh/id_ed25519
+              # Generate known_hosts with readable perms for the worker user.
+              ssh-keyscan -H -p 64022 ambox.enduro-sdps > /ssh/known_hosts
+              chown 1000:1000 /ssh/known_hosts
+              chmod 0644 /ssh/known_hosts
+          volumeMounts:
+            - name: ssh-secret
+              mountPath: /ssh-secret
+              readOnly: true
+            - name: ssh-volume
+              mountPath: /ssh
       containers:
         - name: enduro-am-worker
           image: ghcr.io/artefactual-sdps/enduro-am-worker:main
@@ -126,13 +153,12 @@ spec:
               mountPath: "/etc/ssh"
               readOnly: true
       volumes:
-        - name: ssh-volume
+        - name: ssh-secret
           secret:
             secretName: enduro-am-secret
             items:
               - key: .id_ed25519.secret
                 defaultMode: 0600
                 path: id_ed25519
-              - key: .known_hosts.secret
-                defaultMode: 0644
-                path: known_hosts
+        - name: ssh-volume
+          emptyDir: {}

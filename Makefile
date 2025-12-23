@@ -216,7 +216,7 @@ test-race:
 
 tilt-am-knownhosts:  # @HELP Update Archivematica Storage Service known_hosts.
 tilt-am-knownhosts: HOST ?= host.k3d.internal
-tilt-am-knownhosts: PORT ?= 12322
+tilt-am-knownhosts: PORT ?= 64022
 tilt-am-knownhosts:
 	ssh-keyscan -H -p $(PORT) $(HOST) > hack/kube/overlays/dev-am/.known_hosts.secret
 	tilt trigger "(Tiltfile)"

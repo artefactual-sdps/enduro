@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ambox
+  labels:
+    app: ambox
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ambox
+  template:
+    metadata:
+      labels:
+        app: ambox
+    spec:
+      containers:
+        - name: ambox
+          image: ambox:1.0.5
+          ports:
+            - name: am-dashboard
+              containerPort: 64080
+            - name: am-ss
+              containerPort: 64081
+            - name: am-sftp
+              containerPort: 64022
+          volumeMounts:
+            - name: am-shared-directory
+              mountPath: /var/archivematica/sharedDirectory
+            - name: am-home
+              mountPath: /home/archivematica
+            - name: ambox-config
+              mountPath: /etc/ambox/config.yaml
+              subPath: config.yaml
+      volumes:
+        - name: am-shared-directory
+          emptyDir: {}
+        - name: am-home
+          emptyDir: {}
+        - name: ambox-config
+          configMap:
+            name: ambox-config

@@ -9,8 +9,8 @@ dotenv_path = ".tilt.env"
 if os.path.exists(dotenv_path):
   dotenv(fn=dotenv_path)
 
-# Get preservation system (default: 'a3m')
-PRES_SYS = os.environ.get('ENDURO_PRES_SYSTEM', 'a3m')
+# Get preservation system (default: 'am')
+PRES_SYS = os.environ.get('ENDURO_PRES_SYSTEM', 'am')
 if PRES_SYS not in ("a3m", "am"):
   fail("Invalid ENDURO_PRES_SYSTEM: {pres_sys}.".format(pres_sys=PRES_SYS))
 
@@ -115,6 +115,11 @@ k8s_resource(
 
 if PRES_SYS == 'am':
   k8s_resource("enduro-am", labels=["Enduro"], trigger_mode=trigger_mode)
+  k8s_resource(
+    "ambox",
+    labels=["Others"],
+    port_forwards=["64080:64080", "64081:64081"],
+  )
 else:
   k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=trigger_mode)
 

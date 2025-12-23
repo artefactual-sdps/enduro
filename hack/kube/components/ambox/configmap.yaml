@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ambox-config
+data:
+  # https://github.com/sevein/ambox/tree/dev/ambox/hack/box/config
+  config.yaml: |
+    version: v1
+    processing:
+      configs:
+        - name: automated
+          extends: automated
+          config:
+            normalize: do_not_normalize
