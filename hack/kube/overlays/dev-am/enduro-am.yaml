@@ -131,8 +131,8 @@ spec:
             secretName: enduro-am-secret
             items:
               - key: .id_ed25519.secret
-                defaultMode: 0600
                 path: id_ed25519
+                mode: 0600
               - key: .known_hosts.secret
-                defaultMode: 0644
                 path: known_hosts
+                mode: 0644

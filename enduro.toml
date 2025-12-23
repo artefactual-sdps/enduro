@@ -139,9 +139,9 @@ workflowType = "create aip"
 retentionPeriod = "0"
 
 # Change the taskqueue setting to your prefered preservation system, by default
-# it is a3m. Use 'am' to configure Archivematica instead.
+# it is 'am' (Archivematica). Use 'a3m' to configure a3m instead.
 [preservation]
-taskqueue = "a3m"
+taskqueue = "am"
 
 # a3m configuration. There is no capacity setting here like there is for AM, as
 # a3m is not concurrency safe. To enable parallel processing, deploy multiple
