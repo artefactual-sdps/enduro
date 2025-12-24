@@ -42,6 +42,25 @@ func withActivityOptsForRequest(ctx temporalsdk_workflow.Context) temporalsdk_wo
 	})
 }
 
+// withActivityOptsForRequestOnQueue returns activity options for short-lived
+// requests but forces execution on a specific task queue.
+func withActivityOptsForRequestOnQueue(
+	ctx temporalsdk_workflow.Context,
+	taskQueue string,
+) temporalsdk_workflow.Context {
+	return temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
+		StartToCloseTimeout:    time.Second * 10,
+		ScheduleToCloseTimeout: time.Minute * 5,
+		TaskQueue:              taskQueue,
+		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
+			InitialInterval:    time.Second,
+			BackoffCoefficient: 2,
+			MaximumInterval:    time.Minute,
+			MaximumAttempts:    20,
+		},
+	})
+}
+
 // withActivityOptsForLocalAction returns a workflow context with activity
 // options suited for local activities like disk operations that should not
 // require a retry policy attached.
