@@ -8,6 +8,27 @@ requests.
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-01-09
+
+### Fixed
+
+- Header breadcrumb overlap ([#1473])
+
+### Changed
+
+- Increase default Archivematica capacity to 20 ([#1405])
+
+### Added
+
+- Initial batch workflow, API endpoints and pages ([#1405])
+- Batch UUID filter to list SIPs API endpoint ([#1405])
+- New SIP statuses, canceled and validated ([#1405])
+- Icons to SIP/AIP/Batch status badges ([#1405])
+
+### Removed
+
+- Capacity configuration for a3m ([#1405])
+
 ## [0.21.0] - 2025-12-03
 
 ### Added
@@ -260,7 +281,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.21.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.22.0...HEAD
+[0.22.0]: https://github.com/artefactual-sdps/enduro/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/artefactual-sdps/enduro/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/artefactual-sdps/enduro/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/artefactual-sdps/enduro/compare/v0.18.0...v0.19.0
@@ -282,6 +304,8 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1473]: https://github.com/artefactual-sdps/enduro/issues/1473
+[#1405]: https://github.com/artefactual-sdps/enduro/issues/1405
 [#1401]: https://github.com/artefactual-sdps/enduro/issues/1401
 [#1383]: https://github.com/artefactual-sdps/enduro/issues/1383
 [#1373]: https://github.com/artefactual-sdps/enduro/issues/1373
