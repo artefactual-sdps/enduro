@@ -57,3 +57,11 @@ func (s *batchWorkflowState) addSIPDetails(
 		workflowExecution: we,
 	}
 }
+
+func (s *batchWorkflowState) SIPs() []datatypes.SIP {
+	sips := make([]datatypes.SIP, len(s.sipDetails))
+	for i, sd := range s.sipDetails {
+		sips[i] = sd.sip
+	}
+	return sips
+}

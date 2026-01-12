@@ -19,6 +19,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/auditlog"
+	"github.com/artefactual-sdps/enduro/internal/batch"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -62,6 +63,7 @@ type Configuration struct {
 	InternalAPI     api.Config
 	API             api.Config
 	BagIt           bagcreate.Config
+	Batch           batch.Config
 	Database        db.Config
 	Event           event.Config
 	ExtractActivity archiveextract.Config

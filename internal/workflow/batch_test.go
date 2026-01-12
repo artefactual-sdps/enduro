@@ -14,6 +14,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 	"go.uber.org/mock/gomock"
 
+	"github.com/artefactual-sdps/enduro/internal/batch"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -66,6 +67,12 @@ func (s *BatchWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration) {
 		activities.NewPollSIPStatusesActivity(ingestsvc, time.Microsecond).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.PollSIPStatusesActivityName},
 	)
+	if cfg.Batch.Poststorage != nil {
+		s.env.RegisterWorkflowWithOptions(
+			postStorageChildWorkflow,
+			temporalsdk_workflow.RegisterOptions{Name: cfg.Batch.Poststorage.WorkflowName},
+		)
+	}
 
 	s.workflow = NewBatchWorkflow(cfg, rng, ingestsvc, nil)
 }
@@ -81,6 +88,15 @@ func (s *BatchWorkflowTestSuite) processingChildWorkflow(
 	s.childSignals = append(s.childSignals, signal)
 
 	return nil
+}
+
+// postStorageChildWorkflow is a no-op workflow that will be replaced with a
+// mock in test.
+func postStorageChildWorkflow(
+	ctx temporalsdk_workflow.Context,
+	params *batch.PostStorageParams,
+) (*batch.PostStorageResult, error) {
+	return nil, nil
 }
 
 func (s *BatchWorkflowTestSuite) AfterTest(suiteName, testName string) {
@@ -117,16 +133,26 @@ func TestBatchWorkflow(t *testing.T) {
 }
 
 // TestBatch tests:
-// - Batch status update (processing).
-// - SIP creation for each key.
-// - Child processing workflows started for each SIP.
-// - Polling SIP statuses until all are validated.
-// - Signaling SIP workflows to continue processing.
-// - Polling SIP statuses until all are ingested.
-// - Waiting for all child workflows to complete.
-// - Batch status update (ingested).
+// - Update batch status (processing).
+// - Create a SIP for each key.
+// - Start a child processing workflow for each SIP.
+// - Poll SIP statuses until all are validated.
+// - Signal SIP workflows to continue processing.
+// - Poll SIP statuses until all are ingested.
+// - Wait for all child workflows to complete.
+// - Update batch status (ingested).
+// - Run post-storage child workflows.
 func (s *BatchWorkflowTestSuite) TestBatch() {
-	s.SetupWorkflowTest(config.Configuration{})
+	cfg := config.Configuration{
+		Batch: batch.Config{
+			Poststorage: &batch.PostStorageConfig{
+				Namespace:    "default",
+				TaskQueue:    "batch-post-storage",
+				WorkflowName: "batch-post-storage",
+			},
+		},
+	}
+	s.SetupWorkflowTest(cfg)
 
 	// Mock initial batch status update.
 	s.env.OnActivity(
@@ -205,6 +231,50 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 			ExpectedStatus:   enums.SIPStatusIngested,
 		},
 	).Return(&activities.PollSIPStatusesActivityResult{AllExpectedStatus: true}, nil)
+
+	// Mock post-storage child workflow.
+	s.env.OnWorkflow(
+		postStorageChildWorkflow,
+		internalCtx,
+		&batch.PostStorageParams{
+			SIPs: []datatypes.SIP{
+				{
+					UUID:   batchSIP1UUID,
+					Name:   batchSIP1Key,
+					Status: enums.SIPStatusQueued,
+					Batch: &datatypes.Batch{
+						ID:         0,
+						UUID:       batchUUID,
+						Identifier: batchIdentifier,
+						Status:     enums.BatchStatusProcessing,
+						SIPSCount:  2,
+						CreatedAt:  startTime,
+						StartedAt:  startTime,
+					},
+				},
+				{
+					UUID:   batchSIP2UUID,
+					Name:   batchSIP2Key,
+					Status: enums.SIPStatusQueued,
+					Batch: &datatypes.Batch{
+						ID:         0,
+						UUID:       batchUUID,
+						Identifier: batchIdentifier,
+						Status:     enums.BatchStatusProcessing,
+						SIPSCount:  2,
+						CreatedAt:  startTime,
+						StartedAt:  startTime,
+					},
+				},
+			},
+		},
+	).Return(
+		&batch.PostStorageResult{
+			Status:  batch.PostStorageSuccess,
+			Message: "Batch post-storage workflow executed successfully",
+		},
+		nil,
+	)
 
 	// Mock final batch status update.
 	s.env.OnActivity(
