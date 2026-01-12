@@ -11,6 +11,7 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
+	"github.com/artefactual-sdps/enduro/internal/batch"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -135,6 +136,13 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 	// Fail workflow if not all SIPs reached "ingested" status.
 	if !pollIngestedResult.AllExpectedStatus {
 		return fmt.Errorf("not all SIPs reached %q status", enums.SIPStatusIngested)
+	}
+
+	// Run post-storage child workflow, if one is configured.
+	if w.cfg.Batch.Poststorage != nil {
+		if err := w.postStorageWorkflow(ctx, *w.cfg.Batch.Poststorage, state); err != nil {
+			return err
+		}
 	}
 
 	// TODO: handle retention period.
@@ -268,6 +276,47 @@ func (w *BatchWorkflow) waitForWorkflowsCompletion(ctx temporalsdk_workflow.Cont
 			return fmt.Errorf("waiting for workflows: %v", err)
 		}
 	}
+
+	return nil
+}
+
+func (w *BatchWorkflow) postStorageWorkflow(
+	ctx temporalsdk_workflow.Context,
+	cfg batch.PostStorageConfig,
+	state *batchWorkflowState,
+) error {
+	state.logger.Info(
+		"Starting post-storage workflow",
+		"Batch ID", state.batch.UUID.String(),
+		"Workflow name", cfg.WorkflowName,
+	)
+
+	childCtx := temporalsdk_workflow.WithChildOptions(
+		ctx,
+		temporalsdk_workflow.ChildWorkflowOptions{
+			Namespace:         cfg.Namespace,
+			TaskQueue:         cfg.TaskQueue,
+			WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, state.batch.UUID.String()),
+			ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,
+		},
+	)
+
+	var res batch.PostStorageResult
+	err := temporalsdk_workflow.ExecuteChildWorkflow(
+		childCtx,
+		cfg.WorkflowName,
+		&batch.PostStorageParams{SIPs: state.SIPs()},
+	).Get(childCtx, &res)
+	if err != nil {
+		return fmt.Errorf("batch %q post-storage workflow: %v", state.batch.UUID.String(), err)
+	}
+
+	state.logger.Info(
+		"Post-storage workflow completed",
+		"Batch ID", state.batch.UUID.String(),
+		"Status", res.Status,
+		"Message", res.Message,
+	)
 
 	return nil
 }

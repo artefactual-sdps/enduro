@@ -290,11 +290,19 @@ namespace = "default"
 taskQueue = "preprocessing"
 workflowName = "preprocessing"
 
-# Temporal configurations to trigger poststorage child workflows, allows multiple sections.
+# Temporal configurations to trigger post-storage child workflows after ingest, 
+# preservation and storage of a single SIP, allows multiple workflows.
 # [[poststorage]]
 # namespace = "default"
 # taskQueue = "poststorage"
 # workflowName = "poststorage"
+
+# Temporal configuration to trigger a post-storage child workflows after batch 
+# ingest of multiple SIPs.
+# [batch.poststorage]
+# namespace = "default"
+# taskQueue = "batch-post-storage"
+# workflowName = "batch-post-storage"
 
 #########################################################################
 #                                                                       #
