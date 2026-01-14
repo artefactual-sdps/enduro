@@ -8,6 +8,7 @@
 set -eu
 
 MODULE_PATH="${MODULE_PATH:-github.com/artefactual-sdps/enduro}"
+STRIP="${STRIP:-1}"
 
 IFS=".$IFS" read -r major minor patch < internal/version/VERSION.txt
 version_path=${MODULE_PATH}/internal/version
@@ -36,5 +37,8 @@ EOF
 fi
 
 ldflags="-X ${VERSION_PATH}.Long=${LONG} -X ${VERSION_PATH}.Short=${SHORT} -X ${VERSION_PATH}.GitCommit=${GIT_HASH}"
+if [ "$STRIP" = "1" ]; then
+	ldflags="-s $ldflags"
+fi
 
 exec go build -ldflags "$ldflags" "$@"

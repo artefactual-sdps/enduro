@@ -15,11 +15,14 @@ ARG VERSION_PATH
 ARG VERSION_LONG
 ARG VERSION_SHORT
 ARG VERSION_GIT_HASH
+ARG STRIP=1
 RUN --mount=type=cache,target=/go/pkg/mod \
 	--mount=type=cache,target=/root/.cache/go-build \
+	ldflags="-X '${VERSION_PATH}.Long=${VERSION_LONG}' -X '${VERSION_PATH}.Short=${VERSION_SHORT}' -X '${VERSION_PATH}.GitCommit=${VERSION_GIT_HASH}'" && \
+	if [ "$STRIP" = "1" ]; then ldflags="-s $ldflags"; fi && \
 	go build \
 	-trimpath \
-	-ldflags="-X '${VERSION_PATH}.Long=${VERSION_LONG}' -X '${VERSION_PATH}.Short=${VERSION_SHORT}' -X '${VERSION_PATH}.GitCommit=${VERSION_GIT_HASH}'" \
+	-ldflags="$ldflags" \
 	-o /out/enduro \
 	./cmd/enduro
 
@@ -28,11 +31,14 @@ ARG VERSION_PATH
 ARG VERSION_LONG
 ARG VERSION_SHORT
 ARG VERSION_GIT_HASH
+ARG STRIP=1
 RUN --mount=type=cache,target=/go/pkg/mod \
 	--mount=type=cache,target=/root/.cache/go-build \
+	ldflags="-X '${VERSION_PATH}.Long=${VERSION_LONG}' -X '${VERSION_PATH}.Short=${VERSION_SHORT}' -X '${VERSION_PATH}.GitCommit=${VERSION_GIT_HASH}'" && \
+	if [ "$STRIP" = "1" ]; then ldflags="-s $ldflags"; fi && \
 	go build \
 	-trimpath \
-	-ldflags="-X '${VERSION_PATH}.Long=${VERSION_LONG}' -X '${VERSION_PATH}.Short=${VERSION_SHORT}' -X '${VERSION_PATH}.GitCommit=${VERSION_GIT_HASH}'" \
+	-ldflags="$ldflags" \
 	-o /out/enduro-a3m-worker \
 	./cmd/enduro-a3m-worker
 
@@ -41,11 +47,14 @@ ARG VERSION_PATH
 ARG VERSION_LONG
 ARG VERSION_SHORT
 ARG VERSION_GIT_HASH
+ARG STRIP=1
 RUN --mount=type=cache,target=/go/pkg/mod \
 	--mount=type=cache,target=/root/.cache/go-build \
+	ldflags="-X '${VERSION_PATH}.Long=${VERSION_LONG}' -X '${VERSION_PATH}.Short=${VERSION_SHORT}' -X '${VERSION_PATH}.GitCommit=${VERSION_GIT_HASH}'" && \
+	if [ "$STRIP" = "1" ]; then ldflags="-s $ldflags"; fi && \
 	go build \
 	-trimpath \
-	-ldflags="-X '${VERSION_PATH}.Long=${VERSION_LONG}' -X '${VERSION_PATH}.Short=${VERSION_SHORT}' -X '${VERSION_PATH}.GitCommit=${VERSION_GIT_HASH}'" \
+	-ldflags="$ldflags" \
 	-o /out/enduro-am-worker \
 	./cmd/enduro-am-worker
 
