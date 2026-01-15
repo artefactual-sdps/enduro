@@ -15,22 +15,17 @@ permissions:
   contents: read
 
 env:
-  PROJECT_NAME:
-    ${{ github.repository_owner }}-${{ github.event.repository.name }}
-  PROJECT_VERSION:
-    ${{ (github.event_name == 'release' && github.event.release.tag_name) || github.ref_name }}
+  PROJECT_NAME: ${{ github.repository_owner }}-${{ github.event.repository.name }}
+  PROJECT_VERSION: ${{ (github.event_name == 'release' && github.event.release.tag_name) || github.ref_name }}
 
 jobs:
   sbom:
     runs-on: ubuntu-latest
-    env:
-      DEPENDENCY_TRACK_URL: ${{ secrets.DEPENDENCY_TRACK_URL }}
-      DEPENDENCY_TRACK_API_KEY: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
     steps:
       - name: Validate Dependency-Track secrets
         run: |
-          if [ -z "${DEPENDENCY_TRACK_URL}" ] || [ -z "${DEPENDENCY_TRACK_API_KEY}" ]; then
-            echo "Dependency-Track secrets not configured; set DEPENDENCY_TRACK_URL and DEPENDENCY_TRACK_API_KEY."
+          if [ -z "${DEPENDENCY_TRACK_HOSTNAME}" ] || [ -z "${DEPENDENCY_TRACK_API_KEY}" ]; then
+            echo "Dependency-Track secrets not configured; set DEPENDENCY_TRACK_HOSTNAME and DEPENDENCY_TRACK_API_KEY."
             exit 1
           fi
 
@@ -56,15 +51,15 @@ jobs:
           format: cyclonedx
           output: sbom.cdx.json
           cache-dir: .trivycache
-          exit-code: '0'
+          exit-code: "0"
 
       - name: Upload to Dependency-Track
-        run: |
-          curl --fail-with-body --silent --show-error \
-            -X POST "${DEPENDENCY_TRACK_URL%/}/api/v1/bom" \
-            -H "X-Api-Key: ${DEPENDENCY_TRACK_API_KEY}" \
-            -F "autoCreate=true" \
-            -F "projectName=${PROJECT_NAME}" \
-            -F "projectVersion=${PROJECT_VERSION}" \
-            -F "parentName=artefactual-sdps-enduro" \
-            -F "bom=@sbom.cdx.json"
+        uses: DependencyTrack/gh-upload-sbom@v3
+        with:
+          serverhostname: ${{ secrets.DEPENDENCY_TRACK_HOSTNAME }}
+          apikey: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
+          autocreate: true
+          projectname: ${{ env.PROJECT_NAME }}
+          projectversion: ${{ env.PROJECT_VERSION }}
+          parentname: artefactual-sdps-enduro
+          bomfilename: sbom.cdx.json
