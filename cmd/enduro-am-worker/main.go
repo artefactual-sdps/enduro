@@ -234,10 +234,6 @@ func main() {
 			},
 		}
 		w := temporalsdk_worker.New(temporalClient, temporal.AmWorkerTaskQueue, workerOpts)
-		if err != nil {
-			logger.Error(err, "Error creating Temporal worker.")
-			os.Exit(1)
-		}
 
 		httpClient := cleanhttp.DefaultPooledClient()
 		httpClient.Transport = otelhttp.NewTransport(

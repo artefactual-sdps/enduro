@@ -483,10 +483,6 @@ func main() {
 			},
 		}
 		w := temporalsdk_worker.New(temporalClient, cfg.Temporal.TaskQueue, workerOpts)
-		if err != nil {
-			logger.Error(err, "Error creating Temporal worker.")
-			os.Exit(1)
-		}
 
 		// Ingest processing workflow and activities.
 		w.RegisterWorkflowWithOptions(

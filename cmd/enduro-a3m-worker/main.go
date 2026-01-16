@@ -237,10 +237,6 @@ func main() {
 			},
 		}
 		w := temporalsdk_worker.New(temporalClient, temporal.A3mWorkerTaskQueue, workerOpts)
-		if err != nil {
-			logger.Error(err, "Error creating Temporal worker.")
-			os.Exit(1)
-		}
 
 		w.RegisterActivityWithOptions(
 			activities.NewDownloadActivity(tp.Tracer(activities.DownloadActivityName), wsvc).Execute,
