@@ -32,7 +32,11 @@ export const useBatchStore = defineStore("batch", {
       uploaderId: undefined as string | undefined,
     },
   }),
-  getters: {},
+  getters: {
+    isPending(): boolean {
+      return this.current?.status === api.EnduroIngestBatchStatusEnum.Pending;
+    },
+  },
   actions: {
     async fetchCurrent(uuid: string) {
       this.current = await client.ingest.ingestShowBatch({ uuid: uuid });
@@ -100,6 +104,24 @@ export const useBatchStore = defineStore("batch", {
     },
     async fetchBatchesDebounced(page: number) {
       return this.fetchBatches(page);
+    },
+    async reviewBatch(_continue: boolean) {
+      if (!this.current || !this.isPending) return;
+      return client.ingest
+        .ingestReviewBatch({
+          uuid: this.current.uuid,
+          reviewBatchRequestBody: { _continue },
+        })
+        .then(() => {
+          // Set batch status to processing to remove
+          // the review alert as soon as possible.
+          if (this.current)
+            this.current.status = api.EnduroIngestBatchStatusEnum.Processing;
+        })
+        .catch((e) => {
+          console.error("Error reviewing batch", e.message);
+          throw new Error("Couldn't review batch");
+        });
     },
   },
   debounce: {

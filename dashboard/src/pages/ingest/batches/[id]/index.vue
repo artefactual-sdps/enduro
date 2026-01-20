@@ -3,6 +3,7 @@ import Tooltip from "bootstrap/js/dist/tooltip";
 import { onMounted, ref } from "vue";
 
 import { api } from "@/client";
+import BatchReviewAlert from "@/components/BatchReviewAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import StatusLegend from "@/components/StatusLegend.vue";
 import UUID from "@/components/UUID.vue";
@@ -113,6 +114,8 @@ onMounted(() => {
         </dl>
       </div>
     </div>
+
+    <BatchReviewAlert />
 
     <h2 class="mb-3">SIPs in Batch</h2>
     <StatusLegend

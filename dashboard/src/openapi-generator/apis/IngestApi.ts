@@ -27,6 +27,7 @@ import type {
   EnduroIngestSipsourceObjects,
   EnduroIngestUsers,
   IngestEvent2,
+  ReviewBatchRequestBody,
   SIPNotFound,
 } from '../models/index';
 import {
@@ -54,6 +55,8 @@ import {
     EnduroIngestUsersToJSON,
     IngestEvent2FromJSON,
     IngestEvent2ToJSON,
+    ReviewBatchRequestBodyFromJSON,
+    ReviewBatchRequestBodyToJSON,
     SIPNotFoundFromJSON,
     SIPNotFoundToJSON,
 } from '../models/index';
@@ -126,6 +129,11 @@ export interface IngestMonitorRequest {
 
 export interface IngestRejectSipRequest {
     uuid: string;
+}
+
+export interface IngestReviewBatchRequest {
+    uuid: string;
+    reviewBatchRequestBody: ReviewBatchRequestBody;
 }
 
 export interface IngestShowBatchRequest {
@@ -375,6 +383,23 @@ export interface IngestApiInterface {
      * reject_sip ingest
      */
     ingestRejectSip(requestParameters: IngestRejectSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Review a Batch awaiting user decision
+     * @summary review_batch ingest
+     * @param {string} uuid Identifier of Batch to review
+     * @param {ReviewBatchRequestBody} reviewBatchRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestReviewBatchRaw(requestParameters: IngestReviewBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Review a Batch awaiting user decision
+     * review_batch ingest
+     */
+    ingestReviewBatch(requestParameters: IngestReviewBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * Show Batch by UUID
@@ -1018,6 +1043,52 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      */
     async ingestRejectSip(requestParameters: IngestRejectSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
         await this.ingestRejectSipRaw(requestParameters, initOverrides);
+    }
+
+    /**
+     * Review a Batch awaiting user decision
+     * review_batch ingest
+     */
+    async ingestReviewBatchRaw(requestParameters: IngestReviewBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestReviewBatch.');
+        }
+
+        if (requestParameters.reviewBatchRequestBody === null || requestParameters.reviewBatchRequestBody === undefined) {
+            throw new runtime.RequiredError('reviewBatchRequestBody','Required parameter requestParameters.reviewBatchRequestBody was null or undefined when calling ingestReviewBatch.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/ingest/batches/{uuid}/review`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: ReviewBatchRequestBodyToJSON(requestParameters.reviewBatchRequestBody),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Review a Batch awaiting user decision
+     * review_batch ingest
+     */
+    async ingestReviewBatch(requestParameters: IngestReviewBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.ingestReviewBatchRaw(requestParameters, initOverrides);
     }
 
     /**

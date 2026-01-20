@@ -60,6 +60,7 @@ models/ModelError.ts
 models/MoveStatusResult.ts
 models/RequestAipDeletionRequestBody.ts
 models/ReviewAipDeletionRequestBody.ts
+models/ReviewBatchRequestBody.ts
 models/S3Config.ts
 models/SFTPConfig.ts
 models/SIPCreatedEvent.ts

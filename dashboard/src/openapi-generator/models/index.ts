@@ -56,6 +56,7 @@ export * from './ModelError';
 export * from './MoveStatusResult';
 export * from './RequestAipDeletionRequestBody';
 export * from './ReviewAipDeletionRequestBody';
+export * from './ReviewBatchRequestBody';
 export * from './S3Config';
 export * from './SFTPConfig';
 export * from './SIPCreatedEvent';

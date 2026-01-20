@@ -1,5 +1,5 @@
 import { createPinia, setActivePinia } from "pinia";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { api, client } from "@/client";
 import { useBatchStore } from "@/stores/batch";
@@ -10,6 +10,27 @@ vi.mock("@/client");
 describe("useBatchStore", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    client.ingest.ingestReviewBatch = vi.fn().mockResolvedValue({});
+  });
+
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("isPending", () => {
+    const batchStore = useBatchStore();
+
+    expect(batchStore.isPending).toEqual(false);
+
+    batchStore.$patch({
+      current: {
+        createdAt: new Date("2025-01-01T00:00:00Z"),
+        uuid: "batch-uuid-1",
+        status: api.EnduroIngestBatchStatusEnum.Pending,
+      },
+    });
+
+    expect(batchStore.isPending).toEqual(true);
   });
 
   it("fetches current batch", async () => {
@@ -83,5 +104,65 @@ describe("useBatchStore", () => {
 
     expect(store.batches).toEqual(mockBatches.items);
     expect(store.page).toEqual(mockBatches.page);
+  });
+
+  it("reviewBatch skips when no current batch", async () => {
+    const store = useBatchStore();
+
+    await store.reviewBatch(true);
+
+    expect(client.ingest.ingestReviewBatch).not.toHaveBeenCalled();
+  });
+
+  it("reviewBatch skips when batch is not pending", async () => {
+    const store = useBatchStore();
+    store.$patch({
+      current: {
+        uuid: "batch-uuid-1",
+        createdAt: new Date("2025-01-01T00:00:00Z"),
+        status: api.EnduroIngestBatchStatusEnum.Ingested,
+      },
+    });
+
+    await store.reviewBatch(true);
+
+    expect(client.ingest.ingestReviewBatch).not.toHaveBeenCalled();
+  });
+
+  it("reviewBatch calls ingestReviewBatch when pending", async () => {
+    const store = useBatchStore();
+    store.$patch({
+      current: {
+        uuid: "batch-uuid-1",
+        createdAt: new Date("2025-01-01T00:00:00Z"),
+        status: api.EnduroIngestBatchStatusEnum.Pending,
+      },
+    });
+
+    await store.reviewBatch(false);
+
+    expect(client.ingest.ingestReviewBatch).toHaveBeenCalledWith({
+      uuid: "batch-uuid-1",
+      reviewBatchRequestBody: { _continue: false },
+    });
+  });
+
+  it("reviewBatch reports a failure", async () => {
+    const store = useBatchStore();
+    store.$patch({
+      current: {
+        uuid: "batch-uuid-1",
+        createdAt: new Date("2025-01-01T00:00:00Z"),
+        status: api.EnduroIngestBatchStatusEnum.Pending,
+      },
+    });
+
+    client.ingest.ingestReviewBatch = vi
+      .fn()
+      .mockRejectedValue(new Error("Network error"));
+
+    await expect(store.reviewBatch(true)).rejects.toThrow(
+      "Couldn't review batch",
+    );
   });
 });
