@@ -14,6 +14,9 @@ import (
 )
 
 const (
+	// BatchDecisionSignalName is the name of the signal to continue or cancel a batch.
+	BatchDecisionSignalName = "batch-decision-signal"
+
 	// BatchSignalName is the name of the signal to continue processing a SIP.
 	BatchSignalName = "batch-signal"
 
@@ -28,6 +31,11 @@ const (
 )
 
 type (
+	BatchDecisionSignal struct {
+		// Continue indicates whether to continue with a partially successful batch.
+		Continue bool
+	}
+
 	BatchSignal struct {
 		// Continue indicates whether to continue processing the SIP.
 		Continue bool
@@ -102,7 +110,7 @@ func InitBatchWorkflow(
 	defer cancel()
 
 	opts := temporalsdk_client.StartWorkflowOptions{
-		ID:                    fmt.Sprintf("%s-%s", BatchWorkflowName, req.Batch.UUID.String()),
+		ID:                    BatchWorkflowID(req.Batch.UUID),
 		TaskQueue:             taskQueue,
 		WorkflowIDReusePolicy: temporalsdk_api_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE,
 	}
@@ -127,4 +135,8 @@ func InitProcessingWorkflow(
 	_, err := tc.ExecuteWorkflow(ctx, opts, ProcessingWorkflowName, req)
 
 	return err
+}
+
+func BatchWorkflowID(batchID uuid.UUID) string {
+	return fmt.Sprintf("%s-%s", BatchWorkflowName, batchID)
 }

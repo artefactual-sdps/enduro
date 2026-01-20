@@ -460,16 +460,17 @@ func (s *BatchWorkflowTestSuite) TestBatchValidationFailed() {
 	)
 }
 
-// TestBatchIngestFailed tests:
+// TestBatchIngestFailedContinue tests:
 // - Batch status update (processing).
 // - SIP creation for each key.
 // - Child processing workflows started for each SIP.
 // - Polling SIP statuses until all are validated.
 // - Signaling SIP workflows to continue processing.
 // - Polling SIP statuses until some fail to ingest.
+// - Waiting for batch decision signal (continue).
 // - Waiting for all child workflows to complete.
-// - Batch status update (failed).
-func (s *BatchWorkflowTestSuite) TestBatchIngestFailed() {
+// - Batch status update (ingested).
+func (s *BatchWorkflowTestSuite) TestBatchIngestFailedContinue() {
 	s.SetupWorkflowTest(config.Configuration{})
 
 	// Mock initial batch status update.
@@ -550,6 +551,35 @@ func (s *BatchWorkflowTestSuite) TestBatchIngestFailed() {
 		},
 	).Return(&activities.PollSIPStatusesActivityResult{AllExpectedStatus: false}, nil)
 
+	// Mock batch status update to pending.
+	s.env.OnActivity(
+		updateBatchLocalActivity,
+		ctx,
+		s.workflow.ingestsvc,
+		&updateBatchLocalActivityParams{
+			UUID:      batchUUID,
+			Status:    enums.BatchStatusPending,
+			StartedAt: startTime,
+		},
+	).Return(&updateBatchLocalActivityResult{}, nil)
+
+	// Simulate user decision to continue with partial ingest.
+	s.env.RegisterDelayedCallback(func() {
+		s.env.SignalWorkflow(ingest.BatchDecisionSignalName, ingest.BatchDecisionSignal{Continue: true})
+	}, 0)
+
+	// Mock batch status update to processing.
+	s.env.OnActivity(
+		updateBatchLocalActivity,
+		ctx,
+		s.workflow.ingestsvc,
+		&updateBatchLocalActivityParams{
+			UUID:      batchUUID,
+			Status:    enums.BatchStatusProcessing,
+			StartedAt: startTime,
+		},
+	).Return(&updateBatchLocalActivityResult{}, nil)
+
 	// Mock final batch status update.
 	s.env.OnActivity(
 		updateBatchLocalActivity,
@@ -557,7 +587,168 @@ func (s *BatchWorkflowTestSuite) TestBatchIngestFailed() {
 		s.workflow.ingestsvc,
 		&updateBatchLocalActivityParams{
 			UUID:        batchUUID,
-			Status:      enums.BatchStatusFailed,
+			Status:      enums.BatchStatusIngested,
+			StartedAt:   startTime,
+			CompletedAt: startTime,
+		},
+	).Return(&updateBatchLocalActivityResult{}, nil)
+
+	s.ExecuteAndValidateWorkflow(
+		&ingest.BatchWorkflowRequest{
+			Batch: datatypes.Batch{
+				UUID:       batchUUID,
+				Identifier: batchIdentifier,
+				Status:     enums.BatchStatusQueued,
+				CreatedAt:  startTime,
+				SIPSCount:  2,
+			},
+			SIPSourceID: sourceID,
+			Keys:        []string{batchSIP1Key, batchSIP2Key},
+		},
+		[]ingest.ProcessingWorkflowRequest{
+			{
+				SIPUUID:         batchSIP1UUID,
+				SIPName:         batchSIP1Key,
+				Key:             batchSIP1Key,
+				SIPSourceID:     sourceID,
+				Type:            enums.WorkflowTypeCreateAip,
+				RetentionPeriod: -1 * time.Second,
+				BatchUUID:       batchUUID,
+			},
+			{
+				SIPUUID:         batchSIP2UUID,
+				SIPName:         batchSIP2Key,
+				Key:             batchSIP2Key,
+				SIPSourceID:     sourceID,
+				Type:            enums.WorkflowTypeCreateAip,
+				RetentionPeriod: -1 * time.Second,
+				BatchUUID:       batchUUID,
+			},
+		},
+		[]ingest.BatchSignal{
+			{Continue: true},
+			{Continue: true},
+		},
+		false,
+	)
+}
+
+// TestBatchIngestFailedCancel tests:
+// - Batch status update (processing).
+// - SIP creation for each key.
+// - Child processing workflows started for each SIP.
+// - Polling SIP statuses until all are validated.
+// - Signaling SIP workflows to continue processing.
+// - Polling SIP statuses until some fail to ingest.
+// - Waiting for batch decision signal (cancel).
+// - Waiting for all child workflows to complete.
+// - Batch status update (canceled).
+func (s *BatchWorkflowTestSuite) TestBatchIngestFailedCancel() {
+	s.SetupWorkflowTest(config.Configuration{})
+
+	// Mock initial batch status update.
+	s.env.OnActivity(
+		updateBatchLocalActivity,
+		ctx,
+		s.workflow.ingestsvc,
+		&updateBatchLocalActivityParams{
+			UUID:      batchUUID,
+			Status:    enums.BatchStatusProcessing,
+			StartedAt: startTime,
+		},
+	).Return(&updateBatchLocalActivityResult{}, nil)
+
+	// Mock SIP creation for the first SIP.
+	s.env.OnActivity(
+		createSIPLocalActivity,
+		ctx,
+		s.workflow.ingestsvc,
+		&createSIPLocalActivityParams{
+			SIP: datatypes.SIP{
+				UUID:   batchSIP1UUID,
+				Name:   batchSIP1Key,
+				Status: enums.SIPStatusQueued,
+				Batch: &datatypes.Batch{
+					UUID:       batchUUID,
+					Identifier: batchIdentifier,
+					Status:     enums.BatchStatusProcessing,
+					SIPSCount:  2,
+					CreatedAt:  startTime,
+					StartedAt:  startTime,
+				},
+			},
+		},
+	).Return(1, nil)
+
+	// Mock SIP creation for the second SIP.
+	s.env.OnActivity(
+		createSIPLocalActivity,
+		ctx,
+		s.workflow.ingestsvc,
+		&createSIPLocalActivityParams{
+			SIP: datatypes.SIP{
+				UUID:   batchSIP2UUID,
+				Name:   batchSIP2Key,
+				Status: enums.SIPStatusQueued,
+				Batch: &datatypes.Batch{
+					UUID:       batchUUID,
+					Identifier: batchIdentifier,
+					Status:     enums.BatchStatusProcessing,
+					SIPSCount:  2,
+					CreatedAt:  startTime,
+					StartedAt:  startTime,
+				},
+			},
+		},
+	).Return(2, nil)
+
+	// Mock validated SIP statuses poll.
+	s.env.OnActivity(
+		activities.PollSIPStatusesActivityName,
+		mock.AnythingOfType("*context.timerCtx"),
+		&activities.PollSIPStatusesActivityParams{
+			BatchUUID:        batchUUID,
+			ExpectedSIPCount: 2,
+			ExpectedStatus:   enums.SIPStatusValidated,
+		},
+	).Return(&activities.PollSIPStatusesActivityResult{AllExpectedStatus: true}, nil)
+
+	// Mock ingested SIP statuses poll.
+	s.env.OnActivity(
+		activities.PollSIPStatusesActivityName,
+		mock.AnythingOfType("*context.timerCtx"),
+		&activities.PollSIPStatusesActivityParams{
+			BatchUUID:        batchUUID,
+			ExpectedSIPCount: 2,
+			ExpectedStatus:   enums.SIPStatusIngested,
+		},
+	).Return(&activities.PollSIPStatusesActivityResult{AllExpectedStatus: false}, nil)
+
+	// Mock batch status update to pending.
+	s.env.OnActivity(
+		updateBatchLocalActivity,
+		ctx,
+		s.workflow.ingestsvc,
+		&updateBatchLocalActivityParams{
+			UUID:      batchUUID,
+			Status:    enums.BatchStatusPending,
+			StartedAt: startTime,
+		},
+	).Return(&updateBatchLocalActivityResult{}, nil)
+
+	// Simulate user decision to not continue with partial ingest.
+	s.env.RegisterDelayedCallback(func() {
+		s.env.SignalWorkflow(ingest.BatchDecisionSignalName, ingest.BatchDecisionSignal{Continue: false})
+	}, 0)
+
+	// Mock final batch status update.
+	s.env.OnActivity(
+		updateBatchLocalActivity,
+		ctx,
+		s.workflow.ingestsvc,
+		&updateBatchLocalActivityParams{
+			UUID:        batchUUID,
+			Status:      enums.BatchStatusCanceled,
 			StartedAt:   startTime,
 			CompletedAt: startTime,
 		},

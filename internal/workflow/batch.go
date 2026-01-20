@@ -53,13 +53,19 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 	defer func() {
 		// Update final batch status and add completion date.
 		state.batch.CompletedAt = temporalsdk_workflow.Now(ctx)
-		state.batch.Status = enums.BatchStatusIngested
-		if e != nil {
-			state.batch.Status = enums.BatchStatusFailed
+		if state.batch.Status != enums.BatchStatusCanceled {
+			state.batch.Status = enums.BatchStatusIngested
+			if e != nil {
+				state.batch.Status = enums.BatchStatusFailed
+			}
 		}
 		if err := w.updateBatch(ctx, state); err != nil {
 			e = errors.Join(e, err)
 		}
+
+		// TODO: If the batch is canceled:
+		// - Update all "ingested" SIPs to "canceled".
+		// - Delete stored AIPs.
 
 		state.logger.Info(
 			"Batch workflow completed",
@@ -135,7 +141,9 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 
 	// Fail workflow if not all SIPs reached "ingested" status.
 	if !pollIngestedResult.AllExpectedStatus {
-		return fmt.Errorf("not all SIPs reached %q status", enums.SIPStatusIngested)
+		if err := w.waitForBatchDecision(ctx, state); err != nil {
+			return err
+		}
 	}
 
 	// Run post-storage child workflow, if one is configured.
@@ -254,6 +262,31 @@ func (w *BatchWorkflow) signalWorkflows(ctx temporalsdk_workflow.Context, state 
 
 	if signalErr != nil {
 		return fmt.Errorf("signal workflows: %v", signalErr)
+	}
+
+	return nil
+}
+
+func (w *BatchWorkflow) waitForBatchDecision(ctx temporalsdk_workflow.Context, state *batchWorkflowState) error {
+	state.batch.Status = enums.BatchStatusPending
+	if err := w.updateBatch(ctx, state); err != nil {
+		return err
+	}
+
+	var signal ingest.BatchDecisionSignal
+	open := temporalsdk_workflow.GetSignalChannel(ctx, ingest.BatchDecisionSignalName).Receive(ctx, &signal)
+	if !open {
+		return fmt.Errorf("batch decision signal channel closed")
+	}
+
+	if !signal.Continue {
+		state.batch.Status = enums.BatchStatusCanceled
+		return temporalsdk_workflow.ErrCanceled
+	}
+
+	state.batch.Status = enums.BatchStatusProcessing
+	if err := w.updateBatch(ctx, state); err != nil {
+		return err
 	}
 
 	return nil
