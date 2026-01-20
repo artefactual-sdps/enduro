@@ -170,12 +170,17 @@ obtained from the `POST /ingest/monitor` and `POST /storage/monitor` endpoints.
 User claims are stored internally and the attributes are checked before sending
 events to the connection.
 
-Similarly, to be able to stream a SIP/AIP download from the browser, the `GET`
-endpoints require a cookie obtained from the `POST` endpoints.
+Similarly, to be able to stream a SIP, AIP or AIP deletion report download from
+the browser, the `GET` endpoints require a cookie obtained from the `POST`
+endpoints.
 
 | Method | Endpoint                              | Attributes                       |
 | ------ | ------------------------------------- | -------------------------------- |
 | GET    | /about                                | `-`                              |
+| POST   | /ingest/batches                       | `ingest:batches:create`          |
+| GET    | /ingest/batches                       | `ingest:batches:list`            |
+| GET    | /ingest/batches/{uuid}                | `ingest:batches:read`            |
+| POST   | /ingest/batches/{uuid}/review         | `ingest:batches:review`          |
 | GET    | /ingest/monitor                       | `-`                              |
 | POST   | /ingest/monitor                       | `-`                              |
 | GET    | /ingest/sip-sources/{uuid}/objects    | `ingest:sipsources:objects:list` |
@@ -184,8 +189,8 @@ endpoints require a cookie obtained from the `POST` endpoints.
 | POST   | /ingest/sips/upload                   | `ingest:sips:upload`             |
 | GET    | /ingest/sips/{uuid}                   | `ingest:sips:read`               |
 | POST   | /ingest/sips/{uuid}/confirm           | `ingest:sips:review`             |
-| POST   | /ingest/sips/{uuid}/download          | `ingest:sips:download`           |
 | GET    | /ingest/sips/{uuid}/download          | `-`                              |
+| POST   | /ingest/sips/{uuid}/download          | `ingest:sips:download`           |
 | POST   | /ingest/sips/{uuid}/reject            | `ingest:sips:review`             |
 | GET    | /ingest/sips/{uuid}/workflows         | `ingest:sips:workflows:list`     |
 | GET    | /ingest/users                         | `ingest:users:list`              |
@@ -193,6 +198,8 @@ endpoints require a cookie obtained from the `POST` endpoints.
 | POST   | /storage/aips                         | `storage:aips:create`            |
 | GET    | /storage/aips/{uuid}                  | `storage:aips:read`              |
 | POST   | /storage/aips/{uuid}/deletion-cancel  | `storage:aips:deletion:request`  |
+| GET    | /storage/aips/{uuid}/deletion-report  | `-`                              |
+| POST   | /storage/aips/{uuid}/deletion-report  | `storage:aips:deletion:report`   |
 | POST   | /storage/aips/{uuid}/deletion-request | `storage:aips:deletion:request`  |
 | POST   | /storage/aips/{uuid}/deletion-review  | `storage:aips:deletion:review`   |
 | GET    | /storage/aips/{uuid}/download         | `-`                              |
@@ -201,8 +208,8 @@ endpoints require a cookie obtained from the `POST` endpoints.
 | GET    | /storage/aips/{uuid}/store            | `storage:aips:move`              |
 | POST   | /storage/aips/{uuid}/store            | `storage:aips:move`              |
 | POST   | /storage/aips/{uuid}/submit           | `storage:aips:submit`            |
-| POST   | /storage/aips/{uuid}/update           | `storage:aips:submit`            |
-| POST   | /storage/aips/{uuid}/workflows        | `storage:aips:workflows:list`    |
+| POST   | /storage/aips/{uuid}/submit-complete  | `storage:aips:submit`            |
+| GET    | /storage/aips/{uuid}/workflows        | `storage:aips:workflows:list`    |
 | GET    | /storage/locations                    | `storage:locations:list`         |
 | POST   | /storage/locations                    | `storage:locations:create`       |
 | GET    | /storage/locations/{uuid}             | `storage:locations:read`         |

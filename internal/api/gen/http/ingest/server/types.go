@@ -35,6 +35,12 @@ type AddBatchRequestBody struct {
 	Identifier *string `form:"identifier,omitempty" json:"identifier,omitempty" xml:"identifier,omitempty"`
 }
 
+// ReviewBatchRequestBody is the type of the "ingest" service "review_batch"
+// endpoint HTTP request body.
+type ReviewBatchRequestBody struct {
+	Continue *bool `form:"continue,omitempty" json:"continue,omitempty" xml:"continue,omitempty"`
+}
+
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
@@ -647,24 +653,6 @@ type AddBatchInternalErrorResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// AddBatchNotImplementedResponseBody is the type of the "ingest" service
-// "add_batch" endpoint HTTP response body for the "not_implemented" error.
-type AddBatchNotImplementedResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
 // ListBatchesNotValidResponseBody is the type of the "ingest" service
 // "list_batches" endpoint HTTP response body for the "not_valid" error.
 type ListBatchesNotValidResponseBody struct {
@@ -683,9 +671,9 @@ type ListBatchesNotValidResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// ListBatchesNotImplementedResponseBody is the type of the "ingest" service
-// "list_batches" endpoint HTTP response body for the "not_implemented" error.
-type ListBatchesNotImplementedResponseBody struct {
+// ListBatchesInternalErrorResponseBody is the type of the "ingest" service
+// "list_batches" endpoint HTTP response body for the "internal_error" error.
+type ListBatchesInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -701,9 +689,9 @@ type ListBatchesNotImplementedResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// ShowBatchNotAvailableResponseBody is the type of the "ingest" service
-// "show_batch" endpoint HTTP response body for the "not_available" error.
-type ShowBatchNotAvailableResponseBody struct {
+// ShowBatchNotValidResponseBody is the type of the "ingest" service
+// "show_batch" endpoint HTTP response body for the "not_valid" error.
+type ShowBatchNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -719,9 +707,9 @@ type ShowBatchNotAvailableResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// ShowBatchNotImplementedResponseBody is the type of the "ingest" service
-// "show_batch" endpoint HTTP response body for the "not_implemented" error.
-type ShowBatchNotImplementedResponseBody struct {
+// ShowBatchInternalErrorResponseBody is the type of the "ingest" service
+// "show_batch" endpoint HTTP response body for the "internal_error" error.
+type ShowBatchInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -740,6 +728,51 @@ type ShowBatchNotImplementedResponseBody struct {
 // ShowBatchNotFoundResponseBody is the type of the "ingest" service
 // "show_batch" endpoint HTTP response body for the "not_found" error.
 type ShowBatchNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing Batch
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// ReviewBatchNotValidResponseBody is the type of the "ingest" service
+// "review_batch" endpoint HTTP response body for the "not_valid" error.
+type ReviewBatchNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ReviewBatchInternalErrorResponseBody is the type of the "ingest" service
+// "review_batch" endpoint HTTP response body for the "internal_error" error.
+type ReviewBatchInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ReviewBatchNotFoundResponseBody is the type of the "ingest" service
+// "review_batch" endpoint HTTP response body for the "not_found" error.
+type ReviewBatchNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing Batch
@@ -1477,20 +1510,6 @@ func NewAddBatchInternalErrorResponseBody(res *goa.ServiceError) *AddBatchIntern
 	return body
 }
 
-// NewAddBatchNotImplementedResponseBody builds the HTTP response body from the
-// result of the "add_batch" endpoint of the "ingest" service.
-func NewAddBatchNotImplementedResponseBody(res *goa.ServiceError) *AddBatchNotImplementedResponseBody {
-	body := &AddBatchNotImplementedResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
 // NewListBatchesNotValidResponseBody builds the HTTP response body from the
 // result of the "list_batches" endpoint of the "ingest" service.
 func NewListBatchesNotValidResponseBody(res *goa.ServiceError) *ListBatchesNotValidResponseBody {
@@ -1505,10 +1524,10 @@ func NewListBatchesNotValidResponseBody(res *goa.ServiceError) *ListBatchesNotVa
 	return body
 }
 
-// NewListBatchesNotImplementedResponseBody builds the HTTP response body from
+// NewListBatchesInternalErrorResponseBody builds the HTTP response body from
 // the result of the "list_batches" endpoint of the "ingest" service.
-func NewListBatchesNotImplementedResponseBody(res *goa.ServiceError) *ListBatchesNotImplementedResponseBody {
-	body := &ListBatchesNotImplementedResponseBody{
+func NewListBatchesInternalErrorResponseBody(res *goa.ServiceError) *ListBatchesInternalErrorResponseBody {
+	body := &ListBatchesInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -1519,10 +1538,10 @@ func NewListBatchesNotImplementedResponseBody(res *goa.ServiceError) *ListBatche
 	return body
 }
 
-// NewShowBatchNotAvailableResponseBody builds the HTTP response body from the
+// NewShowBatchNotValidResponseBody builds the HTTP response body from the
 // result of the "show_batch" endpoint of the "ingest" service.
-func NewShowBatchNotAvailableResponseBody(res *goa.ServiceError) *ShowBatchNotAvailableResponseBody {
-	body := &ShowBatchNotAvailableResponseBody{
+func NewShowBatchNotValidResponseBody(res *goa.ServiceError) *ShowBatchNotValidResponseBody {
+	body := &ShowBatchNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -1533,10 +1552,10 @@ func NewShowBatchNotAvailableResponseBody(res *goa.ServiceError) *ShowBatchNotAv
 	return body
 }
 
-// NewShowBatchNotImplementedResponseBody builds the HTTP response body from
-// the result of the "show_batch" endpoint of the "ingest" service.
-func NewShowBatchNotImplementedResponseBody(res *goa.ServiceError) *ShowBatchNotImplementedResponseBody {
-	body := &ShowBatchNotImplementedResponseBody{
+// NewShowBatchInternalErrorResponseBody builds the HTTP response body from the
+// result of the "show_batch" endpoint of the "ingest" service.
+func NewShowBatchInternalErrorResponseBody(res *goa.ServiceError) *ShowBatchInternalErrorResponseBody {
+	body := &ShowBatchInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -1551,6 +1570,44 @@ func NewShowBatchNotImplementedResponseBody(res *goa.ServiceError) *ShowBatchNot
 // result of the "show_batch" endpoint of the "ingest" service.
 func NewShowBatchNotFoundResponseBody(res *ingest.BatchNotFound) *ShowBatchNotFoundResponseBody {
 	body := &ShowBatchNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
+// NewReviewBatchNotValidResponseBody builds the HTTP response body from the
+// result of the "review_batch" endpoint of the "ingest" service.
+func NewReviewBatchNotValidResponseBody(res *goa.ServiceError) *ReviewBatchNotValidResponseBody {
+	body := &ReviewBatchNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewReviewBatchInternalErrorResponseBody builds the HTTP response body from
+// the result of the "review_batch" endpoint of the "ingest" service.
+func NewReviewBatchInternalErrorResponseBody(res *goa.ServiceError) *ReviewBatchInternalErrorResponseBody {
+	body := &ReviewBatchInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewReviewBatchNotFoundResponseBody builds the HTTP response body from the
+// result of the "review_batch" endpoint of the "ingest" service.
+func NewReviewBatchNotFoundResponseBody(res *ingest.BatchNotFound) *ReviewBatchNotFoundResponseBody {
+	body := &ReviewBatchNotFoundResponseBody{
 		Message: res.Message,
 		UUID:    res.UUID,
 	}
@@ -1731,6 +1788,17 @@ func NewShowBatchPayload(uuid string, token *string) *ingest.ShowBatchPayload {
 	return v
 }
 
+// NewReviewBatchPayload builds a ingest service review_batch endpoint payload.
+func NewReviewBatchPayload(body *ReviewBatchRequestBody, uuid string, token *string) *ingest.ReviewBatchPayload {
+	v := &ingest.ReviewBatchPayload{
+		Continue: *body.Continue,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v
+}
+
 // ValidateConfirmSipRequestBody runs the validations defined on
 // confirm_sip_request_body
 func ValidateConfirmSipRequestBody(body *ConfirmSipRequestBody) (err error) {
@@ -1751,6 +1819,15 @@ func ValidateAddBatchRequestBody(body *AddBatchRequestBody) (err error) {
 	}
 	if body.SourceID != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.source_id", *body.SourceID, goa.FormatUUID))
+	}
+	return
+}
+
+// ValidateReviewBatchRequestBody runs the validations defined on
+// review_batch_request_body
+func ValidateReviewBatchRequestBody(body *ReviewBatchRequestBody) (err error) {
+	if body.Continue == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("continue", "body"))
 	}
 	return
 }

@@ -57,6 +57,8 @@ type Service interface {
 	ListBatches(context.Context, *ListBatchesPayload) (res *Batches, err error)
 	// Show Batch by UUID
 	ShowBatch(context.Context, *ShowBatchPayload) (res *Batch, err error)
+	// Review a Batch awaiting user decision
+	ReviewBatch(context.Context, *ReviewBatchPayload) (err error)
 }
 
 // Auther defines the authorization functions to be implemented by the service.
@@ -79,7 +81,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [16]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "add_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_sip_source_objects", "add_batch", "list_batches", "show_batch"}
+var MethodNames = [17]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "add_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_sip_source_objects", "add_batch", "list_batches", "show_batch", "review_batch"}
 
 // MonitorServerStream allows streaming instances of *IngestEvent to the client.
 type MonitorServerStream interface {
@@ -331,6 +333,15 @@ type RejectSipPayload struct {
 	// Identifier of SIP to look up
 	UUID  string
 	Token *string
+}
+
+// ReviewBatchPayload is the payload type of the ingest service review_batch
+// method.
+type ReviewBatchPayload struct {
+	// Identifier of Batch to review
+	UUID     string
+	Continue bool
+	Token    *string
 }
 
 // SIP is the result type of the ingest service show_sip method.
@@ -655,11 +666,6 @@ func MakeInvalidMultipartRequest(err error) *goa.ServiceError {
 // MakeNotFound builds a goa.ServiceError from an error.
 func MakeNotFound(err error) *goa.ServiceError {
 	return goa.NewServiceError(err, "not_found", false, false, false)
-}
-
-// MakeNotImplemented builds a goa.ServiceError from an error.
-func MakeNotImplemented(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "not_implemented", false, false, false)
 }
 
 // NewSIPs initializes result type SIPs from viewed result type SIPs.

@@ -41,6 +41,7 @@ type Server struct {
 	AddBatch             http.Handler
 	ListBatches          http.Handler
 	ShowBatch            http.Handler
+	ReviewBatch          http.Handler
 	CORS                 http.Handler
 }
 
@@ -92,6 +93,7 @@ func New(
 			{"AddBatch", "POST", "/ingest/batches"},
 			{"ListBatches", "GET", "/ingest/batches"},
 			{"ShowBatch", "GET", "/ingest/batches/{uuid}"},
+			{"ReviewBatch", "POST", "/ingest/batches/{uuid}/review"},
 			{"CORS", "OPTIONS", "/ingest/monitor"},
 			{"CORS", "OPTIONS", "/ingest/sips"},
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}"},
@@ -104,6 +106,7 @@ func New(
 			{"CORS", "OPTIONS", "/ingest/sip-sources/{uuid}/objects"},
 			{"CORS", "OPTIONS", "/ingest/batches"},
 			{"CORS", "OPTIONS", "/ingest/batches/{uuid}"},
+			{"CORS", "OPTIONS", "/ingest/batches/{uuid}/review"},
 		},
 		MonitorRequest:       NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
 		Monitor:              NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
@@ -121,6 +124,7 @@ func New(
 		AddBatch:             NewAddBatchHandler(e.AddBatch, mux, decoder, encoder, errhandler, formatter),
 		ListBatches:          NewListBatchesHandler(e.ListBatches, mux, decoder, encoder, errhandler, formatter),
 		ShowBatch:            NewShowBatchHandler(e.ShowBatch, mux, decoder, encoder, errhandler, formatter),
+		ReviewBatch:          NewReviewBatchHandler(e.ReviewBatch, mux, decoder, encoder, errhandler, formatter),
 		CORS:                 NewCORSHandler(),
 	}
 }
@@ -146,6 +150,7 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.AddBatch = m(s.AddBatch)
 	s.ListBatches = m(s.ListBatches)
 	s.ShowBatch = m(s.ShowBatch)
+	s.ReviewBatch = m(s.ReviewBatch)
 	s.CORS = m(s.CORS)
 }
 
@@ -170,6 +175,7 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountAddBatchHandler(mux, h.AddBatch)
 	MountListBatchesHandler(mux, h.ListBatches)
 	MountShowBatchHandler(mux, h.ShowBatch)
+	MountReviewBatchHandler(mux, h.ReviewBatch)
 	MountCORSHandler(mux, h.CORS)
 }
 
@@ -1083,6 +1089,59 @@ func NewShowBatchHandler(
 	})
 }
 
+// MountReviewBatchHandler configures the mux to serve the "ingest" service
+// "review_batch" endpoint.
+func MountReviewBatchHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/ingest/batches/{uuid}/review", otelhttp.WithRouteTag("/ingest/batches/{uuid}/review", f).ServeHTTP)
+}
+
+// NewReviewBatchHandler creates a HTTP handler which loads the HTTP request
+// and calls the "ingest" service "review_batch" endpoint.
+func NewReviewBatchHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeReviewBatchRequest(mux, decoder)
+		encodeResponse = EncodeReviewBatchResponse(encoder)
+		encodeError    = EncodeReviewBatchError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "review_batch")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			if errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+		}
+	})
+}
+
 // MountCORSHandler configures the mux to serve the CORS endpoints for the
 // service ingest.
 func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
@@ -1099,6 +1158,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/ingest/sip-sources/{uuid}/objects", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/batches", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/batches/{uuid}", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/batches/{uuid}/review", h.ServeHTTP)
 }
 
 // NewCORSHandler creates a HTTP handler which returns a simple 204 response.

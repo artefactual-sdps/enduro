@@ -27,7 +27,7 @@ import (
 func UsageCommands() []string {
 	return []string{
 		"about about",
-		"ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects|add-batch|list-batches|show-batch)",
+		"ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects|add-batch|list-batches|show-batch|review-batch)",
 		"storage (monitor-request|monitor|list-aips|create-aip|submit-aip|submit-aip-complete|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|aip-deletion-report-request|aip-deletion-report|list-locations|create-location|show-location|list-location-aips)",
 	}
 }
@@ -143,6 +143,11 @@ func ParseEndpoint(
 		ingestShowBatchFlags     = flag.NewFlagSet("show-batch", flag.ExitOnError)
 		ingestShowBatchUUIDFlag  = ingestShowBatchFlags.String("uuid", "REQUIRED", "Identifier of Batch to show")
 		ingestShowBatchTokenFlag = ingestShowBatchFlags.String("token", "", "")
+
+		ingestReviewBatchFlags     = flag.NewFlagSet("review-batch", flag.ExitOnError)
+		ingestReviewBatchBodyFlag  = ingestReviewBatchFlags.String("body", "REQUIRED", "")
+		ingestReviewBatchUUIDFlag  = ingestReviewBatchFlags.String("uuid", "REQUIRED", "Identifier of Batch to review")
+		ingestReviewBatchTokenFlag = ingestReviewBatchFlags.String("token", "", "")
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
@@ -263,6 +268,7 @@ func ParseEndpoint(
 	ingestAddBatchFlags.Usage = ingestAddBatchUsage
 	ingestListBatchesFlags.Usage = ingestListBatchesUsage
 	ingestShowBatchFlags.Usage = ingestShowBatchUsage
+	ingestReviewBatchFlags.Usage = ingestReviewBatchUsage
 
 	storageFlags.Usage = storageUsage
 	storageMonitorRequestFlags.Usage = storageMonitorRequestUsage
@@ -380,6 +386,9 @@ func ParseEndpoint(
 
 			case "show-batch":
 				epf = ingestShowBatchFlags
+
+			case "review-batch":
+				epf = ingestReviewBatchFlags
 
 			}
 
@@ -534,6 +543,9 @@ func ParseEndpoint(
 			case "show-batch":
 				endpoint = c.ShowBatch()
 				data, err = ingestc.BuildShowBatchPayload(*ingestShowBatchUUIDFlag, *ingestShowBatchTokenFlag)
+			case "review-batch":
+				endpoint = c.ReviewBatch()
+				data, err = ingestc.BuildReviewBatchPayload(*ingestReviewBatchBodyFlag, *ingestReviewBatchUUIDFlag, *ingestReviewBatchTokenFlag)
 			}
 		case "storage":
 			c := storagec.NewClient(scheme, host, doer, enc, dec, restore, dialer, storageConfigurer)
@@ -664,6 +676,7 @@ func ingestUsage() {
 	fmt.Fprintln(os.Stderr, `    add-batch: Ingest a Batch from a SIP Source`)
 	fmt.Fprintln(os.Stderr, `    list-batches: List all ingested Batches`)
 	fmt.Fprintln(os.Stderr, `    show-batch: Show Batch by UUID`)
+	fmt.Fprintln(os.Stderr, `    review-batch: Review a Batch awaiting user decision`)
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Additional help:")
 	fmt.Fprintf(os.Stderr, "    %s ingest COMMAND --help\n", os.Args[0])
@@ -1050,6 +1063,31 @@ func ingestShowBatchUsage() {
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
 	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `ingest show-batch --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"`)
+}
+
+func ingestReviewBatchUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] ingest review-batch", os.Args[0])
+	fmt.Fprint(os.Stderr, " -body JSON")
+	fmt.Fprint(os.Stderr, " -uuid STRING")
+	fmt.Fprint(os.Stderr, " -token STRING")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `Review a Batch awaiting user decision`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -body JSON: `)
+	fmt.Fprintln(os.Stderr, `    -uuid STRING: Identifier of Batch to review`)
+	fmt.Fprintln(os.Stderr, `    -token STRING: `)
+
+	// Example block: pass example as parameter to avoid format parsing of % characters
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], `ingest review-batch --body '{
+      "continue": false
+   }' --uuid "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5" --token "abc123"`)
 }
 
 // storageUsage displays the usage of the storage command and its subcommands.

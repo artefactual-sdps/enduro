@@ -310,6 +310,107 @@ func TestShowBatch(t *testing.T) {
 	}
 }
 
+func TestReviewBatch(t *testing.T) {
+	t.Parallel()
+
+	batchUUID := uuid.New()
+
+	for _, tt := range []struct {
+		name    string
+		payload *goaingest.ReviewBatchPayload
+		mock    func(context.Context, *persistence_fake.MockService, *temporalsdk_mocks.Client)
+		wantErr string
+	}{
+		{
+			name:    "Returns not valid error (invalid UUID)",
+			payload: &goaingest.ReviewBatchPayload{UUID: "invalid"},
+			wantErr: "invalid UUID",
+		},
+		{
+			name:    "Returns not found error",
+			payload: &goaingest.ReviewBatchPayload{UUID: batchUUID.String()},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, _ *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadBatch(ctx, batchUUID).Return(nil, persistence.ErrNotFound)
+			},
+			wantErr: "Batch not found.",
+		},
+		{
+			name:    "Returns internal error (persistence failure)",
+			payload: &goaingest.ReviewBatchPayload{UUID: batchUUID.String()},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, _ *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadBatch(ctx, batchUUID).Return(nil, persistence.ErrInternal)
+			},
+			wantErr: "internal error",
+		},
+		{
+			name:    "Returns not valid error (not pending)",
+			payload: &goaingest.ReviewBatchPayload{UUID: batchUUID.String()},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, _ *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadBatch(ctx, batchUUID).Return(&datatypes.Batch{
+					UUID:   batchUUID,
+					Status: enums.BatchStatusIngested,
+				}, nil)
+			},
+			wantErr: "batch is not awaiting user review",
+		},
+		{
+			name:    "Returns internal error (signal failure)",
+			payload: &goaingest.ReviewBatchPayload{UUID: batchUUID.String(), Continue: true},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadBatch(ctx, batchUUID).Return(&datatypes.Batch{
+					UUID:   batchUUID,
+					Status: enums.BatchStatusPending,
+				}, nil)
+				tc.On(
+					"SignalWorkflow",
+					ctx,
+					ingest.BatchWorkflowID(batchUUID),
+					"",
+					ingest.BatchDecisionSignalName,
+					ingest.BatchDecisionSignal{Continue: true},
+				).Return(errors.New("temporal error"))
+			},
+			wantErr: "internal error",
+		},
+		{
+			name:    "Signals batch decision",
+			payload: &goaingest.ReviewBatchPayload{UUID: batchUUID.String(), Continue: false},
+			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadBatch(ctx, batchUUID).Return(&datatypes.Batch{
+					UUID:   batchUUID,
+					Status: enums.BatchStatusPending,
+				}, nil)
+				tc.On(
+					"SignalWorkflow",
+					ctx,
+					ingest.BatchWorkflowID(batchUUID),
+					"",
+					ingest.BatchDecisionSignalName,
+					ingest.BatchDecisionSignal{Continue: false},
+				).Return(nil)
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			svc, psvc, tc := testSvc(t, nil, 0)
+			ctx := t.Context()
+			if tt.mock != nil {
+				tt.mock(ctx, psvc, tc)
+			}
+
+			err := svc.ReviewBatch(ctx, tt.payload)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+		})
+	}
+}
+
 func TestListBatches(t *testing.T) {
 	t.Parallel()
 

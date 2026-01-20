@@ -641,3 +641,37 @@ func BuildShowBatchPayload(ingestShowBatchUUID string, ingestShowBatchToken stri
 
 	return v, nil
 }
+
+// BuildReviewBatchPayload builds the payload for the ingest review_batch
+// endpoint from CLI flags.
+func BuildReviewBatchPayload(ingestReviewBatchBody string, ingestReviewBatchUUID string, ingestReviewBatchToken string) (*ingest.ReviewBatchPayload, error) {
+	var err error
+	var body ReviewBatchRequestBody
+	{
+		err = json.Unmarshal([]byte(ingestReviewBatchBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"continue\": false\n   }'")
+		}
+	}
+	var uuid string
+	{
+		uuid = ingestReviewBatchUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if ingestReviewBatchToken != "" {
+			token = &ingestReviewBatchToken
+		}
+	}
+	v := &ingest.ReviewBatchPayload{
+		Continue: body.Continue,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}

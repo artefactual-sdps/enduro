@@ -780,6 +780,44 @@ func (c *MockServiceRejectSipCall) DoAndReturn(f func(context.Context, *ingest.R
 	return c
 }
 
+// ReviewBatch mocks base method.
+func (m *MockService) ReviewBatch(arg0 context.Context, arg1 *ingest.ReviewBatchPayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ReviewBatch", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// ReviewBatch indicates an expected call of ReviewBatch.
+func (mr *MockServiceMockRecorder) ReviewBatch(arg0, arg1 any) *MockServiceReviewBatchCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReviewBatch", reflect.TypeOf((*MockService)(nil).ReviewBatch), arg0, arg1)
+	return &MockServiceReviewBatchCall{Call: call}
+}
+
+// MockServiceReviewBatchCall wrap *gomock.Call
+type MockServiceReviewBatchCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceReviewBatchCall) Return(err error) *MockServiceReviewBatchCall {
+	c.Call = c.Call.Return(err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceReviewBatchCall) Do(f func(context.Context, *ingest.ReviewBatchPayload) error) *MockServiceReviewBatchCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceReviewBatchCall) DoAndReturn(f func(context.Context, *ingest.ReviewBatchPayload) error) *MockServiceReviewBatchCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // SetStatus mocks base method.
 func (m *MockService) SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error {
 	m.ctrl.T.Helper()

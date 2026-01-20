@@ -84,6 +84,10 @@ type Client struct {
 	// endpoint.
 	ShowBatchDoer goahttp.Doer
 
+	// ReviewBatch Doer is the HTTP client used to make requests to the
+	// review_batch endpoint.
+	ReviewBatchDoer goahttp.Doer
+
 	// CORS Doer is the HTTP client used to make requests to the  endpoint.
 	CORSDoer goahttp.Doer
 
@@ -130,6 +134,7 @@ func NewClient(
 		AddBatchDoer:             doer,
 		ListBatchesDoer:          doer,
 		ShowBatchDoer:            doer,
+		ReviewBatchDoer:          doer,
 		CORSDoer:                 doer,
 		RestoreResponseBody:      restoreBody,
 		scheme:                   scheme,
@@ -543,6 +548,30 @@ func (c *Client) ShowBatch() goa.Endpoint {
 		resp, err := c.ShowBatchDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("ingest", "show_batch", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// ReviewBatch returns an endpoint that makes HTTP requests to the ingest
+// service review_batch server.
+func (c *Client) ReviewBatch() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeReviewBatchRequest(c.encoder)
+		decodeResponse = DecodeReviewBatchResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildReviewBatchRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ReviewBatchDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("ingest", "review_batch", err)
 		}
 		return decodeResponse(resp)
 	}

@@ -35,6 +35,12 @@ type AddBatchRequestBody struct {
 	Identifier *string `form:"identifier,omitempty" json:"identifier,omitempty" xml:"identifier,omitempty"`
 }
 
+// ReviewBatchRequestBody is the type of the "ingest" service "review_batch"
+// endpoint HTTP request body.
+type ReviewBatchRequestBody struct {
+	Continue bool `form:"continue" json:"continue" xml:"continue"`
+}
+
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
@@ -647,24 +653,6 @@ type AddBatchInternalErrorResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// AddBatchNotImplementedResponseBody is the type of the "ingest" service
-// "add_batch" endpoint HTTP response body for the "not_implemented" error.
-type AddBatchNotImplementedResponseBody struct {
-	// Name is the name of this class of errors.
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Is the error temporary?
-	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
-	// Is the error a timeout?
-	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
-	// Is the error a server-side fault?
-	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
-}
-
 // ListBatchesNotValidResponseBody is the type of the "ingest" service
 // "list_batches" endpoint HTTP response body for the "not_valid" error.
 type ListBatchesNotValidResponseBody struct {
@@ -683,9 +671,9 @@ type ListBatchesNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// ListBatchesNotImplementedResponseBody is the type of the "ingest" service
-// "list_batches" endpoint HTTP response body for the "not_implemented" error.
-type ListBatchesNotImplementedResponseBody struct {
+// ListBatchesInternalErrorResponseBody is the type of the "ingest" service
+// "list_batches" endpoint HTTP response body for the "internal_error" error.
+type ListBatchesInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -701,9 +689,9 @@ type ListBatchesNotImplementedResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// ShowBatchNotAvailableResponseBody is the type of the "ingest" service
-// "show_batch" endpoint HTTP response body for the "not_available" error.
-type ShowBatchNotAvailableResponseBody struct {
+// ShowBatchNotValidResponseBody is the type of the "ingest" service
+// "show_batch" endpoint HTTP response body for the "not_valid" error.
+type ShowBatchNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -719,9 +707,9 @@ type ShowBatchNotAvailableResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// ShowBatchNotImplementedResponseBody is the type of the "ingest" service
-// "show_batch" endpoint HTTP response body for the "not_implemented" error.
-type ShowBatchNotImplementedResponseBody struct {
+// ShowBatchInternalErrorResponseBody is the type of the "ingest" service
+// "show_batch" endpoint HTTP response body for the "internal_error" error.
+type ShowBatchInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -740,6 +728,51 @@ type ShowBatchNotImplementedResponseBody struct {
 // ShowBatchNotFoundResponseBody is the type of the "ingest" service
 // "show_batch" endpoint HTTP response body for the "not_found" error.
 type ShowBatchNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing Batch
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
+// ReviewBatchNotValidResponseBody is the type of the "ingest" service
+// "review_batch" endpoint HTTP response body for the "not_valid" error.
+type ReviewBatchNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ReviewBatchInternalErrorResponseBody is the type of the "ingest" service
+// "review_batch" endpoint HTTP response body for the "internal_error" error.
+type ReviewBatchInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ReviewBatchNotFoundResponseBody is the type of the "ingest" service
+// "review_batch" endpoint HTTP response body for the "not_found" error.
+type ReviewBatchNotFoundResponseBody struct {
 	// Message of error
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing Batch
@@ -909,6 +942,15 @@ func NewAddBatchRequestBody(p *ingest.AddBatchPayload) *AddBatchRequestBody {
 		}
 	} else {
 		body.Keys = []string{}
+	}
+	return body
+}
+
+// NewReviewBatchRequestBody builds the HTTP request body from the payload of
+// the "review_batch" endpoint of the "ingest" service.
+func NewReviewBatchRequestBody(p *ingest.ReviewBatchPayload) *ReviewBatchRequestBody {
+	body := &ReviewBatchRequestBody{
+		Continue: p.Continue,
 	}
 	return body
 }
@@ -1718,21 +1760,6 @@ func NewAddBatchInternalError(body *AddBatchInternalErrorResponseBody) *goa.Serv
 	return v
 }
 
-// NewAddBatchNotImplemented builds a ingest service add_batch endpoint
-// not_implemented error.
-func NewAddBatchNotImplemented(body *AddBatchNotImplementedResponseBody) *goa.ServiceError {
-	v := &goa.ServiceError{
-		Name:      *body.Name,
-		ID:        *body.ID,
-		Message:   *body.Message,
-		Temporary: *body.Temporary,
-		Timeout:   *body.Timeout,
-		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
 // NewAddBatchForbidden builds a ingest service add_batch endpoint forbidden
 // error.
 func NewAddBatchForbidden(body string) ingest.Forbidden {
@@ -1777,9 +1804,9 @@ func NewListBatchesNotValid(body *ListBatchesNotValidResponseBody) *goa.ServiceE
 	return v
 }
 
-// NewListBatchesNotImplemented builds a ingest service list_batches endpoint
-// not_implemented error.
-func NewListBatchesNotImplemented(body *ListBatchesNotImplementedResponseBody) *goa.ServiceError {
+// NewListBatchesInternalError builds a ingest service list_batches endpoint
+// internal_error error.
+func NewListBatchesInternalError(body *ListBatchesInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -1827,9 +1854,9 @@ func NewShowBatchBatchOK(body *ShowBatchResponseBody) *ingestviews.BatchView {
 	return v
 }
 
-// NewShowBatchNotAvailable builds a ingest service show_batch endpoint
-// not_available error.
-func NewShowBatchNotAvailable(body *ShowBatchNotAvailableResponseBody) *goa.ServiceError {
+// NewShowBatchNotValid builds a ingest service show_batch endpoint not_valid
+// error.
+func NewShowBatchNotValid(body *ShowBatchNotValidResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -1842,9 +1869,9 @@ func NewShowBatchNotAvailable(body *ShowBatchNotAvailableResponseBody) *goa.Serv
 	return v
 }
 
-// NewShowBatchNotImplemented builds a ingest service show_batch endpoint
-// not_implemented error.
-func NewShowBatchNotImplemented(body *ShowBatchNotImplementedResponseBody) *goa.ServiceError {
+// NewShowBatchInternalError builds a ingest service show_batch endpoint
+// internal_error error.
+func NewShowBatchInternalError(body *ShowBatchInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -1879,6 +1906,63 @@ func NewShowBatchForbidden(body string) ingest.Forbidden {
 // NewShowBatchUnauthorized builds a ingest service show_batch endpoint
 // unauthorized error.
 func NewShowBatchUnauthorized(body string) ingest.Unauthorized {
+	v := ingest.Unauthorized(body)
+
+	return v
+}
+
+// NewReviewBatchNotValid builds a ingest service review_batch endpoint
+// not_valid error.
+func NewReviewBatchNotValid(body *ReviewBatchNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewReviewBatchInternalError builds a ingest service review_batch endpoint
+// internal_error error.
+func NewReviewBatchInternalError(body *ReviewBatchInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewReviewBatchNotFound builds a ingest service review_batch endpoint
+// not_found error.
+func NewReviewBatchNotFound(body *ReviewBatchNotFoundResponseBody) *ingest.BatchNotFound {
+	v := &ingest.BatchNotFound{
+		Message: *body.Message,
+		UUID:    *body.UUID,
+	}
+
+	return v
+}
+
+// NewReviewBatchForbidden builds a ingest service review_batch endpoint
+// forbidden error.
+func NewReviewBatchForbidden(body string) ingest.Forbidden {
+	v := ingest.Forbidden(body)
+
+	return v
+}
+
+// NewReviewBatchUnauthorized builds a ingest service review_batch endpoint
+// unauthorized error.
+func NewReviewBatchUnauthorized(body string) ingest.Unauthorized {
 	v := ingest.Unauthorized(body)
 
 	return v
@@ -2581,30 +2665,6 @@ func ValidateAddBatchInternalErrorResponseBody(body *AddBatchInternalErrorRespon
 	return
 }
 
-// ValidateAddBatchNotImplementedResponseBody runs the validations defined on
-// add_batch_not_implemented_response_body
-func ValidateAddBatchNotImplementedResponseBody(body *AddBatchNotImplementedResponseBody) (err error) {
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.Temporary == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
-	}
-	if body.Timeout == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
-	}
-	if body.Fault == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
-	}
-	return
-}
-
 // ValidateListBatchesNotValidResponseBody runs the validations defined on
 // list_batches_not_valid_response_body
 func ValidateListBatchesNotValidResponseBody(body *ListBatchesNotValidResponseBody) (err error) {
@@ -2629,9 +2689,9 @@ func ValidateListBatchesNotValidResponseBody(body *ListBatchesNotValidResponseBo
 	return
 }
 
-// ValidateListBatchesNotImplementedResponseBody runs the validations defined
-// on list_batches_not_implemented_response_body
-func ValidateListBatchesNotImplementedResponseBody(body *ListBatchesNotImplementedResponseBody) (err error) {
+// ValidateListBatchesInternalErrorResponseBody runs the validations defined on
+// list_batches_internal_error_response_body
+func ValidateListBatchesInternalErrorResponseBody(body *ListBatchesInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -2653,9 +2713,9 @@ func ValidateListBatchesNotImplementedResponseBody(body *ListBatchesNotImplement
 	return
 }
 
-// ValidateShowBatchNotAvailableResponseBody runs the validations defined on
-// show_batch_not_available_response_body
-func ValidateShowBatchNotAvailableResponseBody(body *ShowBatchNotAvailableResponseBody) (err error) {
+// ValidateShowBatchNotValidResponseBody runs the validations defined on
+// show_batch_not_valid_response_body
+func ValidateShowBatchNotValidResponseBody(body *ShowBatchNotValidResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -2677,9 +2737,9 @@ func ValidateShowBatchNotAvailableResponseBody(body *ShowBatchNotAvailableRespon
 	return
 }
 
-// ValidateShowBatchNotImplementedResponseBody runs the validations defined on
-// show_batch_not_implemented_response_body
-func ValidateShowBatchNotImplementedResponseBody(body *ShowBatchNotImplementedResponseBody) (err error) {
+// ValidateShowBatchInternalErrorResponseBody runs the validations defined on
+// show_batch_internal_error_response_body
+func ValidateShowBatchInternalErrorResponseBody(body *ShowBatchInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -2704,6 +2764,69 @@ func ValidateShowBatchNotImplementedResponseBody(body *ShowBatchNotImplementedRe
 // ValidateShowBatchNotFoundResponseBody runs the validations defined on
 // show_batch_not_found_response_body
 func ValidateShowBatchNotFoundResponseBody(body *ShowBatchNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.UUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
+	}
+	return
+}
+
+// ValidateReviewBatchNotValidResponseBody runs the validations defined on
+// review_batch_not_valid_response_body
+func ValidateReviewBatchNotValidResponseBody(body *ReviewBatchNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateReviewBatchInternalErrorResponseBody runs the validations defined on
+// review_batch_internal_error_response_body
+func ValidateReviewBatchInternalErrorResponseBody(body *ReviewBatchInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateReviewBatchNotFoundResponseBody runs the validations defined on
+// review_batch_not_found_response_body
+func ValidateReviewBatchNotFoundResponseBody(body *ReviewBatchNotFoundResponseBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}

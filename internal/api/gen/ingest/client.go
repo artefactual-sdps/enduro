@@ -33,10 +33,11 @@ type Client struct {
 	AddBatchEndpoint             goa.Endpoint
 	ListBatchesEndpoint          goa.Endpoint
 	ShowBatchEndpoint            goa.Endpoint
+	ReviewBatchEndpoint          goa.Endpoint
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, addSip, uploadSip, downloadSipRequest, downloadSip, listUsers, listSipSourceObjects, addBatch, listBatches, showBatch goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, addSip, uploadSip, downloadSipRequest, downloadSip, listUsers, listSipSourceObjects, addBatch, listBatches, showBatch, reviewBatch goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:       monitorRequest,
 		MonitorEndpoint:              monitor,
@@ -54,6 +55,7 @@ func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, con
 		AddBatchEndpoint:             addBatch,
 		ListBatchesEndpoint:          listBatches,
 		ShowBatchEndpoint:            showBatch,
+		ReviewBatchEndpoint:          reviewBatch,
 	}
 }
 
@@ -266,7 +268,6 @@ func (c *Client) ListSipSourceObjects(ctx context.Context, p *ListSipSourceObjec
 // AddBatch may return the following errors:
 //   - "not_valid" (type *goa.ServiceError)
 //   - "internal_error" (type *goa.ServiceError)
-//   - "not_implemented" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
@@ -282,7 +283,7 @@ func (c *Client) AddBatch(ctx context.Context, p *AddBatchPayload) (res *AddBatc
 // ListBatches calls the "list_batches" endpoint of the "ingest" service.
 // ListBatches may return the following errors:
 //   - "not_valid" (type *goa.ServiceError)
-//   - "not_implemented" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
@@ -298,8 +299,8 @@ func (c *Client) ListBatches(ctx context.Context, p *ListBatchesPayload) (res *B
 // ShowBatch calls the "show_batch" endpoint of the "ingest" service.
 // ShowBatch may return the following errors:
 //   - "not_found" (type *BatchNotFound): Batch not found
-//   - "not_available" (type *goa.ServiceError)
-//   - "not_implemented" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
@@ -310,4 +311,17 @@ func (c *Client) ShowBatch(ctx context.Context, p *ShowBatchPayload) (res *Batch
 		return
 	}
 	return ires.(*Batch), nil
+}
+
+// ReviewBatch calls the "review_batch" endpoint of the "ingest" service.
+// ReviewBatch may return the following errors:
+//   - "not_found" (type *BatchNotFound): Batch not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) ReviewBatch(ctx context.Context, p *ReviewBatchPayload) (err error) {
+	_, err = c.ReviewBatchEndpoint(ctx, p)
+	return
 }

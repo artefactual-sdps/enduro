@@ -1324,59 +1324,6 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestAddBatchNotImplementedResponseBody": {
-      "description": "add_batch_not_implemented_response_body result type (default view)",
-      "example": {
-        "fault": false,
-        "id": "123abc",
-        "message": "parameter 'p' must be an integer",
-        "name": "bad_request",
-        "temporary": false,
-        "timeout": false
-      },
-      "properties": {
-        "fault": {
-          "description": "Is the error a server-side fault?",
-          "example": false,
-          "type": "boolean"
-        },
-        "id": {
-          "description": "ID is a unique identifier for this particular occurrence of the problem.",
-          "example": "123abc",
-          "type": "string"
-        },
-        "message": {
-          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
-          "example": "parameter 'p' must be an integer",
-          "type": "string"
-        },
-        "name": {
-          "description": "Name is the name of this class of errors.",
-          "example": "bad_request",
-          "type": "string"
-        },
-        "temporary": {
-          "description": "Is the error temporary?",
-          "example": false,
-          "type": "boolean"
-        },
-        "timeout": {
-          "description": "Is the error a timeout?",
-          "example": false,
-          "type": "boolean"
-        }
-      },
-      "required": [
-        "name",
-        "id",
-        "message",
-        "temporary",
-        "timeout",
-        "fault"
-      ],
-      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
-      "type": "object"
-    },
     "IngestAddBatchNotValidResponseBody": {
       "description": "add_batch_not_valid_response_body result type (default view)",
       "example": {
@@ -1993,8 +1940,8 @@
       "title": "IngestEvent",
       "type": "object"
     },
-    "IngestListBatchesNotImplementedResponseBody": {
-      "description": "list_batches_not_implemented_response_body result type (default view)",
+    "IngestListBatchesInternalErrorResponseBody": {
+      "description": "list_batches_internal_error_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2576,8 +2523,8 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestShowBatchNotAvailableResponseBody": {
-      "description": "show_batch_not_available_response_body result type (default view)",
+    "IngestReviewBatchInternalErrorResponseBody": {
+      "description": "review_batch_internal_error_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2629,8 +2576,130 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestShowBatchNotImplementedResponseBody": {
-      "description": "show_batch_not_implemented_response_body result type (default view)",
+    "IngestReviewBatchNotValidResponseBody": {
+      "description": "review_batch_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestReviewBatchRequestBody": {
+      "example": {
+        "continue": false
+      },
+      "properties": {
+        "continue": {
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "continue"
+      ],
+      "title": "IngestReviewBatchRequestBody",
+      "type": "object"
+    },
+    "IngestShowBatchInternalErrorResponseBody": {
+      "description": "show_batch_internal_error_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestShowBatchNotValidResponseBody": {
+      "description": "show_batch_not_valid_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5334,10 +5403,10 @@
               "type": "string"
             }
           },
-          "501": {
-            "description": "Not Implemented response.",
+          "500": {
+            "description": "Internal Server Error response.",
             "schema": {
-              "$ref": "#/definitions/IngestListBatchesNotImplementedResponseBody"
+              "$ref": "#/definitions/IngestListBatchesInternalErrorResponseBody"
             }
           }
         },
@@ -5410,12 +5479,6 @@
             "schema": {
               "$ref": "#/definitions/IngestAddBatchInternalErrorResponseBody"
             }
-          },
-          "501": {
-            "description": "Not Implemented response.",
-            "schema": {
-              "$ref": "#/definitions/IngestAddBatchNotImplementedResponseBody"
-            }
           }
         },
         "schemes": [
@@ -5459,6 +5522,12 @@
               "$ref": "#/definitions/EnduroIngestBatch"
             }
           },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/IngestShowBatchNotValidResponseBody"
+            }
+          },
           "401": {
             "description": "Unauthorized response.",
             "schema": {
@@ -5481,16 +5550,10 @@
               ]
             }
           },
-          "409": {
-            "description": "Conflict response.",
+          "500": {
+            "description": "Internal Server Error response.",
             "schema": {
-              "$ref": "#/definitions/IngestShowBatchNotAvailableResponseBody"
-            }
-          },
-          "501": {
-            "description": "Not Implemented response.",
-            "schema": {
-              "$ref": "#/definitions/IngestShowBatchNotImplementedResponseBody"
+              "$ref": "#/definitions/IngestShowBatchInternalErrorResponseBody"
             }
           }
         },
@@ -5503,6 +5566,90 @@
           }
         ],
         "summary": "show_batch ingest",
+        "tags": [
+          "ingest"
+        ]
+      }
+    },
+    "/ingest/batches/{uuid}/review": {
+      "post": {
+        "description": "Review a Batch awaiting user decision\n\n**Required security scopes for jwt**:\n  * `ingest:batches:review`",
+        "operationId": "ingest#review_batch",
+        "parameters": [
+          {
+            "description": "Identifier of Batch to review",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "review_batch_request_body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/IngestReviewBatchRequestBody",
+              "required": [
+                "continue"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted response."
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/IngestReviewBatchNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/BatchNotFound",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestReviewBatchInternalErrorResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": null
+          }
+        ],
+        "summary": "review_batch ingest",
         "tags": [
           "ingest"
         ]
@@ -7993,7 +8140,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:batches:create`: no description\n  * `ingest:batches:list`: no description\n  * `ingest:batches:read`: no description\n  * `ingest:sips:create`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:report`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:batches:create`: no description\n  * `ingest:batches:list`: no description\n  * `ingest:batches:read`: no description\n  * `ingest:batches:review`: no description\n  * `ingest:sips:create`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:report`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

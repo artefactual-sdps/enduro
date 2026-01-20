@@ -109,10 +109,10 @@ paths:
                     description: Forbidden response.
                     schema:
                         type: string
-                "501":
-                    description: Not Implemented response.
+                "500":
+                    description: Internal Server Error response.
                     schema:
-                        $ref: '#/definitions/IngestListBatchesNotImplementedResponseBody'
+                        $ref: '#/definitions/IngestListBatchesInternalErrorResponseBody'
             schemes:
                 - http
             security:
@@ -163,10 +163,6 @@ paths:
                     description: Internal Server Error response.
                     schema:
                         $ref: '#/definitions/IngestAddBatchInternalErrorResponseBody'
-                "501":
-                    description: Not Implemented response.
-                    schema:
-                        $ref: '#/definitions/IngestAddBatchNotImplementedResponseBody'
             schemes:
                 - http
             security:
@@ -198,6 +194,10 @@ paths:
                     description: OK response.
                     schema:
                         $ref: '#/definitions/EnduroIngestBatch'
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/IngestShowBatchNotValidResponseBody'
                 "401":
                     description: Unauthorized response.
                     schema:
@@ -213,14 +213,69 @@ paths:
                         required:
                             - message
                             - uuid
-                "409":
-                    description: Conflict response.
+                "500":
+                    description: Internal Server Error response.
                     schema:
-                        $ref: '#/definitions/IngestShowBatchNotAvailableResponseBody'
-                "501":
-                    description: Not Implemented response.
+                        $ref: '#/definitions/IngestShowBatchInternalErrorResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+    /ingest/batches/{uuid}/review:
+        post:
+            tags:
+                - ingest
+            summary: review_batch ingest
+            description: |-
+                Review a Batch awaiting user decision
+
+                **Required security scopes for jwt**:
+                  * `ingest:batches:review`
+            operationId: ingest#review_batch
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of Batch to review
+                  required: true
+                  type: string
+                  format: uuid
+                - name: Authorization
+                  in: header
+                  required: false
+                  type: string
+                - name: review_batch_request_body
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/IngestReviewBatchRequestBody'
+                    required:
+                        - continue
+            responses:
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: Bad Request response.
                     schema:
-                        $ref: '#/definitions/IngestShowBatchNotImplementedResponseBody'
+                        $ref: '#/definitions/IngestReviewBatchNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/BatchNotFound'
+                        required:
+                            - message
+                            - uuid
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/IngestReviewBatchInternalErrorResponseBody'
             schemes:
                 - http
             security:
@@ -3010,49 +3065,6 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestAddBatchNotImplementedResponseBody:
-        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
-        type: object
-        properties:
-            fault:
-                type: boolean
-                description: Is the error a server-side fault?
-                example: false
-            id:
-                type: string
-                description: ID is a unique identifier for this particular occurrence of the problem.
-                example: 123abc
-            message:
-                type: string
-                description: Message is a human-readable explanation specific to this occurrence of the problem.
-                example: parameter 'p' must be an integer
-            name:
-                type: string
-                description: Name is the name of this class of errors.
-                example: bad_request
-            temporary:
-                type: boolean
-                description: Is the error temporary?
-                example: false
-            timeout:
-                type: boolean
-                description: Is the error a timeout?
-                example: false
-        description: add_batch_not_implemented_response_body result type (default view)
-        example:
-            fault: false
-            id: 123abc
-            message: parameter 'p' must be an integer
-            name: bad_request
-            temporary: false
-            timeout: false
-        required:
-            - name
-            - id
-            - message
-            - temporary
-            - timeout
-            - fault
     IngestAddBatchNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -3554,7 +3566,7 @@ definitions:
             value:
                 Type: sip_created_event
                 Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-    IngestListBatchesNotImplementedResponseBody:
+    IngestListBatchesInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -3582,7 +3594,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_batches_not_implemented_response_body result type (default view)
+        description: list_batches_internal_error_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4027,7 +4039,7 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestShowBatchNotAvailableResponseBody:
+    IngestReviewBatchInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -4055,7 +4067,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: show_batch_not_available_response_body result type (default view)
+        description: review_batch_internal_error_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4070,7 +4082,7 @@ definitions:
             - temporary
             - timeout
             - fault
-    IngestShowBatchNotImplementedResponseBody:
+    IngestReviewBatchNotValidResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
         properties:
@@ -4098,7 +4110,104 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: show_batch_not_implemented_response_body result type (default view)
+        description: review_batch_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestReviewBatchRequestBody:
+        title: IngestReviewBatchRequestBody
+        type: object
+        properties:
+            continue:
+                type: boolean
+                example: false
+        example:
+            continue: false
+        required:
+            - continue
+    IngestShowBatchInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: show_batch_internal_error_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestShowBatchNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: show_batch_not_valid_response_body result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6144,6 +6253,7 @@ securityDefinitions:
               * `ingest:batches:create`: no description
               * `ingest:batches:list`: no description
               * `ingest:batches:read`: no description
+              * `ingest:batches:review`: no description
               * `ingest:sips:create`: no description
               * `ingest:sips:download`: no description
               * `ingest:sips:list`: no description

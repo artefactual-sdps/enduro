@@ -91,3 +91,8 @@ func ListBatchesIngestPath() string {
 func ShowBatchIngestPath(uuid string) string {
 	return fmt.Sprintf("/ingest/batches/%v", uuid)
 }
+
+// ReviewBatchIngestPath returns the URL path to the ingest service review_batch HTTP endpoint.
+func ReviewBatchIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/batches/%v/review", uuid)
+}

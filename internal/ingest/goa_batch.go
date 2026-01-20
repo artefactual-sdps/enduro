@@ -133,3 +133,31 @@ func (svc *ingestImpl) ShowBatch(
 
 	return b.Goa(), nil
 }
+
+func (svc *ingestImpl) ReviewBatch(ctx context.Context, payload *goaingest.ReviewBatchPayload) error {
+	batchUUID, err := uuid.Parse(payload.UUID)
+	if err != nil {
+		return goaingest.MakeNotValid(errors.New("invalid UUID"))
+	}
+
+	b, err := svc.perSvc.ReadBatch(ctx, batchUUID)
+	if err == persistence.ErrNotFound {
+		return &goaingest.BatchNotFound{UUID: payload.UUID, Message: "Batch not found"}
+	} else if err != nil {
+		svc.logger.Error(err, "ReviewBatch")
+		return ErrInternalError
+	}
+
+	if b.Status != enums.BatchStatusPending {
+		return goaingest.MakeNotValid(errors.New("batch is not awaiting user review"))
+	}
+
+	signal := BatchDecisionSignal{Continue: payload.Continue}
+	err = svc.tc.SignalWorkflow(ctx, BatchWorkflowID(batchUUID), "", BatchDecisionSignalName, signal)
+	if err != nil {
+		svc.logger.Error(err, "ReviewBatch")
+		return ErrInternalError
+	}
+
+	return nil
+}
