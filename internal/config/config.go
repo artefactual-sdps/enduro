@@ -110,6 +110,7 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.SetDefault("storage.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("temporal.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("upload.maxSize", 4294967296)
+	v.SetDefault("storage.aipDeletion.allowUnauthenticated", true)
 	v.SetEnvPrefix("enduro")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()

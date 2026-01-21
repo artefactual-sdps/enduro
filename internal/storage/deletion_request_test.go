@@ -30,13 +30,47 @@ func TestRequestAipDeletion(t *testing.T) {
 		claims  *auth.Claims
 		payload *goastorage.RequestAipDeletionPayload
 		mock    func(context.Context, *fake.MockStorage, *temporalsdk_mocks.Client)
+		config  *storage.Config
 		wantErr string
 	}
 
 	for _, tt := range []test{
 		{
 			name:    "Fails to request AIP deletion (not authenticated)",
-			wantErr: "authentication is required",
+			wantErr: "unauthenticated AIP deletion is disabled",
+		},
+		{
+			name: "Requests AIP deletion (unauthenticated allowed)",
+			config: &storage.Config{
+				TaskQueue:   "global",
+				Internal:    storage.LocationConfig{URL: "file://fake"},
+				AIPDeletion: storage.AIPDeletionConfig{AllowUnauthenticated: true},
+			},
+			payload: &goastorage.RequestAipDeletionPayload{
+				UUID:   aipID.String(),
+				Reason: "Reason",
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusStored.String()}, nil)
+				tc.On(
+					"ExecuteWorkflow",
+					mock.AnythingOfType("*context.timerCtx"),
+					temporalsdk_client.StartWorkflowOptions{
+						ID:                    fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
+						TaskQueue:             "global",
+						WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
+					},
+					storage.StorageDeleteWorkflowName,
+					&storage.StorageDeleteWorkflowRequest{
+						AIPID:     aipID,
+						Reason:    "Reason",
+						UserEmail: "unknown",
+						UserIss:   "unknown",
+						UserSub:   "unknown",
+						TaskQueue: "global",
+					},
+				).Return(nil, nil)
+			},
 		},
 		{
 			name:    "Fails to request AIP deletion (missing email claim)",
@@ -186,7 +220,7 @@ func TestRequestAipDeletion(t *testing.T) {
 			t.Parallel()
 
 			ctx := auth.WithUserClaims(context.Background(), tt.claims)
-			attrs := &setUpAttrs{}
+			attrs := &setUpAttrs{config: tt.config}
 			svc := setUpService(t, attrs)
 
 			if tt.mock != nil {
@@ -211,13 +245,43 @@ func TestReviewAipDeletion(t *testing.T) {
 		claims  *auth.Claims
 		payload *goastorage.ReviewAipDeletionPayload
 		mock    func(context.Context, *fake.MockStorage, *temporalsdk_mocks.Client)
+		config  *storage.Config
 		wantErr string
 	}
 
 	for _, tt := range []test{
 		{
 			name:    "Fails to review AIP deletion (not authenticated)",
-			wantErr: "authentication is required",
+			wantErr: "unauthenticated AIP deletion is disabled",
+		},
+		{
+			name: "Reviews AIP deletion (unauthenticated allowed)",
+			config: &storage.Config{
+				TaskQueue:   "global",
+				Internal:    storage.LocationConfig{URL: "file://fake"},
+				AIPDeletion: storage.AIPDeletionConfig{AllowUnauthenticated: true},
+			},
+			payload: &goastorage.ReviewAipDeletionPayload{UUID: aipID.String(), Approved: true},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
+				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+					AIPUUID: ref.New(aipID),
+					Status:  ref.New(enums.DeletionRequestStatusPending),
+				}).Return([]*types.DeletionRequest{{RequesterIss: "issuer", RequesterSub: "subject"}}, nil)
+				tc.On(
+					"SignalWorkflow",
+					mock.AnythingOfType("*context.valueCtx"),
+					fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
+					"",
+					storage.DeletionDecisionSignalName,
+					storage.DeletionDecisionSignal{
+						Status:    enums.DeletionRequestStatusApproved,
+						UserEmail: "unknown",
+						UserIss:   "unknown",
+						UserSub:   "unknown",
+					},
+				).Return(nil)
+			},
 		},
 		{
 			name:    "Fails to review AIP deletion (missing email claim)",
@@ -408,7 +472,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			t.Parallel()
 
 			ctx := auth.WithUserClaims(context.Background(), tt.claims)
-			attrs := &setUpAttrs{}
+			attrs := &setUpAttrs{config: tt.config}
 			svc := setUpService(t, attrs)
 
 			if tt.mock != nil {
@@ -433,6 +497,7 @@ func TestCancelAipDeletion(t *testing.T) {
 		claims  *auth.Claims
 		payload *goastorage.CancelAipDeletionPayload
 		mock    func(context.Context, *fake.MockStorage, *temporalsdk_mocks.Client)
+		config  *storage.Config
 		wantErr string
 	}
 
@@ -442,7 +507,35 @@ func TestCancelAipDeletion(t *testing.T) {
 			payload: &goastorage.CancelAipDeletionPayload{
 				UUID: aipID.String(),
 			},
-			wantErr: "authentication is required",
+			wantErr: "unauthenticated AIP deletion is disabled",
+		},
+		{
+			name: "Cancels AIP deletion request (unauthenticated allowed)",
+			config: &storage.Config{
+				TaskQueue:   "global",
+				Internal:    storage.LocationConfig{URL: "file://fake"},
+				AIPDeletion: storage.AIPDeletionConfig{AllowUnauthenticated: true},
+			},
+			payload: &goastorage.CancelAipDeletionPayload{UUID: aipID.String()},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
+					AIPUUID: &aipID,
+					Status:  ref.New(enums.DeletionRequestStatusPending),
+				}).Return([]*types.DeletionRequest{{RequesterIss: "issuer", RequesterSub: "subject"}}, nil)
+				tc.On(
+					"SignalWorkflow",
+					mock.AnythingOfType("*context.valueCtx"),
+					fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
+					"",
+					storage.DeletionDecisionSignalName,
+					storage.DeletionDecisionSignal{
+						Status:    enums.DeletionRequestStatusCanceled,
+						UserEmail: "unknown",
+						UserIss:   "unknown",
+						UserSub:   "unknown",
+					},
+				).Return(nil)
+			},
 		},
 		{
 			name: "Fails on invalid AIP UUID",
@@ -648,7 +741,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			t.Parallel()
 
 			ctx := auth.WithUserClaims(context.Background(), tt.claims)
-			attrs := &setUpAttrs{}
+			attrs := &setUpAttrs{config: tt.config}
 			svc := setUpService(t, attrs)
 
 			if tt.mock != nil {

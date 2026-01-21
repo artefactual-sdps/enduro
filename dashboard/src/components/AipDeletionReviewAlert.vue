@@ -38,15 +38,18 @@ onMounted(() => {
     </p>
     <div class="d-flex flex-wrap gap-2">
       <template v-if="canCancel">
-        <hr />
         <button class="btn btn-info" type="button" @click="cancel()">
           Cancel
         </button>
       </template>
+      <!-- When auth is disabled, show review buttons even if canCancel is true. -->
       <template
-        v-else-if="authStore.checkAttributes(['storage:aips:deletion:review'])"
+        v-if="
+          !authStore.isEnabled ||
+          (!canCancel &&
+            authStore.checkAttributes(['storage:aips:deletion:review']))
+        "
       >
-        <hr />
         <button class="btn btn-success" type="button" @click="review(true)">
           Approve
         </button>

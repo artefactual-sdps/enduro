@@ -22,11 +22,14 @@ debugListen = "127.0.0.1:9001"
 [temporal]
 address = "host:port"
 
+[api.auth.oidc.abac]
+rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read", "ingest:sips:upload"], "readonly": ["ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read"]}'
+
 [storage]
 defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
 
-[api.auth.oidc.abac]
-rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read", "ingest:sips:upload"], "readonly": ["ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read"]}'
+[storage.aipDeletion]
+allowUnauthenticated = false
 `
 
 func TestConfig(t *testing.T) {
@@ -70,6 +73,7 @@ func TestConfig(t *testing.T) {
 				auth.IngestSIPSReadAttr,
 			},
 		})
+		assert.Equal(t, c.Storage.AIPDeletion.AllowUnauthenticated, false)
 	})
 
 	t.Run("Sets default configs", func(t *testing.T) {
@@ -101,6 +105,7 @@ func TestConfig(t *testing.T) {
 		assert.Equal(t, c.ValidatePREMIS.Enabled, false)
 		assert.Equal(t, c.ValidatePREMIS.XSDPath, "")
 		assert.Equal(t, c.Upload.MaxSize, int64(4294967296))
+		assert.Equal(t, c.Storage.AIPDeletion.AllowUnauthenticated, true)
 	})
 }
 

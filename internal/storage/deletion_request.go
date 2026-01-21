@@ -13,27 +13,50 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 )
 
-func checkClaims(claims *auth.Claims) error {
+type deletionActor struct {
+	email         string
+	sub           string
+	iss           string
+	authenticated bool
+}
+
+// checkClaims validates user identity for deletion operations. When API auth is
+// disabled and unauthenticated deletions are allowed, it returns an "unknown" actor.
+func (s *serviceImpl) checkClaims(ctx context.Context) (deletionActor, error) {
+	claims := auth.UserClaimsFromContext(ctx)
 	if claims == nil {
-		return goastorage.MakeNotValid(errors.New("authentication is required"))
+		if !s.config.AIPDeletion.AllowUnauthenticated {
+			return deletionActor{}, goastorage.MakeNotValid(
+				errors.New("unauthenticated AIP deletion is disabled"),
+			)
+		}
+		return deletionActor{
+			email:         "unknown",
+			sub:           "unknown",
+			iss:           "unknown",
+			authenticated: false,
+		}, nil
 	}
 	if claims.Email == "" {
-		return goastorage.MakeNotValid(errors.New("email claim is required"))
+		return deletionActor{}, goastorage.MakeNotValid(errors.New("email claim is required"))
 	}
 	if claims.Sub == "" {
-		return goastorage.MakeNotValid(errors.New("sub claim is required"))
+		return deletionActor{}, goastorage.MakeNotValid(errors.New("sub claim is required"))
 	}
 	if claims.Iss == "" {
-		return goastorage.MakeNotValid(errors.New("iss claim is required"))
+		return deletionActor{}, goastorage.MakeNotValid(errors.New("iss claim is required"))
 	}
-
-	return nil
+	return deletionActor{
+		email:         claims.Email,
+		sub:           claims.Sub,
+		iss:           claims.Iss,
+		authenticated: true,
+	}, nil
 }
 
 func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorage.RequestAipDeletionPayload) error {
-	// Authentication must be enabled for now.
-	claims := auth.UserClaimsFromContext(ctx)
-	if err := checkClaims(claims); err != nil {
+	actor, err := s.checkClaims(ctx)
+	if err != nil {
 		return err
 	}
 
@@ -57,9 +80,9 @@ func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorag
 		AIPID:     aipID,
 		Reason:    payload.Reason,
 		TaskQueue: s.config.TaskQueue,
-		UserEmail: claims.Email,
-		UserSub:   claims.Sub,
-		UserIss:   claims.Iss,
+		UserEmail: actor.email,
+		UserSub:   actor.sub,
+		UserIss:   actor.iss,
 	})
 	if err != nil {
 		s.logger.Error(err, "error initializing delete workflow")
@@ -70,9 +93,8 @@ func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorag
 }
 
 func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage.ReviewAipDeletionPayload) error {
-	// Authentication must be enabled for now.
-	claims := auth.UserClaimsFromContext(ctx)
-	if err := checkClaims(claims); err != nil {
+	actor, err := s.checkClaims(ctx)
+	if err != nil {
 		return err
 	}
 
@@ -98,7 +120,7 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
-	if drs[0].RequesterIss == claims.Iss && drs[0].RequesterSub == claims.Sub {
+	if actor.authenticated && drs[0].RequesterIss == actor.iss && drs[0].RequesterSub == actor.sub {
 		return goastorage.MakeNotValid(errors.New("requester cannot review their own request"))
 	}
 
@@ -109,9 +131,9 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 
 	signal := DeletionDecisionSignal{
 		Status:    status,
-		UserEmail: claims.Email,
-		UserSub:   claims.Sub,
-		UserIss:   claims.Iss,
+		UserEmail: actor.email,
+		UserSub:   actor.sub,
+		UserIss:   actor.iss,
 	}
 	err = s.tc.SignalWorkflow(ctx, StorageDeleteWorkflowID(aipID), "", DeletionDecisionSignalName, signal)
 	if err != nil {
@@ -125,9 +147,8 @@ func (s *serviceImpl) CancelAipDeletion(
 	ctx context.Context,
 	payload *goastorage.CancelAipDeletionPayload,
 ) error {
-	// Authentication must be enabled for now.
-	claims := auth.UserClaimsFromContext(ctx)
-	if err := checkClaims(claims); err != nil {
+	actor, err := s.checkClaims(ctx)
+	if err != nil {
 		return err
 	}
 
@@ -148,7 +169,7 @@ func (s *serviceImpl) CancelAipDeletion(
 	}
 
 	// Check that the user is authorized to cancel the deletion request.
-	if claims.Iss != drs[0].RequesterIss || claims.Sub != drs[0].RequesterSub {
+	if actor.authenticated && (actor.iss != drs[0].RequesterIss || actor.sub != drs[0].RequesterSub) {
 		return ErrForbidden
 	}
 
@@ -164,9 +185,9 @@ func (s *serviceImpl) CancelAipDeletion(
 		DeletionDecisionSignalName,
 		DeletionDecisionSignal{
 			Status:    enums.DeletionRequestStatusCanceled,
-			UserEmail: claims.Email,
-			UserSub:   claims.Sub,
-			UserIss:   claims.Iss,
+			UserEmail: actor.email,
+			UserSub:   actor.sub,
+			UserIss:   actor.iss,
 		},
 	)
 	if err != nil {
