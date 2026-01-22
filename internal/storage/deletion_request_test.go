@@ -30,22 +30,12 @@ func TestRequestAipDeletion(t *testing.T) {
 		claims  *auth.Claims
 		payload *goastorage.RequestAipDeletionPayload
 		mock    func(context.Context, *fake.MockStorage, *temporalsdk_mocks.Client)
-		config  *storage.Config
 		wantErr string
 	}
 
 	for _, tt := range []test{
 		{
-			name:    "Fails to request AIP deletion (not authenticated)",
-			wantErr: "unauthenticated AIP deletion is disabled",
-		},
-		{
-			name: "Requests AIP deletion (unauthenticated allowed)",
-			config: &storage.Config{
-				TaskQueue:   "global",
-				Internal:    storage.LocationConfig{URL: "file://fake"},
-				AIPDeletion: storage.AIPDeletionConfig{AllowUnauthenticated: true},
-			},
+			name: "Requests AIP deletion (unauthenticated)",
 			payload: &goastorage.RequestAipDeletionPayload{
 				UUID:   aipID.String(),
 				Reason: "Reason",
@@ -220,7 +210,7 @@ func TestRequestAipDeletion(t *testing.T) {
 			t.Parallel()
 
 			ctx := auth.WithUserClaims(context.Background(), tt.claims)
-			attrs := &setUpAttrs{config: tt.config}
+			attrs := &setUpAttrs{}
 			svc := setUpService(t, attrs)
 
 			if tt.mock != nil {
@@ -245,22 +235,12 @@ func TestReviewAipDeletion(t *testing.T) {
 		claims  *auth.Claims
 		payload *goastorage.ReviewAipDeletionPayload
 		mock    func(context.Context, *fake.MockStorage, *temporalsdk_mocks.Client)
-		config  *storage.Config
 		wantErr string
 	}
 
 	for _, tt := range []test{
 		{
-			name:    "Fails to review AIP deletion (not authenticated)",
-			wantErr: "unauthenticated AIP deletion is disabled",
-		},
-		{
-			name: "Reviews AIP deletion (unauthenticated allowed)",
-			config: &storage.Config{
-				TaskQueue:   "global",
-				Internal:    storage.LocationConfig{URL: "file://fake"},
-				AIPDeletion: storage.AIPDeletionConfig{AllowUnauthenticated: true},
-			},
+			name:    "Reviews AIP deletion (unauthenticated)",
 			payload: &goastorage.ReviewAipDeletionPayload{UUID: aipID.String(), Approved: true},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
@@ -472,7 +452,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			t.Parallel()
 
 			ctx := auth.WithUserClaims(context.Background(), tt.claims)
-			attrs := &setUpAttrs{config: tt.config}
+			attrs := &setUpAttrs{}
 			svc := setUpService(t, attrs)
 
 			if tt.mock != nil {
@@ -497,25 +477,12 @@ func TestCancelAipDeletion(t *testing.T) {
 		claims  *auth.Claims
 		payload *goastorage.CancelAipDeletionPayload
 		mock    func(context.Context, *fake.MockStorage, *temporalsdk_mocks.Client)
-		config  *storage.Config
 		wantErr string
 	}
 
 	for _, tt := range []test{
 		{
-			name: "Fails when user is not authenticated",
-			payload: &goastorage.CancelAipDeletionPayload{
-				UUID: aipID.String(),
-			},
-			wantErr: "unauthenticated AIP deletion is disabled",
-		},
-		{
-			name: "Cancels AIP deletion request (unauthenticated allowed)",
-			config: &storage.Config{
-				TaskQueue:   "global",
-				Internal:    storage.LocationConfig{URL: "file://fake"},
-				AIPDeletion: storage.AIPDeletionConfig{AllowUnauthenticated: true},
-			},
+			name:    "Cancels AIP deletion request (unauthenticated)",
 			payload: &goastorage.CancelAipDeletionPayload{UUID: aipID.String()},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
@@ -741,7 +708,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			t.Parallel()
 
 			ctx := auth.WithUserClaims(context.Background(), tt.claims)
-			attrs := &setUpAttrs{config: tt.config}
+			attrs := &setUpAttrs{}
 			svc := setUpService(t, attrs)
 
 			if tt.mock != nil {

@@ -47,12 +47,6 @@ type LocationConfig struct {
 }
 
 type AIPDeletionConfig struct {
-	// AllowUnauthenticated determines whether AIP deletion operations can proceed
-	// without API authentication. When true (default), Enduro will use "unknown"
-	// as the user identity in audit logs and reports. When false, Enduro will
-	// reject any AIP deletion operation that does not include valid API auth.
-	AllowUnauthenticated bool
-
 	// ApproveAMSS determines whether AIP deletions are automatically approved in the
 	// Archivematica's Storage Service for AMSS locations. When set to false (default),
 	// AIP deletions in AMSS locations require manual approval in AMSS. When set to true,

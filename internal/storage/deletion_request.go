@@ -21,15 +21,10 @@ type deletionActor struct {
 }
 
 // checkClaims validates user identity for deletion operations. When API auth is
-// disabled and unauthenticated deletions are allowed, it returns an "unknown" actor.
+// disabled it returns an "unknown" actor.
 func (s *serviceImpl) checkClaims(ctx context.Context) (deletionActor, error) {
 	claims := auth.UserClaimsFromContext(ctx)
 	if claims == nil {
-		if !s.config.AIPDeletion.AllowUnauthenticated {
-			return deletionActor{}, goastorage.MakeNotValid(
-				errors.New("unauthenticated AIP deletion is disabled"),
-			)
-		}
 		return deletionActor{
 			email:         "unknown",
 			sub:           "unknown",

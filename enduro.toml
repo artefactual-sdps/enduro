@@ -339,12 +339,6 @@ redisAddress = "redis://redis.enduro-sdps:6379"
 redisChannel = "enduro-storage-events"
 
 [storage.aipDeletion]
-# allowUnauthenticated determines whether AIP deletion operations can proceed
-# without API authentication. When true (default), Enduro will use "unknown"
-# as the user identity in audit logs and reports. When false, Enduro will
-# reject any AIP deletion operation that does not include valid API auth.
-allowUnauthenticated = true
-
 # approveAMSS determines whether AIP deletions are automatically approved in the
 # Archivematica's Storage Service for AMSS locations. When set to false (default),
 # AIP deletions in AMSS locations require manual approval in AMSS. When set to true,
