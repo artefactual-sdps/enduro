@@ -163,7 +163,7 @@ export const useAipStore = defineStore("aip", {
           if (err instanceof RangeError) {
             // An invalid date parameter (e.g. earliestCreatedTime) returns a
             // RangeError with a message like "invalid date".
-            console.error("Error fetching AIPs", "Range error: " + err.message);
+            logError(err, "Error fetching AIPs (range error)");
             throw new Error(err.message);
           } else {
             logError(err, "Error fetching AIPs");
@@ -208,7 +208,7 @@ export const useAipStore = defineStore("aip", {
           requestAipDeletionRequestBody: { reason: reason },
         })
         .catch((e) => {
-          console.error("Error requesting deletion", e.message);
+          logError(e, "Error requesting deletion");
           throw new Error("Couldn't create deletion request");
         });
     },
@@ -220,7 +220,7 @@ export const useAipStore = defineStore("aip", {
           reviewAipDeletionRequestBody: { approved: approved },
         })
         .catch((e) => {
-          console.error("Error reviewing deletion", e.message);
+          logError(e, "Error reviewing deletion");
           throw new Error("Couldn't update deletion request");
         });
     },

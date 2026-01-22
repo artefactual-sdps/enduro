@@ -97,7 +97,7 @@ export const useSipStore = defineStore("sip", {
           logError(e, "Error fetching workflows");
 
           // Don't show an error if we get a 403 Forbidden response.
-          if (e.response.status === 403) {
+          if (e instanceof ResponseError && e.response.status === 403) {
             return;
           }
 
@@ -131,21 +131,19 @@ export const useSipStore = defineStore("sip", {
             // error message in the response body (JSON).
             return err.response.json().then((body) => {
               const modelErr = api.ModelErrorFromJSON(body);
-              console.error(
-                "API response",
-                err.response.status,
-                modelErr.message,
-              );
+              logError(err, `API response: ${modelErr.message}`);
               throw new Error(modelErr.message);
             });
           } else if (err instanceof RangeError) {
             // An invalid date parameter (e.g. earliestCreatedTime) returns a
             // RangeError with a message like "invalid date".
-            console.error("Range error", err.message);
+            logError(err, "Range error");
             throw new Error(err.message);
           } else {
-            console.error("Unknown error", err.message);
-            throw new Error(err.message);
+            logError(err, "Unknown error");
+            const message =
+              err instanceof Error ? err.message : "Unknown error";
+            throw new Error(message);
           }
         });
     },

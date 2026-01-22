@@ -1,6 +1,7 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 
 import { api, client } from "@/client";
+import { logError } from "@/helpers/logs";
 import {
   IngestListBatchesStatusEnum,
   ResponseError,
@@ -84,21 +85,19 @@ export const useBatchStore = defineStore("batch", {
             // error message in the response body (JSON).
             return err.response.json().then((body) => {
               const modelErr = api.ModelErrorFromJSON(body);
-              console.error(
-                "API response",
-                err.response.status,
-                modelErr.message,
-              );
+              logError(err, `API response: ${modelErr.message}`);
               throw new Error(modelErr.message);
             });
           } else if (err instanceof RangeError) {
             // An invalid date parameter (e.g. earliestCreatedTime) returns a
             // RangeError with a message like "invalid date".
-            console.error("Range error", err.message);
+            logError(err, "Range error");
             throw new Error(err.message);
           } else {
-            console.error("Unknown error", err.message);
-            throw new Error(err.message);
+            logError(err, "Unknown error");
+            const message =
+              err instanceof Error ? err.message : "Unknown error";
+            throw new Error(message);
           }
         });
     },
@@ -119,7 +118,7 @@ export const useBatchStore = defineStore("batch", {
             this.current.status = api.EnduroIngestBatchStatusEnum.Processing;
         })
         .catch((e) => {
-          console.error("Error reviewing batch", e.message);
+          logError(e, "Error reviewing batch");
           throw new Error("Couldn't review batch");
         });
     },

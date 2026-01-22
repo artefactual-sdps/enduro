@@ -27,7 +27,7 @@ describe("logError", () => {
     const error = new Error("Something went wrong");
     logError(error, "Test error");
     expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Test error",
+      "Test error:",
       "Something went wrong",
     );
     consoleErrorSpy.mockRestore();
@@ -38,7 +38,10 @@ describe("logError", () => {
       .spyOn(console, "error")
       .mockImplementation(() => {});
     logError("Unknown error", "Test error");
-    expect(consoleErrorSpy).toHaveBeenCalledWith("Test error", "Unknown error");
+    expect(consoleErrorSpy).toHaveBeenCalledWith(
+      "Test error:",
+      "Unknown error",
+    );
     consoleErrorSpy.mockRestore();
   });
 });

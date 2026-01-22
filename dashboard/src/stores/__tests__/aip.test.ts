@@ -241,8 +241,8 @@ describe("fetch AIPs", () => {
     }
 
     expect(consoleErr).toHaveBeenCalledWith(
-      "Error fetching AIPs",
-      "Range error: invalid date",
+      "Error fetching AIPs (range error):",
+      "invalid date",
     );
   });
 

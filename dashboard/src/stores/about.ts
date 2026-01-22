@@ -1,6 +1,7 @@
 import { acceptHMRUpdate, defineStore } from "pinia";
 
 import { api, client } from "@/client";
+import { logError } from "@/helpers/logs";
 
 export const useAboutStore = defineStore("about", {
   state: () => ({
@@ -55,7 +56,7 @@ export const useAboutStore = defineStore("about", {
           this.version = resp.version;
         })
         .catch((e) => {
-          console.error("Error fetching about data:", e.message);
+          logError(e, "Error fetching about data");
         });
     },
     // Load fetches the about data from the API if it hasn't been loaded yet.
