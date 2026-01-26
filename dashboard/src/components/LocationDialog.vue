@@ -15,6 +15,8 @@ locationStore.fetchLocations();
 
 const el = ref<HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
+const titleId = "location-dialog-title";
+const bodyId = "location-dialog-body";
 
 onMounted(() => {
   if (!el.value) return;
@@ -36,13 +38,21 @@ const onChoose = (locationId: string) => {
 </script>
 
 <template>
-  <div ref="el" class="modal" tabindex="-1">
+  <div
+    ref="el"
+    class="modal"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    :aria-labelledby="titleId"
+    :aria-describedby="bodyId"
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Choose location</h5>
+          <h1 :id="titleId" class="modal-title fs-5">Choose location</h1>
         </div>
-        <div class="modal-body">
+        <div :id="bodyId" class="modal-body">
           <div class="table-responsive mb-3">
             <table class="table table-sm mb-0">
               <thead>

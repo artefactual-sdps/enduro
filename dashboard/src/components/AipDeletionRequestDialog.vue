@@ -12,6 +12,8 @@ const el = ref<HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
 const reason = ref<string>("");
 const submit = ref<boolean>(false);
+const titleId = "aip-deletion-request-dialog-title";
+const bodyId = "aip-deletion-request-dialog-body";
 
 onMounted(() => {
   if (!el.value) return;
@@ -35,14 +37,22 @@ const request = () => {
 </script>
 
 <template>
-  <div ref="el" class="modal" tabindex="-1">
+  <div
+    ref="el"
+    class="modal"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    :aria-labelledby="titleId"
+    :aria-describedby="bodyId"
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title">Delete AIP</h5>
+          <h1 :id="titleId" class="modal-title fs-5">Delete AIP</h1>
         </div>
         <form @submit.prevent="request">
-          <div class="modal-body">
+          <div :id="bodyId" class="modal-body">
             <p>
               This will initiate a <strong>deletion request</strong> for the
               following AIP and any related replicas.
