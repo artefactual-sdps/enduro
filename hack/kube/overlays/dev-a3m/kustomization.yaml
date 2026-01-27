@@ -5,6 +5,7 @@ resources:
   - ../../base
   - ../../components/dev
   - enduro-a3m.yaml
+  - mysql-create-locations-job.yaml
 images:
   - name: ghcr.io/artefactual-sdps/enduro:main
     newName: enduro
@@ -15,3 +16,8 @@ images:
   - name: ghcr.io/artefactual-sdps/enduro-dashboard:main
     newName: enduro-dashboard
     newTag: dev
+patches:
+  - target:
+      kind: Deployment
+      name: enduro
+    path: enduro-patch.yaml

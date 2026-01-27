@@ -6,19 +6,11 @@ run AM or SFTP on your host.
 
 ## Quick start
 
-By default, dev-am uses Archivematica. Only touch these if you previously
-switched to a3m:
-
-1. Make sure Enduro uses Archivematica (in `.tilt.env`):
-
-       ENDURO_PRES_SYSTEM=am
-
-2. Ensure the preservation task queue is set to AM (in `enduro.toml`):
-
-       [preservation]
-       taskQueue = "am"
-
-That's it. The dev-am overlay ships defaults that match the `ambox` pod.
+By default the development environment uses the dev-am overlay. If you were
+using a3m previously, make sure to update the `.tilt.env` file to use
+Archivematica: `ENDURO_PRES_SYSTEM=am`. Changing this `.tilt.env` is the only
+change necessary, as the dev-am overlay updates the Enduro configuration as
+required to integrate with the Archivematica `ambox` pod.
 
 ## Defaults (dev-am)
 

@@ -18,8 +18,3 @@ images:
   - name: ghcr.io/artefactual-sdps/enduro-dashboard:main
     newName: enduro-dashboard
     newTag: dev
-patches:
-  - target:
-      kind: Deployment
-      name: enduro
-    path: enduro-patch.yaml

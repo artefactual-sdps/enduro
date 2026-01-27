@@ -6,7 +6,6 @@ resources:
   - enduro.yaml
   - minio-setup-buckets-job.yaml
   - minio.yaml
-  - mysql-create-locations-job.yaml
   - mysql.yaml
   - namespace.yaml
   - redis.yaml

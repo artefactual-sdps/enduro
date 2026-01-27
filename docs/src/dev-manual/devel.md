@@ -201,19 +201,9 @@ Enables live updates on code changes for the enduro services.
 ### ENDURO_PRES_SYSTEM
 
 Determines the preservation system between Archivematica (`am`) and a3m
-(`a3m`), defaults to `am`. Check the [Working with Archivematica] docs for more
-details.
-
-### Using a3m in development
-
-To use a3m instead of Archivematica in the dev environment (a3m is a lightweight
-Archivematica derivative, but it has seen little adoption and is largely
-unmaintained):
-
-1. Set `ENDURO_PRES_SYSTEM=a3m` in `.tilt.env`.
-2. Set `[preservation] taskqueue = "a3m"` in `enduro.toml`.
-3. If you want to build a local a3m image, set `LOCAL_A3M=true` (in `.tilt.env`)
-   and clone the `a3m` repository as a sibling of this repo.
+(`a3m`), defaults to `am`. a3m is a lightweight Archivematica derivative,
+but it has seen little adoption and is largely unmaintained. Check the
+[Working with Archivematica] docs for more details about Archivematica.
 
 ### LOCAL_A3M
 
