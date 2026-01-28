@@ -13,6 +13,8 @@ const aboutStore = useAboutStore();
 
 const el = ref<HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
+const titleId = "about-dialog-title";
+const bodyId = "about-dialog-body";
 
 onMounted(() => {
   if (!el.value) return;
@@ -26,13 +28,24 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
 </script>
 
 <template>
-  <div ref="el" class="modal" tabindex="-1">
+  <div
+    ref="el"
+    class="modal"
+    tabindex="-1"
+    role="dialog"
+    aria-modal="true"
+    :aria-labelledby="titleId"
+    :aria-describedby="bodyId"
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title fw-bold d-flex align-items-center">
+          <h1
+            :id="titleId"
+            class="modal-title fs-5 fw-bold d-flex align-items-center"
+          >
             <img src="/logo.png" alt="" height="30" class="me-2" />Enduro
-          </h5>
+          </h1>
           <button
             type="button"
             class="btn-close"
@@ -40,7 +53,7 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
             aria-label="Close"
           />
         </div>
-        <div class="modal-body">
+        <div :id="bodyId" class="modal-body">
           <div class="mb-3">
             <div class="row">
               <div
