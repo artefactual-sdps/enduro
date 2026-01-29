@@ -16,27 +16,27 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface EnduroPoststorage
+ * @interface EnduroChildworkflow
  */
-export interface EnduroPoststorage {
+export interface EnduroChildworkflow {
     /**
      * 
      * @type {string}
-     * @memberof EnduroPoststorage
+     * @memberof EnduroChildworkflow
      */
     taskQueue: string;
     /**
      * 
      * @type {string}
-     * @memberof EnduroPoststorage
+     * @memberof EnduroChildworkflow
      */
     workflowName: string;
 }
 
 /**
- * Check if a given object implements the EnduroPoststorage interface.
+ * Check if a given object implements the EnduroChildworkflow interface.
  */
-export function instanceOfEnduroPoststorage(value: object): boolean {
+export function instanceOfEnduroChildworkflow(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "taskQueue" in value;
     isInstance = isInstance && "workflowName" in value;
@@ -44,11 +44,11 @@ export function instanceOfEnduroPoststorage(value: object): boolean {
     return isInstance;
 }
 
-export function EnduroPoststorageFromJSON(json: any): EnduroPoststorage {
-    return EnduroPoststorageFromJSONTyped(json, false);
+export function EnduroChildworkflowFromJSON(json: any): EnduroChildworkflow {
+    return EnduroChildworkflowFromJSONTyped(json, false);
 }
 
-export function EnduroPoststorageFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroPoststorage {
+export function EnduroChildworkflowFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroChildworkflow {
     if ((json === undefined) || (json === null)) {
         return json;
     }
@@ -59,7 +59,7 @@ export function EnduroPoststorageFromJSONTyped(json: any, ignoreDiscriminator: b
     };
 }
 
-export function EnduroPoststorageToJSON(value?: EnduroPoststorage | null): any {
+export function EnduroChildworkflowToJSON(value?: EnduroChildworkflow | null): any {
     if (value === undefined) {
         return undefined;
     }

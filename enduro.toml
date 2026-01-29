@@ -272,37 +272,40 @@ enabled = false
 address = ""
 samplingRatio = 1.0
 
-# Optional preprocessing child workflow configuration.
-[preprocessing]
-# enabled triggers the execution of the child workflow, when set to false all other
-# options are ignored.
+# Temporal configuration for a preprocessing child workflow run before 
+# preservation. All fields are required when enabled is set to true.
+[[childworkflows]]
 enabled = false
-# extract determines if the SIP extraction happens on the child workflow.
-extract = false
-# sharedPath is the full path to the directory used to share the SIP between workflows,
-# required when enabled is set to true.
-sharedPath = "/home/enduro/preprocessing"
-
-# Temporal configuration to trigger the preprocessing child workflow, all fields are
-# required when enabled is set to true.
-[preprocessing.temporal]
 namespace = "default"
 taskQueue = "preprocessing"
 workflowName = "preprocessing"
 
-# Temporal configurations to trigger post-storage child workflows after ingest, 
-# preservation and storage of a single SIP, allows multiple workflows.
-# [[poststorage]]
-# namespace = "default"
-# taskQueue = "poststorage"
-# workflowName = "poststorage"
+# Additional preprocessing child workflow configuration settings.
+[preprocessing]
+# extract determines if extraction of the SIP archive (e.g. zip) happens in the
+# preprocessing child workflow. If false, any required extraction will happen on
+# the main ingest workflow.
+extract = true
 
-# Temporal configuration to trigger a post-storage child workflows after batch 
-# ingest of multiple SIPs.
-# [batch.poststorage]
-# namespace = "default"
-# taskQueue = "batch-post-storage"
-# workflowName = "batch-post-storage"
+# sharedPath is the full path to a directory to share files between workflows.
+# sharedPath is required when the preprocessing workflow is enabled.
+sharedPath = "/home/enduro/preprocessing"
+
+# Temporal configuration for a post-storage child workflows run after storing 
+# an AIP. All fields are required when enabled is set to true.
+[[childworkflows]]
+enabled = false
+namespace = "default"
+taskQueue = "poststorage"
+workflowName = "poststorage"
+
+# Temporal configuration for a post-storage child workflows run after batch
+# storage of multiple AIPs. All fields are required when enabled is set to true.
+[[childworkflows]]
+enabled = false
+namespace = "default"
+taskQueue = "batch-poststorage"
+workflowName = "batch-poststorage"
 
 #########################################################################
 #                                                                       #

@@ -67,7 +67,14 @@ if PRES_SYS == 'am':
 # Load Kustomize YAML
 yaml = kustomize(KUBE_OVERLAY)
 
-# Preprocessing
+# Child workflows
+CHILD_WORKFLOW_PATHS = os.environ.get("CHILD_WORKFLOW_PATHS", "")
+if CHILD_WORKFLOW_PATHS != "":
+  for path in CHILD_WORKFLOW_PATHS.split(":"):
+    # Load child workflow Tiltfile for Enduro
+    load_dynamic(path + "/Tiltfile.enduro")
+
+# The preprocessing child workflow requires extra setup for a shared directory
 PREPROCESSING_PATH = os.environ.get("PREPROCESSING_PATH", "")
 if PREPROCESSING_PATH != "":
   # Load preprocessing Tiltfile for Enduro

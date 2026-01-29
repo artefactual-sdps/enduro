@@ -13,18 +13,12 @@
  */
 
 import { exists, mapValues } from '../runtime';
-import type { EnduroPoststorage } from './EnduroPoststorage';
+import type { EnduroChildworkflow } from './EnduroChildworkflow';
 import {
-    EnduroPoststorageFromJSON,
-    EnduroPoststorageFromJSONTyped,
-    EnduroPoststorageToJSON,
-} from './EnduroPoststorage';
-import type { EnduroPreprocessing } from './EnduroPreprocessing';
-import {
-    EnduroPreprocessingFromJSON,
-    EnduroPreprocessingFromJSONTyped,
-    EnduroPreprocessingToJSON,
-} from './EnduroPreprocessing';
+    EnduroChildworkflowFromJSON,
+    EnduroChildworkflowFromJSONTyped,
+    EnduroChildworkflowToJSON,
+} from './EnduroChildworkflow';
 
 /**
  * 
@@ -34,16 +28,10 @@ import {
 export interface EnduroAbout {
     /**
      * 
-     * @type {Array<EnduroPoststorage>}
+     * @type {Array<EnduroChildworkflow>}
      * @memberof EnduroAbout
      */
-    poststorage?: Array<EnduroPoststorage>;
-    /**
-     * 
-     * @type {EnduroPreprocessing}
-     * @memberof EnduroAbout
-     */
-    preprocessing: EnduroPreprocessing;
+    childWorkflows?: Array<EnduroChildworkflow>;
     /**
      * 
      * @type {string}
@@ -69,7 +57,6 @@ export interface EnduroAbout {
  */
 export function instanceOfEnduroAbout(value: object): boolean {
     let isInstance = true;
-    isInstance = isInstance && "preprocessing" in value;
     isInstance = isInstance && "preservationSystem" in value;
     isInstance = isInstance && "uploadMaxSize" in value;
     isInstance = isInstance && "version" in value;
@@ -87,8 +74,7 @@ export function EnduroAboutFromJSONTyped(json: any, ignoreDiscriminator: boolean
     }
     return {
         
-        'poststorage': !exists(json, 'poststorage') ? undefined : ((json['poststorage'] as Array<any>).map(EnduroPoststorageFromJSON)),
-        'preprocessing': EnduroPreprocessingFromJSON(json['preprocessing']),
+        'childWorkflows': !exists(json, 'child_workflows') ? undefined : ((json['child_workflows'] as Array<any>).map(EnduroChildworkflowFromJSON)),
         'preservationSystem': json['preservation_system'],
         'uploadMaxSize': json['upload_max_size'],
         'version': json['version'],
@@ -104,8 +90,7 @@ export function EnduroAboutToJSON(value?: EnduroAbout | null): any {
     }
     return {
         
-        'poststorage': value.poststorage === undefined ? undefined : ((value.poststorage as Array<any>).map(EnduroPoststorageToJSON)),
-        'preprocessing': EnduroPreprocessingToJSON(value.preprocessing),
+        'child_workflows': value.childWorkflows === undefined ? undefined : ((value.childWorkflows as Array<any>).map(EnduroChildworkflowToJSON)),
         'preservation_system': value.preservationSystem,
         'upload_max_size': value.uploadMaxSize,
         'version': value.version,

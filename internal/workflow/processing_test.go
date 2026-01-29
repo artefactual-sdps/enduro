@@ -19,6 +19,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -297,25 +298,21 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
 		Preprocessing: preprocessing.Config{
-			Enabled:    true,
 			Extract:    true,
 			SharedPath: prepSharedPath,
-			Temporal: preprocessing.Temporal{
+		},
+		Childworkflows: childwf.Configs{
+			{
+				Enabled:      true,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
 			},
-		},
-		Poststorage: []poststorage.Config{
 			{
+				Enabled:      true,
 				Namespace:    "default",
 				TaskQueue:    "poststorage",
-				WorkflowName: "poststorage_1",
-			},
-			{
-				Namespace:    "default",
-				TaskQueue:    "poststorage",
-				WorkflowName: "poststorage_2",
+				WorkflowName: "poststorage",
 			},
 		},
 	})
@@ -378,13 +375,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	autoApproveA3mExpectations(s, params)
 
 	s.env.OnWorkflow(
-		"poststorage_1",
-		internalCtx,
-		&poststorage.WorkflowParams{AIPUUID: aipUUID.String()},
-	).Return(nil, nil)
-
-	s.env.OnWorkflow(
-		"poststorage_2",
+		"poststorage",
 		internalCtx,
 		&poststorage.WorkflowParams{AIPUUID: aipUUID.String()},
 	).Return(nil, nil)
@@ -413,12 +404,15 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+
+		Storage: storage.Config{DefaultPermanentLocationID: locationID},
 		Preprocessing: preprocessing.Config{
-			Enabled:    true,
 			Extract:    true,
 			SharedPath: prepSharedPath,
-			Temporal: preprocessing.Temporal{
+		},
+		Childworkflows: childwf.Configs{
+			{
+				Enabled:      true,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -646,10 +640,18 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 // - Internal bucket download (with preprocessing).
 func (s *ProcessingWorkflowTestSuite) TestInternalUploadError() {
 	s.SetupWorkflowTest(config.Configuration{
-		A3m:           a3m.Config{ShareDir: s.CreateTransferDir()},
-		Preservation:  pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:       storage.Config{DefaultPermanentLocationID: locationID},
-		Preprocessing: preprocessing.Config{Enabled: true, SharedPath: prepSharedPath},
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		Preprocessing: preprocessing.Config{
+			SharedPath: prepSharedPath,
+		},
+		Childworkflows: childwf.Configs{
+			{
+				Enabled:      true,
+				WorkflowName: "preprocessing",
+			},
+		},
 	})
 
 	downloadDir := filepath.Join(prepSharedPath, sipUUID.String())

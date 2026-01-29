@@ -14,7 +14,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 	"go.uber.org/mock/gomock"
 
-	"github.com/artefactual-sdps/enduro/internal/batch"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -67,12 +67,11 @@ func (s *BatchWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration) {
 		activities.NewPollSIPStatusesActivity(ingestsvc, time.Microsecond).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.PollSIPStatusesActivityName},
 	)
-	if cfg.Batch.Poststorage != nil {
-		s.env.RegisterWorkflowWithOptions(
-			postStorageChildWorkflow,
-			temporalsdk_workflow.RegisterOptions{Name: cfg.Batch.Poststorage.WorkflowName},
-		)
-	}
+
+	s.env.RegisterWorkflowWithOptions(
+		postStorageChildWorkflow,
+		temporalsdk_workflow.RegisterOptions{Name: childwf.BatchPostStorageName},
+	)
 
 	s.workflow = NewBatchWorkflow(cfg, rng, ingestsvc, nil)
 }
@@ -94,8 +93,8 @@ func (s *BatchWorkflowTestSuite) processingChildWorkflow(
 // mock in test.
 func postStorageChildWorkflow(
 	ctx temporalsdk_workflow.Context,
-	params *batch.PostStorageParams,
-) (*batch.PostStorageResult, error) {
+	params *childwf.BPSParams,
+) (*childwf.Result, error) {
 	return nil, nil
 }
 
@@ -144,11 +143,12 @@ func TestBatchWorkflow(t *testing.T) {
 // - Run post-storage child workflows.
 func (s *BatchWorkflowTestSuite) TestBatch() {
 	cfg := config.Configuration{
-		Batch: batch.Config{
-			Poststorage: &batch.PostStorageConfig{
+		Childworkflows: childwf.Configs{
+			{
+				Enabled:      true,
 				Namespace:    "default",
-				TaskQueue:    "batch-post-storage",
-				WorkflowName: "batch-post-storage",
+				TaskQueue:    childwf.BatchPostStorageName,
+				WorkflowName: childwf.BatchPostStorageName,
 			},
 		},
 	}
@@ -236,41 +236,25 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 	s.env.OnWorkflow(
 		postStorageChildWorkflow,
 		internalCtx,
-		&batch.PostStorageParams{
-			SIPs: []datatypes.SIP{
+		&childwf.BPSParams{
+			Batch: &childwf.BPSBatch{
+				UUID:      batchUUID,
+				SIPSCount: 2,
+			},
+			SIPs: []*childwf.BPSSIP{
 				{
-					UUID:   batchSIP1UUID,
-					Name:   batchSIP1Key,
-					Status: enums.SIPStatusQueued,
-					Batch: &datatypes.Batch{
-						ID:         0,
-						UUID:       batchUUID,
-						Identifier: batchIdentifier,
-						Status:     enums.BatchStatusProcessing,
-						SIPSCount:  2,
-						CreatedAt:  startTime,
-						StartedAt:  startTime,
-					},
+					UUID: batchSIP1UUID,
+					Name: batchSIP1Key,
 				},
 				{
-					UUID:   batchSIP2UUID,
-					Name:   batchSIP2Key,
-					Status: enums.SIPStatusQueued,
-					Batch: &datatypes.Batch{
-						ID:         0,
-						UUID:       batchUUID,
-						Identifier: batchIdentifier,
-						Status:     enums.BatchStatusProcessing,
-						SIPSCount:  2,
-						CreatedAt:  startTime,
-						StartedAt:  startTime,
-					},
+					UUID: batchSIP2UUID,
+					Name: batchSIP2Key,
 				},
 			},
 		},
 	).Return(
-		&batch.PostStorageResult{
-			Status:  batch.PostStorageSuccess,
+		&childwf.Result{
+			Status:  childwf.Success,
 			Message: "Batch post-storage workflow executed successfully",
 		},
 		nil,

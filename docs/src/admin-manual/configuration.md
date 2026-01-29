@@ -1153,9 +1153,14 @@ underlying general Enduro code. For more information, see:
 
 ```toml
 [preprocessing]
-enabled = false
 extract = false
 sharedPath = "/home/enduro/preprocessing"
+
+[[childworkflows]]
+enabled = false
+namespace = "default"
+taskQueue = "preprocessing"
+workflowName = "preprocessing"
 ```
 
 * `enabled`: Boolean value, set to `false` by default. To enable and configure a

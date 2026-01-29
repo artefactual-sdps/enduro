@@ -23,24 +23,16 @@ var _ = Service("about", func() {
 	})
 })
 
-var Preprocessing = ResultType("application/vnd.enduro.preprocessing", func() {
-	Attribute("enabled", Boolean)
-	Attribute("workflow_name", String)
+var ChildWorkflow = ResultType("application/vnd.enduro.childworkflow", func() {
 	Attribute("task_queue", String)
-	Required("enabled", "workflow_name", "task_queue")
-})
-
-var Poststorage = ResultType("application/vnd.enduro.poststorage", func() {
 	Attribute("workflow_name", String)
-	Attribute("task_queue", String)
-	Required("workflow_name", "task_queue")
+	Required("task_queue", "workflow_name")
 })
 
 var About = ResultType("application/vnd.enduro.about", func() {
 	Attribute("version", String)
 	Attribute("preservation_system", String)
-	Attribute("preprocessing", Preprocessing)
-	Attribute("poststorage", CollectionOf(Poststorage))
+	Attribute("child_workflows", CollectionOf(ChildWorkflow))
 	Attribute("upload_max_size", Int64)
-	Required("version", "preservation_system", "preprocessing", "upload_max_size")
+	Required("version", "preservation_system", "upload_max_size")
 })

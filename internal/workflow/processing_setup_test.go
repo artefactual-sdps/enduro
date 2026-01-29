@@ -28,6 +28,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	a3mfake "github.com/artefactual-sdps/enduro/internal/a3m/fake"
 	"github.com/artefactual-sdps/enduro/internal/am"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
@@ -63,6 +64,13 @@ func preprocessingChildWorkflow(
 func poststorageChildWorkflow(
 	ctx temporalsdk_workflow.Context,
 	params *poststorage.WorkflowParams,
+) (*any, error) {
+	return nil, nil
+}
+
+func batchPostStorageChildWorkflow(
+	ctx temporalsdk_workflow.Context,
+	params *childwf.BPSParams,
 ) (*any, error) {
 	return nil, nil
 }
@@ -162,13 +170,12 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	)
 	s.env.RegisterWorkflowWithOptions(
 		poststorageChildWorkflow,
-		temporalsdk_workflow.RegisterOptions{Name: "poststorage_1"},
+		temporalsdk_workflow.RegisterOptions{Name: "poststorage"},
 	)
 	s.env.RegisterWorkflowWithOptions(
-		poststorageChildWorkflow,
-		temporalsdk_workflow.RegisterOptions{Name: "poststorage_2"},
+		batchPostStorageChildWorkflow,
+		temporalsdk_workflow.RegisterOptions{Name: childwf.BatchPostStorageName},
 	)
-
 	s.workflow = NewProcessingWorkflow(cfg, rng, ingestsvc, wsvc)
 }
 
