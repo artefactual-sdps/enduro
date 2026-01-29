@@ -1,6 +1,10 @@
 package design
 
-import . "goa.design/goa/v3/dsl" //nolint:staticcheck
+import (
+	. "goa.design/goa/v3/dsl" //nolint:staticcheck
+
+	"github.com/artefactual-sdps/enduro/internal/enums"
+)
 
 var _ = Service("about", func() {
 	Description("The about service provides information about the system.")
@@ -23,24 +27,23 @@ var _ = Service("about", func() {
 	})
 })
 
-var Preprocessing = ResultType("application/vnd.enduro.preprocessing", func() {
-	Attribute("enabled", Boolean)
-	Attribute("workflow_name", String)
+var ChildWorkflow = ResultType("application/vnd.enduro.childworkflow", func() {
+	Attribute("type", String, func() {
+		EnumChildWorkflowType()
+	})
 	Attribute("task_queue", String)
-	Required("enabled", "workflow_name", "task_queue")
+	Attribute("workflow_name", String)
+	Required("type", "task_queue", "workflow_name")
 })
 
-var Poststorage = ResultType("application/vnd.enduro.poststorage", func() {
-	Attribute("workflow_name", String)
-	Attribute("task_queue", String)
-	Required("workflow_name", "task_queue")
-})
+var EnumChildWorkflowType = func() {
+	Enum(enums.ChildWorkflowTypeInterfaces()...)
+}
 
 var About = ResultType("application/vnd.enduro.about", func() {
 	Attribute("version", String)
 	Attribute("preservation_system", String)
-	Attribute("preprocessing", Preprocessing)
-	Attribute("poststorage", CollectionOf(Poststorage))
+	Attribute("child_workflows", CollectionOf(ChildWorkflow))
 	Attribute("upload_max_size", Int64)
-	Required("version", "preservation_system", "preprocessing", "upload_max_size")
+	Required("version", "preservation_system", "upload_max_size")
 })

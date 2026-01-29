@@ -6,12 +6,7 @@ import { logError } from "@/helpers/logs";
 export const useAboutStore = defineStore("about", {
   state: () => ({
     loaded: false,
-    poststorage: [] as Array<api.EnduroPoststorage>,
-    preprocessing: {
-      enabled: false,
-      taskQueue: "",
-      workflowName: "",
-    },
+    childWorkflows: [] as Array<api.EnduroChildworkflow>,
     preservationSystem: "a3m",
     uploadMaxSize: 0,
     version: "",
@@ -49,11 +44,12 @@ export const useAboutStore = defineStore("about", {
         .aboutAbout()
         .then((resp) => {
           this.loaded = true;
-          this.poststorage = resp.poststorage || [];
-          this.preprocessing = resp.preprocessing;
           this.preservationSystem = resp.preservationSystem;
           this.uploadMaxSize = resp.uploadMaxSize;
           this.version = resp.version;
+          if (resp.childWorkflows) {
+            this.childWorkflows = resp.childWorkflows;
+          }
         })
         .catch((e) => {
           logError(e, "Error fetching about data");

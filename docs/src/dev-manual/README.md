@@ -9,7 +9,6 @@ This is the developer manual for Enduro SDPS.
 - Environment setup
     - [Local/Development environment](devel.md)
     - [Working with Archivematica](archivematica.md)
-    - [Preprocessing child workflow](preprocessing.md)
 - [Logging](logging.md)
 - [Makefile](make.md)
 - Testing

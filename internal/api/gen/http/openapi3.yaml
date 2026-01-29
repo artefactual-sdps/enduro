@@ -20,13 +20,10 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/EnduroAbout'
                             example:
-                                poststorage:
+                                child_workflows:
                                     - task_queue: abc123
+                                      type: poststorage
                                       workflow_name: abc123
-                                preprocessing:
-                                    enabled: false
-                                    task_queue: abc123
-                                    workflow_name: abc123
                                 preservation_system: abc123
                                 upload_max_size: 1
                                 version: abc123
@@ -3361,10 +3358,8 @@ components:
         EnduroAbout:
             type: object
             properties:
-                poststorage:
-                    $ref: '#/components/schemas/EnduroPoststorageCollection'
-                preprocessing:
-                    $ref: '#/components/schemas/EnduroPreprocessing'
+                child_workflows:
+                    $ref: '#/components/schemas/EnduroChildworkflowCollection'
                 preservation_system:
                     type: string
                     example: abc123
@@ -3376,21 +3371,49 @@ components:
                     type: string
                     example: abc123
             example:
-                poststorage:
+                child_workflows:
                     - task_queue: abc123
+                      type: poststorage
                       workflow_name: abc123
-                preprocessing:
-                    enabled: false
-                    task_queue: abc123
-                    workflow_name: abc123
                 preservation_system: abc123
                 upload_max_size: 1
                 version: abc123
             required:
                 - version
                 - preservation_system
-                - preprocessing
                 - upload_max_size
+        EnduroChildworkflow:
+            type: object
+            properties:
+                task_queue:
+                    type: string
+                    example: abc123
+                type:
+                    type: string
+                    example: poststorage
+                    enum:
+                        - preprocessing
+                        - poststorage
+                        - postbatch
+                workflow_name:
+                    type: string
+                    example: abc123
+            example:
+                task_queue: abc123
+                type: poststorage
+                workflow_name: abc123
+            required:
+                - type
+                - task_queue
+                - workflow_name
+        EnduroChildworkflowCollection:
+            type: array
+            items:
+                $ref: '#/components/schemas/EnduroChildworkflow'
+            example:
+                - task_queue: abc123
+                  type: poststorage
+                  workflow_name: abc123
         EnduroIngestBatch:
             type: object
             properties:
@@ -3900,48 +3923,6 @@ components:
                 - limit
                 - offset
                 - total
-        EnduroPoststorage:
-            type: object
-            properties:
-                task_queue:
-                    type: string
-                    example: abc123
-                workflow_name:
-                    type: string
-                    example: abc123
-            example:
-                task_queue: abc123
-                workflow_name: abc123
-            required:
-                - workflow_name
-                - task_queue
-        EnduroPoststorageCollection:
-            type: array
-            items:
-                $ref: '#/components/schemas/EnduroPoststorage'
-            example:
-                - task_queue: abc123
-                  workflow_name: abc123
-        EnduroPreprocessing:
-            type: object
-            properties:
-                enabled:
-                    type: boolean
-                    example: false
-                task_queue:
-                    type: string
-                    example: abc123
-                workflow_name:
-                    type: string
-                    example: abc123
-            example:
-                enabled: false
-                task_queue: abc123
-                workflow_name: abc123
-            required:
-                - enabled
-                - workflow_name
-                - task_queue
         EnduroStorageAip:
             type: object
             properties:

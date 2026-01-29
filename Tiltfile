@@ -67,11 +67,19 @@ if PRES_SYS == 'am':
 # Load Kustomize YAML
 yaml = kustomize(KUBE_OVERLAY)
 
-# Preprocessing
-PREPROCESSING_PATH = os.environ.get("PREPROCESSING_PATH", "")
-if PREPROCESSING_PATH != "":
-  # Load preprocessing Tiltfile for Enduro
-  load_dynamic(PREPROCESSING_PATH + "/Tiltfile.enduro")
+# The CHILD_WORKFLOW_PATHS environment variable is a colon-separated list of 
+# paths to child workflow directories. If set, we load each child workflow's
+# Tiltfile.enduro to load resources required by the workflow (e.g. a Temporal 
+# worker).
+CHILD_WORKFLOW_PATHS = os.environ.get("CHILD_WORKFLOW_PATHS", "")
+if CHILD_WORKFLOW_PATHS != "":
+  for path in CHILD_WORKFLOW_PATHS.split(":"):
+    # Load child workflow Tiltfile for Enduro
+    load_dynamic(path.strip() + "/Tiltfile.enduro")
+
+# The preprocessing child workflow requires extra setup for a shared directory
+MOUNT_PREPROCESSING_VOLUME = os.environ.get("MOUNT_PREPROCESSING_VOLUME", "")
+if MOUNT_PREPROCESSING_VOLUME in true:
   # Get Enduro a3m/am worker k8s manifest
   if PRES_SYS == "a3m":
     pres_yaml, yaml = filter_yaml(yaml, name="^enduro-a3m$", kind="StatefulSet")

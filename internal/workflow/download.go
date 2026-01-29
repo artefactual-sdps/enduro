@@ -36,8 +36,8 @@ func (w *ProcessingWorkflow) downloadSIP(sessCtx temporalsdk_workflow.Context, s
 	}
 
 	var destinationPath string
-	if w.cfg.Preprocessing.Enabled {
-		destinationPath = w.cfg.Preprocessing.SharedPath
+	if cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePreprocessing); cfg != nil {
+		destinationPath = cfg.SharedPath
 	}
 
 	if state.req.WatcherName != "" {

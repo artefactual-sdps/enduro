@@ -213,8 +213,8 @@ application can receive and unpack SIPs, validate any included
 [BagIt bags][bag], and then restructure and deliver the package for
 preservation with either [Archivematica][Archivematica] or [a3m][a3m]. However,
 Enduro's workflows are intended to be customized via the addition of
-**[child workflow activities][child workflow]**, which can be designed to
-implement the specific ingest needs of a given organization.
+**[child workflows]**, which can be designed to implement the specific ingest
+needs of a given organization.
 
 The Enduro project maintains general default workflow activities in a separate
 code repository, called [temporal-activities]. An example set of child workflow
@@ -255,11 +255,11 @@ download activity to fetch the SIP for internal processing.
 
 ### Check for child workflow
 
-Immediately after initial receipt, Enduro next checks to see if a preprocessing
-[child workflow] has been configured. This happens before even attempting
-to [determine the SIP type](#classify-sip-type) because Enduro's SIP types are
-very high-level and generic, and therefore not suitable for the level of
-validation that most organizations using Enduro would want. Instead, we
+Immediately after initial receipt, Enduro next checks to see if a
+[preprocessing child workflow] has been configured. This happens before
+attempting to [determine the SIP type](#classify-sip-type) because Enduro's SIP
+types are very high-level and generic, and therefore not suitable for the level
+of validation that most organizations using Enduro would want. Instead, we
 recommend that organizations using Enduro define one or more specific SIP
 profiles that SIP-submitting producers can use, and then implement custom child
 workflow activities to validate SIPs based on these defined SIP profile
@@ -410,10 +410,11 @@ the workflow.
 [bagcreate]: https://github.com/artefactual-sdps/temporal-activities/blob/main/bagcreate/README.md
 [bagvalidate]: https://github.com/artefactual-sdps/temporal-activities/blob/main/bagvalidate/README.md
 [bucketdownload]: https://github.com/artefactual-sdps/temporal-activities/tree/main/bucketdownload
-[child workflow]: ../../dev-manual/preprocessing.md
+[child workflows]: ../../admin-manual/configuration.md#child-workflows
 [content failure]: ../glossary.md#content-failure
 [PIP]: ../glossary.md#processing-information-package-pip
 [post-storage]: ../glossary.md#post-storage
+[preprocessing child workflow]: ../../admin-manual/configuration.md#preprocessing-child-workflow
 [preprocessing-base]: https://github.com/artefactual-sdps/preprocessing-base
 [preprocessing-sfa]: https://github.com/artefactual-sdps/preprocessing-sfa
 [preservation engine]: ../glossary.md#preservation-engine

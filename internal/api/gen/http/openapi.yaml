@@ -2446,10 +2446,8 @@ definitions:
         title: 'Mediatype identifier: application/vnd.enduro.about; view=default'
         type: object
         properties:
-            poststorage:
-                $ref: '#/definitions/EnduroPoststorageResponseBodyCollection'
-            preprocessing:
-                $ref: '#/definitions/EnduroPreprocessingResponseBody'
+            child_workflows:
+                $ref: '#/definitions/EnduroChildworkflowResponseBodyCollection'
             preservation_system:
                 type: string
                 example: abc123
@@ -2462,21 +2460,53 @@ definitions:
                 example: abc123
         description: AboutResponseBody result type (default view)
         example:
-            poststorage:
+            child_workflows:
                 - task_queue: abc123
+                  type: poststorage
                   workflow_name: abc123
-            preprocessing:
-                enabled: false
-                task_queue: abc123
-                workflow_name: abc123
             preservation_system: abc123
             upload_max_size: 1
             version: abc123
         required:
             - version
             - preservation_system
-            - preprocessing
             - upload_max_size
+    EnduroChildworkflowResponseBody:
+        title: 'Mediatype identifier: application/vnd.enduro.childworkflow; view=default'
+        type: object
+        properties:
+            task_queue:
+                type: string
+                example: abc123
+            type:
+                type: string
+                example: poststorage
+                enum:
+                    - preprocessing
+                    - poststorage
+                    - postbatch
+            workflow_name:
+                type: string
+                example: abc123
+        description: EnduroChildworkflowResponseBody result type (default view)
+        example:
+            task_queue: abc123
+            type: poststorage
+            workflow_name: abc123
+        required:
+            - type
+            - task_queue
+            - workflow_name
+    EnduroChildworkflowResponseBodyCollection:
+        title: 'Mediatype identifier: application/vnd.enduro.childworkflow; type=collection; view=default'
+        type: array
+        items:
+            $ref: '#/definitions/EnduroChildworkflowResponseBody'
+        description: EnduroChildworkflowCollectionResponseBody is the result type for an array of EnduroChildworkflowResponseBody (default view)
+        example:
+            - task_queue: abc123
+              type: poststorage
+              workflow_name: abc123
     EnduroIngestBatch:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.batch; view=default'
         type: object
@@ -2820,54 +2850,6 @@ definitions:
             - limit
             - offset
             - total
-    EnduroPoststorageResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.poststorage; view=default'
-        type: object
-        properties:
-            task_queue:
-                type: string
-                example: abc123
-            workflow_name:
-                type: string
-                example: abc123
-        description: EnduroPoststorageResponseBody result type (default view)
-        example:
-            task_queue: abc123
-            workflow_name: abc123
-        required:
-            - workflow_name
-            - task_queue
-    EnduroPoststorageResponseBodyCollection:
-        title: 'Mediatype identifier: application/vnd.enduro.poststorage; type=collection; view=default'
-        type: array
-        items:
-            $ref: '#/definitions/EnduroPoststorageResponseBody'
-        description: EnduroPoststorageCollectionResponseBody is the result type for an array of EnduroPoststorageResponseBody (default view)
-        example:
-            - task_queue: abc123
-              workflow_name: abc123
-    EnduroPreprocessingResponseBody:
-        title: 'Mediatype identifier: application/vnd.enduro.preprocessing; view=default'
-        type: object
-        properties:
-            enabled:
-                type: boolean
-                example: false
-            task_queue:
-                type: string
-                example: abc123
-            workflow_name:
-                type: string
-                example: abc123
-        description: EnduroPreprocessingResponseBody result type (default view)
-        example:
-            enabled: false
-            task_queue: abc123
-            workflow_name: abc123
-        required:
-            - enabled
-            - workflow_name
-            - task_queue
     EnduroStorageAip:
         title: 'Mediatype identifier: application/vnd.enduro.storage.aip; view=default'
         type: object

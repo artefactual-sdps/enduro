@@ -24,26 +24,19 @@ type EnduroAbout struct {
 type EnduroAboutView struct {
 	Version            *string
 	PreservationSystem *string
-	Preprocessing      *EnduroPreprocessingView
-	Poststorage        EnduroPoststorageCollectionView
+	ChildWorkflows     EnduroChildworkflowCollectionView
 	UploadMaxSize      *int64
 }
 
-// EnduroPreprocessingView is a type that runs validations on a projected type.
-type EnduroPreprocessingView struct {
-	Enabled      *bool
-	WorkflowName *string
-	TaskQueue    *string
-}
-
-// EnduroPoststorageCollectionView is a type that runs validations on a
+// EnduroChildworkflowCollectionView is a type that runs validations on a
 // projected type.
-type EnduroPoststorageCollectionView []*EnduroPoststorageView
+type EnduroChildworkflowCollectionView []*EnduroChildworkflowView
 
-// EnduroPoststorageView is a type that runs validations on a projected type.
-type EnduroPoststorageView struct {
-	WorkflowName *string
+// EnduroChildworkflowView is a type that runs validations on a projected type.
+type EnduroChildworkflowView struct {
+	Type         *string
 	TaskQueue    *string
+	WorkflowName *string
 }
 
 var (
@@ -53,34 +46,26 @@ var (
 		"default": {
 			"version",
 			"preservation_system",
-			"preprocessing",
-			"poststorage",
+			"child_workflows",
 			"upload_max_size",
 		},
 	}
-	// EnduroPreprocessingMap is a map indexing the attribute names of
-	// EnduroPreprocessing by view name.
-	EnduroPreprocessingMap = map[string][]string{
+	// EnduroChildworkflowCollectionMap is a map indexing the attribute names of
+	// EnduroChildworkflowCollection by view name.
+	EnduroChildworkflowCollectionMap = map[string][]string{
 		"default": {
-			"enabled",
-			"workflow_name",
+			"type",
 			"task_queue",
+			"workflow_name",
 		},
 	}
-	// EnduroPoststorageCollectionMap is a map indexing the attribute names of
-	// EnduroPoststorageCollection by view name.
-	EnduroPoststorageCollectionMap = map[string][]string{
+	// EnduroChildworkflowMap is a map indexing the attribute names of
+	// EnduroChildworkflow by view name.
+	EnduroChildworkflowMap = map[string][]string{
 		"default": {
-			"workflow_name",
+			"type",
 			"task_queue",
-		},
-	}
-	// EnduroPoststorageMap is a map indexing the attribute names of
-	// EnduroPoststorage by view name.
-	EnduroPoststorageMap = map[string][]string{
-		"default": {
 			"workflow_name",
-			"task_queue",
 		},
 	}
 )
@@ -109,53 +94,41 @@ func ValidateEnduroAboutView(result *EnduroAboutView) (err error) {
 	if result.UploadMaxSize == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("upload_max_size", "result"))
 	}
-	if result.Preprocessing != nil {
-		if err2 := ValidateEnduroPreprocessingView(result.Preprocessing); err2 != nil {
-			err = goa.MergeErrors(err, err2)
-		}
-	}
-	if result.Poststorage != nil {
-		if err2 := ValidateEnduroPoststorageCollectionView(result.Poststorage); err2 != nil {
+	if result.ChildWorkflows != nil {
+		if err2 := ValidateEnduroChildworkflowCollectionView(result.ChildWorkflows); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateEnduroPreprocessingView runs the validations defined on
-// EnduroPreprocessingView using the "default" view.
-func ValidateEnduroPreprocessingView(result *EnduroPreprocessingView) (err error) {
-	if result.Enabled == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("enabled", "result"))
-	}
-	if result.WorkflowName == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_name", "result"))
-	}
-	if result.TaskQueue == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("task_queue", "result"))
-	}
-	return
-}
-
-// ValidateEnduroPoststorageCollectionView runs the validations defined on
-// EnduroPoststorageCollectionView using the "default" view.
-func ValidateEnduroPoststorageCollectionView(result EnduroPoststorageCollectionView) (err error) {
+// ValidateEnduroChildworkflowCollectionView runs the validations defined on
+// EnduroChildworkflowCollectionView using the "default" view.
+func ValidateEnduroChildworkflowCollectionView(result EnduroChildworkflowCollectionView) (err error) {
 	for _, item := range result {
-		if err2 := ValidateEnduroPoststorageView(item); err2 != nil {
+		if err2 := ValidateEnduroChildworkflowView(item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
 	return
 }
 
-// ValidateEnduroPoststorageView runs the validations defined on
-// EnduroPoststorageView using the "default" view.
-func ValidateEnduroPoststorageView(result *EnduroPoststorageView) (err error) {
-	if result.WorkflowName == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_name", "result"))
+// ValidateEnduroChildworkflowView runs the validations defined on
+// EnduroChildworkflowView using the "default" view.
+func ValidateEnduroChildworkflowView(result *EnduroChildworkflowView) (err error) {
+	if result.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "result"))
 	}
 	if result.TaskQueue == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("task_queue", "result"))
+	}
+	if result.WorkflowName == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_name", "result"))
+	}
+	if result.Type != nil {
+		if !(*result.Type == "preprocessing" || *result.Type == "poststorage" || *result.Type == "postbatch") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.type", *result.Type, []any{"preprocessing", "poststorage", "postbatch"}))
+		}
 	}
 	return
 }

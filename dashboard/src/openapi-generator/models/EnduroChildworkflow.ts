@@ -16,50 +16,70 @@ import { exists, mapValues } from '../runtime';
 /**
  * 
  * @export
- * @interface EnduroPoststorage
+ * @interface EnduroChildworkflow
  */
-export interface EnduroPoststorage {
+export interface EnduroChildworkflow {
     /**
      * 
      * @type {string}
-     * @memberof EnduroPoststorage
+     * @memberof EnduroChildworkflow
      */
     taskQueue: string;
     /**
      * 
      * @type {string}
-     * @memberof EnduroPoststorage
+     * @memberof EnduroChildworkflow
+     */
+    type: EnduroChildworkflowTypeEnum;
+    /**
+     * 
+     * @type {string}
+     * @memberof EnduroChildworkflow
      */
     workflowName: string;
 }
 
+
 /**
- * Check if a given object implements the EnduroPoststorage interface.
+ * @export
  */
-export function instanceOfEnduroPoststorage(value: object): boolean {
+export const EnduroChildworkflowTypeEnum = {
+    Preprocessing: 'preprocessing',
+    Poststorage: 'poststorage',
+    Postbatch: 'postbatch'
+} as const;
+export type EnduroChildworkflowTypeEnum = typeof EnduroChildworkflowTypeEnum[keyof typeof EnduroChildworkflowTypeEnum];
+
+
+/**
+ * Check if a given object implements the EnduroChildworkflow interface.
+ */
+export function instanceOfEnduroChildworkflow(value: object): boolean {
     let isInstance = true;
     isInstance = isInstance && "taskQueue" in value;
+    isInstance = isInstance && "type" in value;
     isInstance = isInstance && "workflowName" in value;
 
     return isInstance;
 }
 
-export function EnduroPoststorageFromJSON(json: any): EnduroPoststorage {
-    return EnduroPoststorageFromJSONTyped(json, false);
+export function EnduroChildworkflowFromJSON(json: any): EnduroChildworkflow {
+    return EnduroChildworkflowFromJSONTyped(json, false);
 }
 
-export function EnduroPoststorageFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroPoststorage {
+export function EnduroChildworkflowFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroChildworkflow {
     if ((json === undefined) || (json === null)) {
         return json;
     }
     return {
         
         'taskQueue': json['task_queue'],
+        'type': json['type'],
         'workflowName': json['workflow_name'],
     };
 }
 
-export function EnduroPoststorageToJSON(value?: EnduroPoststorage | null): any {
+export function EnduroChildworkflowToJSON(value?: EnduroChildworkflow | null): any {
     if (value === undefined) {
         return undefined;
     }
@@ -69,6 +89,7 @@ export function EnduroPoststorageToJSON(value?: EnduroPoststorage | null): any {
     return {
         
         'task_queue': value.taskQueue,
+        'type': value.type,
         'workflow_name': value.workflowName,
     };
 }

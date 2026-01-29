@@ -61,8 +61,8 @@ packages in the `internal` directory have configurable settings found here.
 
 !!! tip
 
-    Note that some [child workflow](../dev-manual/preprocessing.md) activities
-    may have their own configuration files.
+    Note that some [child workflow] activities may have their own configuration
+    files.
 
     For example, see the
     [ffvalidate](https://github.com/artefactual-sdps/temporal-activities/tree/main/ffvalidate)
@@ -1138,115 +1138,134 @@ samplingRatio = 1.0
   reduced to 0.5 (i.e. 50% sampling ratio), then a single event that occurs 10
   times would only be logged 5 times in the resulting trace data.
 
-### Preprocessing child workflow configuration
+### Child workflows
 
-The following two sections are for configuring a [child workflow] as part of the
-ingest workflow run by Enduro. A child workflow is a concept borrowed from
-Enduro's [workflow engine], [Temporal] where one workflow spawns an ancillary
-workflow. We use this model in Enduro to keep custom activities with
-organization-specific business rules or policy requirements separated from the
-underlying general Enduro code. For more information, see:
+A child workflow is a concept borrowed from Enduro's [workflow engine],
+[Temporal] where one workflow spawns an ancillary workflow. We use this model in
+Enduro to keep custom activities with organization specific business rules or
+policy requirements separated from the underlying general Enduro code.
 
-* [Preprocessing child workflow](../dev-manual/preprocessing.md)
+All child workflow configurations share four common settings: `type`,
+`namespace`, `taskQueue`, and `workflowName`.  An example configuration for the
+poststorage child workflow is shown below.
 
-**Default values**:
+!!! note
 
-```toml
-[preprocessing]
-enabled = false
-extract = false
-sharedPath = "/home/enduro/preprocessing"
-```
+    The `childWorkflows` configuration block can be repeated more than once to
+    add multiple child workflows. This is why the `childWorkflows` header is in
+    double brackets rather than single brackets like other configuration blocks.
 
-* `enabled`: Boolean value, set to `false` by default. To enable and configure a
-  custom child workflow, change to `true`.
-* `extract`: Boolean value, set to `false` by default. This setting determines
-  whether SIP extraction happens as part of the child workflow or not. When set
-  to false, SIP extraction will occur in the parent Enduro workflow before the
-  child workflow is run. In some cases, you may wish to design custom child
-  workflow activities that perform operations on the SIP before it is extracted:
-  for example, calculating a checksum of the zipped package to check for prior
-  duplicate ingests before proceeding. When this value is set to `true` Enduro
-  will skip the extraction task at the beginning of the ingest workflow,
-  allowing you to define when and how extraction occurs in the child workflow.
-* `sharedPath`: The absolute path to the directory that Enduro should use to
-  share the SIP between the primary ingest workflow and the configured
-  preprocessing child workflow. This path is required when `enabled` is set to
-  true.
-
-#### Temporal workflow configuration for preprocessing workflow
-
-These settings ensure that Enduro can connect with [Temporal] and trigger the
-configured [child workflow].
-
-**Default values**:
+**Example configuration**:
 
 ```toml
-[preprocessing.temporal]
+[[childWorkflows]]
+type = "poststorage"
 namespace = "default"
-taskQueue = "preprocessing"
-workflowName = "preprocessing"
+taskQueue = "poststorage"
+workflowName = "poststrage"
 ```
 
+* `type`: The type of child workflow. Type is used to load the correct child
+  workflow configuration in Enduro so only one child workflow of each type may
+  be configured for any instance of Enduro. If multiple child workflows have
+  the same type, an error will be thrown when the configuration is validated.
 * `namespace`: An internal namespace label for the Temporal workflows. This only
   needs to be changed if you expect to be running multiple different workflows
-  running at once, so they don't clash.
+  at once, so they don't clash.
 * `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
   allocated queue that one or more workers can poll for tasks. Temporal supports
   many kinds of parallelization for a distributed application architecture, and
-  and task queues can be namespaced to support such a set-up. The default value
-  of `preprocessing` here differentiates it from the general `global` task queue
+  and task queues can be namespaced to support such a set-up. The value of
+  `poststorage` here differentiates it from the general `global` task queue
   used by Enduro, and ensures that Enduro looks for child workflow tasks in a
   dedicated queue.
 * `workflowName`: The name of the configured [child workflow] in Temporal.
 
-### Post-storage workflow configuration
+All `[[childWorkflows]]` configuration sections are commented out at Enduro
+installation, disabling the child workflows. Uncomment the relevant
+configuration section to enable a child workflow, adjusting the settings as
+necessary for your environment.
 
-In addition to configuring a [child workflow] for custom ingest processing
-tasks, Enduro can also run additional child workflows for [post-storage]
-processing when properly configured.
+If you are running child workflows in development see the [Tilt environment
+configuration] documentation for instructions on configuring Tilt to run the
+child workflow workers and load any other required resources.
 
-Post-storage is a phase in an ingest or preservation workflow describing all the
-preservation policy-defined tasks performed on an [AIP] following
+#### Preprocessing child workflow
+
+The preprocessing child workflow is run before preservation processing by a
+preservation engine (Archivematica or a3m). A preprocessing workflow can support
+automated tasks such as validation and transformation of the SIP to meet
+organization specific expectations and standards before preservation.
+
+The preprocessing configuration supports two parameters in addition
+to the common child workflow settings: `extract` and `sharedPath`.
+
+**Example configuration**:
+
+```toml
+[[childWorkflows]]
+type = "preprocessing"
+namespace = "default"
+taskQueue = "preprocessing"
+workflowName = "preprocessing"
+extract = true
+sharedPath = "/home/enduro/preprocessing"
+```
+
+* `extract`: Boolean value, set to `false` by default. This setting determines
+  whether SIP extraction happens as part of the preprocessing child workflow or
+  not. When set to false, SIP extraction will occur in the parent Enduro
+  workflow before the child workflow is run. In some cases, you may wish to
+  design custom child workflow activities that perform operations on the SIP
+  before it is extracted: for example, calculating a checksum of the zipped
+  package to check for prior duplicate ingests before proceeding. When this
+  value is set to `true` Enduro will skip the extraction task at the beginning
+  of the ingest workflow, allowing you to define when and how extraction occurs
+  in the child workflow.
+* `sharedPath`: The absolute path to the directory that Enduro should use to
+  share the SIP between the primary ingest workflow and the configured
+  preprocessing child workflow. A `sharedPath` is required for the preprocessing
+  workflow because it requires access to the SIP for validation and
+  transformation activities.
+
+See the [Tilt environment configuration] documentation for instructions on
+configuring Tilt to run the preprocessing worker and provision the shared path
+volume in the Enduro development environment.
+
+#### Poststorage child workflow
+
+[Post-storage] is a phase in an ingest or preservation workflow describing all
+the preservation policy-defined tasks performed on an [AIP] following
 preservation processing and AIP storage. Post-storage task examples might
 include metadata extraction and delivery to an external system (such as an
 archival management system), AIP encryption or replication, and more.
 
-These settings can be used to enable and configure post-storage child workflows
-for Enduro, which will be run after AIP creation and storage following a
-successful ingest. At installation this section is commented out to render it
-inactive - remove the `#` hash symbol from the start of each line to enable this
-section as you configure the values.
-
-!!! note
-
-    The post-storage configuration block can be repeated more than once to add
-    multiple post-storage child workflows. This is why the `poststorage` header
-    is in double brackets rather than single brackets like other configuration
-    blocks.
-
-**Default values**:
+**Example configuration**:
 
 ```toml
-# [[poststorage]]
-# namespace = "default"
-# taskQueue = "poststorage"
-# workflowName = "poststorage"
+[[childWorkflows]]
+type = "poststorage"
+namespace = "default"
+taskQueue = "poststorage"
+workflowName = "poststorage"
 ```
 
-* `namespace`: An internal namespace label for the Temporal workflows. This only
-  needs to be changed if you expect to be running multiple different workflows
-  running at once, so they don't clash.
-* `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
-  allocated queue that one or more workers can poll for tasks. Temporal supports
-  many kinds of parallelization for a distributed application architecture, and
-  and task queues can be namespaced to support such a set-up. The default value
-  of `poststorage` here differentiates it from the general `global` task queue
-  used by Enduro and the `preprocessing` task queue default used for custom
-  ingest child workflows (see
-  [above](#preprocessing-child-workflow-configuration)), and ensures that Enduro
-  looks for post-storage child workflow tasks in a dedicated queue.
-* `workflowName`: The name of the configured [child workflow] in Temporal.
+#### Postbatch child workflow
+
+A postbatch child workflow runs after multiple SIPs are ingested and stored
+using the batch ingest functionality of Enduro. The postbatch workflow can be
+used to report the results of a batch ingest, for instance creating a report
+that collates SIP and AIP data for all of the SIPs in a batch.
+
+**Example configuration**:
+
+```toml
+[[childWorkflows]]
+type = "postbatch"
+namespace = "default"
+taskQueue = "postbatch"
+workflowName = "postbatch"
+```
 
 [a3m]: https://github.com/artefactual-labs/a3m
 [ABAC]: https://en.wikipedia.org/wiki/Attribute-based_access_control
@@ -1259,7 +1278,6 @@ section as you configure the values.
 [BagIt]: https://www.rfc-editor.org/rfc/rfc8493
 [child workflow]: ../user-manual/glossary.md#child-workflow
 [components]: ../user-manual/components.md
-[content failures]: ../user-manual/glossary.md#content-failure
 [CORS]: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 [Dashboard configuration]: ../admin-manual/dashboard-config.md
 [Gibibytes]: https://www.difference.wiki/gigabyte-vs-gibibyte/
@@ -1285,6 +1303,7 @@ section as you configure the values.
 [system errors]: ../user-manual/glossary.md#system-error
 [Task Queue]: https://docs.temporal.io/task-queue
 [Temporal]: https://temporal.io
+[tilt environment configuration]: ../dev-manual/devel.md#tilt-environment-configuration
 [upload-ui]: ../user-manual/ingest/submitting-content.md#upload-sips-via-the-user-interface
 [version 4 UUID]: https://www.rfc-editor.org/rfc/rfc9562.html#name-uuid-version-4
 [watched-location]: ../user-manual/ingest/submitting-content.md#initiate-ingest-via-a-watched-location-upload

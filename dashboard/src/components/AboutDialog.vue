@@ -75,31 +75,16 @@ useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
                 {{ aboutStore.preservationSystem }}
               </div>
             </div>
-            <div v-if="aboutStore.preprocessing.enabled" class="row">
+            <div v-if="aboutStore.childWorkflows.length" class="row">
               <div
                 class="col-12 col-sm-6 text-primary fw-bold text-sm-end text-truncate"
               >
-                Preprocessing workflow:
-              </div>
-              <div class="col-12 col-sm-6 text-truncate">
-                {{ aboutStore.preprocessing.workflowName }}
-              </div>
-            </div>
-            <div
-              v-if="aboutStore.poststorage && aboutStore.poststorage.length > 0"
-              class="row"
-            >
-              <div
-                class="col-12 col-sm-6 text-primary fw-bold text-sm-end text-truncate"
-              >
-                Poststorage workflows:
+                Child workflows:
               </div>
               <div class="col-12 col-sm-6 d-flex flex-column text-truncate">
-                <span
-                  v-for="ps in aboutStore.poststorage"
-                  :key="ps.taskQueue + '-' + ps.workflowName"
-                  >{{ ps.workflowName }}</span
-                >
+                <span v-for="cw in aboutStore.childWorkflows" :key="cw.type">{{
+                  cw.workflowName
+                }}</span>
               </div>
             </div>
           </div>

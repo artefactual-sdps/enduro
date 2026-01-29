@@ -16,30 +16,22 @@ import (
 // AboutResponseBody is the type of the "about" service "about" endpoint HTTP
 // response body.
 type AboutResponseBody struct {
-	Version            string                                  `form:"version" json:"version" xml:"version"`
-	PreservationSystem string                                  `form:"preservation_system" json:"preservation_system" xml:"preservation_system"`
-	Preprocessing      *EnduroPreprocessingResponseBody        `form:"preprocessing" json:"preprocessing" xml:"preprocessing"`
-	Poststorage        EnduroPoststorageResponseBodyCollection `form:"poststorage,omitempty" json:"poststorage,omitempty" xml:"poststorage,omitempty"`
-	UploadMaxSize      int64                                   `form:"upload_max_size" json:"upload_max_size" xml:"upload_max_size"`
+	Version            string                                    `form:"version" json:"version" xml:"version"`
+	PreservationSystem string                                    `form:"preservation_system" json:"preservation_system" xml:"preservation_system"`
+	ChildWorkflows     EnduroChildworkflowResponseBodyCollection `form:"child_workflows,omitempty" json:"child_workflows,omitempty" xml:"child_workflows,omitempty"`
+	UploadMaxSize      int64                                     `form:"upload_max_size" json:"upload_max_size" xml:"upload_max_size"`
 }
 
-// EnduroPreprocessingResponseBody is used to define fields on response body
-// types.
-type EnduroPreprocessingResponseBody struct {
-	Enabled      bool   `form:"enabled" json:"enabled" xml:"enabled"`
-	WorkflowName string `form:"workflow_name" json:"workflow_name" xml:"workflow_name"`
-	TaskQueue    string `form:"task_queue" json:"task_queue" xml:"task_queue"`
-}
+// EnduroChildworkflowResponseBodyCollection is used to define fields on
+// response body types.
+type EnduroChildworkflowResponseBodyCollection []*EnduroChildworkflowResponseBody
 
-// EnduroPoststorageResponseBodyCollection is used to define fields on response
-// body types.
-type EnduroPoststorageResponseBodyCollection []*EnduroPoststorageResponseBody
-
-// EnduroPoststorageResponseBody is used to define fields on response body
+// EnduroChildworkflowResponseBody is used to define fields on response body
 // types.
-type EnduroPoststorageResponseBody struct {
-	WorkflowName string `form:"workflow_name" json:"workflow_name" xml:"workflow_name"`
+type EnduroChildworkflowResponseBody struct {
+	Type         string `form:"type" json:"type" xml:"type"`
 	TaskQueue    string `form:"task_queue" json:"task_queue" xml:"task_queue"`
+	WorkflowName string `form:"workflow_name" json:"workflow_name" xml:"workflow_name"`
 }
 
 // NewAboutResponseBody builds the HTTP response body from the result of the
@@ -50,13 +42,10 @@ func NewAboutResponseBody(res *aboutviews.EnduroAboutView) *AboutResponseBody {
 		PreservationSystem: *res.PreservationSystem,
 		UploadMaxSize:      *res.UploadMaxSize,
 	}
-	if res.Preprocessing != nil {
-		body.Preprocessing = marshalAboutviewsEnduroPreprocessingViewToEnduroPreprocessingResponseBody(res.Preprocessing)
-	}
-	if res.Poststorage != nil {
-		body.Poststorage = make([]*EnduroPoststorageResponseBody, len(res.Poststorage))
-		for i, val := range res.Poststorage {
-			body.Poststorage[i] = marshalAboutviewsEnduroPoststorageViewToEnduroPoststorageResponseBody(val)
+	if res.ChildWorkflows != nil {
+		body.ChildWorkflows = make([]*EnduroChildworkflowResponseBody, len(res.ChildWorkflows))
+		for i, val := range res.ChildWorkflows {
+			body.ChildWorkflows[i] = marshalAboutviewsEnduroChildworkflowViewToEnduroChildworkflowResponseBody(val)
 		}
 	}
 	return body
