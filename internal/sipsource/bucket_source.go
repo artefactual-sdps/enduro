@@ -133,6 +133,10 @@ func (s *BucketSource) ListObjects(ctx context.Context, opts ListOptions) (*Page
 		page = objects[first : first+opts.Limit]
 	}
 
+	if len(page) == 0 {
+		return nil, nil
+	}
+
 	// The next token is the key of the last object of the page.
 	next := []byte(page[len(page)-1].Key)
 

@@ -932,18 +932,9 @@ func TestListSIPSourceObjects(t *testing.T) {
 					sipsource.ListOptions{
 						Sort: sipsource.SortByModTime().Desc(),
 					},
-				).Return(
-					&sipsource.Page{
-						Objects: []*sipsource.Object{},
-						Limit:   100,
-					},
-					nil,
-				)
+				).Return(nil, nil)
 			},
-			want: &goaingest.SIPSourceObjects{
-				Objects: goaingest.SIPSourceObjectCollection{},
-				Limit:   100,
-			},
+			want: &goaingest.SIPSourceObjects{},
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

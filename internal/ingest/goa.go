@@ -301,6 +301,10 @@ func (w *ingestImpl) ListSipSourceObjects(
 		return nil, goaingest.MakeInternalError(errors.New("internal error"))
 	}
 
+	if page == nil {
+		return &goaingest.SIPSourceObjects{}, nil
+	}
+
 	res := &goaingest.SIPSourceObjects{
 		Objects: sipSourceObjectsToGoa(page.Objects),
 		Limit:   page.Limit,
