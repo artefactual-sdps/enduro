@@ -14,9 +14,6 @@ Check the [Tilt environment configuration].
 ```toml
 # Optional preprocessing child workflow configuration.
 [preprocessing]
-# enabled triggers the execution of the child workflow, when set to false all other
-# options are ignored.
-enabled = true
 # extract determines if the SIP extraction happens on the child workflow.
 extract = false
 # sharedPath is the full path to the directory used to share the SIP between workflows,
@@ -25,7 +22,10 @@ sharedPath = "/home/enduro/preprocessing"
 
 # Temporal configuration to trigger the preprocessing child workflow, all fields are
 # required when enabled is set to true.
-[preprocessing.temporal]
+[[childworkflows]]
+# enabled triggers the execution of the child workflow, when set to false all other
+# options are ignored.
+enabled = true
 namespace = "default"
 taskQueue = "preprocessing"
 workflowName = "preprocessing"

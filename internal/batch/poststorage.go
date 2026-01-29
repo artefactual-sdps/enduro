@@ -4,6 +4,8 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 )
 
+const PostStorageWorkflowName = "batch-poststorage"
+
 type PostStorageResultStatus int
 
 // PostStorageResultStatus is a status code indicating the overall result of the

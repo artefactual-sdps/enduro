@@ -15,6 +15,7 @@ import (
 	"go.uber.org/mock/gomock"
 
 	"github.com/artefactual-sdps/enduro/internal/batch"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -67,12 +68,11 @@ func (s *BatchWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration) {
 		activities.NewPollSIPStatusesActivity(ingestsvc, time.Microsecond).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.PollSIPStatusesActivityName},
 	)
-	if cfg.Batch.Poststorage != nil {
-		s.env.RegisterWorkflowWithOptions(
-			postStorageChildWorkflow,
-			temporalsdk_workflow.RegisterOptions{Name: cfg.Batch.Poststorage.WorkflowName},
-		)
-	}
+
+	s.env.RegisterWorkflowWithOptions(
+		postStorageChildWorkflow,
+		temporalsdk_workflow.RegisterOptions{Name: batch.PostStorageWorkflowName},
+	)
 
 	s.workflow = NewBatchWorkflow(cfg, rng, ingestsvc, nil)
 }
@@ -95,7 +95,7 @@ func (s *BatchWorkflowTestSuite) processingChildWorkflow(
 func postStorageChildWorkflow(
 	ctx temporalsdk_workflow.Context,
 	params *batch.PostStorageParams,
-) (*batch.PostStorageResult, error) {
+) (*childwf.Result, error) {
 	return nil, nil
 }
 
@@ -144,11 +144,12 @@ func TestBatchWorkflow(t *testing.T) {
 // - Run post-storage child workflows.
 func (s *BatchWorkflowTestSuite) TestBatch() {
 	cfg := config.Configuration{
-		Batch: batch.Config{
-			Poststorage: &batch.PostStorageConfig{
+		Childworkflows: childwf.Configs{
+			{
+				Enabled:      true,
 				Namespace:    "default",
-				TaskQueue:    "batch-post-storage",
-				WorkflowName: "batch-post-storage",
+				TaskQueue:    batch.PostStorageWorkflowName,
+				WorkflowName: batch.PostStorageWorkflowName,
 			},
 		},
 	}
@@ -243,7 +244,6 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 					Name:   batchSIP1Key,
 					Status: enums.SIPStatusQueued,
 					Batch: &datatypes.Batch{
-						ID:         0,
 						UUID:       batchUUID,
 						Identifier: batchIdentifier,
 						Status:     enums.BatchStatusProcessing,
@@ -257,7 +257,6 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 					Name:   batchSIP2Key,
 					Status: enums.SIPStatusQueued,
 					Batch: &datatypes.Batch{
-						ID:         0,
 						UUID:       batchUUID,
 						Identifier: batchIdentifier,
 						Status:     enums.BatchStatusProcessing,
@@ -269,8 +268,8 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 			},
 		},
 	).Return(
-		&batch.PostStorageResult{
-			Status:  batch.PostStorageSuccess,
+		&childwf.Result{
+			Status:  childwf.Success,
 			Message: "Batch post-storage workflow executed successfully",
 		},
 		nil,

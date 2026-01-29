@@ -12,6 +12,7 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/batch"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -147,10 +148,8 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 	}
 
 	// Run post-storage child workflow, if one is configured.
-	if w.cfg.Batch.Poststorage != nil {
-		if err := w.postStorageWorkflow(ctx, *w.cfg.Batch.Poststorage, state); err != nil {
-			return err
-		}
+	if err := w.postStorageWorkflow(ctx, state); err != nil {
+		return err
 	}
 
 	// TODO: handle retention period.
@@ -315,9 +314,13 @@ func (w *BatchWorkflow) waitForWorkflowsCompletion(ctx temporalsdk_workflow.Cont
 
 func (w *BatchWorkflow) postStorageWorkflow(
 	ctx temporalsdk_workflow.Context,
-	cfg batch.PostStorageConfig,
 	state *batchWorkflowState,
 ) error {
+	cfg := w.cfg.Childworkflows.GetByName(batch.PostStorageWorkflowName)
+	if cfg == nil || !cfg.Enabled {
+		return nil
+	}
+
 	state.logger.Info(
 		"Starting post-storage workflow",
 		"Batch ID", state.batch.UUID.String(),
@@ -334,11 +337,13 @@ func (w *BatchWorkflow) postStorageWorkflow(
 		},
 	)
 
-	var res batch.PostStorageResult
+	var res childwf.Result
 	err := temporalsdk_workflow.ExecuteChildWorkflow(
 		childCtx,
 		cfg.WorkflowName,
-		&batch.PostStorageParams{SIPs: state.SIPs()},
+		&batch.PostStorageParams{
+			SIPs: state.SIPs(),
+		},
 	).Get(childCtx, &res)
 	if err != nil {
 		return fmt.Errorf("batch %q post-storage workflow: %v", state.batch.UUID.String(), err)

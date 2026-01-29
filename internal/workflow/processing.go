@@ -367,7 +367,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	}
 
 	// Unarchive the transfer if it's not a directory and it's not part of the preprocessing child workflow.
-	if !state.sip.isDir && (!w.cfg.Preprocessing.Enabled || !w.cfg.Preprocessing.Extract) {
+	if !state.sip.isDir && (!w.cfg.Childworkflows.IsEnabled("preprocessing") || !w.cfg.Preprocessing.Extract) {
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
 		var result archiveextract.Result
 		err := temporalsdk_workflow.ExecuteActivity(
@@ -410,7 +410,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	}
 
 	// Stop the workflow if preprocessing returned a SIP path that is not a BagIt Bag.
-	if state.sip.sipType != enums.SIPTypeBagIt && w.cfg.Preprocessing.Enabled {
+	if state.sip.sipType != enums.SIPTypeBagIt && w.cfg.Childworkflows.IsEnabled("preprocessing") {
 		return errors.New("preprocessing returned a path that is not a BagIt Bag")
 	}
 
@@ -1007,7 +1007,8 @@ func (w *ProcessingWorkflow) transferAM(
 }
 
 func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, state *workflowState) error {
-	if !w.cfg.Preprocessing.Enabled {
+	cfg := w.cfg.Childworkflows.GetByName("preprocessing")
+	if cfg == nil || !cfg.Enabled {
 		return nil
 	}
 
@@ -1018,15 +1019,15 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 	}
 
 	preCtx := temporalsdk_workflow.WithChildOptions(ctx, temporalsdk_workflow.ChildWorkflowOptions{
-		Namespace:         w.cfg.Preprocessing.Temporal.Namespace,
-		TaskQueue:         w.cfg.Preprocessing.Temporal.TaskQueue,
-		WorkflowID:        fmt.Sprintf("%s-%s", w.cfg.Preprocessing.Temporal.WorkflowName, state.sip.uuid.String()),
+		Namespace:         cfg.Namespace,
+		TaskQueue:         cfg.TaskQueue,
+		WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, state.sip.uuid.String()),
 		ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,
 	})
 	var ppResult preprocessing.WorkflowResult
 	err = temporalsdk_workflow.ExecuteChildWorkflow(
 		preCtx,
-		w.cfg.Preprocessing.Temporal.WorkflowName,
+		cfg.WorkflowName,
 		preprocessing.WorkflowParams{RelativePath: relPath},
 	).Get(preCtx, &ppResult)
 	if err != nil {
@@ -1078,28 +1079,26 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 // a disconnected context, abandon as parent close policy and only waits
 // until the workflows are started, ignoring their results.
 func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, aipUUID string) error {
-	var err error
-	disconnectedCtx, _ := temporalsdk_workflow.NewDisconnectedContext(ctx)
-
-	for _, cfg := range w.cfg.Poststorage {
-		psCtx := temporalsdk_workflow.WithChildOptions(
-			disconnectedCtx,
-			temporalsdk_workflow.ChildWorkflowOptions{
-				Namespace:         cfg.Namespace,
-				TaskQueue:         cfg.TaskQueue,
-				WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, aipUUID),
-				ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_ABANDON,
-			},
-		)
-		err = errors.Join(
-			err,
-			temporalsdk_workflow.ExecuteChildWorkflow(
-				psCtx,
-				cfg.WorkflowName,
-				poststorage.WorkflowParams{AIPUUID: aipUUID},
-			).GetChildWorkflowExecution().Get(psCtx, nil),
-		)
+	cfg := w.cfg.Childworkflows.GetByName("poststorage")
+	if cfg == nil || !cfg.Enabled {
+		return nil
 	}
+
+	ctx, _ = temporalsdk_workflow.NewDisconnectedContext(ctx)
+	ctx = temporalsdk_workflow.WithChildOptions(
+		ctx,
+		temporalsdk_workflow.ChildWorkflowOptions{
+			Namespace:         cfg.Namespace,
+			TaskQueue:         cfg.TaskQueue,
+			WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, aipUUID),
+			ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_ABANDON,
+		},
+	)
+	err := temporalsdk_workflow.ExecuteChildWorkflow(
+		ctx,
+		cfg.WorkflowName,
+		poststorage.WorkflowParams{AIPUUID: aipUUID},
+	).GetChildWorkflowExecution().Get(ctx, nil)
 
 	return err
 }

@@ -27,6 +27,7 @@ models/CreateLocationRequestBody.ts
 models/CreateLocationRequestBodyConfig.ts
 models/CreateLocationResult.ts
 models/EnduroAbout.ts
+models/EnduroChildworkflow.ts
 models/EnduroIngestBatch.ts
 models/EnduroIngestBatches.ts
 models/EnduroIngestSip.ts
@@ -39,8 +40,6 @@ models/EnduroIngestSipsourceObjects.ts
 models/EnduroIngestUser.ts
 models/EnduroIngestUsers.ts
 models/EnduroPage.ts
-models/EnduroPoststorage.ts
-models/EnduroPreprocessing.ts
 models/EnduroStorageAip.ts
 models/EnduroStorageAipTask.ts
 models/EnduroStorageAipWorkflow.ts
