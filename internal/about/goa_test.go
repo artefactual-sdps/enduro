@@ -16,7 +16,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaabout "github.com/artefactual-sdps/enduro/internal/api/gen/about"
-	"github.com/artefactual-sdps/enduro/internal/batch"
 	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -153,8 +152,8 @@ func TestAbout(t *testing.T) {
 					{
 						Enabled:      false,
 						Namespace:    "default",
-						TaskQueue:    batch.PostStorageWorkflowName,
-						WorkflowName: batch.PostStorageWorkflowName,
+						TaskQueue:    childwf.BatchPostStorageName,
+						WorkflowName: childwf.BatchPostStorageName,
 					},
 				},
 				Preprocessing: preprocessing.Config{

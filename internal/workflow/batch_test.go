@@ -14,7 +14,6 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 	"go.uber.org/mock/gomock"
 
-	"github.com/artefactual-sdps/enduro/internal/batch"
 	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
@@ -71,7 +70,7 @@ func (s *BatchWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration) {
 
 	s.env.RegisterWorkflowWithOptions(
 		postStorageChildWorkflow,
-		temporalsdk_workflow.RegisterOptions{Name: batch.PostStorageWorkflowName},
+		temporalsdk_workflow.RegisterOptions{Name: childwf.BatchPostStorageName},
 	)
 
 	s.workflow = NewBatchWorkflow(cfg, rng, ingestsvc, nil)
@@ -94,7 +93,7 @@ func (s *BatchWorkflowTestSuite) processingChildWorkflow(
 // mock in test.
 func postStorageChildWorkflow(
 	ctx temporalsdk_workflow.Context,
-	params *batch.PostStorageParams,
+	params *childwf.BPSParams,
 ) (*childwf.Result, error) {
 	return nil, nil
 }
@@ -148,8 +147,8 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 			{
 				Enabled:      true,
 				Namespace:    "default",
-				TaskQueue:    batch.PostStorageWorkflowName,
-				WorkflowName: batch.PostStorageWorkflowName,
+				TaskQueue:    childwf.BatchPostStorageName,
+				WorkflowName: childwf.BatchPostStorageName,
 			},
 		},
 	}
@@ -237,33 +236,19 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 	s.env.OnWorkflow(
 		postStorageChildWorkflow,
 		internalCtx,
-		&batch.PostStorageParams{
-			SIPs: []datatypes.SIP{
+		&childwf.BPSParams{
+			Batch: &childwf.BPSBatch{
+				UUID:      batchUUID,
+				SIPSCount: 2,
+			},
+			SIPs: []*childwf.BPSSIP{
 				{
-					UUID:   batchSIP1UUID,
-					Name:   batchSIP1Key,
-					Status: enums.SIPStatusQueued,
-					Batch: &datatypes.Batch{
-						UUID:       batchUUID,
-						Identifier: batchIdentifier,
-						Status:     enums.BatchStatusProcessing,
-						SIPSCount:  2,
-						CreatedAt:  startTime,
-						StartedAt:  startTime,
-					},
+					UUID: batchSIP1UUID,
+					Name: batchSIP1Key,
 				},
 				{
-					UUID:   batchSIP2UUID,
-					Name:   batchSIP2Key,
-					Status: enums.SIPStatusQueued,
-					Batch: &datatypes.Batch{
-						UUID:       batchUUID,
-						Identifier: batchIdentifier,
-						Status:     enums.BatchStatusProcessing,
-						SIPSCount:  2,
-						CreatedAt:  startTime,
-						StartedAt:  startTime,
-					},
+					UUID: batchSIP2UUID,
+					Name: batchSIP2Key,
 				},
 			},
 		},

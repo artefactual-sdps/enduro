@@ -11,7 +11,6 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
-	"github.com/artefactual-sdps/enduro/internal/batch"
 	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
@@ -316,7 +315,7 @@ func (w *BatchWorkflow) postStorageWorkflow(
 	ctx temporalsdk_workflow.Context,
 	state *batchWorkflowState,
 ) error {
-	cfg := w.cfg.Childworkflows.GetByName(batch.PostStorageWorkflowName)
+	cfg := w.cfg.Childworkflows.GetByName(childwf.BatchPostStorageName)
 	if cfg == nil || !cfg.Enabled {
 		return nil
 	}
@@ -341,8 +340,9 @@ func (w *BatchWorkflow) postStorageWorkflow(
 	err := temporalsdk_workflow.ExecuteChildWorkflow(
 		childCtx,
 		cfg.WorkflowName,
-		&batch.PostStorageParams{
-			SIPs: state.SIPs(),
+		&childwf.BPSParams{
+			Batch: childwf.BatchtoBPSBatch(state.batch),
+			SIPs:  childwf.SIPstoBPSSIPs(state.SIPs()),
 		},
 	).Get(childCtx, &res)
 	if err != nil {
