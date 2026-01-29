@@ -192,6 +192,8 @@ located in the root of the project. Example:
 TRIGGER_MODE_AUTO=true
 ENDURO_PRES_SYSTEM=a3m
 LOCAL_A3M=true
+CHILD_WORKFLOW_PATHS='../preprocessing-acme:../acme-enduro-workflows'
+MOUNT_PREPROCESSING_VOLUME=true
 ```
 
 ### TRIGGER_MODE_AUTO
@@ -210,13 +212,20 @@ but it has seen little adoption and is largely unmaintained. Check the
 Build and use a local version of a3m. Requires to have the `a3m` repository
 cloned as a sibling of this repository folder.
 
-### PREPROCESSING_PATH
+### CHILD_WORKFLOW_PATHS
 
-Relative path to a preprocessing child workflow repository. It loads a Tiltfile
-called `Tiltfile.enduro` from that repository and mounts a presistent volume
-claim (PVC) in the preservation system pod. That PVC must be defined in the
-preprocessing and be called `preprocessing-pvc`. Check the [Preprocessing child
-workflow] docs to configure the child workflow execution.
+A colon (:) separated list of relative paths to child workflow repositories. At
+startup Tilt will attempt to load a `Tiltfile.enduro` file from each path which
+will add any workflow specific resources to the Tilt environment (e.g. a child
+worker). See the [Administrator configuration] docs for instructions on
+configuring the child workflows.
+
+### MOUNT_PREPROCESSING_VOLUME
+
+If MOUNT_PREPROCESSING_VOLUME is truthy (t, true, y, yes, 1) Tilt mounts a
+persistent volume claim (PVC) in the `enduro-am-worker` or `enduro-a3m-worker`
+pod, depending on the preservation engine used. The PVC must be defined in the
+preprocessing manifests and be called `preprocessing-pvc`.
 
 ## Tilt UI helpers
 
@@ -265,6 +274,7 @@ The setup of the Minio buckets and the communication between Minio and Redis
 is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 `minio` resource and then trigger the `minio-setup-buckets` resource.
 
+[administrator configuration]: ../admin-manual/configuration.md
 [docker]: https://docs.docker.com/get-docker/
 [kubectl]: https://kubernetes.io/docs/tasks/tools/#kubectl
 [tilt]: https://docs.tilt.dev/tutorial/1-prerequisites.html#install-tilt
@@ -282,6 +292,5 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [gcc]: https://gcc.gnu.org/
 [visual studio code]: https://code.visualstudio.com/
 [working with archivematica]: archivematica.md
-[preprocessing child workflow]: preprocessing.md
 [submit your first transfer]: devel.md#upload-to-minio
 [bine]: https://github.com/artefactual-labs/bine

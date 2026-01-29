@@ -94,6 +94,7 @@ gen-enums: tool-go-enum
 	go-enum $(ENUM_FLAGS) \
 		--nocomments \
 		-f internal/enums/batch_status.go \
+		-f internal/enums/child_workflow_type.go \
 		-f internal/enums/preprocessing_task_outcome.go \
 		-f internal/enums/sip_failed_as.go \
 		-f internal/enums/sip_status.go \

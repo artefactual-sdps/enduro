@@ -321,8 +321,7 @@ func main() {
 	aboutsvc := about.NewService(
 		logger.WithName("about"),
 		cfg.Preservation.TaskQueue,
-		cfg.Preprocessing,
-		cfg.Poststorage,
+		cfg.ChildWorkflows,
 		cfg.Upload,
 		tokenVerifier,
 	)
@@ -396,8 +395,7 @@ func main() {
 		ias := about.NewService(
 			logger.WithName("internal-about"),
 			cfg.Preservation.TaskQueue,
-			cfg.Preprocessing,
-			cfg.Poststorage,
+			cfg.ChildWorkflows,
 			cfg.Upload,
 			&auth.NoopTokenVerifier{},
 		)

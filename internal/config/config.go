@@ -19,13 +19,11 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/auditlog"
-	"github.com/artefactual-sdps/enduro/internal/batch"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
-	"github.com/artefactual-sdps/enduro/internal/poststorage"
 	"github.com/artefactual-sdps/enduro/internal/premis"
-	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
 	"github.com/artefactual-sdps/enduro/internal/sipsource"
 	"github.com/artefactual-sdps/enduro/internal/storage"
@@ -63,12 +61,10 @@ type Configuration struct {
 	InternalAPI     api.Config
 	API             api.Config
 	BagIt           bagcreate.Config
-	Batch           batch.Config
+	ChildWorkflows  childwf.Configs
 	Database        db.Config
 	Event           event.Config
 	ExtractActivity archiveextract.Config
-	Poststorage     []poststorage.Config
-	Preprocessing   preprocessing.Config
 	Preservation    pres.Config
 	SIPSource       sipsource.Config
 	Storage         storage.Config
@@ -87,7 +83,7 @@ func (c *Configuration) Validate() error {
 		c.A3m.Validate(),
 		c.API.Auth.Validate(),
 		c.BagIt.Validate(),
-		c.Preprocessing.Validate(),
+		c.ChildWorkflows.Validate(),
 		c.SIPSource.Validate(),
 		c.ValidatePREMIS.Validate(),
 		c.Watcher.Validate(),

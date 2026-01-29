@@ -17,30 +17,22 @@ import (
 // AboutResponseBody is the type of the "about" service "about" endpoint HTTP
 // response body.
 type AboutResponseBody struct {
-	Version            *string                                 `form:"version,omitempty" json:"version,omitempty" xml:"version,omitempty"`
-	PreservationSystem *string                                 `form:"preservation_system,omitempty" json:"preservation_system,omitempty" xml:"preservation_system,omitempty"`
-	Preprocessing      *EnduroPreprocessingResponseBody        `form:"preprocessing,omitempty" json:"preprocessing,omitempty" xml:"preprocessing,omitempty"`
-	Poststorage        EnduroPoststorageCollectionResponseBody `form:"poststorage,omitempty" json:"poststorage,omitempty" xml:"poststorage,omitempty"`
-	UploadMaxSize      *int64                                  `form:"upload_max_size,omitempty" json:"upload_max_size,omitempty" xml:"upload_max_size,omitempty"`
+	Version            *string                                   `form:"version,omitempty" json:"version,omitempty" xml:"version,omitempty"`
+	PreservationSystem *string                                   `form:"preservation_system,omitempty" json:"preservation_system,omitempty" xml:"preservation_system,omitempty"`
+	ChildWorkflows     EnduroChildworkflowCollectionResponseBody `form:"child_workflows,omitempty" json:"child_workflows,omitempty" xml:"child_workflows,omitempty"`
+	UploadMaxSize      *int64                                    `form:"upload_max_size,omitempty" json:"upload_max_size,omitempty" xml:"upload_max_size,omitempty"`
 }
 
-// EnduroPreprocessingResponseBody is used to define fields on response body
-// types.
-type EnduroPreprocessingResponseBody struct {
-	Enabled      *bool   `form:"enabled,omitempty" json:"enabled,omitempty" xml:"enabled,omitempty"`
-	WorkflowName *string `form:"workflow_name,omitempty" json:"workflow_name,omitempty" xml:"workflow_name,omitempty"`
-	TaskQueue    *string `form:"task_queue,omitempty" json:"task_queue,omitempty" xml:"task_queue,omitempty"`
-}
+// EnduroChildworkflowCollectionResponseBody is used to define fields on
+// response body types.
+type EnduroChildworkflowCollectionResponseBody []*EnduroChildworkflowResponseBody
 
-// EnduroPoststorageCollectionResponseBody is used to define fields on response
-// body types.
-type EnduroPoststorageCollectionResponseBody []*EnduroPoststorageResponseBody
-
-// EnduroPoststorageResponseBody is used to define fields on response body
+// EnduroChildworkflowResponseBody is used to define fields on response body
 // types.
-type EnduroPoststorageResponseBody struct {
-	WorkflowName *string `form:"workflow_name,omitempty" json:"workflow_name,omitempty" xml:"workflow_name,omitempty"`
+type EnduroChildworkflowResponseBody struct {
+	Type         *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
 	TaskQueue    *string `form:"task_queue,omitempty" json:"task_queue,omitempty" xml:"task_queue,omitempty"`
+	WorkflowName *string `form:"workflow_name,omitempty" json:"workflow_name,omitempty" xml:"workflow_name,omitempty"`
 }
 
 // NewAboutEnduroAboutOK builds a "about" service "about" endpoint result from
@@ -51,11 +43,10 @@ func NewAboutEnduroAboutOK(body *AboutResponseBody) *aboutviews.EnduroAboutView 
 		PreservationSystem: body.PreservationSystem,
 		UploadMaxSize:      body.UploadMaxSize,
 	}
-	v.Preprocessing = unmarshalEnduroPreprocessingResponseBodyToAboutviewsEnduroPreprocessingView(body.Preprocessing)
-	if body.Poststorage != nil {
-		v.Poststorage = make([]*aboutviews.EnduroPoststorageView, len(body.Poststorage))
-		for i, val := range body.Poststorage {
-			v.Poststorage[i] = unmarshalEnduroPoststorageResponseBodyToAboutviewsEnduroPoststorageView(val)
+	if body.ChildWorkflows != nil {
+		v.ChildWorkflows = make([]*aboutviews.EnduroChildworkflowView, len(body.ChildWorkflows))
+		for i, val := range body.ChildWorkflows {
+			v.ChildWorkflows[i] = unmarshalEnduroChildworkflowResponseBodyToAboutviewsEnduroChildworkflowView(val)
 		}
 	}
 
@@ -70,27 +61,12 @@ func NewAboutUnauthorized(body string) about.Unauthorized {
 	return v
 }
 
-// ValidateEnduroPreprocessingResponseBody runs the validations defined on
-// EnduroPreprocessingResponseBody
-func ValidateEnduroPreprocessingResponseBody(body *EnduroPreprocessingResponseBody) (err error) {
-	if body.Enabled == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("enabled", "body"))
-	}
-	if body.WorkflowName == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_name", "body"))
-	}
-	if body.TaskQueue == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("task_queue", "body"))
-	}
-	return
-}
-
-// ValidateEnduroPoststorageCollectionResponseBody runs the validations defined
-// on EnduroPoststorageCollectionResponseBody
-func ValidateEnduroPoststorageCollectionResponseBody(body EnduroPoststorageCollectionResponseBody) (err error) {
+// ValidateEnduroChildworkflowCollectionResponseBody runs the validations
+// defined on EnduroChildworkflowCollectionResponseBody
+func ValidateEnduroChildworkflowCollectionResponseBody(body EnduroChildworkflowCollectionResponseBody) (err error) {
 	for _, e := range body {
 		if e != nil {
-			if err2 := ValidateEnduroPoststorageResponseBody(e); err2 != nil {
+			if err2 := ValidateEnduroChildworkflowResponseBody(e); err2 != nil {
 				err = goa.MergeErrors(err, err2)
 			}
 		}
@@ -98,14 +74,22 @@ func ValidateEnduroPoststorageCollectionResponseBody(body EnduroPoststorageColle
 	return
 }
 
-// ValidateEnduroPoststorageResponseBody runs the validations defined on
-// EnduroPoststorageResponseBody
-func ValidateEnduroPoststorageResponseBody(body *EnduroPoststorageResponseBody) (err error) {
-	if body.WorkflowName == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_name", "body"))
+// ValidateEnduroChildworkflowResponseBody runs the validations defined on
+// EnduroChildworkflowResponseBody
+func ValidateEnduroChildworkflowResponseBody(body *EnduroChildworkflowResponseBody) (err error) {
+	if body.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
 	}
 	if body.TaskQueue == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("task_queue", "body"))
+	}
+	if body.WorkflowName == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_name", "body"))
+	}
+	if body.Type != nil {
+		if !(*body.Type == "preprocessing" || *body.Type == "poststorage" || *body.Type == "postbatch") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []any{"preprocessing", "poststorage", "postbatch"}))
+		}
 	}
 	return
 }

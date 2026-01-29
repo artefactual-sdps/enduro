@@ -16,10 +16,10 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaabout "github.com/artefactual-sdps/enduro/internal/api/gen/about"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
-	"github.com/artefactual-sdps/enduro/internal/poststorage"
-	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/pres"
 )
 
@@ -81,8 +81,7 @@ func TestJWTAuth(t *testing.T) {
 			srv := about.NewService(
 				logger,
 				"",
-				preprocessing.Config{},
-				[]poststorage.Config{},
+				childwf.Configs{},
 				ingest.UploadConfig{},
 				tvMock,
 			)
@@ -116,13 +115,6 @@ func TestAbout(t *testing.T) {
 			want: &goaabout.EnduroAbout{
 				Version:            "",
 				PreservationSystem: "Unknown",
-				Preprocessing: &goaabout.EnduroPreprocessing{
-					Enabled:      false,
-					WorkflowName: "",
-					TaskQueue:    "",
-				},
-				Poststorage:   goaabout.EnduroPoststorageCollection{},
-				UploadMaxSize: 0,
 			},
 		},
 		{
@@ -131,12 +123,6 @@ func TestAbout(t *testing.T) {
 			want: &goaabout.EnduroAbout{
 				Version:            "",
 				PreservationSystem: "Archivematica",
-				Preprocessing: &goaabout.EnduroPreprocessing{
-					Enabled:      false,
-					WorkflowName: "",
-					TaskQueue:    "",
-				},
-				Poststorage: goaabout.EnduroPoststorageCollection{},
 			},
 		},
 		{
@@ -145,40 +131,28 @@ func TestAbout(t *testing.T) {
 			want: &goaabout.EnduroAbout{
 				Version:            "",
 				PreservationSystem: "a3m",
-				Preprocessing: &goaabout.EnduroPreprocessing{
-					Enabled:      false,
-					WorkflowName: "",
-					TaskQueue:    "",
-				},
-				Poststorage: goaabout.EnduroPoststorageCollection{},
 			},
 		},
 		{
 			name: "Full config",
 			config: config.Configuration{
-				Preservation: pres.Config{TaskQueue: "a3m"},
-				Preprocessing: preprocessing.Config{
-					Enabled:    true,
-					Extract:    true,
-					SharedPath: "/tmp",
-					Temporal: preprocessing.Temporal{
+				ChildWorkflows: childwf.Configs{
+					{
+						Type:         enums.ChildWorkflowTypePreprocessing,
 						Namespace:    "default",
 						TaskQueue:    "preprocessing",
 						WorkflowName: "preprocessing",
-					},
-				},
-				Poststorage: []poststorage.Config{
-					{
-						Namespace:    "default",
-						TaskQueue:    "poststorage",
-						WorkflowName: "poststorage_1",
+						Extract:      true,
+						SharedPath:   "/tmp",
 					},
 					{
+						Type:         enums.ChildWorkflowTypePoststorage,
 						Namespace:    "default",
 						TaskQueue:    "poststorage",
-						WorkflowName: "poststorage_2",
+						WorkflowName: "poststorage",
 					},
 				},
+				Preservation: pres.Config{TaskQueue: "a3m"},
 				Upload: ingest.UploadConfig{
 					MaxSize: 12345678,
 				},
@@ -186,19 +160,16 @@ func TestAbout(t *testing.T) {
 			want: &goaabout.EnduroAbout{
 				Version:            "",
 				PreservationSystem: "a3m",
-				Preprocessing: &goaabout.EnduroPreprocessing{
-					Enabled:      true,
-					TaskQueue:    "preprocessing",
-					WorkflowName: "preprocessing",
-				},
-				Poststorage: goaabout.EnduroPoststorageCollection{
-					&goaabout.EnduroPoststorage{
-						TaskQueue:    "poststorage",
-						WorkflowName: "poststorage_1",
+				ChildWorkflows: goaabout.EnduroChildworkflowCollection{
+					{
+						Type:         enums.ChildWorkflowTypePreprocessing.String(),
+						TaskQueue:    "preprocessing",
+						WorkflowName: "preprocessing",
 					},
-					&goaabout.EnduroPoststorage{
+					{
+						Type:         enums.ChildWorkflowTypePoststorage.String(),
 						TaskQueue:    "poststorage",
-						WorkflowName: "poststorage_2",
+						WorkflowName: "poststorage",
 					},
 				},
 				UploadMaxSize: 12345678,
@@ -211,8 +182,7 @@ func TestAbout(t *testing.T) {
 			srv := about.NewService(
 				logr.Discard(),
 				tt.config.Preservation.TaskQueue,
-				tt.config.Preprocessing,
-				tt.config.Poststorage,
+				tt.config.ChildWorkflows,
 				tt.config.Upload,
 				&auth.NoopTokenVerifier{},
 			)

@@ -13,10 +13,10 @@ import (
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
-	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
 )
 
@@ -40,7 +40,7 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 			name: "Saves a preprocessing task",
 			params: localact.SavePreprocessingTasksActivityParams{
 				WorkflowUUID: wUUID,
-				Tasks: []preprocessing.Task{
+				Tasks: []childwf.Task{
 					{
 						Name:        "Validate SIP structure",
 						Message:     "SIP structure matches validation criteria",
@@ -74,7 +74,7 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 			name: "Errors when a required value is missing",
 			params: localact.SavePreprocessingTasksActivityParams{
 				WorkflowUUID: wUUID,
-				Tasks: []preprocessing.Task{
+				Tasks: []childwf.Task{
 					{
 						Message:     "SIP structure matches validation criteria",
 						Outcome:     enums.PreprocessingTaskOutcomeSuccess,

@@ -111,29 +111,17 @@ func DecodeAboutResponse(decoder func(*http.Response) goahttp.Decoder, restoreBo
 	}
 }
 
-// unmarshalEnduroPreprocessingResponseBodyToAboutviewsEnduroPreprocessingView
-// builds a value of type *aboutviews.EnduroPreprocessingView from a value of
-// type *EnduroPreprocessingResponseBody.
-func unmarshalEnduroPreprocessingResponseBodyToAboutviewsEnduroPreprocessingView(v *EnduroPreprocessingResponseBody) *aboutviews.EnduroPreprocessingView {
-	res := &aboutviews.EnduroPreprocessingView{
-		Enabled:      v.Enabled,
-		WorkflowName: v.WorkflowName,
-		TaskQueue:    v.TaskQueue,
-	}
-
-	return res
-}
-
-// unmarshalEnduroPoststorageResponseBodyToAboutviewsEnduroPoststorageView
-// builds a value of type *aboutviews.EnduroPoststorageView from a value of
-// type *EnduroPoststorageResponseBody.
-func unmarshalEnduroPoststorageResponseBodyToAboutviewsEnduroPoststorageView(v *EnduroPoststorageResponseBody) *aboutviews.EnduroPoststorageView {
+// unmarshalEnduroChildworkflowResponseBodyToAboutviewsEnduroChildworkflowView
+// builds a value of type *aboutviews.EnduroChildworkflowView from a value of
+// type *EnduroChildworkflowResponseBody.
+func unmarshalEnduroChildworkflowResponseBodyToAboutviewsEnduroChildworkflowView(v *EnduroChildworkflowResponseBody) *aboutviews.EnduroChildworkflowView {
 	if v == nil {
 		return nil
 	}
-	res := &aboutviews.EnduroPoststorageView{
-		WorkflowName: v.WorkflowName,
+	res := &aboutviews.EnduroChildworkflowView{
+		Type:         v.Type,
 		TaskQueue:    v.TaskQueue,
+		WorkflowName: v.WorkflowName,
 	}
 
 	return res

@@ -17,12 +17,7 @@ describe("useAboutStore", () => {
       const aboutStore = useAboutStore();
 
       expect(aboutStore.loaded).toBe(false);
-      expect(aboutStore.poststorage).toEqual([]);
-      expect(aboutStore.preprocessing).toEqual({
-        enabled: false,
-        taskQueue: "",
-        workflowName: "",
-      });
+      expect(aboutStore.childWorkflows).toEqual([]);
       expect(aboutStore.preservationSystem).toBe("a3m");
       expect(aboutStore.uploadMaxSize).toBe(0);
       expect(aboutStore.version).toBe("");
@@ -105,17 +100,18 @@ describe("useAboutStore", () => {
     describe("fetch", () => {
       it("fetches and updates state successfully", async () => {
         const mockResponse: api.EnduroAbout = {
-          poststorage: [
+          childWorkflows: [
             {
-              taskQueue: "test-queue",
-              workflowName: "test-workflow",
+              type: "preprocessing",
+              taskQueue: "pp-queue",
+              workflowName: "pp-workflow",
+            },
+            {
+              type: "poststorage",
+              taskQueue: "ps-queue",
+              workflowName: "ps-workflow",
             },
           ],
-          preprocessing: {
-            enabled: true,
-            taskQueue: "preprocessing-queue",
-            workflowName: "preprocessing-workflow",
-          },
           preservationSystem: "archivematica",
           uploadMaxSize: 1073741824, // 1 GiB
           version: "1.0.0",
@@ -127,34 +123,21 @@ describe("useAboutStore", () => {
         await aboutStore.fetch();
 
         expect(aboutStore.loaded).toBe(true);
-        expect(aboutStore.poststorage).toEqual(mockResponse.poststorage);
-        expect(aboutStore.preprocessing).toEqual(mockResponse.preprocessing);
-        expect(aboutStore.preservationSystem).toBe(
-          mockResponse.preservationSystem,
-        );
-        expect(aboutStore.uploadMaxSize).toBe(mockResponse.uploadMaxSize);
-        expect(aboutStore.version).toBe(mockResponse.version);
-      });
-
-      it("handles undefined poststorage in response", async () => {
-        const mockResponse: api.EnduroAbout = {
-          poststorage: undefined,
-          preprocessing: {
-            enabled: false,
-            taskQueue: "",
-            workflowName: "",
+        expect(aboutStore.childWorkflows).toEqual([
+          {
+            type: "preprocessing",
+            taskQueue: "pp-queue",
+            workflowName: "pp-workflow",
           },
-          preservationSystem: "a3m",
-          uploadMaxSize: 0,
-          version: "1.0.0",
-        };
-
-        client.about.aboutAbout = vi.fn().mockResolvedValue(mockResponse);
-
-        const aboutStore = useAboutStore();
-        await aboutStore.fetch();
-
-        expect(aboutStore.poststorage).toEqual([]);
+          {
+            type: "poststorage",
+            taskQueue: "ps-queue",
+            workflowName: "ps-workflow",
+          },
+        ]);
+        expect(aboutStore.preservationSystem).toBe("archivematica");
+        expect(aboutStore.uploadMaxSize).toBe(1073741824);
+        expect(aboutStore.version).toBe("1.0.0");
       });
 
       it("handles fetch errors", async () => {
@@ -200,12 +183,7 @@ describe("useAboutStore", () => {
 
       it("returns fetch promise when not loaded", async () => {
         const mockResponse: api.EnduroAbout = {
-          poststorage: [],
-          preprocessing: {
-            enabled: false,
-            taskQueue: "",
-            workflowName: "",
-          },
+          childWorkflows: [],
           preservationSystem: "a3m",
           uploadMaxSize: 0,
           version: "1.0.0",
@@ -225,12 +203,7 @@ describe("useAboutStore", () => {
   describe("integration", () => {
     it("formats upload max size and version after successful fetch", async () => {
       const mockResponse: api.EnduroAbout = {
-        poststorage: [],
-        preprocessing: {
-          enabled: false,
-          taskQueue: "",
-          workflowName: "",
-        },
+        childWorkflows: [],
         preservationSystem: "a3m",
         uploadMaxSize: 2147483648, // 2 GiB
         version: "2.0.0",

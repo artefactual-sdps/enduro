@@ -272,37 +272,40 @@ enabled = false
 address = ""
 samplingRatio = 1.0
 
-# Optional preprocessing child workflow configuration.
-[preprocessing]
-# enabled triggers the execution of the child workflow, when set to false all other
-# options are ignored.
-enabled = false
-# extract determines if the SIP extraction happens on the child workflow.
-extract = false
-# sharedPath is the full path to the directory used to share the SIP between workflows,
-# required when enabled is set to true.
-sharedPath = "/home/enduro/preprocessing"
+# Configuration for a preprocessing child workflow run before preservation.
+# Uncomment to activate. All fields except "extract" are required.
+# [[childWorkflows]]
+# type = "preprocessing"
+# namespace = "default"
+# taskQueue = "preprocessing"
+# workflowName = "preprocessing"
 
-# Temporal configuration to trigger the preprocessing child workflow, all fields are
-# required when enabled is set to true.
-[preprocessing.temporal]
-namespace = "default"
-taskQueue = "preprocessing"
-workflowName = "preprocessing"
+# # extract determines where SIP extraction, from a zip or other archive format,
+# # happens. When set to "true" extraction happens in the preprocessing child
+# # workflow. If extract is "false" (default), extraction happens in the parent 
+# # ingest workflow.
+# extract = true
 
-# Temporal configurations to trigger post-storage child workflows after ingest, 
-# preservation and storage of a single SIP, allows multiple workflows.
-# [[poststorage]]
+# # sharedPath is the full path to a directory to share files between workflows.
+# # sharedPath is required when the preprocessing workflow is enabled. If the
+# # preprocessing child workflow is not enabled, this setting is ignored.
+# sharedPath = "/home/enduro/preprocessing"
+
+# Configuration to run a poststorage child workflow after storing an AIP.
+# Uncomment to activate. All fields are required.
+# [[childWorkflows]]
+# type = "poststorage"
 # namespace = "default"
 # taskQueue = "poststorage"
 # workflowName = "poststorage"
 
-# Temporal configuration to trigger a post-storage child workflows after batch 
-# ingest of multiple SIPs.
-# [batch.poststorage]
+# Configuration to run a postbatch child workflow after batch ingest of multiple
+# AIPs. Uncomment to activate. All fields are required.
+# [[childWorkflows]]
+# type = "postbatch"
 # namespace = "default"
-# taskQueue = "batch-post-storage"
-# workflowName = "batch-post-storage"
+# taskQueue = "postbatch"
+# workflowName = "postbatch"
 
 #########################################################################
 #                                                                       #

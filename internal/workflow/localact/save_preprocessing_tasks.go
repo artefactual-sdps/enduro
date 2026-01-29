@@ -9,10 +9,10 @@ import (
 
 	"github.com/google/uuid"
 
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
-	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 )
 
 type SavePreprocessingTasksActivityParams struct {
@@ -26,7 +26,7 @@ type SavePreprocessingTasksActivityParams struct {
 	WorkflowUUID uuid.UUID
 
 	// Tasks is a list of preprocessing tasks to save as Tasks.
-	Tasks []preprocessing.Task
+	Tasks []childwf.Task
 }
 
 type SavePreprocessingTasksActivityResult struct {
@@ -58,7 +58,7 @@ func SavePreprocessingTasksActivity(
 	return &res, nil
 }
 
-func preprocTaskToTask(t preprocessing.Task) datatypes.Task {
+func preprocTaskToTask(t childwf.Task) datatypes.Task {
 	taskOutcomeToTaskStatus := map[enums.PreprocessingTaskOutcome]enums.TaskStatus{
 		enums.PreprocessingTaskOutcomeUnspecified:       enums.TaskStatusUnspecified,
 		enums.PreprocessingTaskOutcomeSuccess:           enums.TaskStatusDone,

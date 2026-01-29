@@ -9,9 +9,8 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaabout "github.com/artefactual-sdps/enduro/internal/api/gen/about"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
-	"github.com/artefactual-sdps/enduro/internal/poststorage"
-	"github.com/artefactual-sdps/enduro/internal/preprocessing"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
 )
@@ -19,8 +18,7 @@ import (
 type Service struct {
 	logger        logr.Logger
 	presTaskQueue string
-	ppConfig      preprocessing.Config
-	psConfig      []poststorage.Config
+	cwfConfigs    childwf.Configs
 	uploadConfig  ingest.UploadConfig
 	tokenVerifier auth.TokenVerifier
 }
@@ -32,16 +30,14 @@ var ErrUnauthorized error = goaabout.Unauthorized("Unauthorized")
 func NewService(
 	logger logr.Logger,
 	presTaskQueue string,
-	ppConfig preprocessing.Config,
-	psConfig []poststorage.Config,
+	cwfConfigs childwf.Configs,
 	uploadConfig ingest.UploadConfig,
 	tokenVerifier auth.TokenVerifier,
 ) *Service {
 	return &Service{
 		logger:        logger,
 		presTaskQueue: presTaskQueue,
-		ppConfig:      ppConfig,
-		psConfig:      psConfig,
+		cwfConfigs:    cwfConfigs,
 		uploadConfig:  uploadConfig,
 		tokenVerifier: tokenVerifier,
 	}
@@ -63,12 +59,7 @@ func (s *Service) JWTAuth(ctx context.Context, token string, scheme *security.JW
 
 func (s *Service) About(context.Context, *goaabout.AboutPayload) (*goaabout.EnduroAbout, error) {
 	res := &goaabout.EnduroAbout{
-		Version: version.Short,
-		Preprocessing: &goaabout.EnduroPreprocessing{
-			Enabled:      s.ppConfig.Enabled,
-			WorkflowName: s.ppConfig.Temporal.WorkflowName,
-			TaskQueue:    s.ppConfig.Temporal.TaskQueue,
-		},
+		Version:       version.Short,
 		UploadMaxSize: s.uploadConfig.MaxSize,
 	}
 
@@ -80,12 +71,17 @@ func (s *Service) About(context.Context, *goaabout.AboutPayload) (*goaabout.Endu
 		res.PreservationSystem = "a3m"
 	}
 
-	res.Poststorage = make([]*goaabout.EnduroPoststorage, len(s.psConfig))
-	for i, cfg := range s.psConfig {
-		res.Poststorage[i] = &goaabout.EnduroPoststorage{
-			WorkflowName: cfg.WorkflowName,
-			TaskQueue:    cfg.TaskQueue,
+	// Add child workflows to the response.
+	if len(s.cwfConfigs) > 0 {
+		res.ChildWorkflows = make([]*goaabout.EnduroChildworkflow, 0, len(s.cwfConfigs))
+		for _, cfg := range s.cwfConfigs {
+			res.ChildWorkflows = append(res.ChildWorkflows, &goaabout.EnduroChildworkflow{
+				Type:         cfg.Type.String(),
+				TaskQueue:    cfg.TaskQueue,
+				WorkflowName: cfg.WorkflowName,
+			})
 		}
+
 	}
 
 	return res, nil

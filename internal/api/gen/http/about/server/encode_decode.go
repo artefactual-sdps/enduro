@@ -80,29 +80,17 @@ func EncodeAboutError(encoder func(context.Context, http.ResponseWriter) goahttp
 	}
 }
 
-// marshalAboutviewsEnduroPreprocessingViewToEnduroPreprocessingResponseBody
-// builds a value of type *EnduroPreprocessingResponseBody from a value of type
-// *aboutviews.EnduroPreprocessingView.
-func marshalAboutviewsEnduroPreprocessingViewToEnduroPreprocessingResponseBody(v *aboutviews.EnduroPreprocessingView) *EnduroPreprocessingResponseBody {
-	res := &EnduroPreprocessingResponseBody{
-		Enabled:      *v.Enabled,
-		WorkflowName: *v.WorkflowName,
-		TaskQueue:    *v.TaskQueue,
-	}
-
-	return res
-}
-
-// marshalAboutviewsEnduroPoststorageViewToEnduroPoststorageResponseBody builds
-// a value of type *EnduroPoststorageResponseBody from a value of type
-// *aboutviews.EnduroPoststorageView.
-func marshalAboutviewsEnduroPoststorageViewToEnduroPoststorageResponseBody(v *aboutviews.EnduroPoststorageView) *EnduroPoststorageResponseBody {
+// marshalAboutviewsEnduroChildworkflowViewToEnduroChildworkflowResponseBody
+// builds a value of type *EnduroChildworkflowResponseBody from a value of type
+// *aboutviews.EnduroChildworkflowView.
+func marshalAboutviewsEnduroChildworkflowViewToEnduroChildworkflowResponseBody(v *aboutviews.EnduroChildworkflowView) *EnduroChildworkflowResponseBody {
 	if v == nil {
 		return nil
 	}
-	res := &EnduroPoststorageResponseBody{
-		WorkflowName: *v.WorkflowName,
+	res := &EnduroChildworkflowResponseBody{
+		Type:         *v.Type,
 		TaskQueue:    *v.TaskQueue,
+		WorkflowName: *v.WorkflowName,
 	}
 
 	return res

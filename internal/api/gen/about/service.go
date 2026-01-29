@@ -52,23 +52,17 @@ type AboutPayload struct {
 type EnduroAbout struct {
 	Version            string
 	PreservationSystem string
-	Preprocessing      *EnduroPreprocessing
-	Poststorage        EnduroPoststorageCollection
+	ChildWorkflows     EnduroChildworkflowCollection
 	UploadMaxSize      int64
 }
 
-type EnduroPoststorage struct {
-	WorkflowName string
+type EnduroChildworkflow struct {
+	Type         string
 	TaskQueue    string
+	WorkflowName string
 }
 
-type EnduroPoststorageCollection []*EnduroPoststorage
-
-type EnduroPreprocessing struct {
-	Enabled      bool
-	WorkflowName string
-	TaskQueue    string
-}
+type EnduroChildworkflowCollection []*EnduroChildworkflow
 
 // Unauthorized
 type Unauthorized string
@@ -116,14 +110,8 @@ func newEnduroAbout(vres *aboutviews.EnduroAboutView) *EnduroAbout {
 	if vres.UploadMaxSize != nil {
 		res.UploadMaxSize = *vres.UploadMaxSize
 	}
-	if vres.Poststorage != nil {
-		res.Poststorage = make([]*EnduroPoststorage, len(vres.Poststorage))
-		for i, val := range vres.Poststorage {
-			res.Poststorage[i] = transformAboutviewsEnduroPoststorageViewToEnduroPoststorage(val)
-		}
-	}
-	if vres.Preprocessing != nil {
-		res.Preprocessing = newEnduroPreprocessing(vres.Preprocessing)
+	if vres.ChildWorkflows != nil {
+		res.ChildWorkflows = newEnduroChildworkflowCollection(vres.ChildWorkflows)
 	}
 	return res
 }
@@ -136,115 +124,56 @@ func newEnduroAboutView(res *EnduroAbout) *aboutviews.EnduroAboutView {
 		PreservationSystem: &res.PreservationSystem,
 		UploadMaxSize:      &res.UploadMaxSize,
 	}
-	if res.Poststorage != nil {
-		vres.Poststorage = make([]*aboutviews.EnduroPoststorageView, len(res.Poststorage))
-		for i, val := range res.Poststorage {
-			vres.Poststorage[i] = transformEnduroPoststorageToAboutviewsEnduroPoststorageView(val)
-		}
-	}
-	if res.Preprocessing != nil {
-		vres.Preprocessing = newEnduroPreprocessingView(res.Preprocessing)
+	if res.ChildWorkflows != nil {
+		vres.ChildWorkflows = newEnduroChildworkflowCollectionView(res.ChildWorkflows)
 	}
 	return vres
 }
 
-// newEnduroPreprocessing converts projected type EnduroPreprocessing to
-// service type EnduroPreprocessing.
-func newEnduroPreprocessing(vres *aboutviews.EnduroPreprocessingView) *EnduroPreprocessing {
-	res := &EnduroPreprocessing{}
-	if vres.Enabled != nil {
-		res.Enabled = *vres.Enabled
-	}
-	if vres.WorkflowName != nil {
-		res.WorkflowName = *vres.WorkflowName
-	}
-	if vres.TaskQueue != nil {
-		res.TaskQueue = *vres.TaskQueue
-	}
-	return res
-}
-
-// newEnduroPreprocessingView projects result type EnduroPreprocessing to
-// projected type EnduroPreprocessingView using the "default" view.
-func newEnduroPreprocessingView(res *EnduroPreprocessing) *aboutviews.EnduroPreprocessingView {
-	vres := &aboutviews.EnduroPreprocessingView{
-		Enabled:      &res.Enabled,
-		WorkflowName: &res.WorkflowName,
-		TaskQueue:    &res.TaskQueue,
-	}
-	return vres
-}
-
-// newEnduroPoststorageCollection converts projected type
-// EnduroPoststorageCollection to service type EnduroPoststorageCollection.
-func newEnduroPoststorageCollection(vres aboutviews.EnduroPoststorageCollectionView) EnduroPoststorageCollection {
-	res := make(EnduroPoststorageCollection, len(vres))
+// newEnduroChildworkflowCollection converts projected type
+// EnduroChildworkflowCollection to service type EnduroChildworkflowCollection.
+func newEnduroChildworkflowCollection(vres aboutviews.EnduroChildworkflowCollectionView) EnduroChildworkflowCollection {
+	res := make(EnduroChildworkflowCollection, len(vres))
 	for i, n := range vres {
-		res[i] = newEnduroPoststorage(n)
+		res[i] = newEnduroChildworkflow(n)
 	}
 	return res
 }
 
-// newEnduroPoststorageCollectionView projects result type
-// EnduroPoststorageCollection to projected type
-// EnduroPoststorageCollectionView using the "default" view.
-func newEnduroPoststorageCollectionView(res EnduroPoststorageCollection) aboutviews.EnduroPoststorageCollectionView {
-	vres := make(aboutviews.EnduroPoststorageCollectionView, len(res))
+// newEnduroChildworkflowCollectionView projects result type
+// EnduroChildworkflowCollection to projected type
+// EnduroChildworkflowCollectionView using the "default" view.
+func newEnduroChildworkflowCollectionView(res EnduroChildworkflowCollection) aboutviews.EnduroChildworkflowCollectionView {
+	vres := make(aboutviews.EnduroChildworkflowCollectionView, len(res))
 	for i, n := range res {
-		vres[i] = newEnduroPoststorageView(n)
+		vres[i] = newEnduroChildworkflowView(n)
 	}
 	return vres
 }
 
-// newEnduroPoststorage converts projected type EnduroPoststorage to service
-// type EnduroPoststorage.
-func newEnduroPoststorage(vres *aboutviews.EnduroPoststorageView) *EnduroPoststorage {
-	res := &EnduroPoststorage{}
-	if vres.WorkflowName != nil {
-		res.WorkflowName = *vres.WorkflowName
+// newEnduroChildworkflow converts projected type EnduroChildworkflow to
+// service type EnduroChildworkflow.
+func newEnduroChildworkflow(vres *aboutviews.EnduroChildworkflowView) *EnduroChildworkflow {
+	res := &EnduroChildworkflow{}
+	if vres.Type != nil {
+		res.Type = *vres.Type
 	}
 	if vres.TaskQueue != nil {
 		res.TaskQueue = *vres.TaskQueue
 	}
+	if vres.WorkflowName != nil {
+		res.WorkflowName = *vres.WorkflowName
+	}
 	return res
 }
 
-// newEnduroPoststorageView projects result type EnduroPoststorage to projected
-// type EnduroPoststorageView using the "default" view.
-func newEnduroPoststorageView(res *EnduroPoststorage) *aboutviews.EnduroPoststorageView {
-	vres := &aboutviews.EnduroPoststorageView{
-		WorkflowName: &res.WorkflowName,
+// newEnduroChildworkflowView projects result type EnduroChildworkflow to
+// projected type EnduroChildworkflowView using the "default" view.
+func newEnduroChildworkflowView(res *EnduroChildworkflow) *aboutviews.EnduroChildworkflowView {
+	vres := &aboutviews.EnduroChildworkflowView{
+		Type:         &res.Type,
 		TaskQueue:    &res.TaskQueue,
+		WorkflowName: &res.WorkflowName,
 	}
 	return vres
-}
-
-// transformAboutviewsEnduroPoststorageViewToEnduroPoststorage builds a value
-// of type *EnduroPoststorage from a value of type
-// *aboutviews.EnduroPoststorageView.
-func transformAboutviewsEnduroPoststorageViewToEnduroPoststorage(v *aboutviews.EnduroPoststorageView) *EnduroPoststorage {
-	if v == nil {
-		return nil
-	}
-	res := &EnduroPoststorage{
-		WorkflowName: *v.WorkflowName,
-		TaskQueue:    *v.TaskQueue,
-	}
-
-	return res
-}
-
-// transformEnduroPoststorageToAboutviewsEnduroPoststorageView builds a value
-// of type *aboutviews.EnduroPoststorageView from a value of type
-// *EnduroPoststorage.
-func transformEnduroPoststorageToAboutviewsEnduroPoststorageView(v *EnduroPoststorage) *aboutviews.EnduroPoststorageView {
-	if v == nil {
-		return nil
-	}
-	res := &aboutviews.EnduroPoststorageView{
-		WorkflowName: &v.WorkflowName,
-		TaskQueue:    &v.TaskQueue,
-	}
-
-	return res
 }

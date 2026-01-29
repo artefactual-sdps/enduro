@@ -4,6 +4,7 @@ import (
 	temporalsdk_log "go.temporal.io/sdk/log"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
@@ -64,4 +65,32 @@ func (s *batchWorkflowState) SIPs() []datatypes.SIP {
 		sips[i] = sd.sip
 	}
 	return sips
+}
+
+func (s *batchWorkflowState) PostbatchParams() *childwf.PostbatchParams {
+	return &childwf.PostbatchParams{
+		Batch: &childwf.PostbatchBatch{
+			UUID:      s.batch.UUID,
+			SIPSCount: s.batch.SIPSCount,
+		},
+		SIPs: s.postbatchSIPs(),
+	}
+}
+
+func (s *batchWorkflowState) postbatchSIPs() []*childwf.PostbatchSIP {
+	sips := s.SIPs()
+	pbs := make([]*childwf.PostbatchSIP, len(sips))
+
+	for i, sip := range sips {
+		s := &childwf.PostbatchSIP{
+			UUID: sip.UUID,
+			Name: sip.Name,
+		}
+		if sip.AIPID.Valid {
+			s.AIPID = &sip.AIPID.UUID
+		}
+		pbs[i] = s
+	}
+
+	return pbs
 }
