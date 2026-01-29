@@ -81,13 +81,26 @@ func TestListItems(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
-		name    string
-		cfg     *sipsource.Config
-		opts    sipsource.ListOptions
-		want    *sipsource.Page
-		wantErr string
+		name     string
+		cfg      *sipsource.Config
+		opts     sipsource.ListOptions
+		skipSeed bool
+		want     *sipsource.Page
+		wantErr  string
 	}
 	for _, tt := range []test{
+		{
+			name: "Returns a nil page when bucket is empty",
+			cfg: &sipsource.Config{
+				ID:   uuid.New(),
+				Name: "Empty bucket source",
+				Bucket: &bucket.Config{
+					URL: "mem://",
+				},
+			},
+			skipSeed: true,
+			want:     nil,
+		},
 		{
 			name: "Returns a list of bucket items",
 			cfg: &sipsource.Config{
@@ -245,7 +258,7 @@ func TestListItems(t *testing.T) {
 			defer source.Close()
 
 			// Write some test data to the bucket.
-			if source.Bucket != nil {
+			if source.Bucket != nil && !tt.skipSeed {
 				for key, value := range map[string]string{
 					"sip1": "SIP 1 content",
 					"sip2": "SIP 2 content",
