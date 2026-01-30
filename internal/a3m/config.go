@@ -20,7 +20,7 @@ type Config struct {
 }
 
 func (c *Config) Validate() error {
-	if c.AipCompressionAlgorithm < minCompressionLevel || c.AipCompressionLevel > maxCompressionLevel {
+	if c.AipCompressionLevel < minCompressionLevel || c.AipCompressionLevel > maxCompressionLevel {
 		return fmt.Errorf(
 			"AipCompressionLevel: %d is outside valid range (%d to %d)",
 			c.AipCompressionLevel,
