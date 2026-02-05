@@ -34,6 +34,8 @@ var (
 	batchUUID     = uuid.MustParse("f47ac10b-58cc-4372-a567-0e02b2c3d479")
 	batchSIP1UUID = uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
 	batchSIP2UUID = uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")
+	batchAIP1UUID = uuid.MustParse("11111111-1111-1111-1111-111111111111")
+	batchAIP2UUID = uuid.MustParse("22222222-2222-2222-2222-222222222222")
 )
 
 type BatchWorkflowTestSuite struct {
@@ -230,7 +232,13 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 			ExpectedSIPCount: 2,
 			ExpectedStatus:   enums.SIPStatusIngested,
 		},
-	).Return(&activities.PollSIPStatusesActivityResult{AllExpectedStatus: true}, nil)
+	).Return(&activities.PollSIPStatusesActivityResult{
+		AllExpectedStatus: true,
+		SIPIDstoAIPIDs: map[uuid.UUID]uuid.UUID{
+			batchSIP1UUID: batchAIP1UUID,
+			batchSIP2UUID: batchAIP2UUID,
+		},
+	}, nil)
 
 	// Mock postbatch child workflow.
 	s.env.OnWorkflow(
@@ -243,12 +251,14 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 			},
 			SIPs: []*childwf.PostbatchSIP{
 				{
-					UUID: batchSIP1UUID,
-					Name: batchSIP1Key,
+					UUID:  batchSIP1UUID,
+					Name:  batchSIP1Key,
+					AIPID: &batchAIP1UUID,
 				},
 				{
-					UUID: batchSIP2UUID,
-					Name: batchSIP2Key,
+					UUID:  batchSIP2UUID,
+					Name:  batchSIP2Key,
+					AIPID: &batchAIP2UUID,
 				},
 			},
 		},

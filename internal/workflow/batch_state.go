@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"github.com/google/uuid"
 	temporalsdk_log "go.temporal.io/sdk/log"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
@@ -45,17 +46,13 @@ func newBatchWorkflowState(ctx temporalsdk_workflow.Context, req *ingest.BatchWo
 	}
 }
 
-// addSIPDetails adds a new sipDetails entry to the batchWorkflowState at the specified index.
-func (s *batchWorkflowState) addSIPDetails(
-	index int,
-	sip datatypes.SIP,
-	wf temporalsdk_workflow.ChildWorkflowFuture,
-	we temporalsdk_workflow.Execution,
-) {
-	s.sipDetails[index] = &sipDetails{
-		sip:               sip,
-		workflowFuture:    wf,
-		workflowExecution: we,
+func (s *batchWorkflowState) PostbatchParams() *childwf.PostbatchParams {
+	return &childwf.PostbatchParams{
+		Batch: &childwf.PostbatchBatch{
+			UUID:      s.batch.UUID,
+			SIPSCount: s.batch.SIPSCount,
+		},
+		SIPs: s.postbatchSIPs(),
 	}
 }
 
@@ -67,13 +64,17 @@ func (s *batchWorkflowState) SIPs() []datatypes.SIP {
 	return sips
 }
 
-func (s *batchWorkflowState) PostbatchParams() *childwf.PostbatchParams {
-	return &childwf.PostbatchParams{
-		Batch: &childwf.PostbatchBatch{
-			UUID:      s.batch.UUID,
-			SIPSCount: s.batch.SIPSCount,
-		},
-		SIPs: s.postbatchSIPs(),
+// addSIPDetails adds a new sipDetails entry to the batchWorkflowState at the specified index.
+func (s *batchWorkflowState) addSIPDetails(
+	index int,
+	sip datatypes.SIP,
+	wf temporalsdk_workflow.ChildWorkflowFuture,
+	we temporalsdk_workflow.Execution,
+) {
+	s.sipDetails[index] = &sipDetails{
+		sip:               sip,
+		workflowFuture:    wf,
+		workflowExecution: we,
 	}
 }
 
@@ -93,4 +94,17 @@ func (s *batchWorkflowState) postbatchSIPs() []*childwf.PostbatchSIP {
 	}
 
 	return pbs
+}
+
+// updateAIPIDs updates the AIP IDs of the SIPs in the batch workflow state
+// based on the provided map of SIP UUIDs to AIP UUIDs.
+func (state *batchWorkflowState) updateAIPIDs(aipIDs map[uuid.UUID]uuid.UUID) {
+	for _, sd := range state.sipDetails {
+		aipID, ok := aipIDs[sd.sip.UUID]
+		if !ok {
+			continue
+		}
+
+		sd.sip.AIPID = uuid.NullUUID{UUID: aipID, Valid: true}
+	}
 }
