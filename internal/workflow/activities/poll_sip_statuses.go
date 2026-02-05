@@ -36,6 +36,7 @@ type PollSIPStatusesActivityParams struct {
 
 type PollSIPStatusesActivityResult struct {
 	AllExpectedStatus bool
+	SIPIDstoAIPIDs    map[uuid.UUID]uuid.UUID
 }
 
 // PollSIPStatusesActivity polls the ingest service until all SIPs in a batch
@@ -73,7 +74,10 @@ func (a *PollSIPStatusesActivity) Execute(
 				return nil, fmt.Errorf("check SIP statuses: %v", err)
 			}
 			if result.done {
-				return &PollSIPStatusesActivityResult{AllExpectedStatus: result.allExpected}, nil
+				return &PollSIPStatusesActivityResult{
+					AllExpectedStatus: result.allExpected,
+					SIPIDstoAIPIDs:    result.aipIDs,
+				}, nil
 			}
 		}
 	}
@@ -82,6 +86,7 @@ func (a *PollSIPStatusesActivity) Execute(
 type checkResult struct {
 	done        bool
 	allExpected bool
+	aipIDs      map[uuid.UUID]uuid.UUID
 }
 
 func (a *PollSIPStatusesActivity) checkSIPStatuses(
@@ -90,6 +95,8 @@ func (a *PollSIPStatusesActivity) checkSIPStatuses(
 	expectedSIPCount int,
 	expectedStatus enums.SIPStatus,
 ) (*checkResult, error) {
+	aipIDs := make(map[uuid.UUID]uuid.UUID, expectedSIPCount)
+
 	// Query all SIPs for this batch. Limit to the maximum page size for now,
 	// we may switch to a stats-based or aggregated query approach in the future.
 	result, err := a.ingestsvc.ListSips(ctx, &goaingest.ListSipsPayload{
@@ -109,7 +116,7 @@ func (a *PollSIPStatusesActivity) checkSIPStatuses(
 	for _, sip := range result.Items {
 		status, err := enums.ParseSIPStatus(sip.Status)
 		if err != nil {
-			return nil, fmt.Errorf("parse SIP status: %v", err)
+			return nil, fmt.Errorf("invalid SIP status: %s", sip.Status)
 		}
 
 		// Check if this SIP has the expected status.
@@ -119,7 +126,23 @@ func (a *PollSIPStatusesActivity) checkSIPStatuses(
 		} else if !slices.Contains(finalStatuses, status) {
 			return &checkResult{done: false}, nil
 		}
+
+		if status == enums.SIPStatusIngested && sip.AipUUID != nil {
+			id, err := uuid.Parse(*sip.AipUUID)
+			if err != nil {
+				return nil, fmt.Errorf("parse AIP UUID: %v", err)
+			}
+			aipIDs[sip.UUID] = id
+		}
 	}
 
-	return &checkResult{done: true, allExpected: expectedStatusCount == expectedSIPCount}, nil
+	res := &checkResult{
+		done:        true,
+		allExpected: expectedStatusCount == expectedSIPCount,
+	}
+	if len(aipIDs) > 0 {
+		res.aipIDs = aipIDs
+	}
+
+	return res, nil
 }

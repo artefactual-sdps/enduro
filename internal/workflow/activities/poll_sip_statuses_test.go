@@ -26,6 +26,9 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 	batchUUID := uuid.New()
 	sip1UUID := uuid.New()
 	sip2UUID := uuid.New()
+	aip1UUID := uuid.New()
+	aip2UUID := uuid.New()
+
 	payload := &goaingest.ListSipsPayload{
 		BatchUUID: ref.New(batchUUID.String()),
 		Limit:     ref.New(entfilter.MaxPageSize),
@@ -54,6 +57,36 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 					}}, nil)
 			},
 			want: &activities.PollSIPStatusesActivityResult{AllExpectedStatus: true},
+		},
+		{
+			name: "Returns true when all SIPs have ingested status",
+			params: &activities.PollSIPStatusesActivityParams{
+				BatchUUID:        batchUUID,
+				ExpectedSIPCount: 2,
+				ExpectedStatus:   enums.SIPStatusIngested,
+			},
+			mock: func(r *ingestfake.MockServiceMockRecorder) {
+				r.ListSips(mockutil.Context(), payload).
+					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
+						{
+							UUID:    sip1UUID,
+							Status:  enums.SIPStatusIngested.String(),
+							AipUUID: ref.New(aip1UUID.String()),
+						},
+						{
+							UUID:    sip2UUID,
+							Status:  enums.SIPStatusIngested.String(),
+							AipUUID: ref.New(aip2UUID.String()),
+						},
+					}}, nil)
+			},
+			want: &activities.PollSIPStatusesActivityResult{
+				AllExpectedStatus: true,
+				SIPIDstoAIPIDs: map[uuid.UUID]uuid.UUID{
+					sip1UUID: aip1UUID,
+					sip2UUID: aip2UUID,
+				},
+			},
 		},
 		{
 			name: "Returns false when some SIPs have failed status",
@@ -160,6 +193,42 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 					Return(nil, fmt.Errorf("persistence error"))
 			},
 			wantErr: "check SIP statuses: list SIPs: persistence error",
+		},
+		{
+			name: "Fails on invalid SIP status",
+			params: &activities.PollSIPStatusesActivityParams{
+				BatchUUID:        batchUUID,
+				ExpectedSIPCount: 2,
+				ExpectedStatus:   enums.SIPStatusValidated,
+			},
+			mock: func(r *ingestfake.MockServiceMockRecorder) {
+				r.ListSips(mockutil.Context(), payload).
+					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
+						{UUID: sip1UUID, Status: "unknown"},
+						{UUID: sip2UUID, Status: enums.SIPStatusValidated.String()},
+					}}, nil)
+			},
+			wantErr: "check SIP statuses: invalid SIP status: unknown",
+		},
+		{
+			name: "Fails on invalid AIP UUID",
+			params: &activities.PollSIPStatusesActivityParams{
+				BatchUUID:        batchUUID,
+				ExpectedSIPCount: 2,
+				ExpectedStatus:   enums.SIPStatusValidated,
+			},
+			mock: func(r *ingestfake.MockServiceMockRecorder) {
+				r.ListSips(mockutil.Context(), payload).
+					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
+						{
+							UUID:    sip1UUID,
+							Status:  enums.SIPStatusIngested.String(),
+							AipUUID: ref.New("invalid-uuid"),
+						},
+						{UUID: sip2UUID, Status: enums.SIPStatusIngested.String()},
+					}}, nil)
+			},
+			wantErr: "check SIP statuses: parse AIP UUID: invalid UUID length: 12",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
