@@ -14,10 +14,12 @@ jobs:
         uses: AbsaOSS/k3d-action@4e8b3239042be1dc0aed6c5eb80c13b18200fc79 # v2.4.0
         with:
           cluster-name: sdps-ci
+          k3d-version: v5.8.3
           args: >-
             --registry-create sdps-ci-registry
             --no-lb
-            --k3s-arg "--no-deploy=traefik,servicelb,metrics-server@server:*"
+            --timeout 180s
+            --k3s-arg "--disable=traefik,servicelb,metrics-server@server:*"
             --k3s-arg "--kubelet-arg=eviction-hard=imagefs.available<1%,nodefs.available<1%@server:*"
       - name: Install Tilt
         uses: yokawasa/action-setup-kube-tools@3e3886c11bfa25fe33f8eb90f59542dd151da442 # v0.13.1
