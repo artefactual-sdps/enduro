@@ -131,10 +131,10 @@ gen-mock: tool-mockgen
 	mockgen -typed -destination=./internal/api/auth/fake/mock_ticket_store.go -package=fake github.com/artefactual-sdps/enduro/internal/api/auth TicketStore
 	mockgen -typed -destination=./internal/api/auth/fake/mock_token_verifier.go -package=fake github.com/artefactual-sdps/enduro/internal/api/auth TokenVerifier
 	mockgen -typed -destination=./internal/ingest/fake/mock_ingest.go -package=fake github.com/artefactual-sdps/enduro/internal/ingest Service
+	mockgen -typed -destination=./internal/ingest/fake/mock_storage_client.go -package=fake github.com/artefactual-sdps/enduro/internal/ingest StorageClient
 	mockgen -typed -destination=./internal/persistence/fake/mock_persistence.go -package=fake github.com/artefactual-sdps/enduro/internal/persistence Service
 	mockgen -typed -destination=./internal/sipsource/fake/mock_sipsource.go -package=fake github.com/artefactual-sdps/enduro/internal/sipsource SIPSource
 	mockgen -typed -destination=./internal/sftp/fake/mock_sftp.go -package=fake github.com/artefactual-sdps/enduro/internal/sftp Client,AsyncUpload
-	mockgen -typed -destination=./internal/storage/fake/mock_client.go -package=fake github.com/artefactual-sdps/enduro/internal/storage Client
 	mockgen -typed -destination=./internal/storage/fake/mock_storage.go -package=fake github.com/artefactual-sdps/enduro/internal/storage Service
 	mockgen -typed -destination=./internal/storage/pdfs/fake/mock_form_filler.go -package=fake github.com/artefactual-sdps/enduro/internal/storage/pdfs FormFiller
 	mockgen -typed -destination=./internal/storage/persistence/fake/mock_persistence.go -package=fake github.com/artefactual-sdps/enduro/internal/storage/persistence Storage

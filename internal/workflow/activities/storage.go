@@ -13,11 +13,11 @@ import (
 	goa "goa.design/goa/v3/pkg"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	"github.com/artefactual-sdps/enduro/internal/storage"
+	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
 
 type CreateStorageAIPActivity struct {
-	client storage.Client
+	client ingest.StorageClient
 }
 
 type CreateStorageAIPActivityParams struct {
@@ -32,7 +32,7 @@ type CreateStorageAIPActivityResult struct {
 	CreatedAt string
 }
 
-func NewCreateStorageAIPActivity(client storage.Client) *CreateStorageAIPActivity {
+func NewCreateStorageAIPActivity(client ingest.StorageClient) *CreateStorageAIPActivity {
 	return &CreateStorageAIPActivity{client: client}
 }
 
@@ -81,10 +81,10 @@ type MoveToPermanentStorageActivityParams struct {
 type MoveToPermanentStorageActivityResult struct{}
 
 type MoveToPermanentStorageActivity struct {
-	storageClient *goastorage.Client
+	storageClient ingest.StorageClient
 }
 
-func NewMoveToPermanentStorageActivity(storageClient *goastorage.Client) *MoveToPermanentStorageActivity {
+func NewMoveToPermanentStorageActivity(storageClient ingest.StorageClient) *MoveToPermanentStorageActivity {
 	return &MoveToPermanentStorageActivity{
 		storageClient: storageClient,
 	}
@@ -110,12 +110,12 @@ type PollMoveToPermanentStorageActivityParams struct {
 }
 
 type PollMoveToPermanentStorageActivity struct {
-	storageClient *goastorage.Client
+	storageClient ingest.StorageClient
 }
 
 type PollMoveToPermanentStorageActivityResult struct{}
 
-func NewPollMoveToPermanentStorageActivity(storageClient *goastorage.Client) *PollMoveToPermanentStorageActivity {
+func NewPollMoveToPermanentStorageActivity(storageClient ingest.StorageClient) *PollMoveToPermanentStorageActivity {
 	return &PollMoveToPermanentStorageActivity{
 		storageClient: storageClient,
 	}
@@ -185,12 +185,12 @@ type RejectSIPActivityParams struct {
 }
 
 type RejectSIPActivity struct {
-	storageClient *goastorage.Client
+	storageClient ingest.StorageClient
 }
 
 type RejectSIPActivityResult struct{}
 
-func NewRejectSIPActivity(storageClient *goastorage.Client) *RejectSIPActivity {
+func NewRejectSIPActivity(storageClient ingest.StorageClient) *RejectSIPActivity {
 	return &RejectSIPActivity{
 		storageClient: storageClient,
 	}

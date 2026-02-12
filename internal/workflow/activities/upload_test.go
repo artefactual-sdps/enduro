@@ -15,8 +15,8 @@ import (
 	"gotest.tools/v3/fs"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	"github.com/artefactual-sdps/enduro/internal/storage"
-	"github.com/artefactual-sdps/enduro/internal/storage/fake"
 )
 
 func MinIOUploadPreSignedURLHandler(t *testing.T) func(rw http.ResponseWriter, req *http.Request) {
@@ -37,7 +37,7 @@ func TestUploadActivity(t *testing.T) {
 		aipUUID := uuid.New().String()
 		aipName := "aip.7z"
 
-		mockClient := fake.NewMockClient(gomock.NewController(t))
+		mockClient := fake.NewMockStorageClient(gomock.NewController(t))
 		mockClient.EXPECT().
 			SubmitAip(
 				mockutil.Context(),
@@ -79,7 +79,7 @@ func TestUploadActivity(t *testing.T) {
 		aipUUID := uuid.New().String()
 		aipName := "aip.7z"
 
-		mockClient := fake.NewMockClient(gomock.NewController(t))
+		mockClient := fake.NewMockStorageClient(gomock.NewController(t))
 		mockClient.EXPECT().
 			SubmitAip(
 				mockutil.Context(),

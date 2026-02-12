@@ -14,7 +14,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	storage_fake "github.com/artefactual-sdps/enduro/internal/storage/fake"
+	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
@@ -30,7 +30,7 @@ func TestCreateAIPActivity(t *testing.T) {
 	type test struct {
 		name      string
 		params    *activities.CreateStorageAIPActivityParams
-		mockCalls func(m *storage_fake.MockClientMockRecorder)
+		mockCalls func(m *ingest_fake.MockStorageClientMockRecorder)
 		want      *activities.CreateStorageAIPActivityResult
 		wantErr   string
 	}
@@ -44,7 +44,7 @@ func TestCreateAIPActivity(t *testing.T) {
 				Status:     "stored",
 				LocationID: &locationID,
 			},
-			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
+			mockCalls: func(m *ingest_fake.MockStorageClientMockRecorder) {
 				m.CreateAip(
 					mockutil.Context(),
 					&goastorage.CreateAipPayload{
@@ -79,7 +79,7 @@ func TestCreateAIPActivity(t *testing.T) {
 				Status:     "stored",
 				LocationID: &locationID,
 			},
-			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
+			mockCalls: func(m *ingest_fake.MockStorageClientMockRecorder) {
 				m.CreateAip(
 					mockutil.Context(),
 					&goastorage.CreateAipPayload{
@@ -104,7 +104,7 @@ func TestCreateAIPActivity(t *testing.T) {
 				Status:     "stored",
 				LocationID: &locationID,
 			},
-			mockCalls: func(m *storage_fake.MockClientMockRecorder) {
+			mockCalls: func(m *ingest_fake.MockStorageClientMockRecorder) {
 				m.CreateAip(
 					mockutil.Context(),
 					&goastorage.CreateAipPayload{
@@ -126,7 +126,7 @@ func TestCreateAIPActivity(t *testing.T) {
 
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
-			mockClient := storage_fake.NewMockClient(gomock.NewController(t))
+			mockClient := ingest_fake.NewMockStorageClient(gomock.NewController(t))
 			if tt.mockCalls != nil {
 				tt.mockCalls(mockClient.EXPECT())
 			}
