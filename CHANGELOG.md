@@ -8,6 +8,22 @@ requests.
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-02-13
+
+### Fixed
+
+- Prevent error listing SIPs in upload from source ([#1499])
+
+### Changed
+
+- Improve accessibility in dashboard dialogs ([#1483])
+- Standardize config for child workflows ([#1478])
+
+### Added
+
+- Batch post-storage child workflow call site ([#1478])
+- Batch review implementation ([#1483])
+
 ## [0.22.0] - 2026-01-12
 
 ### Fixed
@@ -281,7 +297,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.22.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.23.0...HEAD
+[0.23.0]: https://github.com/artefactual-sdps/enduro/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/artefactual-sdps/enduro/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/artefactual-sdps/enduro/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/artefactual-sdps/enduro/compare/v0.19.0...v0.20.0
@@ -304,6 +321,9 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1499]: https://github.com/artefactual-sdps/enduro/issues/1499
+[#1483]: https://github.com/artefactual-sdps/enduro/issues/1483
+[#1478]: https://github.com/artefactual-sdps/enduro/issues/1478
 [#1473]: https://github.com/artefactual-sdps/enduro/issues/1473
 [#1405]: https://github.com/artefactual-sdps/enduro/issues/1405
 [#1401]: https://github.com/artefactual-sdps/enduro/issues/1401
