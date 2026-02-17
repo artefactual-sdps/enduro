@@ -224,6 +224,27 @@ data:
           ]
         },
         {
+          "id": "1de2ff7e-b7f7-4262-8194-4aaf51a1d824",
+          "clientId": "enduro-s2s",
+          "name": "Enduro S2S",
+          "enabled": true,
+          "secret": "uSh7f2r4j2U5wA9d7mJ3xP6nQ8cT1vL0",
+          "protocol": "openid-connect",
+          "serviceAccountsEnabled": true,
+          "protocolMappers": [
+            {
+              "id": "65d4c2f1-c16d-4763-b519-9fc772c897c5",
+              "name": "access-token-aud",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-audience-mapper",
+              "config": {
+                "included.client.audience": "enduro-s2s",
+                "access.token.claim": "true"
+              }
+            }
+          ]
+        },
+        {
           "id": "fa523562-823d-4a8d-9214-e237a20fd599",
           "clientId": "temporal",
           "name": "Temporal",
