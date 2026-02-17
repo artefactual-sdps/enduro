@@ -50,8 +50,9 @@ atlas-hash: tool-atlas # @HELP Recalculate the migration hashes.
 auth: HOST ?= http://keycloak:7470/realms/artefactual
 auth: CLIENT ?= enduro
 auth: SCOPES ?= openid,email,profile,enduro
+auth: CLIENT_SECRET ?=
 auth: # @HELP Get an API access token from a Keycloak provider.
-	go run ./hack/auth/main.go $(HOST) $(CLIENT) $(SCOPES)
+	CLIENT_SECRET="$(CLIENT_SECRET)" go run ./hack/auth/main.go "$(HOST)" "$(CLIENT)" "$(SCOPES)"
 
 db: # @HELP Opens the MySQL shell connected to the enduro development database.
 db:

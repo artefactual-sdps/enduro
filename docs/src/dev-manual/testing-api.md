@@ -29,6 +29,12 @@ from a different provider. For example:
 make auth HOST=http://example.com CLIENT=enduro SCOPES=openid,email,profile
 ```
 
+To use the client credentials flow, set `CLIENT_SECRET`:
+
+```sh
+make auth CLIENT=enduro-s2s CLIENT_SECRET=uSh7f2r4j2U5wA9d7mJ3xP6nQ8cT1vL0
+```
+
 After authentication, the script will output the token payload for inspection
 and its encoded value for API authentication.
 

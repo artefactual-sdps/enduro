@@ -1,11 +1,12 @@
 //go:build ignore
 
-// This script performs a manual OAuth2 Authorization Code flow with PKCE
-// against a Keycloak (or compatible OIDC) provider. It prints an
-// authorization URL, prompts the user to log in via browser, and exchanges
-// the returned code for an access token. The decoded token payload is
-// printed for inspection. Intended for API testing and development, not
-// production use.
+// This script gets an OAuth2 access token from a Keycloak (or compatible
+// OIDC) provider and prints the decoded token payload for inspection.
+//
+// Default flow is Authorization Code with PKCE. If CLIENT_SECRET is set
+// in the environment, it uses Client Credentials.
+//
+// Intended for API testing and development, not production use.
 
 package main
 
@@ -21,11 +22,16 @@ import (
 	"strings"
 
 	"golang.org/x/oauth2"
+	"golang.org/x/oauth2/clientcredentials"
 )
 
 const usage = `Usage:
 
     $ go run ./hack/auth/main.go http://keycloak:7470/realms/realm_id client_id scope1,scope2,scope3
+
+Environment:
+
+    CLIENT_SECRET  Optional client secret. If set, uses client_credentials; otherwise authorization_code (PKCE).
 `
 
 func main() {
@@ -38,6 +44,34 @@ func main() {
 	host := strings.TrimSuffix(os.Args[1], "/")
 	client := os.Args[2]
 	scopes := strings.Split(os.Args[3], ",")
+	if len(scopes) == 1 && scopes[0] == "" {
+		scopes = nil
+	}
+	clientSecret := strings.TrimSpace(os.Getenv("CLIENT_SECRET"))
+	var err error
+	var token *oauth2.Token
+
+	if clientSecret == "" {
+		token, err = tokenFromAuthCode(host, client, scopes)
+	} else {
+		conf := &clientcredentials.Config{
+			ClientID:     client,
+			ClientSecret: clientSecret,
+			TokenURL:     fmt.Sprintf("%s/protocol/openid-connect/token", host),
+			Scopes:       scopes,
+		}
+		token, err = conf.Token(context.Background())
+	}
+	if err != nil {
+		fmt.Printf("Unable to get token: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("\nAccess token payload:\n\n%s\n", tokenPayload(token.AccessToken))
+	fmt.Printf("\nAccess token value:\n\n%s\n", token.AccessToken)
+}
+
+func tokenFromAuthCode(host, client string, scopes []string) (*oauth2.Token, error) {
 	conf := &oauth2.Config{
 		ClientID:    client,
 		RedirectURL: "urn:ietf:wg:oauth:2.0:oob",
@@ -50,8 +84,7 @@ func main() {
 
 	cv, err := codeVerifier()
 	if err != nil {
-		fmt.Printf("Unable to generate code verifier: %v\n", err)
-		os.Exit(1)
+		return nil, err
 	}
 	cc := codeChallenge(cv)
 	authURL := conf.AuthCodeURL(
@@ -72,12 +105,10 @@ func main() {
 		oauth2.SetAuthURLParam("code_verifier", cv),
 	)
 	if err != nil {
-		fmt.Printf("Unable to get token: %v\n", err)
-		os.Exit(1)
+		return nil, err
 	}
 
-	fmt.Printf("\nAccess token payload:\n\n%s\n", tokenPayload(token.AccessToken))
-	fmt.Printf("\nAccess token value:\n\n%s\n", token.AccessToken)
+	return token, nil
 }
 
 func codeVerifier() (string, error) {
