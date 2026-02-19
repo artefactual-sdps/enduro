@@ -51,7 +51,7 @@ type StorageClient interface {
 
 var _ StorageClient = (*goastorage.Client)(nil)
 
-func NewStorageClient(tp trace.TracerProvider, enduroAddress string) StorageClient {
+func NewStorageClient(tp trace.TracerProvider, address string) StorageClient {
 	httpClient := cleanhttp.DefaultPooledClient()
 	httpClient.Transport = otelhttp.NewTransport(
 		httpClient.Transport,
@@ -63,7 +63,7 @@ func NewStorageClient(tp trace.TracerProvider, enduroAddress string) StorageClie
 
 	storageHTTPClient := goahttpstorage.NewClient(
 		"http",
-		enduroAddress,
+		address,
 		httpClient,
 		goahttp.RequestEncoder,
 		goahttp.ResponseDecoder,

@@ -10,5 +10,5 @@ spec:
           env:
             - name: ENDURO_PRESERVATION_TASKQUEUE
               value: "a3m"
-            - name: ENDURO_STORAGE_DEFAULTPERMANENTLOCATIONID
+            - name: ENDURO_INGEST_STORAGE_DEFAULTPERMANENTLOCATIONID
               value: "f2cc963f-c14d-4eaa-b950-bd207189a1f1"

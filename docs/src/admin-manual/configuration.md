@@ -527,7 +527,7 @@ workflowType = "create aip"
   values are "create aip" and "create and review aip". The latter review
   workflow also only works if [a3m] is the configured [preservation engine].
 
-### Storage endpoint
+### Ingest storage settings
 
 This element configures the Enduro storage service API endpoint. Even when using
 [Archivematica] as the [preservation engine] (which includes the AM
@@ -538,12 +538,12 @@ AMSS. Otherwise, this configures the primary local storage service when using
 **Default values**:
 
 ```toml
-[storage]
-enduroAddress = "enduro.enduro-sdps:9002"
+[ingest.storage]
+address = "enduro.enduro-sdps:9002"
 defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
 ```
 
-* `enduroAddress`: Defines the address and port for the storage API endpoint.
+* `address`: Defines the address and port for the storage API endpoint.
 * `defaultPermanentLocationId`: The UUID of the storage location used for
   permanent AIP storage in automated workflows. The default value provided
   represents the first permanent location defined in the

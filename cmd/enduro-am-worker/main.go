@@ -321,7 +321,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
 		)
 
-		storageClient := ingest.NewStorageClient(tp, cfg.Storage.EnduroAddress)
+		storageClient := ingest.NewStorageClient(tp, cfg.Ingest.Storage.Address)
 		w.RegisterActivityWithOptions(
 			activities.NewCreateStorageAIPActivity(storageClient).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.CreateStorageAIPActivityName},

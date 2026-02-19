@@ -307,6 +307,20 @@ samplingRatio = 1.0
 # taskQueue = "postbatch"
 # workflowName = "postbatch"
 
+# [ingest.storage] configures ingest as a client of the storage API.
+# Use this section for cross-domain integration values:
+# - the address of the storage API
+# - which permanent location ingest targets by default
+[ingest.storage]
+address = "enduro.enduro-sdps:9002"
+
+# defaultPermanentLocationId is the UUID of the storage location used for
+# permanent AIP storage in the "auto-approve" processing workflow.
+# The value of "e0ed8b2a-8ae2-4546-b5d8-f0090919df04" represents the AIP
+# storage location UUID defined in the enduro-am-secret.yaml and created
+# in the mysql-create-amss-location-job.yaml Kubernetes manifest.
+defaultPermanentLocationId = "e0ed8b2a-8ae2-4546-b5d8-f0090919df04"
+
 #########################################################################
 #                                                                       #
 #                     STORAGE SERVICE CONFIGURATION                     #
@@ -315,15 +329,16 @@ samplingRatio = 1.0
 #                                                                       #
 #########################################################################
 
+# [storage] configures the storage service itself (service-owned behavior).
+# Keep this separate from [ingest.storage]: ingest consumes the storage API,
+# while [storage] defines how the storage domain runs internally.
 [storage]
-enduroAddress = "enduro.enduro-sdps:9002"
-
-# defaultPermanentLocationId is the UUID of the storage location used for
-# permanent AIP storage in the "auto-approve" processing workflow.
-# The value of "e0ed8b2a-8ae2-4546-b5d8-f0090919df04" represents the AIP
-# storage location UUID defined in the enduro-am-secret.yaml and created
-# in the mysql-create-amss-location-job.yaml Kubernetes manifest.
-defaultPermanentLocationId = "e0ed8b2a-8ae2-4546-b5d8-f0090919df04"
+# taskQueue is the Temporal queue used by storage workflows and activities.
+# Default: "global".
+# Note: storage does not currently define its own Temporal address/namespace.
+# It reuses the ingest domain Temporal configuration and client. This is not
+# ideal and should be changed in the future.
+taskQueue = "global"
 
 [storage.database]
 driver = "mysql"

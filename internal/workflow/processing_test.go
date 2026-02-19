@@ -25,7 +25,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/premis"
 	"github.com/artefactual-sdps/enduro/internal/pres"
-	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
@@ -45,7 +44,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 	})
 
 	// Signal handler that mimics SIP/AIP confirmation.
@@ -100,7 +99,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 	})
 
 	// Signal handler that mimics SIP/AIP rejection.
@@ -150,7 +149,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 	})
 
 	params := defaultParams()
@@ -183,7 +182,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	s.SetupWorkflowTest(config.Configuration{
 		AM:             am.Config{ZipPIP: true, TransferDeadline: time.Second},
 		Preservation:   pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
-		Storage:        storage.Config{DefaultPermanentLocationID: amssLocationID},
+		Ingest:         ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: amssLocationID}},
 		ValidatePREMIS: premis.Config{Enabled: true, XSDPath: "/home/enduro/premis.xsd"},
 	})
 
@@ -294,7 +293,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 		ChildWorkflows: childwf.Configs{
 			{
 				Type:         enums.ChildWorkflowTypePreprocessing,
@@ -401,7 +400,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 
-		Storage: storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest: ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 		ChildWorkflows: childwf.Configs{
 			{
 				Type:         enums.ChildWorkflowTypePreprocessing,
@@ -464,7 +463,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:            a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation:   pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:        storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest:         ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 		ValidatePREMIS: premis.Config{Enabled: true, XSDPath: "/home/enduro/premis.xsd"},
 	})
 
@@ -530,7 +529,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	s.SetupWorkflowTest(config.Configuration{
 		AM:           am.Config{ZipPIP: true},
 		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: amssLocationID},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: amssLocationID}},
 	})
 
 	params := defaultParams()
@@ -575,7 +574,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 	})
 
 	params := defaultParams()
@@ -636,7 +635,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUploadError() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 		ChildWorkflows: childwf.Configs{
 			{
 				Type:         enums.ChildWorkflowTypePreprocessing,
@@ -711,7 +710,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPSourceUpload() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 	})
 
 	params := defaultParams()
@@ -772,7 +771,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPDeletionError() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 	})
 
 	params := defaultParams()
@@ -826,7 +825,7 @@ func (s *ProcessingWorkflowTestSuite) TestBatchSignalDoNotContinue() {
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
-		Storage:      storage.Config{DefaultPermanentLocationID: locationID},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 	})
 
 	params := defaultParams()

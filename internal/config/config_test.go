@@ -28,7 +28,7 @@ debugListen = "127.0.0.1:9001"
 [temporal]
 address = "host:port"
 
-[storage]
+[ingest.storage]
 defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
 
 [api.auth.oidc.abac]
@@ -76,12 +76,16 @@ func TestConfigRead(t *testing.T) {
 				BagIt: bagcreate.Config{
 					ChecksumAlgorithm: "sha512",
 				},
+				Ingest: ingest.Config{
+					Storage: ingest.StorageConfig{
+						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
+					},
+				},
 				Preservation: pres.Config{
 					TaskQueue: "a3m",
 				},
 				Storage: storage.Config{
-					TaskQueue:                  "global",
-					DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
+					TaskQueue: "global",
 				},
 				Temporal: temporal.Config{
 					Address:   "host:port",
@@ -131,11 +135,11 @@ func TestConfigRead(t *testing.T) {
 		},
 		{
 			name: "Returns error if string to UUID hook fails",
-			config: `[storage]
+			config: `[ingest.storage]
 defaultPermanentLocationId = "not-a-uuid"`,
 			wantErr: `failed to unmarshal configuration: 1 error(s) decoding:
 
-* error decoding 'Storage.DefaultPermanentLocationID': invalid UUID length: 10`,
+* error decoding 'Ingest.Storage.DefaultPermanentLocationID': invalid UUID length: 10`,
 		},
 		{
 			name: "Returns error if string to map hook fails",

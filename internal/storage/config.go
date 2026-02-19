@@ -1,19 +1,15 @@
 package storage
 
 import (
-	"github.com/google/uuid"
-
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
 type Config struct {
-	TaskQueue                  string
-	EnduroAddress              string
-	DefaultPermanentLocationID uuid.UUID
-	Internal                   LocationConfig
-	Database                   Database
-	Event                      event.Config
-	AIPDeletion                AIPDeletionConfig
+	TaskQueue   string
+	Internal    LocationConfig
+	Database    Database
+	Event       event.Config
+	AIPDeletion AIPDeletionConfig
 }
 
 type Database struct {

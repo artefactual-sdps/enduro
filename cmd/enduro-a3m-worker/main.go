@@ -285,7 +285,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
 		)
 
-		storageClient := ingest.NewStorageClient(tp, cfg.Storage.EnduroAddress)
+		storageClient := ingest.NewStorageClient(tp, cfg.Ingest.Storage.Address)
 		w.RegisterActivityWithOptions(
 			activities.NewUploadActivity(storageClient).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName},

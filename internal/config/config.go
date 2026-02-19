@@ -65,6 +65,7 @@ type Configuration struct {
 	Database        db.Config
 	Event           event.Config
 	ExtractActivity archiveextract.Config
+	Ingest          ingest.Config
 	Preservation    pres.Config
 	SIPSource       sipsource.Config
 	Storage         storage.Config

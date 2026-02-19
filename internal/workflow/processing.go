@@ -653,7 +653,7 @@ func (w *ProcessingWorkflow) transferA3m(
 	if state.req.Type == enums.WorkflowTypeCreateAip {
 		reviewResult = &ingest.ReviewPerformedSignal{
 			Accepted:   true,
-			LocationID: &w.cfg.Storage.DefaultPermanentLocationID,
+			LocationID: &w.cfg.Ingest.Storage.DefaultPermanentLocationID,
 		}
 	} else {
 		// Set SIP to pending status.
@@ -977,7 +977,7 @@ func (w *ProcessingWorkflow) transferAM(
 				Name:       state.sip.name,
 				AIPID:      state.aip.id,
 				ObjectKey:  state.aip.id,
-				LocationID: &w.cfg.Storage.DefaultPermanentLocationID,
+				LocationID: &w.cfg.Ingest.Storage.DefaultPermanentLocationID,
 				Status:     "stored",
 			}).
 			Get(activityOpts, nil)
