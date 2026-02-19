@@ -47,92 +47,295 @@ func token(t *testing.T, signer jose.Signer, iss string, claims any) (token stri
 func TestOIDCTokenVerifier(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Verifies tokens with email verified", func(t *testing.T) {
+	type verification struct {
+		token           string
+		wantClaims      *auth.Claims
+		wantErrContains []string
+		wantErrIs       error
+	}
+	type test struct {
+		name  string
+		setup func(t *testing.T) (auth.OIDCConfigs, []verification)
+	}
+	for _, tt := range []test{
+		{
+			name: "Verifies tokens with email verified",
+			setup: func(t *testing.T) (auth.OIDCConfigs, []verification) {
+				signer, iss := oidctest.NewIssuer(t)
+				token := token(t, signer, iss, auth.Claims{
+					Email:         "info@artefactual.com",
+					EmailVerified: true,
+				})
+
+				return auth.OIDCConfigs{
+						{ProviderURL: iss, ClientID: audience},
+					}, []verification{
+						{
+							token: token,
+							wantClaims: &auth.Claims{
+								Email:         "info@artefactual.com",
+								EmailVerified: true,
+								Iss:           iss,
+								Sub:           subject,
+							},
+						},
+					}
+			},
+		},
+		{
+			name: "Verifies tokens without email verified (skipEmailVerifiedCheck)",
+			setup: func(t *testing.T) (auth.OIDCConfigs, []verification) {
+				signer, iss := oidctest.NewIssuer(t)
+				token := token(t, signer, iss, auth.Claims{
+					Email: "info@artefactual.com",
+				})
+
+				return auth.OIDCConfigs{
+						{
+							ProviderURL:            iss,
+							ClientID:               audience,
+							SkipEmailVerifiedCheck: true,
+						},
+					}, []verification{
+						{
+							token: token,
+							wantClaims: &auth.Claims{
+								Email: "info@artefactual.com",
+								Iss:   iss,
+								Sub:   subject,
+							},
+						},
+					}
+			},
+		},
+		{
+			name: "Rejects tokens without email verified",
+			setup: func(t *testing.T) (auth.OIDCConfigs, []verification) {
+				signer, iss := oidctest.NewIssuer(t)
+				token := token(t, signer, iss, auth.Claims{
+					Email: "info@artefactual.com",
+				})
+
+				return auth.OIDCConfigs{
+						{ProviderURL: iss, ClientID: audience},
+					}, []verification{
+						{
+							token:     token,
+							wantErrIs: auth.ErrUnauthorized,
+						},
+					}
+			},
+		},
+		{
+			name: "Rejects tokens under other errorful conditions",
+			setup: func(t *testing.T) (auth.OIDCConfigs, []verification) {
+				signer, iss := oidctest.NewIssuer(t)
+				token := token(t, signer, iss, auth.Claims{
+					Email:         "info@artefactual.com",
+					EmailVerified: false,
+				})
+
+				return auth.OIDCConfigs{
+						{ProviderURL: iss, ClientID: "--- wrong-audience ---"},
+					}, []verification{
+						{
+							token: token,
+							wantErrContains: []string{
+								`oidc: expected audience "--- wrong-audience ---" got ["test-audience"]`,
+							},
+						},
+					}
+			},
+		},
+		{
+			name: "Verifies token when multiple providers are configured",
+			setup: func(t *testing.T) (auth.OIDCConfigs, []verification) {
+				signerA, issA := oidctest.NewIssuer(t)
+				tokenA := token(t, signerA, issA, auth.Claims{
+					Email:         "example@artefactual.com",
+					EmailVerified: true,
+				})
+				signerB, issB := oidctest.NewIssuer(t)
+				tokenB := token(t, signerB, issB, auth.Claims{
+					Email:         "example@artefactual.com",
+					EmailVerified: true,
+				})
+
+				return auth.OIDCConfigs{
+						{ProviderURL: issA, ClientID: audience},
+						{ProviderURL: issB, ClientID: audience},
+					}, []verification{
+						{
+							token: tokenA,
+							wantClaims: &auth.Claims{
+								Email:         "example@artefactual.com",
+								EmailVerified: true,
+								Iss:           issA,
+								Sub:           subject,
+							},
+						},
+						{
+							token: tokenB,
+							wantClaims: &auth.Claims{
+								Email:         "example@artefactual.com",
+								EmailVerified: true,
+								Iss:           issB,
+								Sub:           subject,
+							},
+						},
+					}
+			},
+		},
+		{
+			name: "Verifies token using per-verifier skipEmailVerifiedCheck",
+			setup: func(t *testing.T) (auth.OIDCConfigs, []verification) {
+				signer, iss := oidctest.NewIssuer(t)
+				token := token(t, signer, iss, auth.Claims{
+					Email: "example@artefactual.com",
+				})
+
+				return auth.OIDCConfigs{
+						{
+							ProviderURL:            iss,
+							ClientID:               audience,
+							SkipEmailVerifiedCheck: false,
+						},
+						{
+							ProviderURL:            iss,
+							ClientID:               audience,
+							SkipEmailVerifiedCheck: true,
+						},
+					}, []verification{
+						{
+							token: token,
+							wantClaims: &auth.Claims{
+								Email: "example@artefactual.com",
+								Iss:   iss,
+								Sub:   subject,
+							},
+						},
+					}
+			},
+		},
+		{
+			name: "Verifies token when an earlier verifier has ABAC parsing error",
+			setup: func(t *testing.T) (auth.OIDCConfigs, []verification) {
+				signer, iss := oidctest.NewIssuer(t)
+				token := token(t, signer, iss, map[string]any{
+					"email":          "example@artefactual.com",
+					"email_verified": true,
+					"attributes":     []string{"*"},
+				})
+
+				return auth.OIDCConfigs{
+						{
+							ProviderURL: iss,
+							ClientID:    audience,
+							ABAC: auth.OIDCABACConfig{
+								Enabled:   true,
+								ClaimPath: "missing",
+							},
+						},
+						{
+							ProviderURL: iss,
+							ClientID:    audience,
+							ABAC: auth.OIDCABACConfig{
+								Enabled:   true,
+								ClaimPath: "attributes",
+							},
+						},
+					}, []verification{
+						{
+							token: token,
+							wantClaims: &auth.Claims{
+								Email:         "example@artefactual.com",
+								EmailVerified: true,
+								Iss:           iss,
+								Sub:           subject,
+								Attributes:    []string{"*"},
+							},
+						},
+					}
+			},
+		},
+		{
+			name: "Returns joined errors when all verifiers fail with non authorization errors",
+			setup: func(t *testing.T) (auth.OIDCConfigs, []verification) {
+				signer, iss := oidctest.NewIssuer(t)
+				token := token(t, signer, iss, auth.Claims{
+					Email:         "example@artefactual.com",
+					EmailVerified: true,
+				})
+
+				return auth.OIDCConfigs{
+						{ProviderURL: iss, ClientID: "wrong-audience-a"},
+						{ProviderURL: iss, ClientID: "wrong-audience-b"},
+					}, []verification{
+						{
+							token: token,
+							wantErrContains: []string{
+								`oidc: expected audience "wrong-audience-a" got ["test-audience"]`,
+								`oidc: expected audience "wrong-audience-b" got ["test-audience"]`,
+							},
+						},
+					}
+			},
+		},
+		{
+			name: "Returns unauthorized when all verifiers fail with unauthorized",
+			setup: func(t *testing.T) (auth.OIDCConfigs, []verification) {
+				signer, iss := oidctest.NewIssuer(t)
+				token := token(t, signer, iss, auth.Claims{
+					Email: "example@artefactual.com",
+				})
+
+				return auth.OIDCConfigs{
+						{ProviderURL: iss, ClientID: audience},
+						{ProviderURL: iss, ClientID: audience},
+					}, []verification{
+						{
+							token:     token,
+							wantErrIs: auth.ErrUnauthorized,
+						},
+					}
+			},
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			cfgs, verifications := tt.setup(t)
+			ctx := context.Background()
+			v, err := auth.NewOIDCTokenVerifiers(ctx, cfgs)
+			assert.NilError(t, err)
+
+			for _, verify := range verifications {
+				claims, err := v.Verify(ctx, verify.token)
+				if len(verify.wantErrContains) > 0 {
+					assert.Assert(t, cmp.Nil(claims))
+					for _, wantErr := range verify.wantErrContains {
+						assert.ErrorContains(t, err, wantErr)
+					}
+					continue
+				}
+				if verify.wantErrIs != nil {
+					assert.Assert(t, cmp.Nil(claims))
+					assert.ErrorIs(t, err, verify.wantErrIs)
+					continue
+				}
+
+				assert.NilError(t, err)
+				assert.DeepEqual(t, claims, verify.wantClaims)
+			}
+		})
+	}
+
+	t.Run("Fails when no OIDC configs are provided", func(t *testing.T) {
 		t.Parallel()
 
-		signer, iss := oidctest.NewIssuer(t)
-		token := token(t, signer, iss, auth.Claims{
-			Email:         "info@artefactual.com",
-			EmailVerified: true,
-		})
-
 		ctx := context.Background()
-		v, err := auth.NewOIDCTokenVerifier(ctx, &auth.OIDCConfig{
-			ProviderURL: iss,
-			ClientID:    audience,
-		})
-		assert.NilError(t, err)
-
-		claims, err := v.Verify(ctx, token)
-		assert.NilError(t, err)
-		assert.DeepEqual(t, claims, &auth.Claims{
-			Email:         "info@artefactual.com",
-			EmailVerified: true,
-			Iss:           iss,
-			Sub:           subject,
-		})
-	})
-
-	t.Run("Verifies tokens without email verified (skipEmailVerifiedCheck)", func(t *testing.T) {
-		t.Parallel()
-
-		signer, iss := oidctest.NewIssuer(t)
-		token := token(t, signer, iss, auth.Claims{Email: "info@artefactual.com"})
-
-		ctx := context.Background()
-		v, err := auth.NewOIDCTokenVerifier(ctx, &auth.OIDCConfig{
-			ProviderURL:            iss,
-			ClientID:               audience,
-			SkipEmailVerifiedCheck: true,
-		})
-		assert.NilError(t, err)
-
-		claims, err := v.Verify(ctx, token)
-		assert.NilError(t, err)
-		assert.DeepEqual(t, claims, &auth.Claims{
-			Email: "info@artefactual.com",
-			Iss:   iss,
-			Sub:   subject,
-		})
-	})
-
-	t.Run("Rejects tokens without email verified", func(t *testing.T) {
-		t.Parallel()
-
-		signer, iss := oidctest.NewIssuer(t)
-		token := token(t, signer, iss, auth.Claims{Email: "info@artefactual.com"})
-
-		ctx := context.Background()
-		v, err := auth.NewOIDCTokenVerifier(ctx, &auth.OIDCConfig{
-			ProviderURL: iss,
-			ClientID:    audience,
-		})
-		assert.NilError(t, err)
-
-		claims, err := v.Verify(ctx, token)
-		assert.ErrorIs(t, err, auth.ErrUnauthorized)
-		assert.Assert(t, cmp.Nil(claims))
-	})
-
-	t.Run("Rejects tokens under other errorful conditions", func(t *testing.T) {
-		t.Parallel()
-
-		signer, iss := oidctest.NewIssuer(t)
-		token := token(t, signer, iss, auth.Claims{
-			Email:         "info@artefactual.com",
-			EmailVerified: false,
-		})
-
-		ctx := context.Background()
-		v, err := auth.NewOIDCTokenVerifier(ctx, &auth.OIDCConfig{
-			ProviderURL: iss,
-			ClientID:    "--- wrong-audience ---",
-		})
-		assert.NilError(t, err)
-
-		claims, err := v.Verify(ctx, token)
-		assert.Error(t, err, "oidc: expected audience \"--- wrong-audience ---\" got [\"test-audience\"]")
-		assert.Assert(t, cmp.Nil(claims))
+		_, err := auth.NewOIDCTokenVerifiers(ctx, nil)
+		assert.Error(t, err, "missing OIDC token verifier configuration")
 	})
 
 	t.Run("Constructor fails when context is canceled", func(t *testing.T) {
@@ -141,9 +344,9 @@ func TestOIDCTokenVerifier(t *testing.T) {
 		ctx, cancel := context.WithCancel(context.Background())
 		cancel()
 
-		_, err := auth.NewOIDCTokenVerifier(ctx, &auth.OIDCConfig{
+		_, err := auth.NewOIDCTokenVerifiers(ctx, auth.OIDCConfigs{{
 			ProviderURL: "http://test",
-		})
+		}})
 		assert.Error(t, err, "Get \"http://test/.well-known/openid-configuration\": context canceled")
 	})
 }
@@ -165,7 +368,7 @@ func TestParseAttributes(t *testing.T) {
 
 	type test struct {
 		name       string
-		config     *auth.OIDCConfig
+		config     auth.OIDCConfigs
 		token      string
 		wantClaims *auth.Claims
 		wantErr    string
@@ -173,14 +376,14 @@ func TestParseAttributes(t *testing.T) {
 	for _, tt := range []test{
 		{
 			name: "Parses attributes based on configuration",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
 					Enabled:   true,
 					ClaimPath: "attributes",
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -196,13 +399,13 @@ func TestParseAttributes(t *testing.T) {
 		},
 		{
 			name: "Parses attributes based on configuration (disabled)",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
 					Enabled: false,
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -218,14 +421,14 @@ func TestParseAttributes(t *testing.T) {
 		},
 		{
 			name: "Parses attributes based on configuration (no attributes)",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
 					Enabled:   true,
 					ClaimPath: "attributes",
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -241,7 +444,7 @@ func TestParseAttributes(t *testing.T) {
 		},
 		{
 			name: "Parses attributes based on configuration (nested)",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
@@ -249,7 +452,7 @@ func TestParseAttributes(t *testing.T) {
 					ClaimPath:          "attributes.nested_attributes",
 					ClaimPathSeparator: ".",
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -265,7 +468,7 @@ func TestParseAttributes(t *testing.T) {
 		},
 		{
 			name: "Parses attributes based on configuration (filtering by prefix)",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
@@ -273,7 +476,7 @@ func TestParseAttributes(t *testing.T) {
 					ClaimPath:        "attributes",
 					ClaimValuePrefix: "enduro:",
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -289,7 +492,7 @@ func TestParseAttributes(t *testing.T) {
 		},
 		{
 			name: "Parses attributes based on configuration (mapping roles)",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
@@ -311,7 +514,7 @@ func TestParseAttributes(t *testing.T) {
 						},
 					},
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -333,7 +536,7 @@ func TestParseAttributes(t *testing.T) {
 		},
 		{
 			name: "Parses attributes based on configuration (mapping roles, no attributes)",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
@@ -342,7 +545,7 @@ func TestParseAttributes(t *testing.T) {
 					UseRoles:     true,
 					RolesMapping: map[string][]string{"admin": {"*"}},
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -358,14 +561,14 @@ func TestParseAttributes(t *testing.T) {
 		},
 		{
 			name: "Fails to parse attributes (missing claim)",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
 					Enabled:   true,
 					ClaimPath: "attributes",
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -374,7 +577,7 @@ func TestParseAttributes(t *testing.T) {
 		},
 		{
 			name: "Fails to parse attributes (missing nested claim)",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
@@ -382,7 +585,7 @@ func TestParseAttributes(t *testing.T) {
 					ClaimPath:          "attributes.nested_attributes",
 					ClaimPathSeparator: ".",
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -392,14 +595,14 @@ func TestParseAttributes(t *testing.T) {
 		},
 		{
 			name: "Fails to parse attributes (non multivalue claim)",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
 					Enabled:   true,
 					ClaimPath: "attributes",
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -409,7 +612,7 @@ func TestParseAttributes(t *testing.T) {
 		},
 		{
 			name: "Fails to parse attributes (expected nested claim)",
-			config: &auth.OIDCConfig{
+			config: auth.OIDCConfigs{{
 				ProviderURL: iss,
 				ClientID:    audience,
 				ABAC: auth.OIDCABACConfig{
@@ -417,7 +620,7 @@ func TestParseAttributes(t *testing.T) {
 					ClaimPath:          "attributes.nested_attributes",
 					ClaimPathSeparator: ".",
 				},
-			},
+			}},
 			token: token(t, signer, iss, customClaims{
 				Email:         "info@artefactual.com",
 				EmailVerified: true,
@@ -430,7 +633,7 @@ func TestParseAttributes(t *testing.T) {
 			t.Parallel()
 
 			ctx := context.Background()
-			v, err := auth.NewOIDCTokenVerifier(ctx, tt.config)
+			v, err := auth.NewOIDCTokenVerifiers(ctx, tt.config)
 			assert.NilError(t, err)
 
 			claims, err := v.Verify(ctx, tt.token)

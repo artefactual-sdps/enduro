@@ -30,11 +30,26 @@ corsOrigin = "http://localhost"
 [api.auth]
 # Enable API authentication. OIDC is the only protocol supported at the
 # moment. When enabled the API verifies the access token submitted with
-# each request. The API client is responsible for obtaining an access
-# token from the provider.
+# each request. Clients are responsible for obtaining an access token
+# from a configured OIDC provider below.
 enabled = true
 
-[api.auth.oidc]
+# Multiple OIDC providers are supported. Add one `[[api.auth.oidc]]` table
+# per provider/client pair. For each provider/client pair add an
+# `[api.auth.oidc.abac]` section if ABAC is needed. Example:
+#
+# [[api.auth.oidc]]
+# providerURL = "http://keycloak:7470/realms/artefactual"
+# clientID = "enduro"
+# [api.auth.oidc.abac]
+# enabled = true
+# claimPath = "attributes.enduro"
+# claimPathSeparator = "."
+#
+# [[api.auth.oidc]]
+# providerURL = "http://keycloak:7470/realms/artefactual-internal"
+# clientID = "enduro-s2s"
+[[api.auth.oidc]]
 # OIDC provider URL. Required when auth. is enabled.
 providerURL = "http://keycloak:7470/realms/artefactual"
 # OIDC client ID. The client ID must be included in the `aud` claim of

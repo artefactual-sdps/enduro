@@ -6,9 +6,11 @@ import (
 
 type Config struct {
 	Enabled bool
-	OIDC    *OIDCConfig
+	OIDC    OIDCConfigs
 	Ticket  *TicketConfig
 }
+
+type OIDCConfigs []OIDCConfig
 
 type OIDCConfig struct {
 	ProviderURL            string
@@ -42,14 +44,24 @@ func (c Config) Validate() error {
 	if !c.Enabled {
 		return nil
 	}
-	if c.OIDC == nil || c.OIDC.ProviderURL == "" || c.OIDC.ClientID == "" {
-		return errors.New("missing OIDC configuration with API auth. enabled")
+	if len(c.OIDC) == 0 {
+		return errors.New("OIDC configuration required when API auth is enabled")
 	}
-	if c.OIDC.ABAC.Enabled && c.OIDC.ABAC.ClaimPath == "" {
-		return errors.New("missing OIDC ABAC claim path with ABAC enabled")
+
+	for i := range c.OIDC {
+		if c.OIDC[i].ProviderURL == "" {
+			return errors.New("OIDC provider URL required")
+		}
+		if c.OIDC[i].ClientID == "" {
+			return errors.New("OIDC client ID required")
+		}
+		if c.OIDC[i].ABAC.Enabled && c.OIDC[i].ABAC.ClaimPath == "" {
+			return errors.New("OIDC ABAC claim path required when ABAC is enabled")
+		}
+		if c.OIDC[i].ABAC.UseRoles && len(c.OIDC[i].ABAC.RolesMapping) == 0 {
+			return errors.New("OIDC ABAC roles mapping required when use roles is enabled")
+		}
 	}
-	if c.OIDC.ABAC.UseRoles && len(c.OIDC.ABAC.RolesMapping) == 0 {
-		return errors.New("missing OIDC ABAC roles mapping with use roles enabled")
-	}
+
 	return nil
 }

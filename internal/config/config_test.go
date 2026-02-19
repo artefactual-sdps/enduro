@@ -31,8 +31,21 @@ address = "host:port"
 [ingest.storage]
 defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
 
+[api.auth]
+enabled = true
+
+[[api.auth.oidc]]
+providerURL = "https://idp.example.com/realms/enduro-public"
+clientID = "enduro"
 [api.auth.oidc.abac]
+enabled = true
+claimPath = "enduro"
 rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read", "ingest:sips:upload"], "readonly": ["ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read"]}'
+
+[[api.auth.oidc]]
+providerURL = "https://idp.example.com/realms/enduro-internal"
+clientID = "enduro-s2s"
+skipEmailVerifiedCheck = true
 `
 
 func TestConfigRead(t *testing.T) {
@@ -61,13 +74,25 @@ func TestConfigRead(t *testing.T) {
 				API: api.Config{
 					Listen: "127.0.0.1:9000",
 					Auth: auth.Config{
-						OIDC: &auth.OIDCConfig{
-							ABAC: auth.OIDCABACConfig{
-								RolesMapping: map[string][]string{
-									"admin":    {"*"},
-									"operator": {"ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read", "ingest:sips:upload"},
-									"readonly": {"ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read"},
+						Enabled: true,
+						OIDC: auth.OIDCConfigs{
+							{
+								ProviderURL: "https://idp.example.com/realms/enduro-public",
+								ClientID:    "enduro",
+								ABAC: auth.OIDCABACConfig{
+									Enabled:   true,
+									ClaimPath: "enduro",
+									RolesMapping: map[string][]string{
+										"admin":    {"*"},
+										"operator": {"ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read", "ingest:sips:upload"},
+										"readonly": {"ingest:sips:list", "ingest:sips:workflows:list", "ingest:sips:read"},
+									},
 								},
+							},
+							{
+								ProviderURL:            "https://idp.example.com/realms/enduro-internal",
+								ClientID:               "enduro-s2s",
+								SkipEmailVerifiedCheck: true,
 							},
 						},
 					},
@@ -147,7 +172,7 @@ defaultPermanentLocationId = "not-a-uuid"`,
 rolesMapping = "not-a-json"`,
 			wantErr: `failed to unmarshal configuration: 1 error(s) decoding:
 
-* error decoding 'API.Auth.OIDC.ABAC.RolesMapping': invalid character 'o' in literal null (expecting 'u')`,
+* error decoding 'API.Auth.OIDC[0].ABAC.RolesMapping': invalid character 'o' in literal null (expecting 'u')`,
 		},
 		{
 			name: "Returns error if validation fails",

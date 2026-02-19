@@ -78,7 +78,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		persistenceMock:    psMock,
 		temporalClient:     &tc,
 		temporalClientMock: tcMock,
-		tokenVerifier:      &auth.OIDCTokenVerifier{},
+		tokenVerifier:      auth.OIDCTokenVerifiers{},
 	}
 	if attrs.logger != nil {
 		params.logger = attrs.logger
@@ -140,7 +140,7 @@ func TestNewService(t *testing.T) {
 			nil,
 			nil,
 			event.NewServiceNop[*goastorage.StorageEvent](),
-			&auth.OIDCTokenVerifier{},
+			auth.OIDCTokenVerifiers{},
 			nil,
 			nil,
 			nil,

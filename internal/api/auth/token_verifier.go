@@ -25,28 +25,60 @@ func (t *NoopTokenVerifier) Verify(ctx context.Context, token string) (*Claims, 
 	return nil, nil
 }
 
-type OIDCTokenVerifier struct {
+type OIDCTokenVerifiers []oidcVerifier
+
+type oidcVerifier struct {
 	verifier *oidc.IDTokenVerifier
-	cfg      *OIDCConfig
+	cfg      OIDCConfig
 }
 
-var _ TokenVerifier = (*OIDCTokenVerifier)(nil)
+var _ TokenVerifier = (OIDCTokenVerifiers)(nil)
 
-func NewOIDCTokenVerifier(ctx context.Context, cfg *OIDCConfig) (*OIDCTokenVerifier, error) {
-	// Initialize an OIDC provider.
-	provider, err := oidc.NewProvider(ctx, cfg.ProviderURL)
-	if err != nil {
-		return nil, err
+func NewOIDCTokenVerifiers(ctx context.Context, cfgs OIDCConfigs) (OIDCTokenVerifiers, error) {
+	if len(cfgs) == 0 {
+		return nil, errors.New("missing OIDC token verifier configuration")
 	}
 
-	// Create an ID token parser, but only trust ID tokens issued to this client id.
-	return &OIDCTokenVerifier{
-		verifier: provider.Verifier(&oidc.Config{ClientID: cfg.ClientID}),
-		cfg:      cfg,
-	}, nil
+	verifiers := make([]oidcVerifier, len(cfgs))
+	for i, cfg := range cfgs {
+		// Initialize an OIDC provider.
+		provider, err := oidc.NewProvider(ctx, cfg.ProviderURL)
+		if err != nil {
+			return nil, err
+		}
+
+		// Create an ID token verifier and only trust ID tokens issued to this client ID.
+		verifiers[i] = oidcVerifier{
+			verifier: provider.Verifier(&oidc.Config{ClientID: cfg.ClientID}),
+			cfg:      cfg,
+		}
+	}
+
+	return verifiers, nil
 }
 
-func (t *OIDCTokenVerifier) Verify(ctx context.Context, token string) (*Claims, error) {
+func (t OIDCTokenVerifiers) Verify(ctx context.Context, token string) (*Claims, error) {
+	var errs []error
+	for _, verifier := range t {
+		claims, err := verifier.verify(ctx, token)
+		if err == nil {
+			return claims, nil
+		}
+
+		if errors.Is(err, ErrUnauthorized) {
+			continue
+		}
+		errs = append(errs, err)
+	}
+
+	if len(errs) > 0 {
+		return nil, errors.Join(errs...)
+	}
+
+	return nil, ErrUnauthorized
+}
+
+func (t *oidcVerifier) verify(ctx context.Context, token string) (*Claims, error) {
 	// Verify token.
 	idToken, err := t.verifier.Verify(ctx, token)
 	if err != nil {
@@ -76,7 +108,7 @@ func (t *OIDCTokenVerifier) Verify(ctx context.Context, token string) (*Claims, 
 // parseAttributes extracts the attributes used for access control from the token
 // based on configuration. It finds the claim in the token based on the ClaimPath
 // and ClaimPathSeparator values and filters the attrs. based on ClaimValuePrefix.
-func (t *OIDCTokenVerifier) parseAttributes(token *oidc.IDToken) ([]string, error) {
+func (t *oidcVerifier) parseAttributes(token *oidc.IDToken) ([]string, error) {
 	if !t.cfg.ABAC.Enabled {
 		return nil, nil
 	}

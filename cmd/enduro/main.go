@@ -197,7 +197,7 @@ func main() {
 	var tokenVerifier auth.TokenVerifier
 	{
 		if cfg.API.Auth.Enabled {
-			tokenVerifier, err = auth.NewOIDCTokenVerifier(ctx, cfg.API.Auth.OIDC)
+			tokenVerifier, err = auth.NewOIDCTokenVerifiers(ctx, cfg.API.Auth.OIDC)
 			if err != nil {
 				logger.Error(err, "Error connecting to OIDC provider.")
 				os.Exit(1)

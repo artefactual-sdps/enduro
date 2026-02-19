@@ -211,25 +211,31 @@ obtaining an access token from the provider.
 
 ```toml
 [api.auth]
-enabled = true
+enabled = false
 ```
 
-#### OIDC authentication provider configuration
+#### OIDC authentication providers configuration
 
-This setting block is used to configure the OpenID Connect ([OIDC]) provider
-when API authentication is [enabled](#enable-api-authentication). The default
-value assumes that [Keycloak] will be used for handling OIDC single sign-on
-requests.
+These setting blocks are used to configure the OpenID Connect ([OIDC])
+providers used for access token verification when API authentication is
+[enabled](#enable-api-authentication). Multiple OIDC providers can be
+configured with a TOML array-of-tables syntax with the same structure. When
+API authentication is enabled, at least one OIDC provider must be configured to
+verify tokens.
 
 For more details on OIDC configuration, consult the [OIDC specification].
 
-**Default values**:
+**Example configuration**:
 
 ```toml
-[api.auth.oidc]
-providerURL = "http://keycloak:7470/realms/artefactual"
+[[api.auth.oidc]]
+providerURL = "https://idp-public.example.com/realms/enduro"
 clientID = "enduro"
-skipEmailVerifiedCheck = false
+
+[[api.auth.oidc]]
+providerURL = "https://idp-public.example.com/realms/enduro"
+clientID = "enduro-s2s"
+skipEmailVerifiedCheck = true
 ```
 
 * `providerURL`: Defines the OIDC provider URL. This parameter is required when
@@ -246,16 +252,23 @@ skipEmailVerifiedCheck = false
   tokens or UserInfo responses for the verified email claim. When set to
   **true**, this check is skipped.
 
-#### Enable Attribute Based Access Control for the API OIDC authentication
+##### Enable Attribute Based Access Control for the API OIDC authentication
 
 Enduro uses Attribute Based Access Control ([ABAC]) to manage permissions and
-access. When ABAC is enabled for the API, it will check a configurable
+access. When ABAC is enabled for an OIDC verifier, it will check a configurable
 multivalue claim against the defined required attributes based on each
 endpoint's configuration.
 
-**Default values**:
+For each verifier, add a matching `[api.auth.oidc.abac]` section immediately
+after the verifier configuration if ABAC is needed.
+
+**Example configuration**:
 
 ```toml
+[[api.auth.oidc]]
+providerURL = "https://idp-public.example.com/realms/enduro"
+clientID = "enduro"
+
 [api.auth.oidc.abac]
 enabled = true
 claimPath = "enduro"
@@ -263,6 +276,11 @@ claimPathSeparator = ""
 claimValuePrefix = ""
 useRoles = false
 rolesMapping =
+
+[[api.auth.oidc]]
+providerURL = "https://idp-public.example.com/realms/enduro"
+clientID = "enduro-s2s"
+skipEmailVerifiedCheck = true
 ```
 
 * `enabled`: Set to `true` to enable ABAC, or `false` to disable ABAC.
@@ -1282,7 +1300,6 @@ workflowName = "postbatch"
 [Dashboard configuration]: ../admin-manual/dashboard-config.md
 [Gibibytes]: https://www.difference.wiki/gigabyte-vs-gibibyte/
 [GoLang]: https://go.dev/
-[Keycloak]: https://www.keycloak.org/
 [METS]: https://www.loc.gov/standards/mets/
 [MinIO]: https://www.min.io
 [OIDC]: https://en.wikipedia.org/wiki/OpenID#OpenID_Connect_(OIDC)
