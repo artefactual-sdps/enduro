@@ -13,6 +13,10 @@ import (
 
 func TestConfig_ReadFromTOML(t *testing.T) {
 	toml := `
+[ingest.storage]
+address = "storage-api:9000"
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
+
 [[childWorkflows]]
 type = "preprocessing"
 namespace = "default"

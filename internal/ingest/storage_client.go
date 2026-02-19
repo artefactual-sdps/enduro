@@ -51,10 +51,22 @@ type StorageClient interface {
 
 var _ StorageClient = (*goastorage.Client)(nil)
 
-func NewStorageClient(tp trace.TracerProvider, address string) StorageClient {
+func NewStorageClient(
+	ctx context.Context,
+	tp trace.TracerProvider,
+	cfg StorageConfig,
+) (StorageClient, error) {
 	httpClient := cleanhttp.DefaultPooledClient()
+	transport := httpClient.Transport
+	if cfg.OIDC.Enabled {
+		tokenProvider, err := NewOIDCAccessTokenProvider(ctx, cfg.OIDC)
+		if err != nil {
+			return nil, err
+		}
+		transport = NewBearerTransport(transport, tokenProvider)
+	}
 	httpClient.Transport = otelhttp.NewTransport(
-		httpClient.Transport,
+		transport,
 		otelhttp.WithTracerProvider(tp),
 		otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
 			return otelhttptrace.NewClientTrace(ctx)
@@ -63,7 +75,7 @@ func NewStorageClient(tp trace.TracerProvider, address string) StorageClient {
 
 	storageHTTPClient := goahttpstorage.NewClient(
 		"http",
-		address,
+		cfg.Address,
 		httpClient,
 		goahttp.RequestEncoder,
 		goahttp.ResponseDecoder,
@@ -95,5 +107,5 @@ func NewStorageClient(tp trace.TracerProvider, address string) StorageClient {
 		storageHTTPClient.CreateLocation(),
 		storageHTTPClient.ShowLocation(),
 		storageHTTPClient.ListLocationAips(),
-	)
+	), nil
 }

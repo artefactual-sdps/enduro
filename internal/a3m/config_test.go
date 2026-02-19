@@ -12,6 +12,12 @@ import (
 func TestConfigValidate(t *testing.T) {
 	t.Parallel()
 
+	const baseConfig = `
+[ingest.storage]
+address = "storage-api:9000"
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
+`
+
 	type test struct {
 		name    string
 		config  string
@@ -21,19 +27,22 @@ func TestConfigValidate(t *testing.T) {
 	for _, tc := range []test{
 		{
 			name: "Valid config passes validation",
-			config: `[a3m.processing]
+			config: baseConfig + `
+[a3m.processing]
 aipCompressionLevel = 0
 `,
 		},
 		{
 			name: "Error if AipCompressionLevel is less than minimum",
-			config: `[a3m.processing]
+			config: baseConfig + `
+[a3m.processing]
 aipCompressionLevel = -1`,
 			wantErr: "failed to validate the provided config: AipCompressionLevel: -1 is outside valid range (0 to 9)",
 		},
 		{
 			name: "Error if AipCompressionLevel is greater than maximum",
-			config: `[a3m.processing]
+			config: baseConfig + `
+[a3m.processing]
 aipCompressionLevel = 10`,
 			wantErr: "failed to validate the provided config: AipCompressionLevel: 10 is outside valid range (0 to 9)",
 		},

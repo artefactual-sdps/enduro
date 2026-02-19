@@ -85,6 +85,7 @@ func (c *Configuration) Validate() error {
 		c.API.Auth.Validate(),
 		c.BagIt.Validate(),
 		c.ChildWorkflows.Validate(),
+		c.Ingest.Validate(),
 		c.SIPSource.Validate(),
 		c.ValidatePREMIS.Validate(),
 		c.Watcher.Validate(),
@@ -107,6 +108,11 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.SetDefault("storage.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("temporal.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("upload.maxSize", 4294967296)
+	v.SetDefault("ingest.storage.oidc.tokenExpiryLeeway", ingest.DefaultStorageOIDCTokenExpiryLeeway)
+	v.SetDefault("ingest.storage.oidc.retryMaxAttempts", ingest.DefaultStorageOIDCRetryMaxAttempts)
+	v.SetDefault("ingest.storage.oidc.retryInitialInterval", ingest.DefaultStorageOIDCRetryInitialInterval)
+	v.SetDefault("ingest.storage.oidc.retryMaxInterval", ingest.DefaultStorageOIDCRetryMaxInterval)
+	v.SetDefault("ingest.storage.oidc.retryBackoffCoefficient", ingest.DefaultStorageOIDCRetryBackoffCoefficient)
 	v.SetEnvPrefix("enduro")
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 	v.AutomaticEnv()
