@@ -72,10 +72,7 @@ func (p *OIDCAccessTokenProvider) AccessToken(ctx context.Context) (string, erro
 	if p.tokenNeedsRefresh() {
 		token, err := p.requestToken(ctx)
 		if err != nil {
-			return "", err
-		}
-		if token == nil || token.AccessToken == "" {
-			return "", errors.New("received empty OIDC access token")
+			return "", fmt.Errorf("request OIDC token: %v", err)
 		}
 		p.token = token
 	}
@@ -96,8 +93,9 @@ func (p *OIDCAccessTokenProvider) tokenNeedsRefresh() bool {
 
 func (p *OIDCAccessTokenProvider) requestToken(ctx context.Context) (*oauth2.Token, error) {
 	var err error
+	var token *oauth2.Token
 	for attempt := 1; attempt <= p.retryMaxAttempts; attempt++ {
-		token, err := p.cc.TokenSource(ctx).Token()
+		token, err = p.cc.TokenSource(ctx).Token()
 		if err == nil {
 			return token, nil
 		}
