@@ -105,15 +105,7 @@ func (p *OIDCAccessTokenProvider) requestToken(ctx context.Context) (*oauth2.Tok
 			break
 		}
 
-		if wait := p.backoff(attempt); wait > 0 {
-			timer := time.NewTimer(wait)
-			select {
-			case <-ctx.Done():
-				timer.Stop()
-				return nil, ctx.Err()
-			case <-timer.C:
-			}
-		}
+		time.Sleep(p.backoff(attempt))
 	}
 
 	return nil, err
