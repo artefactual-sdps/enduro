@@ -37,7 +37,7 @@ func NewOIDCAccessTokenProvider(ctx context.Context, cfg StorageOIDCConfig) (*OI
 	if tokenURL == "" {
 		provider, err := oidc.NewProvider(ctx, cfg.ProviderURL)
 		if err != nil {
-			return nil, fmt.Errorf("discover OIDC provider: %w", err)
+			return nil, fmt.Errorf("discover OIDC provider: %v", err)
 		}
 		tokenURL = provider.Endpoint().TokenURL
 	}
