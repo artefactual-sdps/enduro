@@ -335,6 +335,170 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 		require.NoError(t, err)
 	})
 
+	t.Run("Create and auto-approve deletion request", func(t *testing.T) {
+		t.Parallel()
+
+		req := storage.StorageDeleteWorkflowRequest{
+			AIPID:       uuid.New(),
+			Reason:      "Reason",
+			UserEmail:   "requester@example.com",
+			UserSub:     "subject",
+			UserIss:     "issuer",
+			TaskQueue:   "global",
+			AutoApprove: true,
+		}
+
+		signal := storage.DeletionDecisionSignal{
+			Status:    enums.DeletionRequestStatusApproved,
+			UserEmail: req.UserEmail,
+			UserIss:   req.UserIss,
+			UserSub:   req.UserSub,
+		}
+
+		locationInfo := &storage.ReadLocationInfoLocalActivityResult{
+			Source: enums.LocationSourceAmss,
+			Config: types.LocationConfig{Value: &types.AMSSConfig{
+				URL:      "http://127.0.0.1:62081",
+				Username: "test",
+				APIKey:   "secret",
+			}},
+		}
+
+		deleteTaskDBID := 3
+
+		s := NewStorageDeleteWorkflowTestSuite(t, &req)
+		s.createDeletionRequest()
+
+		s.env.OnActivity(
+			storage.UpdateAIPStatusLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			&storage.UpdateAIPStatusLocalActivityParams{
+				AIPID:  s.aip.UUID,
+				Status: enums.AIPStatusProcessing,
+			},
+		).Return(nil)
+
+		s.env.OnActivity(
+			storage.UpdateWorkflowStatusLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			&storage.UpdateWorkflowStatusLocalActivityParams{
+				DBID:   workflowDBID,
+				Status: enums.WorkflowStatusInProgress,
+			},
+		).Return(nil)
+
+		s.env.OnActivity(
+			storage.UpdateDeletionRequestLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			deletionRequestDBID,
+			signal,
+		).Return(nil)
+
+		s.env.OnActivity(
+			storage.CompleteTaskLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			&storage.CompleteTaskLocalActivityParams{
+				DBID:   s.reviewTask.ID,
+				Status: enums.TaskStatusDone,
+				Note:   fmt.Sprintf("%s\n\nAIP deletion request approved by %s.", s.reviewTask.Note, signal.UserEmail),
+			},
+		).Return(nil)
+
+		s.env.OnActivity(
+			storage.CreateTaskLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			&storage.CreateTaskLocalActivityParams{
+				WorkflowDBID: workflowDBID,
+				Status:       enums.TaskStatusInProgress,
+				Name:         "Delete AIP",
+				Note:         "Deleting AIP",
+			},
+		).Return(deleteTaskDBID, nil)
+
+		s.env.OnActivity(
+			storage.ReadLocationInfoLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			*s.aip.LocationUUID,
+		).Return(locationInfo, nil)
+
+		s.env.OnActivity(
+			storage.DeleteFromAMSSLocationActivityName,
+			mock.AnythingOfType("*context.timerCtx"),
+			&activities.DeleteFromAMSSLocationActivityParams{
+				Config:  *locationInfo.Config.Value.(*types.AMSSConfig),
+				AIPUUID: s.aip.UUID,
+			},
+		).Return(&activities.DeleteFromAMSSLocationActivityResult{Deleted: true}, nil)
+
+		s.env.OnActivity(
+			storage.CompleteTaskLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			&storage.CompleteTaskLocalActivityParams{
+				DBID:   deleteTaskDBID,
+				Status: enums.TaskStatusDone,
+				Note: fmt.Sprintf(
+					"AIP deleted from %s source location",
+					strings.ToUpper(locationInfo.Source.String()),
+				),
+			},
+		).Return(nil)
+
+		s.env.OnActivity(
+			activities.AIPDeletionReportActivityName,
+			mock.AnythingOfType("*context.timerCtx"),
+			&activities.AIPDeletionReportActivityParams{
+				AIPID:          s.aip.UUID,
+				LocationSource: enums.LocationSourceAmss,
+			},
+		).Return(
+			&activities.AIPDeletionReportActivityResult{
+				Key: fmt.Sprintf("aip_deletion_report_%s.pdf", s.aip.UUID),
+			},
+			nil,
+		)
+
+		s.env.OnActivity(
+			storage.CompleteWorkflowLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			&storage.CompleteWorkflowLocalActivityParams{
+				DBID:   workflowDBID,
+				Status: enums.WorkflowStatusDone,
+			},
+		).Return(nil)
+
+		s.env.OnActivity(
+			storage.UpdateAIPStatusLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			&storage.UpdateAIPStatusLocalActivityParams{
+				AIPID:  s.aip.UUID,
+				Status: enums.AIPStatusDeleted,
+			},
+		).Return(nil)
+
+		s.env.ExecuteWorkflow(
+			NewStorageDeleteWorkflow(
+				storage.AIPDeletionConfig{
+					ReportTemplatePath: "../../../assets/Enduro_AIP_deletion_report_v3.tmpl.pdf",
+				},
+				s.storagesvc,
+			).Execute,
+			req,
+		)
+
+		require.True(t, s.env.IsWorkflowCompleted())
+		err := s.env.GetWorkflowResult(nil)
+		require.NoError(t, err)
+	})
+
 	t.Run("Create and cancel deletion request", func(t *testing.T) {
 		t.Parallel()
 

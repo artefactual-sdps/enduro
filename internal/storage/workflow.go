@@ -23,12 +23,13 @@ const (
 )
 
 type StorageDeleteWorkflowRequest struct {
-	AIPID     uuid.UUID
-	Reason    string
-	UserEmail string
-	UserSub   string
-	UserIss   string
-	TaskQueue string
+	AIPID       uuid.UUID
+	Reason      string
+	UserEmail   string
+	UserSub     string
+	UserIss     string
+	TaskQueue   string
+	AutoApprove bool
 }
 
 type DeletionDecisionSignal struct {

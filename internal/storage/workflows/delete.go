@@ -259,14 +259,24 @@ func (w *StorageDeleteWorkflow) review(
 		return nil, err
 	}
 
-	// Wait for a delete request decision signal.
 	var signal storage.DeletionDecisionSignal
-	open := temporalsdk_workflow.GetSignalChannel(ctx, storage.DeletionDecisionSignalName).Receive(ctx, &signal)
-	if !open {
-		return nil, fmt.Errorf("deletion decision signal channel closed")
-	}
+	if req.AutoApprove {
+		signal = storage.DeletionDecisionSignal{
+			Status:    enums.DeletionRequestStatusApproved,
+			UserEmail: req.UserEmail,
+			UserSub:   req.UserSub,
+			UserIss:   req.UserIss,
+		}
+		logger.Info("Auto-approved AIP deletion workflow decision", "signal", signal)
+	} else {
+		// Wait for a delete request decision signal.
+		open := temporalsdk_workflow.GetSignalChannel(ctx, storage.DeletionDecisionSignalName).Receive(ctx, &signal)
+		if !open {
+			return nil, fmt.Errorf("deletion decision signal channel closed")
+		}
 
-	logger.Info("Received AIP deletion workflow decision", "signal", signal)
+		logger.Info("Received AIP deletion workflow decision", "signal", signal)
+	}
 
 	// Set AIP status to processing.
 	if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, enums.AIPStatusProcessing); err != nil {
