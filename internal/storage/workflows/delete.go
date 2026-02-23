@@ -92,7 +92,7 @@ func (w *StorageDeleteWorkflow) Execute(
 
 		// Generate AIP deletion report.
 		// TODO: Create a task to capture possible errors during report generation.
-		if aipStatus == enums.AIPStatusDeleted && workflowStatus == enums.WorkflowStatusDone {
+		if aipStatus == enums.AIPStatusDeleted && workflowStatus == enums.WorkflowStatusDone && !req.SkipReport {
 			if err := w.generateAIPDeletionReport(ctx, req.AIPID, locationSource); err != nil {
 				workflowStatus = enums.WorkflowStatusError
 				e = errors.Join(e, err)

@@ -30,6 +30,7 @@ type StorageDeleteWorkflowRequest struct {
 	UserIss     string
 	TaskQueue   string
 	AutoApprove bool
+	SkipReport  bool
 }
 
 type DeletionDecisionSignal struct {

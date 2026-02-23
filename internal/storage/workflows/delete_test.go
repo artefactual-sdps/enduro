@@ -335,7 +335,7 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("Create and auto-approve deletion request", func(t *testing.T) {
+	t.Run("Create and auto-approve deletion request with report generation skipped", func(t *testing.T) {
 		t.Parallel()
 
 		req := storage.StorageDeleteWorkflowRequest{
@@ -346,6 +346,7 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 			UserIss:     "issuer",
 			TaskQueue:   "global",
 			AutoApprove: true,
+			SkipReport:  true,
 		}
 
 		signal := storage.DeletionDecisionSignal{
@@ -449,20 +450,6 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 				),
 			},
 		).Return(nil)
-
-		s.env.OnActivity(
-			activities.AIPDeletionReportActivityName,
-			mock.AnythingOfType("*context.timerCtx"),
-			&activities.AIPDeletionReportActivityParams{
-				AIPID:          s.aip.UUID,
-				LocationSource: enums.LocationSourceAmss,
-			},
-		).Return(
-			&activities.AIPDeletionReportActivityResult{
-				Key: fmt.Sprintf("aip_deletion_report_%s.pdf", s.aip.UUID),
-			},
-			nil,
-		)
 
 		s.env.OnActivity(
 			storage.CompleteWorkflowLocalActivity,
