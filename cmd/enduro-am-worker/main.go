@@ -321,7 +321,11 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: am.PollIngestActivityName},
 		)
 
-		storageClient := ingest.NewStorageClient(tp, cfg.Ingest.Storage.Address)
+		storageClient, err := ingest.NewStorageClient(ctx, tp, cfg.Ingest.Storage)
+		if err != nil {
+			logger.Error(err, "Error setting up storage API client.")
+			os.Exit(1)
+		}
 		w.RegisterActivityWithOptions(
 			activities.NewCreateStorageAIPActivity(storageClient).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.CreateStorageAIPActivityName},

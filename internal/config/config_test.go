@@ -28,9 +28,6 @@ debugListen = "127.0.0.1:9001"
 [temporal]
 address = "host:port"
 
-[ingest.storage]
-defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
-
 [api.auth]
 enabled = true
 
@@ -46,6 +43,23 @@ rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:w
 providerURL = "https://idp.example.com/realms/enduro-internal"
 clientID = "enduro-s2s"
 skipEmailVerifiedCheck = true
+
+[ingest.storage]
+address = "storage-api:9000"
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
+
+[ingest.storage.oidc]
+enabled = true
+providerURL = "https://idp.example.com/realms/enduro-internal"
+clientID = "enduro-worker"
+clientSecret = "secret"
+scopes = "openid,profile"
+audience = "enduro-s2s"
+tokenExpiryLeeway = "60s"
+retryMaxAttempts = 5
+retryInitialInterval = "600ms"
+retryMaxInterval = "5s"
+retryBackoffCoefficient = 1.5
 `
 
 func TestConfigRead(t *testing.T) {
@@ -103,7 +117,21 @@ func TestConfigRead(t *testing.T) {
 				},
 				Ingest: ingest.Config{
 					Storage: ingest.StorageConfig{
+						Address:                    "storage-api:9000",
 						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
+						OIDC: ingest.StorageOIDCConfig{
+							Enabled:                 true,
+							ProviderURL:             "https://idp.example.com/realms/enduro-internal",
+							ClientID:                "enduro-worker",
+							ClientSecret:            "secret",
+							Scopes:                  []string{"openid", "profile"},
+							Audience:                "enduro-s2s",
+							TokenExpiryLeeway:       60 * time.Second,
+							RetryMaxAttempts:        5,
+							RetryInitialInterval:    600 * time.Millisecond,
+							RetryMaxInterval:        5 * time.Second,
+							RetryBackoffCoefficient: 1.5,
+						},
 					},
 				},
 				Preservation: pres.Config{
@@ -123,6 +151,9 @@ func TestConfigRead(t *testing.T) {
 		},
 		{
 			name: "Sets default values for missing config options",
+			config: `[ingest.storage]
+address = "storage-api:9000"
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
 			want: config.Configuration{
 				DebugListen: "127.0.0.1:9001",
 				A3m: a3m.Config{
@@ -138,6 +169,19 @@ func TestConfigRead(t *testing.T) {
 				},
 				BagIt: bagcreate.Config{
 					ChecksumAlgorithm: "sha512",
+				},
+				Ingest: ingest.Config{
+					Storage: ingest.StorageConfig{
+						Address:                    "storage-api:9000",
+						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
+						OIDC: ingest.StorageOIDCConfig{
+							TokenExpiryLeeway:       ingest.DefaultStorageOIDCTokenExpiryLeeway,
+							RetryMaxAttempts:        ingest.DefaultStorageOIDCRetryMaxAttempts,
+							RetryInitialInterval:    ingest.DefaultStorageOIDCRetryInitialInterval,
+							RetryMaxInterval:        ingest.DefaultStorageOIDCRetryMaxInterval,
+							RetryBackoffCoefficient: ingest.DefaultStorageOIDCRetryBackoffCoefficient,
+						},
+					},
 				},
 				Preservation: pres.Config{
 					TaskQueue: "a3m",
@@ -176,7 +220,11 @@ rolesMapping = "not-a-json"`,
 		},
 		{
 			name: "Returns error if validation fails",
-			config: `[a3m.processing]
+			config: `[ingest.storage]
+address = "storage-api:9000"
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
+
+[a3m.processing]
 aipCompressionLevel = 10`,
 			wantErr: "failed to validate the provided config: AipCompressionLevel: 10 is outside valid range (0 to 9)",
 		},
@@ -216,6 +264,12 @@ func TestConfigValidate(t *testing.T) {
 		{
 			name: "Returns error if bucket URL and other options are both provided",
 			config: config.Configuration{
+				Ingest: ingest.Config{
+					Storage: ingest.StorageConfig{
+						Address:                    "storage-api:9000",
+						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
+					},
+				},
 				InternalStorage: config.InternalStorageConfig{
 					Bucket: bucket.Config{
 						URL:    "s3blob://my-bucket",
@@ -229,6 +283,12 @@ func TestConfigValidate(t *testing.T) {
 		{
 			name: "Returns error if azure credentials are missing",
 			config: config.Configuration{
+				Ingest: ingest.Config{
+					Storage: ingest.StorageConfig{
+						Address:                    "storage-api:9000",
+						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
+					},
+				},
 				InternalStorage: config.InternalStorageConfig{
 					Bucket: bucket.Config{
 						URL: "azblob://my-bucket",
@@ -240,6 +300,12 @@ func TestConfigValidate(t *testing.T) {
 		{
 			name: "Validates if only URL is provided",
 			config: config.Configuration{
+				Ingest: ingest.Config{
+					Storage: ingest.StorageConfig{
+						Address:                    "storage-api:9000",
+						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
+					},
+				},
 				InternalStorage: config.InternalStorageConfig{
 					Bucket: bucket.Config{
 						URL: "s3blob://my-bucket",
@@ -250,6 +316,12 @@ func TestConfigValidate(t *testing.T) {
 		{
 			name: "Validates if only bucket options are provided",
 			config: config.Configuration{
+				Ingest: ingest.Config{
+					Storage: ingest.StorageConfig{
+						Address:                    "storage-api:9000",
+						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
+					},
+				},
 				InternalStorage: config.InternalStorageConfig{
 					Bucket: bucket.Config{
 						Bucket: "my-bucket",
