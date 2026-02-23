@@ -17,6 +17,7 @@ import * as runtime from '../runtime';
 import type {
   AIPNotFound,
   AIPResponse,
+  AipDeletionAutoRequestBody,
   CancelAipDeletionRequestBody,
   ConfirmSipRequestBody,
   CreateAipRequestBody,
@@ -40,6 +41,8 @@ import {
     AIPNotFoundToJSON,
     AIPResponseFromJSON,
     AIPResponseToJSON,
+    AipDeletionAutoRequestBodyFromJSON,
+    AipDeletionAutoRequestBodyToJSON,
     CancelAipDeletionRequestBodyFromJSON,
     CancelAipDeletionRequestBodyToJSON,
     ConfirmSipRequestBodyFromJSON,
@@ -75,6 +78,11 @@ import {
     SubmitAipRequestBodyFromJSON,
     SubmitAipRequestBodyToJSON,
 } from '../models/index';
+
+export interface StorageAipDeletionAutoRequest {
+    uuid: string;
+    aipDeletionAutoRequestBody: AipDeletionAutoRequestBody;
+}
 
 export interface StorageAipDeletionReportRequest {
     uuid: string;
@@ -177,6 +185,23 @@ export interface StorageSubmitAipCompleteRequest {
  * @interface StorageApiInterface
  */
 export interface StorageApiInterface {
+    /**
+     * AIP deletion with auto-approval
+     * @summary aip_deletion_auto storage
+     * @param {string} uuid Identifier of AIP
+     * @param {AipDeletionAutoRequestBody} aipDeletionAutoRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageAipDeletionAutoRaw(requestParameters: StorageAipDeletionAutoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * AIP deletion with auto-approval
+     * aip_deletion_auto storage
+     */
+    storageAipDeletionAuto(requestParameters: StorageAipDeletionAutoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
     /**
      * Download deletion report by UUID
      * @summary aip_deletion_report storage
@@ -547,6 +572,52 @@ export interface StorageApiInterface {
  * 
  */
 export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
+
+    /**
+     * AIP deletion with auto-approval
+     * aip_deletion_auto storage
+     */
+    async storageAipDeletionAutoRaw(requestParameters: StorageAipDeletionAutoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
+            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageAipDeletionAuto.');
+        }
+
+        if (requestParameters.aipDeletionAutoRequestBody === null || requestParameters.aipDeletionAutoRequestBody === undefined) {
+            throw new runtime.RequiredError('aipDeletionAutoRequestBody','Required parameter requestParameters.aipDeletionAutoRequestBody was null or undefined when calling storageAipDeletionAuto.');
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", []);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+        const response = await this.request({
+            path: `/storage/aips/{uuid}/deletion-auto`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: AipDeletionAutoRequestBodyToJSON(requestParameters.aipDeletionAutoRequestBody),
+        }, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * AIP deletion with auto-approval
+     * aip_deletion_auto storage
+     */
+    async storageAipDeletionAuto(requestParameters: StorageAipDeletionAutoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.storageAipDeletionAutoRaw(requestParameters, initOverrides);
+    }
 
     /**
      * Download deletion report by UUID

@@ -50,6 +50,8 @@ type Service interface {
 	ShowAip(context.Context, *ShowAipPayload) (res *AIP, err error)
 	// List workflows related to an AIP
 	ListAipWorkflows(context.Context, *ListAipWorkflowsPayload) (res *AIPWorkflows, err error)
+	// AIP deletion with auto-approval
+	AipDeletionAuto(context.Context, *AipDeletionAutoPayload) (err error)
 	// Request an AIP deletion
 	RequestAipDeletion(context.Context, *RequestAipDeletionPayload) (err error)
 	// Review an AIP deletion request
@@ -94,7 +96,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [22]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "submit_aip_complete", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "aip_deletion_report_request", "aip_deletion_report", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [23]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "submit_aip_complete", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "aip_deletion_auto", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "aip_deletion_report_request", "aip_deletion_report", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // MonitorServerStream allows streaming instances of *StorageEvent to the
 // client.
@@ -234,6 +236,17 @@ type AMSSConfig struct {
 	APIKey   string
 	URL      string
 	Username string
+}
+
+// AipDeletionAutoPayload is the payload type of the storage service
+// aip_deletion_auto method.
+type AipDeletionAutoPayload struct {
+	// Identifier of AIP
+	UUID   string
+	Token  *string
+	Reason string
+	// Skip AIP deletion report generation
+	SkipReport *bool
 }
 
 // AipDeletionReportPayload is the payload type of the storage service

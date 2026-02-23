@@ -3514,6 +3514,134 @@
       "title": "Mediatype identifier: application/vnd.enduro.storage.aip; type=collection; view=default",
       "type": "array"
     },
+    "StorageAipDeletionAutoInternalErrorResponseBody": {
+      "description": "aip_deletion_auto_internal_error_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageAipDeletionAutoNotValidResponseBody": {
+      "description": "aip_deletion_auto_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageAipDeletionAutoRequestBody": {
+      "example": {
+        "reason": "abc123",
+        "skip_report": false
+      },
+      "properties": {
+        "reason": {
+          "example": "abc123",
+          "type": "string"
+        },
+        "skip_report": {
+          "description": "Skip AIP deletion report generation",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "reason"
+      ],
+      "title": "StorageAipDeletionAutoRequestBody",
+      "type": "object"
+    },
     "StorageAipDeletionReportInternalErrorResponseBody": {
       "description": "aip_deletion_report_internal_error_response_body result type (default view)",
       "example": {
@@ -3781,6 +3909,112 @@
     },
     "StorageAipDeletionReportRequestNotValidResponseBody": {
       "description": "aip_deletion_report_request_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageCancelAipDeletionInternalErrorResponseBody": {
+      "description": "cancel_aip_deletion_internal_error_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageCancelAipDeletionNotValidResponseBody": {
+      "description": "cancel_aip_deletion_not_valid_response_body result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -4906,6 +5140,112 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
+    "StorageRequestAipDeletionInternalErrorResponseBody": {
+      "description": "request_aip_deletion_internal_error_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageRequestAipDeletionNotValidResponseBody": {
+      "description": "request_aip_deletion_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
     "StorageRequestAipDeletionRequestBody": {
       "example": {
         "reason": "abc123"
@@ -4920,6 +5260,112 @@
         "reason"
       ],
       "title": "StorageRequestAipDeletionRequestBody",
+      "type": "object"
+    },
+    "StorageReviewAipDeletionInternalErrorResponseBody": {
+      "description": "review_aip_deletion_internal_error_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageReviewAipDeletionNotValidResponseBody": {
+      "description": "review_aip_deletion_not_valid_response_body result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
     "StorageReviewAipDeletionRequestBody": {
@@ -6820,6 +7266,90 @@
         ]
       }
     },
+    "/storage/aips/{uuid}/deletion-auto": {
+      "post": {
+        "description": "AIP deletion with auto-approval\n\n**Required security scopes for jwt**:\n  * `storage:aips:deletion:auto`",
+        "operationId": "storage#aip_deletion_auto",
+        "parameters": [
+          {
+            "description": "Identifier of AIP",
+            "format": "uuid",
+            "in": "path",
+            "name": "uuid",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "header",
+            "name": "Authorization",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "aip_deletion_auto_request_body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/StorageAipDeletionAutoRequestBody",
+              "required": [
+                "reason"
+              ]
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted response."
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/StorageAipDeletionAutoNotValidResponseBody"
+            }
+          },
+          "401": {
+            "description": "Unauthorized response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "403": {
+            "description": "Forbidden response.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "404": {
+            "description": "Not Found response.",
+            "schema": {
+              "$ref": "#/definitions/AIPNotFound",
+              "required": [
+                "message",
+                "uuid"
+              ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageAipDeletionAutoInternalErrorResponseBody"
+            }
+          }
+        },
+        "schemes": [
+          "http"
+        ],
+        "security": [
+          {
+            "jwt_header_Authorization": null
+          }
+        ],
+        "summary": "aip_deletion_auto storage",
+        "tags": [
+          "storage"
+        ]
+      }
+    },
     "/storage/aips/{uuid}/deletion-cancel": {
       "post": {
         "description": "Cancel an AIP deletion request\n\n**Required security scopes for jwt**:\n  * `storage:aips:deletion:request`",
@@ -6849,8 +7379,14 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK response."
+          "202": {
+            "description": "Accepted response."
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/StorageCancelAipDeletionNotValidResponseBody"
+            }
           },
           "401": {
             "description": "Unauthorized response.",
@@ -6872,6 +7408,12 @@
                 "message",
                 "uuid"
               ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageCancelAipDeletionInternalErrorResponseBody"
             }
           }
         },
@@ -7057,8 +7599,14 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK response."
+          "202": {
+            "description": "Accepted response."
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/StorageRequestAipDeletionNotValidResponseBody"
+            }
           },
           "401": {
             "description": "Unauthorized response.",
@@ -7080,6 +7628,12 @@
                 "message",
                 "uuid"
               ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageRequestAipDeletionInternalErrorResponseBody"
             }
           }
         },
@@ -7129,8 +7683,14 @@
           }
         ],
         "responses": {
-          "200": {
-            "description": "OK response."
+          "202": {
+            "description": "Accepted response."
+          },
+          "400": {
+            "description": "Bad Request response.",
+            "schema": {
+              "$ref": "#/definitions/StorageReviewAipDeletionNotValidResponseBody"
+            }
           },
           "401": {
             "description": "Unauthorized response.",
@@ -7152,6 +7712,12 @@
                 "message",
                 "uuid"
               ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageReviewAipDeletionInternalErrorResponseBody"
             }
           }
         },
@@ -8115,7 +8681,7 @@
   ],
   "securityDefinitions": {
     "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:batches:create`: no description\n  * `ingest:batches:list`: no description\n  * `ingest:batches:read`: no description\n  * `ingest:batches:review`: no description\n  * `ingest:sips:create`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:report`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:batches:create`: no description\n  * `ingest:batches:list`: no description\n  * `ingest:batches:read`: no description\n  * `ingest:batches:review`: no description\n  * `ingest:sips:create`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:auto`: no description\n  * `storage:aips:deletion:report`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

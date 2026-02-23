@@ -30,6 +30,7 @@ type Client struct {
 	RejectAipEndpoint                goa.Endpoint
 	ShowAipEndpoint                  goa.Endpoint
 	ListAipWorkflowsEndpoint         goa.Endpoint
+	AipDeletionAutoEndpoint          goa.Endpoint
 	RequestAipDeletionEndpoint       goa.Endpoint
 	ReviewAipDeletionEndpoint        goa.Endpoint
 	CancelAipDeletionEndpoint        goa.Endpoint
@@ -42,7 +43,7 @@ type Client struct {
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, submitAipComplete, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, aipDeletionReportRequest, aipDeletionReport, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, submitAipComplete, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, aipDeletionAuto, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, aipDeletionReportRequest, aipDeletionReport, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:           monitorRequest,
 		MonitorEndpoint:                  monitor,
@@ -57,6 +58,7 @@ func NewClient(monitorRequest, monitor, listAips, createAip, submitAip, submitAi
 		RejectAipEndpoint:                rejectAip,
 		ShowAipEndpoint:                  showAip,
 		ListAipWorkflowsEndpoint:         listAipWorkflows,
+		AipDeletionAutoEndpoint:          aipDeletionAuto,
 		RequestAipDeletionEndpoint:       requestAipDeletion,
 		ReviewAipDeletionEndpoint:        reviewAipDeletion,
 		CancelAipDeletionEndpoint:        cancelAipDeletion,
@@ -270,10 +272,26 @@ func (c *Client) ListAipWorkflows(ctx context.Context, p *ListAipWorkflowsPayloa
 	return ires.(*AIPWorkflows), nil
 }
 
+// AipDeletionAuto calls the "aip_deletion_auto" endpoint of the "storage"
+// service.
+// AipDeletionAuto may return the following errors:
+//   - "not_found" (type *AIPNotFound): AIP not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) AipDeletionAuto(ctx context.Context, p *AipDeletionAutoPayload) (err error) {
+	_, err = c.AipDeletionAutoEndpoint(ctx, p)
+	return
+}
+
 // RequestAipDeletion calls the "request_aip_deletion" endpoint of the
 // "storage" service.
 // RequestAipDeletion may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
@@ -286,6 +304,8 @@ func (c *Client) RequestAipDeletion(ctx context.Context, p *RequestAipDeletionPa
 // service.
 // ReviewAipDeletion may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error
@@ -298,6 +318,8 @@ func (c *Client) ReviewAipDeletion(ctx context.Context, p *ReviewAipDeletionPayl
 // service.
 // CancelAipDeletion may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
+//   - "not_valid" (type *goa.ServiceError)
+//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
 //   - error: internal error

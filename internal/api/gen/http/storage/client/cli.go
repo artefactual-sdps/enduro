@@ -443,6 +443,41 @@ func BuildListAipWorkflowsPayload(storageListAipWorkflowsUUID string, storageLis
 	return v, nil
 }
 
+// BuildAipDeletionAutoPayload builds the payload for the storage
+// aip_deletion_auto endpoint from CLI flags.
+func BuildAipDeletionAutoPayload(storageAipDeletionAutoBody string, storageAipDeletionAutoUUID string, storageAipDeletionAutoToken string) (*storage.AipDeletionAutoPayload, error) {
+	var err error
+	var body AipDeletionAutoRequestBody
+	{
+		err = json.Unmarshal([]byte(storageAipDeletionAutoBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"reason\": \"abc123\",\n      \"skip_report\": false\n   }'")
+		}
+	}
+	var uuid string
+	{
+		uuid = storageAipDeletionAutoUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if storageAipDeletionAutoToken != "" {
+			token = &storageAipDeletionAutoToken
+		}
+	}
+	v := &storage.AipDeletionAutoPayload{
+		Reason:     body.Reason,
+		SkipReport: body.SkipReport,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
 // BuildRequestAipDeletionPayload builds the payload for the storage
 // request_aip_deletion endpoint from CLI flags.
 func BuildRequestAipDeletionPayload(storageRequestAipDeletionBody string, storageRequestAipDeletionUUID string, storageRequestAipDeletionToken string) (*storage.RequestAipDeletionPayload, error) {

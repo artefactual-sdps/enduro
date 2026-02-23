@@ -333,6 +333,29 @@ var _ = Service("storage", func() {
 			})
 		})
 	})
+	Method("aip_deletion_auto", func() {
+		Description("AIP deletion with auto-approval")
+		Security(JWTAuth, func() {
+			Scope(auth.StorageAIPSDeletionAutoAttr)
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of AIP")
+			Token("token", String)
+			Attribute("reason", String)
+			Attribute("skip_report", Boolean, "Skip AIP deletion report generation")
+			Required("uuid", "reason")
+		})
+		Error("not_found", AIPNotFound, "AIP not found")
+		Error("not_valid")
+		Error("internal_error")
+		HTTP(func() {
+			POST("/aips/{uuid}/deletion-auto")
+			Response(StatusAccepted)
+			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
+		})
+	})
 	Method("request_aip_deletion", func() {
 		Description("Request an AIP deletion")
 		Security(JWTAuth, func() {
@@ -345,10 +368,14 @@ var _ = Service("storage", func() {
 			Required("uuid", "reason")
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
+		Error("not_valid")
+		Error("internal_error")
 		HTTP(func() {
 			POST("/aips/{uuid}/deletion-request")
-			Response(StatusOK)
+			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("review_aip_deletion", func() {
@@ -363,10 +390,14 @@ var _ = Service("storage", func() {
 			Required("uuid", "approved")
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
+		Error("not_valid")
+		Error("internal_error")
 		HTTP(func() {
 			POST("/aips/{uuid}/deletion-review")
-			Response(StatusOK)
+			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("cancel_aip_deletion", func() {
@@ -385,10 +416,14 @@ var _ = Service("storage", func() {
 			Required("uuid")
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
+		Error("not_valid")
+		Error("internal_error")
 		HTTP(func() {
 			POST("/aips/{uuid}/deletion-cancel")
-			Response(StatusOK)
+			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
+			Response("not_valid", StatusBadRequest)
+			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("aip_deletion_report_request", func() {

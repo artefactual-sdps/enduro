@@ -249,6 +249,7 @@ endpoints.
 | GET    | /storage/aips                         | `storage:aips:list`              |
 | POST   | /storage/aips                         | `storage:aips:create`            |
 | GET    | /storage/aips/{uuid}                  | `storage:aips:read`              |
+| POST   | /storage/aips/{uuid}/deletion-auto    | `storage:aips:deletion:auto`     |
 | POST   | /storage/aips/{uuid}/deletion-cancel  | `storage:aips:deletion:request`  |
 | GET    | /storage/aips/{uuid}/deletion-report  | `-`                              |
 | POST   | /storage/aips/{uuid}/deletion-report  | `storage:aips:deletion:report`   |

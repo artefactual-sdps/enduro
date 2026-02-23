@@ -42,6 +42,161 @@ func (m *MockStorageClient) EXPECT() *MockStorageClientMockRecorder {
 	return m.recorder
 }
 
+// AipDeletionAuto mocks base method.
+func (m *MockStorageClient) AipDeletionAuto(arg0 context.Context, arg1 *storage.AipDeletionAutoPayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AipDeletionAuto", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// AipDeletionAuto indicates an expected call of AipDeletionAuto.
+func (mr *MockStorageClientMockRecorder) AipDeletionAuto(arg0, arg1 any) *MockStorageClientAipDeletionAutoCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AipDeletionAuto", reflect.TypeOf((*MockStorageClient)(nil).AipDeletionAuto), arg0, arg1)
+	return &MockStorageClientAipDeletionAutoCall{Call: call}
+}
+
+// MockStorageClientAipDeletionAutoCall wrap *gomock.Call
+type MockStorageClientAipDeletionAutoCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageClientAipDeletionAutoCall) Return(arg0 error) *MockStorageClientAipDeletionAutoCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageClientAipDeletionAutoCall) Do(f func(context.Context, *storage.AipDeletionAutoPayload) error) *MockStorageClientAipDeletionAutoCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageClientAipDeletionAutoCall) DoAndReturn(f func(context.Context, *storage.AipDeletionAutoPayload) error) *MockStorageClientAipDeletionAutoCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// AipDeletionReport mocks base method.
+func (m *MockStorageClient) AipDeletionReport(arg0 context.Context, arg1 *storage.AipDeletionReportPayload) (*storage.AipDeletionReportResult, io.ReadCloser, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AipDeletionReport", arg0, arg1)
+	ret0, _ := ret[0].(*storage.AipDeletionReportResult)
+	ret1, _ := ret[1].(io.ReadCloser)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// AipDeletionReport indicates an expected call of AipDeletionReport.
+func (mr *MockStorageClientMockRecorder) AipDeletionReport(arg0, arg1 any) *MockStorageClientAipDeletionReportCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AipDeletionReport", reflect.TypeOf((*MockStorageClient)(nil).AipDeletionReport), arg0, arg1)
+	return &MockStorageClientAipDeletionReportCall{Call: call}
+}
+
+// MockStorageClientAipDeletionReportCall wrap *gomock.Call
+type MockStorageClientAipDeletionReportCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageClientAipDeletionReportCall) Return(arg0 *storage.AipDeletionReportResult, arg1 io.ReadCloser, arg2 error) *MockStorageClientAipDeletionReportCall {
+	c.Call = c.Call.Return(arg0, arg1, arg2)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageClientAipDeletionReportCall) Do(f func(context.Context, *storage.AipDeletionReportPayload) (*storage.AipDeletionReportResult, io.ReadCloser, error)) *MockStorageClientAipDeletionReportCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageClientAipDeletionReportCall) DoAndReturn(f func(context.Context, *storage.AipDeletionReportPayload) (*storage.AipDeletionReportResult, io.ReadCloser, error)) *MockStorageClientAipDeletionReportCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// AipDeletionReportRequest mocks base method.
+func (m *MockStorageClient) AipDeletionReportRequest(arg0 context.Context, arg1 *storage.AipDeletionReportRequestPayload) (*storage.AipDeletionReportRequestResult, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "AipDeletionReportRequest", arg0, arg1)
+	ret0, _ := ret[0].(*storage.AipDeletionReportRequestResult)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AipDeletionReportRequest indicates an expected call of AipDeletionReportRequest.
+func (mr *MockStorageClientMockRecorder) AipDeletionReportRequest(arg0, arg1 any) *MockStorageClientAipDeletionReportRequestCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AipDeletionReportRequest", reflect.TypeOf((*MockStorageClient)(nil).AipDeletionReportRequest), arg0, arg1)
+	return &MockStorageClientAipDeletionReportRequestCall{Call: call}
+}
+
+// MockStorageClientAipDeletionReportRequestCall wrap *gomock.Call
+type MockStorageClientAipDeletionReportRequestCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageClientAipDeletionReportRequestCall) Return(arg0 *storage.AipDeletionReportRequestResult, arg1 error) *MockStorageClientAipDeletionReportRequestCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageClientAipDeletionReportRequestCall) Do(f func(context.Context, *storage.AipDeletionReportRequestPayload) (*storage.AipDeletionReportRequestResult, error)) *MockStorageClientAipDeletionReportRequestCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageClientAipDeletionReportRequestCall) DoAndReturn(f func(context.Context, *storage.AipDeletionReportRequestPayload) (*storage.AipDeletionReportRequestResult, error)) *MockStorageClientAipDeletionReportRequestCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// CancelAipDeletion mocks base method.
+func (m *MockStorageClient) CancelAipDeletion(arg0 context.Context, arg1 *storage.CancelAipDeletionPayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "CancelAipDeletion", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// CancelAipDeletion indicates an expected call of CancelAipDeletion.
+func (mr *MockStorageClientMockRecorder) CancelAipDeletion(arg0, arg1 any) *MockStorageClientCancelAipDeletionCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CancelAipDeletion", reflect.TypeOf((*MockStorageClient)(nil).CancelAipDeletion), arg0, arg1)
+	return &MockStorageClientCancelAipDeletionCall{Call: call}
+}
+
+// MockStorageClientCancelAipDeletionCall wrap *gomock.Call
+type MockStorageClientCancelAipDeletionCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockStorageClientCancelAipDeletionCall) Return(arg0 error) *MockStorageClientCancelAipDeletionCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockStorageClientCancelAipDeletionCall) Do(f func(context.Context, *storage.CancelAipDeletionPayload) error) *MockStorageClientCancelAipDeletionCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockStorageClientCancelAipDeletionCall) DoAndReturn(f func(context.Context, *storage.CancelAipDeletionPayload) error) *MockStorageClientCancelAipDeletionCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // CreateAip mocks base method.
 func (m *MockStorageClient) CreateAip(arg0 context.Context, arg1 *storage.CreateAipPayload) (*storage.AIP, error) {
 	m.ctrl.T.Helper()

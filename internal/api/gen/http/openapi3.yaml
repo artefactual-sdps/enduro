@@ -1572,6 +1572,76 @@ paths:
             security:
                 - jwt_header_Authorization:
                     - storage:aips:read
+    /storage/aips/{uuid}/deletion-auto:
+        post:
+            tags:
+                - storage
+            summary: aip_deletion_auto storage
+            description: AIP deletion with auto-approval
+            operationId: storage#aip_deletion_auto
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of AIP
+                  required: true
+                  schema:
+                    type: string
+                    description: Identifier of AIP
+                    example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    format: uuid
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            requestBody:
+                required: true
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/AipDeletionAutoRequestBody'
+                        example:
+                            reason: abc123
+                            skip_report: false
+            responses:
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                "401":
+                    description: 'unauthorized: Unauthorized response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "403":
+                    description: 'forbidden: Forbidden response.'
+                    content:
+                        application/json:
+                            schema:
+                                type: string
+                                example: abc123
+                            example: abc123
+                "404":
+                    description: 'not_found: AIP not found'
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                            example:
+                                message: abc123
+                                uuid: abc123
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+            security:
+                - jwt_header_Authorization:
+                    - storage:aips:deletion:auto
     /storage/aips/{uuid}/deletion-cancel:
         post:
             tags:
@@ -1599,8 +1669,14 @@ paths:
                         example:
                             check: false
             responses:
-                "200":
-                    description: OK response.
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
@@ -1626,6 +1702,12 @@ paths:
                             example:
                                 message: abc123
                                 uuid: abc123
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
                     - storage:aips:deletion:request
@@ -1803,8 +1885,14 @@ paths:
                         example:
                             reason: abc123
             responses:
-                "200":
-                    description: OK response.
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
@@ -1830,6 +1918,12 @@ paths:
                             example:
                                 message: abc123
                                 uuid: abc123
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
                     - storage:aips:deletion:request
@@ -1860,8 +1954,14 @@ paths:
                         example:
                             approved: false
             responses:
-                "200":
-                    description: OK response.
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: 'not_valid: Bad Request response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
@@ -1887,6 +1987,12 @@ paths:
                             example:
                                 message: abc123
                                 uuid: abc123
+                "500":
+                    description: 'internal_error: Internal Server Error response.'
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
             security:
                 - jwt_header_Authorization:
                     - storage:aips:deletion:review
@@ -3136,6 +3242,21 @@ components:
                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             required:
                 - uuid
+        AipDeletionAutoRequestBody:
+            type: object
+            properties:
+                reason:
+                    type: string
+                    example: abc123
+                skip_report:
+                    type: boolean
+                    description: Skip AIP deletion report generation
+                    example: false
+            example:
+                reason: abc123
+                skip_report: false
+            required:
+                - reason
         BatchCollection:
             type: array
             items:

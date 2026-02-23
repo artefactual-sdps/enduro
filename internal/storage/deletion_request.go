@@ -30,18 +30,41 @@ func checkClaims(claims *auth.Claims) error {
 	return nil
 }
 
+func (s *serviceImpl) AipDeletionAuto(ctx context.Context, payload *goastorage.AipDeletionAutoPayload) error {
+	if payload == nil {
+		payload = &goastorage.AipDeletionAutoPayload{}
+	}
+
+	skipReport := payload.SkipReport != nil && *payload.SkipReport
+	return s.requestAIPDeletion(ctx, payload.UUID, payload.Reason, true, skipReport)
+}
+
 func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorage.RequestAipDeletionPayload) error {
+	if payload == nil {
+		payload = &goastorage.RequestAipDeletionPayload{}
+	}
+
+	return s.requestAIPDeletion(ctx, payload.UUID, payload.Reason, false, false)
+}
+
+func (s *serviceImpl) requestAIPDeletion(
+	ctx context.Context,
+	aipUUID string,
+	reason string,
+	autoApprove bool,
+	skipReport bool,
+) error {
 	// Authentication must be enabled for now.
 	claims := auth.UserClaimsFromContext(ctx)
 	if err := checkClaims(claims); err != nil {
 		return err
 	}
 
-	aipID, err := uuid.Parse(payload.UUID)
+	aipID, err := uuid.Parse(aipUUID)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("invalid UUID"))
 	}
-	if payload.Reason == "" {
+	if reason == "" {
 		return goastorage.MakeNotValid(errors.New("invalid reason"))
 	}
 
@@ -54,16 +77,18 @@ func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorag
 	}
 
 	_, err = InitStorageDeleteWorkflow(ctx, s.tc, &StorageDeleteWorkflowRequest{
-		AIPID:     aipID,
-		Reason:    payload.Reason,
-		TaskQueue: s.config.TaskQueue,
-		UserEmail: claims.Email,
-		UserSub:   claims.Sub,
-		UserIss:   claims.Iss,
+		AIPID:       aipID,
+		Reason:      reason,
+		TaskQueue:   s.config.TaskQueue,
+		UserEmail:   claims.Email,
+		UserSub:     claims.Sub,
+		UserIss:     claims.Iss,
+		AutoApprove: autoApprove,
+		SkipReport:  skipReport,
 	})
 	if err != nil {
 		s.logger.Error(err, "error initializing delete workflow")
-		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		return ErrInternalError
 	}
 
 	return nil
@@ -95,7 +120,8 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 		Status:  ref.New(enums.DeletionRequestStatusPending),
 	})
 	if err != nil || len(drs) == 0 {
-		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		s.logger.Error(err, "deletion request not found", "aip_id", aipID)
+		return ErrInternalError
 	}
 
 	if drs[0].RequesterIss == claims.Iss && drs[0].RequesterSub == claims.Sub {
@@ -115,7 +141,8 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 	}
 	err = s.tc.SignalWorkflow(ctx, StorageDeleteWorkflowID(aipID), "", DeletionDecisionSignalName, signal)
 	if err != nil {
-		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		s.logger.Error(err, "error signaling delete workflow")
+		return ErrInternalError
 	}
 
 	return nil
@@ -170,7 +197,8 @@ func (s *serviceImpl) CancelAipDeletion(
 		},
 	)
 	if err != nil {
-		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		s.logger.Error(err, "error signaling delete workflow")
+		return ErrInternalError
 	}
 
 	return nil

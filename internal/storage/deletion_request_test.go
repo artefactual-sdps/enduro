@@ -22,6 +22,75 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
+func TestAipDeletionAuto(t *testing.T) {
+	t.Parallel()
+
+	type test struct {
+		name       string
+		payload    *goastorage.AipDeletionAutoPayload
+		skipReport bool
+	}
+
+	for _, tt := range []test{
+		{
+			name: "Requests auto-approved AIP deletion",
+			payload: &goastorage.AipDeletionAutoPayload{
+				UUID:   aipID.String(),
+				Reason: "Reason",
+			},
+		},
+		{
+			name: "Requests auto-approved AIP deletion with report skipped",
+			payload: &goastorage.AipDeletionAutoPayload{
+				UUID:       aipID.String(),
+				Reason:     "Reason",
+				SkipReport: ref.New(true),
+			},
+			skipReport: true,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := auth.WithUserClaims(context.Background(), &auth.Claims{
+				Email: "requester@example.com",
+				Iss:   "issuer",
+				Sub:   "subject",
+			})
+			attrs := &setUpAttrs{}
+			svc := setUpService(t, attrs)
+
+			attrs.persistenceMock.EXPECT().ReadAIP(ctx, aipID).Return(
+				&goastorage.AIP{Status: enums.AIPStatusStored.String()},
+				nil,
+			)
+			attrs.temporalClientMock.On(
+				"ExecuteWorkflow",
+				mock.AnythingOfType("*context.timerCtx"),
+				temporalsdk_client.StartWorkflowOptions{
+					ID:                    fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
+					TaskQueue:             "global",
+					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
+				},
+				storage.StorageDeleteWorkflowName,
+				&storage.StorageDeleteWorkflowRequest{
+					AIPID:       aipID,
+					Reason:      "Reason",
+					UserEmail:   "requester@example.com",
+					UserIss:     "issuer",
+					UserSub:     "subject",
+					TaskQueue:   "global",
+					AutoApprove: true,
+					SkipReport:  tt.skipReport,
+				},
+			).Return(nil, nil)
+
+			err := svc.AipDeletionAuto(ctx, tt.payload)
+			assert.NilError(t, err)
+		})
+	}
+}
+
 func TestRequestAipDeletion(t *testing.T) {
 	t.Parallel()
 
@@ -146,7 +215,7 @@ func TestRequestAipDeletion(t *testing.T) {
 					},
 				).Return(nil, errors.New("temporal error"))
 			},
-			wantErr: "cannot perform operation",
+			wantErr: "internal error",
 		},
 		{
 			name: "Requests AIP deletion",
@@ -301,7 +370,7 @@ func TestReviewAipDeletion(t *testing.T) {
 					Status:  ref.New(enums.DeletionRequestStatusPending),
 				}).Return(nil, errors.New("persistence error"))
 			},
-			wantErr: "cannot perform operation",
+			wantErr: "internal error",
 		},
 		{
 			name: "Fails to review AIP deletion (reviewer matches requester)",
@@ -364,7 +433,7 @@ func TestReviewAipDeletion(t *testing.T) {
 					},
 				).Return(errors.New("temporal error"))
 			},
-			wantErr: "cannot perform operation",
+			wantErr: "internal error",
 		},
 		{
 			name: "Reviews AIP deletion",
@@ -579,7 +648,7 @@ func TestCancelAipDeletion(t *testing.T) {
 					},
 				).Return(errors.New("temporal error"))
 			},
-			wantErr: "cannot perform operation",
+			wantErr: "internal error",
 		},
 		{
 			name: "Cancels AIP deletion request",

@@ -35,8 +35,19 @@ type StorageClient interface {
 
 	RejectAip(context.Context, *goastorage.RejectAipPayload) error
 
+	AipDeletionAuto(context.Context, *goastorage.AipDeletionAutoPayload) error
 	RequestAipDeletion(context.Context, *goastorage.RequestAipDeletionPayload) error
 	ReviewAipDeletion(context.Context, *goastorage.ReviewAipDeletionPayload) error
+	CancelAipDeletion(context.Context, *goastorage.CancelAipDeletionPayload) error
+
+	AipDeletionReportRequest(
+		context.Context,
+		*goastorage.AipDeletionReportRequestPayload,
+	) (*goastorage.AipDeletionReportRequestResult, error)
+	AipDeletionReport(
+		context.Context,
+		*goastorage.AipDeletionReportPayload,
+	) (*goastorage.AipDeletionReportResult, io.ReadCloser, error)
 
 	CreateLocation(context.Context, *goastorage.CreateLocationPayload) (*goastorage.CreateLocationResult, error)
 	ListLocations(context.Context, *goastorage.ListLocationsPayload) (goastorage.LocationCollection, error)
@@ -98,6 +109,7 @@ func NewStorageClient(
 		storageHTTPClient.RejectAip(),
 		storageHTTPClient.ShowAip(),
 		storageHTTPClient.ListAipWorkflows(),
+		storageHTTPClient.AipDeletionAuto(),
 		storageHTTPClient.RequestAipDeletion(),
 		storageHTTPClient.ReviewAipDeletion(),
 		storageHTTPClient.CancelAipDeletion(),
