@@ -1030,7 +1030,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 	err = temporalsdk_workflow.ExecuteChildWorkflow(
 		preCtx,
 		cfg.WorkflowName,
-		childwf.PreprocessingParams{RelativePath: relPath},
+		childwf.PreprocessingParams{RelativePath: relPath, SIPID: state.sip.uuid},
 	).Get(preCtx, &ppResult)
 	if err != nil {
 		return err
