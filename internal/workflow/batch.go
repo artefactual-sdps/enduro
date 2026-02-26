@@ -63,9 +63,17 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 			e = errors.Join(e, err)
 		}
 
-		// TODO: If the batch is canceled:
-		// - Update all "ingested" SIPs to "canceled".
-		// - Delete stored AIPs.
+		if state.batch.Status == enums.BatchStatusCanceled {
+			activityOpts := withActivityOptsForHeartbeatedPolling(ctx)
+			err := temporalsdk_workflow.ExecuteActivity(
+				activityOpts,
+				activities.ClearIngestedSIPsActivityName,
+				&activities.ClearIngestedSIPsActivityParams{BatchUUID: state.batch.UUID},
+			).Get(activityOpts, nil)
+			if err != nil {
+				e = errors.Join(e, fmt.Errorf("clear ingested SIPs: %v", err))
+			}
+		}
 
 		state.logger.Info(
 			"Batch workflow completed",
