@@ -517,6 +517,15 @@ func main() {
 			activities.NewPollSIPStatusesActivity(ingestsvc, time.Second*60).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.PollSIPStatusesActivityName},
 		)
+		storageClient, err := ingest.NewStorageClient(ctx, tp, cfg.Ingest.Storage)
+		if err != nil {
+			logger.Error(err, "Error setting up storage API client.")
+			os.Exit(1)
+		}
+		w.RegisterActivityWithOptions(
+			activities.NewClearIngestedSIPsActivity(ingestsvc, storageClient, time.Second*60).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.ClearIngestedSIPsActivityName},
+		)
 
 		// Storage workflows and activities.
 		w.RegisterWorkflowWithOptions(
