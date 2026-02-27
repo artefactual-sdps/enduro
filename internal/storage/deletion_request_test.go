@@ -25,67 +25,160 @@ import (
 func TestAipDeletionAuto(t *testing.T) {
 	t.Parallel()
 
-	type test struct {
-		name       string
-		payload    *goastorage.AipDeletionAutoPayload
-		skipReport bool
-	}
-
-	for _, tt := range []test{
+	for _, tt := range []struct {
+		name    string
+		claims  *auth.Claims
+		payload *goastorage.AipDeletionAutoPayload
+		mock    func(context.Context, *fake.MockStorage, *temporalsdk_mocks.Client)
+		wantErr string
+	}{
 		{
 			name: "Requests auto-approved AIP deletion",
+			claims: &auth.Claims{
+				Email: "requester@example.com",
+				Iss:   "issuer",
+				Sub:   "subject",
+			},
 			payload: &goastorage.AipDeletionAutoPayload{
 				UUID:   aipID.String(),
 				Reason: "Reason",
 			},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAIP(ctx, aipID).Return(
+					&goastorage.AIP{Status: enums.AIPStatusStored.String()},
+					nil,
+				)
+				tc.On(
+					"ExecuteWorkflow",
+					mock.AnythingOfType("*context.timerCtx"),
+					temporalsdk_client.StartWorkflowOptions{
+						ID:                    fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
+						TaskQueue:             "global",
+						WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
+					},
+					storage.StorageDeleteWorkflowName,
+					&storage.StorageDeleteWorkflowRequest{
+						AIPID:       aipID,
+						Reason:      "Reason",
+						UserEmail:   "requester@example.com",
+						UserIss:     "issuer",
+						UserSub:     "subject",
+						TaskQueue:   "global",
+						AutoApprove: true,
+						SkipReport:  false,
+					},
+				).Return(nil, nil)
+			},
 		},
 		{
 			name: "Requests auto-approved AIP deletion with report skipped",
+			claims: &auth.Claims{
+				Email: "requester@example.com",
+				Iss:   "issuer",
+				Sub:   "subject",
+			},
 			payload: &goastorage.AipDeletionAutoPayload{
 				UUID:       aipID.String(),
 				Reason:     "Reason",
 				SkipReport: ref.New(true),
 			},
-			skipReport: true,
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAIP(ctx, aipID).Return(
+					&goastorage.AIP{Status: enums.AIPStatusStored.String()},
+					nil,
+				)
+				tc.On(
+					"ExecuteWorkflow",
+					mock.AnythingOfType("*context.timerCtx"),
+					temporalsdk_client.StartWorkflowOptions{
+						ID:                    fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
+						TaskQueue:             "global",
+						WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
+					},
+					storage.StorageDeleteWorkflowName,
+					&storage.StorageDeleteWorkflowRequest{
+						AIPID:       aipID,
+						Reason:      "Reason",
+						UserEmail:   "requester@example.com",
+						UserIss:     "issuer",
+						UserSub:     "subject",
+						TaskQueue:   "global",
+						AutoApprove: true,
+						SkipReport:  true,
+					},
+				).Return(nil, nil)
+			},
+		},
+		{
+			name: "Requests auto-approved AIP deletion when not authenticated",
+			payload: &goastorage.AipDeletionAutoPayload{
+				UUID:   aipID.String(),
+				Reason: "Reason",
+			},
+			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
+				s.EXPECT().ReadAIP(ctx, aipID).Return(
+					&goastorage.AIP{Status: enums.AIPStatusStored.String()},
+					nil,
+				)
+				tc.On(
+					"ExecuteWorkflow",
+					mock.AnythingOfType("*context.timerCtx"),
+					temporalsdk_client.StartWorkflowOptions{
+						ID:                    fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
+						TaskQueue:             "global",
+						WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
+					},
+					storage.StorageDeleteWorkflowName,
+					&storage.StorageDeleteWorkflowRequest{
+						AIPID:       aipID,
+						Reason:      "Reason",
+						UserEmail:   "unauthenticated@enduro.invalid",
+						UserIss:     "unauthenticated",
+						UserSub:     "unauthenticated",
+						TaskQueue:   "global",
+						AutoApprove: true,
+						SkipReport:  false,
+					},
+				).Return(nil, nil)
+			},
+		},
+		{
+			name:    "Fails to request auto-approved AIP deletion (missing email claim)",
+			claims:  &auth.Claims{},
+			wantErr: "email claim is required",
+		},
+		{
+			name: "Fails to request auto-approved AIP deletion (missing sub claim)",
+			claims: &auth.Claims{
+				Email: "requester@example.com",
+			},
+			wantErr: "sub claim is required",
+		},
+		{
+			name: "Fails to request auto-approved AIP deletion (missing iss claim)",
+			claims: &auth.Claims{
+				Email: "requester@example.com",
+				Sub:   "subject",
+			},
+			wantErr: "iss claim is required",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := auth.WithUserClaims(context.Background(), &auth.Claims{
-				Email: "requester@example.com",
-				Iss:   "issuer",
-				Sub:   "subject",
-			})
+			ctx := auth.WithUserClaims(context.Background(), tt.claims)
 			attrs := &setUpAttrs{}
 			svc := setUpService(t, attrs)
 
-			attrs.persistenceMock.EXPECT().ReadAIP(ctx, aipID).Return(
-				&goastorage.AIP{Status: enums.AIPStatusStored.String()},
-				nil,
-			)
-			attrs.temporalClientMock.On(
-				"ExecuteWorkflow",
-				mock.AnythingOfType("*context.timerCtx"),
-				temporalsdk_client.StartWorkflowOptions{
-					ID:                    fmt.Sprintf("%s-%s", storage.StorageDeleteWorkflowName, aipID),
-					TaskQueue:             "global",
-					WorkflowIDReusePolicy: temporalapi_enums.WORKFLOW_ID_REUSE_POLICY_ALLOW_DUPLICATE_FAILED_ONLY,
-				},
-				storage.StorageDeleteWorkflowName,
-				&storage.StorageDeleteWorkflowRequest{
-					AIPID:       aipID,
-					Reason:      "Reason",
-					UserEmail:   "requester@example.com",
-					UserIss:     "issuer",
-					UserSub:     "subject",
-					TaskQueue:   "global",
-					AutoApprove: true,
-					SkipReport:  tt.skipReport,
-				},
-			).Return(nil, nil)
+			if tt.mock != nil {
+				tt.mock(ctx, attrs.persistenceMock, attrs.temporalClientMock)
+			}
 
 			err := svc.AipDeletionAuto(ctx, tt.payload)
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
 			assert.NilError(t, err)
 		})
 	}

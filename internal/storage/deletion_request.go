@@ -35,8 +35,22 @@ func (s *serviceImpl) AipDeletionAuto(ctx context.Context, payload *goastorage.A
 		payload = &goastorage.AipDeletionAutoPayload{}
 	}
 
+	// Authentication can be disabled for auto-approve.
+	claims := auth.UserClaimsFromContext(ctx)
+	if claims != nil {
+		if err := checkClaims(claims); err != nil {
+			return err
+		}
+	} else {
+		claims = &auth.Claims{
+			Email: "unauthenticated@enduro.invalid",
+			Sub:   "unauthenticated",
+			Iss:   "unauthenticated",
+		}
+	}
+
 	skipReport := payload.SkipReport != nil && *payload.SkipReport
-	return s.requestAIPDeletion(ctx, payload.UUID, payload.Reason, true, skipReport)
+	return s.requestAIPDeletion(ctx, payload.UUID, payload.Reason, claims, true, skipReport)
 }
 
 func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorage.RequestAipDeletionPayload) error {
@@ -44,22 +58,23 @@ func (s *serviceImpl) RequestAipDeletion(ctx context.Context, payload *goastorag
 		payload = &goastorage.RequestAipDeletionPayload{}
 	}
 
-	return s.requestAIPDeletion(ctx, payload.UUID, payload.Reason, false, false)
-}
-
-func (s *serviceImpl) requestAIPDeletion(
-	ctx context.Context,
-	aipUUID string,
-	reason string,
-	autoApprove bool,
-	skipReport bool,
-) error {
 	// Authentication must be enabled for now.
 	claims := auth.UserClaimsFromContext(ctx)
 	if err := checkClaims(claims); err != nil {
 		return err
 	}
 
+	return s.requestAIPDeletion(ctx, payload.UUID, payload.Reason, claims, false, false)
+}
+
+func (s *serviceImpl) requestAIPDeletion(
+	ctx context.Context,
+	aipUUID string,
+	reason string,
+	claims *auth.Claims,
+	autoApprove bool,
+	skipReport bool,
+) error {
 	aipID, err := uuid.Parse(aipUUID)
 	if err != nil {
 		return goastorage.MakeNotValid(errors.New("invalid UUID"))
