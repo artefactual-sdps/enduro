@@ -241,6 +241,19 @@ data:
                 "included.client.audience": "enduro-s2s",
                 "access.token.claim": "true"
               }
+            },
+            {
+              "id": "b4c4e94d-9fb2-41f4-a5ea-769c3f76bf0f",
+              "name": "hardcoded-email",
+              "protocol": "openid-connect",
+              "protocolMapper": "oidc-hardcoded-claim-mapper",
+              "config": {
+                "claim.name": "email",
+                "claim.value": "enduro-s2s@example.com",
+                "jsonType.label": "String",
+                "access.token.claim": "true",
+                "introspection.token.claim": "true"
+              }
             }
           ]
         },

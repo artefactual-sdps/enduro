@@ -69,7 +69,10 @@ func (s *BatchWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration) {
 		activities.NewPollSIPStatusesActivity(ingestsvc, time.Microsecond).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.PollSIPStatusesActivityName},
 	)
-
+	s.env.RegisterActivityWithOptions(
+		activities.NewClearIngestedSIPsActivity(nil, nil, time.Microsecond).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.ClearIngestedSIPsActivityName},
+	)
 	s.env.RegisterWorkflowWithOptions(
 		postBatchChildWorkflow,
 		temporalsdk_workflow.RegisterOptions{Name: "postbatch"},
@@ -637,6 +640,7 @@ func (s *BatchWorkflowTestSuite) TestBatchIngestFailedContinue() {
 // - Waiting for batch decision signal (cancel).
 // - Waiting for all child workflows to complete.
 // - Batch status update (canceled).
+// - Clearing ingested SIPs.
 func (s *BatchWorkflowTestSuite) TestBatchIngestFailedCancel() {
 	s.SetupWorkflowTest(config.Configuration{})
 
@@ -747,6 +751,13 @@ func (s *BatchWorkflowTestSuite) TestBatchIngestFailedCancel() {
 			CompletedAt: startTime,
 		},
 	).Return(&updateBatchLocalActivityResult{}, nil)
+
+	// Mock clearing ingested SIPs.
+	s.env.OnActivity(
+		activities.ClearIngestedSIPsActivityName,
+		mock.AnythingOfType("*context.timerCtx"),
+		&activities.ClearIngestedSIPsActivityParams{BatchUUID: batchUUID},
+	).Return(&activities.ClearIngestedSIPsActivityResult{}, nil)
 
 	s.ExecuteAndValidateWorkflow(
 		&ingest.BatchWorkflowRequest{
