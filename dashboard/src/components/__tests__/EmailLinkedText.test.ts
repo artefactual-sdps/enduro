@@ -75,4 +75,22 @@ describe("EmailLinkedText.vue", () => {
       `"<span>Write to <a href="mailto:me@example.com">me@example.com</a></span>"`,
     );
   });
+
+  it("updates rendered links when text prop changes", async () => {
+    wrapper = mount(EmailLinkedText, {
+      props: {
+        text: "Contact alpha@example.com",
+      },
+    });
+
+    await wrapper.setProps({
+      text: "Contact beta@example.com",
+    });
+
+    const link = wrapper.find("a");
+    expect(link.exists()).toBe(true);
+    expect(link.attributes("href")).toBe("mailto:beta@example.com");
+    expect(wrapper.text()).toContain("beta@example.com");
+    expect(wrapper.text()).not.toContain("alpha@example.com");
+  });
 });

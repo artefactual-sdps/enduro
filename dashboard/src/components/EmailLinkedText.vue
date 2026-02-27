@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { computed } from "vue";
+
 const props = defineProps<{
   text: string;
 }>();
@@ -8,7 +10,7 @@ const splitRegex = new RegExp(`(${emailPattern})`, "g");
 const testRegex = new RegExp(`^${emailPattern}$`);
 
 // Split text into alternating parts: text / email / text / email...
-const parts = props.text.split(splitRegex);
+const parts = computed(() => props.text.split(splitRegex));
 
 function isEmail(part: string): boolean {
   return testRegex.test(part);
