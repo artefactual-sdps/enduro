@@ -14,7 +14,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Install Go
-        uses: actions/setup-go@7a3fe6cf4cb3a834922a1244abfce67bcef6a0c5 # v6.2.0
+        uses: actions/setup-go@4b73464bb391d4059bd26b0524d20df3927bd417 # v6.3.0
         with:
           go-version-file: go.mod
       - name: Install govulncheck
@@ -28,6 +28,6 @@ jobs:
       - name: Check out code
         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
       - name: Scan code
-        uses: securego/gosec@f2262c88ffdfc9eb7be8444db19caa17cc71810f # master
+        uses: securego/gosec@c8a396c0b0c6a18ea5bc234f468445f22d4898a2 # master
         with:
           args: ./...
