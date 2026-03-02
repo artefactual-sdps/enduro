@@ -9,6 +9,7 @@ import (
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
 	"go.artefactual.dev/tools/temporal"
+	goa "goa.design/goa/v3/pkg"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -135,17 +136,22 @@ func (a *ClearIngestedSIPsActivity) deleteAIP(ctx context.Context, batchUUID uui
 		SkipReport: ref.New(true),
 	})
 	if err != nil {
-		aip, showErr := a.storageClient.ShowAip(ctx, &goastorage.ShowAipPayload{UUID: aipID})
-		if showErr != nil {
-			return fmt.Errorf("request AIP %q deletion: %v", aipID, errors.Join(err, showErr))
-		}
-		if aip.Status == storage_enums.AIPStatusDeleted.String() {
+		if isAIPNotStoredError(err) {
 			return nil
 		}
 		return fmt.Errorf("request AIP %q deletion: %v", aipID, err)
 	}
 
 	return nil
+}
+
+func isAIPNotStoredError(err error) bool {
+	var serviceErr *goa.ServiceError
+	if !errors.As(err, &serviceErr) {
+		return false
+	}
+
+	return serviceErr.Name == "not_valid" && serviceErr.Message == "AIP is not stored"
 }
 
 // waitForAIPsDeleted polls the status of the AIPs with the given IDs

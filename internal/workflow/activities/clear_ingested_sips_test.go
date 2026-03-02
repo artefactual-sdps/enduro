@@ -110,7 +110,7 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 			wantErr: []string{"list SIPs: persistence error"},
 		},
 		{
-			name:   "Continues when deletion request fails for an already deleted AIP",
+			name:   "Continues when deletion request returns AIP is not stored",
 			params: &activities.ClearIngestedSIPsActivityParams{BatchUUID: batchUUID},
 			mock: func(i *ingestfake.MockServiceMockRecorder, s *ingestfake.MockStorageClientMockRecorder) {
 				i.ListSips(mockutil.Context(), listPayload(0)).
@@ -125,10 +125,9 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 						Page: &goaingest.EnduroPage{Total: 1},
 					}, nil)
 				s.AipDeletionAuto(mockutil.Context(), aipDeletionPayload(aipID1)).
-					Return(errors.New("deletion already requested"))
+					Return(goastorage.MakeNotValid(errors.New("AIP is not stored")))
 				s.ShowAip(mockutil.Context(), &goastorage.ShowAipPayload{UUID: aipID1}).
-					Return(&goastorage.AIP{Status: storage_enums.AIPStatusDeleted.String()}, nil).
-					Times(2)
+					Return(&goastorage.AIP{Status: storage_enums.AIPStatusDeleted.String()}, nil)
 			},
 		},
 		{
@@ -199,12 +198,8 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 					}, nil)
 				s.AipDeletionAuto(mockutil.Context(), aipDeletionPayload(aipID1)).
 					Return(errors.New("deletion request failed"))
-				s.ShowAip(mockutil.Context(), &goastorage.ShowAipPayload{UUID: aipID1}).
-					Return(nil, errors.New("lookup failed"))
 				s.AipDeletionAuto(mockutil.Context(), aipDeletionPayload(aipID2)).
 					Return(errors.New("deletion request failed"))
-				s.ShowAip(mockutil.Context(), &goastorage.ShowAipPayload{UUID: aipID2}).
-					Return(&goastorage.AIP{Status: storage_enums.AIPStatusStored.String()}, nil)
 				s.AipDeletionAuto(mockutil.Context(), aipDeletionPayload(aipID3)).Return(nil)
 				s.AipDeletionAuto(mockutil.Context(), aipDeletionPayload(aipID4)).Return(nil)
 				s.ShowAip(mockutil.Context(), &goastorage.ShowAipPayload{UUID: aipID3}).
@@ -215,7 +210,6 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 			wantErr: []string{
 				fmt.Sprintf("request AIP %q deletion:", aipID1),
 				"deletion request failed",
-				"lookup failed",
 				fmt.Sprintf("request AIP %q deletion:", aipID2),
 				fmt.Sprintf("show AIP %q: status lookup failed", aipID3),
 				fmt.Sprintf("AIP %q could not be deleted", aipID4),
