@@ -187,7 +187,8 @@ func (a *ClearIngestedSIPsActivity) checkAIPStatuses(ctx context.Context, aipIDs
 			continue
 		}
 
-		if aip.Status == storage_enums.AIPStatusStored.String() {
+		if aip.Status == storage_enums.AIPStatusStored.String() ||
+			aip.Status == storage_enums.AIPStatusUnspecified.String() {
 			errs = errors.Join(errs, fmt.Errorf("AIP %q could not be deleted", aipID))
 			continue
 		}
