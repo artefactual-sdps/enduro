@@ -67,10 +67,20 @@ func (a *ClearIngestedSIPsActivity) Execute(
 			return nil, fmt.Errorf("list SIPs: %v", err)
 		}
 
+		sipCount += len(result.Items)
+		if sipCount == 0 {
+			return nil, fmt.Errorf("list SIPs: no SIPs found")
+		}
+
 		for _, sip := range result.Items {
 			status, err := enums.ParseSIPStatus(sip.Status)
 			if err != nil {
 				errs = errors.Join(errs, fmt.Errorf("parse SIP %q status: %v", sip.UUID.String(), err))
+				continue
+			}
+
+			// Ignore SIPs that are not ingested or canceled.
+			if status != enums.SIPStatusIngested && status != enums.SIPStatusCanceled {
 				continue
 			}
 
@@ -84,10 +94,7 @@ func (a *ClearIngestedSIPsActivity) Execute(
 				}
 			}
 
-			// Ignore SIPs that are not ingested or canceled, or if they don't have an AIP UUID.
-			if status != enums.SIPStatusIngested && status != enums.SIPStatusCanceled {
-				continue
-			}
+			// Ignore SIPs that don't have an AIP UUID.
 			if sip.AipUUID == nil || *sip.AipUUID == "" {
 				continue
 			}
@@ -102,8 +109,7 @@ func (a *ClearIngestedSIPsActivity) Execute(
 			aipIDs = append(aipIDs, *sip.AipUUID)
 		}
 
-		sipCount += len(result.Items)
-		if sipCount == 0 || result.Page == nil || sipCount >= result.Page.Total {
+		if result.Page == nil || sipCount >= result.Page.Total {
 			break
 		}
 	}
