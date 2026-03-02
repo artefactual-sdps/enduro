@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
@@ -187,8 +188,12 @@ func (a *ClearIngestedSIPsActivity) checkAIPStatuses(ctx context.Context, aipIDs
 			continue
 		}
 
-		if aip.Status == storage_enums.AIPStatusStored.String() ||
-			aip.Status == storage_enums.AIPStatusUnspecified.String() {
+		unexpectedAIPStatuses := []string{
+			storage_enums.AIPStatusStored.String(),
+			storage_enums.AIPStatusPending.String(),
+			storage_enums.AIPStatusUnspecified.String(),
+		}
+		if slices.Contains(unexpectedAIPStatuses, aip.Status) {
 			errs = errors.Join(errs, fmt.Errorf("AIP %q could not be deleted", aipID))
 			continue
 		}
