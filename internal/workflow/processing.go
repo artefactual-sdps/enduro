@@ -143,7 +143,7 @@ func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, st
 	}
 
 	ctx = temporalsdk_workflow.WithActivityOptions(ctx, temporalsdk_workflow.ActivityOptions{
-		StartToCloseTimeout: time.Second,
+		StartToCloseTimeout: 15 * time.Minute,
 		RetryPolicy: &temporalsdk_temporal.RetryPolicy{
 			MaximumAttempts: 1,
 		},
