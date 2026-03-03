@@ -15,7 +15,7 @@ const confirmCancel = async () => {
     heading: "Cancel batch",
     bodyHtml:
       `<p>Are you sure you want to cancel batch <strong>${batchStore.current?.identifier}</strong>?</p>` +
-      "<p>Clicking yes will mark this batch as CANCELED. Any SIPs that have already been ingested will remain in AIP storage and can be deleted manually.</p>",
+      "<p>Clicking yes will mark this batch as CANCELED. Any AIPs that have already been ingested will be automatically deleted from storage.</p>",
     confirmClass: "btn-danger",
   });
   if (!confirmed) return;
