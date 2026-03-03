@@ -115,6 +115,10 @@ func (s *StorageDeleteWorkflowTestSuite) createDeletionRequest() {
 		s.req.UserEmail,
 		s.req.Reason,
 	)
+	initialTaskNote := fmt.Sprintf("%s\n\nAwaiting user review.", s.reviewTask.Note)
+	if s.req.AutoApprove {
+		initialTaskNote = fmt.Sprintf("%s\n\nAuto-approving deletion request.", s.reviewTask.Note)
+	}
 	s.env.OnActivity(
 		storage.CreateTaskLocalActivity,
 		mock.AnythingOfType("*context.valueCtx"),
@@ -122,8 +126,8 @@ func (s *StorageDeleteWorkflowTestSuite) createDeletionRequest() {
 		&storage.CreateTaskLocalActivityParams{
 			WorkflowDBID: workflowDBID,
 			Status:       enums.TaskStatusPending,
-			Name:         "Review AIP deletion request",
-			Note:         fmt.Sprintf("%s\n\nAwaiting user review.", s.reviewTask.Note),
+			Name:         "AIP deletion request",
+			Note:         initialTaskNote,
 		},
 	).Return(s.reviewTask.ID, nil)
 
@@ -141,25 +145,27 @@ func (s *StorageDeleteWorkflowTestSuite) createDeletionRequest() {
 		},
 	).Return(deletionRequestDBID, nil)
 
-	s.env.OnActivity(
-		storage.UpdateWorkflowStatusLocalActivity,
-		mock.AnythingOfType("*context.valueCtx"),
-		s.storagesvc,
-		&storage.UpdateWorkflowStatusLocalActivityParams{
-			DBID:   workflowDBID,
-			Status: enums.WorkflowStatusPending,
-		},
-	).Return(nil)
+	if !s.req.AutoApprove {
+		s.env.OnActivity(
+			storage.UpdateWorkflowStatusLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			&storage.UpdateWorkflowStatusLocalActivityParams{
+				DBID:   workflowDBID,
+				Status: enums.WorkflowStatusPending,
+			},
+		).Return(nil)
 
-	s.env.OnActivity(
-		storage.UpdateAIPStatusLocalActivity,
-		mock.AnythingOfType("*context.valueCtx"),
-		s.storagesvc,
-		&storage.UpdateAIPStatusLocalActivityParams{
-			AIPID:  s.aip.UUID,
-			Status: enums.AIPStatusPending,
-		},
-	).Return(nil)
+		s.env.OnActivity(
+			storage.UpdateAIPStatusLocalActivity,
+			mock.AnythingOfType("*context.valueCtx"),
+			s.storagesvc,
+			&storage.UpdateAIPStatusLocalActivityParams{
+				AIPID:  s.aip.UUID,
+				Status: enums.AIPStatusPending,
+			},
+		).Return(nil)
+	}
 }
 
 func TestStorageDeleteWorkflow(t *testing.T) {
@@ -371,26 +377,6 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 		s.createDeletionRequest()
 
 		s.env.OnActivity(
-			storage.UpdateAIPStatusLocalActivity,
-			mock.AnythingOfType("*context.valueCtx"),
-			s.storagesvc,
-			&storage.UpdateAIPStatusLocalActivityParams{
-				AIPID:  s.aip.UUID,
-				Status: enums.AIPStatusProcessing,
-			},
-		).Return(nil)
-
-		s.env.OnActivity(
-			storage.UpdateWorkflowStatusLocalActivity,
-			mock.AnythingOfType("*context.valueCtx"),
-			s.storagesvc,
-			&storage.UpdateWorkflowStatusLocalActivityParams{
-				DBID:   workflowDBID,
-				Status: enums.WorkflowStatusInProgress,
-			},
-		).Return(nil)
-
-		s.env.OnActivity(
 			storage.UpdateDeletionRequestLocalActivity,
 			mock.AnythingOfType("*context.valueCtx"),
 			s.storagesvc,
@@ -405,7 +391,7 @@ func TestStorageDeleteWorkflow(t *testing.T) {
 			&storage.CompleteTaskLocalActivityParams{
 				DBID:   s.reviewTask.ID,
 				Status: enums.TaskStatusDone,
-				Note:   fmt.Sprintf("%s\n\nAIP deletion request approved by %s.", s.reviewTask.Note, signal.UserEmail),
+				Note:   fmt.Sprintf("%s\n\nAuto-approved deletion request.", s.reviewTask.Note),
 			},
 		).Return(nil)
 

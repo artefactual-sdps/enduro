@@ -105,15 +105,21 @@ func (w *StorageDeleteWorkflow) Execute(
 		}
 	}()
 
-	// Create review task.
+	// Create deletion request task.
 	taskNote := fmt.Sprintf("An AIP deletion has been requested by %s. Reason:\n\n%s", req.UserEmail, req.Reason)
+	var initialTaskNote string
+	if req.AutoApprove {
+		initialTaskNote = fmt.Sprintf("%s\n\nAuto-approving deletion request.", taskNote)
+	} else {
+		initialTaskNote = fmt.Sprintf("%s\n\nAwaiting user review.", taskNote)
+	}
 	reviewTaskDBID, err := createTask(
 		ctx,
 		w.storagesvc,
 		workflowDBID,
 		enums.TaskStatusPending,
-		"Review AIP deletion request",
-		fmt.Sprintf("%s\n\nAwaiting user review.", taskNote),
+		"AIP deletion request",
+		initialTaskNote,
 	)
 	if err != nil {
 		return err
@@ -126,7 +132,9 @@ func (w *StorageDeleteWorkflow) Execute(
 	taskStatus := enums.TaskStatusDone
 	if err != nil {
 		taskStatus = enums.TaskStatusError
-		taskNote = fmt.Sprintf("%s\n\nFailed to review AIP deletion request:\n%v", taskNote, err)
+		taskNote = fmt.Sprintf("%s\n\nFailed to process AIP deletion request:\n%v", taskNote, err)
+	} else if req.AutoApprove {
+		taskNote = fmt.Sprintf("%s\n\nAuto-approved deletion request.", taskNote)
 	} else {
 		switch reviewSignal.Status {
 		case enums.DeletionRequestStatusApproved:
@@ -249,16 +257,6 @@ func (w *StorageDeleteWorkflow) review(
 		return nil, err
 	}
 
-	// Set Workflow status to pending.
-	if err := updateWorkflowStatus(ctx, w.storagesvc, workflowDBID, enums.WorkflowStatusPending); err != nil {
-		return nil, err
-	}
-
-	// Set AIP status to pending.
-	if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, enums.AIPStatusPending); err != nil {
-		return nil, err
-	}
-
 	var signal storage.DeletionDecisionSignal
 	if req.AutoApprove {
 		signal = storage.DeletionDecisionSignal{
@@ -269,6 +267,16 @@ func (w *StorageDeleteWorkflow) review(
 		}
 		logger.Info("Auto-approved AIP deletion workflow decision", "signal", signal)
 	} else {
+		// Set Workflow status to pending.
+		if err := updateWorkflowStatus(ctx, w.storagesvc, workflowDBID, enums.WorkflowStatusPending); err != nil {
+			return nil, err
+		}
+
+		// Set AIP status to pending.
+		if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, enums.AIPStatusPending); err != nil {
+			return nil, err
+		}
+
 		// Wait for a delete request decision signal.
 		open := temporalsdk_workflow.GetSignalChannel(ctx, storage.DeletionDecisionSignalName).Receive(ctx, &signal)
 		if !open {
@@ -276,16 +284,16 @@ func (w *StorageDeleteWorkflow) review(
 		}
 
 		logger.Info("Received AIP deletion workflow decision", "signal", signal)
-	}
 
-	// Set AIP status to processing.
-	if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, enums.AIPStatusProcessing); err != nil {
-		return nil, err
-	}
+		// Set AIP status to processing.
+		if err := updateAIPStatus(ctx, w.storagesvc, req.AIPID, enums.AIPStatusProcessing); err != nil {
+			return nil, err
+		}
 
-	// Set Workflow status to in progress.
-	if err := updateWorkflowStatus(ctx, w.storagesvc, workflowDBID, enums.WorkflowStatusInProgress); err != nil {
-		return nil, err
+		// Set Workflow status to in progress.
+		if err := updateWorkflowStatus(ctx, w.storagesvc, workflowDBID, enums.WorkflowStatusInProgress); err != nil {
+			return nil, err
+		}
 	}
 
 	// Update DeletionRequest.
