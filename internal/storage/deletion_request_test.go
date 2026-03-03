@@ -132,7 +132,7 @@ func TestAipDeletionAuto(t *testing.T) {
 					&storage.StorageDeleteWorkflowRequest{
 						AIPID:       aipID,
 						Reason:      "Reason",
-						UserEmail:   "auto-approve@enduro.sys",
+						UserEmail:   "Enduro-auto-approve",
 						UserIss:     "unauthenticated",
 						UserSub:     "unauthenticated",
 						TaskQueue:   "global",
@@ -143,9 +143,9 @@ func TestAipDeletionAuto(t *testing.T) {
 			},
 		},
 		{
-			name:    "Fails to request auto-approved AIP deletion (missing email claim)",
+			name:    "Fails to request auto-approved AIP deletion (missing claims)",
 			claims:  &auth.Claims{},
-			wantErr: "email claim is required",
+			wantErr: "email, preferred_username, or name claim is required",
 		},
 		{
 			name: "Fails to request auto-approved AIP deletion (missing sub claim)",
@@ -201,9 +201,9 @@ func TestRequestAipDeletion(t *testing.T) {
 			wantErr: "authentication is required",
 		},
 		{
-			name:    "Fails to request AIP deletion (missing email claim)",
+			name:    "Fails to request AIP deletion (missing claims)",
 			claims:  &auth.Claims{},
-			wantErr: "email claim is required",
+			wantErr: "email, preferred_username, or name claim is required",
 		},
 		{
 			name: "Fails to request AIP deletion (missing sub claim)",
@@ -382,9 +382,9 @@ func TestReviewAipDeletion(t *testing.T) {
 			wantErr: "authentication is required",
 		},
 		{
-			name:    "Fails to review AIP deletion (missing email claim)",
+			name:    "Fails to review AIP deletion (missing claims)",
 			claims:  &auth.Claims{},
-			wantErr: "email claim is required",
+			wantErr: "email, preferred_username, or name claim is required",
 		},
 		{
 			name: "Fails to review AIP deletion (missing sub claim)",

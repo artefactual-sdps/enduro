@@ -17,8 +17,8 @@ func checkClaims(claims *auth.Claims) error {
 	if claims == nil {
 		return goastorage.MakeNotValid(errors.New("authentication is required"))
 	}
-	if claims.Email == "" {
-		return goastorage.MakeNotValid(errors.New("email claim is required"))
+	if claims.DisplayName() == "" {
+		return goastorage.MakeNotValid(errors.New("email, preferred_username, or name claim is required"))
 	}
 	if claims.Sub == "" {
 		return goastorage.MakeNotValid(errors.New("sub claim is required"))
@@ -43,9 +43,9 @@ func (s *serviceImpl) AipDeletionAuto(ctx context.Context, payload *goastorage.A
 		}
 	} else {
 		claims = &auth.Claims{
-			Email: "auto-approve@enduro.sys",
-			Sub:   "unauthenticated",
-			Iss:   "unauthenticated",
+			Name: "Enduro-auto-approve",
+			Sub:  "unauthenticated",
+			Iss:  "unauthenticated",
 		}
 	}
 
@@ -95,7 +95,7 @@ func (s *serviceImpl) requestAIPDeletion(
 		AIPID:       aipID,
 		Reason:      reason,
 		TaskQueue:   s.config.TaskQueue,
-		UserEmail:   claims.Email,
+		UserEmail:   claims.DisplayName(),
 		UserSub:     claims.Sub,
 		UserIss:     claims.Iss,
 		AutoApprove: autoApprove,
@@ -150,7 +150,7 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 
 	signal := DeletionDecisionSignal{
 		Status:    status,
-		UserEmail: claims.Email,
+		UserEmail: claims.DisplayName(),
 		UserSub:   claims.Sub,
 		UserIss:   claims.Iss,
 	}
@@ -206,7 +206,7 @@ func (s *serviceImpl) CancelAipDeletion(
 		DeletionDecisionSignalName,
 		DeletionDecisionSignal{
 			Status:    enums.DeletionRequestStatusCanceled,
-			UserEmail: claims.Email,
+			UserEmail: claims.DisplayName(),
 			UserSub:   claims.Sub,
 			UserIss:   claims.Iss,
 		},

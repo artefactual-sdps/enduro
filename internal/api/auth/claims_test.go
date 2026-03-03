@@ -42,11 +42,12 @@ func TestMarshalBinary(t *testing.T) {
 	t.Parallel()
 
 	claims := &auth.Claims{
-		Email:         "user@example.com",
-		EmailVerified: true,
-		Name:          "Test User",
-		Iss:           "issuer",
-		Sub:           "subject",
+		Email:             "user@example.com",
+		EmailVerified:     true,
+		PreferredUsername: "Preferred username",
+		Name:              "Test User",
+		Iss:               "issuer",
+		Sub:               "subject",
 	}
 
 	data, err := claims.MarshalBinary()
@@ -148,6 +149,57 @@ func TestCheckAttributes(t *testing.T) {
 			t.Parallel()
 
 			assert.Equal(t, tt.claims.CheckAttributes(tt.attributes), tt.want)
+		})
+	}
+}
+
+func TestDisplayName(t *testing.T) {
+	t.Parallel()
+
+	type test struct {
+		name   string
+		claims *auth.Claims
+		want   string
+	}
+	for _, tt := range []test{
+		{
+			name: "Returns email when all fields are set",
+			claims: &auth.Claims{
+				Email:             "user@example.com",
+				PreferredUsername: "jdoe",
+				Name:              "John Doe",
+			},
+			want: "user@example.com",
+		},
+		{
+			name: "Falls back to preferred username when email is empty",
+			claims: &auth.Claims{
+				PreferredUsername: "jdoe",
+				Name:              "John Doe",
+			},
+			want: "jdoe",
+		},
+		{
+			name: "Falls back to name when email and preferred username are empty",
+			claims: &auth.Claims{
+				Name: "John Doe",
+			},
+			want: "John Doe",
+		},
+		{
+			name:   "Returns empty string when no fields are set",
+			claims: &auth.Claims{},
+			want:   "",
+		},
+		{
+			name: "Returns empty string for nil claims",
+			want: "",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			assert.Equal(t, tt.claims.DisplayName(), tt.want)
 		})
 	}
 }

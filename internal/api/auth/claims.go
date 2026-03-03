@@ -8,11 +8,12 @@ import (
 )
 
 type Claims struct {
-	Email         string `json:"email,omitempty"`
-	EmailVerified bool   `json:"email_verified,omitempty"`
-	Name          string `json:"name,omitempty"`
-	Iss           string `json:"iss,omitempty"`
-	Sub           string `json:"sub,omitempty"`
+	Email             string `json:"email,omitempty"`
+	EmailVerified     bool   `json:"email_verified,omitempty"`
+	PreferredUsername string `json:"preferred_username,omitempty"`
+	Name              string `json:"name,omitempty"`
+	Iss               string `json:"iss,omitempty"`
+	Sub               string `json:"sub,omitempty"`
 	// The attributes are parsed from a configured claim and added here,
 	// they are needed in the JSON representation for the MarshalBinary and
 	// UnmarshalBinary methods below. We use the `enduro_internal_attributes`
@@ -57,6 +58,22 @@ func (c *Claims) CheckAttributes(required []string) bool {
 	}
 
 	return true
+}
+
+// DisplayName returns the email claim if available, falling back to the
+// preferred username and then to the name. It returns an empty string if none
+// are set.
+func (c *Claims) DisplayName() string {
+	if c == nil {
+		return ""
+	}
+	if c.Email != "" {
+		return c.Email
+	}
+	if c.PreferredUsername != "" {
+		return c.PreferredUsername
+	}
+	return c.Name
 }
 
 type contextUserClaimsType struct{}
