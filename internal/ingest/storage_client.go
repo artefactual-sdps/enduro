@@ -6,6 +6,7 @@ import (
 	"net/http/httptrace"
 
 	"github.com/hashicorp/go-cleanhttp"
+	"go.artefactual.dev/tools/clientauth"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
@@ -70,11 +71,11 @@ func NewStorageClient(
 	httpClient := cleanhttp.DefaultPooledClient()
 	transport := httpClient.Transport
 	if cfg.OIDC.Enabled {
-		tokenProvider, err := NewOIDCAccessTokenProvider(ctx, cfg.OIDC)
+		tokenProvider, err := clientauth.NewOIDCAccessTokenProvider(ctx, cfg.OIDC.OIDCAccessTokenProviderConfig)
 		if err != nil {
 			return nil, err
 		}
-		transport = NewBearerTransport(transport, tokenProvider)
+		transport = clientauth.NewBearerTransport(transport, tokenProvider)
 	}
 	httpClient.Transport = otelhttp.NewTransport(
 		transport,

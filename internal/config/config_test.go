@@ -7,6 +7,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/bucket"
+	"go.artefactual.dev/tools/clientauth"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
@@ -120,17 +121,19 @@ func TestConfigRead(t *testing.T) {
 						Address:                    "storage-api:9000",
 						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
 						OIDC: ingest.StorageOIDCConfig{
-							Enabled:                 true,
-							ProviderURL:             "https://idp.example.com/realms/enduro-internal",
-							ClientID:                "enduro-worker",
-							ClientSecret:            "secret",
-							Scopes:                  []string{"openid", "profile"},
-							Audience:                "enduro-s2s",
-							TokenExpiryLeeway:       60 * time.Second,
-							RetryMaxAttempts:        5,
-							RetryInitialInterval:    600 * time.Millisecond,
-							RetryMaxInterval:        5 * time.Second,
-							RetryBackoffCoefficient: 1.5,
+							Enabled: true,
+							OIDCAccessTokenProviderConfig: clientauth.OIDCAccessTokenProviderConfig{
+								ProviderURL:             "https://idp.example.com/realms/enduro-internal",
+								ClientID:                "enduro-worker",
+								ClientSecret:            "secret",
+								Scopes:                  []string{"openid", "profile"},
+								Audience:                "enduro-s2s",
+								TokenExpiryLeeway:       60 * time.Second,
+								RetryMaxAttempts:        5,
+								RetryInitialInterval:    600 * time.Millisecond,
+								RetryMaxInterval:        5 * time.Second,
+								RetryBackoffCoefficient: 1.5,
+							},
 						},
 					},
 				},
@@ -174,13 +177,6 @@ defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
 					Storage: ingest.StorageConfig{
 						Address:                    "storage-api:9000",
 						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
-						OIDC: ingest.StorageOIDCConfig{
-							TokenExpiryLeeway:       ingest.DefaultStorageOIDCTokenExpiryLeeway,
-							RetryMaxAttempts:        ingest.DefaultStorageOIDCRetryMaxAttempts,
-							RetryInitialInterval:    ingest.DefaultStorageOIDCRetryInitialInterval,
-							RetryMaxInterval:        ingest.DefaultStorageOIDCRetryMaxInterval,
-							RetryBackoffCoefficient: ingest.DefaultStorageOIDCRetryBackoffCoefficient,
-						},
 					},
 				},
 				Preservation: pres.Config{
