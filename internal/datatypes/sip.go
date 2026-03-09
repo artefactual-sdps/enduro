@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/ref"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/db"
@@ -57,16 +56,16 @@ func (s *SIP) Goa() *goaingest.SIP {
 		CompletedAt: db.FormatOptionalTime(s.CompletedAt),
 	}
 	if s.AIPID.Valid {
-		col.AipUUID = ref.New(s.AIPID.UUID.String())
+		col.AipUUID = new(s.AIPID.UUID.String())
 	}
 	if s.FailedAs != "" {
-		col.FailedAs = ref.New(s.FailedAs.String())
+		col.FailedAs = new(s.FailedAs.String())
 	}
 	if s.FailedKey != "" {
-		col.FailedKey = ref.New(s.FailedKey)
+		col.FailedKey = new(s.FailedKey)
 	}
 	if s.Uploader != nil {
-		col.UploaderUUID = ref.New(s.Uploader.UUID)
+		col.UploaderUUID = new(s.Uploader.UUID)
 		if s.Uploader.Email != "" {
 			col.UploaderEmail = &s.Uploader.Email
 		}
@@ -75,9 +74,9 @@ func (s *SIP) Goa() *goaingest.SIP {
 		}
 	}
 	if s.Batch != nil {
-		col.BatchUUID = ref.New(s.Batch.UUID)
-		col.BatchIdentifier = ref.New(s.Batch.Identifier)
-		col.BatchStatus = ref.New(s.Batch.Status.String())
+		col.BatchUUID = new(s.Batch.UUID)
+		col.BatchIdentifier = new(s.Batch.Identifier)
+		col.BatchStatus = new(s.Batch.Status.String())
 	}
 
 	return &col

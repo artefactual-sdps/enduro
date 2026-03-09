@@ -11,7 +11,6 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/ref"
 	"go.uber.org/mock/gomock"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/memblob"
@@ -137,7 +136,7 @@ func TestDownloadSipRequest(t *testing.T) {
 				ts.EXPECT().SetEx(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", nil, time.Second*5).Return(nil)
 			},
 			wantRes: &goaingest.DownloadSipRequestResult{
-				Ticket: ref.New("Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"),
+				Ticket: new("Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"),
 			},
 		},
 	} {
@@ -192,7 +191,7 @@ func TestDownloadSip(t *testing.T) {
 		},
 		{
 			name:    "Fails to download a SIP (invalid ticket)",
-			payload: &goaingest.DownloadSipPayload{Ticket: ref.New("invalid-ticket")},
+			payload: &goaingest.DownloadSipPayload{Ticket: new("invalid-ticket")},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
 				ts.EXPECT().GetDel(ctx, "invalid-ticket", nil).Return(auth.ErrKeyNotFound)
 			},
@@ -201,7 +200,7 @@ func TestDownloadSip(t *testing.T) {
 		{
 			name: "Fails to download a SIP (invalid UUID)",
 			payload: &goaingest.DownloadSipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   "invalid-uuid",
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
@@ -212,7 +211,7 @@ func TestDownloadSip(t *testing.T) {
 		{
 			name: "Fails to download a SIP (SIP not found)",
 			payload: &goaingest.DownloadSipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   sipUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
@@ -224,7 +223,7 @@ func TestDownloadSip(t *testing.T) {
 		{
 			name: "Fails to download a SIP (persistence error)",
 			payload: &goaingest.DownloadSipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   sipUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
@@ -236,7 +235,7 @@ func TestDownloadSip(t *testing.T) {
 		{
 			name: "Fails to download a SIP (missing failed values)",
 			payload: &goaingest.DownloadSipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   sipUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
@@ -248,7 +247,7 @@ func TestDownloadSip(t *testing.T) {
 		{
 			name: "Fails to download a SIP (SIP file not found)",
 			payload: &goaingest.DownloadSipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   sipUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
@@ -265,7 +264,7 @@ func TestDownloadSip(t *testing.T) {
 		{
 			name: "Downloads a SIP",
 			payload: &goaingest.DownloadSipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   sipUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {

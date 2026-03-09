@@ -230,10 +230,10 @@ func sipSourceObjectsToGoa(objects []*sipsource.Object) goaingest.SIPSourceObjec
 		r[i] = &goaingest.SIPSourceObject{Key: object.Key, IsDir: object.IsDir}
 
 		if object.Size != 0 {
-			r[i].Size = ref.New(object.Size)
+			r[i].Size = new(object.Size)
 		}
 		if !object.ModTime.IsZero() {
-			r[i].ModTime = ref.New(object.ModTime.Format(time.RFC3339))
+			r[i].ModTime = new(object.ModTime.Format(time.RFC3339))
 		}
 	}
 

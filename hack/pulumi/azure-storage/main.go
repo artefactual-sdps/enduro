@@ -16,7 +16,7 @@ func main() {
 
 		// Create an Azure resource (Storage Account)
 		account, err := storage.NewStorageAccount(ctx, "enduro-dev-blob", &storage.StorageAccountArgs{
-			AccountName: pulumi.String("endurodev"),
+			AccountName:       pulumi.String("endurodev"),
 			ResourceGroupName: resourceGroup.Name,
 			Sku: &storage.SkuArgs{
 				Name: pulumi.String("Standard_LRS"),
@@ -29,9 +29,9 @@ func main() {
 
 		_, err = storage.NewBlobContainer(ctx, "sips", &storage.BlobContainerArgs{
 			ResourceGroupName: resourceGroup.Name,
-			AccountName: account.Name,
-			ContainerName: pulumi.String("sips"),
-		})	
+			AccountName:       account.Name,
+			ContainerName:     pulumi.String("sips"),
+		})
 		if err != nil {
 			return err
 		}

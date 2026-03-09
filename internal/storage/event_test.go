@@ -3,7 +3,6 @@ package storage_test
 import (
 	"testing"
 
-	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -35,7 +34,7 @@ func TestEventSerializer(t *testing.T) {
 
 	serializer := &storage.EventSerializer{}
 	originalEvent := &goastorage.StorageEvent{
-		Value: &goastorage.StoragePingEvent{Message: ref.New("test")},
+		Value: &goastorage.StoragePingEvent{Message: new("test")},
 	}
 
 	data, err := serializer.Marshal(originalEvent)

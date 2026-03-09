@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/ref"
 	"go.artefactual.dev/tools/temporal"
 	goa "goa.design/goa/v3/pkg"
 
@@ -61,9 +60,9 @@ func (a *ClearIngestedSIPsActivity) Execute(
 	var aipIDs []string
 	for {
 		result, err := a.ingestsvc.ListSips(ctx, &goaingest.ListSipsPayload{
-			BatchUUID: ref.New(params.BatchUUID.String()),
-			Limit:     ref.New(1000),
-			Offset:    ref.New(sipCount),
+			BatchUUID: new(params.BatchUUID.String()),
+			Limit:     new(1000),
+			Offset:    new(sipCount),
 		})
 		if err != nil {
 			return nil, fmt.Errorf("list SIPs: %v", err)
@@ -134,7 +133,7 @@ func (a *ClearIngestedSIPsActivity) deleteAIP(ctx context.Context, batchUUID uui
 	err := a.storageClient.AipDeletionAuto(ctx, &goastorage.AipDeletionAutoPayload{
 		UUID:       aipID,
 		Reason:     fmt.Sprintf("Batch %s canceled", batchUUID),
-		SkipReport: ref.New(true),
+		SkipReport: new(true),
 	})
 	if err != nil {
 		if isAIPNotStoredError(err) {

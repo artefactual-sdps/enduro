@@ -10,7 +10,6 @@ import (
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
-	"go.artefactual.dev/tools/ref"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
@@ -83,7 +82,7 @@ func TestAipDeletionReportRequest(t *testing.T) {
 						&goastorage.AIP{
 							UUID:              aipID,
 							Status:            enums.DeletionRequestStatusPending.String(),
-							DeletionReportKey: ref.New(reportKey),
+							DeletionReportKey: new(reportKey),
 						},
 						nil,
 					)
@@ -100,7 +99,7 @@ func TestAipDeletionReportRequest(t *testing.T) {
 						&goastorage.AIP{
 							UUID:              invalidID,
 							Status:            enums.AIPStatusDeleted.String(),
-							DeletionReportKey: ref.New(fmt.Sprintf("reports/aip_deletion_report_%s", invalidID)),
+							DeletionReportKey: new(fmt.Sprintf("reports/aip_deletion_report_%s", invalidID)),
 						},
 						nil,
 					)
@@ -117,7 +116,7 @@ func TestAipDeletionReportRequest(t *testing.T) {
 						&goastorage.AIP{
 							UUID:              aipID,
 							Status:            enums.AIPStatusDeleted.String(),
-							DeletionReportKey: ref.New(reportKey),
+							DeletionReportKey: new(reportKey),
 						},
 						nil,
 					)
@@ -137,7 +136,7 @@ func TestAipDeletionReportRequest(t *testing.T) {
 						&goastorage.AIP{
 							UUID:              aipID,
 							Status:            enums.AIPStatusDeleted.String(),
-							DeletionReportKey: ref.New(reportKey),
+							DeletionReportKey: new(reportKey),
 						},
 						nil,
 					)
@@ -149,7 +148,7 @@ func TestAipDeletionReportRequest(t *testing.T) {
 				).Return(nil)
 			},
 			wantRes: &goastorage.AipDeletionReportRequestResult{
-				Ticket: ref.New("Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"),
+				Ticket: new("Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"),
 			},
 		},
 	} {
@@ -287,7 +286,7 @@ func TestAipDeletionReport(t *testing.T) {
 						&goastorage.AIP{
 							UUID:              aipID,
 							Status:            enums.AIPStatusDeleted.String(),
-							DeletionReportKey: ref.New("reports/missing_deletion_report.pdf"),
+							DeletionReportKey: new("reports/missing_deletion_report.pdf"),
 						},
 						nil,
 					)
@@ -312,7 +311,7 @@ func TestAipDeletionReport(t *testing.T) {
 						&goastorage.AIP{
 							UUID:              aipID,
 							Status:            enums.AIPStatusDeleted.String(),
-							DeletionReportKey: ref.New(reportKey),
+							DeletionReportKey: new(reportKey),
 						},
 						nil,
 					)

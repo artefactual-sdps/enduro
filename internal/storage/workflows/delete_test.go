@@ -10,7 +10,6 @@ import (
 	"github.com/jonboulle/clockwork"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
-	"go.artefactual.dev/tools/ref"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
@@ -57,7 +56,7 @@ func NewStorageDeleteWorkflowTestSuite(
 	s.req = req
 	s.aip = &goastorage.AIP{
 		UUID:         s.req.AIPID,
-		LocationUUID: ref.New(uuid.New()),
+		LocationUUID: new(uuid.New()),
 		Status:       enums.AIPStatusStored.String(),
 	}
 	s.reviewTask = &datatypes.Task{ID: 1}

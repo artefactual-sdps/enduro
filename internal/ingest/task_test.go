@@ -10,7 +10,6 @@ import (
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
-	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
@@ -239,7 +238,7 @@ func TestCompleteTask(t *testing.T) {
 				id:          1,
 				status:      enums.TaskStatusDone,
 				completedAt: completedAt,
-				note:        ref.New("Reviewed and accepted"),
+				note:        new("Reviewed and accepted"),
 			},
 			mock: func(
 				svc *persistence_fake.MockService,

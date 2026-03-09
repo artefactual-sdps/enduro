@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/ref"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
@@ -40,7 +39,7 @@ func TestMonitorRequest(t *testing.T) {
 					Request(ctx, claims).
 					Return("ticket", nil)
 			},
-			want: &goaingest.MonitorRequestResult{Ticket: ref.New("ticket")},
+			want: &goaingest.MonitorRequestResult{Ticket: new("ticket")},
 		},
 		{
 			name: "Returns empty result when no ticket is provided",
@@ -110,7 +109,7 @@ func TestMonitor(t *testing.T) {
 	t.Parallel()
 
 	testUUID := uuid.New()
-	ticket := ref.New("ticket")
+	ticket := new("ticket")
 	successMock := func(tp *authfake.MockTicketProvider, ctx context.Context, ticket *string, claims *auth.Claims) {
 		tp.EXPECT().
 			Check(ctx, ticket, &auth.Claims{}).
@@ -133,7 +132,7 @@ func TestMonitor(t *testing.T) {
 		{Value: &goaingest.BatchUpdatedEvent{UUID: testUUID}},
 	}
 	allWantEvents := []any{
-		&goaingest.IngestPingEvent{Message: ref.New("Hello")},
+		&goaingest.IngestPingEvent{Message: new("Hello")},
 		&goaingest.SIPCreatedEvent{UUID: testUUID},
 		&goaingest.SIPUpdatedEvent{UUID: testUUID},
 		&goaingest.SIPStatusUpdatedEvent{UUID: testUUID},
@@ -181,7 +180,7 @@ func TestMonitor(t *testing.T) {
 			mock:   successMock,
 			events: allEvents,
 			wantEvents: []any{
-				&goaingest.IngestPingEvent{Message: ref.New("Hello")},
+				&goaingest.IngestPingEvent{Message: new("Hello")},
 			},
 		},
 		{
@@ -194,7 +193,7 @@ func TestMonitor(t *testing.T) {
 			mock:   successMock,
 			events: allEvents,
 			wantEvents: []any{
-				&goaingest.IngestPingEvent{Message: ref.New("Hello")},
+				&goaingest.IngestPingEvent{Message: new("Hello")},
 				&goaingest.SIPUpdatedEvent{UUID: testUUID},
 				&goaingest.SIPStatusUpdatedEvent{UUID: testUUID},
 			},

@@ -141,13 +141,13 @@ func (s *InMemStore) GetDel(ctx context.Context, key string, value any) error {
 	// Set the value using reflection.
 	if value != nil {
 		valPtr := reflect.ValueOf(value)
-		if valPtr.Kind() != reflect.Ptr {
+		if valPtr.Kind() != reflect.Pointer {
 			return fmt.Errorf("value argument must be a pointer")
 		}
 		val := valPtr.Elem()
 		memVal := reflect.ValueOf(match.value)
 		// If stored value is a pointer, dereference it.
-		if memVal.Kind() == reflect.Ptr {
+		if memVal.Kind() == reflect.Pointer {
 			memVal = memVal.Elem()
 		}
 		if memVal.Type() != val.Type() {

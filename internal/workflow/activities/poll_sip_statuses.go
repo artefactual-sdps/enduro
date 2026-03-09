@@ -100,7 +100,7 @@ func (a *PollSIPStatusesActivity) checkSIPStatuses(
 	// Query all SIPs for this batch. Limit to the maximum page size for now,
 	// we may switch to a stats-based or aggregated query approach in the future.
 	result, err := a.ingestsvc.ListSips(ctx, &goaingest.ListSipsPayload{
-		BatchUUID: ref.New(batchUUID.String()),
+		BatchUUID: new(batchUUID.String()),
 		Limit:     ref.New(entfilter.MaxPageSize),
 	})
 	if err != nil {

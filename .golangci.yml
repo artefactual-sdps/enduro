@@ -9,10 +9,10 @@ linters:
     - importas
     - intrange
     - misspell
+    - modernize
     - revive
     - tparallel
     - unparam
-    - modernize
   settings:
     gosec:
       severity: low

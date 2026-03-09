@@ -3,7 +3,6 @@ package ingest_test
 import (
 	"testing"
 
-	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
@@ -35,7 +34,7 @@ func TestEventSerializer(t *testing.T) {
 
 	serializer := &ingest.EventSerializer{}
 	originalEvent := &goaingest.IngestEvent{
-		Value: &goaingest.IngestPingEvent{Message: ref.New("test")},
+		Value: &goaingest.IngestPingEvent{Message: new("test")},
 	}
 
 	data, err := serializer.Marshal(originalEvent)

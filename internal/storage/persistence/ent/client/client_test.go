@@ -112,7 +112,7 @@ func TestCreateAIP(t *testing.T) {
 				UUID:              aipID,
 				ObjectKey:         objectKey,
 				Status:            "stored",
-				LocationUUID:      ref.New(locationID),
+				LocationUUID:      new(locationID),
 				DeletionReportKey: &deletionReportKey,
 			},
 			want: &goastorage.AIP{
@@ -120,7 +120,7 @@ func TestCreateAIP(t *testing.T) {
 				UUID:              aipID,
 				ObjectKey:         objectKey,
 				Status:            "stored",
-				LocationUUID:      ref.New(locationID),
+				LocationUUID:      new(locationID),
 				CreatedAt:         fakeNow().Format(time.RFC3339),
 				DeletionReportKey: &deletionReportKey,
 			},
@@ -131,7 +131,7 @@ func TestCreateAIP(t *testing.T) {
 				Name:         "test_aip",
 				UUID:         aipID,
 				ObjectKey:    objectKey,
-				LocationUUID: ref.New(uuid.MustParse("f1508f95-cab7-447f-b6a2-e01bf7c64558")),
+				LocationUUID: new(uuid.MustParse("f1508f95-cab7-447f-b6a2-e01bf7c64558")),
 			},
 			wantErr: "Storage location not found.",
 		},
@@ -248,7 +248,7 @@ func TestListAIPs(t *testing.T) {
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
-				Limit: ref.New(1),
+				Limit: new(1),
 			},
 			want: &goastorage.AIPs{
 				Items: []*goastorage.AIP{
@@ -287,7 +287,7 @@ func TestListAIPs(t *testing.T) {
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
-				Offset: ref.New(1),
+				Offset: new(1),
 			},
 			want: &goastorage.AIPs{
 				Items: []*goastorage.AIP{
@@ -326,7 +326,7 @@ func TestListAIPs(t *testing.T) {
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
-				Status: ref.New("stored"),
+				Status: new("stored"),
 			},
 			want: &goastorage.AIPs{
 				Items: []*goastorage.AIP{
@@ -365,7 +365,7 @@ func TestListAIPs(t *testing.T) {
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
-				EarliestCreatedTime: ref.New("2025-05-07T00:00:00Z"),
+				EarliestCreatedTime: new("2025-05-07T00:00:00Z"),
 			},
 			want: &goastorage.AIPs{
 				Items: []*goastorage.AIP{
@@ -404,7 +404,7 @@ func TestListAIPs(t *testing.T) {
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
-				Name: ref.New("Test AIP 1"),
+				Name: new("Test AIP 1"),
 			},
 			want: &goastorage.AIPs{
 				Items: []*goastorage.AIP{
@@ -426,14 +426,14 @@ func TestListAIPs(t *testing.T) {
 		{
 			name: "Invalid status filter",
 			payload: &goastorage.ListAipsPayload{
-				Status: ref.New("invalid_status"),
+				Status: new("invalid_status"),
 			},
 			wantErr: "status: invalid value",
 		},
 		{
 			name: "Invalid date range filter",
 			payload: &goastorage.ListAipsPayload{
-				EarliestCreatedTime: ref.New("invalid_date"),
+				EarliestCreatedTime: new("invalid_date"),
 			},
 			wantErr: "created at: time range: cannot parse start time",
 		},
@@ -522,7 +522,7 @@ func TestUpdateAIP(t *testing.T) {
 			updater: func(aip *types.AIP) (*types.AIP, error) {
 				aip.Status = enums.AIPStatusDeleted
 				aip.LocationUUID = &locID1
-				aip.DeletionReportKey = ref.New("reports/deletion_report.pdf")
+				aip.DeletionReportKey = new("reports/deletion_report.pdf")
 				return aip, nil
 			},
 			want: &types.AIP{
@@ -532,7 +532,7 @@ func TestUpdateAIP(t *testing.T) {
 				ObjectKey:         objectKey,
 				Status:            enums.AIPStatusDeleted,
 				LocationUUID:      &locID1,
-				DeletionReportKey: ref.New("reports/deletion_report.pdf"),
+				DeletionReportKey: new("reports/deletion_report.pdf"),
 			},
 		},
 		{
@@ -558,7 +558,7 @@ func TestUpdateAIP(t *testing.T) {
 			updater: func(aip *types.AIP) (*types.AIP, error) {
 				aip.Status = enums.AIPStatusDeleted
 				aip.LocationUUID = &locID2
-				aip.DeletionReportKey = ref.New("reports/deletion_report.pdf")
+				aip.DeletionReportKey = new("reports/deletion_report.pdf")
 				return aip, nil
 			},
 			want: &types.AIP{
@@ -568,7 +568,7 @@ func TestUpdateAIP(t *testing.T) {
 				ObjectKey:         objectKey,
 				Status:            enums.AIPStatusDeleted,
 				LocationUUID:      &locID2,
-				DeletionReportKey: ref.New("reports/deletion_report.pdf"),
+				DeletionReportKey: new("reports/deletion_report.pdf"),
 			},
 		},
 		{
@@ -817,17 +817,17 @@ func TestListWorkflows(t *testing.T) {
 					TemporalID:  "temporal-id-1",
 					Type:        enums.WorkflowTypeMoveAip.String(),
 					Status:      enums.WorkflowStatusDone.String(),
-					StartedAt:   ref.New(startedAt.Format(time.RFC3339)),
-					CompletedAt: ref.New(completedAt.Format(time.RFC3339)),
+					StartedAt:   new(startedAt.Format(time.RFC3339)),
+					CompletedAt: new(completedAt.Format(time.RFC3339)),
 					AipUUID:     aipID,
 					Tasks: goastorage.AIPTaskCollection{
 						{
 							UUID:         taskUUID1,
 							Name:         "Task 1",
 							Status:       enums.TaskStatusDone.String(),
-							StartedAt:    ref.New(startedAt.Format(time.RFC3339)),
-							CompletedAt:  ref.New(completedAt.Format(time.RFC3339)),
-							Note:         ref.New("Note 1"),
+							StartedAt:    new(startedAt.Format(time.RFC3339)),
+							CompletedAt:  new(completedAt.Format(time.RFC3339)),
+							Note:         new("Note 1"),
 							WorkflowUUID: workflowUUID1,
 						},
 					},
@@ -837,15 +837,15 @@ func TestListWorkflows(t *testing.T) {
 					TemporalID: "temporal-id-2",
 					Type:       enums.WorkflowTypeDeleteAip.String(),
 					Status:     enums.WorkflowStatusInProgress.String(),
-					StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
+					StartedAt:  new(startedAt.Format(time.RFC3339)),
 					AipUUID:    aipID,
 					Tasks: goastorage.AIPTaskCollection{
 						{
 							UUID:         taskUUID2,
 							Name:         "Task 2",
 							Status:       enums.TaskStatusInProgress.String(),
-							StartedAt:    ref.New(startedAt.Format(time.RFC3339)),
-							Note:         ref.New("Note 2"),
+							StartedAt:    new(startedAt.Format(time.RFC3339)),
+							Note:         new("Note 2"),
 							WorkflowUUID: workflowUUID2,
 						},
 					},
@@ -861,17 +861,17 @@ func TestListWorkflows(t *testing.T) {
 					TemporalID:  "temporal-id-1",
 					Type:        enums.WorkflowTypeMoveAip.String(),
 					Status:      enums.WorkflowStatusDone.String(),
-					StartedAt:   ref.New(startedAt.Format(time.RFC3339)),
-					CompletedAt: ref.New(completedAt.Format(time.RFC3339)),
+					StartedAt:   new(startedAt.Format(time.RFC3339)),
+					CompletedAt: new(completedAt.Format(time.RFC3339)),
 					AipUUID:     aipID,
 					Tasks: goastorage.AIPTaskCollection{
 						{
 							UUID:         taskUUID1,
 							Name:         "Task 1",
 							Status:       enums.TaskStatusDone.String(),
-							StartedAt:    ref.New(startedAt.Format(time.RFC3339)),
-							CompletedAt:  ref.New(completedAt.Format(time.RFC3339)),
-							Note:         ref.New("Note 1"),
+							StartedAt:    new(startedAt.Format(time.RFC3339)),
+							CompletedAt:  new(completedAt.Format(time.RFC3339)),
+							Note:         new("Note 1"),
 							WorkflowUUID: workflowUUID1,
 						},
 					},
@@ -881,15 +881,15 @@ func TestListWorkflows(t *testing.T) {
 					TemporalID: "temporal-id-2",
 					Type:       enums.WorkflowTypeDeleteAip.String(),
 					Status:     enums.WorkflowStatusInProgress.String(),
-					StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
+					StartedAt:  new(startedAt.Format(time.RFC3339)),
 					AipUUID:    aipID,
 					Tasks: goastorage.AIPTaskCollection{
 						{
 							UUID:         taskUUID2,
 							Name:         "Task 2",
 							Status:       enums.TaskStatusInProgress.String(),
-							StartedAt:    ref.New(startedAt.Format(time.RFC3339)),
-							Note:         ref.New("Note 2"),
+							StartedAt:    new(startedAt.Format(time.RFC3339)),
+							Note:         new("Note 2"),
 							WorkflowUUID: workflowUUID2,
 						},
 					},
@@ -905,15 +905,15 @@ func TestListWorkflows(t *testing.T) {
 					TemporalID: "temporal-id-2",
 					Type:       enums.WorkflowTypeDeleteAip.String(),
 					Status:     enums.WorkflowStatusInProgress.String(),
-					StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
+					StartedAt:  new(startedAt.Format(time.RFC3339)),
 					AipUUID:    aipID,
 					Tasks: goastorage.AIPTaskCollection{
 						{
 							UUID:         taskUUID2,
 							Name:         "Task 2",
 							Status:       enums.TaskStatusInProgress.String(),
-							StartedAt:    ref.New(startedAt.Format(time.RFC3339)),
-							Note:         ref.New("Note 2"),
+							StartedAt:    new(startedAt.Format(time.RFC3339)),
+							Note:         new("Note 2"),
 							WorkflowUUID: workflowUUID2,
 						},
 					},
@@ -929,15 +929,15 @@ func TestListWorkflows(t *testing.T) {
 					TemporalID: "temporal-id-2",
 					Type:       enums.WorkflowTypeDeleteAip.String(),
 					Status:     enums.WorkflowStatusInProgress.String(),
-					StartedAt:  ref.New(startedAt.Format(time.RFC3339)),
+					StartedAt:  new(startedAt.Format(time.RFC3339)),
 					AipUUID:    aipID,
 					Tasks: goastorage.AIPTaskCollection{
 						{
 							UUID:         taskUUID2,
 							Name:         "Task 2",
 							Status:       enums.TaskStatusInProgress.String(),
-							StartedAt:    ref.New(startedAt.Format(time.RFC3339)),
-							Note:         ref.New("Note 2"),
+							StartedAt:    new(startedAt.Format(time.RFC3339)),
+							Note:         new("Note 2"),
 							WorkflowUUID: workflowUUID2,
 						},
 					},
@@ -978,7 +978,7 @@ func TestCreateLocation(t *testing.T) {
 		ctx,
 		&goastorage.Location{
 			Name:        "test_location",
-			Description: ref.New("location description"),
+			Description: new("location description"),
 			Source:      enums.LocationSourceMinio.String(),
 			Purpose:     enums.LocationPurposeAipStore.String(),
 			UUID:        locationID,
@@ -1012,7 +1012,7 @@ func TestCreateURLLocation(t *testing.T) {
 		ctx,
 		&goastorage.Location{
 			Name:        "test_url_location",
-			Description: ref.New("location description"),
+			Description: new("location description"),
 			Source:      enums.LocationSourceMinio.String(),
 			Purpose:     enums.LocationPurposeAipStore.String(),
 			UUID:        locationID,
@@ -1106,24 +1106,24 @@ func TestListLocations(t *testing.T) {
 	assert.DeepEqual(t, locations, goastorage.LocationCollection{
 		{
 			Name:        "Location",
-			Description: ref.New("location"),
+			Description: new("location"),
 			Source:      "minio",
 			Purpose:     "aip_store",
 			UUID:        locationIDs[0],
 			CreatedAt:   "2013-02-03T19:54:00Z",
 			Config: &goastorage.S3Config{
 				Bucket:    "perma-aips-1",
-				Endpoint:  ref.New(""),
-				PathStyle: ref.New(false),
-				Profile:   ref.New(""),
-				Key:       ref.New(""),
-				Secret:    ref.New(""),
-				Token:     ref.New(""),
+				Endpoint:  new(""),
+				PathStyle: new(false),
+				Profile:   new(""),
+				Key:       new(""),
+				Secret:    new(""),
+				Token:     new(""),
 			},
 		},
 		{
 			Name:        "Another Location",
-			Description: ref.New("another location"),
+			Description: new("another location"),
 			Source:      "minio",
 			Purpose:     "aip_store",
 			UUID:        locationIDs[1],
@@ -1137,7 +1137,7 @@ func TestListLocations(t *testing.T) {
 		},
 		{
 			Name:        "URL Location",
-			Description: ref.New("URL location"),
+			Description: new("URL location"),
 			Source:      "minio",
 			Purpose:     "unspecified",
 			UUID:        locationIDs[2],
@@ -1148,7 +1148,7 @@ func TestListLocations(t *testing.T) {
 		},
 		{
 			Name:        "AMSS Location",
-			Description: ref.New("AMSS Location"),
+			Description: new("AMSS Location"),
 			Source:      "amss",
 			Purpose:     "aip_store",
 			UUID:        locationIDs[3],
@@ -1187,19 +1187,19 @@ func TestReadLocation(t *testing.T) {
 		assert.NilError(t, err)
 		assert.DeepEqual(t, l, &goastorage.Location{
 			Name:        "test_location",
-			Description: ref.New("location description"),
+			Description: new("location description"),
 			Source:      enums.LocationSourceMinio.String(),
 			Purpose:     enums.LocationPurposeAipStore.String(),
 			UUID:        locationID,
 			CreatedAt:   "2013-02-03T19:54:00Z",
 			Config: &goastorage.S3Config{
 				Bucket:    "perma-aips-1",
-				Endpoint:  ref.New(""),
-				PathStyle: ref.New(false),
-				Profile:   ref.New(""),
-				Key:       ref.New(""),
-				Secret:    ref.New(""),
-				Token:     ref.New(""),
+				Endpoint:  new(""),
+				PathStyle: new(false),
+				Profile:   new(""),
+				Key:       new(""),
+				Secret:    new(""),
+				Token:     new(""),
 			},
 		})
 	})
@@ -1251,7 +1251,7 @@ func TestLocationAIPs(t *testing.T) {
 				UUID:         aipID,
 				Status:       "stored",
 				ObjectKey:    objectKey,
-				LocationUUID: ref.New(locationID),
+				LocationUUID: new(locationID),
 				CreatedAt:    "2013-02-03T19:54:00Z",
 			},
 		})

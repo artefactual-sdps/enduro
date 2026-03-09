@@ -80,7 +80,7 @@ func TestAipDeletionAuto(t *testing.T) {
 			payload: &goastorage.AipDeletionAutoPayload{
 				UUID:       aipID.String(),
 				Reason:     "Reason",
-				SkipReport: ref.New(true),
+				SkipReport: new(true),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(
@@ -459,7 +459,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
 				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
-					AIPUUID: ref.New(aipID),
+					AIPUUID: new(aipID),
 					Status:  ref.New(enums.DeletionRequestStatusPending),
 				}).Return(nil, errors.New("persistence error"))
 			},
@@ -479,7 +479,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
 				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
-					AIPUUID: ref.New(aipID),
+					AIPUUID: new(aipID),
 					Status:  ref.New(enums.DeletionRequestStatusPending),
 				}).Return([]*types.DeletionRequest{
 					{
@@ -504,7 +504,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
 				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
-					AIPUUID: ref.New(aipID),
+					AIPUUID: new(aipID),
 					Status:  ref.New(enums.DeletionRequestStatusPending),
 				}).Return([]*types.DeletionRequest{
 					{
@@ -542,7 +542,7 @@ func TestReviewAipDeletion(t *testing.T) {
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().ReadAIP(ctx, aipID).Return(&goastorage.AIP{Status: enums.AIPStatusPending.String()}, nil)
 				s.EXPECT().ListDeletionRequests(ctx, &persistence.DeletionRequestFilter{
-					AIPUUID: ref.New(aipID),
+					AIPUUID: new(aipID),
 					Status:  ref.New(enums.DeletionRequestStatusPending),
 				}).Return([]*types.DeletionRequest{
 					{
@@ -789,7 +789,7 @@ func TestCancelAipDeletion(t *testing.T) {
 			},
 			payload: &goastorage.CancelAipDeletionPayload{
 				UUID:  aipID.String(),
-				Check: ref.New(true),
+				Check: new(true),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage, tc *temporalsdk_mocks.Client) {
 				s.EXPECT().

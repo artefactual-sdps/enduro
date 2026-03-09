@@ -2,8 +2,6 @@ package fsutil
 
 import (
 	"errors"
-	"fmt"
-	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
@@ -49,47 +47,6 @@ func Move(src, dst string) error {
 	}
 
 	return err
-}
-
-// SetFileModes recursively sets the file mode of root and its contents.
-func SetFileModes(root string, dirMode, fileMode fs.FileMode) error {
-	info, err := os.Stat(root)
-	if err != nil {
-		return err
-	}
-
-	if !info.IsDir() {
-		if err := os.Chmod(root, fileMode); err != nil {
-			return fmt.Errorf("set permissions: %v", err)
-		}
-
-		return nil
-	}
-
-	scopedRoot, err := os.OpenRoot(root)
-	if err != nil {
-		return err
-	}
-	defer scopedRoot.Close()
-
-	return fs.WalkDir(scopedRoot.FS(), ".",
-		func(path string, d fs.DirEntry, err error) error {
-			if err != nil {
-				return err
-			}
-
-			mode := fileMode
-			if d.IsDir() {
-				mode = dirMode
-			}
-
-			if err := scopedRoot.Chmod(path, mode); err != nil {
-				return fmt.Errorf("set permissions: %v", err)
-			}
-
-			return nil
-		},
-	)
 }
 
 // FileExists returns true if a file (or directory) exists at path.  If a file

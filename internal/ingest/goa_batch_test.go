@@ -34,7 +34,7 @@ func TestAddBatch(t *testing.T) {
 	batchUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
 	userUUID := uuid.MustParse("9566c74d-1003-4c4d-bbbb-0407d1e2c649")
 	keys := []string{"sip1.zip", "sip2.zip", "sip3.zip"}
-	identifier := ref.New("custom-identifier")
+	identifier := new("custom-identifier")
 	batch := &datatypes.Batch{
 		UUID:       batchUUID,
 		Identifier: fmt.Sprintf("Batch-%s", batchUUID.String()),
@@ -281,11 +281,11 @@ func TestShowBatch(t *testing.T) {
 				Status:        enums.BatchStatusIngested.String(),
 				SipsCount:     3,
 				CreatedAt:     createdAt.Format(time.RFC3339),
-				StartedAt:     ref.New(startedAt.Format(time.RFC3339)),
-				CompletedAt:   ref.New(completedAt.Format(time.RFC3339)),
-				UploaderUUID:  ref.New(userUUID),
-				UploaderEmail: ref.New("nobody@example.com"),
-				UploaderName:  ref.New("Test User"),
+				StartedAt:     new(startedAt.Format(time.RFC3339)),
+				CompletedAt:   new(completedAt.Format(time.RFC3339)),
+				UploaderUUID:  new(userUUID),
+				UploaderEmail: new("nobody@example.com"),
+				UploaderName:  new("Test User"),
 			},
 		},
 	} {
@@ -483,11 +483,11 @@ func TestListBatches(t *testing.T) {
 						SipsCount:     2,
 						Status:        enums.BatchStatusIngested.String(),
 						CreatedAt:     "2024-09-25T09:31:10Z",
-						StartedAt:     ref.New("2024-09-25T09:31:11Z"),
-						CompletedAt:   ref.New("2024-09-25T09:31:12Z"),
-						UploaderUUID:  ref.New(uploaderUUID),
-						UploaderEmail: ref.New("uploader@example.com"),
-						UploaderName:  ref.New("Test Uploader"),
+						StartedAt:     new("2024-09-25T09:31:11Z"),
+						CompletedAt:   new("2024-09-25T09:31:12Z"),
+						UploaderUUID:  new(uploaderUUID),
+						UploaderEmail: new("uploader@example.com"),
+						UploaderName:  new("Test Uploader"),
 					},
 					{
 						UUID:       batchUUID2,
@@ -495,7 +495,7 @@ func TestListBatches(t *testing.T) {
 						SipsCount:  3,
 						Status:     enums.BatchStatusProcessing.String(),
 						CreatedAt:  "2024-10-01T17:13:26Z",
-						StartedAt:  ref.New("2024-10-01T17:13:27Z"),
+						StartedAt:  new("2024-10-01T17:13:27Z"),
 					},
 					{
 						UUID:       batchUUID3,
@@ -514,25 +514,25 @@ func TestListBatches(t *testing.T) {
 		{
 			name: "Returns filtered batches",
 			payload: &goaingest.ListBatchesPayload{
-				Identifier:          ref.New("Batch 1"),
-				EarliestCreatedTime: ref.New("2024-09-25T09:30:00Z"),
-				LatestCreatedTime:   ref.New("2024-09-25T09:40:00Z"),
-				Status:              ref.New(enums.BatchStatusIngested.String()),
-				UploaderUUID:        ref.New("0b075937-458c-43d9-b46c-222a072d62a9"),
-				Limit:               ref.New(10),
-				Offset:              ref.New(1),
+				Identifier:          new("Batch 1"),
+				EarliestCreatedTime: new("2024-09-25T09:30:00Z"),
+				LatestCreatedTime:   new("2024-09-25T09:40:00Z"),
+				Status:              new(enums.BatchStatusIngested.String()),
+				UploaderUUID:        new("0b075937-458c-43d9-b46c-222a072d62a9"),
+				Limit:               new(10),
+				Offset:              new(1),
 			},
 			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
 				mr.ListBatches(
 					mockutil.Context(),
 					&persistence.BatchFilter{
-						Identifier: ref.New("Batch 1"),
+						Identifier: new("Batch 1"),
 						Status:     ref.New(enums.BatchStatusIngested),
 						CreatedAt: &timerange.Range{
 							Start: time.Date(2024, 9, 25, 9, 30, 0, 0, time.UTC),
 							End:   time.Date(2024, 9, 25, 9, 40, 0, 0, time.UTC),
 						},
-						UploaderID: ref.New(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
+						UploaderID: new(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
 						Sort:       entfilter.NewSort().AddCol("id", true),
 						Page: persistence.Page{
 							Limit:  10,
@@ -553,11 +553,11 @@ func TestListBatches(t *testing.T) {
 						SipsCount:     2,
 						Status:        enums.BatchStatusIngested.String(),
 						CreatedAt:     "2024-09-25T09:31:10Z",
-						StartedAt:     ref.New("2024-09-25T09:31:11Z"),
-						CompletedAt:   ref.New("2024-09-25T09:31:12Z"),
-						UploaderUUID:  ref.New(uploaderUUID),
-						UploaderEmail: ref.New("uploader@example.com"),
-						UploaderName:  ref.New("Test Uploader"),
+						StartedAt:     new("2024-09-25T09:31:11Z"),
+						CompletedAt:   new("2024-09-25T09:31:12Z"),
+						UploaderUUID:  new(uploaderUUID),
+						UploaderEmail: new("uploader@example.com"),
+						UploaderName:  new("Test Uploader"),
 					},
 				},
 				Page: &goaingest.EnduroPage{
@@ -569,13 +569,13 @@ func TestListBatches(t *testing.T) {
 		{
 			name: "Errors on an internal service error",
 			payload: &goaingest.ListBatchesPayload{
-				Identifier: ref.New("Batch 42"),
+				Identifier: new("Batch 42"),
 			},
 			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
 				mr.ListBatches(
 					mockutil.Context(),
 					&persistence.BatchFilter{
-						Identifier: ref.New("Batch 42"),
+						Identifier: new("Batch 42"),
 						Sort:       entfilter.NewSort().AddCol("id", true),
 					},
 				).Return(nil, nil, persistence.ErrInternal)
@@ -585,36 +585,36 @@ func TestListBatches(t *testing.T) {
 		{
 			name: "Errors on a bad uploader_uuid",
 			payload: &goaingest.ListBatchesPayload{
-				UploaderUUID: ref.New("invalid"),
+				UploaderUUID: new("invalid"),
 			},
 			wantErr: "uploader_uuid: invalid UUID",
 		},
 		{
 			name: "Errors on a bad status",
 			payload: &goaingest.ListBatchesPayload{
-				Status: ref.New("meditating"),
+				Status: new("meditating"),
 			},
 			wantErr: "status: invalid value",
 		},
 		{
 			name: "Errors on a bad earliest_created_time",
 			payload: &goaingest.ListBatchesPayload{
-				EarliestCreatedTime: ref.New("2024-15-15T25:83:52Z"),
+				EarliestCreatedTime: new("2024-15-15T25:83:52Z"),
 			},
 			wantErr: "created at: time range: cannot parse start time",
 		},
 		{
 			name: "Errors on a bad latest_created_time",
 			payload: &goaingest.ListBatchesPayload{
-				LatestCreatedTime: ref.New("2024-15-15T25:83:52Z"),
+				LatestCreatedTime: new("2024-15-15T25:83:52Z"),
 			},
 			wantErr: "created at: time range: cannot parse end time",
 		},
 		{
 			name: "Errors on a bad created at range",
 			payload: &goaingest.ListBatchesPayload{
-				EarliestCreatedTime: ref.New("2024-10-01T17:43:52Z"),
-				LatestCreatedTime:   ref.New("2023-10-01T17:43:52Z"),
+				EarliestCreatedTime: new("2024-10-01T17:43:52Z"),
+				LatestCreatedTime:   new("2023-10-01T17:43:52Z"),
 			},
 			wantErr: "created at: time range: end cannot be before start",
 		},
