@@ -659,7 +659,8 @@ func (w *ProcessingWorkflow) transferA3m(
 		// Set SIP to pending status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusPending).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusPending).
+				Get(ctx, nil)
 			if err != nil {
 				return sessCtx, err
 			}
@@ -668,7 +669,8 @@ func (w *ProcessingWorkflow) transferA3m(
 		// Set workflow to pending status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, state.workflowID, enums.WorkflowStatusPending).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, state.workflowID, enums.WorkflowStatusPending).
+				Get(ctx, nil)
 			if err != nil {
 				return sessCtx, err
 			}
@@ -696,7 +698,8 @@ func (w *ProcessingWorkflow) transferA3m(
 		// Set SIP to in progress status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusProcessing).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setStatusLocalActivity, w.ingestsvc, state.sip.uuid, enums.SIPStatusProcessing).
+				Get(ctx, nil)
 			if err != nil {
 				return sessCtx, err
 			}
@@ -705,7 +708,8 @@ func (w *ProcessingWorkflow) transferA3m(
 		// Set workflow to in progress status.
 		{
 			ctx := withLocalActivityOpts(sessCtx)
-			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, state.workflowID, enums.WorkflowStatusInProgress).Get(ctx, nil)
+			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, setWorkflowStatusLocalActivity, w.ingestsvc, state.workflowID, enums.WorkflowStatusInProgress).
+				Get(ctx, nil)
 			if err != nil {
 				return sessCtx, err
 			}
@@ -797,7 +801,8 @@ func (w *ProcessingWorkflow) transferA3m(
 				ID:     reviewTaskID,
 				Status: enums.TaskStatusDone,
 				Note:   ref.New("Reviewed and rejected"),
-			}).Get(ctx, nil)
+			}).
+				Get(ctx, nil)
 			if err != nil {
 				return sessCtx, err
 			}
@@ -808,7 +813,8 @@ func (w *ProcessingWorkflow) transferA3m(
 			activityOpts := withActivityOptsForRequest(sessCtx)
 			err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.RejectSIPActivityName, &activities.RejectSIPActivityParams{
 				AIPID: state.aip.id,
-			}).Get(activityOpts, nil)
+			}).
+				Get(activityOpts, nil)
 			if err != nil {
 				return sessCtx, err
 			}

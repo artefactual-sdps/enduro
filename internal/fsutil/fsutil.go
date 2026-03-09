@@ -16,8 +16,8 @@ var Renamer = os.Rename
 
 func BaseNoExt(path string) string {
 	base := filepath.Base(path)
-	if idx := strings.IndexByte(base, '.'); idx != -1 {
-		return base[:idx]
+	if before, _, ok := strings.Cut(base, "."); ok {
+		return before
 	}
 	return base
 }
@@ -53,18 +53,37 @@ func Move(src, dst string) error {
 
 // SetFileModes recursively sets the file mode of root and its contents.
 func SetFileModes(root string, dirMode, fileMode fs.FileMode) error {
-	return filepath.WalkDir(root,
-		func(path string, d os.DirEntry, err error) error {
+	info, err := os.Stat(root)
+	if err != nil {
+		return err
+	}
+
+	if !info.IsDir() {
+		if err := os.Chmod(root, fileMode); err != nil {
+			return fmt.Errorf("set permissions: %v", err)
+		}
+
+		return nil
+	}
+
+	scopedRoot, err := os.OpenRoot(root)
+	if err != nil {
+		return err
+	}
+	defer scopedRoot.Close()
+
+	return fs.WalkDir(scopedRoot.FS(), ".",
+		func(path string, d fs.DirEntry, err error) error {
 			if err != nil {
 				return err
 			}
 
-			mode := fs.FileMode(fileMode)
+			mode := fileMode
 			if d.IsDir() {
-				mode = fs.FileMode(dirMode)
+				mode = dirMode
 			}
 
-			if err := os.Chmod(path, mode); err != nil {
+			if err := scopedRoot.Chmod(path, mode); err != nil {
 				return fmt.Errorf("set permissions: %v", err)
 			}
 

@@ -108,8 +108,22 @@ func (c *client) CreateTasks(ctx context.Context, tasks []*datatypes.Task) error
 			)
 		}
 
-		for i, dbt := range created {
-			batch[i].ID = dbt.ID
+		for i, task := range batch {
+			if i >= len(created) {
+				return rollback(
+					tx,
+					newDBErrorWithDetails(
+						fmt.Errorf(
+							"create tasks: created %d rows, expected %d",
+							len(created),
+							len(batch),
+						),
+						"create tasks",
+					),
+				)
+			}
+
+			task.ID = created[i].ID
 		}
 	}
 

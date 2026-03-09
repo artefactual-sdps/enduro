@@ -53,28 +53,28 @@ func TestStorageOIDCConfigValidate(t *testing.T) {
 		},
 		{
 			name: "Passes validation with provider URL and client credentials",
-			cfg: ingest.StorageOIDCConfig{
+			cfg: ingest.StorageOIDCConfig{ // #nosec G101 -- test-only placeholder credential.
 				Enabled:      true,
 				ProviderURL:  "https://idp.example.com/realms/enduro",
 				ClientID:     "enduro-worker",
-				ClientSecret: "secret",
+				ClientSecret: "placeholder-value",
 			},
 		},
 		{
 			name: "Passes validation with token URL and client credentials",
-			cfg: ingest.StorageOIDCConfig{
+			cfg: ingest.StorageOIDCConfig{ // #nosec G101 -- test-only placeholder credential.
 				Enabled:      true,
 				TokenURL:     "https://idp.example.com/token",
 				ClientID:     "enduro-worker",
-				ClientSecret: "secret",
+				ClientSecret: "placeholder-value",
 			},
 		},
 		{
 			name: "Fails validation when both providerURL and tokenURL are missing",
-			cfg: ingest.StorageOIDCConfig{
+			cfg: ingest.StorageOIDCConfig{ // #nosec G101 -- test-only placeholder credential.
 				Enabled:      true,
 				ClientID:     "enduro-worker",
-				ClientSecret: "secret",
+				ClientSecret: "placeholder-value",
 			},
 			wantErr: "missing OIDC providerURL or tokenURL with storage OIDC auth. enabled",
 		},
@@ -88,22 +88,22 @@ func TestStorageOIDCConfigValidate(t *testing.T) {
 		},
 		{
 			name: "Fails validation with invalid retry attempts",
-			cfg: ingest.StorageOIDCConfig{
+			cfg: ingest.StorageOIDCConfig{ // #nosec G101 -- test-only placeholder credential.
 				Enabled:          true,
 				ProviderURL:      "https://idp.example.com/realms/enduro",
 				ClientID:         "enduro-worker",
-				ClientSecret:     "secret",
+				ClientSecret:     "placeholder-value",
 				RetryMaxAttempts: -1,
 			},
 			wantErr: "invalid storage OIDC retry max attempts, value must be >= 0",
 		},
 		{
 			name: "Fails validation with invalid retry backoff coefficient",
-			cfg: ingest.StorageOIDCConfig{
+			cfg: ingest.StorageOIDCConfig{ // #nosec G101 -- test-only placeholder credential.
 				Enabled:                 true,
 				ProviderURL:             "https://idp.example.com/realms/enduro",
 				ClientID:                "enduro-worker",
-				ClientSecret:            "secret",
+				ClientSecret:            "placeholder-value",
 				RetryBackoffCoefficient: 0.5,
 				RetryMaxAttempts:        3,
 				RetryInitialInterval:    1 * time.Millisecond,
