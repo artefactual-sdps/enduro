@@ -8,6 +8,10 @@ type PreprocessingParams struct {
 
 	// SIPID is the identifier of the SIP being processed.
 	SIPID uuid.UUID
+
+	// BatchID is the identifier of the batch being processed. If the SIP is not
+	// part of a batch, this will equal uuid.Nil.
+	BatchID uuid.UUID
 }
 
 type PreprocessingResult struct {
