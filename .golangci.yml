@@ -12,6 +12,7 @@ linters:
     - revive
     - tparallel
     - unparam
+    - modernize
   settings:
     gosec:
       severity: low

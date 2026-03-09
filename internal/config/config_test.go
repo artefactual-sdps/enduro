@@ -52,7 +52,7 @@ defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
 enabled = true
 providerURL = "https://idp.example.com/realms/enduro-internal"
 clientID = "enduro-worker"
-clientSecret = "secret"
+clientSecret = "placeholder-value"
 scopes = "openid,profile"
 audience = "enduro-s2s"
 tokenExpiryLeeway = "60s"
@@ -119,11 +119,11 @@ func TestConfigRead(t *testing.T) {
 					Storage: ingest.StorageConfig{
 						Address:                    "storage-api:9000",
 						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
-						OIDC: ingest.StorageOIDCConfig{
+						OIDC: ingest.StorageOIDCConfig{ // #nosec G101 -- test-only placeholder credential.
 							Enabled:                 true,
 							ProviderURL:             "https://idp.example.com/realms/enduro-internal",
 							ClientID:                "enduro-worker",
-							ClientSecret:            "secret",
+							ClientSecret:            "placeholder-value",
 							Scopes:                  []string{"openid", "profile"},
 							Audience:                "enduro-s2s",
 							TokenExpiryLeeway:       60 * time.Second,

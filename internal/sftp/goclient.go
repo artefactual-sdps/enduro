@@ -121,20 +121,26 @@ func uploadDirectory(ctx context.Context, srcPath, remoteDir string, upload *Asy
 
 	transferDir := filepath.Base(srcPath)
 
-	err := filepath.WalkDir(srcPath, func(path string, d fs.DirEntry, err error) error {
+	scopedRoot, err := os.OpenRoot(srcPath)
+	if err != nil {
+		upload.Err() <- fmt.Errorf("goclient: open source root: %v", err)
+		upload.Done() <- true
+		return
+	}
+	defer scopedRoot.Close()
+
+	err = fs.WalkDir(scopedRoot.FS(), ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
 		}
 
-		relPath, err := filepath.Rel(srcPath, path)
-		if err != nil {
-			return err
+		remotePath := sftp.Join(remoteDir, transferDir)
+		if path != "." {
+			remotePath = sftp.Join(remoteDir, transferDir, path)
 		}
-
-		remotePath := sftp.Join(remoteDir, transferDir, relPath)
 
 		if !d.IsDir() {
-			f, err := os.Open(path) // #nosec G304 -- trusted file path.
+			f, err := scopedRoot.Open(path)
 			if err != nil {
 				return err
 			}

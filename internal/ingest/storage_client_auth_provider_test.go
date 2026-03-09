@@ -127,11 +127,11 @@ func TestOIDCAccessTokenProviderAccessToken(t *testing.T) {
 
 			srv := tokenServer(t, tc.responses)
 
-			cfg := ingest.StorageOIDCConfig{
+			cfg := ingest.StorageOIDCConfig{ // #nosec G101 -- test-only placeholder credential.
 				Enabled:                 true,
 				TokenURL:                srv.URL,
 				ClientID:                "client-id",
-				ClientSecret:            "client-secret",
+				ClientSecret:            "placeholder-value",
 				RetryMaxAttempts:        3,
 				RetryInitialInterval:    time.Microsecond,
 				RetryMaxInterval:        time.Microsecond,

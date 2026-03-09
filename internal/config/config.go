@@ -178,7 +178,7 @@ func setCORSOriginEnv(config *Configuration) error {
 // https://github.com/go-saas/kit/blob/main/pkg/mapstructure/mapstructure.go
 func stringToUUIDHookFunc() mapstructure.DecodeHookFunc {
 	return func(f, t reflect.Type, data any) (any, error) {
-		if f.Kind() != reflect.String || t != reflect.TypeOf(uuid.UUID{}) {
+		if f.Kind() != reflect.String || t != reflect.TypeFor[uuid.UUID]() {
 			return data, nil
 		}
 
@@ -190,7 +190,7 @@ func stringToUUIDHookFunc() mapstructure.DecodeHookFunc {
 func stringToMapHookFunc() mapstructure.DecodeHookFunc {
 	return func(f, t reflect.Type, data any) (any, error) {
 		value := map[string][]string{}
-		if f.Kind() != reflect.String || t != reflect.TypeOf(value) {
+		if f.Kind() != reflect.String || t != reflect.TypeFor[map[string][]string]() {
 			return data, nil
 		}
 
