@@ -12,11 +12,11 @@ import (
 	"github.com/fsnotify/fsnotify"
 	cp "github.com/otiai10/copy"
 	"go.artefactual.dev/tools/bucket"
+	"go.artefactual.dev/tools/fsutil"
 	"gocloud.dev/blob"
 	_ "gocloud.dev/blob/fileblob"
 
 	"github.com/artefactual-sdps/enduro/internal/filenotify"
-	"github.com/artefactual-sdps/enduro/internal/fsutil"
 )
 
 // filesystemWatcher implements a Watcher for watching paths in a local filesystem.

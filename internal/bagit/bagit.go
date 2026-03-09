@@ -4,8 +4,7 @@ import (
 	"path/filepath"
 
 	go_bagit "github.com/nyudlts/go-bagit"
-
-	"github.com/artefactual-sdps/enduro/internal/fsutil"
+	"go.artefactual.dev/tools/fsutil"
 )
 
 // Is returns true when dir is a BagIt bag.

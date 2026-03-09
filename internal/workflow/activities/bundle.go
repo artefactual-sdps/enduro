@@ -11,12 +11,11 @@ import (
 
 	securejoin "github.com/cyphar/filepath-securejoin"
 	"github.com/otiai10/copy"
-	gofsutils "go.artefactual.dev/tools/fsutil"
+	"go.artefactual.dev/tools/fsutil"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 
 	"github.com/artefactual-sdps/enduro/internal/bagit"
 	"github.com/artefactual-sdps/enduro/internal/bundler"
-	"github.com/artefactual-sdps/enduro/internal/fsutil"
 )
 
 const (
@@ -88,7 +87,7 @@ func (a *BundleActivity) Execute(ctx context.Context, params *BundleActivityPara
 		)
 	}
 
-	if err = gofsutils.SetFileModes(res.FullPath, ModeDir, ModeFile); err != nil {
+	if err = fsutil.SetFileModes(res.FullPath, ModeDir, ModeFile); err != nil {
 		return nil, temporal_tools.NewNonRetryableError(
 			fmt.Errorf("bundle: set permissions: %v", err),
 		)
