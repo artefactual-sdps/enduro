@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/ref"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
@@ -167,7 +166,7 @@ func TestDownloadAipRequest(t *testing.T) {
 				ts.EXPECT().SetEx(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", nil, time.Second*5).Return(nil)
 			},
 			wantRes: &goastorage.DownloadAipRequestResult{
-				Ticket: ref.New("Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"),
+				Ticket: new("Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"),
 			},
 		},
 	} {
@@ -224,7 +223,7 @@ func TestDownloadAip(t *testing.T) {
 		},
 		{
 			name:    "Fails to download a AIP (invalid ticket)",
-			payload: &goastorage.DownloadAipPayload{Ticket: ref.New("invalid-ticket")},
+			payload: &goastorage.DownloadAipPayload{Ticket: new("invalid-ticket")},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
 				ts.EXPECT().GetDel(ctx, "invalid-ticket", nil).Return(auth.ErrKeyNotFound)
 			},
@@ -233,7 +232,7 @@ func TestDownloadAip(t *testing.T) {
 		{
 			name: "Fails to download a AIP (invalid UUID)",
 			payload: &goastorage.DownloadAipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   "invalid-uuid",
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
@@ -244,7 +243,7 @@ func TestDownloadAip(t *testing.T) {
 		{
 			name: "Fails to download a AIP (AIP not found)",
 			payload: &goastorage.DownloadAipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   aipID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
@@ -258,7 +257,7 @@ func TestDownloadAip(t *testing.T) {
 		{
 			name: "Fails to download a AIP (persistence error)",
 			payload: &goastorage.DownloadAipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   aipID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
@@ -272,7 +271,7 @@ func TestDownloadAip(t *testing.T) {
 		{
 			name: "Fails to download a AIP (invalid status)",
 			payload: &goastorage.DownloadAipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   aipID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
@@ -286,7 +285,7 @@ func TestDownloadAip(t *testing.T) {
 		{
 			name: "Fails to download a AIP (AIP file not found)",
 			payload: &goastorage.DownloadAipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   missingAIPUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
@@ -320,7 +319,7 @@ func TestDownloadAip(t *testing.T) {
 		{
 			name: "Downloads a AIP",
 			payload: &goastorage.DownloadAipPayload{
-				Ticket: ref.New("valid-ticket"),
+				Ticket: new("valid-ticket"),
 				UUID:   aipID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {

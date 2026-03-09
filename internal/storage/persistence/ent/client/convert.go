@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"go.artefactual.dev/tools/ref"
-
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
@@ -87,10 +85,10 @@ func workflowAsGoa(dbw *db.Workflow) *goastorage.AIPWorkflow {
 	}
 
 	if !dbw.StartedAt.IsZero() {
-		w.StartedAt = ref.New(dbw.StartedAt.Format(time.RFC3339))
+		w.StartedAt = new(dbw.StartedAt.Format(time.RFC3339))
 	}
 	if !dbw.CompletedAt.IsZero() {
-		w.CompletedAt = ref.New(dbw.CompletedAt.Format(time.RFC3339))
+		w.CompletedAt = new(dbw.CompletedAt.Format(time.RFC3339))
 	}
 
 	if dbw.Edges.Aip != nil {
@@ -117,10 +115,10 @@ func taskAsGoa(dbt *db.Task) *goastorage.AIPTask {
 	}
 
 	if !dbt.StartedAt.IsZero() {
-		t.StartedAt = ref.New(dbt.StartedAt.Format(time.RFC3339))
+		t.StartedAt = new(dbt.StartedAt.Format(time.RFC3339))
 	}
 	if !dbt.CompletedAt.IsZero() {
-		t.CompletedAt = ref.New(dbt.CompletedAt.Format(time.RFC3339))
+		t.CompletedAt = new(dbt.CompletedAt.Format(time.RFC3339))
 	}
 	if dbt.Note != "" {
 		t.Note = &dbt.Note
@@ -144,11 +142,11 @@ func convertDBAIP(dba *db.AIP) *types.AIP {
 	}
 
 	if dba.Edges.Location != nil {
-		aip.LocationUUID = ref.New(dba.Edges.Location.UUID)
+		aip.LocationUUID = new(dba.Edges.Location.UUID)
 	}
 
 	if dba.DeletionReportKey != "" {
-		aip.DeletionReportKey = ref.New(dba.DeletionReportKey)
+		aip.DeletionReportKey = new(dba.DeletionReportKey)
 	}
 
 	return aip

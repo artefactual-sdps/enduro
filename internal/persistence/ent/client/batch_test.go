@@ -730,7 +730,7 @@ func TestListBatches(t *testing.T) {
 				},
 			},
 			batchFilter: &persistence.BatchFilter{
-				Identifier: ref.New("small"),
+				Identifier: new("small"),
 			},
 			want: results{
 				data: []*datatypes.Batch{
@@ -931,7 +931,7 @@ func TestListBatches(t *testing.T) {
 				},
 			},
 			batchFilter: &persistence.BatchFilter{
-				UploaderID: ref.New(uploaderID2),
+				UploaderID: new(uploaderID2),
 			},
 			want: results{
 				data: []*datatypes.Batch{

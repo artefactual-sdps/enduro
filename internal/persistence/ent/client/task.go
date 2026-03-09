@@ -94,6 +94,8 @@ func (c *client) CreateTasks(ctx context.Context, tasks []*datatypes.Task) error
 			return rollback(tx, newDBErrorWithDetails(err, "create tasks"))
 		}
 
+		// Bulk insert should return one persisted task per builder so IDs can be
+		// mapped back onto the original task pointers in order.
 		if len(created) != len(batch) {
 			return rollback(
 				tx,
@@ -109,20 +111,6 @@ func (c *client) CreateTasks(ctx context.Context, tasks []*datatypes.Task) error
 		}
 
 		for i, task := range batch {
-			if i >= len(created) {
-				return rollback(
-					tx,
-					newDBErrorWithDetails(
-						fmt.Errorf(
-							"create tasks: created %d rows, expected %d",
-							len(created),
-							len(batch),
-						),
-						"create tasks",
-					),
-				)
-			}
-
 			task.ID = created[i].ID
 		}
 	}

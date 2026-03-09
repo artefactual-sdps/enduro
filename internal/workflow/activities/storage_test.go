@@ -6,7 +6,6 @@ import (
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
-	"go.artefactual.dev/tools/ref"
 	"go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
@@ -52,7 +51,7 @@ func TestCreateAIPActivity(t *testing.T) {
 						UUID:         aipID.String(),
 						ObjectKey:    objectKey.String(),
 						Status:       "stored",
-						LocationUUID: ref.New(locationID),
+						LocationUUID: new(locationID),
 					},
 				).Return(
 					&goastorage.AIP{
@@ -60,7 +59,7 @@ func TestCreateAIPActivity(t *testing.T) {
 						UUID:         aipID,
 						ObjectKey:    objectKey,
 						Status:       "stored",
-						LocationUUID: ref.New(locationID),
+						LocationUUID: new(locationID),
 						CreatedAt:    "2024-05-03 16:02:25",
 					},
 					nil,
@@ -87,7 +86,7 @@ func TestCreateAIPActivity(t *testing.T) {
 						UUID:         "12345",
 						ObjectKey:    objectKey.String(),
 						Status:       "stored",
-						LocationUUID: ref.New(locationID),
+						LocationUUID: new(locationID),
 					},
 				).Return(
 					nil, goastorage.MakeNotValid(errors.New("invalid aip_id")),
@@ -112,7 +111,7 @@ func TestCreateAIPActivity(t *testing.T) {
 						UUID:         aipID.String(),
 						ObjectKey:    objectKey.String(),
 						Status:       "stored",
-						LocationUUID: ref.New(locationID),
+						LocationUUID: new(locationID),
 					},
 				).Return(
 					nil, goastorage.Unauthorized("Unauthorized"),

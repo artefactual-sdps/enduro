@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/ref"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/db"
@@ -40,13 +39,13 @@ func (b *Batch) Goa() *goaingest.Batch {
 		CreatedAt:  db.FormatTime(b.CreatedAt),
 	}
 	if !b.StartedAt.IsZero() {
-		col.StartedAt = ref.New(b.StartedAt.Format(time.RFC3339))
+		col.StartedAt = new(b.StartedAt.Format(time.RFC3339))
 	}
 	if !b.CompletedAt.IsZero() {
-		col.CompletedAt = ref.New(b.CompletedAt.Format(time.RFC3339))
+		col.CompletedAt = new(b.CompletedAt.Format(time.RFC3339))
 	}
 	if b.Uploader != nil {
-		col.UploaderUUID = ref.New(b.Uploader.UUID)
+		col.UploaderUUID = new(b.Uploader.UUID)
 		if b.Uploader.Email != "" {
 			col.UploaderEmail = &b.Uploader.Email
 		}

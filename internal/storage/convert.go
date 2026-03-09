@@ -3,8 +3,6 @@ package storage
 import (
 	"time"
 
-	"go.artefactual.dev/tools/ref"
-
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/auditlog"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
@@ -16,11 +14,11 @@ func (svc *serviceImpl) workflowToGoa(w *types.Workflow) *goastorage.AIPWorkflow
 	var startedAt, completedAt *string
 
 	if !w.StartedAt.IsZero() {
-		startedAt = ref.New(w.StartedAt.Format(time.RFC3339))
+		startedAt = new(w.StartedAt.Format(time.RFC3339))
 	}
 
 	if !w.CompletedAt.IsZero() {
-		completedAt = ref.New(w.CompletedAt.Format(time.RFC3339))
+		completedAt = new(w.CompletedAt.Format(time.RFC3339))
 	}
 
 	// Tasks are loaded separately when needed.
@@ -40,15 +38,15 @@ func (svc *serviceImpl) taskToGoa(t *types.Task) *goastorage.AIPTask {
 	var startedAt, completedAt, note *string
 
 	if !t.StartedAt.IsZero() {
-		startedAt = ref.New(t.StartedAt.Format(time.RFC3339))
+		startedAt = new(t.StartedAt.Format(time.RFC3339))
 	}
 
 	if !t.CompletedAt.IsZero() {
-		completedAt = ref.New(t.CompletedAt.Format(time.RFC3339))
+		completedAt = new(t.CompletedAt.Format(time.RFC3339))
 	}
 
 	if t.Note != "" {
-		note = ref.New(t.Note)
+		note = new(t.Note)
 	}
 
 	return &goastorage.AIPTask{

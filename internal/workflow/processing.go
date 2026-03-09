@@ -20,7 +20,6 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/removepaths"
 	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/ref"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_temporal "go.temporal.io/sdk/temporal"
@@ -637,7 +636,7 @@ func (w *ProcessingWorkflow) transferA3m(
 		err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
 			ID:     uploadTaskID,
 			Status: enums.TaskStatusDone,
-			Note:   ref.New("Moved to review bucket"),
+			Note:   new("Moved to review bucket"),
 		}).
 			Get(ctx, nil)
 		if err != nil {
@@ -723,7 +722,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
 				ID:     reviewTaskID,
 				Status: enums.TaskStatusDone,
-				Note:   ref.New("Reviewed and accepted"),
+				Note:   new("Reviewed and accepted"),
 			}).
 				Get(ctx, nil)
 			if err != nil {
@@ -782,7 +781,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
 				ID:     moveTaskID,
 				Status: enums.TaskStatusDone,
-				Note:   ref.New(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
+				Note:   new(fmt.Sprintf("Moved to location %s", *reviewResult.LocationID)),
 			}).
 				Get(ctx, nil)
 			if err != nil {
@@ -800,7 +799,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			err := temporalsdk_workflow.ExecuteLocalActivity(ctx, completeTaskLocalActivity, w.ingestsvc, &completeTaskLocalActivityParams{
 				ID:     reviewTaskID,
 				Status: enums.TaskStatusDone,
-				Note:   ref.New("Reviewed and rejected"),
+				Note:   new("Reviewed and rejected"),
 			}).
 				Get(ctx, nil)
 			if err != nil {
@@ -1145,7 +1144,7 @@ func (w *ProcessingWorkflow) completeTask(
 		&completeTaskLocalActivityParams{
 			ID:     task.ID,
 			Status: task.Status,
-			Note:   ref.New(task.Note),
+			Note:   new(task.Note),
 		},
 	).Get(ctx, nil)
 	if err != nil {

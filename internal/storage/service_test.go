@@ -67,7 +67,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 	td := tfs.NewDir(t, "enduro-service-test")
 
 	params := setUpAttrs{
-		logger: ref.New(logr.Discard()),
+		logger: new(logr.Discard()),
 		config: &storage.Config{
 			TaskQueue: "global",
 			Internal: storage.LocationConfig{
@@ -525,14 +525,14 @@ func TestServiceList(t *testing.T) {
 		storedLocations := goastorage.LocationCollection{
 			{
 				Name:        "perma-aips-1",
-				Description: ref.New("One"),
+				Description: new("One"),
 				Source:      "minio",
 				Purpose:     "aip_store",
 				UUID:        uuid.New(),
 			},
 			{
 				Name:        "perma-aips-2",
-				Description: ref.New("Two"),
+				Description: new("Two"),
 				Source:      "minio",
 				Purpose:     "aip_store",
 				UUID:        uuid.New(),
@@ -561,7 +561,7 @@ func TestServiceListAips(t *testing.T) {
 		svc := setUpService(t, attrs)
 
 		payload := &goastorage.ListAipsPayload{
-			Limit: ref.New(20),
+			Limit: new(20),
 		}
 		aips := &goastorage.AIPs{
 			Items: goastorage.AIPCollection{
@@ -1085,7 +1085,7 @@ func TestListAipWorkflows(t *testing.T) {
 			name: "Filter AIP workflows by status",
 			payload: &goastorage.ListAipWorkflowsPayload{
 				UUID:   aipID.String(),
-				Status: ref.New(enums.WorkflowStatusInProgress.String()),
+				Status: new(enums.WorkflowStatusInProgress.String()),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage) {
 				s.EXPECT().
@@ -1101,7 +1101,7 @@ func TestListAipWorkflows(t *testing.T) {
 			name: "Filter AIP workflows by type",
 			payload: &goastorage.ListAipWorkflowsPayload{
 				UUID: aipID.String(),
-				Type: ref.New(enums.WorkflowTypeMoveAip.String()),
+				Type: new(enums.WorkflowTypeMoveAip.String()),
 			},
 			mock: func(ctx context.Context, s *fake.MockStorage) {
 				s.EXPECT().
@@ -1124,7 +1124,7 @@ func TestListAipWorkflows(t *testing.T) {
 			name: "Fails on invalid workflow status",
 			payload: &goastorage.ListAipWorkflowsPayload{
 				UUID:   aipID.String(),
-				Status: ref.New("bad status"),
+				Status: new("bad status"),
 			},
 			wantErr: "status: invalid value",
 		},
@@ -1132,7 +1132,7 @@ func TestListAipWorkflows(t *testing.T) {
 			name: "Fails on invalid workflow type",
 			payload: &goastorage.ListAipWorkflowsPayload{
 				UUID: aipID.String(),
-				Type: ref.New("bad type"),
+				Type: new("bad type"),
 			},
 			wantErr: "type: invalid value",
 		},

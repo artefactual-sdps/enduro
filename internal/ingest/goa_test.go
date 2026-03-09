@@ -423,34 +423,34 @@ func TestListSIPs(t *testing.T) {
 				Items: goaingest.SIPCollection{
 					{
 						UUID:          sipUUID1,
-						Name:          ref.New("Test SIP 1"),
+						Name:          new("Test SIP 1"),
 						Status:        enums.SIPStatusIngested.String(),
-						AipUUID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+						AipUUID:       new("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 						CreatedAt:     "2024-09-25T09:31:10Z",
-						StartedAt:     ref.New("2024-09-25T09:31:11Z"),
-						CompletedAt:   ref.New("2024-09-25T09:31:12Z"),
-						UploaderUUID:  ref.New(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
-						UploaderEmail: ref.New("uploader@example.com"),
-						UploaderName:  ref.New("Test Uploader"),
+						StartedAt:     new("2024-09-25T09:31:11Z"),
+						CompletedAt:   new("2024-09-25T09:31:12Z"),
+						UploaderUUID:  new(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
+						UploaderEmail: new("uploader@example.com"),
+						UploaderName:  new("Test Uploader"),
 					},
 					{
 						UUID:        sipUUID2,
-						Name:        ref.New("Test SIP 2"),
+						Name:        new("Test SIP 2"),
 						Status:      enums.SIPStatusProcessing.String(),
-						AipUUID:     ref.New("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
+						AipUUID:     new("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
 						CreatedAt:   "2024-10-01T17:13:26Z",
-						StartedAt:   ref.New("2024-10-01T17:13:27Z"),
-						CompletedAt: ref.New("2024-10-01T17:13:28Z"),
+						StartedAt:   new("2024-10-01T17:13:27Z"),
+						CompletedAt: new("2024-10-01T17:13:28Z"),
 					},
 					{
 						UUID:        sipUUID3,
-						Name:        ref.New("Test SIP 3"),
+						Name:        new("Test SIP 3"),
 						Status:      enums.SIPStatusError.String(),
 						CreatedAt:   "2024-10-01T17:13:26Z",
-						StartedAt:   ref.New("2024-10-01T17:13:27Z"),
-						CompletedAt: ref.New("2024-10-01T17:13:28Z"),
-						FailedAs:    ref.New(enums.SIPFailedAsSIP.String()),
-						FailedKey:   ref.New("failed-key"),
+						StartedAt:   new("2024-10-01T17:13:27Z"),
+						CompletedAt: new("2024-10-01T17:13:28Z"),
+						FailedAs:    new(enums.SIPFailedAsSIP.String()),
+						FailedKey:   new("failed-key"),
 					},
 				},
 				Page: &goaingest.EnduroPage{
@@ -462,29 +462,29 @@ func TestListSIPs(t *testing.T) {
 		{
 			name: "Returns filtered SIPs",
 			payload: &goaingest.ListSipsPayload{
-				Name:                ref.New("Test SIP 1"),
-				AipUUID:             ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
-				EarliestCreatedTime: ref.New("2024-09-25T09:30:00Z"),
-				LatestCreatedTime:   ref.New("2024-09-25T09:40:00Z"),
-				Status:              ref.New(enums.SIPStatusIngested.String()),
-				BatchUUID:           ref.New("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
-				UploaderUUID:        ref.New("0b075937-458c-43d9-b46c-222a072d62a9"),
-				Limit:               ref.New(10),
-				Offset:              ref.New(1),
+				Name:                new("Test SIP 1"),
+				AipUUID:             new("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+				EarliestCreatedTime: new("2024-09-25T09:30:00Z"),
+				LatestCreatedTime:   new("2024-09-25T09:40:00Z"),
+				Status:              new(enums.SIPStatusIngested.String()),
+				BatchUUID:           new("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
+				UploaderUUID:        new("0b075937-458c-43d9-b46c-222a072d62a9"),
+				Limit:               new(10),
+				Offset:              new(1),
 			},
 			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
 				mr.ListSIPs(
 					mockutil.Context(),
 					&persistence.SIPFilter{
-						Name:  ref.New("Test SIP 1"),
-						AIPID: ref.New(uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54")),
+						Name:  new("Test SIP 1"),
+						AIPID: new(uuid.MustParse("e2ace0da-8697-453d-9ea1-4c9b62309e54")),
 						CreatedAt: &timerange.Range{
 							Start: time.Date(2024, 9, 25, 9, 30, 0, 0, time.UTC),
 							End:   time.Date(2024, 9, 25, 9, 40, 0, 0, time.UTC),
 						},
 						Status:     ref.New(enums.SIPStatusIngested),
-						BatchID:    ref.New(uuid.MustParse("ffdb12f4-1735-4022-b746-a9bf4a32109b")),
-						UploaderID: ref.New(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
+						BatchID:    new(uuid.MustParse("ffdb12f4-1735-4022-b746-a9bf4a32109b")),
+						UploaderID: new(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
 						Sort:       entfilter.NewSort().AddCol("id", true),
 						Page: persistence.Page{
 							Limit:  10,
@@ -501,15 +501,15 @@ func TestListSIPs(t *testing.T) {
 				Items: goaingest.SIPCollection{
 					{
 						UUID:          sipUUID1,
-						Name:          ref.New("Test SIP 1"),
+						Name:          new("Test SIP 1"),
 						Status:        enums.SIPStatusIngested.String(),
-						AipUUID:       ref.New("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+						AipUUID:       new("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
 						CreatedAt:     "2024-09-25T09:31:10Z",
-						StartedAt:     ref.New("2024-09-25T09:31:11Z"),
-						CompletedAt:   ref.New("2024-09-25T09:31:12Z"),
-						UploaderUUID:  ref.New(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
-						UploaderEmail: ref.New("uploader@example.com"),
-						UploaderName:  ref.New("Test Uploader"),
+						StartedAt:     new("2024-09-25T09:31:11Z"),
+						CompletedAt:   new("2024-09-25T09:31:12Z"),
+						UploaderUUID:  new(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
+						UploaderEmail: new("uploader@example.com"),
+						UploaderName:  new("Test Uploader"),
 					},
 				},
 				Page: &goaingest.EnduroPage{
@@ -521,13 +521,13 @@ func TestListSIPs(t *testing.T) {
 		{
 			name: "Errors on an internal service error",
 			payload: &goaingest.ListSipsPayload{
-				Name: ref.New("SIP 42"),
+				Name: new("SIP 42"),
 			},
 			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
 				mr.ListSIPs(
 					mockutil.Context(),
 					&persistence.SIPFilter{
-						Name: ref.New("SIP 42"),
+						Name: new("SIP 42"),
 						Sort: entfilter.NewSort().AddCol("id", true),
 					},
 				).Return(
@@ -541,50 +541,50 @@ func TestListSIPs(t *testing.T) {
 		{
 			name: "Errors on a bad aip_uuid",
 			payload: &goaingest.ListSipsPayload{
-				AipUUID: ref.New("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"),
+				AipUUID: new("XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"),
 			},
 			wantErr: "aip_uuid: invalid UUID",
 		},
 		{
 			name: "Errors on a bad batch_uuid",
 			payload: &goaingest.ListSipsPayload{
-				BatchUUID: ref.New("invalid"),
+				BatchUUID: new("invalid"),
 			},
 			wantErr: "batch_uuid: invalid UUID",
 		},
 		{
 			name: "Errors on a bad uploader_uuid",
 			payload: &goaingest.ListSipsPayload{
-				UploaderUUID: ref.New("invalid"),
+				UploaderUUID: new("invalid"),
 			},
 			wantErr: "uploader_uuid: invalid UUID",
 		},
 		{
 			name: "Errors on a bad status",
 			payload: &goaingest.ListSipsPayload{
-				Status: ref.New("meditating"),
+				Status: new("meditating"),
 			},
 			wantErr: "status: invalid value",
 		},
 		{
 			name: "Errors on a bad earliest_created_time",
 			payload: &goaingest.ListSipsPayload{
-				EarliestCreatedTime: ref.New("2024-15-15T25:83:52Z"),
+				EarliestCreatedTime: new("2024-15-15T25:83:52Z"),
 			},
 			wantErr: "created at: time range: cannot parse start time",
 		},
 		{
 			name: "Errors on a bad latest_created_time",
 			payload: &goaingest.ListSipsPayload{
-				LatestCreatedTime: ref.New("2024-15-15T25:83:52Z"),
+				LatestCreatedTime: new("2024-15-15T25:83:52Z"),
 			},
 			wantErr: "created at: time range: cannot parse end time",
 		},
 		{
 			name: "Errors on a bad created at range",
 			payload: &goaingest.ListSipsPayload{
-				EarliestCreatedTime: ref.New("2024-10-01T17:43:52Z"),
-				LatestCreatedTime:   ref.New("2023-10-01T17:43:52Z"),
+				EarliestCreatedTime: new("2024-10-01T17:43:52Z"),
+				LatestCreatedTime:   new("2023-10-01T17:43:52Z"),
 			},
 			wantErr: "created at: time range: end cannot be before start",
 		},
@@ -682,17 +682,17 @@ func TestListUsers(t *testing.T) {
 		{
 			name: "Filters users",
 			payload: &goaingest.ListUsersPayload{
-				Email:  ref.New("user1@example.com"),
-				Name:   ref.New("User One"),
-				Limit:  ref.New(10),
-				Offset: ref.New(0),
+				Email:  new("user1@example.com"),
+				Name:   new("User One"),
+				Limit:  new(10),
+				Offset: new(0),
 			},
 			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
 				mr.ListUsers(
 					mockutil.Context(),
 					&persistence.UserFilter{
-						Email: ref.New("user1@example.com"),
-						Name:  ref.New("User One"),
+						Email: new("user1@example.com"),
+						Name:  new("User One"),
 						Page: persistence.Page{
 							Limit:  10,
 							Offset: 0,
@@ -722,27 +722,27 @@ func TestListUsers(t *testing.T) {
 		{
 			name: "Returns error on email validation error",
 			payload: &goaingest.ListUsersPayload{
-				Email: ref.New(longStr),
+				Email: new(longStr),
 			},
 			wantErr: "email: exceeds maximum length of 255",
 		},
 		{
 			name: "Returns error on name validation error",
 			payload: &goaingest.ListUsersPayload{
-				Name: ref.New(longStr),
+				Name: new(longStr),
 			},
 			wantErr: "name: exceeds maximum length of 255",
 		},
 		{
 			name: "Returns error on internal service error",
 			payload: &goaingest.ListUsersPayload{
-				Email: ref.New("user1@example.com"),
+				Email: new("user1@example.com"),
 			},
 			mockRecorder: func(mr *persistence_fake.MockServiceMockRecorder) {
 				mr.ListUsers(
 					mockutil.Context(),
 					&persistence.UserFilter{
-						Email: ref.New("user1@example.com"),
+						Email: new("user1@example.com"),
 					},
 				).Return(
 					nil,
@@ -804,7 +804,7 @@ func TestListSIPSourceObjects(t *testing.T) {
 			name: "Returns SIP source objects with a next page value",
 			payload: &goaingest.ListSipSourceObjectsPayload{
 				UUID:  sourceID.String(),
-				Limit: ref.New(10),
+				Limit: new(10),
 			},
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
 				mr.ListObjects(
@@ -828,20 +828,20 @@ func TestListSIPSourceObjects(t *testing.T) {
 				Objects: goaingest.SIPSourceObjectCollection{
 					{
 						Key:     "object1",
-						Size:    ref.New(int64(1234)),
-						ModTime: ref.New(modTime.Format(time.RFC3339)),
+						Size:    new(int64(1234)),
+						ModTime: new(modTime.Format(time.RFC3339)),
 					},
 				},
 				Limit: 10,
-				Next:  ref.New("next-token"),
+				Next:  new("next-token"),
 			},
 		},
 		{
 			name: "Returns SIP source objects when a cursor value is provided",
 			payload: &goaingest.ListSipSourceObjectsPayload{
 				UUID:   sourceID.String(),
-				Limit:  ref.New(10),
-				Cursor: ref.New("page-token"),
+				Limit:  new(10),
+				Cursor: new("page-token"),
 			},
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
 				mr.ListObjects(
@@ -865,8 +865,8 @@ func TestListSIPSourceObjects(t *testing.T) {
 				Objects: goaingest.SIPSourceObjectCollection{
 					{
 						Key:     "object2",
-						Size:    ref.New(int64(5678)),
-						ModTime: ref.New(modTime.Format(time.RFC3339)),
+						Size:    new(int64(5678)),
+						ModTime: new(modTime.Format(time.RFC3339)),
 					},
 				},
 				Limit: 10,
@@ -891,8 +891,8 @@ func TestListSIPSourceObjects(t *testing.T) {
 			name: "Returns an error when a bad cursor token is provided",
 			payload: &goaingest.ListSipSourceObjectsPayload{
 				UUID:   sourceID.String(),
-				Limit:  ref.New(10),
-				Cursor: ref.New("bad-token"),
+				Limit:  new(10),
+				Cursor: new("bad-token"),
 			},
 			mockRecorder: func(mr *sipsource_fake.MockSIPSourceMockRecorder) {
 				mr.ListObjects(

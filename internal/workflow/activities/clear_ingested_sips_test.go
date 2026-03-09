@@ -8,7 +8,6 @@ import (
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/mockutil"
-	"go.artefactual.dev/tools/ref"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
@@ -37,9 +36,9 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 
 	listPayload := func(offset int) *goaingest.ListSipsPayload {
 		return &goaingest.ListSipsPayload{
-			BatchUUID: ref.New(batchUUID.String()),
-			Limit:     ref.New(1000),
-			Offset:    ref.New(offset),
+			BatchUUID: new(batchUUID.String()),
+			Limit:     new(1000),
+			Offset:    new(offset),
 		}
 	}
 
@@ -47,7 +46,7 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 		return &goastorage.AipDeletionAutoPayload{
 			UUID:       aipID,
 			Reason:     fmt.Sprintf("Batch %s canceled", batchUUID),
-			SkipReport: ref.New(true),
+			SkipReport: new(true),
 		}
 	}
 
@@ -68,7 +67,7 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 							{
 								UUID:    sipUUID1,
 								Status:  enums.SIPStatusIngested.String(),
-								AipUUID: ref.New(aipID1),
+								AipUUID: new(aipID1),
 							},
 							{
 								UUID:   sipUUID2,
@@ -86,7 +85,7 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 							{
 								UUID:    sipUUID3,
 								Status:  enums.SIPStatusCanceled.String(),
-								AipUUID: ref.New(aipID2),
+								AipUUID: new(aipID2),
 							},
 						},
 						Page: &goaingest.EnduroPage{Total: 3},
@@ -119,7 +118,7 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 							{
 								UUID:    sipUUID1,
 								Status:  enums.SIPStatusCanceled.String(),
-								AipUUID: ref.New(aipID1),
+								AipUUID: new(aipID1),
 							},
 						},
 						Page: &goaingest.EnduroPage{Total: 1},
@@ -144,12 +143,12 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 							{
 								UUID:    sipUUID2,
 								Status:  enums.SIPStatusIngested.String(),
-								AipUUID: ref.New(aipID1),
+								AipUUID: new(aipID1),
 							},
 							{
 								UUID:    sipUUID3,
 								Status:  enums.SIPStatusCanceled.String(),
-								AipUUID: ref.New(aipID2),
+								AipUUID: new(aipID2),
 							},
 						},
 						Page: &goaingest.EnduroPage{Total: 3},
@@ -176,22 +175,22 @@ func TestClearIngestedSIPsActivity(t *testing.T) {
 							{
 								UUID:    sipUUID1,
 								Status:  enums.SIPStatusCanceled.String(),
-								AipUUID: ref.New(aipID1),
+								AipUUID: new(aipID1),
 							},
 							{
 								UUID:    sipUUID2,
 								Status:  enums.SIPStatusCanceled.String(),
-								AipUUID: ref.New(aipID2),
+								AipUUID: new(aipID2),
 							},
 							{
 								UUID:    sipUUID3,
 								Status:  enums.SIPStatusCanceled.String(),
-								AipUUID: ref.New(aipID3),
+								AipUUID: new(aipID3),
 							},
 							{
 								UUID:    sipUUID4,
 								Status:  enums.SIPStatusCanceled.String(),
-								AipUUID: ref.New(aipID4),
+								AipUUID: new(aipID4),
 							},
 						},
 						Page: &goaingest.EnduroPage{Total: 4},

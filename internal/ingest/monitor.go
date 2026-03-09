@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"go.artefactual.dev/tools/ref"
-
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 )
@@ -54,7 +52,7 @@ func (svc *ingestImpl) Monitor(
 	defer sub.Close()
 
 	// Say hello to be nice.
-	event := &goaingest.IngestPingEvent{Message: ref.New("Hello")}
+	event := &goaingest.IngestPingEvent{Message: new("Hello")}
 	if err := stream.Send(&goaingest.IngestEvent{Value: event}); err != nil {
 		// Consider send errors as client disconnections.
 		svc.logger.V(1).Info("Failed to send hello event.", "err", err)
@@ -73,7 +71,7 @@ func (svc *ingestImpl) Monitor(
 			return nil
 
 		case <-ticker.C:
-			event := &goaingest.IngestPingEvent{Message: ref.New("Ping")}
+			event := &goaingest.IngestPingEvent{Message: new("Ping")}
 			if err := stream.Send(&goaingest.IngestEvent{Value: event}); err != nil {
 				// Consider send errors as client disconnections.
 				svc.logger.V(1).Info("Failed to send ping event.", "err", err)

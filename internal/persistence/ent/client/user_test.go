@@ -7,7 +7,6 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
@@ -304,7 +303,7 @@ func TestListUsers(t *testing.T) {
 		{
 			name: "Lists users filtered by Email",
 			filter: &persistence.UserFilter{
-				Email: ref.New("nobody@example.com"),
+				Email: new("nobody@example.com"),
 			},
 			want: []*datatypes.User{
 				{
@@ -325,7 +324,7 @@ func TestListUsers(t *testing.T) {
 		{
 			name: "Lists users filtered by Name",
 			filter: &persistence.UserFilter{
-				Name: ref.New("test"),
+				Name: new("test"),
 			},
 			want: []*datatypes.User{
 				{

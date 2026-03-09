@@ -30,7 +30,7 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 	aip2UUID := uuid.New()
 
 	payload := &goaingest.ListSipsPayload{
-		BatchUUID: ref.New(batchUUID.String()),
+		BatchUUID: new(batchUUID.String()),
 		Limit:     ref.New(entfilter.MaxPageSize),
 	}
 
@@ -71,12 +71,12 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 						{
 							UUID:    sip1UUID,
 							Status:  enums.SIPStatusIngested.String(),
-							AipUUID: ref.New(aip1UUID.String()),
+							AipUUID: new(aip1UUID.String()),
 						},
 						{
 							UUID:    sip2UUID,
 							Status:  enums.SIPStatusIngested.String(),
-							AipUUID: ref.New(aip2UUID.String()),
+							AipUUID: new(aip2UUID.String()),
 						},
 					}}, nil)
 			},
@@ -223,7 +223,7 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 						{
 							UUID:    sip1UUID,
 							Status:  enums.SIPStatusIngested.String(),
-							AipUUID: ref.New("invalid-uuid"),
+							AipUUID: new("invalid-uuid"),
 						},
 						{UUID: sip2UUID, Status: enums.SIPStatusIngested.String()},
 					}}, nil)

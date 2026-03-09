@@ -836,7 +836,7 @@ func TestListSIPs(t *testing.T) {
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
-				Name: ref.New("small"),
+				Name: new("small"),
 			},
 			want: results{
 				data: []*datatypes.SIP{
@@ -1079,7 +1079,7 @@ func TestListSIPs(t *testing.T) {
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
-				UploaderID: ref.New(uploaderID2),
+				UploaderID: new(uploaderID2),
 			},
 			want: results{
 				data: []*datatypes.SIP{
@@ -1143,7 +1143,7 @@ func TestListSIPs(t *testing.T) {
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
-				BatchID: ref.New(batchID2),
+				BatchID: new(batchID2),
 			},
 			want: results{
 				data: []*datatypes.SIP{

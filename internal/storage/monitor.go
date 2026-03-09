@@ -4,8 +4,6 @@ import (
 	"context"
 	"time"
 
-	"go.artefactual.dev/tools/ref"
-
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
@@ -54,7 +52,7 @@ func (s *serviceImpl) Monitor(
 	defer sub.Close()
 
 	// Say hello to be nice.
-	event := &goastorage.StoragePingEvent{Message: ref.New("Hello")}
+	event := &goastorage.StoragePingEvent{Message: new("Hello")}
 	if err := stream.Send(&goastorage.StorageEvent{Value: event}); err != nil {
 		// Consider send errors as client disconnections.
 		s.logger.V(1).Info("Failed to send hello event.", "err", err)
@@ -73,7 +71,7 @@ func (s *serviceImpl) Monitor(
 			return nil
 
 		case <-ticker.C:
-			event := &goastorage.StoragePingEvent{Message: ref.New("Ping")}
+			event := &goastorage.StoragePingEvent{Message: new("Ping")}
 			if err := stream.Send(&goastorage.StorageEvent{Value: event}); err != nil {
 				// Consider send errors as client disconnections.
 				s.logger.V(1).Info("Failed to send ping event.", "err", err)

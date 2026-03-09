@@ -311,7 +311,7 @@ func (w *ingestImpl) ListSipSourceObjects(
 	}
 
 	if page.NextToken != nil {
-		res.Next = ref.New(string(page.NextToken))
+		res.Next = new(string(page.NextToken))
 	}
 
 	return res, nil

@@ -32,14 +32,14 @@ func expectReadAIP(msvc *fake.MockService, id uuid.UUID) {
 		Return(&goastorage.AIP{
 			UUID:         id,
 			Name:         "Test AIP",
-			LocationUUID: ref.New(uuid.MustParse("223e4567-e89b-12d3-a456-426614174000")),
+			LocationUUID: new(uuid.MustParse("223e4567-e89b-12d3-a456-426614174000")),
 		}, nil)
 }
 
 func expectListDeletionRequests(msvc *fake.MockService, aipID uuid.UUID) {
 	msvc.EXPECT().
 		ListDeletionRequests(mockutil.Context(), &persistence.DeletionRequestFilter{
-			AIPUUID: ref.New(aipID),
+			AIPUUID: new(aipID),
 			Status:  ref.New(enums.DeletionRequestStatusApproved),
 		}).
 		Return([]*types.DeletionRequest{
@@ -189,7 +189,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 				expectReadAIP(msvc, aipID)
 				msvc.EXPECT().
 					ListDeletionRequests(mockutil.Context(), &persistence.DeletionRequestFilter{
-						AIPUUID: ref.New(aipID),
+						AIPUUID: new(aipID),
 						Status:  ref.New(enums.DeletionRequestStatusApproved),
 					}).
 					Return(nil, errors.New("internal error"))
@@ -206,7 +206,7 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 				expectReadAIP(msvc, aipID)
 				msvc.EXPECT().
 					ListDeletionRequests(mockutil.Context(), &persistence.DeletionRequestFilter{
-						AIPUUID: ref.New(aipID),
+						AIPUUID: new(aipID),
 						Status:  ref.New(enums.DeletionRequestStatusApproved),
 					}).
 					Return([]*types.DeletionRequest{}, nil)

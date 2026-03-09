@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/ref"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
@@ -40,7 +39,7 @@ func TestMonitorRequest(t *testing.T) {
 					Request(ctx, claims).
 					Return("ticket", nil)
 			},
-			want: &goastorage.MonitorRequestResult{Ticket: ref.New("ticket")},
+			want: &goastorage.MonitorRequestResult{Ticket: new("ticket")},
 		},
 		{
 			name: "Returns empty result when no ticket is provided",
@@ -111,7 +110,7 @@ func TestMonitor(t *testing.T) {
 	t.Parallel()
 
 	testUUID := uuid.New()
-	ticket := ref.New("ticket")
+	ticket := new("ticket")
 	successMock := func(tp *authfake.MockTicketProvider, ctx context.Context, ticket *string, claims *auth.Claims) {
 		tp.EXPECT().
 			Check(ctx, ticket, &auth.Claims{}).
@@ -134,7 +133,7 @@ func TestMonitor(t *testing.T) {
 		{Value: &goastorage.AIPTaskUpdatedEvent{UUID: testUUID}},
 	}
 	allWantEvents := []any{
-		&goastorage.StoragePingEvent{Message: ref.New("Hello")},
+		&goastorage.StoragePingEvent{Message: new("Hello")},
 		&goastorage.LocationCreatedEvent{UUID: testUUID},
 		&goastorage.AIPCreatedEvent{UUID: testUUID},
 		&goastorage.AIPUpdatedEvent{UUID: testUUID},
@@ -182,7 +181,7 @@ func TestMonitor(t *testing.T) {
 			mock:   successMock,
 			events: allEvents,
 			wantEvents: []any{
-				&goastorage.StoragePingEvent{Message: ref.New("Hello")},
+				&goastorage.StoragePingEvent{Message: new("Hello")},
 			},
 		},
 		{
@@ -195,7 +194,7 @@ func TestMonitor(t *testing.T) {
 			mock:   successMock,
 			events: allEvents,
 			wantEvents: []any{
-				&goastorage.StoragePingEvent{Message: ref.New("Hello")},
+				&goastorage.StoragePingEvent{Message: new("Hello")},
 				&goastorage.LocationCreatedEvent{UUID: testUUID},
 				&goastorage.AIPUpdatedEvent{UUID: testUUID},
 				&goastorage.AIPStatusUpdatedEvent{UUID: testUUID},

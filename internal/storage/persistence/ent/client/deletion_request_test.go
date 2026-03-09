@@ -189,7 +189,7 @@ func TestListDeletionRequests(t *testing.T) {
 		{
 			name: "Lists Deletion Requests by AIP UUID",
 			filter: &persistence.DeletionRequestFilter{
-				AIPUUID: ref.New(aipID),
+				AIPUUID: new(aipID),
 			},
 			want: []*types.DeletionRequest{
 				{
@@ -221,7 +221,7 @@ func TestListDeletionRequests(t *testing.T) {
 		{
 			name: "Returns no results for non-matching filter",
 			filter: &persistence.DeletionRequestFilter{
-				AIPUUID: ref.New(uuid.New()),
+				AIPUUID: new(uuid.New()),
 			},
 			want: []*types.DeletionRequest{},
 		},
