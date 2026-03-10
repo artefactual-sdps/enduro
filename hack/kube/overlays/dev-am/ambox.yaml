@@ -18,7 +18,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: ambox
-          image: docker.io/artefactual/ambox:1.0.9
+          image: docker.io/artefactual/ambox:1.0.12
           ports:
             - name: am-dashboard
               containerPort: 64080
