@@ -2,7 +2,6 @@ package ingest_test
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"testing"
@@ -338,20 +337,14 @@ var (
 	sipUUID3 = uuid.New()
 	testSIPs = []*datatypes.SIP{
 		{
-			ID:        1,
-			UUID:      sipUUID1,
-			Name:      "Test SIP 1",
-			AIPID:     nullUUID("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
-			Status:    enums.SIPStatusIngested,
-			CreatedAt: time.Date(2024, 9, 25, 9, 31, 10, 0, time.UTC),
-			StartedAt: sql.NullTime{
-				Time:  time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC),
-				Valid: true,
-			},
-			CompletedAt: sql.NullTime{
-				Time:  time.Date(2024, 9, 25, 9, 31, 12, 0, time.UTC),
-				Valid: true,
-			},
+			ID:          1,
+			UUID:        sipUUID1,
+			Name:        "Test SIP 1",
+			AIPID:       nullUUID("e2ace0da-8697-453d-9ea1-4c9b62309e54"),
+			Status:      enums.SIPStatusIngested,
+			CreatedAt:   time.Date(2024, 9, 25, 9, 31, 10, 0, time.UTC),
+			StartedAt:   time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC),
+			CompletedAt: time.Date(2024, 9, 25, 9, 31, 12, 0, time.UTC),
 			Uploader: &datatypes.User{
 				UUID:  uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9"),
 				Email: "uploader@example.com",
@@ -359,37 +352,25 @@ var (
 			},
 		},
 		{
-			ID:        2,
-			UUID:      sipUUID2,
-			Name:      "Test SIP 2",
-			AIPID:     nullUUID("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
-			Status:    enums.SIPStatusProcessing,
-			CreatedAt: time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
-			StartedAt: sql.NullTime{
-				Time:  time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
-				Valid: true,
-			},
-			CompletedAt: sql.NullTime{
-				Time:  time.Date(2024, 10, 1, 17, 13, 28, 0, time.UTC),
-				Valid: true,
-			},
+			ID:          2,
+			UUID:        sipUUID2,
+			Name:        "Test SIP 2",
+			AIPID:       nullUUID("ffdb12f4-1735-4022-b746-a9bf4a32109b"),
+			Status:      enums.SIPStatusProcessing,
+			CreatedAt:   time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
+			StartedAt:   time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
+			CompletedAt: time.Date(2024, 10, 1, 17, 13, 28, 0, time.UTC),
 		},
 		{
-			ID:        3,
-			UUID:      sipUUID3,
-			Name:      "Test SIP 3",
-			Status:    enums.SIPStatusError,
-			CreatedAt: time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
-			StartedAt: sql.NullTime{
-				Time:  time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
-				Valid: true,
-			},
-			CompletedAt: sql.NullTime{
-				Time:  time.Date(2024, 10, 1, 17, 13, 28, 0, time.UTC),
-				Valid: true,
-			},
-			FailedAs:  enums.SIPFailedAsSIP,
-			FailedKey: "failed-key",
+			ID:          3,
+			UUID:        sipUUID3,
+			Name:        "Test SIP 3",
+			Status:      enums.SIPStatusError,
+			CreatedAt:   time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
+			StartedAt:   time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
+			CompletedAt: time.Date(2024, 10, 1, 17, 13, 28, 0, time.UTC),
+			FailedAs:    enums.SIPFailedAsSIP,
+			FailedKey:   "failed-key",
 		},
 	}
 )

@@ -1,8 +1,8 @@
 package datatypes
 
 import (
-	"database/sql"
 	"strings"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -15,8 +15,8 @@ type Task struct {
 	UUID         uuid.UUID
 	Name         string
 	Status       enums.TaskStatus
-	StartedAt    sql.NullTime
-	CompletedAt  sql.NullTime
+	StartedAt    time.Time
+	CompletedAt  time.Time
 	Note         string
 	WorkflowUUID uuid.UUID
 }

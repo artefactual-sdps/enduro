@@ -1,7 +1,6 @@
 package client_test
 
 import (
-	"database/sql"
 	"errors"
 	"fmt"
 	"strings"
@@ -37,8 +36,8 @@ func TestCreateTask(t *testing.T) {
 	t.Parallel()
 
 	taskUUID := uuid.New()
-	started := sql.NullTime{Time: time.Now(), Valid: true}
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
+	started := time.Now()
+	completed := started.Add(time.Second)
 
 	tests := []struct {
 		name    string
@@ -133,8 +132,8 @@ func TestCreateTask(t *testing.T) {
 func TestCreateTasks(t *testing.T) {
 	t.Parallel()
 
-	started := sql.NullTime{Time: time.Now(), Valid: true}
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
+	started := time.Now()
+	completed := started.Add(time.Second)
 
 	tests := []struct {
 		name    string
@@ -280,17 +279,11 @@ func TestUpdateTask(t *testing.T) {
 	taskID := uuid.MustParse("c5f7c35a-d5a6-4e00-b4da-b036ce5b40bc")
 	taskID2 := uuid.MustParse("c04d0191-d7ce-46dd-beff-92d6830082ff")
 
-	started := sql.NullTime{
-		Time:  time.Date(2024, 3, 31, 10, 11, 12, 0, time.UTC),
-		Valid: true,
-	}
-	started2 := sql.NullTime{
-		Time:  time.Date(2024, 4, 1, 17, 5, 49, 0, time.UTC),
-		Valid: true,
-	}
+	started := time.Date(2024, 3, 31, 10, 11, 12, 0, time.UTC)
+	started2 := time.Date(2024, 4, 1, 17, 5, 49, 0, time.UTC)
 
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
-	completed2 := sql.NullTime{Time: started2.Time.Add(time.Second), Valid: true}
+	completed := started.Add(time.Second)
+	completed2 := started2.Add(time.Second)
 
 	type params struct {
 		task    *datatypes.Task

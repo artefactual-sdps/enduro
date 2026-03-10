@@ -1,7 +1,6 @@
 package localact_test
 
 import (
-	"database/sql"
 	"errors"
 	"math/rand"
 	"testing"
@@ -58,8 +57,8 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 							UUID:         taskUUID,
 							Name:         "Validate SIP structure",
 							Status:       enums.TaskStatusDone,
-							StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
-							CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+							StartedAt:    startedAt,
+							CompletedAt:  completedAt,
 							Note:         "SIP structure matches validation criteria",
 							WorkflowUUID: wUUID,
 						},
@@ -90,8 +89,8 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 						{
 							UUID:         taskUUID,
 							Status:       enums.TaskStatusDone,
-							StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
-							CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+							StartedAt:    startedAt,
+							CompletedAt:  completedAt,
 							Note:         "SIP structure matches validation criteria",
 							WorkflowUUID: wUUID,
 						},

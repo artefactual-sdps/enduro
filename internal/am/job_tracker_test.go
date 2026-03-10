@@ -6,7 +6,6 @@ import (
 	"testing"
 	"time"
 
-	"entgo.io/ent/dialect/sql"
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
 	"go.artefactual.dev/amclient"
@@ -109,8 +108,8 @@ func TestJobTracker(t *testing.T) {
 							UUID:         taskUUID,
 							Name:         "Extract zipped bag transfer",
 							Status:       enums.TaskStatusDone,
-							StartedAt:    sql.NullTime{Time: startedAt, Valid: true},
-							CompletedAt:  sql.NullTime{Time: completedAt, Valid: true},
+							StartedAt:    startedAt,
+							CompletedAt:  completedAt,
 							WorkflowUUID: wUUID,
 						},
 					}).Return(nil)
@@ -215,17 +214,11 @@ func TestConvertJobToTask(t *testing.T) {
 				},
 			},
 			want: &datatypes.Task{
-				UUID:   taskUUID,
-				Name:   "Move to processing directory",
-				Status: enums.TaskStatusDone,
-				StartedAt: sql.NullTime{
-					Time:  time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC),
-					Valid: true,
-				},
-				CompletedAt: sql.NullTime{
-					Time:  time.Date(2026, time.January, 18, 1, 27, 49, 0, time.UTC),
-					Valid: true,
-				},
+				UUID:        taskUUID,
+				Name:        "Move to processing directory",
+				Status:      enums.TaskStatusDone,
+				StartedAt:   time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC),
+				CompletedAt: time.Date(2026, time.January, 18, 1, 27, 49, 0, time.UTC),
 			},
 		},
 		{
@@ -255,14 +248,10 @@ func TestConvertJobToTask(t *testing.T) {
 				},
 			},
 			want: &datatypes.Task{
-				UUID:   taskUUID,
-				Name:   "Verify SIP compliance",
-				Status: enums.TaskStatusInProgress,
-				StartedAt: sql.NullTime{
-					Time:  time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC),
-					Valid: true,
-				},
-				CompletedAt: sql.NullTime{},
+				UUID:      taskUUID,
+				Name:      "Verify SIP compliance",
+				Status:    enums.TaskStatusInProgress,
+				StartedAt: time.Date(2024, time.January, 18, 1, 27, 49, 0, time.UTC),
 			},
 		},
 		{

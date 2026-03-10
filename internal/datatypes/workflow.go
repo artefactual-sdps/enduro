@@ -1,7 +1,7 @@
 package datatypes
 
 import (
-	"database/sql"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -19,8 +19,8 @@ type Workflow struct {
 	TemporalID  string
 	Type        enums.WorkflowType
 	Status      enums.WorkflowStatus
-	StartedAt   sql.NullTime
-	CompletedAt sql.NullTime
+	StartedAt   time.Time
+	CompletedAt time.Time
 	SIPUUID     uuid.UUID
 
 	// Tasks contains the workflow's tasks, or nil if they were not loaded.

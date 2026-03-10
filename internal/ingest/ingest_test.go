@@ -409,7 +409,7 @@ func TestSetStatusInProgress(t *testing.T) {
 					updated, err := upd(&datatypes.SIP{})
 					assert.NilError(t, err)
 					assert.Equal(t, updated.Status, enums.SIPStatusProcessing)
-					assert.DeepEqual(t, updated.StartedAt, sql.NullTime{Time: startedAt, Valid: true})
+					assert.DeepEqual(t, updated.StartedAt, startedAt)
 					return nil
 				},
 			),
@@ -417,7 +417,7 @@ func TestSetStatusInProgress(t *testing.T) {
 		Return(&datatypes.SIP{
 			UUID:      sipUUID,
 			Status:    enums.SIPStatusProcessing,
-			StartedAt: sql.NullTime{Time: startedAt, Valid: true},
+			StartedAt: startedAt,
 		}, nil)
 
 	assert.NilError(t, ingestsvc.SetStatusInProgress(t.Context(), sipUUID, startedAt))

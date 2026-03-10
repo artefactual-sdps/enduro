@@ -2,7 +2,6 @@ package a3m
 
 import (
 	context "context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"time"
@@ -196,13 +195,10 @@ func saveTasks(
 			return err
 		}
 		tasks[i] = &datatypes.Task{
-			UUID:   taskUUID,
-			Name:   job.Name,
-			Status: a3mJobToTaskStatus[job.Status],
-			StartedAt: sql.NullTime{
-				Time:  job.StartTime.AsTime(),
-				Valid: true,
-			},
+			UUID:         taskUUID,
+			Name:         job.Name,
+			Status:       a3mJobToTaskStatus[job.Status],
+			StartedAt:    job.StartTime.AsTime(),
 			WorkflowUUID: wUUID,
 		}
 	}

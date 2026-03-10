@@ -1,7 +1,6 @@
 package client
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,8 +20,8 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 		Name:        sip.Name,
 		Status:      sip.Status,
 		CreatedAt:   sip.CreatedAt,
-		StartedAt:   nullTime(sip.StartedAt),
-		CompletedAt: nullTime(sip.CompletedAt),
+		StartedAt:   normalizeTime(sip.StartedAt),
+		CompletedAt: normalizeTime(sip.CompletedAt),
 		FailedAs:    sip.FailedAs,
 		FailedKey:   sip.FailedKey,
 	}
@@ -59,8 +58,8 @@ func convertTask(task *db.Task) *datatypes.Task {
 		UUID:         task.UUID,
 		Name:         task.Name,
 		Status:       enums.TaskStatus(status),
-		StartedAt:    nullTime(task.StartedAt),
-		CompletedAt:  nullTime(task.CompletedAt),
+		StartedAt:    normalizeTime(task.StartedAt),
+		CompletedAt:  normalizeTime(task.CompletedAt),
 		Note:         task.Note,
 		WorkflowUUID: wUUID,
 	}
@@ -111,8 +110,8 @@ func convertWorkflow(dbw *db.Workflow) *datatypes.Workflow {
 		TemporalID:  dbw.TemporalID,
 		Type:        dbw.Type,
 		Status:      enums.WorkflowStatus(uint(dbw.Status)), // #nosec G115 -- constrained value.
-		StartedAt:   nullTime(dbw.StartedAt),
-		CompletedAt: nullTime(dbw.CompletedAt),
+		StartedAt:   normalizeTime(dbw.StartedAt),
+		CompletedAt: normalizeTime(dbw.CompletedAt),
 	}
 
 	if dbw.Edges.Sip != nil {
@@ -134,9 +133,9 @@ func convertWorkflow(dbw *db.Workflow) *datatypes.Workflow {
 	return w
 }
 
-func nullTime(t time.Time) sql.NullTime {
+func normalizeTime(t time.Time) time.Time {
 	if t.IsZero() {
-		return sql.NullTime{}
+		return time.Time{}
 	}
-	return sql.NullTime{Time: t.UTC(), Valid: true}
+	return t
 }

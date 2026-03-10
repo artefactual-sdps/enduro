@@ -1,7 +1,6 @@
 package client_test
 
 import (
-	"database/sql"
 	"fmt"
 	"testing"
 	"time"
@@ -25,8 +24,8 @@ func TestCreateSIP(t *testing.T) {
 
 	sipUUID := uuid.New()
 	aipID := uuid.NullUUID{UUID: uuid.New(), Valid: true}
-	started := sql.NullTime{Time: time.Now(), Valid: true}
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
+	started := time.Now()
+	completed := started.Add(time.Second)
 	uploaderID := uuid.New()
 	uploaderID2 := uuid.New()
 	batchUUID := uuid.New()
@@ -223,17 +222,11 @@ func TestUpdateSIP(t *testing.T) {
 	uploaderID := uuid.New()
 	batchUUID := uuid.New()
 
-	started := sql.NullTime{Time: time.Now(), Valid: true}
-	started2 := sql.NullTime{
-		Time: func() time.Time {
-			t, _ := time.Parse(time.RFC3339, "1980-01-01T09:30:00Z")
-			return t
-		}(),
-		Valid: true,
-	}
+	started := time.Now()
+	started2 := time.Date(1980, 1, 1, 9, 30, 0, 0, time.UTC)
 
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
-	completed2 := sql.NullTime{Time: started2.Time.Add(time.Second), Valid: true}
+	completed := started.Add(time.Second)
+	completed2 := started2.Add(time.Second)
 
 	type params struct {
 		sipUUID uuid.UUID
@@ -279,7 +272,7 @@ func TestUpdateSIP(t *testing.T) {
 					s.Name = "Updated SIP"
 					s.AIPID = aipID2
 					s.Status = enums.SIPStatusIngested
-					s.CreatedAt = started2.Time // No-op, can't update CreatedAt.
+					s.CreatedAt = started2 // No-op, can't update CreatedAt.
 					s.StartedAt = started2
 					s.CompletedAt = completed2
 					s.FailedAs = enums.SIPFailedAsSIP
@@ -511,8 +504,8 @@ func TestReadSIP(t *testing.T) {
 				Status:      enums.SIPStatusError,
 				AIPID:       uuid.NullUUID{UUID: uuid.New(), Valid: true},
 				CreatedAt:   time.Now(),
-				StartedAt:   sql.NullTime{Time: time.Now().Add(time.Second), Valid: true},
-				CompletedAt: sql.NullTime{Time: time.Now().Add(time.Minute), Valid: true},
+				StartedAt:   time.Now().Add(time.Second),
+				CompletedAt: time.Now().Add(time.Minute),
 				FailedAs:    enums.SIPFailedAsPIP,
 				FailedKey:   "failed-key",
 				Uploader: &datatypes.User{
@@ -560,8 +553,8 @@ func TestReadSIP(t *testing.T) {
 					SetStatus(tt.want.Status).
 					SetAipID(tt.want.AIPID.UUID).
 					SetCreatedAt(tt.want.CreatedAt).
-					SetStartedAt(tt.want.StartedAt.Time).
-					SetCompletedAt(tt.want.CompletedAt.Time).
+					SetStartedAt(tt.want.StartedAt).
+					SetCompletedAt(tt.want.CompletedAt).
 					SetFailedAs(tt.want.FailedAs).
 					SetFailedKey(tt.want.FailedKey).
 					SetUploader(user).
@@ -600,23 +593,11 @@ func TestListSIPs(t *testing.T) {
 	batchID := uuid.New()
 	batchID2 := uuid.New()
 
-	started := sql.NullTime{
-		Time: func() time.Time {
-			t, _ := time.Parse(time.RFC3339, "2024-09-25T09:31:11Z")
-			return t
-		}(),
-		Valid: true,
-	}
-	started2 := sql.NullTime{
-		Time: func() time.Time {
-			t, _ := time.Parse(time.RFC3339, "2024-09-25T10:03:42Z")
-			return t
-		}(),
-		Valid: true,
-	}
+	started := time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC)
+	started2 := time.Date(2024, 9, 25, 10, 3, 42, 0, time.UTC)
 
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
-	completed2 := sql.NullTime{Time: started2.Time.Add(time.Second), Valid: true}
+	completed := started.Add(time.Second)
+	completed2 := started2.Add(time.Second)
 
 	type results struct {
 		data []*datatypes.SIP
@@ -1188,8 +1169,8 @@ func TestListSIPs(t *testing.T) {
 						SetName(sip.Name).
 						SetStatus(sip.Status).
 						SetCreatedAt(time.Now()).
-						SetStartedAt(sip.StartedAt.Time).
-						SetCompletedAt(sip.CompletedAt.Time)
+						SetStartedAt(sip.StartedAt).
+						SetCompletedAt(sip.CompletedAt)
 
 					if sip.AIPID.Valid {
 						q.SetAipID(sip.AIPID.UUID)
