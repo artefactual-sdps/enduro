@@ -1,7 +1,6 @@
 package client_test
 
 import (
-	"database/sql"
 	"errors"
 	"testing"
 	"time"
@@ -21,8 +20,8 @@ func TestCreateWorkflow(t *testing.T) {
 
 	workflowUUID := uuid.New()
 	temporalID := "processing-workflow-720db1d4-825c-4911-9a20-61c212cf23ff"
-	started := sql.NullTime{Time: time.Now(), Valid: true}
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
+	started := time.Now()
+	completed := started.Add(time.Second)
 
 	tests := []struct {
 		name    string
@@ -124,8 +123,8 @@ func TestUpdateWorkflow(t *testing.T) {
 	t.Parallel()
 
 	workflowUUID := uuid.New()
-	started := sql.NullTime{Time: time.Now(), Valid: true}
-	completed := sql.NullTime{Time: started.Time.Add(time.Second), Valid: true}
+	started := time.Now()
+	completed := started.Add(time.Second)
 
 	type params struct {
 		workflow *datatypes.Workflow
@@ -206,7 +205,7 @@ func TestUpdateWorkflow(t *testing.T) {
 					SetTemporalID(tt.args.workflow.TemporalID).
 					SetType(tt.args.workflow.Type).
 					SetStatus(int8(tt.args.workflow.Status)). // #nosec G115 -- constrained value.
-					SetStartedAt(tt.args.workflow.StartedAt.Time).
+					SetStartedAt(tt.args.workflow.StartedAt).
 					SetSipID(sip.ID).
 					Save(ctx)
 				assert.NilError(t, err)
@@ -229,7 +228,7 @@ func TestReadWorkflow(t *testing.T) {
 	t.Parallel()
 
 	workflowUUID := uuid.New()
-	started := sql.NullTime{Time: time.Now(), Valid: true}
+	started := time.Now()
 
 	for _, tt := range []struct {
 		name    string
@@ -267,7 +266,7 @@ func TestReadWorkflow(t *testing.T) {
 					SetTemporalID(tt.want.TemporalID).
 					SetType(tt.want.Type).
 					SetStatus(int8(tt.want.Status)). // #nosec G115 -- constrained value.
-					SetStartedAt(tt.want.StartedAt.Time).
+					SetStartedAt(tt.want.StartedAt).
 					SetSipID(sip.ID).
 					Save(ctx)
 				assert.NilError(t, err)
@@ -291,8 +290,8 @@ func TestListWorkflowsBySIP(t *testing.T) {
 
 	workflowUUID1 := uuid.New()
 	workflowUUID2 := uuid.New()
-	started := sql.NullTime{Time: time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC), Valid: true}
-	started2 := sql.NullTime{Time: time.Date(2024, 9, 25, 10, 3, 42, 0, time.UTC), Valid: true}
+	started := time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC)
+	started2 := time.Date(2024, 9, 25, 10, 3, 42, 0, time.UTC)
 
 	for _, tt := range []struct {
 		name      string
@@ -359,7 +358,7 @@ func TestListWorkflowsBySIP(t *testing.T) {
 					SetTemporalID(wf.TemporalID).
 					SetType(wf.Type).
 					SetStatus(int8(wf.Status)). // #nosec G115 -- constrained value.
-					SetStartedAt(wf.StartedAt.Time).
+					SetStartedAt(wf.StartedAt).
 					SetSipID(sip.ID).
 					Save(ctx)
 				assert.NilError(t, err)

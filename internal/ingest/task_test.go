@@ -2,7 +2,6 @@ package ingest_test
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"testing"
@@ -62,17 +61,11 @@ func TestCreateTask(t *testing.T) {
 		{
 			name: "Creates a task with optional values",
 			task: datatypes.Task{
-				UUID:   taskUUID,
-				Name:   "PT2",
-				Status: enums.TaskStatusInProgress,
-				StartedAt: sql.NullTime{
-					Time:  time.Date(2024, 3, 27, 11, 32, 41, 0, time.UTC),
-					Valid: true,
-				},
-				CompletedAt: sql.NullTime{
-					Time:  time.Date(2024, 3, 27, 11, 32, 43, 0, time.UTC),
-					Valid: true,
-				},
+				UUID:         taskUUID,
+				Name:         "PT2",
+				Status:       enums.TaskStatusInProgress,
+				StartedAt:    time.Date(2024, 3, 27, 11, 32, 41, 0, time.UTC),
+				CompletedAt:  time.Date(2024, 3, 27, 11, 32, 43, 0, time.UTC),
 				Note:         "PT2 Note",
 				WorkflowUUID: wUUID,
 			},
@@ -88,18 +81,12 @@ func TestCreateTask(t *testing.T) {
 				return svc
 			},
 			want: datatypes.Task{
-				ID:     2,
-				UUID:   taskUUID,
-				Name:   "PT2",
-				Status: enums.TaskStatusInProgress,
-				StartedAt: sql.NullTime{
-					Time:  time.Date(2024, 3, 27, 11, 32, 41, 0, time.UTC),
-					Valid: true,
-				},
-				CompletedAt: sql.NullTime{
-					Time:  time.Date(2024, 3, 27, 11, 32, 43, 0, time.UTC),
-					Valid: true,
-				},
+				ID:           2,
+				UUID:         taskUUID,
+				Name:         "PT2",
+				Status:       enums.TaskStatusInProgress,
+				StartedAt:    time.Date(2024, 3, 27, 11, 32, 41, 0, time.UTC),
+				CompletedAt:  time.Date(2024, 3, 27, 11, 32, 43, 0, time.UTC),
 				Note:         "PT2 Note",
 				WorkflowUUID: wUUID,
 			},
@@ -269,13 +256,10 @@ func TestCompleteTask(t *testing.T) {
 				return svc
 			},
 			want: datatypes.Task{
-				ID:     1,
-				Status: enums.TaskStatusDone,
-				CompletedAt: sql.NullTime{
-					Time:  completedAt,
-					Valid: true,
-				},
-				Note: "Reviewed and accepted",
+				ID:          1,
+				Status:      enums.TaskStatusDone,
+				CompletedAt: completedAt,
+				Note:        "Reviewed and accepted",
 			},
 		},
 		{
@@ -314,12 +298,9 @@ func TestCompleteTask(t *testing.T) {
 				return svc
 			},
 			want: datatypes.Task{
-				ID:     1,
-				Status: enums.TaskStatusDone,
-				CompletedAt: sql.NullTime{
-					Time:  completedAt,
-					Valid: true,
-				},
+				ID:          1,
+				Status:      enums.TaskStatusDone,
+				CompletedAt: completedAt,
 			},
 		},
 		{

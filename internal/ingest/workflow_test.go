@@ -2,7 +2,6 @@ package ingest_test
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"testing"
 	"time"
@@ -22,14 +21,8 @@ func TestCreateWorkflow(t *testing.T) {
 
 	sipUUID := uuid.New()
 	temporalID := "processing-workflow-720db1d4-825c-4911-9a20-61c212cf23ff"
-	startedAt := sql.NullTime{
-		Time:  time.Date(2024, 6, 3, 8, 51, 35, 0, time.UTC),
-		Valid: true,
-	}
-	completedAt := sql.NullTime{
-		Time:  time.Date(2024, 6, 3, 8, 52, 18, 0, time.UTC),
-		Valid: true,
-	}
+	startedAt := time.Date(2024, 6, 3, 8, 51, 35, 0, time.UTC)
+	completedAt := time.Date(2024, 6, 3, 8, 52, 18, 0, time.UTC)
 
 	type test struct {
 		name    string
@@ -51,11 +44,8 @@ func TestCreateWorkflow(t *testing.T) {
 				TemporalID: temporalID,
 				Type:       enums.WorkflowTypeCreateAip,
 				Status:     enums.WorkflowStatusUnspecified,
-				StartedAt: sql.NullTime{
-					Time:  time.Date(2024, 6, 3, 9, 4, 23, 0, time.UTC),
-					Valid: true,
-				},
-				SIPUUID: sipUUID,
+				StartedAt:  time.Date(2024, 6, 3, 9, 4, 23, 0, time.UTC),
+				SIPUUID:    sipUUID,
 			},
 			mock: func(svc *persistence_fake.MockService, w datatypes.Workflow) *persistence_fake.MockService {
 				svc.EXPECT().
@@ -63,10 +53,7 @@ func TestCreateWorkflow(t *testing.T) {
 					DoAndReturn(
 						func(ctx context.Context, w *datatypes.Workflow) error {
 							w.ID = 11
-							w.StartedAt = sql.NullTime{
-								Time:  time.Date(2024, 6, 3, 9, 4, 23, 0, time.UTC),
-								Valid: true,
-							}
+							w.StartedAt = time.Date(2024, 6, 3, 9, 4, 23, 0, time.UTC)
 							return nil
 						},
 					)
@@ -277,7 +264,7 @@ func TestCompleteWorkflow(t *testing.T) {
 									return err
 								}
 								assert.Equal(t, updated.Status, enums.WorkflowStatusDone)
-								assert.DeepEqual(t, updated.CompletedAt, sql.NullTime{Time: completedAt, Valid: true})
+								assert.DeepEqual(t, updated.CompletedAt, completedAt)
 								return nil
 							},
 						),
@@ -314,7 +301,7 @@ func TestCompleteWorkflow(t *testing.T) {
 									return err
 								}
 								assert.Equal(t, updated.Status, enums.WorkflowStatusError)
-								assert.DeepEqual(t, updated.CompletedAt, sql.NullTime{Time: completedAt, Valid: true})
+								assert.DeepEqual(t, updated.CompletedAt, completedAt)
 								return nil
 							},
 						),

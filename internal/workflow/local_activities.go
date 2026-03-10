@@ -2,7 +2,6 @@ package workflow
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"io"
 	"time"
@@ -73,7 +72,7 @@ func updateSIPLocalActivity(
 			}
 
 			if !params.CompletedAt.IsZero() {
-				s.CompletedAt = sql.NullTime{Valid: true, Time: params.CompletedAt}
+				s.CompletedAt = params.CompletedAt
 			}
 
 			return s, nil
@@ -142,10 +141,10 @@ func createWorkflowLocalActivity(
 		SIPUUID:    params.SIPUUID,
 	}
 	if !params.StartedAt.IsZero() {
-		w.StartedAt = sql.NullTime{Time: params.StartedAt, Valid: true}
+		w.StartedAt = params.StartedAt
 	}
 	if !params.CompletedAt.IsZero() {
-		w.CompletedAt = sql.NullTime{Time: params.CompletedAt, Valid: true}
+		w.CompletedAt = params.CompletedAt
 	}
 
 	if err := ingestsvc.CreateWorkflow(ctx, &w); err != nil {
@@ -205,10 +204,7 @@ func createTaskLocalActivity(
 	}
 	task.UUID = uid
 
-	task.StartedAt = sql.NullTime{
-		Time:  time.Now().UTC(),
-		Valid: true,
-	}
+	task.StartedAt = time.Now()
 
 	if err := params.Ingestsvc.CreateTask(ctx, params.Task); err != nil {
 		return 0, err

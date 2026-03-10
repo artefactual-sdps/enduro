@@ -57,13 +57,13 @@ func (c *client) CreateTasks(ctx context.Context, tasks []*datatypes.Task) error
 			}
 
 			var startedAt *time.Time
-			if task.StartedAt.Valid {
-				startedAt = &task.StartedAt.Time
+			if !task.StartedAt.IsZero() {
+				startedAt = &task.StartedAt
 			}
 
 			var completedAt *time.Time
-			if task.CompletedAt.Valid {
-				completedAt = &task.CompletedAt.Time
+			if !task.CompletedAt.IsZero() {
+				completedAt = &task.CompletedAt
 			}
 
 			wID, ok := workflowIDs[task.WorkflowUUID]
@@ -153,11 +153,11 @@ func (c *client) UpdateTask(
 		SetNote(up.Note)
 
 	// Set nullable column values.
-	if up.StartedAt.Valid {
-		q.SetStartedAt(up.StartedAt.Time)
+	if !up.StartedAt.IsZero() {
+		q.SetStartedAt(up.StartedAt)
 	}
-	if up.CompletedAt.Valid {
-		q.SetCompletedAt(up.CompletedAt.Time)
+	if !up.CompletedAt.IsZero() {
+		q.SetCompletedAt(up.CompletedAt)
 	}
 
 	task, err = q.Save(ctx)

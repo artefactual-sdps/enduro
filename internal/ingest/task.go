@@ -2,7 +2,6 @@ package ingest
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -61,10 +60,7 @@ func (svc *ingestImpl) CompleteTask(
 		id,
 		func(task *datatypes.Task) (*datatypes.Task, error) {
 			task.Status = status
-			task.CompletedAt = sql.NullTime{
-				Time:  completedAt,
-				Valid: true,
-			}
+			task.CompletedAt = completedAt
 			if note != nil {
 				task.Note = *note
 			}

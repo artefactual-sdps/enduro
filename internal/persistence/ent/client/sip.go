@@ -46,11 +46,11 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	if s.AIPID.Valid {
 		q.SetAipID(s.AIPID.UUID)
 	}
-	if s.StartedAt.Valid {
-		q.SetStartedAt(s.StartedAt.Time)
+	if !s.StartedAt.IsZero() {
+		q.SetStartedAt(s.StartedAt)
 	}
-	if s.CompletedAt.Valid {
-		q.SetCompletedAt(s.CompletedAt.Time)
+	if !s.CompletedAt.IsZero() {
+		q.SetCompletedAt(s.CompletedAt)
 	}
 
 	// If Uploader is set, find or create the user and link it to the SIP.
@@ -149,11 +149,11 @@ func (c *client) UpdateSIP(
 	if up.AIPID.Valid {
 		q.SetAipID(up.AIPID.UUID)
 	}
-	if up.StartedAt.Valid {
-		q.SetStartedAt(up.StartedAt.Time)
+	if !up.StartedAt.IsZero() {
+		q.SetStartedAt(up.StartedAt)
 	}
-	if up.CompletedAt.Valid {
-		q.SetCompletedAt(up.CompletedAt.Time)
+	if !up.CompletedAt.IsZero() {
+		q.SetCompletedAt(up.CompletedAt)
 	}
 	if up.FailedAs.IsValid() {
 		q.SetFailedAs(up.FailedAs)

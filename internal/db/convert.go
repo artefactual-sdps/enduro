@@ -23,6 +23,16 @@ func FormatOptionalTime(nt sql.NullTime) *string {
 	return res
 }
 
+// FormatOptionalZeroTime returns nil when t has the zero value.
+func FormatOptionalZeroTime(t time.Time) *string {
+	if t.IsZero() {
+		return nil
+	}
+
+	f := FormatTime(t)
+	return &f
+}
+
 // FormatTime returns an empty string when t has the zero value.
 func FormatTime(t time.Time) string {
 	var ret string

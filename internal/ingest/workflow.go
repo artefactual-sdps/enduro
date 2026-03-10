@@ -2,7 +2,6 @@ package ingest
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -59,10 +58,7 @@ func (svc *ingestImpl) CompleteWorkflow(
 ) error {
 	w, err := svc.perSvc.UpdateWorkflow(ctx, ID, func(w *datatypes.Workflow) (*datatypes.Workflow, error) {
 		w.Status = status
-		w.CompletedAt = sql.NullTime{
-			Time:  completedAt,
-			Valid: !completedAt.IsZero(),
-		}
+		w.CompletedAt = completedAt
 		return w, nil
 	})
 	if err != nil {

@@ -31,12 +31,12 @@ func (c *client) CreateWorkflow(ctx context.Context, w *datatypes.Workflow) erro
 
 	// Handle nullable fields.
 	var startedAt *time.Time
-	if w.StartedAt.Valid {
-		startedAt = &w.StartedAt.Time
+	if !w.StartedAt.IsZero() {
+		startedAt = &w.StartedAt
 	}
 	var completedAt *time.Time
-	if w.CompletedAt.Valid {
-		completedAt = &w.CompletedAt.Time
+	if !w.CompletedAt.IsZero() {
+		completedAt = &w.CompletedAt
 	}
 
 	tx, err := c.ent.BeginTx(ctx, nil)
@@ -104,13 +104,13 @@ func (c *client) UpdateWorkflow(
 	if up.Status.IsValid() {
 		q.SetStatus(int8(up.Status)) // #nosec G115 -- constrained value.
 	}
-	if up.StartedAt.Valid {
-		q.SetStartedAt(up.StartedAt.Time.UTC())
+	if !up.StartedAt.IsZero() {
+		q.SetStartedAt(up.StartedAt)
 	} else {
 		q.ClearStartedAt()
 	}
-	if up.CompletedAt.Valid {
-		q.SetCompletedAt(up.CompletedAt.Time.UTC())
+	if !up.CompletedAt.IsZero() {
+		q.SetCompletedAt(up.CompletedAt)
 	} else {
 		q.ClearCompletedAt()
 	}

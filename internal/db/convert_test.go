@@ -44,3 +44,21 @@ func TestFormatOptionalTime(t *testing.T) {
 		assert.Equal(t, *got, "2024-03-06T11:57:17Z")
 	})
 }
+
+func TestFormatOptionalZeroTime(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Returns nil pointer for zero time", func(t *testing.T) {
+		t.Parallel()
+
+		got := db.FormatOptionalZeroTime(time.Time{})
+		assert.Assert(t, got == nil)
+	})
+
+	t.Run("Returns an RFC3339 time string", func(t *testing.T) {
+		t.Parallel()
+
+		got := db.FormatOptionalZeroTime(time.Date(2024, 3, 6, 11, 57, 17, 115, time.UTC))
+		assert.Equal(t, *got, "2024-03-06T11:57:17Z")
+	})
+}

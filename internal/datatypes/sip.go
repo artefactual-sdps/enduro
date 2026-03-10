@@ -1,7 +1,6 @@
 package datatypes
 
 import (
-	"database/sql"
 	"time"
 
 	"github.com/google/uuid"
@@ -22,11 +21,11 @@ type SIP struct {
 	// It defaults to CURRENT_TIMESTAMP(6) so populated as soon as possible.
 	CreatedAt time.Time
 
-	// Nullable, populated as soon as processing starts.
-	StartedAt sql.NullTime
+	// Zero until processing starts.
+	StartedAt time.Time
 
-	// Nullable, populated as soon as ingest completes.
-	CompletedAt sql.NullTime
+	// Zero until ingest completes.
+	CompletedAt time.Time
 
 	// Set if there is a failure in workflow, it can be empty.
 	FailedAs enums.SIPFailedAs
@@ -52,8 +51,8 @@ func (s *SIP) Goa() *goaingest.SIP {
 		Name:        db.FormatOptionalString(s.Name),
 		Status:      s.Status.String(),
 		CreatedAt:   db.FormatTime(s.CreatedAt),
-		StartedAt:   db.FormatOptionalTime(s.StartedAt),
-		CompletedAt: db.FormatOptionalTime(s.CompletedAt),
+		StartedAt:   db.FormatOptionalZeroTime(s.StartedAt),
+		CompletedAt: db.FormatOptionalZeroTime(s.CompletedAt),
 	}
 	if s.AIPID.Valid {
 		col.AipUUID = new(s.AIPID.UUID.String())

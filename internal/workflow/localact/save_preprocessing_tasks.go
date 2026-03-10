@@ -2,10 +2,8 @@ package localact
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/google/uuid"
 
@@ -74,16 +72,8 @@ func preprocTaskToTask(t childwf.Task) datatypes.Task {
 	return datatypes.Task{
 		Name:        t.Name,
 		Status:      status,
-		StartedAt:   timeToNullTime(t.StartedAt),
-		CompletedAt: timeToNullTime(t.CompletedAt),
+		StartedAt:   t.StartedAt,
+		CompletedAt: t.CompletedAt,
 		Note:        t.Message,
 	}
-}
-
-func timeToNullTime(t time.Time) sql.NullTime {
-	var r sql.NullTime
-	if !t.IsZero() {
-		r = sql.NullTime{Time: t, Valid: true}
-	}
-	return r
 }

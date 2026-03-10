@@ -2,8 +2,8 @@ package am
 
 import (
 	context "context"
-	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
@@ -215,9 +215,9 @@ func ConvertJobToTask(job amclient.Job) (*datatypes.Task, error) {
 }
 
 // jobTimeRange calculates the overall start and end times for a job.
-func jobTimeRange(job amclient.Job) (sql.NullTime, sql.NullTime) {
+func jobTimeRange(job amclient.Job) (time.Time, time.Time) {
 	if len(job.Tasks) == 0 {
-		return sql.NullTime{}, sql.NullTime{}
+		return time.Time{}, time.Time{}
 	}
 	st := job.Tasks[0].StartedAt.Time
 	ct := job.Tasks[0].CompletedAt.Time
@@ -234,8 +234,5 @@ func jobTimeRange(job amclient.Job) (sql.NullTime, sql.NullTime) {
 	}
 
 	// Emit NULLs if we see the zero value.
-	start := sql.NullTime{Time: st, Valid: !st.IsZero()}
-	end := sql.NullTime{Time: ct, Valid: !ct.IsZero()}
-
-	return start, end
+	return st, ct
 }

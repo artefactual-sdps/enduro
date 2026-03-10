@@ -162,10 +162,7 @@ func (svc *ingestImpl) SetStatusInProgress(ctx context.Context, id uuid.UUID, st
 	sip, err := svc.perSvc.UpdateSIP(ctx, id, func(s *datatypes.SIP) (*datatypes.SIP, error) {
 		s.Status = enums.SIPStatusProcessing
 		if !startedAt.IsZero() {
-			s.StartedAt = sql.NullTime{
-				Time:  startedAt,
-				Valid: true,
-			}
+			s.StartedAt = startedAt
 		}
 		return s, nil
 	})

@@ -2,7 +2,6 @@ package workflow
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"fmt"
 	"math/rand"
@@ -54,8 +53,8 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 					TemporalID:  "workflow-id",
 					Type:        enums.WorkflowTypeCreateAip,
 					Status:      enums.WorkflowStatusDone,
-					StartedAt:   sql.NullTime{Time: startedAt, Valid: true},
-					CompletedAt: sql.NullTime{Time: completedAt, Valid: true},
+					StartedAt:   startedAt,
+					CompletedAt: completedAt,
 					SIPUUID:     sipUUID,
 				}).DoAndReturn(func(ctx context.Context, w *datatypes.Workflow) error {
 					w.ID = 1
@@ -136,6 +135,72 @@ func TestCreateWorkflowLocalActivity(t *testing.T) {
 	}
 }
 
+func TestCreateTaskLocalActivity(t *testing.T) {
+	t.Parallel()
+
+	type test struct {
+		name      string
+		mockCalls func(context.Context, *ingest_fake.MockService, *datatypes.Task, time.Time)
+		wantID    int
+		wantErr   string
+	}
+	for _, tt := range []test{
+		{
+			name: "Creates a task",
+			mockCalls: func(ctx context.Context, svc *ingest_fake.MockService, task *datatypes.Task, before time.Time) {
+				svc.EXPECT().
+					CreateTask(ctx, task).
+					DoAndReturn(func(context.Context, *datatypes.Task) error {
+						assert.Assert(t, task.UUID != uuid.Nil)
+						assert.Assert(t, !task.StartedAt.IsZero())
+						assert.Assert(t, !task.StartedAt.Before(before))
+						task.ID = 7
+						return nil
+					})
+			},
+			wantID: 7,
+		},
+		{
+			name: "Fails if there is a persistence error",
+			mockCalls: func(ctx context.Context, svc *ingest_fake.MockService, task *datatypes.Task, before time.Time) {
+				svc.EXPECT().
+					CreateTask(ctx, task).
+					DoAndReturn(func(context.Context, *datatypes.Task) error {
+						assert.Assert(t, task.UUID != uuid.Nil)
+						assert.Assert(t, !task.StartedAt.IsZero())
+						assert.Assert(t, !task.StartedAt.Before(before))
+						return errors.New("persistence error")
+					})
+			},
+			wantErr: "persistence error",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := t.Context()
+			before := time.Now()
+			svc := ingest_fake.NewMockService(gomock.NewController(t))
+			task := &datatypes.Task{Name: "bundle"}
+			if tt.mockCalls != nil {
+				tt.mockCalls(ctx, svc, task, before)
+			}
+
+			got, err := createTaskLocalActivity(ctx, &createTaskLocalActivityParams{
+				Ingestsvc: svc,
+				RNG:       rand.New(rand.NewSource(1)), // #nosec: G404
+				Task:      task,
+			})
+			if tt.wantErr != "" {
+				assert.ErrorContains(t, err, tt.wantErr)
+				return
+			}
+			assert.NilError(t, err)
+			assert.Equal(t, got, tt.wantID)
+		})
+	}
+}
+
 func TestUpdateSIPLocalActivity(t *testing.T) {
 	t.Parallel()
 
@@ -174,7 +239,7 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 								assert.NilError(t, err)
 								assert.DeepEqual(t, s.Name, name)
 								assert.DeepEqual(t, s.Status, enums.SIPStatusIngested)
-								assert.DeepEqual(t, s.CompletedAt, sql.NullTime{Valid: true, Time: completedAt})
+								assert.DeepEqual(t, s.CompletedAt, completedAt)
 								assert.DeepEqual(t, s.AIPID, uuid.NullUUID{Valid: true, UUID: aipUUID})
 								assert.DeepEqual(t, s.FailedAs, enums.SIPFailedAsSIP)
 								assert.DeepEqual(t, s.FailedKey, failedKey)
