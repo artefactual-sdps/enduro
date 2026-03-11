@@ -2,6 +2,7 @@
 
 set -eu
 
+OUTPUT_PATH=${1}
 CURRENT_TAG=${GITHUB_REF_NAME}
 
 LATEST_HEADING=$(
@@ -48,7 +49,7 @@ CHANGELOG_ANCHOR=$(
 		sed 's/[^a-z0-9 -]//g; s/ /-/g'
 )
 
-cat > ".release-notes.md" << EOF
+cat > "${OUTPUT_PATH}" << EOF
 - Functional changelog: [CHANGELOG.md](https://github.com/artefactual-sdps/enduro/blob/main/CHANGELOG.md#${CHANGELOG_ANCHOR})
 - Full changelog: https://github.com/artefactual-sdps/enduro/compare/${PREVIOUS_TAG}...${CURRENT_TAG}
 EOF
