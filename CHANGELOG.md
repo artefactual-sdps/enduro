@@ -8,6 +8,12 @@ requests.
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-03-11
+
+### Added
+
+- Pass BatchID to preprocessing child workflow ([#1541])
+
 ## [0.24.0] - 2026-03-04
 
 ### Fixed
@@ -318,7 +324,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.24.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.25.0...HEAD
+[0.25.0]: https://github.com/artefactual-sdps/enduro/compare/v0.24.0...v0.25.0
 [0.24.0]: https://github.com/artefactual-sdps/enduro/compare/v0.23.0...v0.24.0
 [0.23.0]: https://github.com/artefactual-sdps/enduro/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/artefactual-sdps/enduro/compare/v0.21.0...v0.22.0
@@ -343,6 +350,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1541]: https://github.com/artefactual-sdps/enduro/pull/1541
 [#1520]: https://github.com/artefactual-sdps/enduro/pull/1520
 [#1513]: https://github.com/artefactual-sdps/enduro/issues/1513
 [#1499]: https://github.com/artefactual-sdps/enduro/issues/1499
