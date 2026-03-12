@@ -63,6 +63,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	downloadExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
+	CountSIPFilesExpectations(s, params)
 	reviewA3mExpectations(s, params)
 	params.updateTaskParams(reviewAIPTaskID, enums.TaskStatusDone, "", "Reviewed and accepted")
 	expectations["completeTask"](s, params)
@@ -118,6 +119,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	downloadExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
+	CountSIPFilesExpectations(s, params)
 	reviewA3mExpectations(s, params)
 	params.updateTaskParams(reviewAIPTaskID, enums.TaskStatusDone, "", "Reviewed and rejected")
 	expectations["completeTask"](s, params)
@@ -156,6 +158,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	downloadExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
+	CountSIPFilesExpectations(s, params)
 	autoApproveA3mExpectations(s, params)
 	params.retentionPeriod = -1 * time.Second
 	cleanupExpectations(s, params)
@@ -191,6 +194,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	expectations["createBag"](s, params)
+	CountSIPFilesExpectations(s, params)
 	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusInProgress, "Validate PREMIS", "")
 	expectations["createTask"](s, params)
 	params.premisXMLPath = filepath.Join(extractPath, "data", "metadata", "premis.xml")
@@ -369,6 +373,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	expectations["validateBag"](s, params)
 	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
 	expectations["completeTask"](s, params)
+	CountSIPFilesExpectations(s, params)
 	autoApproveA3mExpectations(s, params)
 
 	s.env.OnWorkflow(
@@ -481,6 +486,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	expectations["validateBag"](s, params)
 	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
 	expectations["completeTask"](s, params)
+	CountSIPFilesExpectations(s, params)
 	expectations["bundle"](s, params)
 	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusInProgress, "Validate PREMIS", "")
 	expectations["createTask"](s, params)
@@ -540,6 +546,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	downloadExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
+	CountSIPFilesExpectations(s, params)
 	expectations["createBag"](s, params)
 	expectations["zipArchive"](s, params)
 
@@ -597,6 +604,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 	expectations["completeTask"](s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
+	CountSIPFilesExpectations(s, params)
 	autoApproveA3mExpectations(s, params)
 
 	expectations["removePaths"](s, params)
@@ -734,6 +742,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPSourceUpload() {
 	expectations["getSIPExtension"](s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
+	CountSIPFilesExpectations(s, params)
 	autoApproveA3mExpectations(s, params)
 
 	expectations["removePaths"](s, params)
@@ -782,6 +791,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPDeletionError() {
 	downloadExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
+	CountSIPFilesExpectations(s, params)
 	autoApproveA3mExpectations(s, params)
 	expectations["removePaths"](s, params)
 	params.updateTaskParams(
@@ -836,6 +846,7 @@ func (s *ProcessingWorkflowTestSuite) TestBatchSignalDoNotContinue() {
 	downloadExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
+	CountSIPFilesExpectations(s, params)
 	expectations["bundle"](s, params)
 
 	// Batch signal handler and expectations.

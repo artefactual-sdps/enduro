@@ -479,6 +479,12 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
+	// Count the files in the SIP and store the result in the workflow state for
+	// later use.
+	if err := w.CountSIPFiles(sessCtx, state); err != nil {
+		return fmt.Errorf("count SIP files: %v", err)
+	}
+
 	// Do preservation.
 	{
 		var err error
@@ -1138,10 +1144,10 @@ func (w *ProcessingWorkflow) createTask(
 }
 
 func (w *ProcessingWorkflow) completeTask(
-	ctx temporalsdk_workflow.Context,
+	sessCtx temporalsdk_workflow.Context,
 	task datatypes.Task,
 ) error {
-	ctx = withLocalActivityOpts(ctx)
+	ctx := withLocalActivityOpts(sessCtx)
 	err := temporalsdk_workflow.ExecuteLocalActivity(
 		ctx,
 		completeTaskLocalActivity,
@@ -1425,4 +1431,60 @@ func (w *ProcessingWorkflow) waitForBatch(
 	}
 
 	return sessCtx, nil
+}
+
+func (w *ProcessingWorkflow) CountSIPFiles(
+	sessCtx temporalsdk_workflow.Context,
+	state *workflowState,
+) error {
+	var result activities.CountSIPFilesActivityResult
+
+	id, err := w.createTask(
+		sessCtx,
+		&datatypes.Task{
+			Name:         "Count SIP Files",
+			Status:       enums.TaskStatusInProgress,
+			WorkflowUUID: state.workflowUUID,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("create count SIP files task: %v", err)
+	}
+
+	// Set the default (successful) task completion values.
+	task := datatypes.Task{ID: id, Status: enums.TaskStatusDone}
+
+	opts := withActivityOptsForLocalAction(sessCtx)
+	err = temporalsdk_workflow.ExecuteActivity(
+		opts,
+		activities.CountSIPFilesActivityName,
+		&activities.CountSIPFilesActivityParams{
+			Path:    state.sip.path,
+			SIPType: state.sip.sipType,
+		},
+	).Get(opts, &result)
+	if err != nil {
+		task.SystemError(
+			"Counting SIP files has failed.",
+			"An error has occurred while attempting to count the files in the SIP. Please try again, or ask a system administrator to investigate.",
+		)
+		state.status = enums.WorkflowStatusError
+	}
+
+	// Update the count SIP files task.
+	task.Note = fmt.Sprintf("SIP contains %d files", result.Count)
+	if e := w.completeTask(sessCtx, task); e != nil {
+		return errors.Join(
+			err,
+			fmt.Errorf("complete Count SIP Files task: %v", e),
+		)
+	}
+
+	if err != nil {
+		return fmt.Errorf("count SIP files: %v", err)
+	}
+
+	state.sip.fileCount = result.Count
+
+	return nil
 }

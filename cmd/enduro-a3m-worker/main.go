@@ -269,6 +269,10 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
 		)
 		w.RegisterActivityWithOptions(
+			activities.NewCountSIPFilesActivity().Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.CountSIPFilesActivityName},
+		)
+		w.RegisterActivityWithOptions(
 			activities.NewBundleActivity().Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.BundleActivityName},
 		)
