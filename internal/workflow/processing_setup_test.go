@@ -111,6 +111,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 		temporalsdk_activity.RegisterOptions{Name: bagvalidate.Name},
 	)
 	s.env.RegisterActivityWithOptions(
+		activities.NewCountBagFilesActivity().Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.CountBagFilesActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
 		activities.NewClassifySIPActivity().Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.ClassifySIPActivityName},
 	)

@@ -22,27 +22,29 @@ import (
 )
 
 const (
-	tempPath         = "/tmp/enduro123456"
-	extractPath      = "/tmp/enduro123456/extract"
-	transferPath     = "/home/a3m/.local/share/a3m/share/enduro2985726865"
-	prepSharedPath   = "/home/enduro/preprocessing/"
-	prepDownloadPath = "/home/enduro/preprocessing/enduro123456"
-	prepExtractPath  = "/home/enduro/preprocessing/enduro123456/extract"
-	failedSIPKey     = "Failed_SIP_name-e2ace0da-8697-453d-9ea1-4c9b62309e54.zip"
-	failedPIPKey     = "Failed_PIP_name-e2ace0da-8697-453d-9ea1-4c9b62309e54.zip"
-	sipID            = 1
-	workflowID       = 1
-	copySIPTaskID    = 100
-	valBagTaskID     = 101
-	valPREMISTaskID  = 102
-	batchWaitTaskID  = 103
-	uploadTaskID     = 104
-	reviewAIPTaskID  = 105
-	moveAIPTaskID    = 106
-	deleteSIPTaskID  = 107
-	sipName          = "name.zip"
-	key              = "transfer.zip"
-	watcherName      = "watcher"
+	tempPath            = "/tmp/enduro123456"
+	extractPath         = "/tmp/enduro123456/extract"
+	transferPath        = "/home/a3m/.local/share/a3m/share/enduro2985726865"
+	prepSharedPath      = "/home/enduro/preprocessing/"
+	prepDownloadPath    = "/home/enduro/preprocessing/enduro123456"
+	prepExtractPath     = "/home/enduro/preprocessing/enduro123456/extract"
+	failedSIPKey        = "Failed_SIP_name-e2ace0da-8697-453d-9ea1-4c9b62309e54.zip"
+	failedPIPKey        = "Failed_PIP_name-e2ace0da-8697-453d-9ea1-4c9b62309e54.zip"
+	sipID               = 1
+	workflowID          = 1
+	copySIPTaskID       = 100
+	valPREMISTaskID     = 101
+	batchWaitTaskID     = 102
+	uploadTaskID        = 103
+	reviewAIPTaskID     = 104
+	moveAIPTaskID       = 105
+	deleteSIPTaskID     = 106
+	valBagTaskID        = 107
+	countBagFilesTaskID = 108
+	sipName             = "name.zip"
+	key                 = "transfer.zip"
+	watcherName         = "watcher"
+	fileCount           = 5
 )
 
 var (
@@ -341,6 +343,13 @@ var expectations = map[string]expectationFunc{
 			&bagvalidate.Params{Path: params.extractPath},
 		).Return(&bagvalidate.Result{Valid: true}, nil)
 	},
+	"countBagFiles": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
+		s.env.OnActivity(
+			activities.CountBagFilesActivityName,
+			sessionCtx,
+			&activities.CountBagFilesActivityParams{Path: params.extractPath},
+		).Return(&activities.CountBagFilesActivityResult{Count: fileCount}, nil)
+	},
 	"validatePREMIS": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
 		s.env.OnActivity(
 			xmlvalidate.Name,
@@ -494,4 +503,17 @@ func cleanupExpectations(s *ProcessingWorkflowTestSuite, params expectationParam
 	}
 	expectations["updateSIPIngested"](s, params)
 	expectations["completeWorkflow"](s, params)
+}
+
+func countBagFilesExpectations(s *ProcessingWorkflowTestSuite, params expectationParams) {
+	params.updateTaskParams(countBagFilesTaskID, enums.TaskStatusInProgress, "Count SIP Files", "")
+	expectations["createTask"](s, params)
+	expectations["countBagFiles"](s, params)
+	params.updateTaskParams(
+		countBagFilesTaskID,
+		enums.TaskStatusDone,
+		"",
+		fmt.Sprintf("SIP contains %d files", fileCount),
+	)
+	expectations["completeTask"](s, params)
 }

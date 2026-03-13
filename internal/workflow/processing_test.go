@@ -191,6 +191,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	expectations["createBag"](s, params)
+	countBagFilesExpectations(s, params)
 	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusInProgress, "Validate PREMIS", "")
 	expectations["createTask"](s, params)
 	params.premisXMLPath = filepath.Join(extractPath, "data", "metadata", "premis.xml")
@@ -368,6 +369,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	expectations["validateBag"](s, params)
 	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
 	expectations["completeTask"](s, params)
+	countBagFilesExpectations(s, params)
 	autoApproveA3mExpectations(s, params)
 
 	s.env.OnWorkflow(
@@ -479,6 +481,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	expectations["validateBag"](s, params)
 	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
 	expectations["completeTask"](s, params)
+	countBagFilesExpectations(s, params)
 	expectations["bundle"](s, params)
 	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusInProgress, "Validate PREMIS", "")
 	expectations["createTask"](s, params)
@@ -539,6 +542,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	expectations["createBag"](s, params)
+	countBagFilesExpectations(s, params)
 	expectations["zipArchive"](s, params)
 
 	// Fail the workflow on AM upload.
