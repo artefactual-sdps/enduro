@@ -22,7 +22,7 @@ enables users to run failure-oblivious and durable preservation workflows.
 
 ## User documentation resources
 
-- [User manual](https://enduro.readthedocs.io/user-manual/)
+- [User manual]([https://enduro.readthedocs.io/user-manual/](https://enduro.readthedocs.io/user-manual/overview/)
 
 ## Development documentation resources
 
