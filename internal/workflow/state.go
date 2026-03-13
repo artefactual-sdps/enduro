@@ -102,6 +102,10 @@ type sipInfo struct {
 
 	// failed_key is the object key of the failed SIP/PIP in the internal bucket.
 	failed_key string
+
+	// fileCount is the number of preservation files in the SIP. It is populated
+	// by the CountBagFilesActivity after preprocessing.
+	fileCount int
 }
 
 // aipInfo represents the AIP.
