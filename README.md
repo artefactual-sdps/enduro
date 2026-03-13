@@ -28,7 +28,8 @@ run failure-oblivious and durable preservation workflows.
 
 ## Development documentation resources
 
-- [Developer manual](https://enduro.readthedocs.io/dev-manual/docs/)
+- [Developer manual](https://enduro.readthedocs.io/dev-manual/)
+- [Set up a local/development environment](https://enduro.readthedocs.io/dev-manual/devel/)
 
 [archivematica]: https://archivematica.org
 [automation-tools]: https://github.com/artefactual/automation-tools
