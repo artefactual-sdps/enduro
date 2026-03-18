@@ -92,6 +92,9 @@ type serviceImpl struct {
 
 	// Audit event logger.
 	auditLogger *auditlog.Logger
+
+	// Shared outbound HTTP client for AMSS requests.
+	amssHTTPClient *http.Client
 }
 
 var _ Service = (*serviceImpl)(nil)
@@ -112,6 +115,7 @@ func NewService(
 	ticketProvider auth.TicketProvider,
 	rander io.Reader,
 	auditLogger *auditlog.Logger,
+	amssHTTPClient *http.Client,
 ) (s *serviceImpl, err error) {
 	s = &serviceImpl{
 		logger:             logger,
@@ -123,6 +127,7 @@ func NewService(
 		ticketProvider:     ticketProvider,
 		rander:             rander,
 		auditLogger:        auditLogger,
+		amssHTTPClient:     amssHTTPClient,
 	}
 
 	if s.rander == nil {
@@ -210,7 +215,7 @@ func (s *serviceImpl) SubmitAip(
 		Item: aip,
 	})
 
-	bucket, err := s.internal.OpenBucket(ctx)
+	bucket, err := s.openBucket(ctx, s.internal)
 	if err != nil {
 		return nil, err
 	}
@@ -453,7 +458,7 @@ func (s *serviceImpl) DeleteAip(ctx context.Context, aipID uuid.UUID) error {
 		return err
 	}
 
-	bucket, err := location.OpenBucket(ctx)
+	bucket, err := s.openBucket(ctx, location)
 	if err != nil {
 		return err
 	}
@@ -473,7 +478,7 @@ func (s *serviceImpl) AipReader(ctx context.Context, a *goastorage.AIP) (*blob.R
 		return nil, err
 	}
 
-	bucket, err := location.OpenBucket(ctx)
+	bucket, err := s.openBucket(ctx, location)
 	if err != nil {
 		return nil, err
 	}
@@ -490,6 +495,25 @@ func (s *serviceImpl) AipReader(ctx context.Context, a *goastorage.AIP) (*blob.R
 	}
 
 	return reader, nil
+}
+
+// openBucket opens a location bucket.
+//
+// For AMSS-backed locations, it uses the shared outbound HTTP client so AMSS
+// requests reuse the instrumented transport. Other location types use their
+// normal OpenBucket implementation.
+func (s *serviceImpl) openBucket(ctx context.Context, location Location) (*blob.Bucket, error) {
+	loc, ok := location.(*locationImpl)
+	if !ok {
+		return nil, fmt.Errorf("unsupported location implementation: %T", location)
+	}
+
+	config, ok := loc.config.Value.(*types.AMSSConfig)
+	if !ok {
+		return loc.OpenBucket(ctx)
+	}
+
+	return config.OpenBucketWithHTTPClient(ctx, s.amssHTTPClient)
 }
 
 func (s *serviceImpl) ListAipWorkflows(

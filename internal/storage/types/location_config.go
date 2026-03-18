@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
 
 	"github.com/rukavina/sftpblob"
@@ -19,6 +20,24 @@ type configVal interface {
 	OpenBucket(context.Context) (*blob.Bucket, error)
 }
 
+// LocationConfig wraps the backend-specific configuration for a storage
+// location.
+//
+// Value holds one backend config that satisfies configVal. The built-in config
+// implementations are S3Config, SFTPConfig, URLConfig, and AMSSConfig. JSON
+// encoding and decoding recognize those four shapes, and decoding rejects
+// documents that describe more than one of them.
+//
+// Each config validates itself and can open the location as a
+// gocloud.dev/blob bucket, which is how most callers use it. A few callers
+// still care about the concrete backend type, mainly when converting config for
+// the API or persistence layers and for AMSS-specific operations such as using
+// the shared HTTP client or calling Storage Service deletion APIs.
+//
+// TODO: treat LocationConfig as persisted backend data only. Build a runtime
+// location backend from it, then expose behavior through small capability
+// interfaces or adapters. Blob bucket access should be one capability, not the
+// definition of the whole abstraction.
 type LocationConfig struct {
 	Value configVal
 }
@@ -167,10 +186,15 @@ func (c AMSSConfig) Valid() bool {
 }
 
 func (c AMSSConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
+	return c.OpenBucketWithHTTPClient(ctx, nil)
+}
+
+func (c AMSSConfig) OpenBucketWithHTTPClient(ctx context.Context, httpClient *http.Client) (*blob.Bucket, error) {
 	opts := ssblob.Options{
-		URL:      c.URL,
-		Username: c.Username,
-		Key:      c.APIKey,
+		URL:        c.URL,
+		Username:   c.Username,
+		Key:        c.APIKey,
+		HTTPClient: httpClient,
 	}
 	b, err := ssblob.OpenBucket(&opts)
 	if err != nil {

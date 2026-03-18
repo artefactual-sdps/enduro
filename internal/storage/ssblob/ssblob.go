@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/google/uuid"
+	"go.artefactual.dev/ssclient"
 	"gocloud.dev/blob"
 	"gocloud.dev/blob/driver"
 	"gocloud.dev/gcerrors"
@@ -19,31 +21,58 @@ var errNotImplemented = errors.New("not implemented")
 type APIError struct {
 	Status string
 	Code   int
+	Cause  error
 }
 
 func (err *APIError) Error() string {
+	if err == nil {
+		return "<nil>"
+	}
+	if err.Status == "" && err.Cause != nil {
+		return err.Cause.Error()
+	}
 	return err.Status
 }
 
+func (err *APIError) Unwrap() error {
+	if err == nil {
+		return nil
+	}
+	return err.Cause
+}
+
 type bucket struct {
-	baseURL *url.URL
-	client  *http.Client
+	// client is the Storage Service API client used to perform requests.
+	client *ssclient.Client
 }
 
 type Options struct {
 	URL      string
 	Key      string
 	Username string
+	// HTTPClient optionally provides the outbound HTTP client used to create
+	// the underlying Storage Service API client. If nil, http.DefaultClient is
+	// used.
+	HTTPClient *http.Client
 }
 
 func openBucket(opts *Options) (driver.Bucket, error) {
-	u, err := url.Parse(opts.URL)
+	if _, err := url.Parse(opts.URL); err != nil {
+		return nil, err
+	}
+
+	ssclient, err := ssclient.New(ssclient.Config{
+		BaseURL:    opts.URL,
+		Username:   opts.Username,
+		Key:        opts.Key,
+		HTTPClient: opts.HTTPClient,
+	})
 	if err != nil {
 		return nil, err
 	}
+
 	return &bucket{
-		baseURL: u,
-		client:  NewClient(opts.Username, opts.Key),
+		client: ssclient,
 	}, nil
 }
 
@@ -56,44 +85,48 @@ func OpenBucket(opts *Options) (*blob.Bucket, error) {
 }
 
 func (b *bucket) ErrorCode(err error) gcerrors.ErrorCode {
-	if err, ok := err.(*APIError); ok {
+	if apiErr, ok := errors.AsType[*APIError](err); ok {
 		switch {
-		case err.Code == http.StatusNotFound:
+		case apiErr.Code == http.StatusNotFound:
 			return gcerrors.NotFound
-		case err.Code == http.StatusUnauthorized:
+		case apiErr.Code == http.StatusUnauthorized:
 			return gcerrors.PermissionDenied
-		case err.Code >= 400:
-			return gcerrors.Unknown
-		case err.Code >= 500:
+		case apiErr.Code >= 500:
 			return gcerrors.Internal
+		case apiErr.Code >= 400:
+			return gcerrors.Unknown
 		}
 	}
-	switch err {
-	case errNotImplemented:
+	switch {
+	case errors.Is(err, errNotImplemented):
 		return gcerrors.Unimplemented
-	default:
-		return gcerrors.Unknown
 	}
+
+	return gcerrors.Unknown
 }
 
 func (b *bucket) As(i any) bool {
-	p, ok := i.(**http.Client)
-	if !ok {
+	switch p := i.(type) {
+	case **ssclient.Client:
+		*p = b.client
+		return true
+	default:
 		return false
 	}
-	*p = b.client
-	return true
 }
 
 func (b *bucket) ErrorAs(err error, i any) bool {
-	switch v := err.(type) {
-	case *APIError:
-		if p, ok := i.(**APIError); ok {
-			*p = v
-			return true
-		}
+	apiErr, ok := errors.AsType[*APIError](err)
+	if !ok {
+		return false
 	}
-	return false
+	p, ok := i.(**APIError)
+	if !ok {
+		return false
+	}
+
+	*p = apiErr
+	return true
 }
 
 func (b *bucket) Attributes(ctx context.Context, key string) (*driver.Attributes, error) {
@@ -110,27 +143,29 @@ func (b *bucket) NewRangeReader(
 	offset, length int64,
 	opts *driver.ReaderOptions,
 ) (driver.Reader, error) {
-	url := b.baseURL.JoinPath("api/v2/file", key, "download")
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url.String(), nil)
+	// Storage Service only supports full-object downloads.
+	if offset != 0 || length >= 0 {
+		return nil, errNotImplemented
+	}
+
+	id, err := uuid.Parse(key)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := b.client.Do(req)
+	stream, err := b.client.Packages().DownloadPackage(ctx, id)
 	if err != nil {
+		if apiErr := apiError(err); apiErr != nil {
+			return nil, apiErr
+		}
 		return nil, err
-	}
-
-	if resp.StatusCode >= 400 {
-		resp.Body.Close()
-		return nil, &APIError{Status: resp.Status, Code: resp.StatusCode}
 	}
 
 	return &reader{
-		r: resp.Body,
+		r: stream.Body,
 		attrs: driver.ReaderAttributes{
-			ContentType: resp.Header.Get("Content-Type"),
-			Size:        resp.ContentLength,
+			ContentType: stream.ContentType,
+			Size:        stream.ContentLength,
 		},
 	}, nil
 }
@@ -179,4 +214,42 @@ func (r *reader) Attributes() *driver.ReaderAttributes {
 
 func (r *reader) As(i any) bool {
 	return false
+}
+
+func apiError(err error) *APIError {
+	if err == nil {
+		return nil
+	}
+
+	if apiErr, ok := errors.AsType[*APIError](err); ok {
+		return apiErr
+	}
+
+	if responseErr, ok := errors.AsType[*ssclient.ResponseError](err); ok {
+		return &APIError{
+			Status: statusText(responseErr.StatusCode, err),
+			Code:   responseErr.StatusCode,
+			Cause:  err,
+		}
+	}
+
+	if unavailableErr, ok := errors.AsType[*ssclient.NotAvailableError](err); ok {
+		return &APIError{
+			Status: statusText(unavailableErr.StatusCode, err),
+			Code:   unavailableErr.StatusCode,
+			Cause:  err,
+		}
+	}
+
+	return nil
+}
+
+func statusText(code int, fallback error) string {
+	if status := http.StatusText(code); status != "" {
+		return status
+	}
+	if fallback != nil {
+		return fallback.Error()
+	}
+	return ""
 }

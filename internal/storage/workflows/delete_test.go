@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-cleanhttp"
 	"github.com/jonboulle/clockwork"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
@@ -60,9 +61,10 @@ func NewStorageDeleteWorkflowTestSuite(
 		Status:       enums.AIPStatusStored.String(),
 	}
 	s.reviewTask = &datatypes.Task{ID: 1}
+	httpClient := cleanhttp.DefaultPooledClient()
 
 	s.env.RegisterActivityWithOptions(
-		activities.NewDeleteFromAMSSLocationActivity(false, time.Microsecond*1).Execute,
+		activities.NewDeleteFromAMSSLocationActivity(httpClient, false, time.Microsecond*1).Execute,
 		temporalsdk_activity.RegisterOptions{Name: storage.DeleteFromAMSSLocationActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
