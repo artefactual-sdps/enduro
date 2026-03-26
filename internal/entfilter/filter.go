@@ -216,6 +216,23 @@ func (f *Filter[Q, O, P]) Contains(column string, value *string) {
 	})
 }
 
+// ContainsAny adds a filter matching rows where any of the given columns
+// contains the given string.
+func (f *Filter[Q, O, P]) ContainsAny(columns []string, value *string) {
+	if value == nil || *value == "" || len(columns) == 0 {
+		return
+	}
+
+	f.addFilter("", func(s *sql.Selector) {
+		predicates := make([]*sql.Predicate, 0, len(columns))
+		for _, column := range columns {
+			predicates = append(predicates, sql.Contains(s.C(column), *value))
+		}
+
+		s.Where(sql.Or(predicates...))
+	})
+}
+
 // Equals adds a filter on column being equal to value. If value implements the
 // validator interface, value is validated before the filter is added.
 func (f *Filter[Q, O, P]) Equals(column string, value any) {

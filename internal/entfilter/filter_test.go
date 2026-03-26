@@ -8,7 +8,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/ref"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
@@ -354,6 +353,43 @@ func TestFilter(t *testing.T) {
 		assert.Equal(t, whole.limit, 0)
 	})
 
+	t.Run("Adds a contains filter", func(t *testing.T) {
+		t.Parallel()
+
+		f := entfilter.NewFilter(
+			&query{table: "data"},
+			newSortableFields("id"),
+		)
+
+		name := "Joe"
+		f.Contains("name", &name)
+		f.Contains("empty", new(""))
+		f.Contains("nil", (*string)(nil))
+		_, whole := f.Apply()
+
+		assert.Equal(t, whole.where, "`data`.`name` LIKE ?")
+		assert.DeepEqual(t, whole.args, []any{"%Joe%"})
+	})
+
+	t.Run("Adds a contains filter across multiple columns with OR", func(t *testing.T) {
+		t.Parallel()
+
+		f := entfilter.NewFilter(
+			&query{table: "data"},
+			newSortableFields("id"),
+		)
+
+		name := "Joe"
+		f.ContainsAny([]string{"name", "email"}, &name)
+		f.ContainsAny(nil, &name)
+		f.ContainsAny([]string{"nickname"}, new(""))
+		f.ContainsAny([]string{"nickname"}, (*string)(nil))
+		_, whole := f.Apply()
+
+		assert.Equal(t, whole.where, "`data`.`name` LIKE ? OR `data`.`email` LIKE ?")
+		assert.DeepEqual(t, whole.args, []any{"%Joe%", "%Joe%"})
+	})
+
 	t.Run("Adds an equality filter", func(t *testing.T) {
 		t.Parallel()
 
@@ -395,7 +431,7 @@ func TestFilter(t *testing.T) {
 		f.Equals("status", &sipStatus)
 
 		// Omit invalid enum values.
-		f.Equals("outcome2", ref.New(enums.PreprocessingTaskOutcome("invalid")))
+		f.Equals("outcome2", new(enums.PreprocessingTaskOutcome("invalid")))
 
 		// Omit nil enum pointers.
 		f.Equals("status2", (*enums.SIPStatus)(nil))
