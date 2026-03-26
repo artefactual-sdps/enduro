@@ -3,6 +3,7 @@ secret_settings(disable_scrub=True)
 ci_settings(timeout="10m", readiness_timeout="10m")
 load("ext://uibutton", "cmd_button", "text_input")
 load('ext://dotenv', 'dotenv')
+load('ext://helm_resource', 'helm_resource', 'helm_repo')
 
 # Load tilt env file if it exists
 dotenv_path = ".tilt.env"
@@ -102,6 +103,44 @@ if MOUNT_PREPROCESSING_VOLUME in true:
 # Load Kubernetes resources
 k8s_yaml(yaml)
 
+# Load Temporal Helm chart
+helm_repo("temporal-helm", "https://go.temporal.io/helm-charts/")
+
+# Use the upstream chart and patch the rendered schema.
+# See hack/helm/temporal/post_renderer.py for details.
+helm_resource(
+  "temporal",
+  "temporal-helm/temporal",
+  namespace="enduro-sdps",
+  flags=[
+    "--version", "1.0.0-rc.2",
+    "-f", "hack/helm/temporal/values.yaml",
+    "--post-renderer", "./hack/helm/temporal/post_renderer.py",
+  ],
+  resource_deps=["temporal-helm", "mysql"],
+  labels=["Others"],
+  links=[link("http://localhost:7440", "Temporal UI")],
+)
+
+# Add the UI port-forward as a separate local resource. Attaching directly to
+# the aggregated helm_resource is not reliable because that aggregates multiple
+# workloads representing the whole chart. Run kubectl port-forward in a retry
+# loop so it reconnects automatically after Temporal restarts.
+local_resource(
+  "temporal-web-port-forward",
+  serve_cmd="""
+    sh -c '
+      while true; do
+        kubectl wait --namespace enduro-sdps --for=condition=available --timeout=180s deployment/temporal-web || true
+        kubectl port-forward --namespace enduro-sdps services/temporal-web 7440:8080 || true
+        sleep 2
+      done
+    '
+  """,
+  resource_deps=["temporal"],
+  allow_parallel=True,
+)
+
 # Configure trigger mode
 trigger_mode = TRIGGER_MODE_MANUAL
 if os.environ.get('TRIGGER_MODE_AUTO', '').lower() in true:
@@ -140,8 +179,6 @@ k8s_resource(
   port_forwards=["7460:9001", "0.0.0.0:7461:9000"]
 )
 k8s_resource("redis", labels=["Others"])
-k8s_resource("temporal", labels=["Others"])
-k8s_resource("temporal-ui", labels=["Others"], port_forwards="7440:8080")
 
 # Tools
 k8s_resource("minio-setup-buckets", labels=["Tools"])

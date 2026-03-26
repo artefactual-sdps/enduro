@@ -9,6 +9,8 @@ Kubernetes cluster. It has been tested with k3d, Minikube and Kind.
 
 - [Docker] (v18.09+)
 - [kubectl]
+- [Helm 3]
+- [Python 3]
 - [Tilt] (v0.35.0+)
 
 A local Kubernetes cluster:
@@ -21,6 +23,10 @@ It can run with other solutions like Microk8s, Docker for Desktop/Mac, or
 Lima/Colima (tested on macOS including Apple Silicon), and even against remote
 clusters. Check Tilt's [Choosing a Local Dev Cluster] and [Install]
 documentation for more information to install these requirements.
+
+`Helm` and `Python` are required by the Temporal deployment path used in the
+Tilt environment. Tilt installs Temporal from the upstream Helm repository, and
+the current `helm_resource` integration shells out through `python3`.
 
 Additionally, follow the [Manage Docker as a non-root user] post-install guide
 so that you don’t have to run Tilt with `sudo`. _Note that managing Docker as a
@@ -277,6 +283,8 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [administrator configuration]: ../admin-manual/configuration.md
 [docker]: https://docs.docker.com/get-docker/
 [kubectl]: https://kubernetes.io/docs/tasks/tools/#kubectl
+[helm 3]: https://helm.sh/docs/intro/install/
+[python 3]: https://www.python.org/downloads/
 [tilt]: https://docs.tilt.dev/tutorial/1-prerequisites.html#install-tilt
 [k3d]: https://k3d.io/v5.4.3/#installation
 [minikube]: https://minikube.sigs.k8s.io/docs/start/

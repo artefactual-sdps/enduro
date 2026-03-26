@@ -1,0 +1,54 @@
+server:
+  image:
+    tag: 1.30.2
+  config:
+    namespaces:
+      create: true
+      namespace:
+        - name: default
+          retention: 3d
+    persistence:
+      defaultStore: default
+      visibilityStore: visibility
+      numHistoryShards: 512
+      datastores:
+        default:
+          sql:
+            pluginName: mysql8
+            databaseName: temporal
+            connectAddr: "mysql.enduro-sdps:3306"
+            connectProtocol: "tcp"
+            user: enduro
+            existingSecret: mysql-secret
+            secretKey: password
+        visibility:
+          sql:
+            pluginName: mysql8
+            databaseName: temporal_visibility
+            connectAddr: "mysql.enduro-sdps:3306"
+            connectProtocol: "tcp"
+            user: enduro
+            existingSecret: mysql-secret
+            secretKey: password
+admintools:
+  image:
+    tag: 1.30.2
+web:
+  image:
+    tag: 2.43.3
+  additionalEnv:
+    - name: TEMPORAL_AUTH_ENABLED
+      value: "true"
+    - name: TEMPORAL_AUTH_PROVIDER_URL
+      value: "http://keycloak:7470/realms/artefactual"
+    - name: TEMPORAL_AUTH_CLIENT_ID
+      value: "temporal"
+    - name: TEMPORAL_AUTH_CALLBACK_URL
+      value: "http://localhost:7440/auth/sso/callback"
+    - name: TEMPORAL_AUTH_SCOPES
+      value: "openid,profile,email"
+  additionalEnvSecretName: "temporal-ui-secret"
+schema:
+  shims:
+    dockerize: false
+    elasticsearchTool: false
