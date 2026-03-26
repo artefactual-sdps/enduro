@@ -1852,9 +1852,9 @@ func NewMonitorPayload(ticket *string) *storage.MonitorPayload {
 }
 
 // NewListAipsPayload builds a storage service list_aips endpoint payload.
-func NewListAipsPayload(name *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, limit *int, offset *int, token *string) *storage.ListAipsPayload {
+func NewListAipsPayload(query *string, earliestCreatedTime *string, latestCreatedTime *string, status *string, limit *int, offset *int, token *string) *storage.ListAipsPayload {
 	v := &storage.ListAipsPayload{}
-	v.Name = name
+	v.Query = query
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
 	v.Status = status

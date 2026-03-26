@@ -28,7 +28,7 @@ export const useAipStore = defineStore("aip", {
     page: { limit: defaultPageSize } as api.EnduroPage,
 
     filters: {
-      name: "" as string | undefined,
+      query: "" as string | undefined,
       status: "" as StorageListAipsStatusEnum | undefined,
       earliestCreatedTime: undefined as Date | undefined,
       latestCreatedTime: undefined as Date | undefined,
@@ -147,7 +147,7 @@ export const useAipStore = defineStore("aip", {
         .storageListAips({
           offset: page > 1 ? (page - 1) * this.page.limit : undefined,
           limit: this.page?.limit || undefined,
-          name: this.filters.name,
+          query: this.filters.query,
           status: this.filters.status,
           earliestCreatedTime: this.filters.earliestCreatedTime,
           latestCreatedTime: this.filters.latestCreatedTime,

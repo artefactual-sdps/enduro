@@ -404,7 +404,46 @@ func TestListAIPs(t *testing.T) {
 					ExecX(ctx)
 			},
 			payload: &goastorage.ListAipsPayload{
-				Name: new("Test AIP 1"),
+				Query: new("Test AIP 1"),
+			},
+			want: &goastorage.AIPs{
+				Items: []*goastorage.AIP{
+					{
+						Name:      "Test AIP 1",
+						UUID:      aipID,
+						ObjectKey: objectKey,
+						Status:    "stored",
+						CreatedAt: "2025-05-08T10:53:12Z",
+					},
+				},
+				Page: &goastorage.EnduroPage{
+					Limit:  entfilter.DefaultPageSize,
+					Offset: 0,
+					Total:  1,
+				},
+			},
+		},
+		{
+			name: "Returns AIPs filtered by UUID",
+			data: func(t *testing.T, ctx context.Context, entc *db.Client) {
+				entc.AIP.Create().
+					SetName("Test AIP 1").
+					SetAipID(aipID).
+					SetObjectKey(objectKey).
+					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 12, 0, time.UTC)).
+					ExecX(ctx)
+
+				entc.AIP.Create().
+					SetName("Test AIP 2").
+					SetAipID(aipID2).
+					SetObjectKey(objectKey2).
+					SetStatus(enums.AIPStatusStored).
+					SetCreatedAt(time.Date(2025, 5, 8, 10, 53, 48, 0, time.UTC)).
+					ExecX(ctx)
+			},
+			payload: &goastorage.ListAipsPayload{
+				Query: new(aipID.String()),
 			},
 			want: &goastorage.AIPs{
 				Items: []*goastorage.AIP{

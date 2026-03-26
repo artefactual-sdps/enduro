@@ -4956,10 +4956,12 @@
         "parameters": [
           {
             "allowEmptyValue": true,
+            "description": "Search query to filter AIPs by name or UUID",
             "example": "abc123",
             "in": "query",
-            "name": "name",
+            "name": "query",
             "schema": {
+              "description": "Search query to filter AIPs by name or UUID",
               "example": "abc123",
               "type": "string"
             }

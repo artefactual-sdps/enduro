@@ -968,8 +968,9 @@ paths:
                   * `storage:aips:list`
             operationId: storage#list_aips
             parameters:
-                - name: name
+                - name: query
                   in: query
+                  description: Search query to filter AIPs by name or UUID
                   required: false
                   type: string
                 - name: earliest_created_time

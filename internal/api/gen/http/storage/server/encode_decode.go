@@ -195,7 +195,7 @@ func EncodeListAipsResponse(encoder func(context.Context, http.ResponseWriter) g
 func DecodeListAipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*storage.ListAipsPayload, error) {
 	return func(r *http.Request) (*storage.ListAipsPayload, error) {
 		var (
-			name                *string
+			query               *string
 			earliestCreatedTime *string
 			latestCreatedTime   *string
 			status              *string
@@ -205,9 +205,9 @@ func DecodeListAipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 			err                 error
 		)
 		qp := r.URL.Query()
-		nameRaw := qp.Get("name")
-		if nameRaw != "" {
-			name = &nameRaw
+		queryRaw := qp.Get("query")
+		if queryRaw != "" {
+			query = &queryRaw
 		}
 		earliestCreatedTimeRaw := qp.Get("earliest_created_time")
 		if earliestCreatedTimeRaw != "" {
@@ -261,7 +261,7 @@ func DecodeListAipsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahtt
 		if err != nil {
 			return nil, err
 		}
-		payload := NewListAipsPayload(name, earliestCreatedTime, latestCreatedTime, status, limit, offset, token)
+		payload := NewListAipsPayload(query, earliestCreatedTime, latestCreatedTime, status, limit, offset, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")

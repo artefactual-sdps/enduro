@@ -98,7 +98,7 @@ func (c *Client) ListAIPs(ctx context.Context, payload *goastorage.ListAipsPaylo
 	qf := entfilter.NewFilter(c.c.AIP.Query(), entfilter.SortableFields{
 		aip.FieldID: {Name: "ID", Default: true},
 	})
-	qf.Contains(aip.FieldName, payload.Name)
+	qf.ContainsAny([]string{aip.FieldName, aip.FieldAipID}, payload.Query)
 	qf.Equals(aip.FieldStatus, status)
 	qf.AddDateRange(aip.FieldCreatedAt, createdAt)
 	qf.OrderBy(entfilter.NewSort().AddCol("id", true))

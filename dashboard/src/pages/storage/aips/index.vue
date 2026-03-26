@@ -135,12 +135,12 @@ const changePage = (page: number) => {
   });
 };
 
-const searchByName = () => {
+const search = () => {
   let q = { ...route.query };
-  if (aipStore.filters.name === "") {
-    delete q.name;
+  if (aipStore.filters.query === "") {
+    delete q.query;
   } else {
-    q.name = <LocationQueryValue>aipStore.filters.name;
+    q.query = <LocationQueryValue>aipStore.filters.query;
   }
 
   // Reset the page number because the found results may reduce the total number
@@ -200,10 +200,10 @@ const updateDateFilter = (
 };
 
 const { execute, error } = useAsyncState(() => {
-  if (route.query.name) {
-    aipStore.filters.name = <string>route.query.name;
+  if (route.query.query) {
+    aipStore.filters.query = <string>route.query.query;
   } else {
-    delete aipStore.filters.name;
+    delete aipStore.filters.query;
   }
 
   if (route.query.status) {
@@ -289,23 +289,23 @@ const statuses = [
 
     <div class="d-flex flex-wrap gap-3 mb-3">
       <div>
-        <form id="sipSearch" @submit.prevent="searchByName">
+        <form id="sipSearch" @submit.prevent="search">
           <div class="input-group">
             <input
-              v-model.trim="aipStore.filters.name"
+              v-model.trim="aipStore.filters.query"
               type="text"
               class="form-control"
-              name="name"
-              placeholder="Search by name"
-              aria-label="Search by name"
+              name="query"
+              placeholder="Search by name or UUID"
+              aria-label="Search by name or UUID"
             />
             <button
               class="btn btn-secondary"
               type="reset"
               aria-label="Reset search"
               @click="
-                aipStore.filters.name = '';
-                searchByName();
+                aipStore.filters.query = '';
+                search();
               "
             >
               <IconClose />

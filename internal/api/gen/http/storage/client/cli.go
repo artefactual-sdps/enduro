@@ -49,12 +49,12 @@ func BuildMonitorPayload(storageMonitorTicket string) (*storage.MonitorPayload, 
 
 // BuildListAipsPayload builds the payload for the storage list_aips endpoint
 // from CLI flags.
-func BuildListAipsPayload(storageListAipsName string, storageListAipsEarliestCreatedTime string, storageListAipsLatestCreatedTime string, storageListAipsStatus string, storageListAipsLimit string, storageListAipsOffset string, storageListAipsToken string) (*storage.ListAipsPayload, error) {
+func BuildListAipsPayload(storageListAipsQuery string, storageListAipsEarliestCreatedTime string, storageListAipsLatestCreatedTime string, storageListAipsStatus string, storageListAipsLimit string, storageListAipsOffset string, storageListAipsToken string) (*storage.ListAipsPayload, error) {
 	var err error
-	var name *string
+	var query *string
 	{
-		if storageListAipsName != "" {
-			name = &storageListAipsName
+		if storageListAipsQuery != "" {
+			query = &storageListAipsQuery
 		}
 	}
 	var earliestCreatedTime *string
@@ -120,7 +120,7 @@ func BuildListAipsPayload(storageListAipsName string, storageListAipsEarliestCre
 		}
 	}
 	v := &storage.ListAipsPayload{}
-	v.Name = name
+	v.Query = query
 	v.EarliestCreatedTime = earliestCreatedTime
 	v.LatestCreatedTime = latestCreatedTime
 	v.Status = status

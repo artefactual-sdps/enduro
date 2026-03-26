@@ -122,7 +122,7 @@ export interface StorageListAipWorkflowsRequest {
 }
 
 export interface StorageListAipsRequest {
-    name?: string;
+    query?: string;
     earliestCreatedTime?: Date;
     latestCreatedTime?: Date;
     status?: StorageListAipsStatusEnum;
@@ -338,7 +338,7 @@ export interface StorageApiInterface {
     /**
      * List all AIPs
      * @summary list_aips storage
-     * @param {string} [name] 
+     * @param {string} [query] Search query to filter AIPs by name or UUID
      * @param {Date} [earliestCreatedTime] 
      * @param {Date} [latestCreatedTime] 
      * @param {'unspecified' | 'stored' | 'pending' | 'processing' | 'deleted' | 'queued'} [status] 
@@ -948,8 +948,8 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     async storageListAipsRaw(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAips>> {
         const queryParameters: any = {};
 
-        if (requestParameters.name !== undefined) {
-            queryParameters['name'] = requestParameters.name;
+        if (requestParameters.query !== undefined) {
+            queryParameters['query'] = requestParameters.query;
         }
 
         if (requestParameters.earliestCreatedTime !== undefined) {

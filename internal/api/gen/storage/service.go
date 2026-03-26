@@ -381,7 +381,8 @@ type ListAipWorkflowsPayload struct {
 
 // ListAipsPayload is the payload type of the storage service list_aips method.
 type ListAipsPayload struct {
-	Name                *string
+	// Search query to filter AIPs by name or UUID
+	Query               *string
 	EarliestCreatedTime *string
 	LatestCreatedTime   *string
 	Status              *string

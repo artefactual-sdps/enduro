@@ -158,7 +158,7 @@ func ParseEndpoint(
 		storageMonitorTicketFlag = storageMonitorFlags.String("ticket", "", "")
 
 		storageListAipsFlags                   = flag.NewFlagSet("list-aips", flag.ExitOnError)
-		storageListAipsNameFlag                = storageListAipsFlags.String("name", "", "")
+		storageListAipsQueryFlag               = storageListAipsFlags.String("query", "", "")
 		storageListAipsEarliestCreatedTimeFlag = storageListAipsFlags.String("earliest-created-time", "", "")
 		storageListAipsLatestCreatedTimeFlag   = storageListAipsFlags.String("latest-created-time", "", "")
 		storageListAipsStatusFlag              = storageListAipsFlags.String("status", "", "")
@@ -567,7 +567,7 @@ func ParseEndpoint(
 				data, err = storagec.BuildMonitorPayload(*storageMonitorTicketFlag)
 			case "list-aips":
 				endpoint = c.ListAips()
-				data, err = storagec.BuildListAipsPayload(*storageListAipsNameFlag, *storageListAipsEarliestCreatedTimeFlag, *storageListAipsLatestCreatedTimeFlag, *storageListAipsStatusFlag, *storageListAipsLimitFlag, *storageListAipsOffsetFlag, *storageListAipsTokenFlag)
+				data, err = storagec.BuildListAipsPayload(*storageListAipsQueryFlag, *storageListAipsEarliestCreatedTimeFlag, *storageListAipsLatestCreatedTimeFlag, *storageListAipsStatusFlag, *storageListAipsLimitFlag, *storageListAipsOffsetFlag, *storageListAipsTokenFlag)
 			case "create-aip":
 				endpoint = c.CreateAip()
 				data, err = storagec.BuildCreateAipPayload(*storageCreateAipBodyFlag, *storageCreateAipTokenFlag)
@@ -1145,7 +1145,7 @@ func storageMonitorUsage() {
 func storageListAipsUsage() {
 	// Header with flags
 	fmt.Fprintf(os.Stderr, "%s [flags] storage list-aips", os.Args[0])
-	fmt.Fprint(os.Stderr, " -name STRING")
+	fmt.Fprint(os.Stderr, " -query STRING")
 	fmt.Fprint(os.Stderr, " -earliest-created-time STRING")
 	fmt.Fprint(os.Stderr, " -latest-created-time STRING")
 	fmt.Fprint(os.Stderr, " -status STRING")
@@ -1159,7 +1159,7 @@ func storageListAipsUsage() {
 	fmt.Fprintln(os.Stderr, `List all AIPs`)
 
 	// Flags list
-	fmt.Fprintln(os.Stderr, `    -name STRING: `)
+	fmt.Fprintln(os.Stderr, `    -query STRING: `)
 	fmt.Fprintln(os.Stderr, `    -earliest-created-time STRING: `)
 	fmt.Fprintln(os.Stderr, `    -latest-created-time STRING: `)
 	fmt.Fprintln(os.Stderr, `    -status STRING: `)
@@ -1169,7 +1169,7 @@ func storageListAipsUsage() {
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "storage list-aips --name \"abc123\" --earliest-created-time \"1970-01-01T00:00:01Z\" --latest-created-time \"1970-01-01T00:00:01Z\" --status \"stored\" --limit 1 --offset 1 --token \"abc123\"")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "storage list-aips --query \"abc123\" --earliest-created-time \"1970-01-01T00:00:01Z\" --latest-created-time \"1970-01-01T00:00:01Z\" --status \"stored\" --limit 1 --offset 1 --token \"abc123\"")
 }
 
 func storageCreateAipUsage() {

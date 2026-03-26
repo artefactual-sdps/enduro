@@ -294,8 +294,8 @@ func EncodeListAipsRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 			}
 		}
 		values := req.URL.Query()
-		if p.Name != nil {
-			values.Add("name", *p.Name)
+		if p.Query != nil {
+			values.Add("query", *p.Query)
 		}
 		if p.EarliestCreatedTime != nil {
 			values.Add("earliest_created_time", *p.EarliestCreatedTime)

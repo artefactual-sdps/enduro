@@ -62,7 +62,7 @@ var _ = Service("storage", func() {
 			Scope(auth.StorageAIPSListAttr)
 		})
 		Payload(func() {
-			Attribute("name", String)
+			Attribute("query", String, "Search query to filter AIPs by name or UUID")
 			Attribute("earliest_created_time", String, func() {
 				Format(FormatDateTime)
 			})
@@ -86,7 +86,7 @@ var _ = Service("storage", func() {
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 			Params(func() {
-				Param("name")
+				Param("query")
 				Param("earliest_created_time")
 				Param("latest_created_time")
 				Param("status")

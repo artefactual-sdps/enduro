@@ -7039,8 +7039,9 @@
         "operationId": "storage#list_aips",
         "parameters": [
           {
+            "description": "Search query to filter AIPs by name or UUID",
             "in": "query",
-            "name": "name",
+            "name": "query",
             "required": false,
             "type": "string"
           },
