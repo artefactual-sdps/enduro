@@ -2,21 +2,46 @@ package activities
 
 import (
 	"context"
-	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/google/uuid"
+	ssclient_client "go.artefactual.dev/ssclient"
+	ssclient_models "go.artefactual.dev/ssclient/kiota/models"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 
-	"github.com/artefactual-sdps/enduro/internal/storage/ssblob"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
+const (
+	defaultDeleteFromAMSSPollInterval       = time.Minute
+	defaultDeletionUserID             int32 = 123
+	defaultDeletionUserEmail                = "enduro@example.com"
+)
+
+// errDeletionRequestAlreadyExists reports that AMSS already has a pending
+// deletion request for the AIP, so Enduro should not treat it as a new request.
+var errDeletionRequestAlreadyExists = errors.New("deletion request already exists")
+
+// DeleteFromAMSSLocationActivity deletes an AIP stored in Archivematica
+// Storage Service.
+//
+// If the activity is configured for automatic approval, it immediately approves
+// newly created deletion requests and returns success. Otherwise it polls the
+// AIP status until AMSS finishes processing the request.
+//
+// AMSS may report that a deletion request already exists for the AIP instead of
+// creating a new one. In that case the activity can continue with the polling
+// path, but it cannot auto-approve the request because AMSS does not return an
+// event ID for the existing request.
 type DeleteFromAMSSLocationActivity struct {
-	approve      bool
+	// The HTTP client to use for AMSS API calls.
+	httpClient *http.Client
+	// Whether to automatically approve deletion requests.
+	approve bool
+	// The interval between polling attempts when not automatically approving.
 	pollInterval time.Duration
 }
 
@@ -29,11 +54,19 @@ type DeleteFromAMSSLocationActivityResult struct {
 	Deleted bool
 }
 
-func NewDeleteFromAMSSLocationActivity(approve bool, pollInterval time.Duration) *DeleteFromAMSSLocationActivity {
+func NewDeleteFromAMSSLocationActivity(
+	httpClient *http.Client,
+	approve bool,
+	pollInterval time.Duration,
+) *DeleteFromAMSSLocationActivity {
 	if pollInterval <= 0 {
-		pollInterval = time.Second * 60
+		pollInterval = defaultDeleteFromAMSSPollInterval
 	}
-	return &DeleteFromAMSSLocationActivity{approve: approve, pollInterval: pollInterval}
+	return &DeleteFromAMSSLocationActivity{
+		httpClient:   httpClient,
+		approve:      approve,
+		pollInterval: pollInterval,
+	}
 }
 
 func (a *DeleteFromAMSSLocationActivity) Execute(
@@ -43,176 +76,200 @@ func (a *DeleteFromAMSSLocationActivity) Execute(
 	h := temporal_tools.StartAutoHeartbeat(ctx)
 	defer h.Stop()
 
-	ssclient := ssblob.NewClient(params.Config.Username, params.Config.APIKey)
+	// We build a fresh ssclient per execution. We could cache clients by AMSS
+	// connection config, but the shared HTTP client already preserves transport
+	// reuse and the extra caching complexity does not seem justified here yet.
+	ssclient, err := ssclient_client.New(ssclient_client.Config{
+		BaseURL:    params.Config.URL,
+		Username:   params.Config.Username,
+		Key:        params.Config.APIKey,
+		HTTPClient: a.httpClient,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("build Storage Service client: %v", err)
+	}
 
-	pipelineUUID, err := a.getPipelineUUID(ctx, ssclient, params)
+	pipelineUUID, err := a.getPipelineUUID(ctx, ssclient, params.AIPUUID)
 	if err != nil {
 		return nil, err
 	}
 
-	eventID, err := a.requestDeletion(ctx, ssclient, params, pipelineUUID)
-	if err != nil {
+	eventID, err := a.requestDeletion(ctx, ssclient, params.AIPUUID, pipelineUUID)
+	alreadyExists := errors.Is(err, errDeletionRequestAlreadyExists)
+	if err != nil && !alreadyExists {
 		return nil, err
 	}
+
+	res := &DeleteFromAMSSLocationActivityResult{}
 
 	if a.approve {
-		if err := a.approveDeletion(ctx, ssclient, params, eventID); err != nil {
+		if err := a.approveDeletionRequest(ctx, ssclient, params.AIPUUID, eventID, alreadyExists); err != nil {
 			return nil, err
 		}
-		return &DeleteFromAMSSLocationActivityResult{Deleted: true}, nil
+		res.Deleted = true
+		return res, nil
 	}
 
+	res.Deleted, err = a.waitForDeletion(ctx, ssclient, params.AIPUUID, alreadyExists)
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func (a *DeleteFromAMSSLocationActivity) approveDeletionRequest(
+	ctx context.Context,
+	ssclient *ssclient_client.Client,
+	aipUUID uuid.UUID,
+	eventID int32,
+	alreadyExists bool,
+) error {
+	// AMSS does not return an event ID for an existing request, so Enduro
+	// cannot auto-approve it.
+	if alreadyExists {
+		return fmt.Errorf(
+			"approve deletion: deletion request already exists and cannot be approved without an event ID",
+		)
+	}
+	if err := a.approveDeletion(ctx, ssclient, aipUUID, eventID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// waitForDeletion polls AMSS for the outcome of a non-auto-approved delete
+// request. It returns true when the AIP reaches DELETED and false when the
+// request resolves without deletion.
+//
+// State model:
+//   - New request: start with UPLOADED meaning "keep polling", because AMSS may
+//     accept the request before it flips the package status to DEL_REQ.
+//   - Existing request: start with UPLOADED meaning "not deleted", because the
+//     pending request was created before this activity started.
+//   - DEL_REQ always means "deletion is pending", so keep polling.
+//   - DELETED is the only successful terminal state.
+//
+// In short:
+//   - UPLOADED before deletion is known to be pending => keep polling
+//   - UPLOADED after deletion is known to be pending => return Deleted=false
+func (a *DeleteFromAMSSLocationActivity) waitForDeletion(
+	ctx context.Context,
+	ssclient *ssclient_client.Client,
+	aipUUID uuid.UUID,
+	alreadyExists bool,
+) (bool, error) {
 	ticker := time.NewTicker(a.pollInterval)
 	defer ticker.Stop()
 
+	// For a reused request, an immediate UPLOADED is already a terminal
+	// "not deleted" outcome for this activity.
+	uploadedMeansNotDeleted := alreadyExists
+
 	for {
+		status, err := a.pollStatus(ctx, ssclient, aipUUID)
+		if err != nil {
+			return false, err
+		}
+
+		switch status {
+		case "DEL_REQ":
+			uploadedMeansNotDeleted = true
+		case "DELETED":
+			return true, nil
+		case "UPLOADED":
+			if uploadedMeansNotDeleted {
+				return false, nil
+			}
+		default:
+			return false, temporal_tools.NewNonRetryableError(
+				fmt.Errorf("unexpected AMSS AIP status: %s", status),
+			)
+		}
+
 		select {
 		case <-ctx.Done():
-			return nil, ctx.Err()
+			return false, ctx.Err()
 		case <-ticker.C:
-			status, err := a.pollStatus(ctx, ssclient, params)
-			if err != nil {
-				return nil, err
-			}
-
-			done, err := isProcessed(status)
-			if err != nil {
-				return nil, err
-			}
-
-			if !done {
-				continue
-			}
-
-			deleted := false
-			if status == "DELETED" {
-				deleted = true
-			}
-
-			return &DeleteFromAMSSLocationActivityResult{Deleted: deleted}, nil
 		}
 	}
 }
 
 func (a *DeleteFromAMSSLocationActivity) getPipelineUUID(
 	ctx context.Context,
-	ssclient *http.Client,
-	params *DeleteFromAMSSLocationActivityParams,
-) (string, error) {
-	url := fmt.Sprintf(
-		"%s/api/v2/file/%s/",
-		strings.TrimSuffix(params.Config.URL, "/"),
-		params.AIPUUID.String(),
-	)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	ssclient *ssclient_client.Client,
+	aipUUID uuid.UUID,
+) (uuid.UUID, error) {
+	pkg, err := ssclient.Packages().Get(ctx, aipUUID)
 	if err != nil {
-		return "", err
+		return uuid.Nil, fmt.Errorf("get pipeline UUID: %v", err)
+	}
+	if pkg == nil || pkg.GetOriginPipeline() == nil {
+		return uuid.Nil, fmt.Errorf("get pipeline UUID: missing origin pipeline")
 	}
 
-	resp, err := ssclient.Do(req)
+	_, pipelineUUID, err := ssclient_client.ParseResourceURI(*pkg.GetOriginPipeline())
 	if err != nil {
-		return "", fmt.Errorf("get pipeline UUID: %v", err)
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 400 {
-		return "", fmt.Errorf("get pipeline UUID: response code: %d", resp.StatusCode)
+		return uuid.Nil, fmt.Errorf("get pipeline UUID: %v", err)
 	}
 
-	var responseData struct {
-		OriginPipeline string `json:"origin_pipeline"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&responseData); err != nil {
-		return "", fmt.Errorf("get pipeline UUID: failed to decode response body: %v", err)
+	parsed, err := uuid.Parse(pipelineUUID)
+	if err != nil {
+		return uuid.Nil, fmt.Errorf("get pipeline UUID: parse UUID: %v", err)
 	}
 
-	pipelineUUID := strings.TrimSuffix(responseData.OriginPipeline, "/")
-	pipelineUUID = strings.TrimPrefix(pipelineUUID, "/api/v2/pipeline/")
-
-	return pipelineUUID, nil
+	return parsed, nil
 }
 
 func (a *DeleteFromAMSSLocationActivity) requestDeletion(
 	ctx context.Context,
-	ssclient *http.Client,
-	params *DeleteFromAMSSLocationActivityParams,
-	pipelineUUID string,
-) (eventID int64, err error) {
-	url := fmt.Sprintf(
-		"%s/api/v2/file/%s/delete_aip/",
-		strings.TrimSuffix(params.Config.URL, "/"),
-		params.AIPUUID.String(),
-	)
-	payload := fmt.Sprintf(
-		`{"event_reason": "%s", "pipeline": "%s", "user_id": %d, "user_email": "%s"}`,
-		"Deletion from Enduro",
-		pipelineUUID,
-		123,
-		"enduro@example.com",
-	)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, strings.NewReader(payload))
-	if err != nil {
-		return 0, err
-	}
+	ssclient *ssclient_client.Client,
+	aipUUID uuid.UUID,
+	pipelineUUID uuid.UUID,
+) (int32, error) {
+	req := ssclient_models.NewDeleteAipRequest()
+	req.SetEventReason(new("Deletion from Enduro"))
+	req.SetPipeline(new(pipelineUUID))
+	req.SetUserId(new(defaultDeletionUserID))
+	req.SetUserEmail(new(defaultDeletionUserEmail))
 
-	resp, err := ssclient.Do(req)
+	resp, err := ssclient.Packages().DeleteAIP(ctx, aipUUID, req)
 	if err != nil {
 		return 0, fmt.Errorf("request deletion: %v", err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 400 {
-		return 0, fmt.Errorf("request deletion: response code: %d", resp.StatusCode)
+	if resp == nil {
+		return 0, fmt.Errorf("request deletion: empty response")
 	}
-
-	var responseData struct {
-		ID int64 `json:"id"`
+	if resp.IsAccepted() {
+		return resp.Accepted.ID, nil
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&responseData); err != nil {
-		return 0, fmt.Errorf("request deletion: failed to decode response body: %w", err)
+	if resp.HasExistingRequest() {
+		return 0, errDeletionRequestAlreadyExists
 	}
-
-	return responseData.ID, nil
+	return 0, fmt.Errorf("request deletion: unexpected delete AIP result")
 }
 
 func (a *DeleteFromAMSSLocationActivity) approveDeletion(
 	ctx context.Context,
-	ssclient *http.Client,
-	params *DeleteFromAMSSLocationActivityParams,
-	eventID int64,
+	ssclient *ssclient_client.Client,
+	aipUUID uuid.UUID,
+	eventID int32,
 ) error {
-	url := fmt.Sprintf(
-		"%s/api/v2/file/%s/review_aip_deletion/",
-		strings.TrimSuffix(params.Config.URL, "/"),
-		params.AIPUUID.String(),
-	)
-	payload := fmt.Sprintf(
-		`{"event_id": %d, "decision": "%s", "reason": "%s"}`,
-		eventID,
-		"approve",
-		"Approval from Enduro",
-	)
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, strings.NewReader(payload))
-	if err != nil {
-		return err
-	}
+	req := ssclient_models.NewReviewAipDeletionRequest()
+	req.SetEventId(new(eventID))
+	req.SetDecision(new(ssclient_models.APPROVE_REVIEWAIPDELETIONDECISION))
+	req.SetReason(new("Approval from Enduro"))
 
-	resp, err := ssclient.Do(req)
+	resp, err := ssclient.Packages().ReviewAIPDeletion(ctx, aipUUID, req)
 	if err != nil {
+		if reviewErr, ok := errors.AsType[*ssclient_client.ReviewAIPDeletionError](err); ok {
+			return fmt.Errorf("approve deletion: %v", reviewErr)
+		}
 		return fmt.Errorf("approve deletion: %v", err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 400 {
-		return fmt.Errorf("approve deletion: response code: %d", resp.StatusCode)
-	}
-
-	var responseData struct {
-		ErrorMessage string `json:"error_message"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&responseData); err != nil {
-		return fmt.Errorf("approve deletion: failed to decode response body: %w", err)
-	}
-
-	if responseData.ErrorMessage != "" {
-		return fmt.Errorf("approve deletion: %s", responseData.ErrorMessage)
+	if resp == nil {
+		return fmt.Errorf("approve deletion: empty response")
 	}
 
 	return nil
@@ -220,47 +277,16 @@ func (a *DeleteFromAMSSLocationActivity) approveDeletion(
 
 func (a *DeleteFromAMSSLocationActivity) pollStatus(
 	ctx context.Context,
-	ssclient *http.Client,
-	params *DeleteFromAMSSLocationActivityParams,
+	ssclient *ssclient_client.Client,
+	aipUUID uuid.UUID,
 ) (string, error) {
-	url := fmt.Sprintf(
-		"%s/api/v2/file/%s/",
-		strings.TrimSuffix(params.Config.URL, "/"),
-		params.AIPUUID.String(),
-	)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
-	if err != nil {
-		return "", err
-	}
-
-	resp, err := ssclient.Do(req)
+	pkg, err := ssclient.Packages().Get(ctx, aipUUID)
 	if err != nil {
 		return "", fmt.Errorf("poll status: %v", err)
 	}
-	defer resp.Body.Close()
-	if resp.StatusCode >= 400 {
-		return "", fmt.Errorf("poll status: response code: %d", resp.StatusCode)
+	if pkg == nil || pkg.GetStatus() == nil {
+		return "", fmt.Errorf("poll status: missing package status")
 	}
 
-	var responseData struct {
-		Status string `json:"status"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&responseData); err != nil {
-		return "", fmt.Errorf("poll status: failed to decode response body: %w", err)
-	}
-
-	return responseData.Status, nil
-}
-
-func isProcessed(status string) (bool, error) {
-	switch status {
-	case "DELETED", "UPLOADED":
-		return true, nil
-	case "DEL_REQ":
-		return false, nil
-	default:
-		return false, temporal_tools.NewNonRetryableError(
-			fmt.Errorf("unexpected AMSS AIP status: %s", status),
-		)
-	}
+	return *pkg.GetStatus(), nil
 }

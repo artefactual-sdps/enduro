@@ -111,6 +111,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		params.ticketProvider,
 		rand.New(rand.NewSource(1)), // #nosec: G404
 		nil,
+		nil,
 	)
 	assert.NilError(t, err)
 
@@ -141,6 +142,7 @@ func TestNewService(t *testing.T) {
 			nil,
 			event.NewServiceNop[*goastorage.StorageEvent](),
 			auth.OIDCTokenVerifiers{},
+			nil,
 			nil,
 			nil,
 			nil,

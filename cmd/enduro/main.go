@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"net/http/httptrace"
 	"net/http/pprof"
 	"os"
 	"os/signal"
@@ -17,12 +18,15 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/google/uuid"
+	"github.com/hashicorp/go-cleanhttp"
 	"github.com/jonboulle/clockwork"
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
 	"go.artefactual.dev/tools/log"
 	temporal_tools "go.artefactual.dev/tools/temporal"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/codes"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_client "go.temporal.io/sdk/client"
@@ -298,6 +302,16 @@ func main() {
 		)
 	}
 
+	// Set up the shared outbound HTTP client for AMSS requests.
+	amssHTTPClient := cleanhttp.DefaultPooledClient()
+	amssHTTPClient.Transport = otelhttp.NewTransport(
+		amssHTTPClient.Transport,
+		otelhttp.WithTracerProvider(tp),
+		otelhttp.WithClientTrace(func(ctx context.Context) *httptrace.ClientTrace {
+			return otelhttptrace.NewClientTrace(ctx)
+		}),
+	)
+
 	// Set up the storage service.
 	var storagesvc storage.Service
 	{
@@ -311,6 +325,7 @@ func main() {
 			ticketProvider,
 			rand.Reader,
 			auditLogger,
+			amssHTTPClient,
 		)
 		if err != nil {
 			logger.Error(err, "Error setting up storage service.")
@@ -386,6 +401,7 @@ func main() {
 			ticketProvider,
 			rand.Reader,
 			auditLogger,
+			amssHTTPClient,
 		)
 		if err != nil {
 			logger.Error(err, "Error setting up internal storage service.")
@@ -555,6 +571,7 @@ func main() {
 		)
 		w.RegisterActivityWithOptions(
 			storage_activities.NewDeleteFromAMSSLocationActivity(
+				amssHTTPClient,
 				cfg.Storage.AIPDeletion.ApproveAMSS,
 				time.Second*60,
 			).Execute,
