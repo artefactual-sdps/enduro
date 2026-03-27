@@ -97,8 +97,7 @@ func (b *bucket) ErrorCode(err error) gcerrors.ErrorCode {
 			return gcerrors.Unknown
 		}
 	}
-	switch {
-	case errors.Is(err, errNotImplemented):
+	if errors.Is(err, errNotImplemented) {
 		return gcerrors.Unimplemented
 	}
 

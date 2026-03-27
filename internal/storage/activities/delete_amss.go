@@ -39,9 +39,7 @@ var errDeletionRequestAlreadyExists = errors.New("deletion request already exist
 type DeleteFromAMSSLocationActivity struct {
 	// The HTTP client to use for AMSS API calls.
 	httpClient *http.Client
-	// Whether to automatically approve deletion requests. If false, the
-	// activity requests deletion when possible, or reuses an existing pending
-	// request, and then polls the AIP status until processing completes.
+	// Whether to automatically approve deletion requests.
 	approve bool
 	// The interval between polling attempts when not automatically approving.
 	pollInterval time.Duration
@@ -205,7 +203,7 @@ func (a *DeleteFromAMSSLocationActivity) getPipelineUUID(
 ) (uuid.UUID, error) {
 	pkg, err := ssclient.Packages().Get(ctx, aipUUID)
 	if err != nil {
-		return uuid.Nil, fmt.Errorf("get pipeline UUID: %w", err)
+		return uuid.Nil, fmt.Errorf("get pipeline UUID: %v", err)
 	}
 	if pkg == nil || pkg.GetOriginPipeline() == nil {
 		return uuid.Nil, fmt.Errorf("get pipeline UUID: missing origin pipeline")
@@ -238,7 +236,7 @@ func (a *DeleteFromAMSSLocationActivity) requestDeletion(
 
 	resp, err := ssclient.Packages().DeleteAIP(ctx, aipUUID, req)
 	if err != nil {
-		return 0, fmt.Errorf("request deletion: %w", err)
+		return 0, fmt.Errorf("request deletion: %v", err)
 	}
 	if resp == nil {
 		return 0, fmt.Errorf("request deletion: empty response")
@@ -266,9 +264,9 @@ func (a *DeleteFromAMSSLocationActivity) approveDeletion(
 	resp, err := ssclient.Packages().ReviewAIPDeletion(ctx, aipUUID, req)
 	if err != nil {
 		if reviewErr, ok := errors.AsType[*ssclient_client.ReviewAIPDeletionError](err); ok {
-			return fmt.Errorf("approve deletion: %w", reviewErr)
+			return fmt.Errorf("approve deletion: %v", reviewErr)
 		}
-		return fmt.Errorf("approve deletion: %w", err)
+		return fmt.Errorf("approve deletion: %v", err)
 	}
 	if resp == nil {
 		return fmt.Errorf("approve deletion: empty response")
@@ -284,7 +282,7 @@ func (a *DeleteFromAMSSLocationActivity) pollStatus(
 ) (string, error) {
 	pkg, err := ssclient.Packages().Get(ctx, aipUUID)
 	if err != nil {
-		return "", fmt.Errorf("poll status: %w", err)
+		return "", fmt.Errorf("poll status: %v", err)
 	}
 	if pkg == nil || pkg.GetStatus() == nil {
 		return "", fmt.Errorf("poll status: missing package status")
