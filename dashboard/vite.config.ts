@@ -87,6 +87,7 @@ export default defineConfig({
         silenceDeprecations: [
           "color-functions",
           "global-builtin",
+          "if-function",
           "import",
           "legacy-js-api",
         ],

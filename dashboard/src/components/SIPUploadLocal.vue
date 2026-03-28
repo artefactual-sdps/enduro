@@ -3,7 +3,7 @@ import Uppy from "@uppy/core";
 import { Dashboard } from "@uppy/vue";
 import XHR from "@uppy/xhr-upload";
 import { onMounted } from "vue";
-import { useRouter } from "vue-router/auto";
+import { useRouter } from "vue-router";
 
 import { getPath } from "@/client";
 import { useAboutStore } from "@/stores/about";

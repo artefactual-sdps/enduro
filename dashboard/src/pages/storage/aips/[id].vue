@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useAsyncState } from "@vueuse/core";
-import { useRoute, useRouter } from "vue-router/auto";
+import { useRoute, useRouter } from "vue-router";
 
 import AipPendingAlert from "@/components/AipPendingAlert.vue";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";

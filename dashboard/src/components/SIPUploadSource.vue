@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAsyncState, useInfiniteScroll } from "@vueuse/core";
 import { ref } from "vue";
-import { useRouter } from "vue-router/auto";
+import { useRouter } from "vue-router";
 
 import { api, client } from "@/client";
 import { humanFileSize } from "@/composables/format";

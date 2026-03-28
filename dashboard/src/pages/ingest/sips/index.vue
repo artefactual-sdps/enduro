@@ -3,8 +3,8 @@ import { useAsyncState } from "@vueuse/core";
 import Dropdown from "bootstrap/js/dist/dropdown";
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { computed, onMounted, ref, watch } from "vue";
-import { useRoute, useRouter } from "vue-router/auto";
-import type { LocationQueryValue } from "vue-router/auto";
+import { useRoute, useRouter } from "vue-router";
+import type { LocationQueryValue } from "vue-router";
 
 import { api } from "@/client";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";

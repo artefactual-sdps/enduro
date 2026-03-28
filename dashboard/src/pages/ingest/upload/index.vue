@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, watch } from "vue";
-import { useRoute, useRouter } from "vue-router/auto";
+import { useRoute, useRouter } from "vue-router";
 
 import SIPUploadLocal from "@/components/SIPUploadLocal.vue";
 import SIPUploadSource from "@/components/SIPUploadSource.vue";
