@@ -87,6 +87,18 @@ spec:
           ports:
             - containerPort: 9000
             - containerPort: 9001
+          startupProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: 9000
+            failureThreshold: 60
+            periodSeconds: 2
+          readinessProbe:
+            httpGet:
+              path: /minio/health/ready
+              port: 9000
+            periodSeconds: 2
+            timeoutSeconds: 2
           volumeMounts:
             - name: storage
               mountPath: /storage

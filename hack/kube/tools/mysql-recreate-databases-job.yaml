@@ -25,7 +25,9 @@ spec:
           command: [
               "sh",
               "-c",
-              'mysql -h mysql.enduro-sdps -u root -p$MYSQL_ROOT_PASSWORD --execute "
+              'until mysqladmin ping -h mysql.enduro-sdps -u root -p$MYSQL_ROOT_PASSWORD --silent;
+              do echo "Waiting for MySQL to become ready"; sleep 2; done;
+              mysql -h mysql.enduro-sdps -u root -p$MYSQL_ROOT_PASSWORD --execute "
               DROP DATABASE IF EXISTS enduro;
               CREATE DATABASE IF NOT EXISTS enduro;
               GRANT ALL PRIVILEGES ON enduro.* TO ''$MYSQL_USER''@''%'';

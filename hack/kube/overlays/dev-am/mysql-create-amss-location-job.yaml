@@ -54,6 +54,14 @@ spec:
                 -n "${AMSS_LOCATION_ID}"
               ]]
               then
+                until mysqladmin ping -h mysql.enduro-sdps -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" --silent; do
+                  echo "Waiting for MySQL to become ready"
+                  sleep 2
+                done
+                until mysql -h mysql.enduro-sdps -u "$MYSQL_USER" -p"$MYSQL_PASSWORD" --silent --skip-column-names --execute "SELECT 1 FROM enduro_storage.location LIMIT 1;" >/dev/null 2>&1; do
+                  echo "Waiting for enduro_storage.location to become ready"
+                  sleep 2
+                done
                 LOC_AMSS='{"amss": {"url": "'$AMSS_URL'", "username": "'$AMSS_USER'", "api_key": "'$AMSS_API_KEY'"}}'
                 mysql -h mysql.enduro-sdps -u $MYSQL_USER -p$MYSQL_PASSWORD --execute "
                   INSERT IGNORE INTO enduro_storage.location (name, description, source, purpose, uuid, created_at, config)

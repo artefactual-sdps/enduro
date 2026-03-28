@@ -144,11 +144,11 @@ k8s_resource("temporal", labels=["Others"])
 k8s_resource("temporal-ui", labels=["Others"], port_forwards="7440:8080")
 
 # Tools
-k8s_resource("minio-setup-buckets", labels=["Tools"])
+k8s_resource("minio-setup-buckets", labels=["Tools"], resource_deps=["minio"])
 if PRES_SYS == 'am':
-  k8s_resource("mysql-create-amss-location", labels=["Tools"])
+  k8s_resource("mysql-create-amss-location", labels=["Tools"], resource_deps=["mysql"])
 else:
-  k8s_resource("mysql-create-locations", labels=["Tools"])
+  k8s_resource("mysql-create-locations", labels=["Tools"], resource_deps=["mysql"])
 
 # Observability (not in CI mode)
 if config.tilt_subcommand != "ci":
