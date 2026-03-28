@@ -45,10 +45,15 @@ While we run the services inside a Kubernetes cluster we recomend to install
 Go, Node.js and other tools locally to ease the development process.
 
 - [Go] (1.21+)
-- [Node.js and npm] (22+)
+- [Node.js and npm] (see `/.node-version`)
 - GNU [Make] and [GCC]
 
-If using Linux, Node.js binary distributions are available from [NodeSource].
+For the dashboard, use the Node version described in `/.node-version`. Minor or
+patch drift within the supported major version is usually acceptable, but for
+reproducibility we recommend using [nvm] to install and select the exact pinned
+version. If using Linux, [NodeSource] is also available for installing Node.js
+binaries system-wide, but it is less convenient when switching between project
+specific versions.
 
 ## Editor
 
@@ -287,6 +292,7 @@ is sometimes not setup properly. To solve it, from the Tilt UI, restart the
 [tilt ui]: https://docs.tilt.dev/tutorial/3-tilt-ui.html
 [go]: https://go.dev/doc/install
 [Node.js and npm]: https://nodejs.org/
+[nvm]: https://github.com/nvm-sh/nvm
 [nodesource]: https://github.com/nodesource/distributions
 [make]: https://www.gnu.org/software/make/
 [gcc]: https://gcc.gnu.org/

@@ -119,6 +119,26 @@ Run:
     npm ci
     npm run deps
 
+#### Node runtime used by the dashboard
+
+Treat Node as a runtime dependency managed in a few coordinated places:
+
+* `/.node-version`: exact Node version used by local tooling and GitHub Actions
+* `/dashboard/Dockerfile`: exact Node version used by the dashboard build image
+* `/dashboard/package.json` (`engines.node`): supported Node major version,
+  enforced by `/dashboard/.npmrc`
+* `/dashboard/package.json` and `/dashboard/package-lock.json`: Node-related
+  TypeScript packages such as `@tsconfig/node24` and `@types/node`
+
+Typical Node update:
+
+1. Update `/.node-version`.
+2. Update `/dashboard/Dockerfile`.
+3. Update `engines.node` if the supported major version changes.
+4. Review `@tsconfig/nodeXX` and `@types/node`.
+5. Refresh `/dashboard/package-lock.json`.
+6. Re-run `npm run type-check`, `npm run build`, `npm test`, and `npm run lint`.
+
 #### GitHub Actions
 
 Review manually, e.g.:
