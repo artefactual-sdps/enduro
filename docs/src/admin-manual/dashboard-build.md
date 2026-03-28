@@ -8,8 +8,12 @@ for managing and monitoring Enduro.
 
 To build the dashboard from source, you need:
 
-- **Node.js** (version 20 or later)
+- **Node.js** (see `/.node-version`)
 - **npm** (included with [Node.js])
+
+Use the Node version described in `/.node-version`. Minor or patch drift within
+the supported major version is usually acceptable, but for reproducibility we
+recommend using [nvm] to install and select the exact pinned version.
 
 ## Environment
 
@@ -226,5 +230,6 @@ server {
 
 [vue.js]: https://vuejs.org/
 [vite]: https://vite.dev/
+[nvm]: https://github.com/nvm-sh/nvm
 [node.js]: https://nodejs.org/
 [injection_script]: https://github.com/artefactual-sdps/enduro/blob/main/dashboard/hack/inject-vite-envs.sh

@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
@@ -45,7 +48,7 @@
     "@pinia/testing": "^1.0.2",
     "@testing-library/vue": "^8.1.0",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
-    "@tsconfig/node20": "^20.1.5",
+    "@tsconfig/node24": "^24.0.4",
     "@types/bootstrap": "^5.2.10",
     "@types/jsdom": "^21.1.7",
     "@types/lodash-es": "^4.17.12",
