@@ -2,7 +2,7 @@
 import Collapse from "bootstrap/js/dist/collapse";
 import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router/auto";
+import { useRouter } from "vue-router";
 
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";

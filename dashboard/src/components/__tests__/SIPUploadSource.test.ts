@@ -21,7 +21,7 @@ vi.mock("@/client", () => ({
   },
 }));
 
-vi.mock("vue-router/auto", () => ({
+vi.mock("vue-router", () => ({
   useRouter: () => ({ push }),
 }));
 
