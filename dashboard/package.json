@@ -12,11 +12,19 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "preview": "vite preview",
-    "lint": "eslint .",
-    "format": "prettier --write .",
+    "lint": "run-s lint:check",
+    "lint:check": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "format": "run-s format:check",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --fix .",
     "test": "vitest run",
+    "check": "run-s lint format type-check test build-only",
     "coverage": "vitest run --coverage",
-    "deps": "ncu --format=group --interactive"
+    "deps": "run-s deps:minor",
+    "deps:semver": "ncu --target=semver --format=group --interactive",
+    "deps:major": "ncu --target=latest --format=group --interactive",
+    "deps:minor": "ncu --target=minor --format=group --interactive"
   },
   "dependencies": {
     "@pinia/plugin-debounce": "^1.0.1",
