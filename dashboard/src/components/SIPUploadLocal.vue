@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import Uppy from "@uppy/core";
-import "@uppy/core/dist/style.css";
-import "@uppy/dashboard/dist/style.css";
-import "@uppy/progress-bar/dist/style.css";
-import { Dashboard } from "@uppy/vue";
+import "@uppy/core/css/style.css";
+import "@uppy/dashboard/css/style.css";
+import Dashboard from "@uppy/vue/dashboard";
 import XHR from "@uppy/xhr-upload";
-import { onMounted } from "vue";
+import { onBeforeUnmount, onMounted } from "vue";
 import { useRouter } from "vue-router";
 
 import { getPath } from "@/client";
@@ -63,6 +62,10 @@ const uppy = new Uppy({
   getResponseData: () => {
     return { url: "" };
   },
+});
+
+onBeforeUnmount(() => {
+  uppy.destroy();
 });
 </script>
 
