@@ -1,7 +1,8 @@
 <script setup lang="ts">
+import IconLink from "~icons/bi/box-arrow-up-right";
+
 import { api } from "@/client";
 import StatusBadge from "@/components/StatusBadge.vue";
-import IconLink from "~icons/bi/box-arrow-up-right";
 
 const statuses = [
   {

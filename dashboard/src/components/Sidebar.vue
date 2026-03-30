@@ -4,8 +4,6 @@ import Offcanvas from "bootstrap/js/dist/offcanvas";
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 
-import { useAuthStore } from "@/stores/auth";
-import { useLayoutStore } from "@/stores/layout";
 import IconAIPs from "~icons/clarity/bundle-line?width=2em&height=2em";
 import IconCaret from "~icons/clarity/caret-line";
 import IconHome from "~icons/clarity/home-line?width=2em&height=2em";
@@ -15,6 +13,9 @@ import IconUpload from "~icons/clarity/plus-circle-line?width=2em&height=2em";
 import IconUser from "~icons/clarity/user-solid?width=2em&height=2em";
 import IconSIPs from "~icons/octicon/package-dependencies-24?width=2em&height=2em";
 import IconLocations from "~icons/octicon/server-24?width=2em&height=2em";
+
+import { useAuthStore } from "@/stores/auth";
+import { useLayoutStore } from "@/stores/layout";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -78,7 +79,7 @@ const menuItems = [
   },
 ];
 
-let offcanvasInstance = <Offcanvas | null>null;
+let offcanvasInstance: Offcanvas | null = null;
 const offcanvas = ref<HTMLElement | null>(null);
 const collapse = ref<HTMLElement | null>(null);
 

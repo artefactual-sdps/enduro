@@ -16,14 +16,14 @@ describe("hasUsers", () => {
     const userStore = useUserStore();
     expect(userStore.hasUsers).toEqual(false);
 
-    userStore.users = <api.EnduroIngestUser[]>[
+    userStore.users = [
       {
         createdAt: new Date(),
         email: "nobody@example.com",
         name: "Nobody Example",
         uuid: "a499e8fc-7309-4e26-b39d-d8ab68466c27",
       },
-    ];
+    ] as api.EnduroIngestUser[];
     expect(userStore.hasUsers).toEqual(true);
   });
 });
@@ -92,36 +92,36 @@ describe("getHandle", () => {
 
   it("returns the user name when available", () => {
     const store = useUserStore();
-    const user = <api.EnduroIngestUser>{
+    const user = {
       createdAt: new Date("2025-01-01T00:00:00Z"),
       email: "nobody@example.com",
       name: "Nobody Example",
       uuid: "a499e8fc-7309-4e26-b39d-d8ab68466c27",
-    };
+    } as api.EnduroIngestUser;
 
     expect(store.getHandle(user)).toEqual("Nobody Example");
   });
 
   it("returns the email if name isn't set", () => {
     const store = useUserStore();
-    const user = <api.EnduroIngestUser>{
+    const user = {
       createdAt: new Date("2025-01-01T00:00:00Z"),
       email: "nobody@example.com",
       name: "",
       uuid: "a499e8fc-7309-4e26-b39d-d8ab68466c27",
-    };
+    } as api.EnduroIngestUser;
 
     expect(store.getHandle(user)).toEqual("nobody@example.com");
   });
 
   it("returns the UUID if name and email aren't set", () => {
     const store = useUserStore();
-    const user = <api.EnduroIngestUser>{
+    const user = {
       createdAt: new Date("2025-01-01T00:00:00Z"),
       email: "",
       name: "",
       uuid: "a499e8fc-7309-4e26-b39d-d8ab68466c27",
-    };
+    } as api.EnduroIngestUser;
 
     expect(store.getHandle(user)).toEqual(
       "a499e8fc-7309-4e26-b39d-d8ab68466c27",

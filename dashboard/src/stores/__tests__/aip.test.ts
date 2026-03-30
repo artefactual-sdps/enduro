@@ -97,10 +97,10 @@ describe("fetch current", () => {
 
   it("throws a not found error", async () => {
     const http404Error = new ResponseError(
-      <Response>{
+      {
         status: 404,
         statusText: "Not Found",
-      },
+      } as Response,
       "Not Found",
     );
     const consoleErr = vi
@@ -154,10 +154,10 @@ describe("fetch current", () => {
 
   it("throws a workflow error", async () => {
     const http400Error = new ResponseError(
-      <Response>{
+      {
         status: 400,
         statusText: "Bad Request",
-      },
+      } as Response,
       "Bad Request",
     );
     const consoleErr = vi

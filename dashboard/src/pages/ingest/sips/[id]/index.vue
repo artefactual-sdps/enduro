@@ -2,6 +2,8 @@
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { computed, onMounted, ref } from "vue";
 
+import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
+
 import SipRelatedPackages from "@/components/SipRelatedPackages.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import UUID from "@/components/UUID.vue";
@@ -10,7 +12,6 @@ import WorkflowHelp from "@/components/WorkflowHelp.vue";
 import uploader from "@/composables/uploader";
 import { useAuthStore } from "@/stores/auth";
 import { useSipStore } from "@/stores/sip";
-import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
 
 const authStore = useAuthStore();
 const sipStore = useSipStore();

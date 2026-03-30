@@ -6,6 +6,18 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { LocationQueryValue } from "vue-router";
 
+import IconInfo from "~icons/akar-icons/info-fill";
+import IconAll from "~icons/clarity/blocks-group-line?font-size=20px";
+import IconClose from "~icons/clarity/close-line";
+import IconCanceled from "~icons/clarity/cursor-hand-open-line?font-size=20px";
+import IconQueued from "~icons/clarity/hourglass-line?font-size=20px";
+import IconBatches from "~icons/clarity/layers-line";
+import IconFailed from "~icons/clarity/remove-line?font-size=20px";
+import IconSearch from "~icons/clarity/search-line";
+import IconIngested from "~icons/clarity/success-standard-line?font-size=20px";
+import IconProcessing from "~icons/clarity/sync-line?font-size=20px";
+import IconPending from "~icons/clarity/warning-standard-line?font-size=20px";
+
 import { api } from "@/client";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Pager from "@/components/Pager.vue";
@@ -20,17 +32,6 @@ import { useAuthStore } from "@/stores/auth";
 import { useBatchStore } from "@/stores/batch";
 import { useLayoutStore } from "@/stores/layout";
 import { useUserStore } from "@/stores/user";
-import IconInfo from "~icons/akar-icons/info-fill";
-import IconAll from "~icons/clarity/blocks-group-line?font-size=20px";
-import IconClose from "~icons/clarity/close-line";
-import IconCanceled from "~icons/clarity/cursor-hand-open-line?font-size=20px";
-import IconQueued from "~icons/clarity/hourglass-line?font-size=20px";
-import IconBatches from "~icons/clarity/layers-line";
-import IconFailed from "~icons/clarity/remove-line?font-size=20px";
-import IconSearch from "~icons/clarity/search-line";
-import IconIngested from "~icons/clarity/success-standard-line?font-size=20px";
-import IconProcessing from "~icons/clarity/sync-line?font-size=20px";
-import IconPending from "~icons/clarity/warning-standard-line?font-size=20px";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -180,7 +181,7 @@ const changePage = (page: number) => {
   if (page <= 1) {
     delete q.page;
   } else {
-    q.page = <LocationQueryValue>page.toString();
+    q.page = page.toString() as LocationQueryValue;
   }
 
   router.push({
@@ -194,7 +195,7 @@ const searchByIdentifier = () => {
   if (batchStore.filters.identifier === "") {
     delete q.identifier;
   } else {
-    q.identifier = <LocationQueryValue>batchStore.filters.identifier;
+    q.identifier = batchStore.filters.identifier as LocationQueryValue;
   }
 
   // Reset the page number because the found results may reduce the total number
@@ -274,13 +275,14 @@ const updateUploaderFilter = () => {
 
 const { execute, error } = useAsyncState(() => {
   if (route.query.identifier) {
-    batchStore.filters.identifier = <string>route.query.identifier;
+    batchStore.filters.identifier = route.query.identifier as string;
   } else {
     delete batchStore.filters.identifier;
   }
 
   if (route.query.status) {
-    batchStore.filters.status = <IngestListBatchesStatusEnum>route.query.status;
+    batchStore.filters.status = route.query
+      .status as IngestListBatchesStatusEnum;
   } else {
     delete batchStore.filters.status;
   }
@@ -302,13 +304,13 @@ const { execute, error } = useAsyncState(() => {
   }
 
   if (route.query.uploaderId) {
-    batchStore.filters.uploaderId = <string>route.query.uploaderId;
+    batchStore.filters.uploaderId = route.query.uploaderId as string;
   } else {
     delete batchStore.filters.uploaderId;
   }
 
   return batchStore.fetchBatches(
-    route.query.page ? parseInt(<string>route.query.page) : 1,
+    route.query.page ? parseInt(route.query.page as string) : 1,
   );
 }, null);
 

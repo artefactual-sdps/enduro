@@ -6,6 +6,20 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { LocationQueryValue } from "vue-router";
 
+import IconInfo from "~icons/akar-icons/info-fill";
+import IconAll from "~icons/clarity/blocks-group-line?font-size=20px";
+import IconValidated from "~icons/clarity/checkbox-list-line?font-size=20px";
+import IconClose from "~icons/clarity/close-line";
+import IconCanceled from "~icons/clarity/cursor-hand-open-line?font-size=20px";
+import IconError from "~icons/clarity/flame-line?font-size=20px";
+import IconQueued from "~icons/clarity/hourglass-line?font-size=20px";
+import IconFailed from "~icons/clarity/remove-line?font-size=20px";
+import IconSearch from "~icons/clarity/search-line";
+import IconIngested from "~icons/clarity/success-standard-line?font-size=20px";
+import IconProcessing from "~icons/clarity/sync-line?font-size=20px";
+import IconPending from "~icons/clarity/warning-standard-line?font-size=20px";
+import IconSIPs from "~icons/octicon/package-dependencies-24";
+
 import { api } from "@/client";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Pager from "@/components/Pager.vue";
@@ -20,19 +34,6 @@ import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useSipStore } from "@/stores/sip";
 import { useUserStore } from "@/stores/user";
-import IconInfo from "~icons/akar-icons/info-fill";
-import IconAll from "~icons/clarity/blocks-group-line?font-size=20px";
-import IconValidated from "~icons/clarity/checkbox-list-line?font-size=20px";
-import IconClose from "~icons/clarity/close-line";
-import IconCanceled from "~icons/clarity/cursor-hand-open-line?font-size=20px";
-import IconError from "~icons/clarity/flame-line?font-size=20px";
-import IconQueued from "~icons/clarity/hourglass-line?font-size=20px";
-import IconFailed from "~icons/clarity/remove-line?font-size=20px";
-import IconSearch from "~icons/clarity/search-line";
-import IconIngested from "~icons/clarity/success-standard-line?font-size=20px";
-import IconProcessing from "~icons/clarity/sync-line?font-size=20px";
-import IconPending from "~icons/clarity/warning-standard-line?font-size=20px";
-import IconSIPs from "~icons/octicon/package-dependencies-24";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -219,7 +220,7 @@ const changePage = (page: number) => {
   if (page <= 1) {
     delete q.page;
   } else {
-    q.page = <LocationQueryValue>page.toString();
+    q.page = page.toString() as LocationQueryValue;
   }
 
   router.push({
@@ -233,7 +234,7 @@ const searchByName = () => {
   if (sipStore.filters.name === "") {
     delete q.name;
   } else {
-    q.name = <LocationQueryValue>sipStore.filters.name;
+    q.name = sipStore.filters.name as LocationQueryValue;
   }
 
   // Reset the page number because the found results may reduce the total number
@@ -313,13 +314,13 @@ const updateUploaderFilter = () => {
 
 const { execute, error } = useAsyncState(() => {
   if (route.query.name) {
-    sipStore.filters.name = <string>route.query.name;
+    sipStore.filters.name = route.query.name as string;
   } else {
     delete sipStore.filters.name;
   }
 
   if (route.query.status) {
-    sipStore.filters.status = <IngestListSipsStatusEnum>route.query.status;
+    sipStore.filters.status = route.query.status as IngestListSipsStatusEnum;
   } else {
     delete sipStore.filters.status;
   }
@@ -341,13 +342,13 @@ const { execute, error } = useAsyncState(() => {
   }
 
   if (route.query.uploaderId) {
-    sipStore.filters.uploaderId = <string>route.query.uploaderId;
+    sipStore.filters.uploaderId = route.query.uploaderId as string;
   } else {
     delete sipStore.filters.uploaderId;
   }
 
   return sipStore.fetchSips(
-    route.query.page ? parseInt(<string>route.query.page) : 1,
+    route.query.page ? parseInt(route.query.page as string) : 1,
   );
 }, null);
 

@@ -1,19 +1,19 @@
 <script setup lang="ts">
+import "@uppy/core/dist/style.css";
+import "@uppy/dashboard/dist/style.css";
+import "@uppy/progress-bar/dist/style.css";
 import { computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
+
+import IconUpload from "~icons/clarity/backup-restore-line?font-size=20px";
+import IconAdd from "~icons/clarity/plus-circle-line";
+import IconCloudUpload from "~icons/clarity/upload-cloud-line?font-size=20px";
 
 import SIPUploadLocal from "@/components/SIPUploadLocal.vue";
 import SIPUploadSource from "@/components/SIPUploadSource.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import IconUpload from "~icons/clarity/backup-restore-line?font-size=20px";
-import IconAdd from "~icons/clarity/plus-circle-line";
-import IconCloudUpload from "~icons/clarity/upload-cloud-line?font-size=20px";
-
-import "@uppy/core/dist/style.css";
-import "@uppy/dashboard/dist/style.css";
-import "@uppy/progress-bar/dist/style.css";
 
 const route = useRoute();
 const router = useRouter();

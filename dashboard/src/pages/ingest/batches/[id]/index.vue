@@ -2,6 +2,8 @@
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { onMounted, ref } from "vue";
 
+import IconInfo from "~icons/akar-icons/info-fill";
+
 import { api } from "@/client";
 import BatchReviewAlert from "@/components/BatchReviewAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
@@ -10,7 +12,6 @@ import UUID from "@/components/UUID.vue";
 import uploader from "@/composables/uploader";
 import { useAuthStore } from "@/stores/auth";
 import { useBatchStore } from "@/stores/batch";
-import IconInfo from "~icons/akar-icons/info-fill";
 
 const authStore = useAuthStore();
 const batchStore = useBatchStore();

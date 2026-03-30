@@ -1,8 +1,8 @@
-import * as api from "./openapi-generator";
-import * as runtime from "./openapi-generator/runtime";
-
 import router from "@/router";
 import { useAuthStore } from "@/stores/auth";
+
+import * as api from "./openapi-generator";
+import * as runtime from "./openapi-generator/runtime";
 
 export interface Client {
   about: api.AboutApi;

@@ -2,12 +2,13 @@
 import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 
+import IconDetails from "~icons/clarity/details-line?font-size=20px";
+import IconBatches from "~icons/clarity/layers-line";
+
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useBatchStore } from "@/stores/batch";
-import IconDetails from "~icons/clarity/details-line?font-size=20px";
-import IconBatches from "~icons/clarity/layers-line";
 
 const route = useRoute("/ingest/batches/[id]");
 const router = useRouter();

@@ -3,10 +3,11 @@ import { useAsyncState, useInfiniteScroll } from "@vueuse/core";
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 
+import IconBundle from "~icons/clarity/bundle-line";
+
 import { api, client } from "@/client";
 import { humanFileSize } from "@/composables/format";
 import { useAuthStore } from "@/stores/auth";
-import IconBundle from "~icons/clarity/bundle-line";
 
 const authStore = useAuthStore();
 const router = useRouter();

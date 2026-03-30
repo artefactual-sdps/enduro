@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import Uppy from "@uppy/core";
+import "@uppy/core/dist/style.css";
+import "@uppy/dashboard/dist/style.css";
+import "@uppy/progress-bar/dist/style.css";
 import { Dashboard } from "@uppy/vue";
 import XHR from "@uppy/xhr-upload";
 import { onMounted } from "vue";
@@ -8,10 +11,6 @@ import { useRouter } from "vue-router";
 import { getPath } from "@/client";
 import { useAboutStore } from "@/stores/about";
 import { useAuthStore } from "@/stores/auth";
-
-import "@uppy/core/dist/style.css";
-import "@uppy/dashboard/dist/style.css";
-import "@uppy/progress-bar/dist/style.css";
 
 const authStore = useAuthStore();
 const aboutStore = useAboutStore();

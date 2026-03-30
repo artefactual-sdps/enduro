@@ -2,6 +2,8 @@
 import Tooltip from "bootstrap/js/dist/tooltip";
 import { onMounted, ref } from "vue";
 
+import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
+
 import AipLocationCard from "@/components/AipLocationCard.vue";
 import AipReportsCard from "@/components/AipReportsCard.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
@@ -10,7 +12,6 @@ import WorkflowCollapse from "@/components/WorkflowCollapse.vue";
 import WorkflowHelp from "@/components/WorkflowHelp.vue";
 import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
-import IconHelp from "~icons/clarity/help-solid?height=0.8em&width=0.8em";
 
 const aipStore = useAipStore();
 const authStore = useAuthStore();

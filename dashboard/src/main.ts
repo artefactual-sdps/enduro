@@ -1,4 +1,3 @@
-import "./styles/main.scss";
 import { PiniaDebounce } from "@pinia/plugin-debounce";
 import { createPinia } from "pinia";
 import { debounce } from "ts-debounce";
@@ -13,6 +12,7 @@ import {
   formatDuration,
 } from "./composables/format";
 import router from "./router";
+import "./styles/main.scss";
 
 const pinia = createPinia();
 pinia.use(PiniaDebounce(debounce));

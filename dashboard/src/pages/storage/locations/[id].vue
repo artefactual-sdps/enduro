@@ -2,13 +2,14 @@
 import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 
+import IconAIPs from "~icons/clarity/bundle-line?font-size=20px";
+import IconDetails from "~icons/clarity/details-line?font-size=20px";
+import IconLocations from "~icons/octicon/server-24";
+
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLocationStore } from "@/stores/location";
-import IconAIPs from "~icons/clarity/bundle-line?font-size=20px";
-import IconDetails from "~icons/clarity/details-line?font-size=20px";
-import IconLocations from "~icons/octicon/server-24";
 
 const route = useRoute("/storage/locations/[id]");
 const router = useRouter();

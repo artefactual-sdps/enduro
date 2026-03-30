@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useAsyncState } from "@vueuse/core";
 
+import IconLocations from "~icons/octicon/server-24";
+
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import UUID from "@/components/UUID.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 import { useLocationStore } from "@/stores/location";
-import IconLocations from "~icons/octicon/server-24";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();

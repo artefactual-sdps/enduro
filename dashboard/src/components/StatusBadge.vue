@@ -17,7 +17,6 @@ export type StatusEnum = PackageEnum | WorkflowEnum | TaskEnum;
 import { computed } from "vue";
 import type { Component } from "vue";
 
-import { api } from "@/client";
 import IconValidated from "~icons/clarity/checkbox-list-line";
 import IconCanceled from "~icons/clarity/cursor-hand-open-line";
 import IconError from "~icons/clarity/flame-line";
@@ -26,6 +25,8 @@ import IconFailed from "~icons/clarity/remove-line";
 import IconIngested from "~icons/clarity/success-standard-line";
 import IconProcessing from "~icons/clarity/sync-line";
 import IconPending from "~icons/clarity/warning-standard-line";
+
+import { api } from "@/client";
 
 type BadgeType = "package" | "workflow";
 type BadgeStyle = string[];
