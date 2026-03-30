@@ -28,7 +28,7 @@ const protectedRoutes: Record<string, string[][]> = {
   "/storage/locations/[id]/aips/": [["storage:locations:aips:list"]],
 };
 
-router.beforeEach(async (to, _, next) => {
+router.beforeEach(async (to) => {
   const authStore = useAuthStore();
   await authStore.loadUser();
   const routeName = to.name?.toString() || "";
@@ -43,16 +43,18 @@ router.beforeEach(async (to, _, next) => {
 
   // TODO: Show alerts when redirecting.
   if (!authStore.isEnabled && signinRoutes.includes(name)) {
-    next({ name: "/" });
-  } else if (!authStore.isUserValid && !signinRoutes.includes(name)) {
-    next({ name: "/user/signin" });
-  } else if (
+    return { name: "/" };
+  }
+
+  if (!authStore.isUserValid && !signinRoutes.includes(name)) {
+    return { name: "/user/signin" };
+  }
+
+  if (
     protectedRoutes[name] !== undefined &&
     !checkRoutePermissions(protectedRoutes[name])
   ) {
-    next({ name: "/" });
-  } else {
-    next();
+    return { name: "/" };
   }
 });
 
