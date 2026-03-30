@@ -54,7 +54,7 @@ describe("SIPUploadSource.vue", () => {
   });
 
   it("defaults to SIP upload and disables the switch when user lacks batch permission", async () => {
-    ingestListSipSourceObjects.mockResolvedValueOnce({});
+    ingestListSipSourceObjects.mockResolvedValueOnce({ objects: [] });
 
     const wrapper = mount(
       SIPUploadSource,
@@ -68,7 +68,7 @@ describe("SIPUploadSource.vue", () => {
   });
 
   it("defaults to batch upload and disables the switch when user lacks SIP permission", async () => {
-    ingestListSipSourceObjects.mockResolvedValueOnce({});
+    ingestListSipSourceObjects.mockResolvedValueOnce({ objects: [] });
 
     const wrapper = mount(
       SIPUploadSource,
@@ -82,7 +82,7 @@ describe("SIPUploadSource.vue", () => {
   });
 
   it("defaults to SIP upload and enables the switch when user has both permissions", async () => {
-    ingestListSipSourceObjects.mockResolvedValueOnce({});
+    ingestListSipSourceObjects.mockResolvedValueOnce({ objects: [] });
 
     const wrapper = mount(SIPUploadSource, mountOptions());
     await flushPromises();
@@ -197,5 +197,15 @@ describe("SIPUploadSource.vue", () => {
 
     expect(wrapper.text()).toContain("Failed to start ingest.");
     expect(push).not.toHaveBeenCalled();
+  });
+
+  it("shows an error when the SIP source list fails to load", async () => {
+    ingestListSipSourceObjects.mockRejectedValueOnce(new Error("API error"));
+
+    const wrapper = mount(SIPUploadSource, mountOptions());
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Failed to load SIPs.");
+    expect(wrapper.text()).toContain("No SIPs found");
   });
 });
