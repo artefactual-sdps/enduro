@@ -1,7 +1,4 @@
 <script setup lang="ts">
-import "@uppy/core/dist/style.css";
-import "@uppy/dashboard/dist/style.css";
-import "@uppy/progress-bar/dist/style.css";
 import { computed, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
