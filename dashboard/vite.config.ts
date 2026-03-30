@@ -2,9 +2,9 @@ import { URL, fileURLToPath } from "node:url";
 
 import vue from "@vitejs/plugin-vue";
 import Icons from "unplugin-icons/vite";
-import VueRouter from "unplugin-vue-router/vite";
 import { defineConfig, loadEnv } from "vite";
 import vueDevTools from "vite-plugin-vue-devtools";
+import VueRouter from "vue-router/vite";
 
 // Load environment variables from .env* files and the current process.
 // The variables from the current process take precedence.
@@ -28,7 +28,9 @@ const csp: Record<string, string[]> = {
 export default defineConfig({
   plugins: [
     VueRouter({
+      dts: "src/route-map.d.ts",
       routesFolder: "src/pages",
+      watch: false,
     }),
     vue({}),
     vueDevTools(),
