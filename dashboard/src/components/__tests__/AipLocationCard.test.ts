@@ -133,12 +133,6 @@ describe("AipLocationCard.vue", () => {
     });
     aipStore.move = moveMock;
 
-    vi.mock("@/dialogs", () => {
-      return {
-        openLocationDialog: () => "fe675e52-c761-46d0-8605-fae4bd10303e",
-      };
-    });
-
     //const button = getByText("Choose storage location");
     //await fireEvent.click(button);
 

@@ -106,10 +106,11 @@ describe("MonitorConnection", () => {
       });
       const fn = vi.fn().mockRejectedValue(new Error("Always fails"));
 
-      expect(() => connection.retryBackoff(fn)).rejects.toThrow(
+      const promise = expect(connection.retryBackoff(fn)).rejects.toThrow(
         "Max attempts reached",
       );
       await vi.runAllTimersAsync();
+      await promise;
 
       expect(fn).toHaveBeenCalledTimes(2);
     });
@@ -193,8 +194,9 @@ describe("IngestMonitorConnection", () => {
       maxAttempts: 1,
       jitterFn: () => 0,
     });
-    expect(conn.dial()).rejects.toThrow("Max attempts reached");
+    const promise = expect(conn.dial()).rejects.toThrow("Max attempts reached");
     await vi.runAllTimersAsync();
+    await promise;
 
     expect(consoleMock).toHaveBeenCalledTimes(1);
     expect(consoleMock).toHaveBeenCalledWith(
@@ -284,8 +286,9 @@ describe("StorageMonitorConnection", () => {
       maxAttempts: 1,
       jitterFn: () => 0,
     });
-    expect(conn.dial()).rejects.toThrow("Max attempts reached");
+    const promise = expect(conn.dial()).rejects.toThrow("Max attempts reached");
     await vi.runAllTimersAsync();
+    await promise;
 
     expect(consoleMock).toHaveBeenCalledTimes(1);
     expect(consoleMock).toHaveBeenCalledWith(
