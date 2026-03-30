@@ -5,6 +5,17 @@ import { computed, onMounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { LocationQueryValue } from "vue-router";
 
+import IconInfo from "~icons/akar-icons/info-fill";
+import IconAll from "~icons/clarity/blocks-group-line?font-size=20px";
+import IconAIPs from "~icons/clarity/bundle-line";
+import IconClose from "~icons/clarity/close-line";
+import IconQueued from "~icons/clarity/hourglass-line?font-size=20px";
+import IconError from "~icons/clarity/remove-line?font-size=20px";
+import IconSearch from "~icons/clarity/search-line";
+import IconDone from "~icons/clarity/success-standard-line?font-size=20px";
+import IconProcessing from "~icons/clarity/sync-line?font-size=20px";
+import IconPending from "~icons/clarity/warning-standard-line?font-size=20px";
+
 import { api } from "@/client";
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import Pager from "@/components/Pager.vue";
@@ -18,16 +29,6 @@ import type { StorageListAipsStatusEnum } from "@/openapi-generator";
 import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import IconInfo from "~icons/akar-icons/info-fill";
-import IconAll from "~icons/clarity/blocks-group-line?font-size=20px";
-import IconAIPs from "~icons/clarity/bundle-line";
-import IconClose from "~icons/clarity/close-line";
-import IconQueued from "~icons/clarity/hourglass-line?font-size=20px";
-import IconError from "~icons/clarity/remove-line?font-size=20px";
-import IconSearch from "~icons/clarity/search-line";
-import IconDone from "~icons/clarity/success-standard-line?font-size=20px";
-import IconProcessing from "~icons/clarity/sync-line?font-size=20px";
-import IconPending from "~icons/clarity/warning-standard-line?font-size=20px";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
@@ -126,7 +127,7 @@ const changePage = (page: number) => {
   if (page <= 1) {
     delete q.page;
   } else {
-    q.page = <LocationQueryValue>page.toString();
+    q.page = page.toString() as LocationQueryValue;
   }
 
   router.push({
@@ -140,7 +141,7 @@ const search = () => {
   if (aipStore.filters.query === "") {
     delete q.query;
   } else {
-    q.query = <LocationQueryValue>aipStore.filters.query;
+    q.query = aipStore.filters.query as LocationQueryValue;
   }
 
   // Reset the page number because the found results may reduce the total number
@@ -201,13 +202,13 @@ const updateDateFilter = (
 
 const { execute, error } = useAsyncState(() => {
   if (route.query.query) {
-    aipStore.filters.query = <string>route.query.query;
+    aipStore.filters.query = route.query.query as string;
   } else {
     delete aipStore.filters.query;
   }
 
   if (route.query.status) {
-    aipStore.filters.status = <StorageListAipsStatusEnum>route.query.status;
+    aipStore.filters.status = route.query.status as StorageListAipsStatusEnum;
   } else {
     delete aipStore.filters.status;
   }
@@ -228,7 +229,7 @@ const { execute, error } = useAsyncState(() => {
   }
 
   return aipStore.fetchAips(
-    route.query.page ? parseInt(<string>route.query.page) : 1,
+    route.query.page ? parseInt(route.query.page as string) : 1,
   );
 }, null);
 

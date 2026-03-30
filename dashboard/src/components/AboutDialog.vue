@@ -3,11 +3,12 @@ import Modal from "bootstrap/js/dist/modal";
 import { onMounted, ref } from "vue";
 import { closeDialog } from "vue3-promise-dialog";
 
-import useEventListener from "@/composables/useEventListener";
-import { useAboutStore } from "@/stores/about";
 import IconDocumentation from "~icons/lucide/book-text";
 import IconLicense from "~icons/lucide/file-text";
 import IconContributing from "~icons/lucide/git-merge";
+
+import useEventListener from "@/composables/useEventListener";
+import { useAboutStore } from "@/stores/about";
 
 const aboutStore = useAboutStore();
 

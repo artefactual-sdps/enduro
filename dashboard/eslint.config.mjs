@@ -1,9 +1,9 @@
-import globals from "globals";
 import pluginJs from "@eslint/js";
-import tseslint from "typescript-eslint";
-import pluginVue from "eslint-plugin-vue";
 import pluginImport from "eslint-plugin-import";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
+import pluginVue from "eslint-plugin-vue";
+import globals from "globals";
+import tseslint from "typescript-eslint";
 
 /** @type {import('eslint').Linter.Config[]} */
 export default [
@@ -66,14 +66,6 @@ export default [
         "error",
         "PascalCase",
         { registeredComponentsOnly: false },
-      ],
-      "import/order": [
-        "error",
-        {
-          alphabetize: { order: "asc" },
-          named: true,
-          "newlines-between": "always",
-        },
       ],
     },
   },

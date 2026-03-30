@@ -2,8 +2,9 @@ import { cleanup, render } from "@testing-library/vue";
 import { afterEach, describe, expect, it } from "vitest";
 import { createMemoryHistory, createRouter } from "vue-router";
 
-import Tabs from "@/components/Tabs.vue";
 import IconHome from "~icons/clarity/home-line?width=2em&height=2em";
+
+import Tabs from "@/components/Tabs.vue";
 
 describe("Tabs.vue", () => {
   afterEach(() => cleanup());

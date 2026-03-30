@@ -2,13 +2,14 @@
 import { useAsyncState } from "@vueuse/core";
 import { useRoute, useRouter } from "vue-router";
 
+import IconDetails from "~icons/clarity/details-line?font-size=20px";
+import IconSIPs from "~icons/octicon/package-dependencies-24";
+
 import PageLoadingAlert from "@/components/PageLoadingAlert.vue";
 import SipPendingAlert from "@/components/SipPendingAlert.vue";
 import Tabs from "@/components/Tabs.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useSipStore } from "@/stores/sip";
-import IconDetails from "~icons/clarity/details-line?font-size=20px";
-import IconSIPs from "~icons/octicon/package-dependencies-24";
 
 const route = useRoute("/ingest/sips/[id]");
 const router = useRouter();

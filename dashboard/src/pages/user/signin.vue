@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useAuthStore } from "@/stores/auth";
 import IconLogin from "~icons/clarity/login-line";
+
+import { useAuthStore } from "@/stores/auth";
 </script>
 
 <template>

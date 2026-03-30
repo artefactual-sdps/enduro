@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { openDialog } from "vue3-promise-dialog";
 
+import IconInfo from "~icons/clarity/info-standard-solid";
+import IconMenu from "~icons/clarity/menu-line";
+
 import AboutDialogVue from "@/components/AboutDialog.vue";
 import Breadcrumb from "@/components/Breadcrumb.vue";
 import InstitutionLogo from "@/components/InstitutionLogo.vue";
 import { useLayoutStore } from "@/stores/layout";
-import IconInfo from "~icons/clarity/info-standard-solid";
-import IconMenu from "~icons/clarity/menu-line";
 
 const layoutStore = useLayoutStore();
 

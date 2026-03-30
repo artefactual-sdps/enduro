@@ -13,7 +13,7 @@ describe("StatusLegend.vue", () => {
       render(StatusLegend, {
         props: {
           show: true,
-          items: <LegendItem[]>[
+          items: [
             {
               status: api.EnduroIngestSipStatusEnum.Ingested,
               description: "Ingested description",
@@ -22,7 +22,7 @@ describe("StatusLegend.vue", () => {
               status: api.EnduroIngestSipStatusEnum.Error,
               description: "Error description",
             },
-          ],
+          ] as LegendItem[],
         },
       });
 

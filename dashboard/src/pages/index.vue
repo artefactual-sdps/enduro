@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 
+import IconHome from "~icons/clarity/home-line";
+
 import SafeHtml from "@/components/SafeHtml.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import IconHome from "~icons/clarity/home-line";
 
 const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
