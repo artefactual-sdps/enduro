@@ -1,5 +1,5 @@
 import { mount } from "@vue/test-utils";
-import VueDatePicker from "@vuepic/vue-datepicker";
+import { VueDatePicker } from "@vuepic/vue-datepicker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 

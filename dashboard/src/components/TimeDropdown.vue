@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import VueDatePicker from "@vuepic/vue-datepicker";
+import { VueDatePicker } from "@vuepic/vue-datepicker";
 import type { ModelValue } from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import Dropdown from "bootstrap/js/dist/dropdown";
@@ -8,6 +8,8 @@ import { onMounted, ref, watch } from "vue";
 import IconClose from "~icons/clarity/close-line";
 
 const dateFormat = "yyyy-MM-dd HH:mm";
+const pickerFormats = { input: dateFormat };
+const pickerTimeConfig = { timePickerInline: true };
 
 const emit = defineEmits<{
   change: [name: string, start: string, end: string];
@@ -103,6 +105,11 @@ const reset = () => {
   emitChange();
 };
 
+const getInputAttrs = (suffix: "start" | "end") => ({
+  id: `tdd-${props.name}-${suffix}-input`,
+  name: `tdd-${props.name}-${suffix}-input`,
+});
+
 const formatDate = (date: Date | null) => {
   if (!date) return "";
   let t = date.toISOString();
@@ -190,9 +197,9 @@ const earliestTimeFromOption = (value: string) => {
         <VueDatePicker
           :id="'tdd-' + props.name + '-start'"
           v-model="startTime"
-          time-picker-inline
-          :name="'tdd-' + props.name + '-start-input'"
-          :format="dateFormat"
+          :formats="pickerFormats"
+          :input-attrs="getInputAttrs('start')"
+          :time-config="pickerTimeConfig"
           placeholder="Start time"
           @update:model-value="handleStartChange"
         />
@@ -202,9 +209,9 @@ const earliestTimeFromOption = (value: string) => {
         <VueDatePicker
           :id="'tdd-' + props.name + '-end'"
           v-model="endTime"
-          time-picker-inline
-          :name="'tdd-' + props.name + '-end-input'"
-          :format="dateFormat"
+          :formats="pickerFormats"
+          :input-attrs="getInputAttrs('end')"
+          :time-config="pickerTimeConfig"
           placeholder="End time"
           @update:model-value="handleEndChange"
         />
