@@ -1039,6 +1039,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 			RelativePath: relPath,
 			SIPID:        state.sip.uuid,
 			BatchID:      state.req.BatchUUID,
+			SIPName:      state.sip.name,
 		},
 	).Get(preCtx, &ppResult)
 	if err != nil {
