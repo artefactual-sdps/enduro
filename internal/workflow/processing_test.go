@@ -324,6 +324,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		&childwf.PreprocessingParams{
 			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
 			SIPID:        sipUUID,
+			SIPName:      sipName,
 		},
 	).Return(
 		&childwf.PreprocessingResult{
@@ -426,6 +427,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		&childwf.PreprocessingParams{
 			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
 			SIPID:        sipUUID,
+			SIPName:      sipName,
 		},
 	).Return(
 		&childwf.PreprocessingResult{
