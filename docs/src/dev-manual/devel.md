@@ -197,6 +197,7 @@ located in the root of the project. Example:
 TRIGGER_MODE_AUTO=true
 ENDURO_PRES_SYSTEM=a3m
 LOCAL_A3M=true
+DASHBOARD_DEV=true
 CHILD_WORKFLOW_PATHS='../preprocessing-acme:../acme-enduro-workflows'
 MOUNT_PREPROCESSING_VOLUME=true
 ```
@@ -216,6 +217,13 @@ but it has seen little adoption and is largely unmaintained. Check the
 
 Build and use a local version of a3m. Requires to have the `a3m` repository
 cloned as a sibling of this repository folder.
+
+### DASHBOARD_DEV
+
+If `DASHBOARD_DEV` is truthy (`t`, `true`, `y`, `yes`, `1`), Tilt builds the
+dashboard image with the `builder` target and serves the dashboard with the
+Vite development server, including hot reload. Otherwise, Tilt uses the default
+image target and serves the dashboard with Nginx.
 
 ### CHILD_WORKFLOW_PATHS
 

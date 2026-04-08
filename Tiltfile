@@ -16,6 +16,7 @@ if PRES_SYS not in ("a3m", "am"):
 
 true = ("true", "1", "yes", "t", "y")
 LOCAL_A3M = os.environ.get("LOCAL_A3M", "").lower() in true
+DASHBOARD_DEV = os.environ.get("DASHBOARD_DEV", "").lower() in true
 
 # Docker images
 custom_build(
@@ -42,9 +43,7 @@ else:
 docker_build(
   "enduro-dashboard:dev",
   context="dashboard",
-  # Comment the following line to serve the app with Nginx instead of the Vite
-  # dev server
-  target="builder",
+  target="builder" if DASHBOARD_DEV else "",
   live_update=[
     fall_back_on("dashboard/vite.config.js"),
     sync("dashboard/", "/app/"),
