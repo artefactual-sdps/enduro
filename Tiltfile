@@ -111,7 +111,8 @@ k8s_resource(
   "enduro",
   labels=["Enduro"],
   port_forwards=["9000:9000", "9002:9002"],
-  trigger_mode=trigger_mode
+  trigger_mode=trigger_mode,
+  resource_deps=["temporal"],
 )
 k8s_resource(
   "enduro-dashboard",
@@ -121,14 +122,24 @@ k8s_resource(
 )
 
 if PRES_SYS == 'am':
-  k8s_resource("enduro-am", labels=["Enduro"], trigger_mode=trigger_mode)
   k8s_resource(
     "ambox",
     labels=["Others"],
     port_forwards=["64080:64080", "64081:64081"],
   )
+  k8s_resource(
+    "enduro-am",
+    labels=["Enduro"],
+    trigger_mode=trigger_mode,
+    resource_deps=["temporal", "ambox"],
+  )
 else:
-  k8s_resource("enduro-a3m", labels=["Enduro"], trigger_mode=trigger_mode)
+  k8s_resource(
+    "enduro-a3m",
+    labels=["Enduro"],
+    trigger_mode=trigger_mode,
+    resource_deps=["temporal"],
+  )
 
 # Other resources
 k8s_resource("keycloak", labels=["Others"], port_forwards="7470")
@@ -139,15 +150,23 @@ k8s_resource(
   port_forwards=["7460:9001", "0.0.0.0:7461:9000"]
 )
 k8s_resource("redis", labels=["Others"])
-k8s_resource("temporal", labels=["Others"])
+k8s_resource("temporal", labels=["Others"], resource_deps=["mysql"])
 k8s_resource("temporal-ui", labels=["Others"], port_forwards="7440:8080")
 
 # Tools
-k8s_resource("minio-setup-buckets", labels=["Tools"])
+k8s_resource("minio-setup-buckets", labels=["Tools"], resource_deps=["minio"])
 if PRES_SYS == 'am':
-  k8s_resource("mysql-create-amss-location", labels=["Tools"])
+  k8s_resource(
+    "mysql-create-amss-location",
+    labels=["Tools"],
+    resource_deps=["enduro"],
+  )
 else:
-  k8s_resource("mysql-create-locations", labels=["Tools"])
+  k8s_resource(
+    "mysql-create-locations",
+    labels=["Tools"],
+    resource_deps=["enduro"],
+  )
 
 # Observability (not in CI mode)
 if config.tilt_subcommand != "ci":
