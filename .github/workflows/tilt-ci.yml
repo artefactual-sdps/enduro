@@ -22,7 +22,7 @@ jobs:
             --k3s-arg "--disable=traefik,servicelb,metrics-server@server:*"
             --k3s-arg "--kubelet-arg=eviction-hard=imagefs.available<1%,nodefs.available<1%@server:*"
       - name: Install Tilt
-        uses: yokawasa/action-setup-kube-tools@3e3886c11bfa25fe33f8eb90f59542dd151da442 # v0.13.1
+        uses: yokawasa/action-setup-kube-tools@5778123f7b071387e9c8e522492d8f39427dc6c7 # v0.13.4
         with:
           setup-tools: |
             tilt
