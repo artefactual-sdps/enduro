@@ -1,6 +1,6 @@
 module github.com/artefactual-sdps/enduro
 
-go 1.26.1
+go 1.26.2
 
 require (
 	ariga.io/atlas v0.37.0
