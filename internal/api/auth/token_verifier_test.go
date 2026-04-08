@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"chainguard.dev/go-oidctest/pkg/oidctest"
-	"github.com/go-jose/go-jose/v3"
-	"github.com/go-jose/go-jose/v3/jwt"
+	"github.com/go-jose/go-jose/v4"
+	"github.com/go-jose/go-jose/v4/jwt"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/assert/cmp"
 
@@ -38,7 +38,7 @@ func token(t *testing.T, signer jose.Signer, iss string, claims any) (token stri
 	}
 
 	// Serialize token.
-	token, err := builder.CompactSerialize()
+	token, err := builder.Serialize()
 	assert.NilError(t, err)
 
 	return token
