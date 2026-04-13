@@ -85,7 +85,7 @@ increase during development.
     * [Logging](../dev-manual/logging.md)
     * [Local/Development environment](../dev-manual/devel.md)
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 debug = true
@@ -119,7 +119,7 @@ run ingest, preservation, and storage workflows. Currently, no other workflow
 engines can be substituted. These configuration settings allow Enduro to connect
 and communicate with Temporal.
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [temporal]
@@ -147,7 +147,7 @@ Configuration information for Enduro's internal API calls across different
 internal API does not use or support authentication. As such, the configured
 port should **not be exposed publicly**.
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [internalapi]
@@ -173,7 +173,7 @@ external facing [API]. This first block sets the basic configuration of the API.
 
     * [Enduro API documentation](../dev-manual/api.md)
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [api]
@@ -333,7 +333,7 @@ Enduro uses [Redis] as a watcher and messaging queue - see the [Components]
 documentation for more information. These settings provide Redis with an
 authorization ticket so it can access the API.
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [api.auth.ticket.redis]
@@ -352,7 +352,7 @@ These settings configure the connection information for Enduro's MySQL database.
 Note that other MySQL distributions (like MariaDB or Percona) can be used, but
 other database types are not currently supported in Enduro.
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [database]
@@ -388,7 +388,7 @@ documentation for more information. At this time, Redis is the only supported
 event queue for Enduro. The settings below configure Enduro's ability to connect
 and communicate with Redis.
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [event]
@@ -461,7 +461,7 @@ the configured path.
     * The metadata directory **must not** be nested inside any other directories
     * The PREMIS schema file path must be accessible to Enduro
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [validatePremis]
@@ -502,7 +502,7 @@ configuration properties. Different object stores may have different parameters
 to be configured. Consult the corresponding object store provider's
 documentation for more information.
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [watcher.embedded]
@@ -617,7 +617,7 @@ Enduro uses a MySQL database by default. Note that other MySQL distributions
 (like MariaDB or Percona) can be used, but other database types are not
 currently supported in Enduro.
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [storage.database]
@@ -646,36 +646,47 @@ migrate = true
 
     * [Database migrations](../dev-manual/db-migrations.md)
 
-#### Internal location used for storing AIPs (a3m)
+#### Internal location used for storing staging AIPs and reports
 
 These settings are used to configure a local object store bucket or filesystem
-directory if the configured [preservation engine] is [a3m]. Archivematica
-includes its own [Storage Service] component, but as a lightweight command-line
-derivative, a3m does not.
+directory where the storage service places reports, and staging AIPs when the
+configured [preservation engine] is [a3m]. Archivematica includes its own
+[Storage Service] component, but as a lightweight command-line derivative, a3m
+does not.
 
 The defaults included below use Amazon [S3] syntax to configure a [MinIO]
 bucket. Other third-party object store providers (such as Azure) will have their
 own syntax - consult the provider's documentation for more information.
 
-For **local filesystems**, the only other required field is a `url` parameter
+For **local filesystems**, the only required field is a `url` parameter
 pointing to the target location - for example:
 
 ```toml
-url = "file:///home/enduro/aipstore"
+[storage.internal]
+url = "file:///home/enduro/storage"
 ```
 
-**Default values**:
+If `url` is configured, it takes precedence over the individual S3-like
+configuration settings listed below.
+
+**Example configuration**:
 
 ```toml
 [storage.internal]
+url = ""
 endpoint = "http://minio.enduro-sdps:9000"
 pathStyle = true
-key = "minio"
-secret = "minio123"
+accessKey = "minio"
+secretKey = "minio123"
 region = "us-west-1"
-bucket = "aips"
+bucket = "enduro-storage"
 ```
 
+* `url`: URL for the target bucket or filesystem location. This can be used for
+  local filesystems, such as `file:///home/enduro/storage`, S3-compatible
+  object storage, such as `s3://enduro-storage?region=us-west-1`, or Azure Blob
+  Storage, such as `azblob://enduro-storage`. When `url` is set, it takes
+  precedence over the individual S3-like settings below.
 * `endpoint`: API endpoint for the target MinIO instance. Used by Enduro to read
   contents of a watched bucket, or for any other MinIO interactions.
 * `pathStyle`: Currently Amazon Web Services support two different URL
@@ -684,15 +695,66 @@ bucket = "aips"
   properties, such as region, bucket name, and object key. For Enduro
   integrations, the second virtual "host-style" method is not currently
   supported so if using an S3-like object store, ensure this is set to `true`.
-* `key`: Username for accessing the configured S3-like bucket.
-* `secret`: Password for accessing the configured S3-like bucket.
+* `accessKey`: Username for accessing the configured S3-like bucket.
+* `secretKey`: Password for accessing the configured S3-like bucket.
 * `region`: AWS S3 buckets are created in a specific region. When interacting
   with S3, you can specify the region during the bucket creation process. For
   a full list of available regions and the syntax to specify them, consult the
   [AWS S3 documentation][S3-regions].
 * `bucket`: A configured object store may have more than one bucket. This
-  parameter specifies the target bucket name to be used for the internal AIP
-  store location.
+  parameter specifies the target bucket name to be used for the reports
+  location, and for the staging AIP location when using [a3m].
+
+#### Internal location used for storing staging AIPs and reports - Azure
+
+If you intend to use [Azure] for your internal storage, set an Azure bucket
+`url` using the `azblob://` schema in the `[storage.internal]` section, and
+remove all other configurations in that section. Note that the Azure bucket
+name is included in the URL (the bucket name in the example below is
+"enduro-storage") so there is no need for a separate bucket config value.
+
+Then add an `[storage.internal.azure]` section to configure Azure
+authentication via shared key or client secret.
+
+Example Azure shared key configuration:
+
+```toml
+[storage.internal]
+url = "azblob://enduro-storage"
+
+[storage.internal.azure]
+storageAccount = "my-account"
+storageKey = "dGVzdA==" # Must be base64 encoded
+```
+
+Example Azure client secret configuration:
+
+```toml
+[storage.internal]
+url = "azblob://enduro-storage"
+
+[storage.internal.azure]
+storageAccount = "my-account"
+tenantID = "my-tenant-id"
+clientID = "my-client-id"
+clientSecret = "my-secret"
+```
+
+* `storageAccount`: The name of the Azure storage account.
+* `storageKey`: The shared key that Enduro should use to authenticate.
+* `tenantID`: Azure tenant ID for client secret authentication.
+* `clientID`: Azure client ID for client secret authentication.
+* `clientSecret`: Azure client secret for client secret authentication.
+
+When using Azure Blob Storage, Enduro supports two authentication modes in this
+subsection:
+
+* Shared key authentication using `storageKey`.
+* Client secret authentication using `tenantID`, `clientID`, and
+`clientSecret`.
+
+If both authentication modes are configured, the client secret settings take
+precedence.
 
 #### Storage event listener
 
@@ -702,7 +764,7 @@ storage location can be reflected in the Enduro user interface.
 
 At this time Redis is the only supported event listener for Enduro.
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [storage.event]
@@ -731,7 +793,7 @@ used - either [a3m] or [Archivematica].
 
 ```toml
 [preservation]
-taskqueue = "a3m"
+taskqueue = "am"
 ```
 
 * `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
@@ -741,7 +803,7 @@ taskqueue = "a3m"
 
     In this case, the setting tells Enduro the name of the task queue to expect
     for workflow tasks provided by the configured preservation engine. Supported
-    values are `a3m` (the default), or `am` for Archivematica.
+    values are `am` for Archivematica (the default), or `a3m`.
 
 ### a3m configuration
 
@@ -750,7 +812,7 @@ The next two configuration blocks must be set if you intend to use [a3m] as the
 
 The settings in this first block define basic connection information.
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 address = "127.0.0.1:7000"
@@ -997,30 +1059,37 @@ configured for UI uploads and failed packages. The default configuration
 included uses a [MinIO] bucket as the example location. MinIO uses Amazon [S3]
 syntax for its configuration properties. Different object stores may have
 different parameters to be configured. Consult the corresponding object store
-provider's documentation for more information, or, if using [Azure] blob
-storage, use the subsection
-[below](#internal-storage-configuration---azure-blob-storage) instead.
+provider's documentation for more information.
 
 For **local filesystems**, the only required field is a `url` parameter
 pointing to the target location - for example:
 
 ```toml
-[sipsource.bucket]
-url = "file:///home/enduro/internalstore"
+[internalStorage]
+url = "file:///home/enduro/ingest"
 ```
 
-**Default values**:
+If `url` is configured, it takes precedence over the individual S3-like
+configuration settings listed below.
+
+**Example configuration**:
 
 ```toml
-[internalStorage.bucket]
+[internalStorage]
+url = ""
 endpoint = "http://minio.enduro-sdps:9000"
 pathStyle = true
 accessKey = "minio"
 secretKey = "minio123"
 region = "us-west-1"
-bucket = "internal"
+bucket = "enduro-ingest"
 ```
 
+* `url`: URL for the target bucket or filesystem location. This can be used for
+  local filesystems, such as `file:///home/enduro/ingest`, S3-compatible object
+  storage, such as `s3://enduro-ingest?region=us-west-1`, or Azure Blob
+  Storage, such as `azblob://enduro-ingest`. When `url` is set, it takes
+  precedence over the individual S3-like settings below.
 * `endpoint`: API endpoint for the target MinIO instance. Used by Enduro to read
   contents of a bucket, or for any other MinIO interactions.
 * `pathStyle`: Currently Amazon Web Services support two different URL
@@ -1040,45 +1109,56 @@ bucket = "internal"
   and failed packages location. Because the default configuration uses MinIO
   buckets elsewhere as well, ensure that this bucket name is unique.
 
-#### Internal storage configuration - Azure blob storage
+#### Internal storage configuration - Azure
 
-This subsection allows an [Azure] blob storage location to be configured for UI
-uploads and failed packages, instead of the default S3-like object store
-configured above. At installation the values in this subsection are left blank.
+If you intend to use [Azure] for your internal upload space, set an Azure bucket
+`url` using the `azblob://` schema in the `[internalStorage]` section, and
+remove all other configurations in that section. Note that the Azure bucket
+name is included in the URL (the bucket name in the example below is
+"enduro-ingest") so there is no need for a separate bucket config value.
 
-If you intend to use Azure for your internal upload space, be sure to remove or
-comment out the S3-like object store parameters in the section
-[above](#internal-storage-configuration---s3-like-bucket-or-filesystem), and
-then add the Azure blob URL connection information there instead. For example,
-if your target Azure storage blob is named "sips", your configuration of the
-section above might look like this when configured properly:
+Then add an `[internalStorage.azure]` section to configure Azure authentication
+via shared key or client secret.
 
-```toml
-[internalStorage.bucket]
-url = "azblob://sips"
-endpoint = ""
-pathStyle = ""
-accessKey = ""
-secretKey = ""
-region = ""
-bucket = ""
-```
-
-The following subsection provides Enduro with the connection information needed
-to access packages in the target Azure blob store.
-
-**Default values**:
+Example Azure shared key configuration:
 
 ```toml
+[internalStorage]
+url = "azblob://enduro-ingest"
+
 [internalStorage.azure]
-storageAccount = ""
-storageKey = ""
+storageAccount = "my-account"
+storageKey = "dGVzdA==" # Must be base64 encoded
 ```
 
-* `storageAccount`: The name of the Azure storage account associated with the
-  target blob.
-* `storageKey`: The private key that Enduro should use to authenticate and gain
-  access to the target blob.
+Example Azure client secret configuration:
+
+```toml
+[internalStorage]
+url = "azblob://enduro-ingest"
+
+[internalStorage.azure]
+storageAccount = "my-account"
+tenantID = "my-tenant-id"
+clientID = "my-client-id"
+clientSecret = "my-secret"
+```
+
+* `storageAccount`: The name of the Azure storage account.
+* `storageKey`: The shared key that Enduro should use to authenticate.
+* `tenantID`: Azure tenant ID for client secret authentication.
+* `clientID`: Azure client ID for client secret authentication.
+* `clientSecret`: Azure client secret for client secret authentication.
+
+When using Azure Blob Storage, Enduro supports two authentication modes in this
+subsection:
+
+* Shared key authentication using `storageKey`.
+* Client secret authentication using `tenantID`, `clientID`, and
+`clientSecret`.
+
+If both authentication modes are configured, the client secret settings take
+precedence.
 
 ### SIP source location configuration
 
@@ -1094,7 +1174,7 @@ while the bucket subsection links the specified location.
     Once configured, ingests from a package in a configured source location can
     also be initiated via the [API].
 
-**Default values**:
+**Example configuration**:
 
 ```toml
 [sipsource]
@@ -1123,10 +1203,14 @@ pointing to the target location - for example:
 url = "file:///home/enduro/sipsource"
 ```
 
-**Default values**:
+If `url` is configured, it takes precedence over the individual S3-like
+configuration settings listed below.
+
+**Example configuration**:
 
 ```toml
 [sipsource.bucket]
+url = ""
 endpoint = "http://minio.enduro-sdps:9000"
 pathStyle = true
 accessKey = "minio"
@@ -1135,6 +1219,11 @@ region = "us-west-1"
 bucket = "sipsource"
 ```
 
+* `url`: URL for the target bucket or filesystem location. This can be used for
+  local filesystems, such as `file:///home/enduro/sipsource`, S3-compatible
+  object storage, such as `s3://sipsource?region=us-west-1`, or Azure Blob
+  Storage, such as `azblob://sipsource`. When `url` is set, it takes
+  precedence over the individual S3-like settings below.
 * `endpoint`: API endpoint for the target MinIO instance. Used by Enduro to read
   contents of a bucket, or for any other MinIO interactions.
 * `pathStyle`: Currently Amazon Web Services support two different URL
@@ -1153,6 +1242,57 @@ bucket = "sipsource"
   parameter specifies the target bucket name to be used for the SIP source
   location. Because the default configuration uses MinIO buckets elsewhere as
   well, ensure that this bucket name is unique.
+
+#### SIP source location bucket - Azure
+
+If you intend to use [Azure] as SIP source, set an Azure bucket `url` using the
+`azblob://` schema in the `[sipsource.bucket]` section, and remove all other
+configurations in that section. Note that the Azure bucket name is included in
+the URL (the bucket name in the example below is "sipsource") so there is no
+need for a separate bucket config value.
+
+Then add an `[sipsource.bucket.azure]` section to configure Azure authentication
+via shared key or client secret.
+
+Example Azure shared key configuration:
+
+```toml
+[sipsource.bucket]
+url = "azblob://sipsource"
+
+[sipsource.bucket.azure]
+storageAccount = "my-account"
+storageKey = "dGVzdA==" # Must be base64 encoded
+```
+
+Example Azure client secret configuration:
+
+```toml
+[sipsource.bucket]
+url = "azblob://sipsource"
+
+[sipsource.bucket.azure]
+storageAccount = "my-account"
+tenantID = "my-tenant-id"
+clientID = "my-client-id"
+clientSecret = "my-secret"
+```
+
+* `storageAccount`: The name of the Azure storage account.
+* `storageKey`: The shared key that Enduro should use to authenticate.
+* `tenantID`: Azure tenant ID for client secret authentication.
+* `clientID`: Azure client ID for client secret authentication.
+* `clientSecret`: Azure client secret for client secret authentication.
+
+When using Azure Blob Storage, Enduro supports two authentication modes in this
+subsection:
+
+* Shared key authentication using `storageKey`.
+* Client secret authentication using `tenantID`, `clientID`, and
+`clientSecret`.
+
+If both authentication modes are configured, the client secret settings take
+precedence.
 
 ### Telemetry configuration
 

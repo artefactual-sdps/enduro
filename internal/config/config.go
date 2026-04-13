@@ -14,6 +14,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
+	"go.artefactual.dev/tools/bucket"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
@@ -70,7 +71,7 @@ type Configuration struct {
 	SIPSource       sipsource.Config
 	Storage         storage.Config
 	Temporal        temporal.Config
-	InternalStorage InternalStorageConfig
+	InternalStorage bucket.Config
 	Upload          ingest.UploadConfig
 	Watcher         watcher.Config
 	Telemetry       telemetry.Config
@@ -80,7 +81,6 @@ type Configuration struct {
 
 func (c *Configuration) Validate() error {
 	return errors.Join(
-		c.InternalStorage.Validate(),
 		c.A3m.Validate(),
 		c.API.Auth.Validate(),
 		c.BagIt.Validate(),

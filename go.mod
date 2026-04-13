@@ -9,7 +9,6 @@ require (
 	buf.build/gen/go/artefactual/a3m/protocolbuffers/go v1.31.0-20230508184533-2e9432075630.2
 	chainguard.dev/go-oidctest v0.4.0
 	entgo.io/ent v0.14.5
-	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.3
 	github.com/XSAM/otelsql v0.40.0
 	github.com/alicebob/miniredis/v2 v2.32.1
 	github.com/artefactual-sdps/temporal-activities v0.0.0-20260406175419-303edb7db3db
@@ -46,7 +45,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c
 	go.artefactual.dev/ssclient v0.11.0
-	go.artefactual.dev/tools v0.24.0
+	go.artefactual.dev/tools v0.25.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.63.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0
@@ -77,6 +76,7 @@ require (
 	github.com/Azure/azure-sdk-for-go/sdk/azcore v1.20.0 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/azidentity v1.13.1 // indirect
 	github.com/Azure/azure-sdk-for-go/sdk/internal v1.11.2 // indirect
+	github.com/Azure/azure-sdk-for-go/sdk/storage/azblob v1.6.3 // indirect
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest/to v0.4.1 // indirect
 	github.com/AzureAD/microsoft-authentication-library-for-go v1.6.0 // indirect

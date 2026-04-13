@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/mockutil"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
@@ -165,11 +166,11 @@ func TestAipDeletionReportRequest(t *testing.T) {
 			attrs.ticketProvider = ticketProvider
 			attrs.config = &storage.Config{
 				TaskQueue: "global",
-				Internal: storage.LocationConfig{
+				Internal: bucket.Config{
 					URL: "file://" + td,
 				},
 			}
-			svc := setUpService(t, &attrs)
+			svc := setUpService(t, ctx, &attrs)
 
 			// Write a test blob to the bucket.
 			writeTestBlob(ctx, t, fmt.Sprintf("file://%s", td), reportKey)
@@ -339,11 +340,11 @@ func TestAipDeletionReport(t *testing.T) {
 			attrs.ticketProvider = ticketProvider
 			attrs.config = &storage.Config{
 				TaskQueue: "global",
-				Internal: storage.LocationConfig{
+				Internal: bucket.Config{
 					URL: "file://" + td,
 				},
 			}
-			svc := setUpService(t, &attrs)
+			svc := setUpService(t, ctx, &attrs)
 
 			// Write a test blob to the bucket.
 			writeTestBlob(ctx, t, fmt.Sprintf("file://%s", td), reportKey)

@@ -1,12 +1,14 @@
 package storage
 
 import (
+	"go.artefactual.dev/tools/bucket"
+
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
 
 type Config struct {
 	TaskQueue   string
-	Internal    LocationConfig
+	Internal    bucket.Config
 	Database    Database
 	Event       event.Config
 	AIPDeletion AIPDeletionConfig
@@ -22,24 +24,6 @@ type Database struct {
 	// Migrate specifies whether to run migrations (true) to upgrade the
 	// database schema or not (false).
 	Migrate bool
-}
-
-type LocationConfig struct {
-	// URL specifies the location's driver and address by URL (e.g.
-	// "s3://my-bucket?region=us-west-1", "file:///tmp/my-bucket").
-	URL string
-
-	// S3 compatible location configuration. If URL has a value then these
-	// fields are ignored.
-	Name      string
-	Region    string
-	Endpoint  string
-	PathStyle bool
-	Profile   string
-	Key       string
-	Secret    string
-	Token     string
-	Bucket    string
 }
 
 type AIPDeletionConfig struct {

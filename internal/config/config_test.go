@@ -6,7 +6,6 @@ import (
 
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/google/uuid"
-	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/clientauth"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
@@ -244,99 +243,6 @@ aipCompressionLevel = 10`,
 			assert.Equal(t, found, true)
 			assert.Equal(t, configFileUsed, configFile)
 			assert.DeepEqual(t, c, tc.want)
-		})
-	}
-}
-
-func TestConfigValidate(t *testing.T) {
-	t.Parallel()
-
-	type test struct {
-		name    string
-		config  config.Configuration
-		wantErr string
-	}
-	for _, tc := range []test{
-		{
-			name: "Returns error if bucket URL and other options are both provided",
-			config: config.Configuration{
-				Ingest: ingest.Config{
-					Storage: ingest.StorageConfig{
-						Address:                    "storage-api:9000",
-						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
-					},
-				},
-				InternalStorage: config.InternalStorageConfig{
-					Bucket: bucket.Config{
-						URL:    "s3blob://my-bucket",
-						Bucket: "my-bucket",
-						Region: "planet-earth",
-					},
-				},
-			},
-			wantErr: "the [internalStorage] URL option and the other configuration options are mutually exclusive",
-		},
-		{
-			name: "Returns error if azure credentials are missing",
-			config: config.Configuration{
-				Ingest: ingest.Config{
-					Storage: ingest.StorageConfig{
-						Address:                    "storage-api:9000",
-						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
-					},
-				},
-				InternalStorage: config.InternalStorageConfig{
-					Bucket: bucket.Config{
-						URL: "azblob://my-bucket",
-					},
-				},
-			},
-			wantErr: "the [internalStorage] Azure credentials are undefined",
-		},
-		{
-			name: "Validates if only URL is provided",
-			config: config.Configuration{
-				Ingest: ingest.Config{
-					Storage: ingest.StorageConfig{
-						Address:                    "storage-api:9000",
-						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
-					},
-				},
-				InternalStorage: config.InternalStorageConfig{
-					Bucket: bucket.Config{
-						URL: "s3blob://my-bucket",
-					},
-				},
-			},
-		},
-		{
-			name: "Validates if only bucket options are provided",
-			config: config.Configuration{
-				Ingest: ingest.Config{
-					Storage: ingest.StorageConfig{
-						Address:                    "storage-api:9000",
-						DefaultPermanentLocationID: uuid.MustParse("f2cc963f-c14d-4eaa-b950-bd207189a1f1"),
-					},
-				},
-				InternalStorage: config.InternalStorageConfig{
-					Bucket: bucket.Config{
-						Bucket: "my-bucket",
-						Region: "planet-earth",
-					},
-				},
-			},
-		},
-	} {
-		t.Run(tc.name, func(t *testing.T) {
-			t.Parallel()
-
-			err := tc.config.Validate()
-			if tc.wantErr != "" {
-				assert.Error(t, err, tc.wantErr)
-				return
-			}
-
-			assert.NilError(t, err)
 		})
 	}
 }

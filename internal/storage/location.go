@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/bucket"
 	"gocloud.dev/blob"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -18,39 +19,24 @@ type Location interface {
 }
 
 type locationImpl struct {
-	id     uuid.UUID
-	config *types.LocationConfig
+	id           uuid.UUID
+	config       *types.LocationConfig
+	bucketConfig *bucket.Config
 }
 
 var _ Location = (*locationImpl)(nil)
 
-func NewInternalLocation(config *LocationConfig) (Location, error) {
-	var c types.LocationConfig
-
-	if config.URL != "" {
-		c.Value = types.URLConfig{
-			URL: config.URL,
-		}
-	} else {
-		c.Value = types.S3Config{
-			Bucket:    config.Bucket,
-			Region:    config.Region,
-			Endpoint:  config.Endpoint,
-			PathStyle: config.PathStyle,
-			Profile:   config.Profile,
-			Key:       config.Key,
-			Secret:    config.Secret,
-			Token:     config.Token,
-		}
+func NewInternalLocation(ctx context.Context, config *bucket.Config) (Location, error) {
+	// Open the bucket to validate the configuration.
+	b, err := bucket.NewWithConfig(ctx, config)
+	if err != nil {
+		return nil, fmt.Errorf("NewInternalLocation: %v", err)
 	}
-
-	if !c.Value.Valid() {
-		return nil, errors.New("invalid configuration")
-	}
+	b.Close()
 
 	return &locationImpl{
-		id:     uuid.Nil,
-		config: &c,
+		id:           uuid.Nil,
+		bucketConfig: config,
 	}, nil
 }
 
@@ -71,7 +57,15 @@ func (l *locationImpl) UUID() uuid.UUID {
 }
 
 func (l *locationImpl) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
-	b, err := l.config.Value.OpenBucket(ctx)
+	var b *blob.Bucket
+	var err error
+	if l.bucketConfig != nil {
+		b, err = bucket.NewWithConfig(ctx, l.bucketConfig)
+	} else if l.config != nil {
+		b, err = l.config.Value.OpenBucket(ctx)
+	} else {
+		err = errors.New("no configuration available to open bucket")
+	}
 	if err != nil {
 		return nil, err
 	}

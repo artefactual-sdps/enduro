@@ -250,10 +250,9 @@ retentionPeriod = "0"
 
 # internalStorage section configures a bucket where Enduro will place uploaded
 # SIPs and failed SIPs/PIPs. Make sure it doesn't match any of the watched buckets.
-[internalStorage.bucket]
-# Example for an Azure URL connection where the bucket/container is called "sips".
-# See [internalStorage.azure] below to set credentials.
-# url = "azblob://sips"
+# URL takes precedence over the individual settings below.
+[internalStorage]
+url = "" # Azure example: "azblob://enduro-ingest"
 endpoint = "http://minio.enduro-sdps:9000"
 pathStyle = true
 accessKey = "minio"
@@ -261,9 +260,19 @@ secretKey = "minio123"
 region = "us-west-1"
 bucket = "enduro-ingest"
 
+# Azure Blob Storage configuration. If the bucket is in Azure, set the URL as shown
+# in the example above and provide the storage account name and credentials here.
 [internalStorage.azure]
 storageAccount = ""
+
+# Shared key credential.
 storageKey = ""
+
+# Client secret credentials. All are required and they take precedence over the shared
+# key credential if both are provided.
+tenantID = ""
+clientID = ""
+clientSecret = ""
 
 # sipsource configures a SIP Source location where SIPs can be put and later
 # ingested via the Dashboard or API.
@@ -278,15 +287,30 @@ name = "MinIO SIP Source"
 # It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
 retentionPeriod = "0"
 
-# sipsource.bucket is a bucket where SIPs can be put for ingest — make sure it
-# doesn't match any of the watched buckets.
+# sipsource.bucket is a bucket where SIPs can be put for ingest — make sure it doesn't
+# match any of the watched buckets. URL takes precedence over the individual settings below.
 [sipsource.bucket]
+url = "" # Azure example: "azblob://sipsource"
 endpoint = "http://minio.enduro-sdps:9000"
 pathStyle = true
 accessKey = "minio"
 secretKey = "minio123"
 region = "us-west-1"
 bucket = "sipsource"
+
+# Azure Blob Storage configuration. If the bucket is in Azure, set the URL as shown
+# in the example above and provide the storage account name and credentials here.
+[sipsource.bucket.azure]
+storageAccount = ""
+
+# Shared key credential.
+storageKey = ""
+
+# Client secret credentials. All are required and they take precedence over the shared
+# key credential if both are provided.
+tenantID = ""
+clientID = ""
+clientSecret = ""
 
 [telemetry.traces]
 enabled = false
@@ -391,13 +415,31 @@ driver = "mysql"
 dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro_storage"
 migrate = true
 
+# storage.internal section configures a bucket where Enduro will place staging AIPs
+# and reports. Make sure it doesn't match any of the ingest watched buckets.
+# URL takes precedence over the individual settings below.
 [storage.internal]
+url = "" # Azure example: "azblob://enduro-storage"
 endpoint = "http://minio.enduro-sdps:9000"
 pathStyle = true
-key = "minio"
-secret = "minio123"
+accessKey = "minio"
+secretKey = "minio123"
 region = "us-west-1"
 bucket = "enduro-storage"
+
+# Azure Blob Storage configuration. If the bucket is in Azure, set the URL as shown
+# in the example above and provide the storage account name and credentials here.
+[storage.internal.azure]
+storageAccount = ""
+
+# Shared key credential.
+storageKey = ""
+
+# Client secret credentials. All are required and they take precedence over the shared
+# key credential if both are provided.
+tenantID = ""
+clientID = ""
+clientSecret = ""
 
 [storage.event]
 redisAddress = "redis://redis.enduro-sdps:6379"

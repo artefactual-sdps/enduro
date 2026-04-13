@@ -168,7 +168,7 @@ func TestAipDeletionAuto(t *testing.T) {
 
 			ctx := auth.WithUserClaims(context.Background(), tt.claims)
 			attrs := &setUpAttrs{}
-			svc := setUpService(t, attrs)
+			svc := setUpService(t, ctx, attrs)
 
 			if tt.mock != nil {
 				tt.mock(ctx, attrs.persistenceMock, attrs.temporalClientMock)
@@ -349,7 +349,7 @@ func TestRequestAipDeletion(t *testing.T) {
 
 			ctx := auth.WithUserClaims(context.Background(), tt.claims)
 			attrs := &setUpAttrs{}
-			svc := setUpService(t, attrs)
+			svc := setUpService(t, ctx, attrs)
 
 			if tt.mock != nil {
 				tt.mock(ctx, attrs.persistenceMock, attrs.temporalClientMock)
@@ -571,7 +571,7 @@ func TestReviewAipDeletion(t *testing.T) {
 
 			ctx := auth.WithUserClaims(context.Background(), tt.claims)
 			attrs := &setUpAttrs{}
-			svc := setUpService(t, attrs)
+			svc := setUpService(t, ctx, attrs)
 
 			if tt.mock != nil {
 				tt.mock(ctx, attrs.persistenceMock, attrs.temporalClientMock)
@@ -811,7 +811,7 @@ func TestCancelAipDeletion(t *testing.T) {
 
 			ctx := auth.WithUserClaims(context.Background(), tt.claims)
 			attrs := &setUpAttrs{}
-			svc := setUpService(t, attrs)
+			svc := setUpService(t, ctx, attrs)
 
 			if tt.mock != nil {
 				tt.mock(ctx, attrs.persistenceMock, attrs.temporalClientMock)

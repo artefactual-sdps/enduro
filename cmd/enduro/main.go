@@ -23,6 +23,7 @@ import (
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
+	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/log"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace"
@@ -249,7 +250,7 @@ func main() {
 	}
 
 	// Set up internal storage bucket.
-	internalStorage, err := cfg.InternalStorage.OpenBucket(ctx)
+	internalStorage, err := bucket.NewWithConfig(ctx, &cfg.InternalStorage)
 	if err != nil {
 		logger.Error(err, "Error setting up internal storage.")
 		os.Exit(1)
@@ -316,6 +317,7 @@ func main() {
 	var storagesvc storage.Service
 	{
 		storagesvc, err = storage.NewService(
+			ctx,
 			logger.WithName("storage"),
 			cfg.Storage,
 			storagePersistence,
@@ -392,6 +394,7 @@ func main() {
 		})
 
 		iss, err := storage.NewService(
+			ctx,
 			logger.WithName("internal-storage"),
 			cfg.Storage,
 			storagePersistence,

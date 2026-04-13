@@ -1040,8 +1040,8 @@ go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c h1:kMgKuV9yx0LT
 go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c/go.mod h1:oAOlZHC78IWjWDCqRM1/8K1x/WYmRUL3peujKCdoXaA=
 go.artefactual.dev/ssclient v0.11.0 h1:mRjB8J0IQ+gjg6ICtZxJm+whG56tvIyxT+x4bO6CQGc=
 go.artefactual.dev/ssclient v0.11.0/go.mod h1:0tO5nOwQ8naw+GcPBi2A7lXzPt4HUn7MPXqQwi7H3jY=
-go.artefactual.dev/tools v0.24.0 h1:zLhNZN6oHrwc+iZHILw0Vwz8MsvtE4msy6vSGCw/j3k=
-go.artefactual.dev/tools v0.24.0/go.mod h1:1SVnTLe0LupMoOtla5MnFLiKQ/edXzVyc7ZZAhwLLLk=
+go.artefactual.dev/tools v0.25.0 h1:vBPSN/iSUATGit5oMJj/S4ZyOvRVkj/+4lhZYxgPQqA=
+go.artefactual.dev/tools v0.25.0/go.mod h1:tW9DHZzeQO6H3Fjp0NCaRPqzGNLsDpDWELR4rssyels=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.opencensus.io v0.22.2/go.mod h1:yxeiOL68Rb0Xd1ddK5vPZ/oVn4vY4Ynel7k9FzqtOIw=

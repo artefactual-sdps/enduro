@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/bucket"
 	_ "gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
@@ -17,30 +18,25 @@ func TestNewInternalLocation(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		config    *storage.LocationConfig
+		config    *bucket.Config
 		canAccess bool
 		errMsg    string
 	}{
 		{
-			name: "Returns an internal URL location",
-			config: &storage.LocationConfig{
-				URL: "mem://",
-			},
-			canAccess: true,
+			name:   "Returns an internal URL location",
+			config: &bucket.Config{URL: "mem://"},
 		},
 		{
-			name: "Errors on an empty URL location",
-			config: &storage.LocationConfig{
-				URL: "",
-			},
-			errMsg: "invalid configuration",
+			name:   "Errors on an empty configuration",
+			config: &bucket.Config{},
+			errMsg: "NewInternalLocation: open bucket: s3blob.OpenBucket: bucketName is required",
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			t.Parallel()
 
-			loc, err := storage.NewInternalLocation(tc.config)
+			loc, err := storage.NewInternalLocation(t.Context(), tc.config)
 			if tc.errMsg != "" {
 				assert.Error(t, err, tc.errMsg)
 				return

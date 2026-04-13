@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jonboulle/clockwork"
+	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/mockutil"
 	"go.artefactual.dev/tools/ref"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -70,7 +71,7 @@ func expectReadWorkflows(msvc *fake.MockService, id int) {
 func expectLocation(t *testing.T, msvc *fake.MockService) {
 	t.Helper()
 
-	loc, err := storage.NewInternalLocation(&storage.LocationConfig{URL: "mem://"})
+	loc, err := storage.NewInternalLocation(t.Context(), &bucket.Config{URL: "mem://"})
 	if err != nil {
 		t.Fatalf("couldn't create internal location: %v", err)
 	}

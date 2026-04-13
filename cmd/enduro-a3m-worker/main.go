@@ -25,6 +25,7 @@ import (
 	"github.com/oklog/run"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/spf13/pflag"
+	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/log"
 	temporal_tools "go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -158,7 +159,7 @@ func main() {
 	}
 
 	// Set up internal storage.
-	internalStorage, err := cfg.InternalStorage.OpenBucket(ctx)
+	internalStorage, err := bucket.NewWithConfig(ctx, &cfg.InternalStorage)
 	if err != nil {
 		logger.Error(err, "Error setting up internal bucket.")
 		os.Exit(1)

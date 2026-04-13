@@ -106,6 +106,7 @@ var (
 )
 
 func NewService(
+	ctx context.Context,
 	logger logr.Logger,
 	config Config,
 	storagePersistence persistence.Storage,
@@ -137,7 +138,7 @@ func NewService(
 		s.auditLogger = auditlog.Discard()
 	}
 
-	l, err := NewInternalLocation(&config.Internal)
+	l, err := NewInternalLocation(ctx, &config.Internal)
 	if err != nil {
 		return nil, err
 	}
@@ -506,6 +507,11 @@ func (s *serviceImpl) openBucket(ctx context.Context, location Location) (*blob.
 	loc, ok := location.(*locationImpl)
 	if !ok {
 		return nil, fmt.Errorf("unsupported location implementation: %T", location)
+	}
+
+	// Internal processing location uses bucketConfig.
+	if loc.bucketConfig != nil {
+		return loc.OpenBucket(ctx)
 	}
 
 	config, ok := loc.config.Value.(*types.AMSSConfig)

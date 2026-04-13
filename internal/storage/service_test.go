@@ -12,6 +12,7 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
+	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/mockutil"
 	"go.artefactual.dev/tools/ref"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
@@ -55,7 +56,7 @@ type setUpAttrs struct {
 	ticketProvider     auth.TicketProvider
 }
 
-func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
+func setUpService(t *testing.T, ctx context.Context, attrs *setUpAttrs) storage.Service {
 	t.Helper()
 
 	psMock := fake.NewMockStorage(gomock.NewController(t))
@@ -70,7 +71,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 		logger: new(logr.Discard()),
 		config: &storage.Config{
 			TaskQueue: "global",
-			Internal: storage.LocationConfig{
+			Internal: bucket.Config{
 				URL: "file://" + td.Path(),
 			},
 		},
@@ -102,6 +103,7 @@ func setUpService(t *testing.T, attrs *setUpAttrs) storage.Service {
 	*attrs = params
 
 	s, err := storage.NewService(
+		ctx,
 		*params.logger,
 		*params.config,
 		*params.persistence,
@@ -136,6 +138,7 @@ func TestNewService(t *testing.T) {
 		t.Parallel()
 
 		_, err := storage.NewService(
+			t.Context(),
 			logr.Discard(),
 			storage.Config{},
 			nil,
@@ -148,7 +151,7 @@ func TestNewService(t *testing.T) {
 			nil,
 		)
 
-		assert.ErrorContains(t, err, "invalid configuration")
+		assert.Error(t, err, "NewInternalLocation: open bucket: s3blob.OpenBucket: bucketName is required")
 	})
 }
 
@@ -160,9 +163,9 @@ func TestServiceSubmitAip(t *testing.T) {
 
 		aipID := "12345"
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		svc := setUpService(t, t.Context(), attrs)
 
-		ret, err := svc.SubmitAip(context.Background(), &goastorage.SubmitAipPayload{
+		ret, err := svc.SubmitAip(t.Context(), &goastorage.SubmitAipPayload{
 			UUID: aipID,
 		})
 		assert.Assert(t, ret == nil)
@@ -174,7 +177,7 @@ func TestServiceSubmitAip(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		svc := setUpService(t, t.Context(), attrs)
 
 		attrs.temporalClientMock.
 			On(
@@ -196,7 +199,7 @@ func TestServiceSubmitAip(t *testing.T) {
 				errors.New("something went wrong"),
 			)
 
-		ret, err := svc.SubmitAip(context.Background(), &goastorage.SubmitAipPayload{
+		ret, err := svc.SubmitAip(t.Context(), &goastorage.SubmitAipPayload{
 			UUID: aipID.String(),
 		})
 		assert.Assert(t, ret == nil)
@@ -208,8 +211,8 @@ func TestServiceSubmitAip(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		svc := setUpService(t, t.Context(), attrs)
+		ctx := t.Context()
 		attrs.temporalClientMock.
 			On(
 				"ExecuteWorkflow",
@@ -254,8 +257,8 @@ func TestServiceSubmitAip(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.temporalClientMock.
 			On(
@@ -305,7 +308,7 @@ func TestServiceSubmitAip(t *testing.T) {
 		attrs := setUpAttrs{
 			config: &storage.Config{
 				TaskQueue: "global",
-				Internal: storage.LocationConfig{
+				Internal: bucket.Config{
 					URL: fmt.Sprintf(
 						"file://%s?base_url=file://tmp/dir&secret_key_path=fake/signing.key",
 						td.Path(),
@@ -313,8 +316,8 @@ func TestServiceSubmitAip(t *testing.T) {
 				},
 			},
 		}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, &attrs)
 
 		attrs.temporalClientMock.
 			On(
@@ -367,7 +370,7 @@ func TestServiceCreate(t *testing.T) {
 		created := time.Date(2024, 5, 3, 14, 55, 2, 22, time.UTC)
 
 		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
+		svc := setUpService(t, t.Context(), &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -393,7 +396,7 @@ func TestServiceCreate(t *testing.T) {
 				nil,
 			)
 
-		got, err := svc.CreateAip(context.Background(), &goastorage.CreateAipPayload{
+		got, err := svc.CreateAip(t.Context(), &goastorage.CreateAipPayload{
 			UUID:         aipID.String(),
 			Name:         name,
 			ObjectKey:    objectKey.String(),
@@ -417,9 +420,9 @@ func TestServiceCreate(t *testing.T) {
 
 		aipID := "12345"
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		svc := setUpService(t, t.Context(), attrs)
 
-		ret, err := svc.CreateAip(context.Background(), &goastorage.CreateAipPayload{
+		ret, err := svc.CreateAip(t.Context(), &goastorage.CreateAipPayload{
 			UUID: aipID,
 		})
 		assert.Assert(t, ret == nil)
@@ -431,9 +434,9 @@ func TestServiceCreate(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		svc := setUpService(t, t.Context(), attrs)
 
-		ret, err := svc.CreateAip(context.Background(), &goastorage.CreateAipPayload{
+		ret, err := svc.CreateAip(t.Context(), &goastorage.CreateAipPayload{
 			UUID:      "f5fddd8c-570b-48d3-8426-78c03f24fa78",
 			ObjectKey: "12345",
 		})
@@ -447,8 +450,8 @@ func TestServiceLocation(t *testing.T) {
 	t.Parallel()
 
 	var attrs setUpAttrs
-	ctx := context.Background()
-	svc := setUpService(t, &attrs)
+	ctx := t.Context()
+	svc := setUpService(t, ctx, &attrs)
 	locID2 := uuid.MustParse("d8ea8946-dc82-4f4e-8c2d-8d3861f3297d")
 
 	attrs.persistenceMock.
@@ -502,7 +505,7 @@ func TestServiceLocation(t *testing.T) {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
 
-			loc, err := svc.Location(context.Background(), tc.UUID)
+			loc, err := svc.Location(t.Context(), tc.UUID)
 
 			if tc.err == nil {
 				assert.NilError(t, err)
@@ -520,9 +523,9 @@ func TestServiceList(t *testing.T) {
 	t.Run("Returns defined locations", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := context.Background()
+		ctx := t.Context()
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		svc := setUpService(t, ctx, attrs)
 
 		storedLocations := goastorage.LocationCollection{
 			{
@@ -558,9 +561,9 @@ func TestServiceListAips(t *testing.T) {
 	t.Run("Returns defined AIPs", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := context.Background()
+		ctx := t.Context()
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		svc := setUpService(t, ctx, attrs)
 
 		payload := &goastorage.ListAipsPayload{
 			Limit: new(20),
@@ -595,9 +598,9 @@ func TestServiceListAips(t *testing.T) {
 	t.Run("Returns an error", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := context.Background()
+		ctx := t.Context()
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		svc := setUpService(t, ctx, attrs)
 
 		mockErr := errors.New("test error")
 
@@ -619,9 +622,9 @@ func TestReject(t *testing.T) {
 
 		aipID := "12345"
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		svc := setUpService(t, t.Context(), attrs)
 
-		err := svc.RejectAip(context.Background(), &goastorage.RejectAipPayload{
+		err := svc.RejectAip(t.Context(), &goastorage.RejectAipPayload{
 			UUID: aipID,
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
@@ -632,8 +635,8 @@ func TestReject(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		svc := setUpService(t, t.Context(), &attrs)
+		ctx := t.Context()
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -653,8 +656,8 @@ func TestServiceReadAip(t *testing.T) {
 	t.Parallel()
 
 	attrs := setUpAttrs{}
-	svc := setUpService(t, &attrs)
-	ctx := context.Background()
+	ctx := t.Context()
+	svc := setUpService(t, ctx, &attrs)
 
 	attrs.persistenceMock.
 		EXPECT().
@@ -679,8 +682,8 @@ func TestServiceUpdateAIP(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -712,8 +715,8 @@ func TestServiceUpdateAipStatus(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -736,8 +739,8 @@ func TestServiceUpdateAipLocationUUID(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -760,8 +763,8 @@ func TestServiceDeleteAip(t *testing.T) {
 		t.Parallel()
 
 		var attrs setUpAttrs
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, &attrs)
 
 		// Write a test blob to the internal bucket with an AIP prefix.
 		writeTestBlob(ctx, t, "file://"+attrs.config.Internal.URL, storage.AIPPrefix+aipID.String())
@@ -788,11 +791,11 @@ func TestServiceDeleteAip(t *testing.T) {
 	t.Run("Delete AIP from a perma location", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := context.Background()
+		ctx := t.Context()
 		td := tfs.NewDir(t, "enduro-service-test")
 
 		var attrs setUpAttrs
-		svc := setUpService(t, &attrs)
+		svc := setUpService(t, ctx, &attrs)
 
 		// Write a test blob to the perma location.
 		writeTestBlob(ctx, t, "file://"+td.Path(), aipID.String())
@@ -835,11 +838,11 @@ func TestServiceDeleteAip(t *testing.T) {
 	t.Run("Delete AIP fails if object does not exist", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := context.Background()
+		ctx := t.Context()
 		td := tfs.NewDir(t, "enduro-service-test")
 
 		var attrs setUpAttrs
-		svc := setUpService(t, &attrs)
+		svc := setUpService(t, ctx, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -883,8 +886,8 @@ func TestServiceDeleteAip(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -920,8 +923,8 @@ func TestServiceDeleteAip(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -945,11 +948,11 @@ func TestAipReader(t *testing.T) {
 	t.Run("Provides a valid reader", func(t *testing.T) {
 		t.Parallel()
 
-		ctx := context.Background()
+		ctx := t.Context()
 		td := tfs.NewDir(t, "enduro-service-test")
 
 		var attrs setUpAttrs
-		svc := setUpService(t, &attrs)
+		svc := setUpService(t, ctx, &attrs)
 
 		// Write a test blob to the bucket.
 		writeTestBlob(ctx, t, "file://"+td.Path(), aipID.String())
@@ -987,8 +990,8 @@ func TestAipReader(t *testing.T) {
 		t.Parallel()
 
 		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1013,8 +1016,8 @@ func TestAipReader(t *testing.T) {
 		t.Parallel()
 
 		var attrs setUpAttrs
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, &attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1154,9 +1157,9 @@ func TestListAipWorkflows(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := context.Background()
+			ctx := t.Context()
 			attrs := &setUpAttrs{}
-			svc := setUpService(t, attrs)
+			svc := setUpService(t, ctx, attrs)
 
 			if tt.mock != nil {
 				tt.mock(ctx, attrs.persistenceMock)
@@ -1182,10 +1185,11 @@ func TestServiceUpdate(t *testing.T) {
 
 		aipID := "12345"
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		err := svc.SubmitAipComplete(
-			t.Context(),
+			ctx,
 			&goastorage.SubmitAipCompletePayload{UUID: aipID},
 		)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
@@ -1196,8 +1200,8 @@ func TestServiceUpdate(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.temporalClientMock.
 			On(
@@ -1224,8 +1228,8 @@ func TestServiceUpdate(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.temporalClientMock.
 			On(
@@ -1263,8 +1267,8 @@ func TestServiceUpdate(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.temporalClientMock.
 			On(
@@ -1306,9 +1310,10 @@ func TestServiceMove(t *testing.T) {
 
 		aipID := "12345"
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
-		err := svc.MoveAip(context.Background(), &goastorage.MoveAipPayload{
+		err := svc.MoveAip(ctx, &goastorage.MoveAipPayload{
 			UUID: aipID,
 		})
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
@@ -1319,8 +1324,8 @@ func TestServiceMove(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1344,8 +1349,8 @@ func TestServiceMove(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.temporalClientMock.
 			On(
@@ -1387,8 +1392,8 @@ func TestServiceMove(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.temporalClientMock.
 			On(
@@ -1434,9 +1439,10 @@ func TestServiceMoveStatus(t *testing.T) {
 
 		aipID := "12345"
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
-		res, err := svc.MoveAipStatus(context.Background(), &goastorage.MoveAipStatusPayload{
+		res, err := svc.MoveAipStatus(ctx, &goastorage.MoveAipStatusPayload{
 			UUID: aipID,
 		})
 		assert.Assert(t, res == nil)
@@ -1448,8 +1454,8 @@ func TestServiceMoveStatus(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1473,8 +1479,8 @@ func TestServiceMoveStatus(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 		attrs.config.TaskQueue = "global"
 
 		attrs.temporalClientMock.
@@ -1512,8 +1518,8 @@ func TestServiceMoveStatus(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 		attrs.config.TaskQueue = "global"
 
 		attrs.temporalClientMock.
@@ -1555,8 +1561,8 @@ func TestServiceMoveStatus(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.temporalClientMock.
 			On(
@@ -1596,8 +1602,8 @@ func TestServiceMoveStatus(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.temporalClientMock.
 			On(
@@ -1641,8 +1647,8 @@ func TestServiceAddLocation(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
@@ -1658,8 +1664,8 @@ func TestServiceAddLocation(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
@@ -1674,8 +1680,8 @@ func TestServiceAddLocation(t *testing.T) {
 
 	t.Run("Returns not_valid if cannot persist location", func(t *testing.T) {
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1715,8 +1721,8 @@ func TestServiceAddLocation(t *testing.T) {
 
 	t.Run("Returns result with location UUID", func(t *testing.T) {
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1755,8 +1761,8 @@ func TestServiceAddLocation(t *testing.T) {
 
 	t.Run("Returns location with URL config", func(t *testing.T) {
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1799,8 +1805,8 @@ func TestServiceShowLocation(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		res, err := svc.ShowLocation(ctx, &goastorage.ShowLocationPayload{
 			UUID: "hello world",
@@ -1814,8 +1820,8 @@ func TestServiceShowLocation(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1845,8 +1851,8 @@ func TestServiceListLocationAips(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		res, err := svc.ListLocationAips(ctx, &goastorage.ListLocationAipsPayload{
 			UUID: "hello world",
@@ -1860,8 +1866,8 @@ func TestServiceListLocationAips(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1886,8 +1892,8 @@ func TestServiceListLocationAips(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1934,9 +1940,10 @@ func TestServiceShow(t *testing.T) {
 
 		aipID := "12345"
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
-		res, err := svc.ShowAip(context.Background(), &goastorage.ShowAipPayload{
+		res, err := svc.ShowAip(ctx, &goastorage.ShowAipPayload{
 			UUID: aipID,
 		})
 		assert.Assert(t, res == nil)
@@ -1948,8 +1955,8 @@ func TestServiceShow(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -1985,8 +1992,8 @@ func TestCreateWorkflow(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		dbID := 1
 		workflow := &types.Workflow{
@@ -2013,8 +2020,8 @@ func TestCreateWorkflow(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		workflow := &types.Workflow{
 			UUID:       uuid.New(),
@@ -2041,8 +2048,8 @@ func TestReadWorkflow(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		workflow := &types.Workflow{
 			DBID:       1,
@@ -2070,8 +2077,8 @@ func TestUpdateWorkflow(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		workflowID := 1
 		workflow := &types.Workflow{
@@ -2111,8 +2118,8 @@ func TestCreateTask(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		dbID := 1
 		task := &types.Task{
@@ -2138,8 +2145,8 @@ func TestCreateTask(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		task := &types.Task{
 			UUID:   uuid.New(),
@@ -2165,8 +2172,8 @@ func TestUpdateTask(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		taskID := 1
 		task := &types.Task{
@@ -2205,8 +2212,8 @@ func TestCreateDeletionRequest(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		dbID := 1
 		dr := &types.DeletionRequest{
@@ -2234,8 +2241,8 @@ func TestCreateDeletionRequest(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		dr := &types.DeletionRequest{
 			UUID:        uuid.New(),
@@ -2262,9 +2269,9 @@ func TestListDeletionRequests(t *testing.T) {
 	t.Run("Lists DeletionRequests", func(t *testing.T) {
 		t.Parallel()
 
-		attrs := setUpAttrs{}
-		svc := setUpService(t, &attrs)
-		ctx := context.Background()
+		attrs := &setUpAttrs{}
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		drs := []*types.DeletionRequest{
 			{
@@ -2303,8 +2310,8 @@ func TestReadDeletionRequest(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		dr := &types.DeletionRequest{
 			DBID:        1,
@@ -2337,8 +2344,8 @@ func TestUpdateDeletionRequest(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
-		svc := setUpService(t, attrs)
-		ctx := context.Background()
+		ctx := t.Context()
+		svc := setUpService(t, ctx, attrs)
 
 		drID := 1
 		dr := &types.DeletionRequest{

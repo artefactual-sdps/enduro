@@ -72,31 +72,6 @@ func TestConfig_Validate(t *testing.T) {
 			},
 		},
 		{
-			name: "invalid bucket config - empty URL and endpoint",
-			config: sipsource.Config{
-				ID:     validID,
-				Name:   validName,
-				Bucket: &bucket.Config{},
-			},
-			wantErrs: []error{
-				sipsource.ErrInvalidConfig,
-			},
-		},
-		{
-			name: "invalid bucket config - both URL and endpoint set",
-			config: sipsource.Config{
-				ID:   validID,
-				Name: validName,
-				Bucket: &bucket.Config{
-					URL:      "s3://test-bucket",
-					Endpoint: "https://s3.amazonaws.com",
-				},
-			},
-			wantErrs: []error{
-				sipsource.ErrInvalidConfig,
-			},
-		},
-		{
 			name: "multiple validation errors - nil UUID and empty name",
 			config: sipsource.Config{
 				ID:     uuid.Nil,

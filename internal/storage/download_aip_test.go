@@ -179,7 +179,7 @@ func TestDownloadAipRequest(t *testing.T) {
 
 			var attrs setUpAttrs
 			attrs.ticketProvider = ticketProvider
-			svc := setUpService(t, &attrs)
+			svc := setUpService(t, ctx, &attrs)
 
 			if tt.mock != nil {
 				tt.mock(ctx, ticketStoreMock, attrs.persistenceMock)
@@ -366,7 +366,7 @@ func TestDownloadAip(t *testing.T) {
 
 			var attrs setUpAttrs
 			attrs.ticketProvider = ticketProvider
-			svc := setUpService(t, &attrs)
+			svc := setUpService(t, ctx, &attrs)
 
 			if tt.mock != nil {
 				tt.mock(ctx, ticketStoreMock, attrs.persistenceMock)
