@@ -1,0 +1,67 @@
+# See https://github.com/artefactual-labs/bine for config details.
+project = "enduro-sdps"
+
+[[bins]]
+name = "atlas"
+version = "0.37.0"
+url = "https://release.ariga.io/atlas"
+
+[[bins]]
+name = "ent"
+go_package = "entgo.io/ent/cmd/ent"
+version = "0.14.5"
+
+[[bins]]
+name = "go-enum"
+url = "https://github.com/abice/go-enum"
+version = "0.9.1"
+
+[[bins]]
+name = "go-mod-outdated"
+url = "https://github.com/psampaz/go-mod-outdated"
+version = "0.9.0"
+
+[[bins]]
+name = "goa"
+go_package = "goa.design/goa/v3/cmd/goa"
+version = "3.23.4"
+
+[[bins]]
+name = "golangci-lint"
+url = "https://github.com/golangci/golangci-lint"
+version = "2.11.2"
+
+[[bins]]
+name = "gomajor"
+go_package = "github.com/icholy/gomajor"
+version = "0.15.0"
+
+[[bins]]
+name = "gotestsum"
+url = "https://github.com/gotestyourself/gotestsum"
+version = "1.13.0"
+
+[[bins]]
+name = "migrate"
+url = "https://github.com/golang-migrate/migrate"
+version = "4.19.0"
+
+[[bins]]
+name = "mockgen"
+go_package = "go.uber.org/mock/mockgen"
+version = "0.6.0"
+
+[[bins]]
+name = "shfmt"
+url = "https://github.com/mvdan/sh"
+version = "3.12.0"
+
+[[bins]]
+name = "tparse"
+url = "https://github.com/mfridman/tparse"
+version = "0.18.0"
+
+[[bins]]
+name = "workflowcheck"
+go_package = "go.temporal.io/sdk/contrib/tools/workflowcheck"
+version = "0.4.0"
