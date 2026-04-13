@@ -47,6 +47,8 @@ func HTTPServer(
 	dec := goahttp.RequestDecoder
 	enc := goahttp.ResponseEncoder
 	mux := goahttp.NewMuxer()
+	mux.Use(otelhttp.NewMiddleware("api", otelhttp.WithTracerProvider(tp)))
+	mux.Use(middleware.Recover(logger))
 
 	websocketUpgrader := &websocket.Upgrader{
 		HandshakeTimeout: time.Second,
@@ -77,8 +79,6 @@ func HTTPServer(
 
 	// Global middlewares.
 	var handler http.Handler = mux
-	handler = middleware.Recover(logger)(handler)
-	handler = otelhttp.NewHandler(handler, "api", otelhttp.WithTracerProvider(tp))
 	handler = middleware.VersionHeader("X-Enduro-Version", version.Short)(handler)
 	if config.Debug {
 		handler = goahttpmwr.Log(loggerAdapter(logger))(handler) //nolint SA1019: deprecated - use OpenTelemetry.

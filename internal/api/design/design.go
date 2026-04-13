@@ -11,7 +11,6 @@ import (
 	. "goa.design/goa/v3/dsl" //nolint:staticcheck
 	"goa.design/goa/v3/expr"
 	cors "goa.design/plugins/v3/cors/dsl"
-	_ "goa.design/plugins/v3/otel"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 )
