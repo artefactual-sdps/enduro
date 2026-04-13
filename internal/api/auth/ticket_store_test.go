@@ -2,6 +2,7 @@ package auth_test
 
 import (
 	"context"
+	"net"
 	"testing"
 	"time"
 
@@ -35,12 +36,13 @@ func TestRedisStore(t *testing.T) {
 
 		ctx := context.Background()
 		s, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
-			Address: "redis://127.0.0.1:12345",
+			Address: redisAddressWithNoServer(t),
 		})
 		assert.NilError(t, err)
+		defer s.Close()
 
 		err = s.GetDel(ctx, storeKey, nil)
-		assert.Error(t, err, "dial tcp 127.0.0.1:12345: connect: connection refused")
+		assert.Assert(t, err != nil)
 	})
 
 	t.Run("Stores the ticket", func(t *testing.T) {
@@ -175,6 +177,17 @@ func TestRedisStore(t *testing.T) {
 		store.Close() // Close the client.
 		assert.Error(t, store.SetEx(ctx, "key", nil, time.Second), "redis: client is closed")
 	})
+}
+
+func redisAddressWithNoServer(t *testing.T) string {
+	t.Helper()
+
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	assert.NilError(t, err)
+	address := listener.Addr().String()
+	assert.NilError(t, listener.Close())
+
+	return "redis://" + address
 }
 
 func TestInMemStore(t *testing.T) {
