@@ -16,8 +16,6 @@ import (
 	"os"
 
 	ingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
-	semconv "go.opentelemetry.io/otel/semconv/v1.38.0"
-	"go.opentelemetry.io/otel/trace"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"
@@ -194,10 +192,7 @@ func MountMonitorRequestHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/ingest/monitor", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/monitor"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/ingest/monitor", f)
 }
 
 // NewMonitorRequestHandler creates a HTTP handler which loads the HTTP request
@@ -250,10 +245,7 @@ func MountMonitorHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/monitor", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/monitor"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/ingest/monitor", f)
 }
 
 // NewMonitorHandler creates a HTTP handler which loads the HTTP request and
@@ -327,10 +319,7 @@ func MountListSipsHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/sips", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/sips"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/ingest/sips", f)
 }
 
 // NewListSipsHandler creates a HTTP handler which loads the HTTP request and
@@ -383,10 +372,7 @@ func MountShowSipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/sips/{uuid}", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/sips/{uuid}"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/ingest/sips/{uuid}", f)
 }
 
 // NewShowSipHandler creates a HTTP handler which loads the HTTP request and
@@ -439,10 +425,7 @@ func MountListSipWorkflowsHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/sips/{uuid}/workflows", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/sips/{uuid}/workflows"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/ingest/sips/{uuid}/workflows", f)
 }
 
 // NewListSipWorkflowsHandler creates a HTTP handler which loads the HTTP
@@ -495,10 +478,7 @@ func MountConfirmSipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/ingest/sips/{uuid}/confirm", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/sips/{uuid}/confirm"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/ingest/sips/{uuid}/confirm", f)
 }
 
 // NewConfirmSipHandler creates a HTTP handler which loads the HTTP request and
@@ -551,10 +531,7 @@ func MountRejectSipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/ingest/sips/{uuid}/reject", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/sips/{uuid}/reject"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/ingest/sips/{uuid}/reject", f)
 }
 
 // NewRejectSipHandler creates a HTTP handler which loads the HTTP request and
@@ -607,10 +584,7 @@ func MountAddSipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/ingest/sips", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/sips"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/ingest/sips", f)
 }
 
 // NewAddSipHandler creates a HTTP handler which loads the HTTP request and
@@ -663,10 +637,7 @@ func MountUploadSipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/ingest/sips/upload", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/sips/upload"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/ingest/sips/upload", f)
 }
 
 // NewUploadSipHandler creates a HTTP handler which loads the HTTP request and
@@ -720,10 +691,7 @@ func MountDownloadSipRequestHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/ingest/sips/{uuid}/download", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/sips/{uuid}/download"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/ingest/sips/{uuid}/download", f)
 }
 
 // NewDownloadSipRequestHandler creates a HTTP handler which loads the HTTP
@@ -776,10 +744,7 @@ func MountDownloadSipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/sips/{uuid}/download", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/sips/{uuid}/download"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/ingest/sips/{uuid}/download", f)
 }
 
 // NewDownloadSipHandler creates a HTTP handler which loads the HTTP request
@@ -867,10 +832,7 @@ func MountListUsersHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/users", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/users"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/ingest/users", f)
 }
 
 // NewListUsersHandler creates a HTTP handler which loads the HTTP request and
@@ -923,10 +885,7 @@ func MountListSipSourceObjectsHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/sip-sources/{uuid}/objects", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/sip-sources/{uuid}/objects"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/ingest/sip-sources/{uuid}/objects", f)
 }
 
 // NewListSipSourceObjectsHandler creates a HTTP handler which loads the HTTP
@@ -979,10 +938,7 @@ func MountAddBatchHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/ingest/batches", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/batches"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/ingest/batches", f)
 }
 
 // NewAddBatchHandler creates a HTTP handler which loads the HTTP request and
@@ -1035,10 +991,7 @@ func MountListBatchesHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/batches", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/batches"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/ingest/batches", f)
 }
 
 // NewListBatchesHandler creates a HTTP handler which loads the HTTP request
@@ -1091,10 +1044,7 @@ func MountShowBatchHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/ingest/batches/{uuid}", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/batches/{uuid}"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/ingest/batches/{uuid}", f)
 }
 
 // NewShowBatchHandler creates a HTTP handler which loads the HTTP request and
@@ -1147,10 +1097,7 @@ func MountReviewBatchHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/ingest/batches/{uuid}/review", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/ingest/batches/{uuid}/review"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/ingest/batches/{uuid}/review", f)
 }
 
 // NewReviewBatchHandler creates a HTTP handler which loads the HTTP request

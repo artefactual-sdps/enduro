@@ -14,8 +14,6 @@ import (
 	"os"
 
 	about "github.com/artefactual-sdps/enduro/internal/api/gen/about"
-	semconv "go.opentelemetry.io/otel/semconv/v1.38.0"
-	"go.opentelemetry.io/otel/trace"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"
@@ -95,10 +93,7 @@ func MountAboutHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/about", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/about"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/about", f)
 }
 
 // NewAboutHandler creates a HTTP handler which loads the HTTP request and

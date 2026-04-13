@@ -16,8 +16,6 @@ import (
 	"os"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	semconv "go.opentelemetry.io/otel/semconv/v1.38.0"
-	"go.opentelemetry.io/otel/trace"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 	"goa.design/plugins/v3/cors"
@@ -228,10 +226,7 @@ func MountMonitorRequestHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/monitor", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/monitor"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/monitor", f)
 }
 
 // NewMonitorRequestHandler creates a HTTP handler which loads the HTTP request
@@ -284,10 +279,7 @@ func MountMonitorHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/monitor", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/monitor"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/storage/monitor", f)
 }
 
 // NewMonitorHandler creates a HTTP handler which loads the HTTP request and
@@ -361,10 +353,7 @@ func MountListAipsHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/aips", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/storage/aips", f)
 }
 
 // NewListAipsHandler creates a HTTP handler which loads the HTTP request and
@@ -417,10 +406,7 @@ func MountCreateAipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips", f)
 }
 
 // NewCreateAipHandler creates a HTTP handler which loads the HTTP request and
@@ -473,10 +459,7 @@ func MountSubmitAipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips/{uuid}/submit", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/submit"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips/{uuid}/submit", f)
 }
 
 // NewSubmitAipHandler creates a HTTP handler which loads the HTTP request and
@@ -529,10 +512,7 @@ func MountSubmitAipCompleteHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips/{uuid}/submit-complete", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/submit-complete"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips/{uuid}/submit-complete", f)
 }
 
 // NewSubmitAipCompleteHandler creates a HTTP handler which loads the HTTP
@@ -585,10 +565,7 @@ func MountDownloadAipRequestHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips/{uuid}/download", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/download"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips/{uuid}/download", f)
 }
 
 // NewDownloadAipRequestHandler creates a HTTP handler which loads the HTTP
@@ -641,10 +618,7 @@ func MountDownloadAipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/aips/{uuid}/download", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/download"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/storage/aips/{uuid}/download", f)
 }
 
 // NewDownloadAipHandler creates a HTTP handler which loads the HTTP request
@@ -732,10 +706,7 @@ func MountMoveAipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips/{uuid}/store", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/store"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips/{uuid}/store", f)
 }
 
 // NewMoveAipHandler creates a HTTP handler which loads the HTTP request and
@@ -788,10 +759,7 @@ func MountMoveAipStatusHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/aips/{uuid}/store", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/store"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/storage/aips/{uuid}/store", f)
 }
 
 // NewMoveAipStatusHandler creates a HTTP handler which loads the HTTP request
@@ -844,10 +812,7 @@ func MountRejectAipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips/{uuid}/reject", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/reject"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips/{uuid}/reject", f)
 }
 
 // NewRejectAipHandler creates a HTTP handler which loads the HTTP request and
@@ -900,10 +865,7 @@ func MountShowAipHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/aips/{uuid}", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/storage/aips/{uuid}", f)
 }
 
 // NewShowAipHandler creates a HTTP handler which loads the HTTP request and
@@ -956,10 +918,7 @@ func MountListAipWorkflowsHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/aips/{uuid}/workflows", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/workflows"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/storage/aips/{uuid}/workflows", f)
 }
 
 // NewListAipWorkflowsHandler creates a HTTP handler which loads the HTTP
@@ -1012,10 +971,7 @@ func MountAipDeletionAutoHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips/{uuid}/deletion-auto", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/deletion-auto"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips/{uuid}/deletion-auto", f)
 }
 
 // NewAipDeletionAutoHandler creates a HTTP handler which loads the HTTP
@@ -1068,10 +1024,7 @@ func MountRequestAipDeletionHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips/{uuid}/deletion-request", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/deletion-request"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips/{uuid}/deletion-request", f)
 }
 
 // NewRequestAipDeletionHandler creates a HTTP handler which loads the HTTP
@@ -1124,10 +1077,7 @@ func MountReviewAipDeletionHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips/{uuid}/deletion-review", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/deletion-review"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips/{uuid}/deletion-review", f)
 }
 
 // NewReviewAipDeletionHandler creates a HTTP handler which loads the HTTP
@@ -1180,10 +1130,7 @@ func MountCancelAipDeletionHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips/{uuid}/deletion-cancel", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/deletion-cancel"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips/{uuid}/deletion-cancel", f)
 }
 
 // NewCancelAipDeletionHandler creates a HTTP handler which loads the HTTP
@@ -1236,10 +1183,7 @@ func MountAipDeletionReportRequestHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/aips/{uuid}/deletion-report", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/deletion-report"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/aips/{uuid}/deletion-report", f)
 }
 
 // NewAipDeletionReportRequestHandler creates a HTTP handler which loads the
@@ -1293,10 +1237,7 @@ func MountAipDeletionReportHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/aips/{uuid}/deletion-report", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/aips/{uuid}/deletion-report"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/storage/aips/{uuid}/deletion-report", f)
 }
 
 // NewAipDeletionReportHandler creates a HTTP handler which loads the HTTP
@@ -1384,10 +1325,7 @@ func MountListLocationsHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/locations", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/locations"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/storage/locations", f)
 }
 
 // NewListLocationsHandler creates a HTTP handler which loads the HTTP request
@@ -1440,10 +1378,7 @@ func MountCreateLocationHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("POST", "/storage/locations", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/locations"))
-		f(w, r)
-	})
+	mux.Handle("POST", "/storage/locations", f)
 }
 
 // NewCreateLocationHandler creates a HTTP handler which loads the HTTP request
@@ -1496,10 +1431,7 @@ func MountShowLocationHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/locations/{uuid}", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/locations/{uuid}"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/storage/locations/{uuid}", f)
 }
 
 // NewShowLocationHandler creates a HTTP handler which loads the HTTP request
@@ -1552,10 +1484,7 @@ func MountListLocationAipsHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/storage/locations/{uuid}/aips", func(w http.ResponseWriter, r *http.Request) {
-		trace.SpanFromContext(r.Context()).SetAttributes(semconv.HTTPRoute("/storage/locations/{uuid}/aips"))
-		f(w, r)
-	})
+	mux.Handle("GET", "/storage/locations/{uuid}/aips", f)
 }
 
 // NewListLocationAipsHandler creates a HTTP handler which loads the HTTP
