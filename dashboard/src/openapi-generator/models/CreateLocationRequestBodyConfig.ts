@@ -12,7 +12,15 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
+import type { CreateLocationRequestBodyConfigValue } from './CreateLocationRequestBodyConfigValue';
+import {
+    CreateLocationRequestBodyConfigValueFromJSON,
+    CreateLocationRequestBodyConfigValueFromJSONTyped,
+    CreateLocationRequestBodyConfigValueToJSON,
+    CreateLocationRequestBodyConfigValueToJSONTyped,
+} from './CreateLocationRequestBodyConfigValue';
+
 /**
  * 
  * @export
@@ -20,21 +28,17 @@ import { exists, mapValues } from '../runtime';
  */
 export interface CreateLocationRequestBodyConfig {
     /**
-     * Union type name, one of:
-     * - "amss"
-     * - "s3"
-     * - "sftp"
-     * - "url"
-     * @type {string}
+     * 
+     * @type {CreateLocationRequestBodyConfigTypeEnum}
      * @memberof CreateLocationRequestBodyConfig
      */
     type: CreateLocationRequestBodyConfigTypeEnum;
     /**
-     * JSON encoded union value
-     * @type {string}
+     * 
+     * @type {CreateLocationRequestBodyConfigValue}
      * @memberof CreateLocationRequestBodyConfig
      */
-    value: string;
+    value: CreateLocationRequestBodyConfigValue;
 }
 
 
@@ -53,12 +57,10 @@ export type CreateLocationRequestBodyConfigTypeEnum = typeof CreateLocationReque
 /**
  * Check if a given object implements the CreateLocationRequestBodyConfig interface.
  */
-export function instanceOfCreateLocationRequestBodyConfig(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "type" in value;
-    isInstance = isInstance && "value" in value;
-
-    return isInstance;
+export function instanceOfCreateLocationRequestBodyConfig(value: object): value is CreateLocationRequestBodyConfig {
+    if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('value' in value) || value['value'] === undefined) return false;
+    return true;
 }
 
 export function CreateLocationRequestBodyConfigFromJSON(json: any): CreateLocationRequestBodyConfig {
@@ -66,27 +68,29 @@ export function CreateLocationRequestBodyConfigFromJSON(json: any): CreateLocati
 }
 
 export function CreateLocationRequestBodyConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateLocationRequestBodyConfig {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'type': json['Type'],
-        'value': json['Value'],
+        'type': json['type'],
+        'value': CreateLocationRequestBodyConfigValueFromJSON(json['value']),
     };
 }
 
-export function CreateLocationRequestBodyConfigToJSON(value?: CreateLocationRequestBodyConfig | null): any {
-    if (value === undefined) {
-        return undefined;
+export function CreateLocationRequestBodyConfigToJSON(json: any): CreateLocationRequestBodyConfig {
+    return CreateLocationRequestBodyConfigToJSONTyped(json, false);
+}
+
+export function CreateLocationRequestBodyConfigToJSONTyped(value?: CreateLocationRequestBodyConfig | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'Type': value.type,
-        'Value': value.value,
+        'type': value['type'],
+        'value': CreateLocationRequestBodyConfigValueToJSON(value['value']),
     };
 }
 

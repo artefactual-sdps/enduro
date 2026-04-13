@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -21,7 +21,7 @@ import { exists, mapValues } from '../runtime';
 export interface SIPStatusUpdatedEvent {
     /**
      * 
-     * @type {string}
+     * @type {SIPStatusUpdatedEventStatusEnum}
      * @memberof SIPStatusUpdatedEvent
      */
     status: SIPStatusUpdatedEventStatusEnum;
@@ -53,12 +53,10 @@ export type SIPStatusUpdatedEventStatusEnum = typeof SIPStatusUpdatedEventStatus
 /**
  * Check if a given object implements the SIPStatusUpdatedEvent interface.
  */
-export function instanceOfSIPStatusUpdatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfSIPStatusUpdatedEvent(value: object): value is SIPStatusUpdatedEvent {
+    if (!('status' in value) || value['status'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function SIPStatusUpdatedEventFromJSON(json: any): SIPStatusUpdatedEvent {
@@ -66,7 +64,7 @@ export function SIPStatusUpdatedEventFromJSON(json: any): SIPStatusUpdatedEvent 
 }
 
 export function SIPStatusUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPStatusUpdatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -76,17 +74,19 @@ export function SIPStatusUpdatedEventFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function SIPStatusUpdatedEventToJSON(value?: SIPStatusUpdatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function SIPStatusUpdatedEventToJSON(json: any): SIPStatusUpdatedEvent {
+    return SIPStatusUpdatedEventToJSONTyped(json, false);
+}
+
+export function SIPStatusUpdatedEventToJSONTyped(value?: SIPStatusUpdatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'status': value.status,
-        'uuid': value.uuid,
+        'status': value['status'],
+        'uuid': value['uuid'],
     };
 }
 

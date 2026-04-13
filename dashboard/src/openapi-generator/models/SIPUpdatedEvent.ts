@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroIngestSip } from './EnduroIngestSip';
 import {
     EnduroIngestSipFromJSON,
     EnduroIngestSipFromJSONTyped,
     EnduroIngestSipToJSON,
+    EnduroIngestSipToJSONTyped,
 } from './EnduroIngestSip';
 
 /**
@@ -43,12 +44,10 @@ export interface SIPUpdatedEvent {
 /**
  * Check if a given object implements the SIPUpdatedEvent interface.
  */
-export function instanceOfSIPUpdatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "item" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfSIPUpdatedEvent(value: object): value is SIPUpdatedEvent {
+    if (!('item' in value) || value['item'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function SIPUpdatedEventFromJSON(json: any): SIPUpdatedEvent {
@@ -56,7 +55,7 @@ export function SIPUpdatedEventFromJSON(json: any): SIPUpdatedEvent {
 }
 
 export function SIPUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPUpdatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -66,17 +65,19 @@ export function SIPUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boo
     };
 }
 
-export function SIPUpdatedEventToJSON(value?: SIPUpdatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function SIPUpdatedEventToJSON(json: any): SIPUpdatedEvent {
+    return SIPUpdatedEventToJSONTyped(json, false);
+}
+
+export function SIPUpdatedEventToJSONTyped(value?: SIPUpdatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'item': EnduroIngestSipToJSON(value.item),
-        'uuid': value.uuid,
+        'item': EnduroIngestSipToJSON(value['item']),
+        'uuid': value['uuid'],
     };
 }
 

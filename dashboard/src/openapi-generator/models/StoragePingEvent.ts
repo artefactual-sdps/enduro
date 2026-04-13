@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,10 +30,8 @@ export interface StoragePingEvent {
 /**
  * Check if a given object implements the StoragePingEvent interface.
  */
-export function instanceOfStoragePingEvent(value: object): boolean {
-    let isInstance = true;
-
-    return isInstance;
+export function instanceOfStoragePingEvent(value: object): value is StoragePingEvent {
+    return true;
 }
 
 export function StoragePingEventFromJSON(json: any): StoragePingEvent {
@@ -41,25 +39,27 @@ export function StoragePingEventFromJSON(json: any): StoragePingEvent {
 }
 
 export function StoragePingEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): StoragePingEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'message': !exists(json, 'message') ? undefined : json['message'],
+        'message': json['message'] == null ? undefined : json['message'],
     };
 }
 
-export function StoragePingEventToJSON(value?: StoragePingEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function StoragePingEventToJSON(json: any): StoragePingEvent {
+    return StoragePingEventToJSONTyped(json, false);
+}
+
+export function StoragePingEventToJSONTyped(value?: StoragePingEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'message': value.message,
+        'message': value['message'],
     };
 }
 

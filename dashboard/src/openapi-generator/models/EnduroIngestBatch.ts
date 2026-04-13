@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * Batch describes an ingest batch type.
  * @export
@@ -51,7 +51,7 @@ export interface EnduroIngestBatch {
     startedAt?: Date;
     /**
      * Status of the Batch
-     * @type {string}
+     * @type {EnduroIngestBatchStatusEnum}
      * @memberof EnduroIngestBatch
      */
     status: EnduroIngestBatchStatusEnum;
@@ -99,15 +99,13 @@ export type EnduroIngestBatchStatusEnum = typeof EnduroIngestBatchStatusEnum[key
 /**
  * Check if a given object implements the EnduroIngestBatch interface.
  */
-export function instanceOfEnduroIngestBatch(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "createdAt" in value;
-    isInstance = isInstance && "identifier" in value;
-    isInstance = isInstance && "sipsCount" in value;
-    isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfEnduroIngestBatch(value: object): value is EnduroIngestBatch {
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if (!('identifier' in value) || value['identifier'] === undefined) return false;
+    if (!('sipsCount' in value) || value['sipsCount'] === undefined) return false;
+    if (!('status' in value) || value['status'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function EnduroIngestBatchFromJSON(json: any): EnduroIngestBatch {
@@ -115,43 +113,45 @@ export function EnduroIngestBatchFromJSON(json: any): EnduroIngestBatch {
 }
 
 export function EnduroIngestBatchFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestBatch {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
+        'completedAt': json['completed_at'] == null ? undefined : (new Date(json['completed_at'])),
         'createdAt': (new Date(json['created_at'])),
         'identifier': json['identifier'],
         'sipsCount': json['sips_count'],
-        'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
+        'startedAt': json['started_at'] == null ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
-        'uploaderEmail': !exists(json, 'uploader_email') ? undefined : json['uploader_email'],
-        'uploaderName': !exists(json, 'uploader_name') ? undefined : json['uploader_name'],
-        'uploaderUuid': !exists(json, 'uploader_uuid') ? undefined : json['uploader_uuid'],
+        'uploaderEmail': json['uploader_email'] == null ? undefined : json['uploader_email'],
+        'uploaderName': json['uploader_name'] == null ? undefined : json['uploader_name'],
+        'uploaderUuid': json['uploader_uuid'] == null ? undefined : json['uploader_uuid'],
         'uuid': json['uuid'],
     };
 }
 
-export function EnduroIngestBatchToJSON(value?: EnduroIngestBatch | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroIngestBatchToJSON(json: any): EnduroIngestBatch {
+    return EnduroIngestBatchToJSONTyped(json, false);
+}
+
+export function EnduroIngestBatchToJSONTyped(value?: EnduroIngestBatch | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
-        'created_at': (value.createdAt.toISOString()),
-        'identifier': value.identifier,
-        'sips_count': value.sipsCount,
-        'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),
-        'status': value.status,
-        'uploader_email': value.uploaderEmail,
-        'uploader_name': value.uploaderName,
-        'uploader_uuid': value.uploaderUuid,
-        'uuid': value.uuid,
+        'completed_at': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
+        'created_at': value['createdAt'].toISOString(),
+        'identifier': value['identifier'],
+        'sips_count': value['sipsCount'],
+        'started_at': value['startedAt'] == null ? value['startedAt'] : value['startedAt'].toISOString(),
+        'status': value['status'],
+        'uploader_email': value['uploaderEmail'],
+        'uploader_name': value['uploaderName'],
+        'uploader_uuid': value['uploaderUuid'],
+        'uuid': value['uuid'],
     };
 }
 

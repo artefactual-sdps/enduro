@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroStorageAipTask } from './EnduroStorageAipTask';
 import {
     EnduroStorageAipTaskFromJSON,
     EnduroStorageAipTaskFromJSONTyped,
     EnduroStorageAipTaskToJSON,
+    EnduroStorageAipTaskToJSONTyped,
 } from './EnduroStorageAipTask';
 
 /**
@@ -46,7 +47,7 @@ export interface EnduroStorageAipWorkflow {
     startedAt?: Date;
     /**
      * 
-     * @type {string}
+     * @type {EnduroStorageAipWorkflowStatusEnum}
      * @memberof EnduroStorageAipWorkflow
      */
     status: EnduroStorageAipWorkflowStatusEnum;
@@ -64,7 +65,7 @@ export interface EnduroStorageAipWorkflow {
     temporalId: string;
     /**
      * 
-     * @type {string}
+     * @type {EnduroStorageAipWorkflowTypeEnum}
      * @memberof EnduroStorageAipWorkflow
      */
     type: EnduroStorageAipWorkflowTypeEnum;
@@ -106,15 +107,13 @@ export type EnduroStorageAipWorkflowTypeEnum = typeof EnduroStorageAipWorkflowTy
 /**
  * Check if a given object implements the EnduroStorageAipWorkflow interface.
  */
-export function instanceOfEnduroStorageAipWorkflow(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "aipUuid" in value;
-    isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "temporalId" in value;
-    isInstance = isInstance && "type" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfEnduroStorageAipWorkflow(value: object): value is EnduroStorageAipWorkflow {
+    if (!('aipUuid' in value) || value['aipUuid'] === undefined) return false;
+    if (!('status' in value) || value['status'] === undefined) return false;
+    if (!('temporalId' in value) || value['temporalId'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function EnduroStorageAipWorkflowFromJSON(json: any): EnduroStorageAipWorkflow {
@@ -122,39 +121,41 @@ export function EnduroStorageAipWorkflowFromJSON(json: any): EnduroStorageAipWor
 }
 
 export function EnduroStorageAipWorkflowFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroStorageAipWorkflow {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'aipUuid': json['aip_uuid'],
-        'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
-        'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
+        'completedAt': json['completed_at'] == null ? undefined : (new Date(json['completed_at'])),
+        'startedAt': json['started_at'] == null ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
-        'tasks': !exists(json, 'tasks') ? undefined : ((json['tasks'] as Array<any>).map(EnduroStorageAipTaskFromJSON)),
+        'tasks': json['tasks'] == null ? undefined : ((json['tasks'] as Array<any>).map(EnduroStorageAipTaskFromJSON)),
         'temporalId': json['temporal_id'],
         'type': json['type'],
         'uuid': json['uuid'],
     };
 }
 
-export function EnduroStorageAipWorkflowToJSON(value?: EnduroStorageAipWorkflow | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroStorageAipWorkflowToJSON(json: any): EnduroStorageAipWorkflow {
+    return EnduroStorageAipWorkflowToJSONTyped(json, false);
+}
+
+export function EnduroStorageAipWorkflowToJSONTyped(value?: EnduroStorageAipWorkflow | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'aip_uuid': value.aipUuid,
-        'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
-        'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),
-        'status': value.status,
-        'tasks': value.tasks === undefined ? undefined : ((value.tasks as Array<any>).map(EnduroStorageAipTaskToJSON)),
-        'temporal_id': value.temporalId,
-        'type': value.type,
-        'uuid': value.uuid,
+        'aip_uuid': value['aipUuid'],
+        'completed_at': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
+        'started_at': value['startedAt'] == null ? value['startedAt'] : value['startedAt'].toISOString(),
+        'status': value['status'],
+        'tasks': value['tasks'] == null ? undefined : ((value['tasks'] as Array<any>).map(EnduroStorageAipTaskToJSON)),
+        'temporal_id': value['temporalId'],
+        'type': value['type'],
+        'uuid': value['uuid'],
     };
 }
 

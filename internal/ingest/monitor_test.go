@@ -6,6 +6,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
@@ -84,7 +85,7 @@ func TestMonitorRequest(t *testing.T) {
 
 // mockMonitorServerStream implements goaingest.MonitorServerStream for testing.
 type mockMonitorServerStream struct {
-	events []any
+	events []*goaingest.IngestEvent
 	closed bool
 }
 
@@ -96,7 +97,7 @@ func (m *mockMonitorServerStream) SendWithContext(ctx context.Context, event *go
 	if m.closed {
 		return fmt.Errorf("stream closed")
 	}
-	m.events = append(m.events, event.Value)
+	m.events = append(m.events, event)
 	return nil
 }
 
@@ -121,27 +122,27 @@ func TestMonitor(t *testing.T) {
 			})
 	}
 	allEvents := []*goaingest.IngestEvent{
-		{Value: &goaingest.SIPCreatedEvent{UUID: testUUID}},
-		{Value: &goaingest.SIPUpdatedEvent{UUID: testUUID}},
-		{Value: &goaingest.SIPStatusUpdatedEvent{UUID: testUUID}},
-		{Value: &goaingest.SIPWorkflowCreatedEvent{UUID: testUUID}},
-		{Value: &goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID}},
-		{Value: &goaingest.SIPTaskCreatedEvent{UUID: testUUID}},
-		{Value: &goaingest.SIPTaskUpdatedEvent{UUID: testUUID}},
-		{Value: &goaingest.BatchCreatedEvent{UUID: testUUID}},
-		{Value: &goaingest.BatchUpdatedEvent{UUID: testUUID}},
+		{Value: ingest.NewEventValue(&goaingest.SIPCreatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPUpdatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPStatusUpdatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPWorkflowCreatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPTaskCreatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPTaskUpdatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.BatchCreatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.BatchUpdatedEvent{UUID: testUUID})},
 	}
-	allWantEvents := []any{
-		&goaingest.IngestPingEvent{Message: new("Hello")},
-		&goaingest.SIPCreatedEvent{UUID: testUUID},
-		&goaingest.SIPUpdatedEvent{UUID: testUUID},
-		&goaingest.SIPStatusUpdatedEvent{UUID: testUUID},
-		&goaingest.SIPWorkflowCreatedEvent{UUID: testUUID},
-		&goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID},
-		&goaingest.SIPTaskCreatedEvent{UUID: testUUID},
-		&goaingest.SIPTaskUpdatedEvent{UUID: testUUID},
-		&goaingest.BatchCreatedEvent{UUID: testUUID},
-		&goaingest.BatchUpdatedEvent{UUID: testUUID},
+	allWantEvents := []*goaingest.IngestEvent{
+		{Value: ingest.NewEventValue(&goaingest.IngestPingEvent{Message: new("Hello")})},
+		{Value: ingest.NewEventValue(&goaingest.SIPCreatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPUpdatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPStatusUpdatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPWorkflowCreatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPWorkflowUpdatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPTaskCreatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.SIPTaskUpdatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.BatchCreatedEvent{UUID: testUUID})},
+		{Value: ingest.NewEventValue(&goaingest.BatchUpdatedEvent{UUID: testUUID})},
 	}
 
 	for _, tt := range []struct {
@@ -149,7 +150,7 @@ func TestMonitor(t *testing.T) {
 		claims     *auth.Claims
 		mock       func(*authfake.MockTicketProvider, context.Context, *string, *auth.Claims)
 		events     []*goaingest.IngestEvent
-		wantEvents []any
+		wantEvents []*goaingest.IngestEvent
 		wantErr    string
 	}{
 		{
@@ -179,8 +180,8 @@ func TestMonitor(t *testing.T) {
 			},
 			mock:   successMock,
 			events: allEvents,
-			wantEvents: []any{
-				&goaingest.IngestPingEvent{Message: new("Hello")},
+			wantEvents: []*goaingest.IngestEvent{
+				{Value: ingest.NewEventValue(&goaingest.IngestPingEvent{Message: new("Hello")})},
 			},
 		},
 		{
@@ -192,10 +193,10 @@ func TestMonitor(t *testing.T) {
 			},
 			mock:   successMock,
 			events: allEvents,
-			wantEvents: []any{
-				&goaingest.IngestPingEvent{Message: new("Hello")},
-				&goaingest.SIPUpdatedEvent{UUID: testUUID},
-				&goaingest.SIPStatusUpdatedEvent{UUID: testUUID},
+			wantEvents: []*goaingest.IngestEvent{
+				{Value: ingest.NewEventValue(&goaingest.IngestPingEvent{Message: new("Hello")})},
+				{Value: ingest.NewEventValue(&goaingest.SIPUpdatedEvent{UUID: testUUID})},
+				{Value: ingest.NewEventValue(&goaingest.SIPStatusUpdatedEvent{UUID: testUUID})},
 			},
 		},
 		{
@@ -250,7 +251,7 @@ func TestMonitor(t *testing.T) {
 				t.Fatal("Monitor did not complete in expected time")
 			}
 
-			assert.DeepEqual(t, stream.events, tt.wantEvents)
+			assert.DeepEqual(t, stream.events, tt.wantEvents, cmp.AllowUnexported(goaingest.Value{}))
 		})
 	}
 }

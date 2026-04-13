@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -72,12 +72,10 @@ export interface S3Config {
 /**
  * Check if a given object implements the S3Config interface.
  */
-export function instanceOfS3Config(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "bucket" in value;
-    isInstance = isInstance && "region" in value;
-
-    return isInstance;
+export function instanceOfS3Config(value: object): value is S3Config {
+    if (!('bucket' in value) || value['bucket'] === undefined) return false;
+    if (!('region' in value) || value['region'] === undefined) return false;
+    return true;
 }
 
 export function S3ConfigFromJSON(json: any): S3Config {
@@ -85,39 +83,41 @@ export function S3ConfigFromJSON(json: any): S3Config {
 }
 
 export function S3ConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean): S3Config {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'bucket': json['bucket'],
-        'endpoint': !exists(json, 'endpoint') ? undefined : json['endpoint'],
-        'key': !exists(json, 'key') ? undefined : json['key'],
-        'pathStyle': !exists(json, 'path_style') ? undefined : json['path_style'],
-        'profile': !exists(json, 'profile') ? undefined : json['profile'],
+        'endpoint': json['endpoint'] == null ? undefined : json['endpoint'],
+        'key': json['key'] == null ? undefined : json['key'],
+        'pathStyle': json['path_style'] == null ? undefined : json['path_style'],
+        'profile': json['profile'] == null ? undefined : json['profile'],
         'region': json['region'],
-        'secret': !exists(json, 'secret') ? undefined : json['secret'],
-        'token': !exists(json, 'token') ? undefined : json['token'],
+        'secret': json['secret'] == null ? undefined : json['secret'],
+        'token': json['token'] == null ? undefined : json['token'],
     };
 }
 
-export function S3ConfigToJSON(value?: S3Config | null): any {
-    if (value === undefined) {
-        return undefined;
+export function S3ConfigToJSON(json: any): S3Config {
+    return S3ConfigToJSONTyped(json, false);
+}
+
+export function S3ConfigToJSONTyped(value?: S3Config | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'bucket': value.bucket,
-        'endpoint': value.endpoint,
-        'key': value.key,
-        'path_style': value.pathStyle,
-        'profile': value.profile,
-        'region': value.region,
-        'secret': value.secret,
-        'token': value.token,
+        'bucket': value['bucket'],
+        'endpoint': value['endpoint'],
+        'key': value['key'],
+        'path_style': value['pathStyle'],
+        'profile': value['profile'],
+        'region': value['region'],
+        'secret': value['secret'],
+        'token': value['token'],
     };
 }
 

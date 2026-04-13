@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroIngestSipWorkflow } from './EnduroIngestSipWorkflow';
 import {
     EnduroIngestSipWorkflowFromJSON,
     EnduroIngestSipWorkflowFromJSONTyped,
     EnduroIngestSipWorkflowToJSON,
+    EnduroIngestSipWorkflowToJSONTyped,
 } from './EnduroIngestSipWorkflow';
 
 /**
@@ -43,12 +44,10 @@ export interface SIPWorkflowUpdatedEvent {
 /**
  * Check if a given object implements the SIPWorkflowUpdatedEvent interface.
  */
-export function instanceOfSIPWorkflowUpdatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "item" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfSIPWorkflowUpdatedEvent(value: object): value is SIPWorkflowUpdatedEvent {
+    if (!('item' in value) || value['item'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function SIPWorkflowUpdatedEventFromJSON(json: any): SIPWorkflowUpdatedEvent {
@@ -56,7 +55,7 @@ export function SIPWorkflowUpdatedEventFromJSON(json: any): SIPWorkflowUpdatedEv
 }
 
 export function SIPWorkflowUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPWorkflowUpdatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -66,17 +65,19 @@ export function SIPWorkflowUpdatedEventFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function SIPWorkflowUpdatedEventToJSON(value?: SIPWorkflowUpdatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function SIPWorkflowUpdatedEventToJSON(json: any): SIPWorkflowUpdatedEvent {
+    return SIPWorkflowUpdatedEventToJSONTyped(json, false);
+}
+
+export function SIPWorkflowUpdatedEventToJSONTyped(value?: SIPWorkflowUpdatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'item': EnduroIngestSipWorkflowToJSON(value.item),
-        'uuid': value.uuid,
+        'item': EnduroIngestSipWorkflowToJSON(value['item']),
+        'uuid': value['uuid'],
     };
 }
 

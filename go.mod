@@ -57,8 +57,8 @@ require (
 	go.temporal.io/sdk v1.33.1
 	go.temporal.io/sdk/contrib/opentelemetry v0.6.0
 	go.uber.org/mock v0.4.0
-	goa.design/goa/v3 v3.23.4
-	goa.design/plugins/v3 v3.23.4
+	goa.design/goa/v3 v3.26.0
+	goa.design/plugins/v3 v3.26.0
 	gocloud.dev v0.45.0
 	golang.org/x/crypto v0.49.0
 	golang.org/x/exp v0.0.0-20231219180239-dc181d75b848
@@ -121,7 +121,7 @@ require (
 	github.com/dsnet/compress v0.0.2-0.20230904184137-39efe44ab707 // indirect
 	github.com/facebookgo/clock v0.0.0-20150410010913-600d898af40a // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
-	github.com/go-chi/chi/v5 v5.2.4 // indirect
+	github.com/go-chi/chi/v5 v5.2.5 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
@@ -217,7 +217,7 @@ require (
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	google.golang.org/api v0.256.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260209200024-4cfbd4190f57 // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20260209200024-4cfbd4190f57 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20260217215200-42d3e9bedb6d // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect

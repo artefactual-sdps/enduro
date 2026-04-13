@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,11 +36,9 @@ export interface AipDeletionAutoRequestBody {
 /**
  * Check if a given object implements the AipDeletionAutoRequestBody interface.
  */
-export function instanceOfAipDeletionAutoRequestBody(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "reason" in value;
-
-    return isInstance;
+export function instanceOfAipDeletionAutoRequestBody(value: object): value is AipDeletionAutoRequestBody {
+    if (!('reason' in value) || value['reason'] === undefined) return false;
+    return true;
 }
 
 export function AipDeletionAutoRequestBodyFromJSON(json: any): AipDeletionAutoRequestBody {
@@ -48,27 +46,29 @@ export function AipDeletionAutoRequestBodyFromJSON(json: any): AipDeletionAutoRe
 }
 
 export function AipDeletionAutoRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): AipDeletionAutoRequestBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'reason': json['reason'],
-        'skipReport': !exists(json, 'skip_report') ? undefined : json['skip_report'],
+        'skipReport': json['skip_report'] == null ? undefined : json['skip_report'],
     };
 }
 
-export function AipDeletionAutoRequestBodyToJSON(value?: AipDeletionAutoRequestBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AipDeletionAutoRequestBodyToJSON(json: any): AipDeletionAutoRequestBody {
+    return AipDeletionAutoRequestBodyToJSONTyped(json, false);
+}
+
+export function AipDeletionAutoRequestBodyToJSONTyped(value?: AipDeletionAutoRequestBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'reason': value.reason,
-        'skip_report': value.skipReport,
+        'reason': value['reason'],
+        'skip_report': value['skipReport'],
     };
 }
 

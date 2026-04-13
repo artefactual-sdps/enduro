@@ -12,19 +12,21 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
-import type { EnduroPage } from './EnduroPage';
-import {
-    EnduroPageFromJSON,
-    EnduroPageFromJSONTyped,
-    EnduroPageToJSON,
-} from './EnduroPage';
+import { mapValues } from '../runtime';
 import type { EnduroStorageAip } from './EnduroStorageAip';
 import {
     EnduroStorageAipFromJSON,
     EnduroStorageAipFromJSONTyped,
     EnduroStorageAipToJSON,
+    EnduroStorageAipToJSONTyped,
 } from './EnduroStorageAip';
+import type { EnduroPage } from './EnduroPage';
+import {
+    EnduroPageFromJSON,
+    EnduroPageFromJSONTyped,
+    EnduroPageToJSON,
+    EnduroPageToJSONTyped,
+} from './EnduroPage';
 
 /**
  * 
@@ -49,12 +51,10 @@ export interface EnduroStorageAips {
 /**
  * Check if a given object implements the EnduroStorageAips interface.
  */
-export function instanceOfEnduroStorageAips(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "items" in value;
-    isInstance = isInstance && "page" in value;
-
-    return isInstance;
+export function instanceOfEnduroStorageAips(value: object): value is EnduroStorageAips {
+    if (!('items' in value) || value['items'] === undefined) return false;
+    if (!('page' in value) || value['page'] === undefined) return false;
+    return true;
 }
 
 export function EnduroStorageAipsFromJSON(json: any): EnduroStorageAips {
@@ -62,7 +62,7 @@ export function EnduroStorageAipsFromJSON(json: any): EnduroStorageAips {
 }
 
 export function EnduroStorageAipsFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroStorageAips {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -72,17 +72,19 @@ export function EnduroStorageAipsFromJSONTyped(json: any, ignoreDiscriminator: b
     };
 }
 
-export function EnduroStorageAipsToJSON(value?: EnduroStorageAips | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroStorageAipsToJSON(json: any): EnduroStorageAips {
+    return EnduroStorageAipsToJSONTyped(json, false);
+}
+
+export function EnduroStorageAipsToJSONTyped(value?: EnduroStorageAips | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'items': ((value.items as Array<any>).map(EnduroStorageAipToJSON)),
-        'page': EnduroPageToJSON(value.page),
+        'items': ((value['items'] as Array<any>).map(EnduroStorageAipToJSON)),
+        'page': EnduroPageToJSON(value['page']),
     };
 }
 

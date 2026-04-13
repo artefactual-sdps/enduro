@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface ReviewAipDeletionRequestBody {
 /**
  * Check if a given object implements the ReviewAipDeletionRequestBody interface.
  */
-export function instanceOfReviewAipDeletionRequestBody(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "approved" in value;
-
-    return isInstance;
+export function instanceOfReviewAipDeletionRequestBody(value: object): value is ReviewAipDeletionRequestBody {
+    if (!('approved' in value) || value['approved'] === undefined) return false;
+    return true;
 }
 
 export function ReviewAipDeletionRequestBodyFromJSON(json: any): ReviewAipDeletionRequestBody {
@@ -42,7 +40,7 @@ export function ReviewAipDeletionRequestBodyFromJSON(json: any): ReviewAipDeleti
 }
 
 export function ReviewAipDeletionRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReviewAipDeletionRequestBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -51,16 +49,18 @@ export function ReviewAipDeletionRequestBodyFromJSONTyped(json: any, ignoreDiscr
     };
 }
 
-export function ReviewAipDeletionRequestBodyToJSON(value?: ReviewAipDeletionRequestBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function ReviewAipDeletionRequestBodyToJSON(json: any): ReviewAipDeletionRequestBody {
+    return ReviewAipDeletionRequestBodyToJSONTyped(json, false);
+}
+
+export function ReviewAipDeletionRequestBodyToJSONTyped(value?: ReviewAipDeletionRequestBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'approved': value.approved,
+        'approved': value['approved'],
     };
 }
 

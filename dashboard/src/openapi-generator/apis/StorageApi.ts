@@ -32,7 +32,7 @@ import type {
   MoveStatusResult,
   RequestAipDeletionRequestBody,
   ReviewAipDeletionRequestBody,
-  StorageEvent2,
+  StorageEvent,
   SubmitAIPResult,
   SubmitAipRequestBody,
 } from '../models/index';
@@ -71,8 +71,8 @@ import {
     RequestAipDeletionRequestBodyToJSON,
     ReviewAipDeletionRequestBodyFromJSON,
     ReviewAipDeletionRequestBodyToJSON,
-    StorageEvent2FromJSON,
-    StorageEvent2ToJSON,
+    StorageEventFromJSON,
+    StorageEventToJSON,
     SubmitAIPResultFromJSON,
     SubmitAIPResultToJSON,
     SubmitAipRequestBodyFromJSON,
@@ -186,6 +186,15 @@ export interface StorageSubmitAipCompleteRequest {
  */
 export interface StorageApiInterface {
     /**
+     * Creates request options for storageAipDeletionAuto without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @param {AipDeletionAutoRequestBody} aipDeletionAutoRequestBody 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageAipDeletionAutoRequestOpts(requestParameters: StorageAipDeletionAutoRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * AIP deletion with auto-approval
      * @summary aip_deletion_auto storage
      * @param {string} uuid Identifier of AIP
@@ -201,6 +210,15 @@ export interface StorageApiInterface {
      * aip_deletion_auto storage
      */
     storageAipDeletionAuto(requestParameters: StorageAipDeletionAutoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for storageAipDeletionReport without sending the request
+     * @param {string} uuid UUID of the AIP
+     * @param {string} [enduroDelreportTicket] 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageAipDeletionReportRequestOpts(requestParameters: StorageAipDeletionReportRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Download deletion report by UUID
@@ -220,6 +238,14 @@ export interface StorageApiInterface {
     storageAipDeletionReport(requestParameters: StorageAipDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
     /**
+     * Creates request options for storageAipDeletionReportRequest without sending the request
+     * @param {string} uuid UUID of the AIP
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageAipDeletionReportRequestRequestOpts(requestParameters: StorageAipDeletionReportRequestRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Request access to download a deletion report
      * @summary aip_deletion_report_request storage
      * @param {string} uuid UUID of the AIP
@@ -234,6 +260,15 @@ export interface StorageApiInterface {
      * aip_deletion_report_request storage
      */
     storageAipDeletionReportRequest(requestParameters: StorageAipDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for storageCancelAipDeletion without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @param {CancelAipDeletionRequestBody} cancelAipDeletionRequestBody 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageCancelAipDeletionRequestOpts(requestParameters: StorageCancelAipDeletionRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Cancel an AIP deletion request
@@ -253,6 +288,14 @@ export interface StorageApiInterface {
     storageCancelAipDeletion(requestParameters: StorageCancelAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
+     * Creates request options for storageCreateAip without sending the request
+     * @param {CreateAipRequestBody} createAipRequestBody 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageCreateAipRequestOpts(requestParameters: StorageCreateAipRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Create a new AIP
      * @summary create_aip storage
      * @param {CreateAipRequestBody} createAipRequestBody 
@@ -269,6 +312,14 @@ export interface StorageApiInterface {
     storageCreateAip(requestParameters: StorageCreateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageAip>;
 
     /**
+     * Creates request options for storageCreateLocation without sending the request
+     * @param {CreateLocationRequestBody} createLocationRequestBody 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageCreateLocationRequestOpts(requestParameters: StorageCreateLocationRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Create a storage location
      * @summary create_location storage
      * @param {CreateLocationRequestBody} createLocationRequestBody 
@@ -283,6 +334,15 @@ export interface StorageApiInterface {
      * create_location storage
      */
     storageCreateLocation(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<CreateLocationResult>;
+
+    /**
+     * Creates request options for storageDownloadAip without sending the request
+     * @param {string} uuid Identifier of the AIP to download
+     * @param {string} [enduroAipDownloadTicket] 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageDownloadAipRequestOpts(requestParameters: StorageDownloadAipRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Download AIP by AIPID
@@ -302,6 +362,14 @@ export interface StorageApiInterface {
     storageDownloadAip(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
     /**
+     * Creates request options for storageDownloadAipRequest without sending the request
+     * @param {string} uuid Identifier of the AIP to download
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageDownloadAipRequestRequestOpts(requestParameters: StorageDownloadAipRequestRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Request access to AIP download
      * @summary download_aip_request storage
      * @param {string} uuid Identifier of the AIP to download
@@ -316,6 +384,16 @@ export interface StorageApiInterface {
      * download_aip_request storage
      */
     storageDownloadAipRequest(requestParameters: StorageDownloadAipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for storageListAipWorkflows without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @param {'unspecified' | 'in progress' | 'done' | 'error' | 'queued' | 'pending' | 'canceled'} [status] 
+     * @param {'unspecified' | 'upload aip' | 'move aip' | 'delete aip'} [type] 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageListAipWorkflowsRequestOpts(requestParameters: StorageListAipWorkflowsRequest): Promise<runtime.RequestOpts>;
 
     /**
      * List workflows related to an AIP
@@ -334,6 +412,19 @@ export interface StorageApiInterface {
      * list_aip_workflows storage
      */
     storageListAipWorkflows(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageAipWorkflows>;
+
+    /**
+     * Creates request options for storageListAips without sending the request
+     * @param {string} [query] Search query to filter AIPs by name or UUID
+     * @param {Date} [earliestCreatedTime] 
+     * @param {Date} [latestCreatedTime] 
+     * @param {'unspecified' | 'stored' | 'pending' | 'processing' | 'deleted' | 'queued'} [status] 
+     * @param {number} [limit] Limit number of results to return
+     * @param {number} [offset] Offset from the beginning of the found set
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageListAipsRequestOpts(requestParameters: StorageListAipsRequest): Promise<runtime.RequestOpts>;
 
     /**
      * List all AIPs
@@ -357,6 +448,14 @@ export interface StorageApiInterface {
     storageListAips(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageAips>;
 
     /**
+     * Creates request options for storageListLocationAips without sending the request
+     * @param {string} uuid Identifier of location
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageListLocationAipsRequestOpts(requestParameters: StorageListLocationAipsRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * List all the AIPs stored in the location with UUID
      * @summary list_location_aips storage
      * @param {string} uuid Identifier of location
@@ -373,6 +472,13 @@ export interface StorageApiInterface {
     storageListLocationAips(requestParameters: StorageListLocationAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<AIPResponse>>;
 
     /**
+     * Creates request options for storageListLocations without sending the request
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageListLocationsRequestOpts(): Promise<runtime.RequestOpts>;
+
+    /**
      * List locations
      * @summary list_locations storage
      * @param {*} [options] Override http request option.
@@ -386,6 +492,14 @@ export interface StorageApiInterface {
      * list_locations storage
      */
     storageListLocations(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<LocationResponse>>;
+
+    /**
+     * Creates request options for storageMonitor without sending the request
+     * @param {string} [enduroStorageWsTicket] 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageMonitorRequestOpts(requestParameters: StorageMonitorRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Obtain access to the /monitor WebSocket
@@ -404,6 +518,13 @@ export interface StorageApiInterface {
     storageMonitor(requestParameters: StorageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
+     * Creates request options for storageMonitorRequest without sending the request
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageMonitorRequestRequestOpts(): Promise<runtime.RequestOpts>;
+
+    /**
      * Request access to the /monitor WebSocket
      * @summary monitor_request storage
      * @param {*} [options] Override http request option.
@@ -417,6 +538,15 @@ export interface StorageApiInterface {
      * monitor_request storage
      */
     storageMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for storageMoveAip without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @param {ConfirmSipRequestBody} confirmSipRequestBody 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageMoveAipRequestOpts(requestParameters: StorageMoveAipRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Move an AIP to a permanent storage location
@@ -436,6 +566,14 @@ export interface StorageApiInterface {
     storageMoveAip(requestParameters: StorageMoveAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
+     * Creates request options for storageMoveAipStatus without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageMoveAipStatusRequestOpts(requestParameters: StorageMoveAipStatusRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Retrieve the status of a permanent storage location move of the AIP
      * @summary move_aip_status storage
      * @param {string} uuid Identifier of AIP
@@ -452,6 +590,14 @@ export interface StorageApiInterface {
     storageMoveAipStatus(requestParameters: StorageMoveAipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<MoveStatusResult>;
 
     /**
+     * Creates request options for storageRejectAip without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageRejectAipRequestOpts(requestParameters: StorageRejectAipRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Reject an AIP
      * @summary reject_aip storage
      * @param {string} uuid Identifier of AIP
@@ -466,6 +612,15 @@ export interface StorageApiInterface {
      * reject_aip storage
      */
     storageRejectAip(requestParameters: StorageRejectAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for storageRequestAipDeletion without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @param {RequestAipDeletionRequestBody} requestAipDeletionRequestBody 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageRequestAipDeletionRequestOpts(requestParameters: StorageRequestAipDeletionRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Request an AIP deletion
@@ -485,6 +640,15 @@ export interface StorageApiInterface {
     storageRequestAipDeletion(requestParameters: StorageRequestAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
+     * Creates request options for storageReviewAipDeletion without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @param {ReviewAipDeletionRequestBody} reviewAipDeletionRequestBody 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageReviewAipDeletionRequestOpts(requestParameters: StorageReviewAipDeletionRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Review an AIP deletion request
      * @summary review_aip_deletion storage
      * @param {string} uuid Identifier of AIP
@@ -500,6 +664,14 @@ export interface StorageApiInterface {
      * review_aip_deletion storage
      */
     storageReviewAipDeletion(requestParameters: StorageReviewAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for storageShowAip without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageShowAipRequestOpts(requestParameters: StorageShowAipRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Show AIP by AIPID
@@ -518,6 +690,14 @@ export interface StorageApiInterface {
     storageShowAip(requestParameters: StorageShowAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageAip>;
 
     /**
+     * Creates request options for storageShowLocation without sending the request
+     * @param {string} uuid Identifier of location
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageShowLocationRequestOpts(requestParameters: StorageShowLocationRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Show location by UUID
      * @summary show_location storage
      * @param {string} uuid Identifier of location
@@ -532,6 +712,15 @@ export interface StorageApiInterface {
      * show_location storage
      */
     storageShowLocation(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroStorageLocation>;
+
+    /**
+     * Creates request options for storageSubmitAip without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @param {SubmitAipRequestBody} submitAipRequestBody 
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageSubmitAipRequestOpts(requestParameters: StorageSubmitAipRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Start the submission of an AIP
@@ -549,6 +738,14 @@ export interface StorageApiInterface {
      * submit_aip storage
      */
     storageSubmitAip(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<SubmitAIPResult>;
+
+    /**
+     * Creates request options for storageSubmitAipComplete without sending the request
+     * @param {string} uuid Identifier of AIP
+     * @throws {RequiredError}
+     * @memberof StorageApiInterface
+     */
+    storageSubmitAipCompleteRequestOpts(requestParameters: StorageSubmitAipCompleteRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Signal that an AIP submission is complete
@@ -574,16 +771,21 @@ export interface StorageApiInterface {
 export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
     /**
-     * AIP deletion with auto-approval
-     * aip_deletion_auto storage
+     * Creates request options for storageAipDeletionAuto without sending the request
      */
-    async storageAipDeletionAutoRaw(requestParameters: StorageAipDeletionAutoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageAipDeletionAuto.');
+    async storageAipDeletionAutoRequestOpts(requestParameters: StorageAipDeletionAutoRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageAipDeletionAuto().'
+            );
         }
 
-        if (requestParameters.aipDeletionAutoRequestBody === null || requestParameters.aipDeletionAutoRequestBody === undefined) {
-            throw new runtime.RequiredError('aipDeletionAutoRequestBody','Required parameter requestParameters.aipDeletionAutoRequestBody was null or undefined when calling storageAipDeletionAuto.');
+        if (requestParameters['aipDeletionAutoRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'aipDeletionAutoRequestBody',
+                'Required parameter "aipDeletionAutoRequestBody" was null or undefined when calling storageAipDeletionAuto().'
+            );
         }
 
         const queryParameters: any = {};
@@ -594,19 +796,32 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:deletion:auto"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/deletion-auto`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/deletion-auto`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: AipDeletionAutoRequestBodyToJSON(requestParameters.aipDeletionAutoRequestBody),
-        }, initOverrides);
+            body: AipDeletionAutoRequestBodyToJSON(requestParameters['aipDeletionAutoRequestBody']),
+        };
+    }
+
+    /**
+     * AIP deletion with auto-approval
+     * aip_deletion_auto storage
+     */
+    async storageAipDeletionAutoRaw(requestParameters: StorageAipDeletionAutoRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageAipDeletionAutoRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -620,24 +835,39 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Download deletion report by UUID
-     * aip_deletion_report storage
+     * Creates request options for storageAipDeletionReport without sending the request
      */
-    async storageAipDeletionReportRaw(requestParameters: StorageAipDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageAipDeletionReport.');
+    async storageAipDeletionReportRequestOpts(requestParameters: StorageAipDeletionReportRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageAipDeletionReport().'
+            );
         }
 
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/deletion-report`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/deletion-report`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Download deletion report by UUID
+     * aip_deletion_report storage
+     */
+    async storageAipDeletionReportRaw(requestParameters: StorageAipDeletionReportRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
+        const requestOptions = await this.storageAipDeletionReportRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.BlobApiResponse(response);
     }
@@ -652,12 +882,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Request access to download a deletion report
-     * aip_deletion_report_request storage
+     * Creates request options for storageAipDeletionReportRequest without sending the request
      */
-    async storageAipDeletionReportRequestRaw(requestParameters: StorageAipDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageAipDeletionReportRequest.');
+    async storageAipDeletionReportRequestRequestOpts(requestParameters: StorageAipDeletionReportRequestRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageAipDeletionReportRequest().'
+            );
         }
 
         const queryParameters: any = {};
@@ -666,18 +898,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:deletion:report"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/deletion-report`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/deletion-report`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Request access to download a deletion report
+     * aip_deletion_report_request storage
+     */
+    async storageAipDeletionReportRequestRaw(requestParameters: StorageAipDeletionReportRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageAipDeletionReportRequestRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -691,16 +936,21 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Cancel an AIP deletion request
-     * cancel_aip_deletion storage
+     * Creates request options for storageCancelAipDeletion without sending the request
      */
-    async storageCancelAipDeletionRaw(requestParameters: StorageCancelAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageCancelAipDeletion.');
+    async storageCancelAipDeletionRequestOpts(requestParameters: StorageCancelAipDeletionRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageCancelAipDeletion().'
+            );
         }
 
-        if (requestParameters.cancelAipDeletionRequestBody === null || requestParameters.cancelAipDeletionRequestBody === undefined) {
-            throw new runtime.RequiredError('cancelAipDeletionRequestBody','Required parameter requestParameters.cancelAipDeletionRequestBody was null or undefined when calling storageCancelAipDeletion.');
+        if (requestParameters['cancelAipDeletionRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'cancelAipDeletionRequestBody',
+                'Required parameter "cancelAipDeletionRequestBody" was null or undefined when calling storageCancelAipDeletion().'
+            );
         }
 
         const queryParameters: any = {};
@@ -711,19 +961,32 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:deletion:request"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/deletion-cancel`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/deletion-cancel`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CancelAipDeletionRequestBodyToJSON(requestParameters.cancelAipDeletionRequestBody),
-        }, initOverrides);
+            body: CancelAipDeletionRequestBodyToJSON(requestParameters['cancelAipDeletionRequestBody']),
+        };
+    }
+
+    /**
+     * Cancel an AIP deletion request
+     * cancel_aip_deletion storage
+     */
+    async storageCancelAipDeletionRaw(requestParameters: StorageCancelAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageCancelAipDeletionRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -737,12 +1000,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Create a new AIP
-     * create_aip storage
+     * Creates request options for storageCreateAip without sending the request
      */
-    async storageCreateAipRaw(requestParameters: StorageCreateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAip>> {
-        if (requestParameters.createAipRequestBody === null || requestParameters.createAipRequestBody === undefined) {
-            throw new runtime.RequiredError('createAipRequestBody','Required parameter requestParameters.createAipRequestBody was null or undefined when calling storageCreateAip.');
+    async storageCreateAipRequestOpts(requestParameters: StorageCreateAipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['createAipRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'createAipRequestBody',
+                'Required parameter "createAipRequestBody" was null or undefined when calling storageCreateAip().'
+            );
         }
 
         const queryParameters: any = {};
@@ -753,19 +1018,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:create"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips`,
+
+        let urlPath = `/storage/aips`;
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateAipRequestBodyToJSON(requestParameters.createAipRequestBody),
-        }, initOverrides);
+            body: CreateAipRequestBodyToJSON(requestParameters['createAipRequestBody']),
+        };
+    }
+
+    /**
+     * Create a new AIP
+     * create_aip storage
+     */
+    async storageCreateAipRaw(requestParameters: StorageCreateAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAip>> {
+        const requestOptions = await this.storageCreateAipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroStorageAipFromJSON(jsonValue));
     }
@@ -780,12 +1057,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Create a storage location
-     * create_location storage
+     * Creates request options for storageCreateLocation without sending the request
      */
-    async storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateLocationResult>> {
-        if (requestParameters.createLocationRequestBody === null || requestParameters.createLocationRequestBody === undefined) {
-            throw new runtime.RequiredError('createLocationRequestBody','Required parameter requestParameters.createLocationRequestBody was null or undefined when calling storageCreateLocation.');
+    async storageCreateLocationRequestOpts(requestParameters: StorageCreateLocationRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['createLocationRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'createLocationRequestBody',
+                'Required parameter "createLocationRequestBody" was null or undefined when calling storageCreateLocation().'
+            );
         }
 
         const queryParameters: any = {};
@@ -796,19 +1075,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:locations:create"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/locations`,
+
+        let urlPath = `/storage/locations`;
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: CreateLocationRequestBodyToJSON(requestParameters.createLocationRequestBody),
-        }, initOverrides);
+            body: CreateLocationRequestBodyToJSON(requestParameters['createLocationRequestBody']),
+        };
+    }
+
+    /**
+     * Create a storage location
+     * create_location storage
+     */
+    async storageCreateLocationRaw(requestParameters: StorageCreateLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<CreateLocationResult>> {
+        const requestOptions = await this.storageCreateLocationRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => CreateLocationResultFromJSON(jsonValue));
     }
@@ -823,24 +1114,39 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Download AIP by AIPID
-     * download_aip storage
+     * Creates request options for storageDownloadAip without sending the request
      */
-    async storageDownloadAipRaw(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageDownloadAip.');
+    async storageDownloadAipRequestOpts(requestParameters: StorageDownloadAipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageDownloadAip().'
+            );
         }
 
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/download`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/download`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Download AIP by AIPID
+     * download_aip storage
+     */
+    async storageDownloadAipRaw(requestParameters: StorageDownloadAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
+        const requestOptions = await this.storageDownloadAipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.BlobApiResponse(response);
     }
@@ -855,12 +1161,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Request access to AIP download
-     * download_aip_request storage
+     * Creates request options for storageDownloadAipRequest without sending the request
      */
-    async storageDownloadAipRequestRaw(requestParameters: StorageDownloadAipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageDownloadAipRequest.');
+    async storageDownloadAipRequestRequestOpts(requestParameters: StorageDownloadAipRequestRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageDownloadAipRequest().'
+            );
         }
 
         const queryParameters: any = {};
@@ -869,18 +1177,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:download"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/download`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/download`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Request access to AIP download
+     * download_aip_request storage
+     */
+    async storageDownloadAipRequestRaw(requestParameters: StorageDownloadAipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageDownloadAipRequestRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -894,40 +1215,55 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * List workflows related to an AIP
-     * list_aip_workflows storage
+     * Creates request options for storageListAipWorkflows without sending the request
      */
-    async storageListAipWorkflowsRaw(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAipWorkflows>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageListAipWorkflows.');
+    async storageListAipWorkflowsRequestOpts(requestParameters: StorageListAipWorkflowsRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageListAipWorkflows().'
+            );
         }
 
         const queryParameters: any = {};
 
-        if (requestParameters.status !== undefined) {
-            queryParameters['status'] = requestParameters.status;
+        if (requestParameters['status'] != null) {
+            queryParameters['status'] = requestParameters['status'];
         }
 
-        if (requestParameters.type !== undefined) {
-            queryParameters['type'] = requestParameters.type;
+        if (requestParameters['type'] != null) {
+            queryParameters['type'] = requestParameters['type'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:workflows:list"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/workflows`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/workflows`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * List workflows related to an AIP
+     * list_aip_workflows storage
+     */
+    async storageListAipWorkflowsRaw(requestParameters: StorageListAipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAipWorkflows>> {
+        const requestOptions = await this.storageListAipWorkflowsRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroStorageAipWorkflowsFromJSON(jsonValue));
     }
@@ -942,52 +1278,63 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * List all AIPs
-     * list_aips storage
+     * Creates request options for storageListAips without sending the request
      */
-    async storageListAipsRaw(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAips>> {
+    async storageListAipsRequestOpts(requestParameters: StorageListAipsRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters.query !== undefined) {
-            queryParameters['query'] = requestParameters.query;
+        if (requestParameters['query'] != null) {
+            queryParameters['query'] = requestParameters['query'];
         }
 
-        if (requestParameters.earliestCreatedTime !== undefined) {
-            queryParameters['earliest_created_time'] = (requestParameters.earliestCreatedTime as any).toISOString();
+        if (requestParameters['earliestCreatedTime'] != null) {
+            queryParameters['earliest_created_time'] = (requestParameters['earliestCreatedTime'] as any).toISOString();
         }
 
-        if (requestParameters.latestCreatedTime !== undefined) {
-            queryParameters['latest_created_time'] = (requestParameters.latestCreatedTime as any).toISOString();
+        if (requestParameters['latestCreatedTime'] != null) {
+            queryParameters['latest_created_time'] = (requestParameters['latestCreatedTime'] as any).toISOString();
         }
 
-        if (requestParameters.status !== undefined) {
-            queryParameters['status'] = requestParameters.status;
+        if (requestParameters['status'] != null) {
+            queryParameters['status'] = requestParameters['status'];
         }
 
-        if (requestParameters.limit !== undefined) {
-            queryParameters['limit'] = requestParameters.limit;
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
         }
 
-        if (requestParameters.offset !== undefined) {
-            queryParameters['offset'] = requestParameters.offset;
+        if (requestParameters['offset'] != null) {
+            queryParameters['offset'] = requestParameters['offset'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:list"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips`,
+
+        let urlPath = `/storage/aips`;
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * List all AIPs
+     * list_aips storage
+     */
+    async storageListAipsRaw(requestParameters: StorageListAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAips>> {
+        const requestOptions = await this.storageListAipsRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroStorageAipsFromJSON(jsonValue));
     }
@@ -1002,12 +1349,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * List all the AIPs stored in the location with UUID
-     * list_location_aips storage
+     * Creates request options for storageListLocationAips without sending the request
      */
-    async storageListLocationAipsRaw(requestParameters: StorageListLocationAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AIPResponse>>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageListLocationAips.');
+    async storageListLocationAipsRequestOpts(requestParameters: StorageListLocationAipsRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageListLocationAips().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1016,18 +1365,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:locations:aips:list"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/locations/{uuid}/aips`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/locations/{uuid}/aips`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * List all the AIPs stored in the location with UUID
+     * list_location_aips storage
+     */
+    async storageListLocationAipsRaw(requestParameters: StorageListLocationAipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<AIPResponse>>> {
+        const requestOptions = await this.storageListLocationAipsRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(AIPResponseFromJSON));
     }
@@ -1042,28 +1404,39 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * List locations
-     * list_locations storage
+     * Creates request options for storageListLocations without sending the request
      */
-    async storageListLocationsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<LocationResponse>>> {
+    async storageListLocationsRequestOpts(): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:locations:list"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/locations`,
+
+        let urlPath = `/storage/locations`;
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * List locations
+     * list_locations storage
+     */
+    async storageListLocationsRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<LocationResponse>>> {
+        const requestOptions = await this.storageListLocationsRequestOpts();
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(LocationResponseFromJSON));
     }
@@ -1078,20 +1451,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Obtain access to the /monitor WebSocket
-     * monitor storage
+     * Creates request options for storageMonitor without sending the request
      */
-    async storageMonitorRaw(requestParameters: StorageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async storageMonitorRequestOpts(requestParameters: StorageMonitorRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        const response = await this.request({
-            path: `/storage/monitor`,
+
+        let urlPath = `/storage/monitor`;
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Obtain access to the /monitor WebSocket
+     * monitor storage
+     */
+    async storageMonitorRaw(requestParameters: StorageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageMonitorRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -1105,10 +1489,9 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Request access to the /monitor WebSocket
-     * monitor_request storage
+     * Creates request options for storageMonitorRequest without sending the request
      */
-    async storageMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async storageMonitorRequestRequestOpts(): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -1121,12 +1504,24 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/monitor`,
+
+        let urlPath = `/storage/monitor`;
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Request access to the /monitor WebSocket
+     * monitor_request storage
+     */
+    async storageMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageMonitorRequestRequestOpts();
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -1140,16 +1535,21 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Move an AIP to a permanent storage location
-     * move_aip storage
+     * Creates request options for storageMoveAip without sending the request
      */
-    async storageMoveAipRaw(requestParameters: StorageMoveAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageMoveAip.');
+    async storageMoveAipRequestOpts(requestParameters: StorageMoveAipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageMoveAip().'
+            );
         }
 
-        if (requestParameters.confirmSipRequestBody === null || requestParameters.confirmSipRequestBody === undefined) {
-            throw new runtime.RequiredError('confirmSipRequestBody','Required parameter requestParameters.confirmSipRequestBody was null or undefined when calling storageMoveAip.');
+        if (requestParameters['confirmSipRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'confirmSipRequestBody',
+                'Required parameter "confirmSipRequestBody" was null or undefined when calling storageMoveAip().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1160,19 +1560,32 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:move"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/store`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/store`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: ConfirmSipRequestBodyToJSON(requestParameters.confirmSipRequestBody),
-        }, initOverrides);
+            body: ConfirmSipRequestBodyToJSON(requestParameters['confirmSipRequestBody']),
+        };
+    }
+
+    /**
+     * Move an AIP to a permanent storage location
+     * move_aip storage
+     */
+    async storageMoveAipRaw(requestParameters: StorageMoveAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageMoveAipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -1186,12 +1599,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Retrieve the status of a permanent storage location move of the AIP
-     * move_aip_status storage
+     * Creates request options for storageMoveAipStatus without sending the request
      */
-    async storageMoveAipStatusRaw(requestParameters: StorageMoveAipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MoveStatusResult>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageMoveAipStatus.');
+    async storageMoveAipStatusRequestOpts(requestParameters: StorageMoveAipStatusRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageMoveAipStatus().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1200,18 +1615,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:move"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/store`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/store`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Retrieve the status of a permanent storage location move of the AIP
+     * move_aip_status storage
+     */
+    async storageMoveAipStatusRaw(requestParameters: StorageMoveAipStatusRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<MoveStatusResult>> {
+        const requestOptions = await this.storageMoveAipStatusRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => MoveStatusResultFromJSON(jsonValue));
     }
@@ -1226,12 +1654,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Reject an AIP
-     * reject_aip storage
+     * Creates request options for storageRejectAip without sending the request
      */
-    async storageRejectAipRaw(requestParameters: StorageRejectAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageRejectAip.');
+    async storageRejectAipRequestOpts(requestParameters: StorageRejectAipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageRejectAip().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1240,18 +1670,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:review"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/reject`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/reject`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Reject an AIP
+     * reject_aip storage
+     */
+    async storageRejectAipRaw(requestParameters: StorageRejectAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageRejectAipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -1265,16 +1708,21 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Request an AIP deletion
-     * request_aip_deletion storage
+     * Creates request options for storageRequestAipDeletion without sending the request
      */
-    async storageRequestAipDeletionRaw(requestParameters: StorageRequestAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageRequestAipDeletion.');
+    async storageRequestAipDeletionRequestOpts(requestParameters: StorageRequestAipDeletionRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageRequestAipDeletion().'
+            );
         }
 
-        if (requestParameters.requestAipDeletionRequestBody === null || requestParameters.requestAipDeletionRequestBody === undefined) {
-            throw new runtime.RequiredError('requestAipDeletionRequestBody','Required parameter requestParameters.requestAipDeletionRequestBody was null or undefined when calling storageRequestAipDeletion.');
+        if (requestParameters['requestAipDeletionRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'requestAipDeletionRequestBody',
+                'Required parameter "requestAipDeletionRequestBody" was null or undefined when calling storageRequestAipDeletion().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1285,19 +1733,32 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:deletion:request"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/deletion-request`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/deletion-request`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: RequestAipDeletionRequestBodyToJSON(requestParameters.requestAipDeletionRequestBody),
-        }, initOverrides);
+            body: RequestAipDeletionRequestBodyToJSON(requestParameters['requestAipDeletionRequestBody']),
+        };
+    }
+
+    /**
+     * Request an AIP deletion
+     * request_aip_deletion storage
+     */
+    async storageRequestAipDeletionRaw(requestParameters: StorageRequestAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageRequestAipDeletionRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -1311,16 +1772,21 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Review an AIP deletion request
-     * review_aip_deletion storage
+     * Creates request options for storageReviewAipDeletion without sending the request
      */
-    async storageReviewAipDeletionRaw(requestParameters: StorageReviewAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageReviewAipDeletion.');
+    async storageReviewAipDeletionRequestOpts(requestParameters: StorageReviewAipDeletionRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageReviewAipDeletion().'
+            );
         }
 
-        if (requestParameters.reviewAipDeletionRequestBody === null || requestParameters.reviewAipDeletionRequestBody === undefined) {
-            throw new runtime.RequiredError('reviewAipDeletionRequestBody','Required parameter requestParameters.reviewAipDeletionRequestBody was null or undefined when calling storageReviewAipDeletion.');
+        if (requestParameters['reviewAipDeletionRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'reviewAipDeletionRequestBody',
+                'Required parameter "reviewAipDeletionRequestBody" was null or undefined when calling storageReviewAipDeletion().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1331,19 +1797,32 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:deletion:review"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/deletion-review`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/deletion-review`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: ReviewAipDeletionRequestBodyToJSON(requestParameters.reviewAipDeletionRequestBody),
-        }, initOverrides);
+            body: ReviewAipDeletionRequestBodyToJSON(requestParameters['reviewAipDeletionRequestBody']),
+        };
+    }
+
+    /**
+     * Review an AIP deletion request
+     * review_aip_deletion storage
+     */
+    async storageReviewAipDeletionRaw(requestParameters: StorageReviewAipDeletionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageReviewAipDeletionRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -1357,12 +1836,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Show AIP by AIPID
-     * show_aip storage
+     * Creates request options for storageShowAip without sending the request
      */
-    async storageShowAipRaw(requestParameters: StorageShowAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAip>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageShowAip.');
+    async storageShowAipRequestOpts(requestParameters: StorageShowAipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageShowAip().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1371,18 +1852,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:read"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Show AIP by AIPID
+     * show_aip storage
+     */
+    async storageShowAipRaw(requestParameters: StorageShowAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageAip>> {
+        const requestOptions = await this.storageShowAipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroStorageAipFromJSON(jsonValue));
     }
@@ -1397,12 +1891,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Show location by UUID
-     * show_location storage
+     * Creates request options for storageShowLocation without sending the request
      */
-    async storageShowLocationRaw(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageLocation>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageShowLocation.');
+    async storageShowLocationRequestOpts(requestParameters: StorageShowLocationRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageShowLocation().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1411,18 +1907,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:locations:read"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/locations/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/locations/{uuid}`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Show location by UUID
+     * show_location storage
+     */
+    async storageShowLocationRaw(requestParameters: StorageShowLocationRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroStorageLocation>> {
+        const requestOptions = await this.storageShowLocationRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroStorageLocationFromJSON(jsonValue));
     }
@@ -1437,16 +1946,21 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Start the submission of an AIP
-     * submit_aip storage
+     * Creates request options for storageSubmitAip without sending the request
      */
-    async storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SubmitAIPResult>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageSubmitAip.');
+    async storageSubmitAipRequestOpts(requestParameters: StorageSubmitAipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageSubmitAip().'
+            );
         }
 
-        if (requestParameters.submitAipRequestBody === null || requestParameters.submitAipRequestBody === undefined) {
-            throw new runtime.RequiredError('submitAipRequestBody','Required parameter requestParameters.submitAipRequestBody was null or undefined when calling storageSubmitAip.');
+        if (requestParameters['submitAipRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'submitAipRequestBody',
+                'Required parameter "submitAipRequestBody" was null or undefined when calling storageSubmitAip().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1457,19 +1971,32 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:submit"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/submit`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/submit`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: SubmitAipRequestBodyToJSON(requestParameters.submitAipRequestBody),
-        }, initOverrides);
+            body: SubmitAipRequestBodyToJSON(requestParameters['submitAipRequestBody']),
+        };
+    }
+
+    /**
+     * Start the submission of an AIP
+     * submit_aip storage
+     */
+    async storageSubmitAipRaw(requestParameters: StorageSubmitAipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SubmitAIPResult>> {
+        const requestOptions = await this.storageSubmitAipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => SubmitAIPResultFromJSON(jsonValue));
     }
@@ -1484,12 +2011,14 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     }
 
     /**
-     * Signal that an AIP submission is complete
-     * submit_aip_complete storage
+     * Creates request options for storageSubmitAipComplete without sending the request
      */
-    async storageSubmitAipCompleteRaw(requestParameters: StorageSubmitAipCompleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling storageSubmitAipComplete.');
+    async storageSubmitAipCompleteRequestOpts(requestParameters: StorageSubmitAipCompleteRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling storageSubmitAipComplete().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1498,18 +2027,31 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["storage:aips:submit"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/storage/aips/{uuid}/submit-complete`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/storage/aips/{uuid}/submit-complete`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Signal that an AIP submission is complete
+     * submit_aip_complete storage
+     */
+    async storageSubmitAipCompleteRaw(requestParameters: StorageSubmitAipCompleteRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.storageSubmitAipCompleteRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -39,7 +39,7 @@ export interface CreateAipRequestBody {
     objectKey: string;
     /**
      * Status of the the AIP
-     * @type {string}
+     * @type {CreateAipRequestBodyStatusEnum}
      * @memberof CreateAipRequestBody
      */
     status?: CreateAipRequestBodyStatusEnum;
@@ -69,13 +69,11 @@ export type CreateAipRequestBodyStatusEnum = typeof CreateAipRequestBodyStatusEn
 /**
  * Check if a given object implements the CreateAipRequestBody interface.
  */
-export function instanceOfCreateAipRequestBody(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "objectKey" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfCreateAipRequestBody(value: object): value is CreateAipRequestBody {
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('objectKey' in value) || value['objectKey'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function CreateAipRequestBodyFromJSON(json: any): CreateAipRequestBody {
@@ -83,33 +81,35 @@ export function CreateAipRequestBodyFromJSON(json: any): CreateAipRequestBody {
 }
 
 export function CreateAipRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateAipRequestBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'locationUuid': !exists(json, 'location_uuid') ? undefined : json['location_uuid'],
+        'locationUuid': json['location_uuid'] == null ? undefined : json['location_uuid'],
         'name': json['name'],
         'objectKey': json['object_key'],
-        'status': !exists(json, 'status') ? undefined : json['status'],
+        'status': json['status'] == null ? undefined : json['status'],
         'uuid': json['uuid'],
     };
 }
 
-export function CreateAipRequestBodyToJSON(value?: CreateAipRequestBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function CreateAipRequestBodyToJSON(json: any): CreateAipRequestBody {
+    return CreateAipRequestBodyToJSONTyped(json, false);
+}
+
+export function CreateAipRequestBodyToJSONTyped(value?: CreateAipRequestBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'location_uuid': value.locationUuid,
-        'name': value.name,
-        'object_key': value.objectKey,
-        'status': value.status,
-        'uuid': value.uuid,
+        'location_uuid': value['locationUuid'],
+        'name': value['name'],
+        'object_key': value['objectKey'],
+        'status': value['status'],
+        'uuid': value['uuid'],
     };
 }
 

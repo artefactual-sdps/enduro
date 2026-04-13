@@ -7,7 +7,7 @@ import { useLayoutStore } from "@/stores/layout";
 export const useLocationStore = defineStore("location", {
   state: () => ({
     // Location currently displayed.
-    current: null as api.LocationResponse | null,
+    current: null as api.EnduroStorageLocation | null,
 
     // AIPs of the current Location.
     currentAips: [] as Array<api.AIPResponse>,

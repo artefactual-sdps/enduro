@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * SIPSourceObject describes an object in a SIP source location.
  * @export
@@ -48,12 +48,10 @@ export interface EnduroIngestSipsourceObject {
 /**
  * Check if a given object implements the EnduroIngestSipsourceObject interface.
  */
-export function instanceOfEnduroIngestSipsourceObject(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "isDir" in value;
-    isInstance = isInstance && "key" in value;
-
-    return isInstance;
+export function instanceOfEnduroIngestSipsourceObject(value: object): value is EnduroIngestSipsourceObject {
+    if (!('isDir' in value) || value['isDir'] === undefined) return false;
+    if (!('key' in value) || value['key'] === undefined) return false;
+    return true;
 }
 
 export function EnduroIngestSipsourceObjectFromJSON(json: any): EnduroIngestSipsourceObject {
@@ -61,31 +59,33 @@ export function EnduroIngestSipsourceObjectFromJSON(json: any): EnduroIngestSips
 }
 
 export function EnduroIngestSipsourceObjectFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestSipsourceObject {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'isDir': json['is_dir'],
         'key': json['key'],
-        'modTime': !exists(json, 'mod_time') ? undefined : (new Date(json['mod_time'])),
-        'size': !exists(json, 'size') ? undefined : json['size'],
+        'modTime': json['mod_time'] == null ? undefined : (new Date(json['mod_time'])),
+        'size': json['size'] == null ? undefined : json['size'],
     };
 }
 
-export function EnduroIngestSipsourceObjectToJSON(value?: EnduroIngestSipsourceObject | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroIngestSipsourceObjectToJSON(json: any): EnduroIngestSipsourceObject {
+    return EnduroIngestSipsourceObjectToJSONTyped(json, false);
+}
+
+export function EnduroIngestSipsourceObjectToJSONTyped(value?: EnduroIngestSipsourceObject | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'is_dir': value.isDir,
-        'key': value.key,
-        'mod_time': value.modTime === undefined ? undefined : (value.modTime.toISOString()),
-        'size': value.size,
+        'is_dir': value['isDir'],
+        'key': value['key'],
+        'mod_time': value['modTime'] == null ? value['modTime'] : value['modTime'].toISOString(),
+        'size': value['size'],
     };
 }
 

@@ -715,8 +715,14 @@
       "CreateLocationRequestBody": {
         "example": {
           "config": {
-            "Type": "s3",
-            "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
+            "bucket": "abc123",
+            "endpoint": "abc123",
+            "key": "abc123",
+            "path_style": false,
+            "profile": "abc123",
+            "region": "abc123",
+            "secret": "abc123",
+            "token": "abc123"
           },
           "description": "abc123",
           "name": "abc123",
@@ -726,30 +732,45 @@
         "properties": {
           "config": {
             "example": {
-              "Type": "s3",
-              "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
+              "bucket": "abc123",
+              "endpoint": "abc123",
+              "key": "abc123",
+              "path_style": false,
+              "profile": "abc123",
+              "region": "abc123",
+              "secret": "abc123",
+              "token": "abc123"
             },
             "properties": {
-              "Type": {
-                "description": "Union type name, one of:\n- \"amss\"\n- \"s3\"\n- \"sftp\"\n- \"url\"",
+              "type": {
                 "enum": [
                   "amss",
                   "s3",
                   "sftp",
                   "url"
                 ],
-                "example": "s3",
                 "type": "string"
               },
-              "Value": {
-                "description": "JSON encoded union value",
-                "example": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}",
-                "type": "string"
+              "value": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AMSSConfig"
+                  },
+                  {
+                    "$ref": "#/components/schemas/S3Config"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SFTPConfig"
+                  },
+                  {
+                    "$ref": "#/components/schemas/URLConfig"
+                  }
+                ]
               }
             },
             "required": [
-              "Type",
-              "Value"
+              "type",
+              "value"
             ],
             "type": "object"
           },
@@ -1827,20 +1848,6 @@
         },
         "properties": {
           "config": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/AMSSConfig"
-              },
-              {
-                "$ref": "#/components/schemas/S3Config"
-              },
-              {
-                "$ref": "#/components/schemas/SFTPConfig"
-              },
-              {
-                "$ref": "#/components/schemas/URLConfig"
-              }
-            ],
             "example": {
               "bucket": "abc123",
               "endpoint": "abc123",
@@ -1850,7 +1857,39 @@
               "region": "abc123",
               "secret": "abc123",
               "token": "abc123"
-            }
+            },
+            "properties": {
+              "type": {
+                "enum": [
+                  "amss",
+                  "s3",
+                  "sftp",
+                  "url"
+                ],
+                "type": "string"
+              },
+              "value": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AMSSConfig"
+                  },
+                  {
+                    "$ref": "#/components/schemas/S3Config"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SFTPConfig"
+                  },
+                  {
+                    "$ref": "#/components/schemas/URLConfig"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "value"
+            ],
+            "type": "object"
           },
           "created_at": {
             "description": "Creation datetime",
@@ -1980,38 +2019,6 @@
         },
         "properties": {
           "value": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/IngestPingEvent"
-              },
-              {
-                "$ref": "#/components/schemas/SIPCreatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/SIPUpdatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/SIPStatusUpdatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/SIPWorkflowCreatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/SIPWorkflowUpdatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/SIPTaskCreatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/SIPTaskUpdatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/BatchCreatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/BatchUpdatedEvent"
-              }
-            ],
             "example": {
               "item": {
                 "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
@@ -2031,27 +2038,9 @@
                 "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
               },
               "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-            }
-          }
-        },
-        "type": "object"
-      },
-      "IngestEvent2": {
-        "example": {
-          "value": {
-            "Type": "sip_created_event",
-            "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
-          }
-        },
-        "properties": {
-          "value": {
-            "example": {
-              "Type": "sip_created_event",
-              "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
             },
             "properties": {
-              "Type": {
-                "description": "Union type name, one of:\n- \"ingest_ping_event\"\n- \"sip_created_event\"\n- \"sip_updated_event\"\n- \"sip_status_updated_event\"\n- \"sip_workflow_created_event\"\n- \"sip_workflow_updated_event\"\n- \"sip_task_created_event\"\n- \"sip_task_updated_event\"\n- \"batch_created_event\"\n- \"batch_updated_event\"",
+              "type": {
                 "enum": [
                   "ingest_ping_event",
                   "sip_created_event",
@@ -2064,18 +2053,46 @@
                   "batch_created_event",
                   "batch_updated_event"
                 ],
-                "example": "sip_created_event",
                 "type": "string"
               },
-              "Value": {
-                "description": "JSON encoded union value",
-                "example": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
-                "type": "string"
+              "value": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/IngestPingEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SIPCreatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SIPUpdatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SIPStatusUpdatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SIPWorkflowCreatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SIPWorkflowUpdatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SIPTaskCreatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/SIPTaskUpdatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BatchCreatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/BatchUpdatedEvent"
+                  }
+                ]
               }
             },
             "required": [
-              "Type",
-              "Value"
+              "type",
+              "value"
             ],
             "type": "object"
           }
@@ -2758,38 +2775,6 @@
         },
         "properties": {
           "value": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/StoragePingEvent"
-              },
-              {
-                "$ref": "#/components/schemas/LocationCreatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/AIPCreatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/AIPUpdatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/AIPStatusUpdatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/AIPLocationUpdatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/AIPWorkflowCreatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/AIPWorkflowUpdatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/AIPTaskCreatedEvent"
-              },
-              {
-                "$ref": "#/components/schemas/AIPTaskUpdatedEvent"
-              }
-            ],
             "example": {
               "item": {
                 "config": {
@@ -2810,27 +2795,9 @@
                 "uuid": "abc123"
               },
               "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-            }
-          }
-        },
-        "type": "object"
-      },
-      "StorageEvent2": {
-        "example": {
-          "value": {
-            "Type": "location_created_event",
-            "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
-          }
-        },
-        "properties": {
-          "value": {
-            "example": {
-              "Type": "location_created_event",
-              "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
             },
             "properties": {
-              "Type": {
-                "description": "Union type name, one of:\n- \"storage_ping_event\"\n- \"location_created_event\"\n- \"aip_created_event\"\n- \"aip_updated_event\"\n- \"aip_status_updated_event\"\n- \"aip_location_updated_event\"\n- \"aip_workflow_created_event\"\n- \"aip_workflow_updated_event\"\n- \"aip_task_created_event\"\n- \"aip_task_updated_event\"",
+              "type": {
                 "enum": [
                   "storage_ping_event",
                   "location_created_event",
@@ -2843,18 +2810,46 @@
                   "aip_task_created_event",
                   "aip_task_updated_event"
                 ],
-                "example": "location_created_event",
                 "type": "string"
               },
-              "Value": {
-                "description": "JSON encoded union value",
-                "example": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}",
-                "type": "string"
+              "value": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/StoragePingEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/LocationCreatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AIPCreatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AIPUpdatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AIPStatusUpdatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AIPLocationUpdatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AIPWorkflowCreatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AIPWorkflowUpdatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AIPTaskCreatedEvent"
+                  },
+                  {
+                    "$ref": "#/components/schemas/AIPTaskUpdatedEvent"
+                  }
+                ]
               }
             },
             "required": [
-              "Type",
-              "Value"
+              "type",
+              "value"
             ],
             "type": "object"
           }
@@ -3518,12 +3513,28 @@
               "application/json": {
                 "example": {
                   "value": {
-                    "Type": "sip_created_event",
-                    "Value": "{\"item\":{\"aip_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"batch_identifier\":\"abc123\",\"batch_status\":\"processing\",\"batch_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"completed_at\":\"1970-01-01T00:00:01Z\",\"created_at\":\"1970-01-01T00:00:01Z\",\"failed_as\":\"PIP\",\"failed_key\":\"abc123\",\"name\":\"abc123\",\"started_at\":\"1970-01-01T00:00:01Z\",\"status\":\"failed\",\"uploader_email\":\"abc123\",\"uploader_name\":\"abc123\",\"uploader_uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\",\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+                    "item": {
+                      "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                      "batch_identifier": "abc123",
+                      "batch_status": "processing",
+                      "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                      "completed_at": "1970-01-01T00:00:01Z",
+                      "created_at": "1970-01-01T00:00:01Z",
+                      "failed_as": "PIP",
+                      "failed_key": "abc123",
+                      "name": "abc123",
+                      "started_at": "1970-01-01T00:00:01Z",
+                      "status": "failed",
+                      "uploader_email": "abc123",
+                      "uploader_name": "abc123",
+                      "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                      "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                    },
+                    "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
                   }
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/IngestEvent2"
+                  "$ref": "#/components/schemas/IngestEvent"
                 }
               }
             },
@@ -6879,8 +6890,14 @@
             "application/json": {
               "example": {
                 "config": {
-                  "Type": "s3",
-                  "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
+                  "bucket": "abc123",
+                  "endpoint": "abc123",
+                  "key": "abc123",
+                  "path_style": false,
+                  "profile": "abc123",
+                  "region": "abc123",
+                  "secret": "abc123",
+                  "token": "abc123"
                 },
                 "description": "abc123",
                 "name": "abc123",
@@ -6981,8 +6998,14 @@
               "application/json": {
                 "example": {
                   "config": {
-                    "Type": "s3",
-                    "Value": "{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"}"
+                    "bucket": "abc123",
+                    "endpoint": "abc123",
+                    "key": "abc123",
+                    "path_style": false,
+                    "profile": "abc123",
+                    "region": "abc123",
+                    "secret": "abc123",
+                    "token": "abc123"
                   },
                   "created_at": "1970-01-01T00:00:01Z",
                   "description": "abc123",
@@ -7175,12 +7198,29 @@
               "application/json": {
                 "example": {
                   "value": {
-                    "Type": "location_created_event",
-                    "Value": "{\"item\":{\"config\":{\"bucket\":\"abc123\",\"endpoint\":\"abc123\",\"key\":\"abc123\",\"path_style\":false,\"profile\":\"abc123\",\"region\":\"abc123\",\"secret\":\"abc123\",\"token\":\"abc123\"},\"created_at\":\"1970-01-01T00:00:01Z\",\"description\":\"abc123\",\"name\":\"abc123\",\"purpose\":\"aip_store\",\"source\":\"minio\",\"uuid\":\"abc123\"},\"uuid\":\"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"}"
+                    "item": {
+                      "config": {
+                        "bucket": "abc123",
+                        "endpoint": "abc123",
+                        "key": "abc123",
+                        "path_style": false,
+                        "profile": "abc123",
+                        "region": "abc123",
+                        "secret": "abc123",
+                        "token": "abc123"
+                      },
+                      "created_at": "1970-01-01T00:00:01Z",
+                      "description": "abc123",
+                      "name": "abc123",
+                      "purpose": "aip_store",
+                      "source": "minio",
+                      "uuid": "abc123"
+                    },
+                    "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
                   }
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/StorageEvent2"
+                  "$ref": "#/components/schemas/StorageEvent"
                 }
               }
             },

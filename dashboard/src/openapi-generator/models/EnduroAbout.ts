@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroChildworkflow } from './EnduroChildworkflow';
 import {
     EnduroChildworkflowFromJSON,
     EnduroChildworkflowFromJSONTyped,
     EnduroChildworkflowToJSON,
+    EnduroChildworkflowToJSONTyped,
 } from './EnduroChildworkflow';
 
 /**
@@ -55,13 +56,11 @@ export interface EnduroAbout {
 /**
  * Check if a given object implements the EnduroAbout interface.
  */
-export function instanceOfEnduroAbout(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "preservationSystem" in value;
-    isInstance = isInstance && "uploadMaxSize" in value;
-    isInstance = isInstance && "version" in value;
-
-    return isInstance;
+export function instanceOfEnduroAbout(value: object): value is EnduroAbout {
+    if (!('preservationSystem' in value) || value['preservationSystem'] === undefined) return false;
+    if (!('uploadMaxSize' in value) || value['uploadMaxSize'] === undefined) return false;
+    if (!('version' in value) || value['version'] === undefined) return false;
+    return true;
 }
 
 export function EnduroAboutFromJSON(json: any): EnduroAbout {
@@ -69,31 +68,33 @@ export function EnduroAboutFromJSON(json: any): EnduroAbout {
 }
 
 export function EnduroAboutFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroAbout {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'childWorkflows': !exists(json, 'child_workflows') ? undefined : ((json['child_workflows'] as Array<any>).map(EnduroChildworkflowFromJSON)),
+        'childWorkflows': json['child_workflows'] == null ? undefined : ((json['child_workflows'] as Array<any>).map(EnduroChildworkflowFromJSON)),
         'preservationSystem': json['preservation_system'],
         'uploadMaxSize': json['upload_max_size'],
         'version': json['version'],
     };
 }
 
-export function EnduroAboutToJSON(value?: EnduroAbout | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroAboutToJSON(json: any): EnduroAbout {
+    return EnduroAboutToJSONTyped(json, false);
+}
+
+export function EnduroAboutToJSONTyped(value?: EnduroAbout | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'child_workflows': value.childWorkflows === undefined ? undefined : ((value.childWorkflows as Array<any>).map(EnduroChildworkflowToJSON)),
-        'preservation_system': value.preservationSystem,
-        'upload_max_size': value.uploadMaxSize,
-        'version': value.version,
+        'child_workflows': value['childWorkflows'] == null ? undefined : ((value['childWorkflows'] as Array<any>).map(EnduroChildworkflowToJSON)),
+        'preservation_system': value['preservationSystem'],
+        'upload_max_size': value['uploadMaxSize'],
+        'version': value['version'],
     };
 }
 

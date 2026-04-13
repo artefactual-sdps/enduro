@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 
 	storageclient "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/client"
 	storageserver "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
@@ -46,5 +47,32 @@ type Event interface {
 
 // PublishEvent publishes a storage event with type safety.
 func PublishEvent[E Event](ctx context.Context, svc event.Service[*goastorage.StorageEvent], event E) {
-	svc.PublishEvent(ctx, &goastorage.StorageEvent{Value: event})
+	svc.PublishEvent(ctx, &goastorage.StorageEvent{Value: NewEventValue(event)})
+}
+
+func NewEventValue[E Event](event E) goastorage.Value {
+	switch e := any(event).(type) {
+	case *goastorage.StoragePingEvent:
+		return goastorage.NewValueStoragePingEvent(e)
+	case *goastorage.LocationCreatedEvent:
+		return goastorage.NewValueLocationCreatedEvent(e)
+	case *goastorage.AIPCreatedEvent:
+		return goastorage.NewValueAipCreatedEvent(e)
+	case *goastorage.AIPUpdatedEvent:
+		return goastorage.NewValueAipUpdatedEvent(e)
+	case *goastorage.AIPStatusUpdatedEvent:
+		return goastorage.NewValueAipStatusUpdatedEvent(e)
+	case *goastorage.AIPLocationUpdatedEvent:
+		return goastorage.NewValueAipLocationUpdatedEvent(e)
+	case *goastorage.AIPWorkflowCreatedEvent:
+		return goastorage.NewValueAipWorkflowCreatedEvent(e)
+	case *goastorage.AIPWorkflowUpdatedEvent:
+		return goastorage.NewValueAipWorkflowUpdatedEvent(e)
+	case *goastorage.AIPTaskCreatedEvent:
+		return goastorage.NewValueAipTaskCreatedEvent(e)
+	case *goastorage.AIPTaskUpdatedEvent:
+		return goastorage.NewValueAipTaskUpdatedEvent(e)
+	default:
+		panic(fmt.Sprintf("unsupported storage event type %T", event))
+	}
 }

@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroIngestSipTask } from './EnduroIngestSipTask';
 import {
     EnduroIngestSipTaskFromJSON,
     EnduroIngestSipTaskFromJSONTyped,
     EnduroIngestSipTaskToJSON,
+    EnduroIngestSipTaskToJSONTyped,
 } from './EnduroIngestSipTask';
 
 /**
@@ -43,12 +44,10 @@ export interface SIPTaskCreatedEvent {
 /**
  * Check if a given object implements the SIPTaskCreatedEvent interface.
  */
-export function instanceOfSIPTaskCreatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "item" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfSIPTaskCreatedEvent(value: object): value is SIPTaskCreatedEvent {
+    if (!('item' in value) || value['item'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function SIPTaskCreatedEventFromJSON(json: any): SIPTaskCreatedEvent {
@@ -56,7 +55,7 @@ export function SIPTaskCreatedEventFromJSON(json: any): SIPTaskCreatedEvent {
 }
 
 export function SIPTaskCreatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPTaskCreatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -66,17 +65,19 @@ export function SIPTaskCreatedEventFromJSONTyped(json: any, ignoreDiscriminator:
     };
 }
 
-export function SIPTaskCreatedEventToJSON(value?: SIPTaskCreatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function SIPTaskCreatedEventToJSON(json: any): SIPTaskCreatedEvent {
+    return SIPTaskCreatedEventToJSONTyped(json, false);
+}
+
+export function SIPTaskCreatedEventToJSONTyped(value?: SIPTaskCreatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'item': EnduroIngestSipTaskToJSON(value.item),
-        'uuid': value.uuid,
+        'item': EnduroIngestSipTaskToJSON(value['item']),
+        'uuid': value['uuid'],
     };
 }
 

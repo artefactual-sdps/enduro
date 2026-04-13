@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,10 +30,8 @@ export interface CancelAipDeletionRequestBody {
 /**
  * Check if a given object implements the CancelAipDeletionRequestBody interface.
  */
-export function instanceOfCancelAipDeletionRequestBody(value: object): boolean {
-    let isInstance = true;
-
-    return isInstance;
+export function instanceOfCancelAipDeletionRequestBody(value: object): value is CancelAipDeletionRequestBody {
+    return true;
 }
 
 export function CancelAipDeletionRequestBodyFromJSON(json: any): CancelAipDeletionRequestBody {
@@ -41,25 +39,27 @@ export function CancelAipDeletionRequestBodyFromJSON(json: any): CancelAipDeleti
 }
 
 export function CancelAipDeletionRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): CancelAipDeletionRequestBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'check': !exists(json, 'check') ? undefined : json['check'],
+        'check': json['check'] == null ? undefined : json['check'],
     };
 }
 
-export function CancelAipDeletionRequestBodyToJSON(value?: CancelAipDeletionRequestBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function CancelAipDeletionRequestBodyToJSON(json: any): CancelAipDeletionRequestBody {
+    return CancelAipDeletionRequestBodyToJSONTyped(json, false);
+}
+
+export function CancelAipDeletionRequestBodyToJSONTyped(value?: CancelAipDeletionRequestBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'check': value.check,
+        'check': value['check'],
     };
 }
 

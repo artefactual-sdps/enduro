@@ -30,6 +30,13 @@ import {
  */
 export interface AboutApiInterface {
     /**
+     * Creates request options for aboutAbout without sending the request
+     * @throws {RequiredError}
+     * @memberof AboutApiInterface
+     */
+    aboutAboutRequestOpts(): Promise<runtime.RequestOpts>;
+
+    /**
      * Get information about the system
      * @summary about about
      * @param {*} [options] Override http request option.
@@ -52,10 +59,9 @@ export interface AboutApiInterface {
 export class AboutApi extends runtime.BaseAPI implements AboutApiInterface {
 
     /**
-     * Get information about the system
-     * about about
+     * Creates request options for aboutAbout without sending the request
      */
-    async aboutAboutRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroAbout>> {
+    async aboutAboutRequestOpts(): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -68,12 +74,24 @@ export class AboutApi extends runtime.BaseAPI implements AboutApiInterface {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/about`,
+
+        let urlPath = `/about`;
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Get information about the system
+     * about about
+     */
+    async aboutAboutRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroAbout>> {
+        const requestOptions = await this.aboutAboutRequestOpts();
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroAboutFromJSON(jsonValue));
     }

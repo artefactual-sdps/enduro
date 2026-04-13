@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroIngestSipTask } from './EnduroIngestSipTask';
 import {
     EnduroIngestSipTaskFromJSON,
     EnduroIngestSipTaskFromJSONTyped,
     EnduroIngestSipTaskToJSON,
+    EnduroIngestSipTaskToJSONTyped,
 } from './EnduroIngestSipTask';
 
 /**
@@ -46,7 +47,7 @@ export interface EnduroIngestSipWorkflow {
     startedAt: Date;
     /**
      * 
-     * @type {string}
+     * @type {EnduroIngestSipWorkflowStatusEnum}
      * @memberof EnduroIngestSipWorkflow
      */
     status: EnduroIngestSipWorkflowStatusEnum;
@@ -64,7 +65,7 @@ export interface EnduroIngestSipWorkflow {
     temporalId: string;
     /**
      * 
-     * @type {string}
+     * @type {EnduroIngestSipWorkflowTypeEnum}
      * @memberof EnduroIngestSipWorkflow
      */
     type: EnduroIngestSipWorkflowTypeEnum;
@@ -105,16 +106,14 @@ export type EnduroIngestSipWorkflowTypeEnum = typeof EnduroIngestSipWorkflowType
 /**
  * Check if a given object implements the EnduroIngestSipWorkflow interface.
  */
-export function instanceOfEnduroIngestSipWorkflow(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "sipUuid" in value;
-    isInstance = isInstance && "startedAt" in value;
-    isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "temporalId" in value;
-    isInstance = isInstance && "type" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfEnduroIngestSipWorkflow(value: object): value is EnduroIngestSipWorkflow {
+    if (!('sipUuid' in value) || value['sipUuid'] === undefined) return false;
+    if (!('startedAt' in value) || value['startedAt'] === undefined) return false;
+    if (!('status' in value) || value['status'] === undefined) return false;
+    if (!('temporalId' in value) || value['temporalId'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function EnduroIngestSipWorkflowFromJSON(json: any): EnduroIngestSipWorkflow {
@@ -122,39 +121,41 @@ export function EnduroIngestSipWorkflowFromJSON(json: any): EnduroIngestSipWorkf
 }
 
 export function EnduroIngestSipWorkflowFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestSipWorkflow {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
+        'completedAt': json['completed_at'] == null ? undefined : (new Date(json['completed_at'])),
         'sipUuid': json['sip_uuid'],
         'startedAt': (new Date(json['started_at'])),
         'status': json['status'],
-        'tasks': !exists(json, 'tasks') ? undefined : ((json['tasks'] as Array<any>).map(EnduroIngestSipTaskFromJSON)),
+        'tasks': json['tasks'] == null ? undefined : ((json['tasks'] as Array<any>).map(EnduroIngestSipTaskFromJSON)),
         'temporalId': json['temporal_id'],
         'type': json['type'],
         'uuid': json['uuid'],
     };
 }
 
-export function EnduroIngestSipWorkflowToJSON(value?: EnduroIngestSipWorkflow | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroIngestSipWorkflowToJSON(json: any): EnduroIngestSipWorkflow {
+    return EnduroIngestSipWorkflowToJSONTyped(json, false);
+}
+
+export function EnduroIngestSipWorkflowToJSONTyped(value?: EnduroIngestSipWorkflow | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
-        'sip_uuid': value.sipUuid,
-        'started_at': (value.startedAt.toISOString()),
-        'status': value.status,
-        'tasks': value.tasks === undefined ? undefined : ((value.tasks as Array<any>).map(EnduroIngestSipTaskToJSON)),
-        'temporal_id': value.temporalId,
-        'type': value.type,
-        'uuid': value.uuid,
+        'completed_at': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
+        'sip_uuid': value['sipUuid'],
+        'started_at': value['startedAt'].toISOString(),
+        'status': value['status'],
+        'tasks': value['tasks'] == null ? undefined : ((value['tasks'] as Array<any>).map(EnduroIngestSipTaskToJSON)),
+        'temporal_id': value['temporalId'],
+        'type': value['type'],
+        'uuid': value['uuid'],
     };
 }
 

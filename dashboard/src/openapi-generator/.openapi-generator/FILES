@@ -26,6 +26,7 @@ models/ConfirmSipRequestBody.ts
 models/CreateAipRequestBody.ts
 models/CreateLocationRequestBody.ts
 models/CreateLocationRequestBodyConfig.ts
+models/CreateLocationRequestBodyConfigValue.ts
 models/CreateLocationResult.ts
 models/EnduroAbout.ts
 models/EnduroChildworkflow.ts
@@ -47,11 +48,9 @@ models/EnduroStorageAipWorkflow.ts
 models/EnduroStorageAipWorkflows.ts
 models/EnduroStorageAips.ts
 models/EnduroStorageLocation.ts
-models/EnduroStorageLocationConfig.ts
 models/IngestEvent.ts
-models/IngestEvent2.ts
-models/IngestEvent2Value.ts
 models/IngestEventValue.ts
+models/IngestEventValueValue.ts
 models/IngestPingEvent.ts
 models/LocationCreatedEvent.ts
 models/LocationNotFound.ts
@@ -72,9 +71,8 @@ models/SIPUpdatedEvent.ts
 models/SIPWorkflowCreatedEvent.ts
 models/SIPWorkflowUpdatedEvent.ts
 models/StorageEvent.ts
-models/StorageEvent2.ts
-models/StorageEvent2Value.ts
 models/StorageEventValue.ts
+models/StorageEventValueValue.ts
 models/StoragePingEvent.ts
 models/SubmitAIPResult.ts
 models/SubmitAipRequestBody.ts

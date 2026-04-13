@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroStorageAipTask } from './EnduroStorageAipTask';
 import {
     EnduroStorageAipTaskFromJSON,
     EnduroStorageAipTaskFromJSONTyped,
     EnduroStorageAipTaskToJSON,
+    EnduroStorageAipTaskToJSONTyped,
 } from './EnduroStorageAipTask';
 
 /**
@@ -43,12 +44,10 @@ export interface AIPTaskUpdatedEvent {
 /**
  * Check if a given object implements the AIPTaskUpdatedEvent interface.
  */
-export function instanceOfAIPTaskUpdatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "item" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfAIPTaskUpdatedEvent(value: object): value is AIPTaskUpdatedEvent {
+    if (!('item' in value) || value['item'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function AIPTaskUpdatedEventFromJSON(json: any): AIPTaskUpdatedEvent {
@@ -56,7 +55,7 @@ export function AIPTaskUpdatedEventFromJSON(json: any): AIPTaskUpdatedEvent {
 }
 
 export function AIPTaskUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPTaskUpdatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -66,17 +65,19 @@ export function AIPTaskUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator:
     };
 }
 
-export function AIPTaskUpdatedEventToJSON(value?: AIPTaskUpdatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AIPTaskUpdatedEventToJSON(json: any): AIPTaskUpdatedEvent {
+    return AIPTaskUpdatedEventToJSONTyped(json, false);
+}
+
+export function AIPTaskUpdatedEventToJSONTyped(value?: AIPTaskUpdatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'item': EnduroStorageAipTaskToJSON(value.item),
-        'uuid': value.uuid,
+        'item': EnduroStorageAipTaskToJSON(value['item']),
+        'uuid': value['uuid'],
     };
 }
 

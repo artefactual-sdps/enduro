@@ -1,29 +1,44 @@
 import { api } from "@/client";
-import { transformKeys } from "@/helpers/transform";
-import { StorageEvent2ValueTypeEnum } from "@/openapi-generator";
+import { StorageEventValueTypeEnum } from "@/openapi-generator";
 import { useAipStore } from "@/stores/aip";
 import { useLocationStore } from "@/stores/location";
 
-export function handleStorageEvent(event: api.StorageEvent2Value) {
-  handlers[event.type](transformKeys(event.value));
+// Local websocket event boundary used by the storage monitor code.
+//
+// The generated OpenAPI client gives us the outer event envelope (`type` and
+// `value`), but it does not preserve the monitor payload `anyOf` as a usable
+// discriminated union. Instead, `value` is typed as a single generated model
+// that does not correctly represent every storage monitor event payload.
+//
+// We therefore treat `value` as `unknown` here and decode it in the per-event
+// handlers with the appropriate generated `FromJSON` helper.
+type StorageMonitorEvent = {
+  type: api.StorageEventValueTypeEnum;
+  value: unknown;
+};
+
+// TODO: Replace this unknown-based event boundary with a typed monitor-event
+// decoder once the generated client preserves the websocket payload `anyOf`,
+// or after adding a small local typed decoder facade.
+export function handleStorageEvent(event: StorageMonitorEvent) {
+  const handler = handlers[event.type];
+  if (!handler) return;
+  handler(event.value);
 }
 
 const handlers: {
-  [key in api.StorageEvent2ValueTypeEnum]: (data: unknown) => void;
+  [key in api.StorageEventValueTypeEnum]: (data: unknown) => void;
 } = {
-  [StorageEvent2ValueTypeEnum.StoragePingEvent]: () => {},
-  [StorageEvent2ValueTypeEnum.LocationCreatedEvent]: handleLocationCreated,
-  [StorageEvent2ValueTypeEnum.AipCreatedEvent]: handleAipCreated,
-  [StorageEvent2ValueTypeEnum.AipUpdatedEvent]: handleAipUpdated,
-  [StorageEvent2ValueTypeEnum.AipStatusUpdatedEvent]: handleAipStatusUpdated,
-  [StorageEvent2ValueTypeEnum.AipLocationUpdatedEvent]:
-    handleAipLocationUpdated,
-  [StorageEvent2ValueTypeEnum.AipWorkflowCreatedEvent]:
-    handleAipWorkflowCreated,
-  [StorageEvent2ValueTypeEnum.AipWorkflowUpdatedEvent]:
-    handleAipWorkflowUpdated,
-  [StorageEvent2ValueTypeEnum.AipTaskCreatedEvent]: handleAipTaskCreated,
-  [StorageEvent2ValueTypeEnum.AipTaskUpdatedEvent]: handleAipTaskUpdated,
+  [StorageEventValueTypeEnum.StoragePingEvent]: () => {},
+  [StorageEventValueTypeEnum.LocationCreatedEvent]: handleLocationCreated,
+  [StorageEventValueTypeEnum.AipCreatedEvent]: handleAipCreated,
+  [StorageEventValueTypeEnum.AipUpdatedEvent]: handleAipUpdated,
+  [StorageEventValueTypeEnum.AipStatusUpdatedEvent]: handleAipStatusUpdated,
+  [StorageEventValueTypeEnum.AipLocationUpdatedEvent]: handleAipLocationUpdated,
+  [StorageEventValueTypeEnum.AipWorkflowCreatedEvent]: handleAipWorkflowCreated,
+  [StorageEventValueTypeEnum.AipWorkflowUpdatedEvent]: handleAipWorkflowUpdated,
+  [StorageEventValueTypeEnum.AipTaskCreatedEvent]: handleAipTaskCreated,
+  [StorageEventValueTypeEnum.AipTaskUpdatedEvent]: handleAipTaskUpdated,
 };
 
 function handleLocationCreated() {

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface SubmitAipRequestBody {
 /**
  * Check if a given object implements the SubmitAipRequestBody interface.
  */
-export function instanceOfSubmitAipRequestBody(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "name" in value;
-
-    return isInstance;
+export function instanceOfSubmitAipRequestBody(value: object): value is SubmitAipRequestBody {
+    if (!('name' in value) || value['name'] === undefined) return false;
+    return true;
 }
 
 export function SubmitAipRequestBodyFromJSON(json: any): SubmitAipRequestBody {
@@ -42,7 +40,7 @@ export function SubmitAipRequestBodyFromJSON(json: any): SubmitAipRequestBody {
 }
 
 export function SubmitAipRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): SubmitAipRequestBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -51,16 +49,18 @@ export function SubmitAipRequestBodyFromJSONTyped(json: any, ignoreDiscriminator
     };
 }
 
-export function SubmitAipRequestBodyToJSON(value?: SubmitAipRequestBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function SubmitAipRequestBodyToJSON(json: any): SubmitAipRequestBody {
+    return SubmitAipRequestBodyToJSONTyped(json, false);
+}
+
+export function SubmitAipRequestBodyToJSONTyped(value?: SubmitAipRequestBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'name': value.name,
+        'name': value['name'],
     };
 }
 

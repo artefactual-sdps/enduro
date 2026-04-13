@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { StorageEventValue } from './StorageEventValue';
 import {
     StorageEventValueFromJSON,
     StorageEventValueFromJSONTyped,
     StorageEventValueToJSON,
+    StorageEventValueToJSONTyped,
 } from './StorageEventValue';
 
 /**
@@ -37,10 +38,8 @@ export interface StorageEvent {
 /**
  * Check if a given object implements the StorageEvent interface.
  */
-export function instanceOfStorageEvent(value: object): boolean {
-    let isInstance = true;
-
-    return isInstance;
+export function instanceOfStorageEvent(value: object): value is StorageEvent {
+    return true;
 }
 
 export function StorageEventFromJSON(json: any): StorageEvent {
@@ -48,25 +47,27 @@ export function StorageEventFromJSON(json: any): StorageEvent {
 }
 
 export function StorageEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): StorageEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'value': !exists(json, 'value') ? undefined : StorageEventValueFromJSON(json['value']),
+        'value': json['value'] == null ? undefined : StorageEventValueFromJSON(json['value']),
     };
 }
 
-export function StorageEventToJSON(value?: StorageEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function StorageEventToJSON(json: any): StorageEvent {
+    return StorageEventToJSONTyped(json, false);
+}
+
+export function StorageEventToJSONTyped(value?: StorageEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'value': StorageEventValueToJSON(value.value),
+        'value': StorageEventValueToJSON(value['value']),
     };
 }
 

@@ -12,18 +12,20 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroIngestUser } from './EnduroIngestUser';
 import {
     EnduroIngestUserFromJSON,
     EnduroIngestUserFromJSONTyped,
     EnduroIngestUserToJSON,
+    EnduroIngestUserToJSONTyped,
 } from './EnduroIngestUser';
 import type { EnduroPage } from './EnduroPage';
 import {
     EnduroPageFromJSON,
     EnduroPageFromJSONTyped,
     EnduroPageToJSON,
+    EnduroPageToJSONTyped,
 } from './EnduroPage';
 
 /**
@@ -49,12 +51,10 @@ export interface EnduroIngestUsers {
 /**
  * Check if a given object implements the EnduroIngestUsers interface.
  */
-export function instanceOfEnduroIngestUsers(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "items" in value;
-    isInstance = isInstance && "page" in value;
-
-    return isInstance;
+export function instanceOfEnduroIngestUsers(value: object): value is EnduroIngestUsers {
+    if (!('items' in value) || value['items'] === undefined) return false;
+    if (!('page' in value) || value['page'] === undefined) return false;
+    return true;
 }
 
 export function EnduroIngestUsersFromJSON(json: any): EnduroIngestUsers {
@@ -62,7 +62,7 @@ export function EnduroIngestUsersFromJSON(json: any): EnduroIngestUsers {
 }
 
 export function EnduroIngestUsersFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestUsers {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -72,17 +72,19 @@ export function EnduroIngestUsersFromJSONTyped(json: any, ignoreDiscriminator: b
     };
 }
 
-export function EnduroIngestUsersToJSON(value?: EnduroIngestUsers | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroIngestUsersToJSON(json: any): EnduroIngestUsers {
+    return EnduroIngestUsersToJSONTyped(json, false);
+}
+
+export function EnduroIngestUsersToJSONTyped(value?: EnduroIngestUsers | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'items': ((value.items as Array<any>).map(EnduroIngestUserToJSON)),
-        'page': EnduroPageToJSON(value.page),
+        'items': ((value['items'] as Array<any>).map(EnduroIngestUserToJSON)),
+        'page': EnduroPageToJSON(value['page']),
     };
 }
 

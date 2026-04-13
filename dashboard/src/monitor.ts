@@ -10,6 +10,24 @@ export type RetryOptions = {
   jitterFn: () => number;
 };
 
+function isObject(value: unknown): value is Record<string, unknown> {
+  return value !== null && typeof value === "object";
+}
+
+// Extract the raw monitor event envelope from the websocket payload.
+// The generic only narrows the returned `type` for the caller; it does not
+// validate that the runtime event type belongs to a specific enum.
+function parseMonitorEvent<T extends string>(
+  body: unknown,
+): { type: T; value: unknown } | null {
+  if (!isObject(body) || !isObject(body.value)) return null;
+
+  const event = body.value;
+  if (typeof event.type !== "string" || !("value" in event)) return null;
+
+  return { type: event.type as T, value: event.value };
+}
+
 abstract class MonitorConnection {
   type: "ingest" | "storage";
   url: string;
@@ -134,8 +152,8 @@ export class IngestMonitorConnection extends MonitorConnection {
     // Handle incoming messages.
     this.socket.onmessage = (ev: MessageEvent) => {
       const body = JSON.parse(ev.data);
-      const data = api.IngestEvent2FromJSON(body);
-      if (data.value) handleIngestEvent(data.value);
+      const data = parseMonitorEvent<api.IngestEventValueTypeEnum>(body);
+      if (data) handleIngestEvent(data);
     };
   }
 }
@@ -175,8 +193,8 @@ export class StorageMonitorConnection extends MonitorConnection {
     // Handle incoming messages.
     this.socket.onmessage = (ev: MessageEvent) => {
       const body = JSON.parse(ev.data);
-      const data = api.StorageEvent2FromJSON(body);
-      if (data.value) handleStorageEvent(data.value);
+      const data = parseMonitorEvent<api.StorageEventValueTypeEnum>(body);
+      if (data) handleStorageEvent(data);
     };
   }
 }

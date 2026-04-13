@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"go.artefactual.dev/tools/bucket"
@@ -463,9 +464,9 @@ func TestServiceLocation(t *testing.T) {
 		Return(
 			&goastorage.Location{
 				UUID: locationID,
-				Config: &goastorage.URLConfig{
+				Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 					URL: "mem://",
-				},
+				}),
 			},
 			nil,
 		)
@@ -551,7 +552,7 @@ func TestServiceList(t *testing.T) {
 
 		res, err := svc.ListLocations(ctx, &goastorage.ListLocationsPayload{})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, res, storedLocations)
+		assert.DeepEqual(t, res, storedLocations, cmpopts.IgnoreUnexported(goastorage.Config{}))
 	})
 }
 
@@ -824,9 +825,9 @@ func TestServiceDeleteAip(t *testing.T) {
 			Return(
 				&goastorage.Location{
 					UUID: locationID,
-					Config: &goastorage.URLConfig{
+					Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 						URL: "file://" + td.Path(),
-					},
+					}),
 				},
 				nil,
 			)
@@ -868,9 +869,9 @@ func TestServiceDeleteAip(t *testing.T) {
 			Return(
 				&goastorage.Location{
 					UUID: locationID,
-					Config: &goastorage.URLConfig{
+					Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 						URL: "file://" + td.Path(),
-					},
+					}),
 				},
 				nil,
 			)
@@ -966,9 +967,9 @@ func TestAipReader(t *testing.T) {
 			Return(
 				&goastorage.Location{
 					UUID: locationID,
-					Config: &goastorage.URLConfig{
+					Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 						URL: "file://" + td.Path(),
-					},
+					}),
 				},
 				nil,
 			)
@@ -1028,9 +1029,9 @@ func TestAipReader(t *testing.T) {
 			Return(
 				&goastorage.Location{
 					UUID: locationID,
-					Config: &goastorage.URLConfig{
+					Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 						URL: "mem://",
-					},
+					}),
 				},
 				nil,
 			)
@@ -1654,7 +1655,7 @@ func TestServiceAddLocation(t *testing.T) {
 			Name:    "perma-aips-1",
 			Source:  enums.LocationSourceMinio.String(),
 			Purpose: enums.LocationPurposeAipStore.String(),
-			Config:  nil,
+			Config:  goastorage.Config{},
 		})
 		assert.Assert(t, res == nil)
 		assert.ErrorContains(t, err, "unsupported config type")
@@ -1671,7 +1672,7 @@ func TestServiceAddLocation(t *testing.T) {
 			Name:    "perma-aips-1",
 			Source:  enums.LocationSourceMinio.String(),
 			Purpose: enums.LocationPurposeAipStore.String(),
-			Config:  &goastorage.S3Config{},
+			Config:  goastorage.NewConfigS3(&goastorage.S3Config{}),
 		})
 		assert.Assert(t, res == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
@@ -1709,10 +1710,10 @@ func TestServiceAddLocation(t *testing.T) {
 			Name:    "perma-aips-1",
 			Source:  enums.LocationSourceMinio.String(),
 			Purpose: enums.LocationPurposeAipStore.String(),
-			Config: &goastorage.S3Config{
+			Config: goastorage.NewConfigS3(&goastorage.S3Config{
 				Bucket: "perma-aips-1",
 				Region: "planet-earth",
-			},
+			}),
 		})
 		assert.Assert(t, res == nil)
 		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
@@ -1750,10 +1751,10 @@ func TestServiceAddLocation(t *testing.T) {
 			Name:    "perma-aips-1",
 			Source:  enums.LocationSourceMinio.String(),
 			Purpose: enums.LocationPurposeAipStore.String(),
-			Config: &goastorage.S3Config{
+			Config: goastorage.NewConfigS3(&goastorage.S3Config{
 				Bucket: "perma-aips-1",
 				Region: "planet-earth",
-			},
+			}),
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, &goastorage.CreateLocationResult{UUID: uuid0.String()})
@@ -1789,9 +1790,9 @@ func TestServiceAddLocation(t *testing.T) {
 			Name:    "perma-aips-1",
 			Source:  enums.LocationSourceMinio.String(),
 			Purpose: enums.LocationPurposeAipStore.String(),
-			Config: &goastorage.URLConfig{
+			Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 				URL: "mem://",
-			},
+			}),
 		})
 		assert.NilError(t, err)
 		assert.DeepEqual(t, res, &goastorage.CreateLocationResult{UUID: uuid0.String()})
@@ -1840,7 +1841,7 @@ func TestServiceShowLocation(t *testing.T) {
 			UUID: locationID.String(),
 		})
 		assert.NilError(t, err)
-		assert.DeepEqual(t, res, &goastorage.Location{UUID: locationID})
+		assert.DeepEqual(t, res, &goastorage.Location{UUID: locationID}, cmpopts.IgnoreUnexported(goastorage.Config{}))
 	})
 }
 

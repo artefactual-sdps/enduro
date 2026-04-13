@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroStorageAip } from './EnduroStorageAip';
 import {
     EnduroStorageAipFromJSON,
     EnduroStorageAipFromJSONTyped,
     EnduroStorageAipToJSON,
+    EnduroStorageAipToJSONTyped,
 } from './EnduroStorageAip';
 
 /**
@@ -43,12 +44,10 @@ export interface AIPCreatedEvent {
 /**
  * Check if a given object implements the AIPCreatedEvent interface.
  */
-export function instanceOfAIPCreatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "item" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfAIPCreatedEvent(value: object): value is AIPCreatedEvent {
+    if (!('item' in value) || value['item'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function AIPCreatedEventFromJSON(json: any): AIPCreatedEvent {
@@ -56,7 +55,7 @@ export function AIPCreatedEventFromJSON(json: any): AIPCreatedEvent {
 }
 
 export function AIPCreatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPCreatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -66,17 +65,19 @@ export function AIPCreatedEventFromJSONTyped(json: any, ignoreDiscriminator: boo
     };
 }
 
-export function AIPCreatedEventToJSON(value?: AIPCreatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AIPCreatedEventToJSON(json: any): AIPCreatedEvent {
+    return AIPCreatedEventToJSONTyped(json, false);
+}
+
+export function AIPCreatedEventToJSONTyped(value?: AIPCreatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'item': EnduroStorageAipToJSON(value.item),
-        'uuid': value.uuid,
+        'item': EnduroStorageAipToJSON(value['item']),
+        'uuid': value['uuid'],
     };
 }
 

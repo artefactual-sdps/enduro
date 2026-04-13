@@ -12,73 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
-import type { BatchCreatedEvent } from './BatchCreatedEvent';
+import { mapValues } from '../runtime';
+import type { IngestEventValueValue } from './IngestEventValueValue';
 import {
-    BatchCreatedEventFromJSON,
-    BatchCreatedEventFromJSONTyped,
-    BatchCreatedEventToJSON,
-} from './BatchCreatedEvent';
-import type { BatchUpdatedEvent } from './BatchUpdatedEvent';
-import {
-    BatchUpdatedEventFromJSON,
-    BatchUpdatedEventFromJSONTyped,
-    BatchUpdatedEventToJSON,
-} from './BatchUpdatedEvent';
-import type { EnduroIngestBatch } from './EnduroIngestBatch';
-import {
-    EnduroIngestBatchFromJSON,
-    EnduroIngestBatchFromJSONTyped,
-    EnduroIngestBatchToJSON,
-} from './EnduroIngestBatch';
-import type { IngestPingEvent } from './IngestPingEvent';
-import {
-    IngestPingEventFromJSON,
-    IngestPingEventFromJSONTyped,
-    IngestPingEventToJSON,
-} from './IngestPingEvent';
-import type { SIPCreatedEvent } from './SIPCreatedEvent';
-import {
-    SIPCreatedEventFromJSON,
-    SIPCreatedEventFromJSONTyped,
-    SIPCreatedEventToJSON,
-} from './SIPCreatedEvent';
-import type { SIPStatusUpdatedEvent } from './SIPStatusUpdatedEvent';
-import {
-    SIPStatusUpdatedEventFromJSON,
-    SIPStatusUpdatedEventFromJSONTyped,
-    SIPStatusUpdatedEventToJSON,
-} from './SIPStatusUpdatedEvent';
-import type { SIPTaskCreatedEvent } from './SIPTaskCreatedEvent';
-import {
-    SIPTaskCreatedEventFromJSON,
-    SIPTaskCreatedEventFromJSONTyped,
-    SIPTaskCreatedEventToJSON,
-} from './SIPTaskCreatedEvent';
-import type { SIPTaskUpdatedEvent } from './SIPTaskUpdatedEvent';
-import {
-    SIPTaskUpdatedEventFromJSON,
-    SIPTaskUpdatedEventFromJSONTyped,
-    SIPTaskUpdatedEventToJSON,
-} from './SIPTaskUpdatedEvent';
-import type { SIPUpdatedEvent } from './SIPUpdatedEvent';
-import {
-    SIPUpdatedEventFromJSON,
-    SIPUpdatedEventFromJSONTyped,
-    SIPUpdatedEventToJSON,
-} from './SIPUpdatedEvent';
-import type { SIPWorkflowCreatedEvent } from './SIPWorkflowCreatedEvent';
-import {
-    SIPWorkflowCreatedEventFromJSON,
-    SIPWorkflowCreatedEventFromJSONTyped,
-    SIPWorkflowCreatedEventToJSON,
-} from './SIPWorkflowCreatedEvent';
-import type { SIPWorkflowUpdatedEvent } from './SIPWorkflowUpdatedEvent';
-import {
-    SIPWorkflowUpdatedEventFromJSON,
-    SIPWorkflowUpdatedEventFromJSONTyped,
-    SIPWorkflowUpdatedEventToJSON,
-} from './SIPWorkflowUpdatedEvent';
+    IngestEventValueValueFromJSON,
+    IngestEventValueValueFromJSONTyped,
+    IngestEventValueValueToJSON,
+    IngestEventValueValueToJSONTyped,
+} from './IngestEventValueValue';
 
 /**
  * 
@@ -88,57 +29,44 @@ import {
 export interface IngestEventValue {
     /**
      * 
-     * @type {string}
+     * @type {IngestEventValueTypeEnum}
      * @memberof IngestEventValue
      */
-    message?: string;
+    type: IngestEventValueTypeEnum;
     /**
      * 
-     * @type {EnduroIngestBatch}
+     * @type {IngestEventValueValue}
      * @memberof IngestEventValue
      */
-    item: EnduroIngestBatch;
-    /**
-     * Identifier of Batch
-     * @type {string}
-     * @memberof IngestEventValue
-     */
-    uuid: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof IngestEventValue
-     */
-    status: IngestEventValueStatusEnum;
+    value: IngestEventValueValue;
 }
 
 
 /**
  * @export
  */
-export const IngestEventValueStatusEnum = {
-    Error: 'error',
-    Failed: 'failed',
-    Queued: 'queued',
-    Processing: 'processing',
-    Pending: 'pending',
-    Ingested: 'ingested',
-    Validated: 'validated',
-    Canceled: 'canceled'
+export const IngestEventValueTypeEnum = {
+    IngestPingEvent: 'ingest_ping_event',
+    SipCreatedEvent: 'sip_created_event',
+    SipUpdatedEvent: 'sip_updated_event',
+    SipStatusUpdatedEvent: 'sip_status_updated_event',
+    SipWorkflowCreatedEvent: 'sip_workflow_created_event',
+    SipWorkflowUpdatedEvent: 'sip_workflow_updated_event',
+    SipTaskCreatedEvent: 'sip_task_created_event',
+    SipTaskUpdatedEvent: 'sip_task_updated_event',
+    BatchCreatedEvent: 'batch_created_event',
+    BatchUpdatedEvent: 'batch_updated_event'
 } as const;
-export type IngestEventValueStatusEnum = typeof IngestEventValueStatusEnum[keyof typeof IngestEventValueStatusEnum];
+export type IngestEventValueTypeEnum = typeof IngestEventValueTypeEnum[keyof typeof IngestEventValueTypeEnum];
 
 
 /**
  * Check if a given object implements the IngestEventValue interface.
  */
-export function instanceOfIngestEventValue(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "item" in value;
-    isInstance = isInstance && "uuid" in value;
-    isInstance = isInstance && "status" in value;
-
-    return isInstance;
+export function instanceOfIngestEventValue(value: object): value is IngestEventValue {
+    if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('value' in value) || value['value'] === undefined) return false;
+    return true;
 }
 
 export function IngestEventValueFromJSON(json: any): IngestEventValue {
@@ -146,31 +74,29 @@ export function IngestEventValueFromJSON(json: any): IngestEventValue {
 }
 
 export function IngestEventValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): IngestEventValue {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'message': !exists(json, 'message') ? undefined : json['message'],
-        'item': EnduroIngestBatchFromJSON(json['item']),
-        'uuid': json['uuid'],
-        'status': json['status'],
+        'type': json['type'],
+        'value': IngestEventValueValueFromJSON(json['value']),
     };
 }
 
-export function IngestEventValueToJSON(value?: IngestEventValue | null): any {
-    if (value === undefined) {
-        return undefined;
+export function IngestEventValueToJSON(json: any): IngestEventValue {
+    return IngestEventValueToJSONTyped(json, false);
+}
+
+export function IngestEventValueToJSONTyped(value?: IngestEventValue | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'message': value.message,
-        'item': EnduroIngestBatchToJSON(value.item),
-        'uuid': value.uuid,
-        'status': value.status,
+        'type': value['type'],
+        'value': IngestEventValueValueToJSON(value['value']),
     };
 }
 

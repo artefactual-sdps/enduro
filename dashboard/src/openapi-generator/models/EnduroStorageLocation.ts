@@ -12,13 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
-import type { EnduroStorageLocationConfig } from './EnduroStorageLocationConfig';
+import { mapValues } from '../runtime';
+import type { CreateLocationRequestBodyConfig } from './CreateLocationRequestBodyConfig';
 import {
-    EnduroStorageLocationConfigFromJSON,
-    EnduroStorageLocationConfigFromJSONTyped,
-    EnduroStorageLocationConfigToJSON,
-} from './EnduroStorageLocationConfig';
+    CreateLocationRequestBodyConfigFromJSON,
+    CreateLocationRequestBodyConfigFromJSONTyped,
+    CreateLocationRequestBodyConfigToJSON,
+    CreateLocationRequestBodyConfigToJSONTyped,
+} from './CreateLocationRequestBodyConfig';
 
 /**
  * A Location describes a location retrieved by the storage service.
@@ -28,10 +29,10 @@ import {
 export interface EnduroStorageLocation {
     /**
      * 
-     * @type {EnduroStorageLocationConfig}
+     * @type {CreateLocationRequestBodyConfig}
      * @memberof EnduroStorageLocation
      */
-    config?: EnduroStorageLocationConfig;
+    config?: CreateLocationRequestBodyConfig;
     /**
      * Creation datetime
      * @type {Date}
@@ -52,13 +53,13 @@ export interface EnduroStorageLocation {
     name: string;
     /**
      * Purpose of the location
-     * @type {string}
+     * @type {EnduroStorageLocationPurposeEnum}
      * @memberof EnduroStorageLocation
      */
     purpose: EnduroStorageLocationPurposeEnum;
     /**
      * Data source of the location
-     * @type {string}
+     * @type {EnduroStorageLocationSourceEnum}
      * @memberof EnduroStorageLocation
      */
     source: EnduroStorageLocationSourceEnum;
@@ -95,15 +96,13 @@ export type EnduroStorageLocationSourceEnum = typeof EnduroStorageLocationSource
 /**
  * Check if a given object implements the EnduroStorageLocation interface.
  */
-export function instanceOfEnduroStorageLocation(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "createdAt" in value;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "purpose" in value;
-    isInstance = isInstance && "source" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfEnduroStorageLocation(value: object): value is EnduroStorageLocation {
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('purpose' in value) || value['purpose'] === undefined) return false;
+    if (!('source' in value) || value['source'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function EnduroStorageLocationFromJSON(json: any): EnduroStorageLocation {
@@ -111,14 +110,14 @@ export function EnduroStorageLocationFromJSON(json: any): EnduroStorageLocation 
 }
 
 export function EnduroStorageLocationFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroStorageLocation {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'config': !exists(json, 'config') ? undefined : EnduroStorageLocationConfigFromJSON(json['config']),
+        'config': json['config'] == null ? undefined : CreateLocationRequestBodyConfigFromJSON(json['config']),
         'createdAt': (new Date(json['created_at'])),
-        'description': !exists(json, 'description') ? undefined : json['description'],
+        'description': json['description'] == null ? undefined : json['description'],
         'name': json['name'],
         'purpose': json['purpose'],
         'source': json['source'],
@@ -126,22 +125,24 @@ export function EnduroStorageLocationFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function EnduroStorageLocationToJSON(value?: EnduroStorageLocation | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroStorageLocationToJSON(json: any): EnduroStorageLocation {
+    return EnduroStorageLocationToJSONTyped(json, false);
+}
+
+export function EnduroStorageLocationToJSONTyped(value?: EnduroStorageLocation | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'config': EnduroStorageLocationConfigToJSON(value.config),
-        'created_at': (value.createdAt.toISOString()),
-        'description': value.description,
-        'name': value.name,
-        'purpose': value.purpose,
-        'source': value.source,
-        'uuid': value.uuid,
+        'config': CreateLocationRequestBodyConfigToJSON(value['config']),
+        'created_at': value['createdAt'].toISOString(),
+        'description': value['description'],
+        'name': value['name'],
+        'purpose': value['purpose'],
+        'source': value['source'],
+        'uuid': value['uuid'],
     };
 }
 

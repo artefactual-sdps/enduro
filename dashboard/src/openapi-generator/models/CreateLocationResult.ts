@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface CreateLocationResult {
 /**
  * Check if a given object implements the CreateLocationResult interface.
  */
-export function instanceOfCreateLocationResult(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfCreateLocationResult(value: object): value is CreateLocationResult {
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function CreateLocationResultFromJSON(json: any): CreateLocationResult {
@@ -42,7 +40,7 @@ export function CreateLocationResultFromJSON(json: any): CreateLocationResult {
 }
 
 export function CreateLocationResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateLocationResult {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -51,16 +49,18 @@ export function CreateLocationResultFromJSONTyped(json: any, ignoreDiscriminator
     };
 }
 
-export function CreateLocationResultToJSON(value?: CreateLocationResult | null): any {
-    if (value === undefined) {
-        return undefined;
+export function CreateLocationResultToJSON(json: any): CreateLocationResult {
+    return CreateLocationResultToJSONTyped(json, false);
+}
+
+export function CreateLocationResultToJSONTyped(value?: CreateLocationResult | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'uuid': value.uuid,
+        'uuid': value['uuid'],
     };
 }
 

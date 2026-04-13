@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface AddSipResponseBody {
 /**
  * Check if a given object implements the AddSipResponseBody interface.
  */
-export function instanceOfAddSipResponseBody(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfAddSipResponseBody(value: object): value is AddSipResponseBody {
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function AddSipResponseBodyFromJSON(json: any): AddSipResponseBody {
@@ -42,7 +40,7 @@ export function AddSipResponseBodyFromJSON(json: any): AddSipResponseBody {
 }
 
 export function AddSipResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): AddSipResponseBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -51,16 +49,18 @@ export function AddSipResponseBodyFromJSONTyped(json: any, ignoreDiscriminator: 
     };
 }
 
-export function AddSipResponseBodyToJSON(value?: AddSipResponseBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AddSipResponseBodyToJSON(json: any): AddSipResponseBody {
+    return AddSipResponseBodyToJSONTyped(json, false);
+}
+
+export function AddSipResponseBodyToJSONTyped(value?: AddSipResponseBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'uuid': value.uuid,
+        'uuid': value['uuid'],
     };
 }
 

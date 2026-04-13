@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * An AIP describes an AIP retrieved by the storage service. (default view)
  * @export
@@ -51,7 +51,7 @@ export interface AIPResponse {
     objectKey: string;
     /**
      * Status of the AIP
-     * @type {string}
+     * @type {AIPResponseStatusEnum}
      * @memberof AIPResponse
      */
     status: AIPResponseStatusEnum;
@@ -81,15 +81,13 @@ export type AIPResponseStatusEnum = typeof AIPResponseStatusEnum[keyof typeof AI
 /**
  * Check if a given object implements the AIPResponse interface.
  */
-export function instanceOfAIPResponse(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "createdAt" in value;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "objectKey" in value;
-    isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfAIPResponse(value: object): value is AIPResponse {
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('objectKey' in value) || value['objectKey'] === undefined) return false;
+    if (!('status' in value) || value['status'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function AIPResponseFromJSON(json: any): AIPResponse {
@@ -97,14 +95,14 @@ export function AIPResponseFromJSON(json: any): AIPResponse {
 }
 
 export function AIPResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPResponse {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'createdAt': (new Date(json['created_at'])),
-        'deletionReportKey': !exists(json, 'deletion_report_key') ? undefined : json['deletion_report_key'],
-        'locationUuid': !exists(json, 'location_uuid') ? undefined : json['location_uuid'],
+        'deletionReportKey': json['deletion_report_key'] == null ? undefined : json['deletion_report_key'],
+        'locationUuid': json['location_uuid'] == null ? undefined : json['location_uuid'],
         'name': json['name'],
         'objectKey': json['object_key'],
         'status': json['status'],
@@ -112,22 +110,24 @@ export function AIPResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean
     };
 }
 
-export function AIPResponseToJSON(value?: AIPResponse | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AIPResponseToJSON(json: any): AIPResponse {
+    return AIPResponseToJSONTyped(json, false);
+}
+
+export function AIPResponseToJSONTyped(value?: AIPResponse | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'created_at': (value.createdAt.toISOString()),
-        'deletion_report_key': value.deletionReportKey,
-        'location_uuid': value.locationUuid,
-        'name': value.name,
-        'object_key': value.objectKey,
-        'status': value.status,
-        'uuid': value.uuid,
+        'created_at': value['createdAt'].toISOString(),
+        'deletion_report_key': value['deletionReportKey'],
+        'location_uuid': value['locationUuid'],
+        'name': value['name'],
+        'object_key': value['objectKey'],
+        'status': value['status'],
+        'uuid': value['uuid'],
     };
 }
 

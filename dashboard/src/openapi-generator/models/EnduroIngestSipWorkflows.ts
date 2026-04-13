@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroIngestSipWorkflow } from './EnduroIngestSipWorkflow';
 import {
     EnduroIngestSipWorkflowFromJSON,
     EnduroIngestSipWorkflowFromJSONTyped,
     EnduroIngestSipWorkflowToJSON,
+    EnduroIngestSipWorkflowToJSONTyped,
 } from './EnduroIngestSipWorkflow';
 
 /**
@@ -37,10 +38,8 @@ export interface EnduroIngestSipWorkflows {
 /**
  * Check if a given object implements the EnduroIngestSipWorkflows interface.
  */
-export function instanceOfEnduroIngestSipWorkflows(value: object): boolean {
-    let isInstance = true;
-
-    return isInstance;
+export function instanceOfEnduroIngestSipWorkflows(value: object): value is EnduroIngestSipWorkflows {
+    return true;
 }
 
 export function EnduroIngestSipWorkflowsFromJSON(json: any): EnduroIngestSipWorkflows {
@@ -48,25 +47,27 @@ export function EnduroIngestSipWorkflowsFromJSON(json: any): EnduroIngestSipWork
 }
 
 export function EnduroIngestSipWorkflowsFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestSipWorkflows {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'workflows': !exists(json, 'workflows') ? undefined : ((json['workflows'] as Array<any>).map(EnduroIngestSipWorkflowFromJSON)),
+        'workflows': json['workflows'] == null ? undefined : ((json['workflows'] as Array<any>).map(EnduroIngestSipWorkflowFromJSON)),
     };
 }
 
-export function EnduroIngestSipWorkflowsToJSON(value?: EnduroIngestSipWorkflows | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroIngestSipWorkflowsToJSON(json: any): EnduroIngestSipWorkflows {
+    return EnduroIngestSipWorkflowsToJSONTyped(json, false);
+}
+
+export function EnduroIngestSipWorkflowsToJSONTyped(value?: EnduroIngestSipWorkflows | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'workflows': value.workflows === undefined ? undefined : ((value.workflows as Array<any>).map(EnduroIngestSipWorkflowToJSON)),
+        'workflows': value['workflows'] == null ? undefined : ((value['workflows'] as Array<any>).map(EnduroIngestSipWorkflowToJSON)),
     };
 }
 

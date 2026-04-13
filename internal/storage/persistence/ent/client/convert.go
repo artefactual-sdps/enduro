@@ -19,9 +19,17 @@ func locationAsGoa(loc *db.Location) *goastorage.Location {
 		CreatedAt:   loc.CreatedAt.Format(time.RFC3339),
 	}
 
-	switch c := loc.Config.Value.(type) {
+	if config, ok := locationConfigAsGoa(loc.Config); ok {
+		l.Config = config
+	}
+
+	return l
+}
+
+func locationConfigAsGoa(config types.LocationConfig) (goastorage.Config, bool) {
+	switch c := config.Value.(type) {
 	case *types.S3Config:
-		l.Config = &goastorage.S3Config{
+		return goastorage.NewConfigS3(&goastorage.S3Config{
 			Bucket:    c.Bucket,
 			Region:    c.Region,
 			Endpoint:  &c.Endpoint,
@@ -30,28 +38,27 @@ func locationAsGoa(loc *db.Location) *goastorage.Location {
 			Key:       &c.Key,
 			Secret:    &c.Secret,
 			Token:     &c.Token,
-		}
+		}), true
 	case *types.SFTPConfig:
-		l.Config = &goastorage.SFTPConfig{
+		return goastorage.NewConfigSftp(&goastorage.SFTPConfig{
 			Address:   c.Address,
 			Username:  c.Username,
 			Password:  c.Password,
 			Directory: c.Directory,
-		}
+		}), true
 	case *types.AMSSConfig:
-		l.Config = &goastorage.AMSSConfig{
+		return goastorage.NewConfigAmss(&goastorage.AMSSConfig{
 			APIKey:   c.APIKey,
 			URL:      c.URL,
 			Username: c.Username,
-		}
+		}), true
 	case *types.URLConfig:
-		l.Config = &goastorage.URLConfig{
+		return goastorage.NewConfigURL(&goastorage.URLConfig{
 			URL: c.URL,
-		}
-
+		}), true
+	default:
+		return goastorage.Config{}, false
 	}
-
-	return l
 }
 
 func aipAsGoa(ctx context.Context, a *db.AIP) *goastorage.AIP {

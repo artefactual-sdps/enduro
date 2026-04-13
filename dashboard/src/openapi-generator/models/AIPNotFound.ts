@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * AIP not found.
  * @export
@@ -36,12 +36,10 @@ export interface AIPNotFound {
 /**
  * Check if a given object implements the AIPNotFound interface.
  */
-export function instanceOfAIPNotFound(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "message" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfAIPNotFound(value: object): value is AIPNotFound {
+    if (!('message' in value) || value['message'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function AIPNotFoundFromJSON(json: any): AIPNotFound {
@@ -49,7 +47,7 @@ export function AIPNotFoundFromJSON(json: any): AIPNotFound {
 }
 
 export function AIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPNotFound {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -59,17 +57,19 @@ export function AIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean
     };
 }
 
-export function AIPNotFoundToJSON(value?: AIPNotFound | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AIPNotFoundToJSON(json: any): AIPNotFound {
+    return AIPNotFoundToJSONTyped(json, false);
+}
+
+export function AIPNotFoundToJSONTyped(value?: AIPNotFound | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'message': value.message,
-        'uuid': value.uuid,
+        'message': value['message'],
+        'uuid': value['uuid'],
     };
 }
 

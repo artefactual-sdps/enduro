@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface ConfirmSipRequestBody {
 /**
  * Check if a given object implements the ConfirmSipRequestBody interface.
  */
-export function instanceOfConfirmSipRequestBody(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "locationUuid" in value;
-
-    return isInstance;
+export function instanceOfConfirmSipRequestBody(value: object): value is ConfirmSipRequestBody {
+    if (!('locationUuid' in value) || value['locationUuid'] === undefined) return false;
+    return true;
 }
 
 export function ConfirmSipRequestBodyFromJSON(json: any): ConfirmSipRequestBody {
@@ -42,7 +40,7 @@ export function ConfirmSipRequestBodyFromJSON(json: any): ConfirmSipRequestBody 
 }
 
 export function ConfirmSipRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): ConfirmSipRequestBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -51,16 +49,18 @@ export function ConfirmSipRequestBodyFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function ConfirmSipRequestBodyToJSON(value?: ConfirmSipRequestBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function ConfirmSipRequestBodyToJSON(json: any): ConfirmSipRequestBody {
+    return ConfirmSipRequestBodyToJSONTyped(json, false);
+}
+
+export function ConfirmSipRequestBodyToJSONTyped(value?: ConfirmSipRequestBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'location_uuid': value.locationUuid,
+        'location_uuid': value['locationUuid'],
     };
 }
 

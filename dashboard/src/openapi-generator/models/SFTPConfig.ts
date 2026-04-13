@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -48,14 +48,12 @@ export interface SFTPConfig {
 /**
  * Check if a given object implements the SFTPConfig interface.
  */
-export function instanceOfSFTPConfig(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "address" in value;
-    isInstance = isInstance && "directory" in value;
-    isInstance = isInstance && "password" in value;
-    isInstance = isInstance && "username" in value;
-
-    return isInstance;
+export function instanceOfSFTPConfig(value: object): value is SFTPConfig {
+    if (!('address' in value) || value['address'] === undefined) return false;
+    if (!('directory' in value) || value['directory'] === undefined) return false;
+    if (!('password' in value) || value['password'] === undefined) return false;
+    if (!('username' in value) || value['username'] === undefined) return false;
+    return true;
 }
 
 export function SFTPConfigFromJSON(json: any): SFTPConfig {
@@ -63,7 +61,7 @@ export function SFTPConfigFromJSON(json: any): SFTPConfig {
 }
 
 export function SFTPConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean): SFTPConfig {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -75,19 +73,21 @@ export function SFTPConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     };
 }
 
-export function SFTPConfigToJSON(value?: SFTPConfig | null): any {
-    if (value === undefined) {
-        return undefined;
+export function SFTPConfigToJSON(json: any): SFTPConfig {
+    return SFTPConfigToJSONTyped(json, false);
+}
+
+export function SFTPConfigToJSONTyped(value?: SFTPConfig | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'address': value.address,
-        'directory': value.directory,
-        'password': value.password,
-        'username': value.username,
+        'address': value['address'],
+        'directory': value['directory'],
+        'password': value['password'],
+        'username': value['username'],
     };
 }
 

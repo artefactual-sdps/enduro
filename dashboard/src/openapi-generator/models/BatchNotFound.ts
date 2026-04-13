@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * Batch not found.
  * @export
@@ -36,12 +36,10 @@ export interface BatchNotFound {
 /**
  * Check if a given object implements the BatchNotFound interface.
  */
-export function instanceOfBatchNotFound(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "message" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfBatchNotFound(value: object): value is BatchNotFound {
+    if (!('message' in value) || value['message'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function BatchNotFoundFromJSON(json: any): BatchNotFound {
@@ -49,7 +47,7 @@ export function BatchNotFoundFromJSON(json: any): BatchNotFound {
 }
 
 export function BatchNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean): BatchNotFound {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -59,17 +57,19 @@ export function BatchNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boole
     };
 }
 
-export function BatchNotFoundToJSON(value?: BatchNotFound | null): any {
-    if (value === undefined) {
-        return undefined;
+export function BatchNotFoundToJSON(json: any): BatchNotFound {
+    return BatchNotFoundToJSONTyped(json, false);
+}
+
+export function BatchNotFoundToJSONTyped(value?: BatchNotFound | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'message': value.message,
-        'uuid': value.uuid,
+        'message': value['message'],
+        'uuid': value['uuid'],
     };
 }
 
