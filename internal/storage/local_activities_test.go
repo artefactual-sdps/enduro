@@ -81,7 +81,7 @@ func TestReadLocationInfoLocalActivity(t *testing.T) {
 	location := &goastorage.Location{
 		UUID:   locationID,
 		Source: enums.LocationSourceMinio.String(),
-		Config: &goastorage.URLConfig{URL: "mem://"},
+		Config: goastorage.NewConfigURL(&goastorage.URLConfig{URL: "mem://"}),
 	}
 	svc.EXPECT().ReadLocation(ctx, locationID).Return(location, nil)
 

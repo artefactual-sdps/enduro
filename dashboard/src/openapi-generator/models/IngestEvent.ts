@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { IngestEventValue } from './IngestEventValue';
 import {
     IngestEventValueFromJSON,
     IngestEventValueFromJSONTyped,
     IngestEventValueToJSON,
+    IngestEventValueToJSONTyped,
 } from './IngestEventValue';
 
 /**
@@ -37,10 +38,8 @@ export interface IngestEvent {
 /**
  * Check if a given object implements the IngestEvent interface.
  */
-export function instanceOfIngestEvent(value: object): boolean {
-    let isInstance = true;
-
-    return isInstance;
+export function instanceOfIngestEvent(value: object): value is IngestEvent {
+    return true;
 }
 
 export function IngestEventFromJSON(json: any): IngestEvent {
@@ -48,25 +47,27 @@ export function IngestEventFromJSON(json: any): IngestEvent {
 }
 
 export function IngestEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): IngestEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'value': !exists(json, 'value') ? undefined : IngestEventValueFromJSON(json['value']),
+        'value': json['value'] == null ? undefined : IngestEventValueFromJSON(json['value']),
     };
 }
 
-export function IngestEventToJSON(value?: IngestEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function IngestEventToJSON(json: any): IngestEvent {
+    return IngestEventToJSONTyped(json, false);
+}
+
+export function IngestEventToJSONTyped(value?: IngestEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'value': IngestEventValueToJSON(value.value),
+        'value': IngestEventValueToJSON(value['value']),
     };
 }
 

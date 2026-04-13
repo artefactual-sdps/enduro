@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
@@ -85,7 +86,7 @@ func TestMonitorRequest(t *testing.T) {
 
 // mockMonitorServerStream implements goastorage.MonitorServerStream for testing.
 type mockMonitorServerStream struct {
-	events []any
+	events []*goastorage.StorageEvent
 	closed bool
 }
 
@@ -97,7 +98,7 @@ func (m *mockMonitorServerStream) SendWithContext(ctx context.Context, event *go
 	if m.closed {
 		return fmt.Errorf("stream closed")
 	}
-	m.events = append(m.events, event.Value)
+	m.events = append(m.events, event)
 	return nil
 }
 
@@ -122,27 +123,27 @@ func TestMonitor(t *testing.T) {
 			})
 	}
 	allEvents := []*goastorage.StorageEvent{
-		{Value: &goastorage.LocationCreatedEvent{UUID: testUUID}},
-		{Value: &goastorage.AIPCreatedEvent{UUID: testUUID}},
-		{Value: &goastorage.AIPUpdatedEvent{UUID: testUUID}},
-		{Value: &goastorage.AIPStatusUpdatedEvent{UUID: testUUID}},
-		{Value: &goastorage.AIPLocationUpdatedEvent{UUID: testUUID}},
-		{Value: &goastorage.AIPWorkflowCreatedEvent{UUID: testUUID}},
-		{Value: &goastorage.AIPWorkflowUpdatedEvent{UUID: testUUID}},
-		{Value: &goastorage.AIPTaskCreatedEvent{UUID: testUUID}},
-		{Value: &goastorage.AIPTaskUpdatedEvent{UUID: testUUID}},
+		{Value: NewEventValue(&goastorage.LocationCreatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPCreatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPUpdatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPStatusUpdatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPLocationUpdatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPWorkflowCreatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPWorkflowUpdatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPTaskCreatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPTaskUpdatedEvent{UUID: testUUID})},
 	}
-	allWantEvents := []any{
-		&goastorage.StoragePingEvent{Message: new("Hello")},
-		&goastorage.LocationCreatedEvent{UUID: testUUID},
-		&goastorage.AIPCreatedEvent{UUID: testUUID},
-		&goastorage.AIPUpdatedEvent{UUID: testUUID},
-		&goastorage.AIPStatusUpdatedEvent{UUID: testUUID},
-		&goastorage.AIPLocationUpdatedEvent{UUID: testUUID},
-		&goastorage.AIPWorkflowCreatedEvent{UUID: testUUID},
-		&goastorage.AIPWorkflowUpdatedEvent{UUID: testUUID},
-		&goastorage.AIPTaskCreatedEvent{UUID: testUUID},
-		&goastorage.AIPTaskUpdatedEvent{UUID: testUUID},
+	allWantEvents := []*goastorage.StorageEvent{
+		{Value: NewEventValue(&goastorage.StoragePingEvent{Message: new("Hello")})},
+		{Value: NewEventValue(&goastorage.LocationCreatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPCreatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPUpdatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPStatusUpdatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPLocationUpdatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPWorkflowCreatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPWorkflowUpdatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPTaskCreatedEvent{UUID: testUUID})},
+		{Value: NewEventValue(&goastorage.AIPTaskUpdatedEvent{UUID: testUUID})},
 	}
 
 	for _, tt := range []struct {
@@ -150,7 +151,7 @@ func TestMonitor(t *testing.T) {
 		claims     *auth.Claims
 		mock       func(*authfake.MockTicketProvider, context.Context, *string, *auth.Claims)
 		events     []*goastorage.StorageEvent
-		wantEvents []any
+		wantEvents []*goastorage.StorageEvent
 		wantErr    string
 	}{
 		{
@@ -180,8 +181,8 @@ func TestMonitor(t *testing.T) {
 			},
 			mock:   successMock,
 			events: allEvents,
-			wantEvents: []any{
-				&goastorage.StoragePingEvent{Message: new("Hello")},
+			wantEvents: []*goastorage.StorageEvent{
+				{Value: NewEventValue(&goastorage.StoragePingEvent{Message: new("Hello")})},
 			},
 		},
 		{
@@ -193,12 +194,12 @@ func TestMonitor(t *testing.T) {
 			},
 			mock:   successMock,
 			events: allEvents,
-			wantEvents: []any{
-				&goastorage.StoragePingEvent{Message: new("Hello")},
-				&goastorage.LocationCreatedEvent{UUID: testUUID},
-				&goastorage.AIPUpdatedEvent{UUID: testUUID},
-				&goastorage.AIPStatusUpdatedEvent{UUID: testUUID},
-				&goastorage.AIPLocationUpdatedEvent{UUID: testUUID},
+			wantEvents: []*goastorage.StorageEvent{
+				{Value: NewEventValue(&goastorage.StoragePingEvent{Message: new("Hello")})},
+				{Value: NewEventValue(&goastorage.LocationCreatedEvent{UUID: testUUID})},
+				{Value: NewEventValue(&goastorage.AIPUpdatedEvent{UUID: testUUID})},
+				{Value: NewEventValue(&goastorage.AIPStatusUpdatedEvent{UUID: testUUID})},
+				{Value: NewEventValue(&goastorage.AIPLocationUpdatedEvent{UUID: testUUID})},
 			},
 		},
 		{
@@ -254,7 +255,7 @@ func TestMonitor(t *testing.T) {
 				t.Fatal("Monitor did not complete in expected time")
 			}
 
-			assert.DeepEqual(t, stream.events, tt.wantEvents)
+			assert.DeepEqual(t, stream.events, tt.wantEvents, cmp.AllowUnexported(goastorage.Value{}))
 		})
 	}
 }

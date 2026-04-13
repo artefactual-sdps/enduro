@@ -12,18 +12,20 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroIngestSip } from './EnduroIngestSip';
 import {
     EnduroIngestSipFromJSON,
     EnduroIngestSipFromJSONTyped,
     EnduroIngestSipToJSON,
+    EnduroIngestSipToJSONTyped,
 } from './EnduroIngestSip';
 import type { EnduroPage } from './EnduroPage';
 import {
     EnduroPageFromJSON,
     EnduroPageFromJSONTyped,
     EnduroPageToJSON,
+    EnduroPageToJSONTyped,
 } from './EnduroPage';
 
 /**
@@ -49,12 +51,10 @@ export interface EnduroIngestSips {
 /**
  * Check if a given object implements the EnduroIngestSips interface.
  */
-export function instanceOfEnduroIngestSips(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "items" in value;
-    isInstance = isInstance && "page" in value;
-
-    return isInstance;
+export function instanceOfEnduroIngestSips(value: object): value is EnduroIngestSips {
+    if (!('items' in value) || value['items'] === undefined) return false;
+    if (!('page' in value) || value['page'] === undefined) return false;
+    return true;
 }
 
 export function EnduroIngestSipsFromJSON(json: any): EnduroIngestSips {
@@ -62,7 +62,7 @@ export function EnduroIngestSipsFromJSON(json: any): EnduroIngestSips {
 }
 
 export function EnduroIngestSipsFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestSips {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -72,17 +72,19 @@ export function EnduroIngestSipsFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function EnduroIngestSipsToJSON(value?: EnduroIngestSips | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroIngestSipsToJSON(json: any): EnduroIngestSips {
+    return EnduroIngestSipsToJSONTyped(json, false);
+}
+
+export function EnduroIngestSipsToJSONTyped(value?: EnduroIngestSips | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'items': ((value.items as Array<any>).map(EnduroIngestSipToJSON)),
-        'page': EnduroPageToJSON(value.page),
+        'items': ((value['items'] as Array<any>).map(EnduroIngestSipToJSON)),
+        'page': EnduroPageToJSON(value['page']),
     };
 }
 

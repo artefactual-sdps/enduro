@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroIngestBatch } from './EnduroIngestBatch';
 import {
     EnduroIngestBatchFromJSON,
     EnduroIngestBatchFromJSONTyped,
     EnduroIngestBatchToJSON,
+    EnduroIngestBatchToJSONTyped,
 } from './EnduroIngestBatch';
 
 /**
@@ -43,12 +44,10 @@ export interface BatchUpdatedEvent {
 /**
  * Check if a given object implements the BatchUpdatedEvent interface.
  */
-export function instanceOfBatchUpdatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "item" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfBatchUpdatedEvent(value: object): value is BatchUpdatedEvent {
+    if (!('item' in value) || value['item'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function BatchUpdatedEventFromJSON(json: any): BatchUpdatedEvent {
@@ -56,7 +55,7 @@ export function BatchUpdatedEventFromJSON(json: any): BatchUpdatedEvent {
 }
 
 export function BatchUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): BatchUpdatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -66,17 +65,19 @@ export function BatchUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: b
     };
 }
 
-export function BatchUpdatedEventToJSON(value?: BatchUpdatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function BatchUpdatedEventToJSON(json: any): BatchUpdatedEvent {
+    return BatchUpdatedEventToJSONTyped(json, false);
+}
+
+export function BatchUpdatedEventToJSONTyped(value?: BatchUpdatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'item': EnduroIngestBatchToJSON(value.item),
-        'uuid': value.uuid,
+        'item': EnduroIngestBatchToJSON(value['item']),
+        'uuid': value['uuid'],
     };
 }
 

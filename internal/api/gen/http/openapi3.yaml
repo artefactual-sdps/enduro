@@ -389,11 +389,26 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/IngestEvent2'
+                                $ref: '#/components/schemas/IngestEvent'
                             example:
                                 value:
-                                    Type: sip_created_event
-                                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                                    item:
+                                        aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                        batch_identifier: abc123
+                                        batch_status: processing
+                                        batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                        completed_at: "1970-01-01T00:00:01Z"
+                                        created_at: "1970-01-01T00:00:01Z"
+                                        failed_as: PIP
+                                        failed_key: abc123
+                                        name: abc123
+                                        started_at: "1970-01-01T00:00:01Z"
+                                        status: failed
+                                        uploader_email: abc123
+                                        uploader_name: abc123
+                                        uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                        uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
@@ -2610,8 +2625,14 @@ paths:
                             $ref: '#/components/schemas/CreateLocationRequestBody'
                         example:
                             config:
-                                Type: s3
-                                Value: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
+                                bucket: abc123
+                                endpoint: abc123
+                                key: abc123
+                                path_style: false
+                                profile: abc123
+                                region: abc123
+                                secret: abc123
+                                token: abc123
                             description: abc123
                             name: abc123
                             purpose: aip_store
@@ -2677,8 +2698,14 @@ paths:
                                 $ref: '#/components/schemas/EnduroStorageLocation'
                             example:
                                 config:
-                                    Type: s3
-                                    Value: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
+                                    bucket: abc123
+                                    endpoint: abc123
+                                    key: abc123
+                                    path_style: false
+                                    profile: abc123
+                                    region: abc123
+                                    secret: abc123
+                                    token: abc123
                                 created_at: "1970-01-01T00:00:01Z"
                                 description: abc123
                                 name: abc123
@@ -2801,11 +2828,26 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/StorageEvent2'
+                                $ref: '#/components/schemas/StorageEvent'
                             example:
                                 value:
-                                    Type: location_created_event
-                                    Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
+                                    item:
+                                        config:
+                                            bucket: abc123
+                                            endpoint: abc123
+                                            key: abc123
+                                            path_style: false
+                                            profile: abc123
+                                            region: abc123
+                                            secret: abc123
+                                            token: abc123
+                                        created_at: "1970-01-01T00:00:01Z"
+                                        description: abc123
+                                        name: abc123
+                                        purpose: aip_store
+                                        source: minio
+                                        uuid: abc123
+                                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 "401":
                     description: 'unauthorized: Unauthorized response.'
                     content:
@@ -3412,30 +3454,31 @@ components:
                 config:
                     type: object
                     properties:
-                        Type:
+                        type:
                             type: string
-                            description: |-
-                                Union type name, one of:
-                                - "amss"
-                                - "s3"
-                                - "sftp"
-                                - "url"
-                            example: s3
                             enum:
                                 - amss
                                 - s3
                                 - sftp
                                 - url
-                        Value:
-                            type: string
-                            description: JSON encoded union value
-                            example: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
+                        value:
+                            anyOf:
+                                - $ref: '#/components/schemas/AMSSConfig'
+                                - $ref: '#/components/schemas/S3Config'
+                                - $ref: '#/components/schemas/SFTPConfig'
+                                - $ref: '#/components/schemas/URLConfig'
                     example:
-                        Type: s3
-                        Value: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
+                        bucket: abc123
+                        endpoint: abc123
+                        key: abc123
+                        path_style: false
+                        profile: abc123
+                        region: abc123
+                        secret: abc123
+                        token: abc123
                     required:
-                        - Type
-                        - Value
+                        - type
+                        - value
                 description:
                     type: string
                     example: abc123
@@ -3458,8 +3501,14 @@ components:
                         - amss
             example:
                 config:
-                    Type: s3
-                    Value: '{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"}'
+                    bucket: abc123
+                    endpoint: abc123
+                    key: abc123
+                    path_style: false
+                    profile: abc123
+                    region: abc123
+                    secret: abc123
+                    token: abc123
                 description: abc123
                 name: abc123
                 purpose: aip_store
@@ -4261,6 +4310,21 @@ components:
             type: object
             properties:
                 config:
+                    type: object
+                    properties:
+                        type:
+                            type: string
+                            enum:
+                                - amss
+                                - s3
+                                - sftp
+                                - url
+                        value:
+                            anyOf:
+                                - $ref: '#/components/schemas/AMSSConfig'
+                                - $ref: '#/components/schemas/S3Config'
+                                - $ref: '#/components/schemas/SFTPConfig'
+                                - $ref: '#/components/schemas/URLConfig'
                     example:
                         bucket: abc123
                         endpoint: abc123
@@ -4270,11 +4334,9 @@ components:
                         region: abc123
                         secret: abc123
                         token: abc123
-                    anyOf:
-                        - $ref: '#/components/schemas/AMSSConfig'
-                        - $ref: '#/components/schemas/S3Config'
-                        - $ref: '#/components/schemas/SFTPConfig'
-                        - $ref: '#/components/schemas/URLConfig'
+                    required:
+                        - type
+                        - value
                 created_at:
                     type: string
                     description: Creation datetime
@@ -4377,6 +4439,33 @@ components:
             type: object
             properties:
                 value:
+                    type: object
+                    properties:
+                        type:
+                            type: string
+                            enum:
+                                - ingest_ping_event
+                                - sip_created_event
+                                - sip_updated_event
+                                - sip_status_updated_event
+                                - sip_workflow_created_event
+                                - sip_workflow_updated_event
+                                - sip_task_created_event
+                                - sip_task_updated_event
+                                - batch_created_event
+                                - batch_updated_event
+                        value:
+                            anyOf:
+                                - $ref: '#/components/schemas/IngestPingEvent'
+                                - $ref: '#/components/schemas/SIPCreatedEvent'
+                                - $ref: '#/components/schemas/SIPUpdatedEvent'
+                                - $ref: '#/components/schemas/SIPStatusUpdatedEvent'
+                                - $ref: '#/components/schemas/SIPWorkflowCreatedEvent'
+                                - $ref: '#/components/schemas/SIPWorkflowUpdatedEvent'
+                                - $ref: '#/components/schemas/SIPTaskCreatedEvent'
+                                - $ref: '#/components/schemas/SIPTaskUpdatedEvent'
+                                - $ref: '#/components/schemas/BatchCreatedEvent'
+                                - $ref: '#/components/schemas/BatchUpdatedEvent'
                     example:
                         item:
                             aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -4395,17 +4484,9 @@ components:
                             uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                             uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    anyOf:
-                        - $ref: '#/components/schemas/IngestPingEvent'
-                        - $ref: '#/components/schemas/SIPCreatedEvent'
-                        - $ref: '#/components/schemas/SIPUpdatedEvent'
-                        - $ref: '#/components/schemas/SIPStatusUpdatedEvent'
-                        - $ref: '#/components/schemas/SIPWorkflowCreatedEvent'
-                        - $ref: '#/components/schemas/SIPWorkflowUpdatedEvent'
-                        - $ref: '#/components/schemas/SIPTaskCreatedEvent'
-                        - $ref: '#/components/schemas/SIPTaskUpdatedEvent'
-                        - $ref: '#/components/schemas/BatchCreatedEvent'
-                        - $ref: '#/components/schemas/BatchUpdatedEvent'
+                    required:
+                        - type
+                        - value
             example:
                 value:
                     item:
@@ -4425,52 +4506,6 @@ components:
                         uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        IngestEvent2:
-            type: object
-            properties:
-                value:
-                    type: object
-                    properties:
-                        Type:
-                            type: string
-                            description: |-
-                                Union type name, one of:
-                                - "ingest_ping_event"
-                                - "sip_created_event"
-                                - "sip_updated_event"
-                                - "sip_status_updated_event"
-                                - "sip_workflow_created_event"
-                                - "sip_workflow_updated_event"
-                                - "sip_task_created_event"
-                                - "sip_task_updated_event"
-                                - "batch_created_event"
-                                - "batch_updated_event"
-                            example: sip_created_event
-                            enum:
-                                - ingest_ping_event
-                                - sip_created_event
-                                - sip_updated_event
-                                - sip_status_updated_event
-                                - sip_workflow_created_event
-                                - sip_workflow_updated_event
-                                - sip_task_created_event
-                                - sip_task_updated_event
-                                - batch_created_event
-                                - batch_updated_event
-                        Value:
-                            type: string
-                            description: JSON encoded union value
-                            example: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-                    example:
-                        Type: sip_created_event
-                        Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-                    required:
-                        - Type
-                        - Value
-            example:
-                value:
-                    Type: sip_created_event
-                    Value: '{"item":{"aip_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","batch_identifier":"abc123","batch_status":"processing","batch_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","completed_at":"1970-01-01T00:00:01Z","created_at":"1970-01-01T00:00:01Z","failed_as":"PIP","failed_key":"abc123","name":"abc123","started_at":"1970-01-01T00:00:01Z","status":"failed","uploader_email":"abc123","uploader_name":"abc123","uploader_uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5","uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
         IngestPingEvent:
             type: object
             properties:
@@ -4966,6 +5001,33 @@ components:
             type: object
             properties:
                 value:
+                    type: object
+                    properties:
+                        type:
+                            type: string
+                            enum:
+                                - storage_ping_event
+                                - location_created_event
+                                - aip_created_event
+                                - aip_updated_event
+                                - aip_status_updated_event
+                                - aip_location_updated_event
+                                - aip_workflow_created_event
+                                - aip_workflow_updated_event
+                                - aip_task_created_event
+                                - aip_task_updated_event
+                        value:
+                            anyOf:
+                                - $ref: '#/components/schemas/StoragePingEvent'
+                                - $ref: '#/components/schemas/LocationCreatedEvent'
+                                - $ref: '#/components/schemas/AIPCreatedEvent'
+                                - $ref: '#/components/schemas/AIPUpdatedEvent'
+                                - $ref: '#/components/schemas/AIPStatusUpdatedEvent'
+                                - $ref: '#/components/schemas/AIPLocationUpdatedEvent'
+                                - $ref: '#/components/schemas/AIPWorkflowCreatedEvent'
+                                - $ref: '#/components/schemas/AIPWorkflowUpdatedEvent'
+                                - $ref: '#/components/schemas/AIPTaskCreatedEvent'
+                                - $ref: '#/components/schemas/AIPTaskUpdatedEvent'
                     example:
                         item:
                             config:
@@ -4984,17 +5046,9 @@ components:
                             source: minio
                             uuid: abc123
                         uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    anyOf:
-                        - $ref: '#/components/schemas/StoragePingEvent'
-                        - $ref: '#/components/schemas/LocationCreatedEvent'
-                        - $ref: '#/components/schemas/AIPCreatedEvent'
-                        - $ref: '#/components/schemas/AIPUpdatedEvent'
-                        - $ref: '#/components/schemas/AIPStatusUpdatedEvent'
-                        - $ref: '#/components/schemas/AIPLocationUpdatedEvent'
-                        - $ref: '#/components/schemas/AIPWorkflowCreatedEvent'
-                        - $ref: '#/components/schemas/AIPWorkflowUpdatedEvent'
-                        - $ref: '#/components/schemas/AIPTaskCreatedEvent'
-                        - $ref: '#/components/schemas/AIPTaskUpdatedEvent'
+                    required:
+                        - type
+                        - value
             example:
                 value:
                     item:
@@ -5014,52 +5068,6 @@ components:
                         source: minio
                         uuid: abc123
                     uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-        StorageEvent2:
-            type: object
-            properties:
-                value:
-                    type: object
-                    properties:
-                        Type:
-                            type: string
-                            description: |-
-                                Union type name, one of:
-                                - "storage_ping_event"
-                                - "location_created_event"
-                                - "aip_created_event"
-                                - "aip_updated_event"
-                                - "aip_status_updated_event"
-                                - "aip_location_updated_event"
-                                - "aip_workflow_created_event"
-                                - "aip_workflow_updated_event"
-                                - "aip_task_created_event"
-                                - "aip_task_updated_event"
-                            example: location_created_event
-                            enum:
-                                - storage_ping_event
-                                - location_created_event
-                                - aip_created_event
-                                - aip_updated_event
-                                - aip_status_updated_event
-                                - aip_location_updated_event
-                                - aip_workflow_created_event
-                                - aip_workflow_updated_event
-                                - aip_task_created_event
-                                - aip_task_updated_event
-                        Value:
-                            type: string
-                            description: JSON encoded union value
-                            example: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-                    example:
-                        Type: location_created_event
-                        Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
-                    required:
-                        - Type
-                        - Value
-            example:
-                value:
-                    Type: location_created_event
-                    Value: '{"item":{"config":{"bucket":"abc123","endpoint":"abc123","key":"abc123","path_style":false,"profile":"abc123","region":"abc123","secret":"abc123","token":"abc123"},"created_at":"1970-01-01T00:00:01Z","description":"abc123","name":"abc123","purpose":"aip_store","source":"minio","uuid":"abc123"},"uuid":"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"}'
         StoragePingEvent:
             type: object
             properties:

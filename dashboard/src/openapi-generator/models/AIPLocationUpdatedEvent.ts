@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -36,12 +36,10 @@ export interface AIPLocationUpdatedEvent {
 /**
  * Check if a given object implements the AIPLocationUpdatedEvent interface.
  */
-export function instanceOfAIPLocationUpdatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "locationUuid" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfAIPLocationUpdatedEvent(value: object): value is AIPLocationUpdatedEvent {
+    if (!('locationUuid' in value) || value['locationUuid'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function AIPLocationUpdatedEventFromJSON(json: any): AIPLocationUpdatedEvent {
@@ -49,7 +47,7 @@ export function AIPLocationUpdatedEventFromJSON(json: any): AIPLocationUpdatedEv
 }
 
 export function AIPLocationUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPLocationUpdatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -59,17 +57,19 @@ export function AIPLocationUpdatedEventFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function AIPLocationUpdatedEventToJSON(value?: AIPLocationUpdatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AIPLocationUpdatedEventToJSON(json: any): AIPLocationUpdatedEvent {
+    return AIPLocationUpdatedEventToJSONTyped(json, false);
+}
+
+export function AIPLocationUpdatedEventToJSONTyped(value?: AIPLocationUpdatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'location_uuid': value.locationUuid,
-        'uuid': value.uuid,
+        'location_uuid': value['locationUuid'],
+        'uuid': value['uuid'],
     };
 }
 

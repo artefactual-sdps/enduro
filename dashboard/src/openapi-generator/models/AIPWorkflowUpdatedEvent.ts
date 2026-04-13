@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroStorageAipWorkflow } from './EnduroStorageAipWorkflow';
 import {
     EnduroStorageAipWorkflowFromJSON,
     EnduroStorageAipWorkflowFromJSONTyped,
     EnduroStorageAipWorkflowToJSON,
+    EnduroStorageAipWorkflowToJSONTyped,
 } from './EnduroStorageAipWorkflow';
 
 /**
@@ -43,12 +44,10 @@ export interface AIPWorkflowUpdatedEvent {
 /**
  * Check if a given object implements the AIPWorkflowUpdatedEvent interface.
  */
-export function instanceOfAIPWorkflowUpdatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "item" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfAIPWorkflowUpdatedEvent(value: object): value is AIPWorkflowUpdatedEvent {
+    if (!('item' in value) || value['item'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function AIPWorkflowUpdatedEventFromJSON(json: any): AIPWorkflowUpdatedEvent {
@@ -56,7 +55,7 @@ export function AIPWorkflowUpdatedEventFromJSON(json: any): AIPWorkflowUpdatedEv
 }
 
 export function AIPWorkflowUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPWorkflowUpdatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -66,17 +65,19 @@ export function AIPWorkflowUpdatedEventFromJSONTyped(json: any, ignoreDiscrimina
     };
 }
 
-export function AIPWorkflowUpdatedEventToJSON(value?: AIPWorkflowUpdatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AIPWorkflowUpdatedEventToJSON(json: any): AIPWorkflowUpdatedEvent {
+    return AIPWorkflowUpdatedEventToJSONTyped(json, false);
+}
+
+export function AIPWorkflowUpdatedEventToJSONTyped(value?: AIPWorkflowUpdatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'item': EnduroStorageAipWorkflowToJSON(value.item),
-        'uuid': value.uuid,
+        'item': EnduroStorageAipWorkflowToJSON(value['item']),
+        'uuid': value['uuid'],
     };
 }
 

@@ -94,9 +94,9 @@ func TestDownloadAipRequest(t *testing.T) {
 					Return(
 						&goastorage.Location{
 							UUID: locationID,
-							Config: &goastorage.URLConfig{
+							Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 								URL: "file://" + td.Path(),
-							},
+							}),
 						},
 						nil,
 					)
@@ -124,9 +124,9 @@ func TestDownloadAipRequest(t *testing.T) {
 					Return(
 						&goastorage.Location{
 							UUID: locationID,
-							Config: &goastorage.URLConfig{
+							Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 								URL: "file://" + td.Path(),
-							},
+							}),
 						},
 						nil,
 					)
@@ -157,9 +157,9 @@ func TestDownloadAipRequest(t *testing.T) {
 					Return(
 						&goastorage.Location{
 							UUID: locationID,
-							Config: &goastorage.URLConfig{
+							Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 								URL: "file://" + td.Path(),
-							},
+							}),
 						},
 						nil,
 					)
@@ -307,9 +307,9 @@ func TestDownloadAip(t *testing.T) {
 					Return(
 						&goastorage.Location{
 							UUID: locationID,
-							Config: &goastorage.URLConfig{
+							Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 								URL: "file://" + td.Path(),
-							},
+							}),
 						},
 						nil,
 					)
@@ -342,9 +342,9 @@ func TestDownloadAip(t *testing.T) {
 					Return(
 						&goastorage.Location{
 							UUID: locationID,
-							Config: &goastorage.URLConfig{
+							Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 								URL: "file://" + td.Path(),
-							},
+							}),
 						},
 						nil,
 					)

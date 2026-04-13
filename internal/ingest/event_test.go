@@ -34,7 +34,7 @@ func TestEventSerializer(t *testing.T) {
 
 	serializer := &ingest.EventSerializer{}
 	originalEvent := &goaingest.IngestEvent{
-		Value: &goaingest.IngestPingEvent{Message: new("test")},
+		Value: ingest.NewEventValue(&goaingest.IngestPingEvent{Message: new("test")}),
 	}
 
 	data, err := serializer.Marshal(originalEvent)
@@ -43,5 +43,9 @@ func TestEventSerializer(t *testing.T) {
 
 	deserializedEvent, err := serializer.Unmarshal(data)
 	assert.NilError(t, err)
-	assert.DeepEqual(t, deserializedEvent, originalEvent)
+	assert.Equal(t, deserializedEvent.Value.Kind(), originalEvent.Value.Kind())
+	got, ok := deserializedEvent.Value.AsIngestPingEvent()
+	assert.Assert(t, ok)
+	want, _ := originalEvent.Value.AsIngestPingEvent()
+	assert.DeepEqual(t, got, want)
 }

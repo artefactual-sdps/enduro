@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroIngestSipsourceObject } from './EnduroIngestSipsourceObject';
 import {
     EnduroIngestSipsourceObjectFromJSON,
     EnduroIngestSipsourceObjectFromJSONTyped,
     EnduroIngestSipsourceObjectToJSON,
+    EnduroIngestSipsourceObjectToJSONTyped,
 } from './EnduroIngestSipsourceObject';
 
 /**
@@ -49,12 +50,10 @@ export interface EnduroIngestSipsourceObjects {
 /**
  * Check if a given object implements the EnduroIngestSipsourceObjects interface.
  */
-export function instanceOfEnduroIngestSipsourceObjects(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "limit" in value;
-    isInstance = isInstance && "objects" in value;
-
-    return isInstance;
+export function instanceOfEnduroIngestSipsourceObjects(value: object): value is EnduroIngestSipsourceObjects {
+    if (!('limit' in value) || value['limit'] === undefined) return false;
+    if (!('objects' in value) || value['objects'] === undefined) return false;
+    return true;
 }
 
 export function EnduroIngestSipsourceObjectsFromJSON(json: any): EnduroIngestSipsourceObjects {
@@ -62,29 +61,31 @@ export function EnduroIngestSipsourceObjectsFromJSON(json: any): EnduroIngestSip
 }
 
 export function EnduroIngestSipsourceObjectsFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestSipsourceObjects {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'limit': json['limit'],
-        'next': !exists(json, 'next') ? undefined : json['next'],
+        'next': json['next'] == null ? undefined : json['next'],
         'objects': ((json['objects'] as Array<any>).map(EnduroIngestSipsourceObjectFromJSON)),
     };
 }
 
-export function EnduroIngestSipsourceObjectsToJSON(value?: EnduroIngestSipsourceObjects | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroIngestSipsourceObjectsToJSON(json: any): EnduroIngestSipsourceObjects {
+    return EnduroIngestSipsourceObjectsToJSONTyped(json, false);
+}
+
+export function EnduroIngestSipsourceObjectsToJSONTyped(value?: EnduroIngestSipsourceObjects | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'limit': value.limit,
-        'next': value.next,
-        'objects': ((value.objects as Array<any>).map(EnduroIngestSipsourceObjectToJSON)),
+        'limit': value['limit'],
+        'next': value['next'],
+        'objects': ((value['objects'] as Array<any>).map(EnduroIngestSipsourceObjectToJSON)),
     };
 }
 

@@ -12,18 +12,20 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroIngestBatch } from './EnduroIngestBatch';
 import {
     EnduroIngestBatchFromJSON,
     EnduroIngestBatchFromJSONTyped,
     EnduroIngestBatchToJSON,
+    EnduroIngestBatchToJSONTyped,
 } from './EnduroIngestBatch';
 import type { EnduroPage } from './EnduroPage';
 import {
     EnduroPageFromJSON,
     EnduroPageFromJSONTyped,
     EnduroPageToJSON,
+    EnduroPageToJSONTyped,
 } from './EnduroPage';
 
 /**
@@ -49,12 +51,10 @@ export interface EnduroIngestBatches {
 /**
  * Check if a given object implements the EnduroIngestBatches interface.
  */
-export function instanceOfEnduroIngestBatches(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "items" in value;
-    isInstance = isInstance && "page" in value;
-
-    return isInstance;
+export function instanceOfEnduroIngestBatches(value: object): value is EnduroIngestBatches {
+    if (!('items' in value) || value['items'] === undefined) return false;
+    if (!('page' in value) || value['page'] === undefined) return false;
+    return true;
 }
 
 export function EnduroIngestBatchesFromJSON(json: any): EnduroIngestBatches {
@@ -62,7 +62,7 @@ export function EnduroIngestBatchesFromJSON(json: any): EnduroIngestBatches {
 }
 
 export function EnduroIngestBatchesFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestBatches {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -72,17 +72,19 @@ export function EnduroIngestBatchesFromJSONTyped(json: any, ignoreDiscriminator:
     };
 }
 
-export function EnduroIngestBatchesToJSON(value?: EnduroIngestBatches | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroIngestBatchesToJSON(json: any): EnduroIngestBatches {
+    return EnduroIngestBatchesToJSONTyped(json, false);
+}
+
+export function EnduroIngestBatchesToJSONTyped(value?: EnduroIngestBatches | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'items': ((value.items as Array<any>).map(EnduroIngestBatchToJSON)),
-        'page': EnduroPageToJSON(value.page),
+        'items': ((value['items'] as Array<any>).map(EnduroIngestBatchToJSON)),
+        'page': EnduroPageToJSON(value['page']),
     };
 }
 

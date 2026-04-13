@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -42,12 +42,10 @@ export interface AddBatchRequestBody {
 /**
  * Check if a given object implements the AddBatchRequestBody interface.
  */
-export function instanceOfAddBatchRequestBody(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "keys" in value;
-    isInstance = isInstance && "sourceId" in value;
-
-    return isInstance;
+export function instanceOfAddBatchRequestBody(value: object): value is AddBatchRequestBody {
+    if (!('keys' in value) || value['keys'] === undefined) return false;
+    if (!('sourceId' in value) || value['sourceId'] === undefined) return false;
+    return true;
 }
 
 export function AddBatchRequestBodyFromJSON(json: any): AddBatchRequestBody {
@@ -55,29 +53,31 @@ export function AddBatchRequestBodyFromJSON(json: any): AddBatchRequestBody {
 }
 
 export function AddBatchRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): AddBatchRequestBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'identifier': !exists(json, 'identifier') ? undefined : json['identifier'],
+        'identifier': json['identifier'] == null ? undefined : json['identifier'],
         'keys': json['keys'],
         'sourceId': json['source_id'],
     };
 }
 
-export function AddBatchRequestBodyToJSON(value?: AddBatchRequestBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AddBatchRequestBodyToJSON(json: any): AddBatchRequestBody {
+    return AddBatchRequestBodyToJSONTyped(json, false);
+}
+
+export function AddBatchRequestBodyToJSONTyped(value?: AddBatchRequestBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'identifier': value.identifier,
-        'keys': value.keys,
-        'source_id': value.sourceId,
+        'identifier': value['identifier'],
+        'keys': value['keys'],
+        'source_id': value['sourceId'],
     };
 }
 

@@ -60,9 +60,9 @@ func TestNewLocation(t *testing.T) {
 			name: "Returns a URL location",
 			location: &goastorage.Location{
 				UUID: locationID,
-				Config: &goastorage.URLConfig{
+				Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 					URL: "mem://",
-				},
+				}),
 			},
 			uuid: locationID,
 		},
@@ -70,10 +70,10 @@ func TestNewLocation(t *testing.T) {
 			name: "Returns an S3 location",
 			location: &goastorage.Location{
 				UUID: locationID,
-				Config: &goastorage.S3Config{
+				Config: goastorage.NewConfigS3(&goastorage.S3Config{
 					Bucket: "perma-aips-1",
 					Region: "planet-earth",
-				},
+				}),
 			},
 			uuid: locationID,
 		},
@@ -81,12 +81,12 @@ func TestNewLocation(t *testing.T) {
 			name: "Returns an SFTP location",
 			location: &goastorage.Location{
 				UUID: locationID,
-				Config: &goastorage.SFTPConfig{
+				Config: goastorage.NewConfigSftp(&goastorage.SFTPConfig{
 					Address:   "sftp.example.com",
 					Username:  "test",
 					Password:  "Test123!",
 					Directory: "deposit",
-				},
+				}),
 			},
 			uuid: locationID,
 		},
@@ -94,11 +94,11 @@ func TestNewLocation(t *testing.T) {
 			name: "Returns an AMSS location",
 			location: &goastorage.Location{
 				UUID: locationID,
-				Config: &goastorage.AMSSConfig{
+				Config: goastorage.NewConfigAmss(&goastorage.AMSSConfig{
 					APIKey:   "Secret1",
 					URL:      "http://localhost:8080",
 					Username: "test",
-				},
+				}),
 			},
 			uuid: locationID,
 		},
@@ -106,7 +106,7 @@ func TestNewLocation(t *testing.T) {
 			name: "Errors when URL Config is empty",
 			location: &goastorage.Location{
 				UUID:   locationID,
-				Config: &goastorage.URLConfig{},
+				Config: goastorage.NewConfigURL(&goastorage.URLConfig{}),
 			},
 			errMsg: "invalid configuration",
 		},
@@ -140,9 +140,9 @@ func TestLocation_Bucket(t *testing.T) {
 			name: "Returns a URL config bucket",
 			location: &goastorage.Location{
 				UUID: locationID,
-				Config: &goastorage.URLConfig{
+				Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 					URL: "mem://",
-				},
+				}),
 			},
 			uuid: locationID,
 		},
@@ -150,9 +150,9 @@ func TestLocation_Bucket(t *testing.T) {
 			name: "Errors on an invalid bucket driver",
 			location: &goastorage.Location{
 				UUID: locationID,
-				Config: &goastorage.URLConfig{
+				Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 					URL: "foo://test-bucket",
-				},
+				}),
 			},
 			errMsg: `open bucket by URL: open blob.Bucket: no driver registered for "foo" for URL "foo://test-bucket"`,
 		},

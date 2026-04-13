@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -27,7 +27,7 @@ export interface EnduroChildworkflow {
     taskQueue: string;
     /**
      * 
-     * @type {string}
+     * @type {EnduroChildworkflowTypeEnum}
      * @memberof EnduroChildworkflow
      */
     type: EnduroChildworkflowTypeEnum;
@@ -54,13 +54,11 @@ export type EnduroChildworkflowTypeEnum = typeof EnduroChildworkflowTypeEnum[key
 /**
  * Check if a given object implements the EnduroChildworkflow interface.
  */
-export function instanceOfEnduroChildworkflow(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "taskQueue" in value;
-    isInstance = isInstance && "type" in value;
-    isInstance = isInstance && "workflowName" in value;
-
-    return isInstance;
+export function instanceOfEnduroChildworkflow(value: object): value is EnduroChildworkflow {
+    if (!('taskQueue' in value) || value['taskQueue'] === undefined) return false;
+    if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('workflowName' in value) || value['workflowName'] === undefined) return false;
+    return true;
 }
 
 export function EnduroChildworkflowFromJSON(json: any): EnduroChildworkflow {
@@ -68,7 +66,7 @@ export function EnduroChildworkflowFromJSON(json: any): EnduroChildworkflow {
 }
 
 export function EnduroChildworkflowFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroChildworkflow {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -79,18 +77,20 @@ export function EnduroChildworkflowFromJSONTyped(json: any, ignoreDiscriminator:
     };
 }
 
-export function EnduroChildworkflowToJSON(value?: EnduroChildworkflow | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroChildworkflowToJSON(json: any): EnduroChildworkflow {
+    return EnduroChildworkflowToJSONTyped(json, false);
+}
+
+export function EnduroChildworkflowToJSONTyped(value?: EnduroChildworkflow | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'task_queue': value.taskQueue,
-        'type': value.type,
-        'workflow_name': value.workflowName,
+        'task_queue': value['taskQueue'],
+        'type': value['type'],
+        'workflow_name': value['workflowName'],
     };
 }
 

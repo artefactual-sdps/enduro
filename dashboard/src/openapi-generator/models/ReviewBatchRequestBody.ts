@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface ReviewBatchRequestBody {
 /**
  * Check if a given object implements the ReviewBatchRequestBody interface.
  */
-export function instanceOfReviewBatchRequestBody(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "_continue" in value;
-
-    return isInstance;
+export function instanceOfReviewBatchRequestBody(value: object): value is ReviewBatchRequestBody {
+    if (!('_continue' in value) || value['_continue'] === undefined) return false;
+    return true;
 }
 
 export function ReviewBatchRequestBodyFromJSON(json: any): ReviewBatchRequestBody {
@@ -42,7 +40,7 @@ export function ReviewBatchRequestBodyFromJSON(json: any): ReviewBatchRequestBod
 }
 
 export function ReviewBatchRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): ReviewBatchRequestBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -51,16 +49,18 @@ export function ReviewBatchRequestBodyFromJSONTyped(json: any, ignoreDiscriminat
     };
 }
 
-export function ReviewBatchRequestBodyToJSON(value?: ReviewBatchRequestBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function ReviewBatchRequestBodyToJSON(json: any): ReviewBatchRequestBody {
+    return ReviewBatchRequestBodyToJSONTyped(json, false);
+}
+
+export function ReviewBatchRequestBodyToJSONTyped(value?: ReviewBatchRequestBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'continue': value._continue,
+        'continue': value['_continue'],
     };
 }
 

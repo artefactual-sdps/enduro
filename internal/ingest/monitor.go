@@ -53,7 +53,7 @@ func (svc *ingestImpl) Monitor(
 
 	// Say hello to be nice.
 	event := &goaingest.IngestPingEvent{Message: new("Hello")}
-	if err := stream.Send(&goaingest.IngestEvent{Value: event}); err != nil {
+	if err := stream.Send(&goaingest.IngestEvent{Value: NewEventValue(event)}); err != nil {
 		// Consider send errors as client disconnections.
 		svc.logger.V(1).Info("Failed to send hello event.", "err", err)
 		return nil
@@ -72,7 +72,7 @@ func (svc *ingestImpl) Monitor(
 
 		case <-ticker.C:
 			event := &goaingest.IngestPingEvent{Message: new("Ping")}
-			if err := stream.Send(&goaingest.IngestEvent{Value: event}); err != nil {
+			if err := stream.Send(&goaingest.IngestEvent{Value: NewEventValue(event)}); err != nil {
 				// Consider send errors as client disconnections.
 				svc.logger.V(1).Info("Failed to send ping event.", "err", err)
 				return nil
@@ -84,30 +84,30 @@ func (svc *ingestImpl) Monitor(
 			}
 
 			// Check the event type and the user attributes before sending.
-			switch event.Value.(type) {
-			case *goaingest.IngestPingEvent:
+			switch event.Value.Kind() {
+			case goaingest.ValueKindIngestPingEvent:
 				// Is this event even sent through this channel?
-			case *goaingest.SIPCreatedEvent:
+			case goaingest.ValueKindSipCreatedEvent:
 				if !claims.CheckAttributes([]string{auth.IngestSIPSListAttr}) {
 					continue
 				}
-			case *goaingest.SIPUpdatedEvent, *goaingest.SIPStatusUpdatedEvent:
+			case goaingest.ValueKindSipUpdatedEvent, goaingest.ValueKindSipStatusUpdatedEvent:
 				if !claims.CheckAttributes([]string{auth.IngestSIPSListAttr}) &&
 					!claims.CheckAttributes([]string{auth.IngestSIPSReadAttr}) {
 					continue
 				}
-			case *goaingest.SIPWorkflowCreatedEvent,
-				*goaingest.SIPWorkflowUpdatedEvent,
-				*goaingest.SIPTaskCreatedEvent,
-				*goaingest.SIPTaskUpdatedEvent:
+			case goaingest.ValueKindSipWorkflowCreatedEvent,
+				goaingest.ValueKindSipWorkflowUpdatedEvent,
+				goaingest.ValueKindSipTaskCreatedEvent,
+				goaingest.ValueKindSipTaskUpdatedEvent:
 				if !claims.CheckAttributes([]string{auth.IngestSIPSWorkflowsListAttr}) {
 					continue
 				}
-			case *goaingest.BatchCreatedEvent:
+			case goaingest.ValueKindBatchCreatedEvent:
 				if !claims.CheckAttributes([]string{auth.IngestBatchesListAttr}) {
 					continue
 				}
-			case *goaingest.BatchUpdatedEvent:
+			case goaingest.ValueKindBatchUpdatedEvent:
 				if !claims.CheckAttributes([]string{auth.IngestBatchesListAttr}) &&
 					!claims.CheckAttributes([]string{auth.IngestBatchesReadAttr}) {
 					continue

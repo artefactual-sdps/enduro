@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { EnduroStorageLocation } from './EnduroStorageLocation';
 import {
     EnduroStorageLocationFromJSON,
     EnduroStorageLocationFromJSONTyped,
     EnduroStorageLocationToJSON,
+    EnduroStorageLocationToJSONTyped,
 } from './EnduroStorageLocation';
 
 /**
@@ -43,12 +44,10 @@ export interface LocationCreatedEvent {
 /**
  * Check if a given object implements the LocationCreatedEvent interface.
  */
-export function instanceOfLocationCreatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "item" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfLocationCreatedEvent(value: object): value is LocationCreatedEvent {
+    if (!('item' in value) || value['item'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function LocationCreatedEventFromJSON(json: any): LocationCreatedEvent {
@@ -56,7 +55,7 @@ export function LocationCreatedEventFromJSON(json: any): LocationCreatedEvent {
 }
 
 export function LocationCreatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): LocationCreatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -66,17 +65,19 @@ export function LocationCreatedEventFromJSONTyped(json: any, ignoreDiscriminator
     };
 }
 
-export function LocationCreatedEventToJSON(value?: LocationCreatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function LocationCreatedEventToJSON(json: any): LocationCreatedEvent {
+    return LocationCreatedEventToJSONTyped(json, false);
+}
+
+export function LocationCreatedEventToJSONTyped(value?: LocationCreatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'item': EnduroStorageLocationToJSON(value.item),
-        'uuid': value.uuid,
+        'item': EnduroStorageLocationToJSON(value['item']),
+        'uuid': value['uuid'],
     };
 }
 

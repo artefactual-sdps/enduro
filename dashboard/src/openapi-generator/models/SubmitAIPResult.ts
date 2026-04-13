@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface SubmitAIPResult {
 /**
  * Check if a given object implements the SubmitAIPResult interface.
  */
-export function instanceOfSubmitAIPResult(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "url" in value;
-
-    return isInstance;
+export function instanceOfSubmitAIPResult(value: object): value is SubmitAIPResult {
+    if (!('url' in value) || value['url'] === undefined) return false;
+    return true;
 }
 
 export function SubmitAIPResultFromJSON(json: any): SubmitAIPResult {
@@ -42,7 +40,7 @@ export function SubmitAIPResultFromJSON(json: any): SubmitAIPResult {
 }
 
 export function SubmitAIPResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): SubmitAIPResult {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -51,16 +49,18 @@ export function SubmitAIPResultFromJSONTyped(json: any, ignoreDiscriminator: boo
     };
 }
 
-export function SubmitAIPResultToJSON(value?: SubmitAIPResult | null): any {
-    if (value === undefined) {
-        return undefined;
+export function SubmitAIPResultToJSON(json: any): SubmitAIPResult {
+    return SubmitAIPResultToJSONTyped(json, false);
+}
+
+export function SubmitAIPResultToJSONTyped(value?: SubmitAIPResult | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'url': value.url,
+        'url': value['url'],
     };
 }
 

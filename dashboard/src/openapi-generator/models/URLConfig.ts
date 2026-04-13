@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface URLConfig {
 /**
  * Check if a given object implements the URLConfig interface.
  */
-export function instanceOfURLConfig(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "url" in value;
-
-    return isInstance;
+export function instanceOfURLConfig(value: object): value is URLConfig {
+    if (!('url' in value) || value['url'] === undefined) return false;
+    return true;
 }
 
 export function URLConfigFromJSON(json: any): URLConfig {
@@ -42,7 +40,7 @@ export function URLConfigFromJSON(json: any): URLConfig {
 }
 
 export function URLConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean): URLConfig {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -51,16 +49,18 @@ export function URLConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean):
     };
 }
 
-export function URLConfigToJSON(value?: URLConfig | null): any {
-    if (value === undefined) {
-        return undefined;
+export function URLConfigToJSON(json: any): URLConfig {
+    return URLConfigToJSONTyped(json, false);
+}
+
+export function URLConfigToJSONTyped(value?: URLConfig | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'url': value.url,
+        'url': value['url'],
     };
 }
 

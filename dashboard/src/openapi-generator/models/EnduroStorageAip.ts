@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * An AIP describes an AIP retrieved by the storage service.
  * @export
@@ -51,7 +51,7 @@ export interface EnduroStorageAip {
     objectKey: string;
     /**
      * Status of the AIP
-     * @type {string}
+     * @type {EnduroStorageAipStatusEnum}
      * @memberof EnduroStorageAip
      */
     status: EnduroStorageAipStatusEnum;
@@ -81,15 +81,13 @@ export type EnduroStorageAipStatusEnum = typeof EnduroStorageAipStatusEnum[keyof
 /**
  * Check if a given object implements the EnduroStorageAip interface.
  */
-export function instanceOfEnduroStorageAip(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "createdAt" in value;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "objectKey" in value;
-    isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfEnduroStorageAip(value: object): value is EnduroStorageAip {
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('objectKey' in value) || value['objectKey'] === undefined) return false;
+    if (!('status' in value) || value['status'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function EnduroStorageAipFromJSON(json: any): EnduroStorageAip {
@@ -97,14 +95,14 @@ export function EnduroStorageAipFromJSON(json: any): EnduroStorageAip {
 }
 
 export function EnduroStorageAipFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroStorageAip {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'createdAt': (new Date(json['created_at'])),
-        'deletionReportKey': !exists(json, 'deletion_report_key') ? undefined : json['deletion_report_key'],
-        'locationUuid': !exists(json, 'location_uuid') ? undefined : json['location_uuid'],
+        'deletionReportKey': json['deletion_report_key'] == null ? undefined : json['deletion_report_key'],
+        'locationUuid': json['location_uuid'] == null ? undefined : json['location_uuid'],
         'name': json['name'],
         'objectKey': json['object_key'],
         'status': json['status'],
@@ -112,22 +110,24 @@ export function EnduroStorageAipFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function EnduroStorageAipToJSON(value?: EnduroStorageAip | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroStorageAipToJSON(json: any): EnduroStorageAip {
+    return EnduroStorageAipToJSONTyped(json, false);
+}
+
+export function EnduroStorageAipToJSONTyped(value?: EnduroStorageAip | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'created_at': (value.createdAt.toISOString()),
-        'deletion_report_key': value.deletionReportKey,
-        'location_uuid': value.locationUuid,
-        'name': value.name,
-        'object_key': value.objectKey,
-        'status': value.status,
-        'uuid': value.uuid,
+        'created_at': value['createdAt'].toISOString(),
+        'deletion_report_key': value['deletionReportKey'],
+        'location_uuid': value['locationUuid'],
+        'name': value['name'],
+        'object_key': value['objectKey'],
+        'status': value['status'],
+        'uuid': value['uuid'],
     };
 }
 

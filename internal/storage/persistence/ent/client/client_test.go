@@ -1150,7 +1150,7 @@ func TestListLocations(t *testing.T) {
 			Purpose:     "aip_store",
 			UUID:        locationIDs[0],
 			CreatedAt:   "2013-02-03T19:54:00Z",
-			Config: &goastorage.S3Config{
+			Config: goastorage.NewConfigS3(&goastorage.S3Config{
 				Bucket:    "perma-aips-1",
 				Endpoint:  new(""),
 				PathStyle: new(false),
@@ -1158,7 +1158,7 @@ func TestListLocations(t *testing.T) {
 				Key:       new(""),
 				Secret:    new(""),
 				Token:     new(""),
-			},
+			}),
 		},
 		{
 			Name:        "Another Location",
@@ -1167,12 +1167,12 @@ func TestListLocations(t *testing.T) {
 			Purpose:     "aip_store",
 			UUID:        locationIDs[1],
 			CreatedAt:   "2013-02-03T19:54:00Z",
-			Config: &goastorage.SFTPConfig{
+			Config: goastorage.NewConfigSftp(&goastorage.SFTPConfig{
 				Address:   "sftp:22",
 				Username:  "user",
 				Password:  "secret",
 				Directory: "upload",
-			},
+			}),
 		},
 		{
 			Name:        "URL Location",
@@ -1181,9 +1181,9 @@ func TestListLocations(t *testing.T) {
 			Purpose:     "unspecified",
 			UUID:        locationIDs[2],
 			CreatedAt:   "2013-02-03T19:54:00Z",
-			Config: &goastorage.URLConfig{
+			Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 				URL: "mem://",
-			},
+			}),
 		},
 		{
 			Name:        "AMSS Location",
@@ -1192,13 +1192,13 @@ func TestListLocations(t *testing.T) {
 			Purpose:     "aip_store",
 			UUID:        locationIDs[3],
 			CreatedAt:   "2013-02-03T19:54:00Z",
-			Config: &goastorage.AMSSConfig{
+			Config: goastorage.NewConfigAmss(&goastorage.AMSSConfig{
 				APIKey:   "Secret1",
 				URL:      "http://127.0.0.1:62081/",
 				Username: "analyst",
-			},
+			}),
 		},
-	})
+	}, cmpopts.IgnoreUnexported(goastorage.Config{}))
 }
 
 func TestReadLocation(t *testing.T) {
@@ -1231,7 +1231,7 @@ func TestReadLocation(t *testing.T) {
 			Purpose:     enums.LocationPurposeAipStore.String(),
 			UUID:        locationID,
 			CreatedAt:   "2013-02-03T19:54:00Z",
-			Config: &goastorage.S3Config{
+			Config: goastorage.NewConfigS3(&goastorage.S3Config{
 				Bucket:    "perma-aips-1",
 				Endpoint:  new(""),
 				PathStyle: new(false),
@@ -1239,8 +1239,8 @@ func TestReadLocation(t *testing.T) {
 				Key:       new(""),
 				Secret:    new(""),
 				Token:     new(""),
-			},
-		})
+			}),
+		}, cmpopts.IgnoreUnexported(goastorage.Config{}))
 	})
 
 	t.Run("Returns error when location does not exist", func(t *testing.T) {

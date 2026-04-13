@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * User describes an Enduro user.
  * @export
@@ -48,14 +48,12 @@ export interface EnduroIngestUser {
 /**
  * Check if a given object implements the EnduroIngestUser interface.
  */
-export function instanceOfEnduroIngestUser(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "createdAt" in value;
-    isInstance = isInstance && "email" in value;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfEnduroIngestUser(value: object): value is EnduroIngestUser {
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if (!('email' in value) || value['email'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function EnduroIngestUserFromJSON(json: any): EnduroIngestUser {
@@ -63,7 +61,7 @@ export function EnduroIngestUserFromJSON(json: any): EnduroIngestUser {
 }
 
 export function EnduroIngestUserFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestUser {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -75,19 +73,21 @@ export function EnduroIngestUserFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function EnduroIngestUserToJSON(value?: EnduroIngestUser | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroIngestUserToJSON(json: any): EnduroIngestUser {
+    return EnduroIngestUserToJSONTyped(json, false);
+}
+
+export function EnduroIngestUserToJSONTyped(value?: EnduroIngestUser | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'created_at': (value.createdAt.toISOString()),
-        'email': value.email,
-        'name': value.name,
-        'uuid': value.uuid,
+        'created_at': value['createdAt'].toISOString(),
+        'email': value['email'],
+        'name': value['name'],
+        'uuid': value['uuid'],
     };
 }
 

@@ -12,12 +12,13 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 import type { CreateLocationRequestBodyConfig } from './CreateLocationRequestBodyConfig';
 import {
     CreateLocationRequestBodyConfigFromJSON,
     CreateLocationRequestBodyConfigFromJSONTyped,
     CreateLocationRequestBodyConfigToJSON,
+    CreateLocationRequestBodyConfigToJSONTyped,
 } from './CreateLocationRequestBodyConfig';
 
 /**
@@ -46,13 +47,13 @@ export interface CreateLocationRequestBody {
     name: string;
     /**
      * 
-     * @type {string}
+     * @type {CreateLocationRequestBodyPurposeEnum}
      * @memberof CreateLocationRequestBody
      */
     purpose: CreateLocationRequestBodyPurposeEnum;
     /**
      * 
-     * @type {string}
+     * @type {CreateLocationRequestBodySourceEnum}
      * @memberof CreateLocationRequestBody
      */
     source: CreateLocationRequestBodySourceEnum;
@@ -83,13 +84,11 @@ export type CreateLocationRequestBodySourceEnum = typeof CreateLocationRequestBo
 /**
  * Check if a given object implements the CreateLocationRequestBody interface.
  */
-export function instanceOfCreateLocationRequestBody(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "purpose" in value;
-    isInstance = isInstance && "source" in value;
-
-    return isInstance;
+export function instanceOfCreateLocationRequestBody(value: object): value is CreateLocationRequestBody {
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('purpose' in value) || value['purpose'] === undefined) return false;
+    if (!('source' in value) || value['source'] === undefined) return false;
+    return true;
 }
 
 export function CreateLocationRequestBodyFromJSON(json: any): CreateLocationRequestBody {
@@ -97,33 +96,35 @@ export function CreateLocationRequestBodyFromJSON(json: any): CreateLocationRequ
 }
 
 export function CreateLocationRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): CreateLocationRequestBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'config': !exists(json, 'config') ? undefined : CreateLocationRequestBodyConfigFromJSON(json['config']),
-        'description': !exists(json, 'description') ? undefined : json['description'],
+        'config': json['config'] == null ? undefined : CreateLocationRequestBodyConfigFromJSON(json['config']),
+        'description': json['description'] == null ? undefined : json['description'],
         'name': json['name'],
         'purpose': json['purpose'],
         'source': json['source'],
     };
 }
 
-export function CreateLocationRequestBodyToJSON(value?: CreateLocationRequestBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function CreateLocationRequestBodyToJSON(json: any): CreateLocationRequestBody {
+    return CreateLocationRequestBodyToJSONTyped(json, false);
+}
+
+export function CreateLocationRequestBodyToJSONTyped(value?: CreateLocationRequestBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'config': CreateLocationRequestBodyConfigToJSON(value.config),
-        'description': value.description,
-        'name': value.name,
-        'purpose': value.purpose,
-        'source': value.source,
+        'config': CreateLocationRequestBodyConfigToJSON(value['config']),
+        'description': value['description'],
+        'name': value['name'],
+        'purpose': value['purpose'],
+        'source': value['source'],
     };
 }
 

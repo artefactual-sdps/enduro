@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * A Location describes a location retrieved by the storage service. (default view)
  * @export
@@ -39,13 +39,13 @@ export interface LocationResponse {
     name: string;
     /**
      * Purpose of the location
-     * @type {string}
+     * @type {LocationResponsePurposeEnum}
      * @memberof LocationResponse
      */
     purpose: LocationResponsePurposeEnum;
     /**
      * Data source of the location
-     * @type {string}
+     * @type {LocationResponseSourceEnum}
      * @memberof LocationResponse
      */
     source: LocationResponseSourceEnum;
@@ -82,15 +82,13 @@ export type LocationResponseSourceEnum = typeof LocationResponseSourceEnum[keyof
 /**
  * Check if a given object implements the LocationResponse interface.
  */
-export function instanceOfLocationResponse(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "createdAt" in value;
-    isInstance = isInstance && "name" in value;
-    isInstance = isInstance && "purpose" in value;
-    isInstance = isInstance && "source" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfLocationResponse(value: object): value is LocationResponse {
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if (!('name' in value) || value['name'] === undefined) return false;
+    if (!('purpose' in value) || value['purpose'] === undefined) return false;
+    if (!('source' in value) || value['source'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function LocationResponseFromJSON(json: any): LocationResponse {
@@ -98,13 +96,13 @@ export function LocationResponseFromJSON(json: any): LocationResponse {
 }
 
 export function LocationResponseFromJSONTyped(json: any, ignoreDiscriminator: boolean): LocationResponse {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
         'createdAt': (new Date(json['created_at'])),
-        'description': !exists(json, 'description') ? undefined : json['description'],
+        'description': json['description'] == null ? undefined : json['description'],
         'name': json['name'],
         'purpose': json['purpose'],
         'source': json['source'],
@@ -112,21 +110,23 @@ export function LocationResponseFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function LocationResponseToJSON(value?: LocationResponse | null): any {
-    if (value === undefined) {
-        return undefined;
+export function LocationResponseToJSON(json: any): LocationResponse {
+    return LocationResponseToJSONTyped(json, false);
+}
+
+export function LocationResponseToJSONTyped(value?: LocationResponse | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'created_at': (value.createdAt.toISOString()),
-        'description': value.description,
-        'name': value.name,
-        'purpose': value.purpose,
-        'source': value.source,
-        'uuid': value.uuid,
+        'created_at': value['createdAt'].toISOString(),
+        'description': value['description'],
+        'name': value['name'],
+        'purpose': value['purpose'],
+        'source': value['source'],
+        'uuid': value['uuid'],
     };
 }
 

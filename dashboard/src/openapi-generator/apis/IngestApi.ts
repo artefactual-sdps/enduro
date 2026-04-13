@@ -26,7 +26,7 @@ import type {
   EnduroIngestSips,
   EnduroIngestSipsourceObjects,
   EnduroIngestUsers,
-  IngestEvent2,
+  IngestEvent,
   ReviewBatchRequestBody,
   SIPNotFound,
 } from '../models/index';
@@ -53,8 +53,8 @@ import {
     EnduroIngestSipsourceObjectsToJSON,
     EnduroIngestUsersFromJSON,
     EnduroIngestUsersToJSON,
-    IngestEvent2FromJSON,
-    IngestEvent2ToJSON,
+    IngestEventFromJSON,
+    IngestEventToJSON,
     ReviewBatchRequestBodyFromJSON,
     ReviewBatchRequestBodyToJSON,
     SIPNotFoundFromJSON,
@@ -156,6 +156,14 @@ export interface IngestUploadSipRequest {
  */
 export interface IngestApiInterface {
     /**
+     * Creates request options for ingestAddBatch without sending the request
+     * @param {AddBatchRequestBody} addBatchRequestBody 
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestAddBatchRequestOpts(requestParameters: IngestAddBatchRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Ingest a Batch from a SIP Source
      * @summary add_batch ingest
      * @param {AddBatchRequestBody} addBatchRequestBody 
@@ -170,6 +178,15 @@ export interface IngestApiInterface {
      * add_batch ingest
      */
     ingestAddBatch(requestParameters: IngestAddBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody>;
+
+    /**
+     * Creates request options for ingestAddSip without sending the request
+     * @param {string} sourceId Identifier of SIP source -- CURRENTLY NOT USED
+     * @param {string} key Key of the item to ingest
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestAddSipRequestOpts(requestParameters: IngestAddSipRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Ingest a SIP from a SIP Source
@@ -189,6 +206,15 @@ export interface IngestApiInterface {
     ingestAddSip(requestParameters: IngestAddSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<AddSipResponseBody>;
 
     /**
+     * Creates request options for ingestConfirmSip without sending the request
+     * @param {string} uuid Identifier of SIP to look up
+     * @param {ConfirmSipRequestBody} confirmSipRequestBody 
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestConfirmSipRequestOpts(requestParameters: IngestConfirmSipRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Signal the SIP has been reviewed and accepted
      * @summary confirm_sip ingest
      * @param {string} uuid Identifier of SIP to look up
@@ -204,6 +230,15 @@ export interface IngestApiInterface {
      * confirm_sip ingest
      */
     ingestConfirmSip(requestParameters: IngestConfirmSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for ingestDownloadSip without sending the request
+     * @param {string} uuid Identifier of the SIP to download
+     * @param {string} [enduroSipDownloadTicket] 
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestDownloadSipRequestOpts(requestParameters: IngestDownloadSipRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP\'s `failed_as` value.
@@ -223,6 +258,14 @@ export interface IngestApiInterface {
     ingestDownloadSip(requestParameters: IngestDownloadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Blob>;
 
     /**
+     * Creates request options for ingestDownloadSipRequest without sending the request
+     * @param {string} uuid Identifier of the SIP to download
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestDownloadSipRequestRequestOpts(requestParameters: IngestDownloadSipRequestRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Request access to SIP download
      * @summary download_sip_request ingest
      * @param {string} uuid Identifier of the SIP to download
@@ -237,6 +280,20 @@ export interface IngestApiInterface {
      * download_sip_request ingest
      */
     ingestDownloadSipRequest(requestParameters: IngestDownloadSipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for ingestListBatches without sending the request
+     * @param {string} [identifier] 
+     * @param {Date} [earliestCreatedTime] 
+     * @param {Date} [latestCreatedTime] 
+     * @param {'queued' | 'processing' | 'pending' | 'ingested' | 'canceled' | 'failed'} [status] 
+     * @param {string} [uploaderUuid] UUID of the Batch uploader
+     * @param {number} [limit] Limit number of results to return
+     * @param {number} [offset] Offset from the beginning of the found set
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestListBatchesRequestOpts(requestParameters: IngestListBatchesRequest): Promise<runtime.RequestOpts>;
 
     /**
      * List all ingested Batches
@@ -261,6 +318,16 @@ export interface IngestApiInterface {
     ingestListBatches(requestParameters: IngestListBatchesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestBatches>;
 
     /**
+     * Creates request options for ingestListSipSourceObjects without sending the request
+     * @param {string} uuid SIP source identifier -- CURRENTLY NOT USED
+     * @param {number} [limit] Limit the number of results to return
+     * @param {string} [cursor] Cursor token to get subsequent pages
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestListSipSourceObjectsRequestOpts(requestParameters: IngestListSipSourceObjectsRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * List the objects in a SIP source
      * @summary list_sip_source_objects ingest
      * @param {string} uuid SIP source identifier -- CURRENTLY NOT USED
@@ -279,6 +346,14 @@ export interface IngestApiInterface {
     ingestListSipSourceObjects(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSipsourceObjects>;
 
     /**
+     * Creates request options for ingestListSipWorkflows without sending the request
+     * @param {string} uuid Identifier of SIP to look up
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestListSipWorkflowsRequestOpts(requestParameters: IngestListSipWorkflowsRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * List all workflows for a SIP
      * @summary list_sip_workflows ingest
      * @param {string} uuid Identifier of SIP to look up
@@ -293,6 +368,22 @@ export interface IngestApiInterface {
      * list_sip_workflows ingest
      */
     ingestListSipWorkflows(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSipWorkflows>;
+
+    /**
+     * Creates request options for ingestListSips without sending the request
+     * @param {string} [name] 
+     * @param {string} [aipUuid] Identifier of AIP
+     * @param {Date} [earliestCreatedTime] 
+     * @param {Date} [latestCreatedTime] 
+     * @param {'error' | 'failed' | 'queued' | 'processing' | 'pending' | 'ingested' | 'validated' | 'canceled'} [status] 
+     * @param {string} [uploaderUuid] UUID of the SIP uploader
+     * @param {string} [batchUuid] UUID of the related Batch
+     * @param {number} [limit] Limit number of results to return
+     * @param {number} [offset] Offset from the beginning of the found set
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestListSipsRequestOpts(requestParameters: IngestListSipsRequest): Promise<runtime.RequestOpts>;
 
     /**
      * List all ingested SIPs
@@ -319,6 +410,17 @@ export interface IngestApiInterface {
     ingestListSips(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSips>;
 
     /**
+     * Creates request options for ingestListUsers without sending the request
+     * @param {string} [email] Email of the user
+     * @param {string} [name] Name of the user
+     * @param {number} [limit] Limit number of results to return
+     * @param {number} [offset] Offset from the beginning of the found set
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestListUsersRequestOpts(requestParameters: IngestListUsersRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * List all users
      * @summary list_users ingest
      * @param {string} [email] Email of the user
@@ -338,6 +440,14 @@ export interface IngestApiInterface {
     ingestListUsers(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestUsers>;
 
     /**
+     * Creates request options for ingestMonitor without sending the request
+     * @param {string} [enduroIngestWsTicket] 
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestMonitorRequestOpts(requestParameters: IngestMonitorRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Obtain access to the /monitor WebSocket
      * @summary monitor ingest
      * @param {string} [enduroIngestWsTicket] 
@@ -352,6 +462,13 @@ export interface IngestApiInterface {
      * monitor ingest
      */
     ingestMonitor(requestParameters: IngestMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for ingestMonitorRequest without sending the request
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestMonitorRequestRequestOpts(): Promise<runtime.RequestOpts>;
 
     /**
      * Request access to the /monitor WebSocket
@@ -369,6 +486,14 @@ export interface IngestApiInterface {
     ingestMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
+     * Creates request options for ingestRejectSip without sending the request
+     * @param {string} uuid Identifier of SIP to look up
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestRejectSipRequestOpts(requestParameters: IngestRejectSipRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Signal the SIP has been reviewed and rejected
      * @summary reject_sip ingest
      * @param {string} uuid Identifier of SIP to look up
@@ -383,6 +508,15 @@ export interface IngestApiInterface {
      * reject_sip ingest
      */
     ingestRejectSip(requestParameters: IngestRejectSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+
+    /**
+     * Creates request options for ingestReviewBatch without sending the request
+     * @param {string} uuid Identifier of Batch to review
+     * @param {ReviewBatchRequestBody} reviewBatchRequestBody 
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestReviewBatchRequestOpts(requestParameters: IngestReviewBatchRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Review a Batch awaiting user decision
@@ -402,6 +536,14 @@ export interface IngestApiInterface {
     ingestReviewBatch(requestParameters: IngestReviewBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
+     * Creates request options for ingestShowBatch without sending the request
+     * @param {string} uuid Identifier of Batch to show
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestShowBatchRequestOpts(requestParameters: IngestShowBatchRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Show Batch by UUID
      * @summary show_batch ingest
      * @param {string} uuid Identifier of Batch to show
@@ -418,6 +560,14 @@ export interface IngestApiInterface {
     ingestShowBatch(requestParameters: IngestShowBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestBatch>;
 
     /**
+     * Creates request options for ingestShowSip without sending the request
+     * @param {string} uuid Identifier of SIP to show
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestShowSipRequestOpts(requestParameters: IngestShowSipRequest): Promise<runtime.RequestOpts>;
+
+    /**
      * Show SIP by ID
      * @summary show_sip ingest
      * @param {string} uuid Identifier of SIP to show
@@ -432,6 +582,14 @@ export interface IngestApiInterface {
      * show_sip ingest
      */
     ingestShowSip(requestParameters: IngestShowSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSip>;
+
+    /**
+     * Creates request options for ingestUploadSip without sending the request
+     * @param {string} [contentType] Content-Type header, must define value for multipart boundary.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestUploadSipRequestOpts(requestParameters: IngestUploadSipRequest): Promise<runtime.RequestOpts>;
 
     /**
      * Upload a SIP to trigger an ingest workflow
@@ -457,12 +615,14 @@ export interface IngestApiInterface {
 export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
     /**
-     * Ingest a Batch from a SIP Source
-     * add_batch ingest
+     * Creates request options for ingestAddBatch without sending the request
      */
-    async ingestAddBatchRaw(requestParameters: IngestAddBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
-        if (requestParameters.addBatchRequestBody === null || requestParameters.addBatchRequestBody === undefined) {
-            throw new runtime.RequiredError('addBatchRequestBody','Required parameter requestParameters.addBatchRequestBody was null or undefined when calling ingestAddBatch.');
+    async ingestAddBatchRequestOpts(requestParameters: IngestAddBatchRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['addBatchRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'addBatchRequestBody',
+                'Required parameter "addBatchRequestBody" was null or undefined when calling ingestAddBatch().'
+            );
         }
 
         const queryParameters: any = {};
@@ -473,19 +633,31 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:batches:create"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/batches`,
+
+        let urlPath = `/ingest/batches`;
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: AddBatchRequestBodyToJSON(requestParameters.addBatchRequestBody),
-        }, initOverrides);
+            body: AddBatchRequestBodyToJSON(requestParameters['addBatchRequestBody']),
+        };
+    }
+
+    /**
+     * Ingest a Batch from a SIP Source
+     * add_batch ingest
+     */
+    async ingestAddBatchRaw(requestParameters: IngestAddBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
+        const requestOptions = await this.ingestAddBatchRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => AddSipResponseBodyFromJSON(jsonValue));
     }
@@ -500,44 +672,61 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Ingest a SIP from a SIP Source
-     * add_sip ingest
+     * Creates request options for ingestAddSip without sending the request
      */
-    async ingestAddSipRaw(requestParameters: IngestAddSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
-        if (requestParameters.sourceId === null || requestParameters.sourceId === undefined) {
-            throw new runtime.RequiredError('sourceId','Required parameter requestParameters.sourceId was null or undefined when calling ingestAddSip.');
+    async ingestAddSipRequestOpts(requestParameters: IngestAddSipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['sourceId'] == null) {
+            throw new runtime.RequiredError(
+                'sourceId',
+                'Required parameter "sourceId" was null or undefined when calling ingestAddSip().'
+            );
         }
 
-        if (requestParameters.key === null || requestParameters.key === undefined) {
-            throw new runtime.RequiredError('key','Required parameter requestParameters.key was null or undefined when calling ingestAddSip.');
+        if (requestParameters['key'] == null) {
+            throw new runtime.RequiredError(
+                'key',
+                'Required parameter "key" was null or undefined when calling ingestAddSip().'
+            );
         }
 
         const queryParameters: any = {};
 
-        if (requestParameters.sourceId !== undefined) {
-            queryParameters['source_id'] = requestParameters.sourceId;
+        if (requestParameters['sourceId'] != null) {
+            queryParameters['source_id'] = requestParameters['sourceId'];
         }
 
-        if (requestParameters.key !== undefined) {
-            queryParameters['key'] = requestParameters.key;
+        if (requestParameters['key'] != null) {
+            queryParameters['key'] = requestParameters['key'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:create"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/sips`,
+
+        let urlPath = `/ingest/sips`;
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Ingest a SIP from a SIP Source
+     * add_sip ingest
+     */
+    async ingestAddSipRaw(requestParameters: IngestAddSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
+        const requestOptions = await this.ingestAddSipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => AddSipResponseBodyFromJSON(jsonValue));
     }
@@ -552,16 +741,21 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Signal the SIP has been reviewed and accepted
-     * confirm_sip ingest
+     * Creates request options for ingestConfirmSip without sending the request
      */
-    async ingestConfirmSipRaw(requestParameters: IngestConfirmSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestConfirmSip.');
+    async ingestConfirmSipRequestOpts(requestParameters: IngestConfirmSipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestConfirmSip().'
+            );
         }
 
-        if (requestParameters.confirmSipRequestBody === null || requestParameters.confirmSipRequestBody === undefined) {
-            throw new runtime.RequiredError('confirmSipRequestBody','Required parameter requestParameters.confirmSipRequestBody was null or undefined when calling ingestConfirmSip.');
+        if (requestParameters['confirmSipRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'confirmSipRequestBody',
+                'Required parameter "confirmSipRequestBody" was null or undefined when calling ingestConfirmSip().'
+            );
         }
 
         const queryParameters: any = {};
@@ -572,19 +766,32 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:review"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/sips/{uuid}/confirm`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/ingest/sips/{uuid}/confirm`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: ConfirmSipRequestBodyToJSON(requestParameters.confirmSipRequestBody),
-        }, initOverrides);
+            body: ConfirmSipRequestBodyToJSON(requestParameters['confirmSipRequestBody']),
+        };
+    }
+
+    /**
+     * Signal the SIP has been reviewed and accepted
+     * confirm_sip ingest
+     */
+    async ingestConfirmSipRaw(requestParameters: IngestConfirmSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.ingestConfirmSipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -598,24 +805,39 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP\'s `failed_as` value.
-     * download_sip ingest
+     * Creates request options for ingestDownloadSip without sending the request
      */
-    async ingestDownloadSipRaw(requestParameters: IngestDownloadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestDownloadSip.');
+    async ingestDownloadSipRequestOpts(requestParameters: IngestDownloadSipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestDownloadSip().'
+            );
         }
 
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        const response = await this.request({
-            path: `/ingest/sips/{uuid}/download`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/ingest/sips/{uuid}/download`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Download the failed package related to a SIP. It will be the original SIP or the transformed PIP, based on the SIP\'s `failed_as` value.
+     * download_sip ingest
+     */
+    async ingestDownloadSipRaw(requestParameters: IngestDownloadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Blob>> {
+        const requestOptions = await this.ingestDownloadSipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.BlobApiResponse(response);
     }
@@ -630,12 +852,14 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Request access to SIP download
-     * download_sip_request ingest
+     * Creates request options for ingestDownloadSipRequest without sending the request
      */
-    async ingestDownloadSipRequestRaw(requestParameters: IngestDownloadSipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestDownloadSipRequest.');
+    async ingestDownloadSipRequestRequestOpts(requestParameters: IngestDownloadSipRequestRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestDownloadSipRequest().'
+            );
         }
 
         const queryParameters: any = {};
@@ -644,18 +868,31 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:download"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/sips/{uuid}/download`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/ingest/sips/{uuid}/download`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Request access to SIP download
+     * download_sip_request ingest
+     */
+    async ingestDownloadSipRequestRaw(requestParameters: IngestDownloadSipRequestRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.ingestDownloadSipRequestRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -669,56 +906,67 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * List all ingested Batches
-     * list_batches ingest
+     * Creates request options for ingestListBatches without sending the request
      */
-    async ingestListBatchesRaw(requestParameters: IngestListBatchesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestBatches>> {
+    async ingestListBatchesRequestOpts(requestParameters: IngestListBatchesRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters.identifier !== undefined) {
-            queryParameters['identifier'] = requestParameters.identifier;
+        if (requestParameters['identifier'] != null) {
+            queryParameters['identifier'] = requestParameters['identifier'];
         }
 
-        if (requestParameters.earliestCreatedTime !== undefined) {
-            queryParameters['earliest_created_time'] = (requestParameters.earliestCreatedTime as any).toISOString();
+        if (requestParameters['earliestCreatedTime'] != null) {
+            queryParameters['earliest_created_time'] = (requestParameters['earliestCreatedTime'] as any).toISOString();
         }
 
-        if (requestParameters.latestCreatedTime !== undefined) {
-            queryParameters['latest_created_time'] = (requestParameters.latestCreatedTime as any).toISOString();
+        if (requestParameters['latestCreatedTime'] != null) {
+            queryParameters['latest_created_time'] = (requestParameters['latestCreatedTime'] as any).toISOString();
         }
 
-        if (requestParameters.status !== undefined) {
-            queryParameters['status'] = requestParameters.status;
+        if (requestParameters['status'] != null) {
+            queryParameters['status'] = requestParameters['status'];
         }
 
-        if (requestParameters.uploaderUuid !== undefined) {
-            queryParameters['uploader_uuid'] = requestParameters.uploaderUuid;
+        if (requestParameters['uploaderUuid'] != null) {
+            queryParameters['uploader_uuid'] = requestParameters['uploaderUuid'];
         }
 
-        if (requestParameters.limit !== undefined) {
-            queryParameters['limit'] = requestParameters.limit;
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
         }
 
-        if (requestParameters.offset !== undefined) {
-            queryParameters['offset'] = requestParameters.offset;
+        if (requestParameters['offset'] != null) {
+            queryParameters['offset'] = requestParameters['offset'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:batches:list"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/batches`,
+
+        let urlPath = `/ingest/batches`;
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * List all ingested Batches
+     * list_batches ingest
+     */
+    async ingestListBatchesRaw(requestParameters: IngestListBatchesRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestBatches>> {
+        const requestOptions = await this.ingestListBatchesRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestBatchesFromJSON(jsonValue));
     }
@@ -733,40 +981,55 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * List the objects in a SIP source
-     * list_sip_source_objects ingest
+     * Creates request options for ingestListSipSourceObjects without sending the request
      */
-    async ingestListSipSourceObjectsRaw(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSipsourceObjects>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestListSipSourceObjects.');
+    async ingestListSipSourceObjectsRequestOpts(requestParameters: IngestListSipSourceObjectsRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestListSipSourceObjects().'
+            );
         }
 
         const queryParameters: any = {};
 
-        if (requestParameters.limit !== undefined) {
-            queryParameters['limit'] = requestParameters.limit;
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
         }
 
-        if (requestParameters.cursor !== undefined) {
-            queryParameters['cursor'] = requestParameters.cursor;
+        if (requestParameters['cursor'] != null) {
+            queryParameters['cursor'] = requestParameters['cursor'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sipsources:objects:list"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/sip-sources/{uuid}/objects`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/ingest/sip-sources/{uuid}/objects`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * List the objects in a SIP source
+     * list_sip_source_objects ingest
+     */
+    async ingestListSipSourceObjectsRaw(requestParameters: IngestListSipSourceObjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSipsourceObjects>> {
+        const requestOptions = await this.ingestListSipSourceObjectsRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestSipsourceObjectsFromJSON(jsonValue));
     }
@@ -781,12 +1044,14 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * List all workflows for a SIP
-     * list_sip_workflows ingest
+     * Creates request options for ingestListSipWorkflows without sending the request
      */
-    async ingestListSipWorkflowsRaw(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSipWorkflows>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestListSipWorkflows.');
+    async ingestListSipWorkflowsRequestOpts(requestParameters: IngestListSipWorkflowsRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestListSipWorkflows().'
+            );
         }
 
         const queryParameters: any = {};
@@ -795,18 +1060,31 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:workflows:list"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/sips/{uuid}/workflows`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/ingest/sips/{uuid}/workflows`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * List all workflows for a SIP
+     * list_sip_workflows ingest
+     */
+    async ingestListSipWorkflowsRaw(requestParameters: IngestListSipWorkflowsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSipWorkflows>> {
+        const requestOptions = await this.ingestListSipWorkflowsRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestSipWorkflowsFromJSON(jsonValue));
     }
@@ -821,64 +1099,75 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * List all ingested SIPs
-     * list_sips ingest
+     * Creates request options for ingestListSips without sending the request
      */
-    async ingestListSipsRaw(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSips>> {
+    async ingestListSipsRequestOpts(requestParameters: IngestListSipsRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters.name !== undefined) {
-            queryParameters['name'] = requestParameters.name;
+        if (requestParameters['name'] != null) {
+            queryParameters['name'] = requestParameters['name'];
         }
 
-        if (requestParameters.aipUuid !== undefined) {
-            queryParameters['aip_uuid'] = requestParameters.aipUuid;
+        if (requestParameters['aipUuid'] != null) {
+            queryParameters['aip_uuid'] = requestParameters['aipUuid'];
         }
 
-        if (requestParameters.earliestCreatedTime !== undefined) {
-            queryParameters['earliest_created_time'] = (requestParameters.earliestCreatedTime as any).toISOString();
+        if (requestParameters['earliestCreatedTime'] != null) {
+            queryParameters['earliest_created_time'] = (requestParameters['earliestCreatedTime'] as any).toISOString();
         }
 
-        if (requestParameters.latestCreatedTime !== undefined) {
-            queryParameters['latest_created_time'] = (requestParameters.latestCreatedTime as any).toISOString();
+        if (requestParameters['latestCreatedTime'] != null) {
+            queryParameters['latest_created_time'] = (requestParameters['latestCreatedTime'] as any).toISOString();
         }
 
-        if (requestParameters.status !== undefined) {
-            queryParameters['status'] = requestParameters.status;
+        if (requestParameters['status'] != null) {
+            queryParameters['status'] = requestParameters['status'];
         }
 
-        if (requestParameters.uploaderUuid !== undefined) {
-            queryParameters['uploader_uuid'] = requestParameters.uploaderUuid;
+        if (requestParameters['uploaderUuid'] != null) {
+            queryParameters['uploader_uuid'] = requestParameters['uploaderUuid'];
         }
 
-        if (requestParameters.batchUuid !== undefined) {
-            queryParameters['batch_uuid'] = requestParameters.batchUuid;
+        if (requestParameters['batchUuid'] != null) {
+            queryParameters['batch_uuid'] = requestParameters['batchUuid'];
         }
 
-        if (requestParameters.limit !== undefined) {
-            queryParameters['limit'] = requestParameters.limit;
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
         }
 
-        if (requestParameters.offset !== undefined) {
-            queryParameters['offset'] = requestParameters.offset;
+        if (requestParameters['offset'] != null) {
+            queryParameters['offset'] = requestParameters['offset'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:list"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/sips`,
+
+        let urlPath = `/ingest/sips`;
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * List all ingested SIPs
+     * list_sips ingest
+     */
+    async ingestListSipsRaw(requestParameters: IngestListSipsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSips>> {
+        const requestOptions = await this.ingestListSipsRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestSipsFromJSON(jsonValue));
     }
@@ -893,44 +1182,55 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * List all users
-     * list_users ingest
+     * Creates request options for ingestListUsers without sending the request
      */
-    async ingestListUsersRaw(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestUsers>> {
+    async ingestListUsersRequestOpts(requestParameters: IngestListUsersRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
-        if (requestParameters.email !== undefined) {
-            queryParameters['email'] = requestParameters.email;
+        if (requestParameters['email'] != null) {
+            queryParameters['email'] = requestParameters['email'];
         }
 
-        if (requestParameters.name !== undefined) {
-            queryParameters['name'] = requestParameters.name;
+        if (requestParameters['name'] != null) {
+            queryParameters['name'] = requestParameters['name'];
         }
 
-        if (requestParameters.limit !== undefined) {
-            queryParameters['limit'] = requestParameters.limit;
+        if (requestParameters['limit'] != null) {
+            queryParameters['limit'] = requestParameters['limit'];
         }
 
-        if (requestParameters.offset !== undefined) {
-            queryParameters['offset'] = requestParameters.offset;
+        if (requestParameters['offset'] != null) {
+            queryParameters['offset'] = requestParameters['offset'];
         }
 
         const headerParameters: runtime.HTTPHeaders = {};
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:users:list"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/users`,
+
+        let urlPath = `/ingest/users`;
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * List all users
+     * list_users ingest
+     */
+    async ingestListUsersRaw(requestParameters: IngestListUsersRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestUsers>> {
+        const requestOptions = await this.ingestListUsersRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestUsersFromJSON(jsonValue));
     }
@@ -945,20 +1245,31 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Obtain access to the /monitor WebSocket
-     * monitor ingest
+     * Creates request options for ingestMonitor without sending the request
      */
-    async ingestMonitorRaw(requestParameters: IngestMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async ingestMonitorRequestOpts(requestParameters: IngestMonitorRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        const response = await this.request({
-            path: `/ingest/monitor`,
+
+        let urlPath = `/ingest/monitor`;
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Obtain access to the /monitor WebSocket
+     * monitor ingest
+     */
+    async ingestMonitorRaw(requestParameters: IngestMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.ingestMonitorRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -972,10 +1283,9 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Request access to the /monitor WebSocket
-     * monitor_request ingest
+     * Creates request options for ingestMonitorRequest without sending the request
      */
-    async ingestMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+    async ingestMonitorRequestRequestOpts(): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -988,12 +1298,24 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/monitor`,
+
+        let urlPath = `/ingest/monitor`;
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Request access to the /monitor WebSocket
+     * monitor_request ingest
+     */
+    async ingestMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.ingestMonitorRequestRequestOpts();
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -1007,12 +1329,14 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Signal the SIP has been reviewed and rejected
-     * reject_sip ingest
+     * Creates request options for ingestRejectSip without sending the request
      */
-    async ingestRejectSipRaw(requestParameters: IngestRejectSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestRejectSip.');
+    async ingestRejectSipRequestOpts(requestParameters: IngestRejectSipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestRejectSip().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1021,18 +1345,31 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:review"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/sips/{uuid}/reject`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/ingest/sips/{uuid}/reject`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Signal the SIP has been reviewed and rejected
+     * reject_sip ingest
+     */
+    async ingestRejectSipRaw(requestParameters: IngestRejectSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.ingestRejectSipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -1046,16 +1383,21 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Review a Batch awaiting user decision
-     * review_batch ingest
+     * Creates request options for ingestReviewBatch without sending the request
      */
-    async ingestReviewBatchRaw(requestParameters: IngestReviewBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestReviewBatch.');
+    async ingestReviewBatchRequestOpts(requestParameters: IngestReviewBatchRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestReviewBatch().'
+            );
         }
 
-        if (requestParameters.reviewBatchRequestBody === null || requestParameters.reviewBatchRequestBody === undefined) {
-            throw new runtime.RequiredError('reviewBatchRequestBody','Required parameter requestParameters.reviewBatchRequestBody was null or undefined when calling ingestReviewBatch.');
+        if (requestParameters['reviewBatchRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'reviewBatchRequestBody',
+                'Required parameter "reviewBatchRequestBody" was null or undefined when calling ingestReviewBatch().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1066,19 +1408,32 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:batches:review"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/batches/{uuid}/review`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/ingest/batches/{uuid}/review`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-            body: ReviewBatchRequestBodyToJSON(requestParameters.reviewBatchRequestBody),
-        }, initOverrides);
+            body: ReviewBatchRequestBodyToJSON(requestParameters['reviewBatchRequestBody']),
+        };
+    }
+
+    /**
+     * Review a Batch awaiting user decision
+     * review_batch ingest
+     */
+    async ingestReviewBatchRaw(requestParameters: IngestReviewBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.ingestReviewBatchRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
@@ -1092,12 +1447,14 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Show Batch by UUID
-     * show_batch ingest
+     * Creates request options for ingestShowBatch without sending the request
      */
-    async ingestShowBatchRaw(requestParameters: IngestShowBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestBatch>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestShowBatch.');
+    async ingestShowBatchRequestOpts(requestParameters: IngestShowBatchRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestShowBatch().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1106,18 +1463,31 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:batches:read"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/batches/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/ingest/batches/{uuid}`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Show Batch by UUID
+     * show_batch ingest
+     */
+    async ingestShowBatchRaw(requestParameters: IngestShowBatchRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestBatch>> {
+        const requestOptions = await this.ingestShowBatchRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestBatchFromJSON(jsonValue));
     }
@@ -1132,12 +1502,14 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Show SIP by ID
-     * show_sip ingest
+     * Creates request options for ingestShowSip without sending the request
      */
-    async ingestShowSipRaw(requestParameters: IngestShowSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSip>> {
-        if (requestParameters.uuid === null || requestParameters.uuid === undefined) {
-            throw new runtime.RequiredError('uuid','Required parameter requestParameters.uuid was null or undefined when calling ingestShowSip.');
+    async ingestShowSipRequestOpts(requestParameters: IngestShowSipRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestShowSip().'
+            );
         }
 
         const queryParameters: any = {};
@@ -1146,18 +1518,31 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:read"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/sips/{uuid}`.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters.uuid))),
+
+        let urlPath = `/ingest/sips/{uuid}`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
             method: 'GET',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Show SIP by ID
+     * show_sip ingest
+     */
+    async ingestShowSipRaw(requestParameters: IngestShowSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSip>> {
+        const requestOptions = await this.ingestShowSipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestSipFromJSON(jsonValue));
     }
@@ -1172,32 +1557,43 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Upload a SIP to trigger an ingest workflow
-     * upload_sip ingest
+     * Creates request options for ingestUploadSip without sending the request
      */
-    async ingestUploadSipRaw(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
+    async ingestUploadSipRequestOpts(requestParameters: IngestUploadSipRequest): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        if (requestParameters.contentType !== undefined && requestParameters.contentType !== null) {
-            headerParameters['Content-Type'] = String(requestParameters.contentType);
+        if (requestParameters['contentType'] != null) {
+            headerParameters['Content-Type'] = String(requestParameters['contentType']);
         }
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:upload"]);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
             }
         }
-        const response = await this.request({
-            path: `/ingest/sips/upload`,
+
+        let urlPath = `/ingest/sips/upload`;
+
+        return {
+            path: urlPath,
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
-        }, initOverrides);
+        };
+    }
+
+    /**
+     * Upload a SIP to trigger an ingest workflow
+     * upload_sip ingest
+     */
+    async ingestUploadSipRaw(requestParameters: IngestUploadSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<AddSipResponseBody>> {
+        const requestOptions = await this.ingestUploadSipRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.JSONApiResponse(response, (jsonValue) => AddSipResponseBodyFromJSON(jsonValue));
     }

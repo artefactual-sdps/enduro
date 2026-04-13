@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * Page represents a subset of search results.
  * @export
@@ -42,13 +42,11 @@ export interface EnduroPage {
 /**
  * Check if a given object implements the EnduroPage interface.
  */
-export function instanceOfEnduroPage(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "limit" in value;
-    isInstance = isInstance && "offset" in value;
-    isInstance = isInstance && "total" in value;
-
-    return isInstance;
+export function instanceOfEnduroPage(value: object): value is EnduroPage {
+    if (!('limit' in value) || value['limit'] === undefined) return false;
+    if (!('offset' in value) || value['offset'] === undefined) return false;
+    if (!('total' in value) || value['total'] === undefined) return false;
+    return true;
 }
 
 export function EnduroPageFromJSON(json: any): EnduroPage {
@@ -56,7 +54,7 @@ export function EnduroPageFromJSON(json: any): EnduroPage {
 }
 
 export function EnduroPageFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroPage {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -67,18 +65,20 @@ export function EnduroPageFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     };
 }
 
-export function EnduroPageToJSON(value?: EnduroPage | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroPageToJSON(json: any): EnduroPage {
+    return EnduroPageToJSONTyped(json, false);
+}
+
+export function EnduroPageToJSONTyped(value?: EnduroPage | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'limit': value.limit,
-        'offset': value.offset,
-        'total': value.total,
+        'limit': value['limit'],
+        'offset': value['offset'],
+        'total': value['total'],
     };
 }
 

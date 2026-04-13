@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface MoveStatusResult {
 /**
  * Check if a given object implements the MoveStatusResult interface.
  */
-export function instanceOfMoveStatusResult(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "done" in value;
-
-    return isInstance;
+export function instanceOfMoveStatusResult(value: object): value is MoveStatusResult {
+    if (!('done' in value) || value['done'] === undefined) return false;
+    return true;
 }
 
 export function MoveStatusResultFromJSON(json: any): MoveStatusResult {
@@ -42,7 +40,7 @@ export function MoveStatusResultFromJSON(json: any): MoveStatusResult {
 }
 
 export function MoveStatusResultFromJSONTyped(json: any, ignoreDiscriminator: boolean): MoveStatusResult {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -51,16 +49,18 @@ export function MoveStatusResultFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function MoveStatusResultToJSON(value?: MoveStatusResult | null): any {
-    if (value === undefined) {
-        return undefined;
+export function MoveStatusResultToJSON(json: any): MoveStatusResult {
+    return MoveStatusResultToJSONTyped(json, false);
+}
+
+export function MoveStatusResultToJSONTyped(value?: MoveStatusResult | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'done': value.done,
+        'done': value['done'],
     };
 }
 

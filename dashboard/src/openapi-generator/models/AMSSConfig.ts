@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -42,13 +42,11 @@ export interface AMSSConfig {
 /**
  * Check if a given object implements the AMSSConfig interface.
  */
-export function instanceOfAMSSConfig(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "apiKey" in value;
-    isInstance = isInstance && "url" in value;
-    isInstance = isInstance && "username" in value;
-
-    return isInstance;
+export function instanceOfAMSSConfig(value: object): value is AMSSConfig {
+    if (!('apiKey' in value) || value['apiKey'] === undefined) return false;
+    if (!('url' in value) || value['url'] === undefined) return false;
+    if (!('username' in value) || value['username'] === undefined) return false;
+    return true;
 }
 
 export function AMSSConfigFromJSON(json: any): AMSSConfig {
@@ -56,7 +54,7 @@ export function AMSSConfigFromJSON(json: any): AMSSConfig {
 }
 
 export function AMSSConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean): AMSSConfig {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -67,18 +65,20 @@ export function AMSSConfigFromJSONTyped(json: any, ignoreDiscriminator: boolean)
     };
 }
 
-export function AMSSConfigToJSON(value?: AMSSConfig | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AMSSConfigToJSON(json: any): AMSSConfig {
+    return AMSSConfigToJSONTyped(json, false);
+}
+
+export function AMSSConfigToJSONTyped(value?: AMSSConfig | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'api_key': value.apiKey,
-        'url': value.url,
-        'username': value.username,
+        'api_key': value['apiKey'],
+        'url': value['url'],
+        'username': value['username'],
     };
 }
 

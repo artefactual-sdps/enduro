@@ -1,26 +1,44 @@
 import { api } from "@/client";
-import { transformKeys } from "@/helpers/transform";
-import { IngestEvent2ValueTypeEnum } from "@/openapi-generator";
+import { IngestEventValueTypeEnum } from "@/openapi-generator";
 import { useBatchStore } from "@/stores/batch";
 import { useSipStore } from "@/stores/sip";
 
-export function handleIngestEvent(event: api.IngestEvent2Value) {
-  handlers[event.type](transformKeys(event.value));
+// Local websocket event boundary used by the ingest monitor code.
+//
+// The generated OpenAPI client gives us the outer event envelope (`type` and
+// `value`), but it does not preserve the monitor payload `anyOf` as a usable
+// discriminated union. Instead, `value` is typed as a single generated model
+// that does not correctly represent every ingest monitor event payload.
+//
+// We therefore treat `value` as `unknown` here and decode it in the per-event
+// handlers with the appropriate generated `FromJSON` helper.
+type IngestMonitorEvent = {
+  type: api.IngestEventValueTypeEnum;
+  value: unknown;
+};
+
+// TODO: Replace this unknown-based event boundary with a typed monitor-event
+// decoder once the generated client preserves the websocket payload `anyOf`,
+// or after adding a small local typed decoder facade.
+export function handleIngestEvent(event: IngestMonitorEvent) {
+  const handler = handlers[event.type];
+  if (!handler) return;
+  handler(event.value);
 }
 
 const handlers: {
-  [key in api.IngestEvent2ValueTypeEnum]: (data: unknown) => void;
+  [key in api.IngestEventValueTypeEnum]: (data: unknown) => void;
 } = {
-  [IngestEvent2ValueTypeEnum.IngestPingEvent]: () => {},
-  [IngestEvent2ValueTypeEnum.SipCreatedEvent]: handleSipCreated,
-  [IngestEvent2ValueTypeEnum.SipUpdatedEvent]: handleSipUpdated,
-  [IngestEvent2ValueTypeEnum.SipStatusUpdatedEvent]: handleSipStatusUpdated,
-  [IngestEvent2ValueTypeEnum.SipWorkflowCreatedEvent]: handleSipWorkflowCreated,
-  [IngestEvent2ValueTypeEnum.SipWorkflowUpdatedEvent]: handleSipWorkflowUpdated,
-  [IngestEvent2ValueTypeEnum.SipTaskCreatedEvent]: handleSipTaskCreated,
-  [IngestEvent2ValueTypeEnum.SipTaskUpdatedEvent]: handleSipTaskUpdated,
-  [IngestEvent2ValueTypeEnum.BatchCreatedEvent]: handleBatchCreated,
-  [IngestEvent2ValueTypeEnum.BatchUpdatedEvent]: handleBatchUpdated,
+  [IngestEventValueTypeEnum.IngestPingEvent]: () => {},
+  [IngestEventValueTypeEnum.SipCreatedEvent]: handleSipCreated,
+  [IngestEventValueTypeEnum.SipUpdatedEvent]: handleSipUpdated,
+  [IngestEventValueTypeEnum.SipStatusUpdatedEvent]: handleSipStatusUpdated,
+  [IngestEventValueTypeEnum.SipWorkflowCreatedEvent]: handleSipWorkflowCreated,
+  [IngestEventValueTypeEnum.SipWorkflowUpdatedEvent]: handleSipWorkflowUpdated,
+  [IngestEventValueTypeEnum.SipTaskCreatedEvent]: handleSipTaskCreated,
+  [IngestEventValueTypeEnum.SipTaskUpdatedEvent]: handleSipTaskUpdated,
+  [IngestEventValueTypeEnum.BatchCreatedEvent]: handleBatchCreated,
+  [IngestEventValueTypeEnum.BatchUpdatedEvent]: handleBatchUpdated,
 };
 
 function handleSipCreated(data: unknown) {

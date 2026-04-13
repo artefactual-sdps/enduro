@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,11 +30,9 @@ export interface RequestAipDeletionRequestBody {
 /**
  * Check if a given object implements the RequestAipDeletionRequestBody interface.
  */
-export function instanceOfRequestAipDeletionRequestBody(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "reason" in value;
-
-    return isInstance;
+export function instanceOfRequestAipDeletionRequestBody(value: object): value is RequestAipDeletionRequestBody {
+    if (!('reason' in value) || value['reason'] === undefined) return false;
+    return true;
 }
 
 export function RequestAipDeletionRequestBodyFromJSON(json: any): RequestAipDeletionRequestBody {
@@ -42,7 +40,7 @@ export function RequestAipDeletionRequestBodyFromJSON(json: any): RequestAipDele
 }
 
 export function RequestAipDeletionRequestBodyFromJSONTyped(json: any, ignoreDiscriminator: boolean): RequestAipDeletionRequestBody {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -51,16 +49,18 @@ export function RequestAipDeletionRequestBodyFromJSONTyped(json: any, ignoreDisc
     };
 }
 
-export function RequestAipDeletionRequestBodyToJSON(value?: RequestAipDeletionRequestBody | null): any {
-    if (value === undefined) {
-        return undefined;
+export function RequestAipDeletionRequestBodyToJSON(json: any): RequestAipDeletionRequestBody {
+    return RequestAipDeletionRequestBodyToJSONTyped(json, false);
+}
+
+export function RequestAipDeletionRequestBodyToJSONTyped(value?: RequestAipDeletionRequestBody | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'reason': value.reason,
+        'reason': value['reason'],
     };
 }
 

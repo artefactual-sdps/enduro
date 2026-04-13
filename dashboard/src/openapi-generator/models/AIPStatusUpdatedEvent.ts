@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -21,7 +21,7 @@ import { exists, mapValues } from '../runtime';
 export interface AIPStatusUpdatedEvent {
     /**
      * 
-     * @type {string}
+     * @type {AIPStatusUpdatedEventStatusEnum}
      * @memberof AIPStatusUpdatedEvent
      */
     status: AIPStatusUpdatedEventStatusEnum;
@@ -51,12 +51,10 @@ export type AIPStatusUpdatedEventStatusEnum = typeof AIPStatusUpdatedEventStatus
 /**
  * Check if a given object implements the AIPStatusUpdatedEvent interface.
  */
-export function instanceOfAIPStatusUpdatedEvent(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfAIPStatusUpdatedEvent(value: object): value is AIPStatusUpdatedEvent {
+    if (!('status' in value) || value['status'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function AIPStatusUpdatedEventFromJSON(json: any): AIPStatusUpdatedEvent {
@@ -64,7 +62,7 @@ export function AIPStatusUpdatedEventFromJSON(json: any): AIPStatusUpdatedEvent 
 }
 
 export function AIPStatusUpdatedEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): AIPStatusUpdatedEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -74,17 +72,19 @@ export function AIPStatusUpdatedEventFromJSONTyped(json: any, ignoreDiscriminato
     };
 }
 
-export function AIPStatusUpdatedEventToJSON(value?: AIPStatusUpdatedEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function AIPStatusUpdatedEventToJSON(json: any): AIPStatusUpdatedEvent {
+    return AIPStatusUpdatedEventToJSONTyped(json, false);
+}
+
+export function AIPStatusUpdatedEventToJSONTyped(value?: AIPStatusUpdatedEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'status': value.status,
-        'uuid': value.uuid,
+        'status': value['status'],
+        'uuid': value['uuid'],
     };
 }
 

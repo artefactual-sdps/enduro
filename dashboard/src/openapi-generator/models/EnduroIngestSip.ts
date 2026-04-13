@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * SIP describes an ingest SIP type.
  * @export
@@ -33,7 +33,7 @@ export interface EnduroIngestSip {
     batchIdentifier?: string;
     /**
      * Status of the related Batch
-     * @type {string}
+     * @type {EnduroIngestSipBatchStatusEnum}
      * @memberof EnduroIngestSip
      */
     batchStatus?: EnduroIngestSipBatchStatusEnum;
@@ -57,7 +57,7 @@ export interface EnduroIngestSip {
     createdAt: Date;
     /**
      * Package type in case of failure (SIP or PIP)
-     * @type {string}
+     * @type {EnduroIngestSipFailedAsEnum}
      * @memberof EnduroIngestSip
      */
     failedAs?: EnduroIngestSipFailedAsEnum;
@@ -81,7 +81,7 @@ export interface EnduroIngestSip {
     startedAt?: Date;
     /**
      * Status of the SIP
-     * @type {string}
+     * @type {EnduroIngestSipStatusEnum}
      * @memberof EnduroIngestSip
      */
     status: EnduroIngestSipStatusEnum;
@@ -153,13 +153,11 @@ export type EnduroIngestSipStatusEnum = typeof EnduroIngestSipStatusEnum[keyof t
 /**
  * Check if a given object implements the EnduroIngestSip interface.
  */
-export function instanceOfEnduroIngestSip(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "createdAt" in value;
-    isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfEnduroIngestSip(value: object): value is EnduroIngestSip {
+    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if (!('status' in value) || value['status'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function EnduroIngestSipFromJSON(json: any): EnduroIngestSip {
@@ -167,53 +165,55 @@ export function EnduroIngestSipFromJSON(json: any): EnduroIngestSip {
 }
 
 export function EnduroIngestSipFromJSONTyped(json: any, ignoreDiscriminator: boolean): EnduroIngestSip {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'aipUuid': !exists(json, 'aip_uuid') ? undefined : json['aip_uuid'],
-        'batchIdentifier': !exists(json, 'batch_identifier') ? undefined : json['batch_identifier'],
-        'batchStatus': !exists(json, 'batch_status') ? undefined : json['batch_status'],
-        'batchUuid': !exists(json, 'batch_uuid') ? undefined : json['batch_uuid'],
-        'completedAt': !exists(json, 'completed_at') ? undefined : (new Date(json['completed_at'])),
+        'aipUuid': json['aip_uuid'] == null ? undefined : json['aip_uuid'],
+        'batchIdentifier': json['batch_identifier'] == null ? undefined : json['batch_identifier'],
+        'batchStatus': json['batch_status'] == null ? undefined : json['batch_status'],
+        'batchUuid': json['batch_uuid'] == null ? undefined : json['batch_uuid'],
+        'completedAt': json['completed_at'] == null ? undefined : (new Date(json['completed_at'])),
         'createdAt': (new Date(json['created_at'])),
-        'failedAs': !exists(json, 'failed_as') ? undefined : json['failed_as'],
-        'failedKey': !exists(json, 'failed_key') ? undefined : json['failed_key'],
-        'name': !exists(json, 'name') ? undefined : json['name'],
-        'startedAt': !exists(json, 'started_at') ? undefined : (new Date(json['started_at'])),
+        'failedAs': json['failed_as'] == null ? undefined : json['failed_as'],
+        'failedKey': json['failed_key'] == null ? undefined : json['failed_key'],
+        'name': json['name'] == null ? undefined : json['name'],
+        'startedAt': json['started_at'] == null ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
-        'uploaderEmail': !exists(json, 'uploader_email') ? undefined : json['uploader_email'],
-        'uploaderName': !exists(json, 'uploader_name') ? undefined : json['uploader_name'],
-        'uploaderUuid': !exists(json, 'uploader_uuid') ? undefined : json['uploader_uuid'],
+        'uploaderEmail': json['uploader_email'] == null ? undefined : json['uploader_email'],
+        'uploaderName': json['uploader_name'] == null ? undefined : json['uploader_name'],
+        'uploaderUuid': json['uploader_uuid'] == null ? undefined : json['uploader_uuid'],
         'uuid': json['uuid'],
     };
 }
 
-export function EnduroIngestSipToJSON(value?: EnduroIngestSip | null): any {
-    if (value === undefined) {
-        return undefined;
+export function EnduroIngestSipToJSON(json: any): EnduroIngestSip {
+    return EnduroIngestSipToJSONTyped(json, false);
+}
+
+export function EnduroIngestSipToJSONTyped(value?: EnduroIngestSip | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'aip_uuid': value.aipUuid,
-        'batch_identifier': value.batchIdentifier,
-        'batch_status': value.batchStatus,
-        'batch_uuid': value.batchUuid,
-        'completed_at': value.completedAt === undefined ? undefined : (value.completedAt.toISOString()),
-        'created_at': (value.createdAt.toISOString()),
-        'failed_as': value.failedAs,
-        'failed_key': value.failedKey,
-        'name': value.name,
-        'started_at': value.startedAt === undefined ? undefined : (value.startedAt.toISOString()),
-        'status': value.status,
-        'uploader_email': value.uploaderEmail,
-        'uploader_name': value.uploaderName,
-        'uploader_uuid': value.uploaderUuid,
-        'uuid': value.uuid,
+        'aip_uuid': value['aipUuid'],
+        'batch_identifier': value['batchIdentifier'],
+        'batch_status': value['batchStatus'],
+        'batch_uuid': value['batchUuid'],
+        'completed_at': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
+        'created_at': value['createdAt'].toISOString(),
+        'failed_as': value['failedAs'],
+        'failed_key': value['failedKey'],
+        'name': value['name'],
+        'started_at': value['startedAt'] == null ? value['startedAt'] : value['startedAt'].toISOString(),
+        'status': value['status'],
+        'uploader_email': value['uploaderEmail'],
+        'uploader_name': value['uploaderName'],
+        'uploader_uuid': value['uploaderUuid'],
+        'uuid': value['uuid'],
     };
 }
 

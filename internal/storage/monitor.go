@@ -53,7 +53,7 @@ func (s *serviceImpl) Monitor(
 
 	// Say hello to be nice.
 	event := &goastorage.StoragePingEvent{Message: new("Hello")}
-	if err := stream.Send(&goastorage.StorageEvent{Value: event}); err != nil {
+	if err := stream.Send(&goastorage.StorageEvent{Value: NewEventValue(event)}); err != nil {
 		// Consider send errors as client disconnections.
 		s.logger.V(1).Info("Failed to send hello event.", "err", err)
 		return nil
@@ -72,7 +72,7 @@ func (s *serviceImpl) Monitor(
 
 		case <-ticker.C:
 			event := &goastorage.StoragePingEvent{Message: new("Ping")}
-			if err := stream.Send(&goastorage.StorageEvent{Value: event}); err != nil {
+			if err := stream.Send(&goastorage.StorageEvent{Value: NewEventValue(event)}); err != nil {
 				// Consider send errors as client disconnections.
 				s.logger.V(1).Info("Failed to send ping event.", "err", err)
 				return nil
@@ -84,28 +84,28 @@ func (s *serviceImpl) Monitor(
 			}
 
 			// Check the event type and the user attributes before sending.
-			switch event.Value.(type) {
-			case *goastorage.StoragePingEvent:
+			switch event.Value.Kind() {
+			case goastorage.ValueKindStoragePingEvent:
 				// Is this event even sent through this channel?
-			case *goastorage.LocationCreatedEvent:
+			case goastorage.ValueKindLocationCreatedEvent:
 				if !claims.CheckAttributes([]string{auth.StorageLocationsListAttr}) {
 					continue
 				}
-			case *goastorage.AIPCreatedEvent:
+			case goastorage.ValueKindAipCreatedEvent:
 				if !claims.CheckAttributes([]string{auth.StorageAIPSListAttr}) {
 					continue
 				}
-			case *goastorage.AIPUpdatedEvent,
-				*goastorage.AIPStatusUpdatedEvent,
-				*goastorage.AIPLocationUpdatedEvent:
+			case goastorage.ValueKindAipUpdatedEvent,
+				goastorage.ValueKindAipStatusUpdatedEvent,
+				goastorage.ValueKindAipLocationUpdatedEvent:
 				if !claims.CheckAttributes([]string{auth.StorageAIPSListAttr}) &&
 					!claims.CheckAttributes([]string{auth.StorageAIPSReadAttr}) {
 					continue
 				}
-			case *goastorage.AIPWorkflowCreatedEvent,
-				*goastorage.AIPWorkflowUpdatedEvent,
-				*goastorage.AIPTaskCreatedEvent,
-				*goastorage.AIPTaskUpdatedEvent:
+			case goastorage.ValueKindAipWorkflowCreatedEvent,
+				goastorage.ValueKindAipWorkflowUpdatedEvent,
+				goastorage.ValueKindAipTaskCreatedEvent,
+				goastorage.ValueKindAipTaskUpdatedEvent:
 				if !claims.CheckAttributes([]string{auth.StorageAIPSWorkflowsListAttr}) {
 					continue
 				}

@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * SIP not found.
  * @export
@@ -36,12 +36,10 @@ export interface SIPNotFound {
 /**
  * Check if a given object implements the SIPNotFound interface.
  */
-export function instanceOfSIPNotFound(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "message" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfSIPNotFound(value: object): value is SIPNotFound {
+    if (!('message' in value) || value['message'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function SIPNotFoundFromJSON(json: any): SIPNotFound {
@@ -49,7 +47,7 @@ export function SIPNotFoundFromJSON(json: any): SIPNotFound {
 }
 
 export function SIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean): SIPNotFound {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -59,17 +57,19 @@ export function SIPNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean
     };
 }
 
-export function SIPNotFoundToJSON(value?: SIPNotFound | null): any {
-    if (value === undefined) {
-        return undefined;
+export function SIPNotFoundToJSON(json: any): SIPNotFound {
+    return SIPNotFoundToJSONTyped(json, false);
+}
+
+export function SIPNotFoundToJSONTyped(value?: SIPNotFound | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'message': value.message,
-        'uuid': value.uuid,
+        'message': value['message'],
+        'uuid': value['uuid'],
     };
 }
 

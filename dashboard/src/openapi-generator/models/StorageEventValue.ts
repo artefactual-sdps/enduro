@@ -12,73 +12,14 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
-import type { AIPCreatedEvent } from './AIPCreatedEvent';
+import { mapValues } from '../runtime';
+import type { StorageEventValueValue } from './StorageEventValueValue';
 import {
-    AIPCreatedEventFromJSON,
-    AIPCreatedEventFromJSONTyped,
-    AIPCreatedEventToJSON,
-} from './AIPCreatedEvent';
-import type { AIPLocationUpdatedEvent } from './AIPLocationUpdatedEvent';
-import {
-    AIPLocationUpdatedEventFromJSON,
-    AIPLocationUpdatedEventFromJSONTyped,
-    AIPLocationUpdatedEventToJSON,
-} from './AIPLocationUpdatedEvent';
-import type { AIPStatusUpdatedEvent } from './AIPStatusUpdatedEvent';
-import {
-    AIPStatusUpdatedEventFromJSON,
-    AIPStatusUpdatedEventFromJSONTyped,
-    AIPStatusUpdatedEventToJSON,
-} from './AIPStatusUpdatedEvent';
-import type { AIPTaskCreatedEvent } from './AIPTaskCreatedEvent';
-import {
-    AIPTaskCreatedEventFromJSON,
-    AIPTaskCreatedEventFromJSONTyped,
-    AIPTaskCreatedEventToJSON,
-} from './AIPTaskCreatedEvent';
-import type { AIPTaskUpdatedEvent } from './AIPTaskUpdatedEvent';
-import {
-    AIPTaskUpdatedEventFromJSON,
-    AIPTaskUpdatedEventFromJSONTyped,
-    AIPTaskUpdatedEventToJSON,
-} from './AIPTaskUpdatedEvent';
-import type { AIPUpdatedEvent } from './AIPUpdatedEvent';
-import {
-    AIPUpdatedEventFromJSON,
-    AIPUpdatedEventFromJSONTyped,
-    AIPUpdatedEventToJSON,
-} from './AIPUpdatedEvent';
-import type { AIPWorkflowCreatedEvent } from './AIPWorkflowCreatedEvent';
-import {
-    AIPWorkflowCreatedEventFromJSON,
-    AIPWorkflowCreatedEventFromJSONTyped,
-    AIPWorkflowCreatedEventToJSON,
-} from './AIPWorkflowCreatedEvent';
-import type { AIPWorkflowUpdatedEvent } from './AIPWorkflowUpdatedEvent';
-import {
-    AIPWorkflowUpdatedEventFromJSON,
-    AIPWorkflowUpdatedEventFromJSONTyped,
-    AIPWorkflowUpdatedEventToJSON,
-} from './AIPWorkflowUpdatedEvent';
-import type { EnduroStorageAipTask } from './EnduroStorageAipTask';
-import {
-    EnduroStorageAipTaskFromJSON,
-    EnduroStorageAipTaskFromJSONTyped,
-    EnduroStorageAipTaskToJSON,
-} from './EnduroStorageAipTask';
-import type { LocationCreatedEvent } from './LocationCreatedEvent';
-import {
-    LocationCreatedEventFromJSON,
-    LocationCreatedEventFromJSONTyped,
-    LocationCreatedEventToJSON,
-} from './LocationCreatedEvent';
-import type { StoragePingEvent } from './StoragePingEvent';
-import {
-    StoragePingEventFromJSON,
-    StoragePingEventFromJSONTyped,
-    StoragePingEventToJSON,
-} from './StoragePingEvent';
+    StorageEventValueValueFromJSON,
+    StorageEventValueValueFromJSONTyped,
+    StorageEventValueValueToJSON,
+    StorageEventValueValueToJSONTyped,
+} from './StorageEventValueValue';
 
 /**
  * 
@@ -88,62 +29,44 @@ import {
 export interface StorageEventValue {
     /**
      * 
-     * @type {string}
+     * @type {StorageEventValueTypeEnum}
      * @memberof StorageEventValue
      */
-    message?: string;
+    type: StorageEventValueTypeEnum;
     /**
      * 
-     * @type {EnduroStorageAipTask}
+     * @type {StorageEventValueValue}
      * @memberof StorageEventValue
      */
-    item: EnduroStorageAipTask;
-    /**
-     * Identifier of task
-     * @type {string}
-     * @memberof StorageEventValue
-     */
-    uuid: string;
-    /**
-     * 
-     * @type {string}
-     * @memberof StorageEventValue
-     */
-    status: StorageEventValueStatusEnum;
-    /**
-     * Identifier of Location
-     * @type {string}
-     * @memberof StorageEventValue
-     */
-    locationUuid: string;
+    value: StorageEventValueValue;
 }
 
 
 /**
  * @export
  */
-export const StorageEventValueStatusEnum = {
-    Unspecified: 'unspecified',
-    Stored: 'stored',
-    Pending: 'pending',
-    Processing: 'processing',
-    Deleted: 'deleted',
-    Queued: 'queued'
+export const StorageEventValueTypeEnum = {
+    StoragePingEvent: 'storage_ping_event',
+    LocationCreatedEvent: 'location_created_event',
+    AipCreatedEvent: 'aip_created_event',
+    AipUpdatedEvent: 'aip_updated_event',
+    AipStatusUpdatedEvent: 'aip_status_updated_event',
+    AipLocationUpdatedEvent: 'aip_location_updated_event',
+    AipWorkflowCreatedEvent: 'aip_workflow_created_event',
+    AipWorkflowUpdatedEvent: 'aip_workflow_updated_event',
+    AipTaskCreatedEvent: 'aip_task_created_event',
+    AipTaskUpdatedEvent: 'aip_task_updated_event'
 } as const;
-export type StorageEventValueStatusEnum = typeof StorageEventValueStatusEnum[keyof typeof StorageEventValueStatusEnum];
+export type StorageEventValueTypeEnum = typeof StorageEventValueTypeEnum[keyof typeof StorageEventValueTypeEnum];
 
 
 /**
  * Check if a given object implements the StorageEventValue interface.
  */
-export function instanceOfStorageEventValue(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "item" in value;
-    isInstance = isInstance && "uuid" in value;
-    isInstance = isInstance && "status" in value;
-    isInstance = isInstance && "locationUuid" in value;
-
-    return isInstance;
+export function instanceOfStorageEventValue(value: object): value is StorageEventValue {
+    if (!('type' in value) || value['type'] === undefined) return false;
+    if (!('value' in value) || value['value'] === undefined) return false;
+    return true;
 }
 
 export function StorageEventValueFromJSON(json: any): StorageEventValue {
@@ -151,33 +74,29 @@ export function StorageEventValueFromJSON(json: any): StorageEventValue {
 }
 
 export function StorageEventValueFromJSONTyped(json: any, ignoreDiscriminator: boolean): StorageEventValue {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'message': !exists(json, 'message') ? undefined : json['message'],
-        'item': EnduroStorageAipTaskFromJSON(json['item']),
-        'uuid': json['uuid'],
-        'status': json['status'],
-        'locationUuid': json['location_uuid'],
+        'type': json['type'],
+        'value': StorageEventValueValueFromJSON(json['value']),
     };
 }
 
-export function StorageEventValueToJSON(value?: StorageEventValue | null): any {
-    if (value === undefined) {
-        return undefined;
+export function StorageEventValueToJSON(json: any): StorageEventValue {
+    return StorageEventValueToJSONTyped(json, false);
+}
+
+export function StorageEventValueToJSONTyped(value?: StorageEventValue | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'message': value.message,
-        'item': EnduroStorageAipTaskToJSON(value.item),
-        'uuid': value.uuid,
-        'status': value.status,
-        'location_uuid': value.locationUuid,
+        'type': value['type'],
+        'value': StorageEventValueValueToJSON(value['value']),
     };
 }
 

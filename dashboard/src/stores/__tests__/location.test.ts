@@ -13,11 +13,11 @@ describe("useLocationStore", () => {
   });
 
   it("fetches current", async () => {
-    const mockLocation: api.LocationResponse = {
+    const mockLocation: api.EnduroStorageLocation = {
       name: "Location 1",
       createdAt: new Date("2025-01-01T00:00:00Z"),
-      purpose: api.LocationResponsePurposeEnum.AipStore,
-      source: api.LocationResponseSourceEnum.Amss,
+      purpose: api.EnduroStorageLocationPurposeEnum.AipStore,
+      source: api.EnduroStorageLocationSourceEnum.Amss,
       uuid: "uuid-1",
     };
     const mockAips: api.AIPResponse[] = [

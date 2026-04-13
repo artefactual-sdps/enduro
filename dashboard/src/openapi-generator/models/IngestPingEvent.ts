@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * 
  * @export
@@ -30,10 +30,8 @@ export interface IngestPingEvent {
 /**
  * Check if a given object implements the IngestPingEvent interface.
  */
-export function instanceOfIngestPingEvent(value: object): boolean {
-    let isInstance = true;
-
-    return isInstance;
+export function instanceOfIngestPingEvent(value: object): value is IngestPingEvent {
+    return true;
 }
 
 export function IngestPingEventFromJSON(json: any): IngestPingEvent {
@@ -41,25 +39,27 @@ export function IngestPingEventFromJSON(json: any): IngestPingEvent {
 }
 
 export function IngestPingEventFromJSONTyped(json: any, ignoreDiscriminator: boolean): IngestPingEvent {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
         
-        'message': !exists(json, 'message') ? undefined : json['message'],
+        'message': json['message'] == null ? undefined : json['message'],
     };
 }
 
-export function IngestPingEventToJSON(value?: IngestPingEvent | null): any {
-    if (value === undefined) {
-        return undefined;
+export function IngestPingEventToJSON(json: any): IngestPingEvent {
+    return IngestPingEventToJSONTyped(json, false);
+}
+
+export function IngestPingEventToJSONTyped(value?: IngestPingEvent | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'message': value.message,
+        'message': value['message'],
     };
 }
 

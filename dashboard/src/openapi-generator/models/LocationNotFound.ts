@@ -12,7 +12,7 @@
  * Do not edit the class manually.
  */
 
-import { exists, mapValues } from '../runtime';
+import { mapValues } from '../runtime';
 /**
  * Storage location not found.
  * @export
@@ -36,12 +36,10 @@ export interface LocationNotFound {
 /**
  * Check if a given object implements the LocationNotFound interface.
  */
-export function instanceOfLocationNotFound(value: object): boolean {
-    let isInstance = true;
-    isInstance = isInstance && "message" in value;
-    isInstance = isInstance && "uuid" in value;
-
-    return isInstance;
+export function instanceOfLocationNotFound(value: object): value is LocationNotFound {
+    if (!('message' in value) || value['message'] === undefined) return false;
+    if (!('uuid' in value) || value['uuid'] === undefined) return false;
+    return true;
 }
 
 export function LocationNotFoundFromJSON(json: any): LocationNotFound {
@@ -49,7 +47,7 @@ export function LocationNotFoundFromJSON(json: any): LocationNotFound {
 }
 
 export function LocationNotFoundFromJSONTyped(json: any, ignoreDiscriminator: boolean): LocationNotFound {
-    if ((json === undefined) || (json === null)) {
+    if (json == null) {
         return json;
     }
     return {
@@ -59,17 +57,19 @@ export function LocationNotFoundFromJSONTyped(json: any, ignoreDiscriminator: bo
     };
 }
 
-export function LocationNotFoundToJSON(value?: LocationNotFound | null): any {
-    if (value === undefined) {
-        return undefined;
+export function LocationNotFoundToJSON(json: any): LocationNotFound {
+    return LocationNotFoundToJSONTyped(json, false);
+}
+
+export function LocationNotFoundToJSONTyped(value?: LocationNotFound | null, ignoreDiscriminator: boolean = false): any {
+    if (value == null) {
+        return value;
     }
-    if (value === null) {
-        return null;
-    }
+
     return {
         
-        'message': value.message,
-        'uuid': value.uuid,
+        'message': value['message'],
+        'uuid': value['uuid'],
     };
 }
 

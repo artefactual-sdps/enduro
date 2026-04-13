@@ -574,13 +574,15 @@ func (s *serviceImpl) CreateLocation(
 	UUID := uuid.Must(uuid.NewRandomFromReader(s.rander))
 
 	var config types.LocationConfig
-	switch c := payload.Config.(type) {
-	case *goastorage.URLConfig:
+	switch payload.Config.Kind() {
+	case goastorage.ConfigKindURL:
+		c, _ := payload.Config.AsURL()
 		config.Value = c.ConvertToURLConfig()
-	case *goastorage.S3Config:
+	case goastorage.ConfigKindS3:
+		c, _ := payload.Config.AsS3()
 		config.Value = c.ConvertToS3Config()
 	default:
-		return nil, fmt.Errorf("unsupported config type: %T", c)
+		return nil, fmt.Errorf("unsupported config type: %s", payload.Config.Kind())
 	}
 
 	if !config.Value.Valid() {
