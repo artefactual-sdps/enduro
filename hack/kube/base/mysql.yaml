@@ -37,6 +37,38 @@ spec:
               value: enduro
           ports:
             - containerPort: 3306
+          startupProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - >-
+                  mysqladmin ping -h 127.0.0.1 -uroot
+                  -p"$MYSQL_ROOT_PASSWORD"
+            periodSeconds: 5
+            failureThreshold: 24
+          readinessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - >-
+                  mysqladmin ping -h 127.0.0.1 -uroot
+                  -p"$MYSQL_ROOT_PASSWORD"
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 6
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - -c
+                - >-
+                  mysqladmin ping -h 127.0.0.1 -uroot
+                  -p"$MYSQL_ROOT_PASSWORD"
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
           volumeMounts:
             - name: mysql-initdb
               mountPath: /docker-entrypoint-initdb.d
