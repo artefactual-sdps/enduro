@@ -1,6 +1,10 @@
 version_settings(constraint=">=0.35.0")
 secret_settings(disable_scrub=True)
-ci_settings(timeout="10m", readiness_timeout="10m")
+ci_settings(
+  timeout="10m",
+  readiness_timeout="10m",
+  k8s_grace_period="2m",
+)
 load("ext://uibutton", "cmd_button", "text_input")
 load('ext://dotenv', 'dotenv')
 
