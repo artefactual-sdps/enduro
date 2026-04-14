@@ -11,7 +11,7 @@ verbosity = 2
 
 [temporal]
 namespace = "default"
-address = "temporal.enduro-sdps:7233"
+address = "temporal-frontend.enduro-sdps:7233"
 taskQueue = "global"
 
 [internalapi]

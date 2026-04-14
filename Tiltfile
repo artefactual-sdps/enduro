@@ -112,13 +112,14 @@ k8s_resource(
   labels=["Enduro"],
   port_forwards=["9000:9000", "9002:9002"],
   trigger_mode=trigger_mode,
-  resource_deps=["temporal"],
+  resource_deps=["temporal-schema-1-0-0-1"],
 )
 k8s_resource(
   "enduro-dashboard",
   labels=["Enduro"],
   port_forwards="8080:80",
-  trigger_mode=trigger_mode
+  trigger_mode=trigger_mode,
+  resource_deps=["enduro"],
 )
 
 if PRES_SYS == 'am':
@@ -131,15 +132,52 @@ if PRES_SYS == 'am':
     "enduro-am",
     labels=["Enduro"],
     trigger_mode=trigger_mode,
-    resource_deps=["temporal", "ambox"],
+    resource_deps=["temporal-schema-1-0-0-1", "ambox"],
   )
 else:
   k8s_resource(
     "enduro-a3m",
     labels=["Enduro"],
     trigger_mode=trigger_mode,
-    resource_deps=["temporal"],
+    resource_deps=["temporal-schema-1-0-0-1"],
   )
+
+# Temporal resources
+k8s_resource(
+  "temporal-schema-1-0-0-1",
+  labels=["Temporal"],
+  resource_deps=["mysql"],
+)
+k8s_resource(
+  "temporal-admintools",
+  labels=["Temporal"],
+)
+k8s_resource(
+  "temporal-frontend",
+  labels=["Temporal"],
+  resource_deps=["mysql"],
+)
+k8s_resource(
+  "temporal-history",
+  labels=["Temporal"],
+  resource_deps=["temporal-schema-1-0-0-1"],
+)
+k8s_resource(
+  "temporal-matching",
+  labels=["Temporal"],
+  resource_deps=["temporal-schema-1-0-0-1"],
+)
+k8s_resource(
+  "temporal-worker",
+  labels=["Temporal"],
+  resource_deps=["temporal-schema-1-0-0-1"],
+)
+k8s_resource(
+  "temporal-web",
+  labels=["Temporal"],
+  port_forwards=["7440:8080"],
+  resource_deps=["temporal-schema-1-0-0-1", "keycloak"],
+)
 
 # Other resources
 k8s_resource("keycloak", labels=["Others"], port_forwards="7470")
@@ -150,8 +188,6 @@ k8s_resource(
   port_forwards=["7460:9001", "0.0.0.0:7461:9000"]
 )
 k8s_resource("redis", labels=["Others"])
-k8s_resource("temporal", labels=["Others"], resource_deps=["mysql"])
-k8s_resource("temporal-ui", labels=["Others"], port_forwards="7440:8080")
 
 # Tools
 k8s_resource("minio-setup-buckets", labels=["Tools"], resource_deps=["minio"])

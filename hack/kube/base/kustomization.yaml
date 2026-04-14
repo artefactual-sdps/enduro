@@ -12,5 +12,4 @@ resources:
   - role.yaml
   - role-binding.yaml
   - service-account.yaml
-  - temporal-ui.yaml
   - temporal.yaml

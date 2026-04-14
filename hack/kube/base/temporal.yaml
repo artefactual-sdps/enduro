@@ -1,107 +1,1156 @@
+---
+# Source: temporal/templates/server-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "temporal-config"
+  labels:
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+data:
+  config_template.yaml: |-
+    # enable-template
+    log:
+      stdout: true
+      level: "debug,info"
+
+    persistence:
+      datastores:
+        default:
+          sql:
+            connectAddr: mysql.enduro-sdps:3306
+            connectProtocol: tcp
+            databaseName: temporal
+            password: {{ env "TEMPORAL_DEFAULT_STORE_PASSWORD" | quote }}
+            pluginName: mysql8
+            user: enduro
+        visibility:
+          sql:
+            connectAddr: mysql.enduro-sdps:3306
+            connectProtocol: tcp
+            databaseName: temporal_visibility
+            password: {{ env "TEMPORAL_VISIBILITY_STORE_PASSWORD" | quote }}
+            pluginName: mysql8
+            user: enduro
+      defaultStore: default
+      numHistoryShards: 512
+      visibilityStore: visibility
+
+    global:
+      membership:
+        name: temporal
+        maxJoinDuration: 30s
+        broadcastAddress: {{ env "POD_IP" | quote }}
+
+      pprof:
+        port: 7936
+
+      metrics:
+        tags:
+          type: {{ env "TEMPORAL_SERVICES" | quote }}
+        prometheus:
+          listenAddress: 0.0.0.0:9090
+          timerType: histogram
+
+    services:
+      frontend:
+        rpc:
+          grpcPort: 7233
+          httpPort: 7243
+          membershipPort: 6933
+          bindOnIP: "0.0.0.0"
+
+      history:
+        rpc:
+          grpcPort: 7234
+          membershipPort: 6934
+          bindOnIP: "0.0.0.0"
+
+      matching:
+        rpc:
+          grpcPort: 7235
+          membershipPort: 6935
+          bindOnIP: "0.0.0.0"
+
+      worker:
+        rpc:
+          membershipPort: 6939
+          bindOnIP: "0.0.0.0"
+
+    clusterMetadata:
+      enableGlobalNamespace: false
+      failoverVersionIncrement: 10
+      masterClusterName: "active"
+      currentClusterName: "active"
+      clusterInformation:
+        active:
+          enabled: true
+          initialFailoverVersion: 1
+          rpcName: "temporal-frontend"
+          rpcAddress: "127.0.0.1:7233"
+          httpAddress: "127.0.0.1:7243"
+
+    dcRedirectionPolicy:
+      policy: "noop"
+      toDC: ""
+
+    archival:
+      status: "disabled"
+    publicClient:
+      hostPort: "temporal-frontend:7233"
+
+    dynamicConfigClient:
+      filepath: "/etc/temporal/dynamic_config/dynamic_config.yaml"
+      pollInterval: "10s"
+---
+# Source: temporal/templates/server-dynamicconfigmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "temporal-dynamic-config"
+  labels:
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+data:
+  dynamic_config.yaml: |-
+---
+# Source: temporal/templates/server-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-frontend
+  labels:
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+spec:
+  type: ClusterIP
+  ports:
+    - port: 7233
+      targetPort: rpc
+      # For Istio service mesh - make sure all ports are defined here and in the deployment:
+      # Also for Istio - make sure to set the `appProtocol` property, see:
+      # https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/#explicit-protocol-selection
+      # Note when two services expose the same port, it is necessary that the appProtocol of both is the same.
+      appProtocol: tcp
+      protocol: TCP
+      name: grpc-rpc
+    - port: 7243
+      targetPort: http
+      appProtocol: http
+      protocol: TCP
+      name: http
+      # TODO: Allow customizing the node HTTP port
+  selector:
+    app.kubernetes.io/name: temporal
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/component: frontend
+---
+# Source: temporal/templates/server-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-frontend-headless
+  labels:
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+    app.kubernetes.io/headless: 'true'
+  annotations:
+    # Use this annotation in addition to the actual field below because the
+    # annotation will stop being respected soon but the field is broken in
+    # some versions of Kubernetes:
+    # https://github.com/kubernetes/kubernetes/issues/58662
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    prometheus.io/job: temporal-frontend
+    prometheus.io/scrape: 'true'
+    prometheus.io/scheme: http
+    prometheus.io/port: "9090"
+
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  # For Istio service mesh - make sure all ports are defined here and in the deployment:
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+  # Also for Istio - make sure to set the `appProtocol` property, see:
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/#explicit-protocol-selection
+  # Note that only the monitoring port is used for discovery (by prometheus).
+  # The other ports are listed here solely to allow Istio to configure itself to intercept traffic.
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+  ports:
+    - port: 7233
+      targetPort: rpc
+      appProtocol: tcp
+      protocol: TCP
+      name: grpc-rpc
+    - port: 6933
+      targetPort: membership
+      appProtocol: tcp
+      protocol: TCP
+      name: grpc-membership
+    - port: 9090
+      targetPort: metrics
+      appProtocol: http
+      protocol: TCP
+      name: metrics
+  selector:
+    app.kubernetes.io/name: temporal
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/component: frontend
+---
+# Source: temporal/templates/server-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-matching-headless
+  labels:
+    app.kubernetes.io/component: matching
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+    app.kubernetes.io/headless: 'true'
+  annotations:
+    # Use this annotation in addition to the actual field below because the
+    # annotation will stop being respected soon but the field is broken in
+    # some versions of Kubernetes:
+    # https://github.com/kubernetes/kubernetes/issues/58662
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    prometheus.io/job: temporal-matching
+    prometheus.io/scrape: 'true'
+    prometheus.io/scheme: http
+    prometheus.io/port: "9090"
+
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  # For Istio service mesh - make sure all ports are defined here and in the deployment:
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+  # Also for Istio - make sure to set the `appProtocol` property, see:
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/#explicit-protocol-selection
+  # Note that only the monitoring port is used for discovery (by prometheus).
+  # The other ports are listed here solely to allow Istio to configure itself to intercept traffic.
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+  ports:
+    - port: 7235
+      targetPort: rpc
+      appProtocol: tcp
+      protocol: TCP
+      name: grpc-rpc
+    - port: 6935
+      targetPort: membership
+      appProtocol: tcp
+      protocol: TCP
+      name: grpc-membership
+    - port: 9090
+      targetPort: metrics
+      appProtocol: http
+      protocol: TCP
+      name: metrics
+  selector:
+    app.kubernetes.io/name: temporal
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/component: matching
+---
+# Source: temporal/templates/server-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-history-headless
+  labels:
+    app.kubernetes.io/component: history
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+    app.kubernetes.io/headless: 'true'
+  annotations:
+    # Use this annotation in addition to the actual field below because the
+    # annotation will stop being respected soon but the field is broken in
+    # some versions of Kubernetes:
+    # https://github.com/kubernetes/kubernetes/issues/58662
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    prometheus.io/job: temporal-history
+    prometheus.io/scrape: 'true'
+    prometheus.io/scheme: http
+    prometheus.io/port: "9090"
+
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  # For Istio service mesh - make sure all ports are defined here and in the deployment:
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+  # Also for Istio - make sure to set the `appProtocol` property, see:
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/#explicit-protocol-selection
+  # Note that only the monitoring port is used for discovery (by prometheus).
+  # The other ports are listed here solely to allow Istio to configure itself to intercept traffic.
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+  ports:
+    - port: 7234
+      targetPort: rpc
+      appProtocol: tcp
+      protocol: TCP
+      name: grpc-rpc
+    - port: 6934
+      targetPort: membership
+      appProtocol: tcp
+      protocol: TCP
+      name: grpc-membership
+    - port: 9090
+      targetPort: metrics
+      appProtocol: http
+      protocol: TCP
+      name: metrics
+  selector:
+    app.kubernetes.io/name: temporal
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/component: history
+---
+# Source: temporal/templates/server-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-worker-headless
+  labels:
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+    app.kubernetes.io/headless: 'true'
+  annotations:
+    # Use this annotation in addition to the actual field below because the
+    # annotation will stop being respected soon but the field is broken in
+    # some versions of Kubernetes:
+    # https://github.com/kubernetes/kubernetes/issues/58662
+    service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
+    prometheus.io/job: temporal-worker
+    prometheus.io/scrape: 'true'
+    prometheus.io/scheme: http
+    prometheus.io/port: "9090"
+
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  # For Istio service mesh - make sure all ports are defined here and in the deployment:
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+  # Also for Istio - make sure to set the `appProtocol` property, see:
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/protocol-selection/#explicit-protocol-selection
+  # Note that only the monitoring port is used for discovery (by prometheus).
+  # The other ports are listed here solely to allow Istio to configure itself to intercept traffic.
+  # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+  ports:
+    - port: 7239
+      targetPort: rpc
+      appProtocol: tcp
+      protocol: TCP
+      name: grpc-rpc
+    - port: 6939
+      targetPort: membership
+      appProtocol: tcp
+      protocol: TCP
+      name: grpc-membership
+    - port: 9090
+      targetPort: metrics
+      appProtocol: http
+      protocol: TCP
+      name: metrics
+  selector:
+    app.kubernetes.io/name: temporal
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/component: worker
+---
+# Source: temporal/templates/web-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-web
+  labels:
+    app.kubernetes.io/component: web
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8080
+      targetPort: http
+      protocol: TCP
+      appProtocol: http
+      name: http
+  selector:
+    app.kubernetes.io/name: temporal
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/component: web
+---
+# Source: temporal/templates/admintools-deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: temporal
+  name: temporal-admintools
+  annotations:
+    
   labels:
-    app: temporal
+    app.kubernetes.io/component: admintools
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
 spec:
+  replicas: 1
   selector:
     matchLabels:
-      app: temporal
+      app.kubernetes.io/name: temporal
+      app.kubernetes.io/instance: temporal
+      app.kubernetes.io/component: admintools
   template:
     metadata:
+      annotations:
+        
       labels:
-        app: temporal
+        app.kubernetes.io/component: admintools
+        app.kubernetes.io/name: temporal
+        helm.sh/chart: temporal-1.0.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: temporal
+        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/part-of: temporal
     spec:
-      serviceAccountName: sdps
+      serviceAccountName: default
       containers:
-        - name: temporal
-          image: temporalio/auto-setup:1.26.2
+        - name: admin-tools
+          image: "temporalio/admin-tools:1.30.4"
+          imagePullPolicy: IfNotPresent
           env:
-            - name: DB
-              value: mysql8
-            - name: DB_PORT
-              value: "3306"
-            - name: MYSQL_USER
+            # TEMPORAL_CLI_ADDRESS is deprecated, use TEMPORAL_ADDRESS instead
+            - name: TEMPORAL_CLI_ADDRESS
+              value: temporal-frontend:7233
+            - name: TEMPORAL_ADDRESS
+              value: temporal-frontend:7233
+          livenessProbe:
+              exec:
+                command:
+                - ls
+                - /
+              initialDelaySeconds: 5
+              periodSeconds: 5
+---
+# Source: temporal/templates/server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-frontend
+  annotations:
+    
+  labels:
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal
+      app.kubernetes.io/instance: temporal
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      annotations:
+        checksum/config: 4836bb40e07e68b25a72dba2df8a8c10a504532ced66f00709d5ec163a5cb0b0
+        prometheus.io/job: temporal-frontend
+        prometheus.io/scrape: 'true'
+        prometheus.io/scheme: http
+        prometheus.io/port: '9090'
+        
+      labels:
+        app.kubernetes.io/component: frontend
+        app.kubernetes.io/name: temporal
+        helm.sh/chart: temporal-1.0.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: temporal
+        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/part-of: temporal
+    spec:
+      serviceAccountName: default
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      containers:
+        - name: temporal-frontend
+          image: "temporalio/server:1.30.4"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: SERVICES
+              value: frontend
+            - name: TEMPORAL_SERVICES
+              value: frontend
+            - name: TEMPORAL_SERVER_CONFIG_FILE_PATH
+              value: /etc/temporal/config/config_template.yaml
+            - name: TEMPORAL_DEFAULT_STORE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: mysql-secret
-                  key: user
+                  key: password
+            - name: TEMPORAL_VISIBILITY_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+          # For Istio service mesh - make sure ports are defined here and in the headless service, see:
+          # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+          ports:
+            - name: rpc
+              containerPort: 7233
+              protocol: TCP
+            - name: membership
+              containerPort: 6933
+              protocol: TCP
+            - name: http
+              containerPort: 7243
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 150
+            tcpSocket:
+              port: rpc
+          readinessProbe:
+            grpc:
+              port: 7233
+              service: temporal.api.workflowservice.v1.WorkflowService
+          volumeMounts:
+            - name: config
+              mountPath: /etc/temporal/config/config_template.yaml
+              subPath: config_template.yaml
+            - name: dynamic-config
+              mountPath: /etc/temporal/dynamic_config
+          resources:
+            {}
+      volumes:
+        - name: config
+          configMap:
+            name: "temporal-config"
+        - name: dynamic-config
+          configMap:
+            name: "temporal-dynamic-config"
+            items:
+            - key: dynamic_config.yaml
+              path: dynamic_config.yaml
+      terminationGracePeriodSeconds:
+---
+# Source: temporal/templates/server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-history
+  annotations:
+    
+  labels:
+    app.kubernetes.io/component: history
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal
+      app.kubernetes.io/instance: temporal
+      app.kubernetes.io/component: history
+  template:
+    metadata:
+      annotations:
+        checksum/config: 4836bb40e07e68b25a72dba2df8a8c10a504532ced66f00709d5ec163a5cb0b0
+        prometheus.io/job: temporal-history
+        prometheus.io/scrape: 'true'
+        prometheus.io/scheme: http
+        prometheus.io/port: '9090'
+        
+      labels:
+        app.kubernetes.io/component: history
+        app.kubernetes.io/name: temporal
+        helm.sh/chart: temporal-1.0.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: temporal
+        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/part-of: temporal
+    spec:
+      serviceAccountName: default
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      containers:
+        - name: temporal-history
+          image: "temporalio/server:1.30.4"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: SERVICES
+              value: history
+            - name: TEMPORAL_SERVICES
+              value: history
+            - name: TEMPORAL_SERVER_CONFIG_FILE_PATH
+              value: /etc/temporal/config/config_template.yaml
+            - name: TEMPORAL_DEFAULT_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            - name: TEMPORAL_VISIBILITY_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+          # For Istio service mesh - make sure ports are defined here and in the headless service, see:
+          # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+          ports:
+            - name: rpc
+              containerPort: 7234
+              protocol: TCP
+            - name: membership
+              containerPort: 6934
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 150
+            tcpSocket:
+              port: rpc
+          volumeMounts:
+            - name: config
+              mountPath: /etc/temporal/config/config_template.yaml
+              subPath: config_template.yaml
+            - name: dynamic-config
+              mountPath: /etc/temporal/dynamic_config
+          resources:
+            {}
+      volumes:
+        - name: config
+          configMap:
+            name: "temporal-config"
+        - name: dynamic-config
+          configMap:
+            name: "temporal-dynamic-config"
+            items:
+            - key: dynamic_config.yaml
+              path: dynamic_config.yaml
+      terminationGracePeriodSeconds:
+---
+# Source: temporal/templates/server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-matching
+  annotations:
+    
+  labels:
+    app.kubernetes.io/component: matching
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal
+      app.kubernetes.io/instance: temporal
+      app.kubernetes.io/component: matching
+  template:
+    metadata:
+      annotations:
+        checksum/config: 4836bb40e07e68b25a72dba2df8a8c10a504532ced66f00709d5ec163a5cb0b0
+        prometheus.io/job: temporal-matching
+        prometheus.io/scrape: 'true'
+        prometheus.io/scheme: http
+        prometheus.io/port: '9090'
+        
+      labels:
+        app.kubernetes.io/component: matching
+        app.kubernetes.io/name: temporal
+        helm.sh/chart: temporal-1.0.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: temporal
+        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/part-of: temporal
+    spec:
+      serviceAccountName: default
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      containers:
+        - name: temporal-matching
+          image: "temporalio/server:1.30.4"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: SERVICES
+              value: matching
+            - name: TEMPORAL_SERVICES
+              value: matching
+            - name: TEMPORAL_SERVER_CONFIG_FILE_PATH
+              value: /etc/temporal/config/config_template.yaml
+            - name: TEMPORAL_DEFAULT_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            - name: TEMPORAL_VISIBILITY_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+          # For Istio service mesh - make sure ports are defined here and in the headless service, see:
+          # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+          ports:
+            - name: rpc
+              containerPort: 7235
+              protocol: TCP
+            - name: membership
+              containerPort: 6935
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          livenessProbe:
+            initialDelaySeconds: 150
+            tcpSocket:
+              port: rpc
+          volumeMounts:
+            - name: config
+              mountPath: /etc/temporal/config/config_template.yaml
+              subPath: config_template.yaml
+            - name: dynamic-config
+              mountPath: /etc/temporal/dynamic_config
+          resources:
+            {}
+      volumes:
+        - name: config
+          configMap:
+            name: "temporal-config"
+        - name: dynamic-config
+          configMap:
+            name: "temporal-dynamic-config"
+            items:
+            - key: dynamic_config.yaml
+              path: dynamic_config.yaml
+      terminationGracePeriodSeconds:
+---
+# Source: temporal/templates/server-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-worker
+  annotations:
+    
+  labels:
+    app.kubernetes.io/component: worker
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal
+      app.kubernetes.io/instance: temporal
+      app.kubernetes.io/component: worker
+  template:
+    metadata:
+      annotations:
+        checksum/config: 4836bb40e07e68b25a72dba2df8a8c10a504532ced66f00709d5ec163a5cb0b0
+        prometheus.io/job: temporal-worker
+        prometheus.io/scrape: 'true'
+        prometheus.io/scheme: http
+        prometheus.io/port: '9090'
+        
+      labels:
+        app.kubernetes.io/component: worker
+        app.kubernetes.io/name: temporal
+        helm.sh/chart: temporal-1.0.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: temporal
+        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/part-of: temporal
+    spec:
+      serviceAccountName: default
+      securityContext:
+        fsGroup: 1000
+        runAsUser: 1000
+      containers:
+        - name: temporal-worker
+          image: "temporalio/server:1.30.4"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: SERVICES
+              value: worker
+            - name: TEMPORAL_SERVICES
+              value: worker
+            - name: TEMPORAL_SERVER_CONFIG_FILE_PATH
+              value: /etc/temporal/config/config_template.yaml
+            - name: TEMPORAL_DEFAULT_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            - name: TEMPORAL_VISIBILITY_STORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+          # For Istio service mesh - make sure ports are defined here and in the headless service, see:
+          # https://istio.io/latest/docs/ops/configuration/traffic-management/traffic-routing/#headless-services
+          ports:
+            - name: membership
+              containerPort: 6939
+              protocol: TCP
+            - name: metrics
+              containerPort: 9090
+              protocol: TCP
+          volumeMounts:
+            - name: config
+              mountPath: /etc/temporal/config/config_template.yaml
+              subPath: config_template.yaml
+            - name: dynamic-config
+              mountPath: /etc/temporal/dynamic_config
+          resources:
+            {}
+      volumes:
+        - name: config
+          configMap:
+            name: "temporal-config"
+        - name: dynamic-config
+          configMap:
+            name: "temporal-dynamic-config"
+            items:
+            - key: dynamic_config.yaml
+              path: dynamic_config.yaml
+      terminationGracePeriodSeconds:
+---
+# Source: temporal/templates/web-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-web
+  annotations:
+    
+  labels:
+    app.kubernetes.io/component: web
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal
+      app.kubernetes.io/instance: temporal
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      annotations:
+        
+      labels:
+        app.kubernetes.io/component: web
+        app.kubernetes.io/name: temporal
+        helm.sh/chart: temporal-1.0.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: temporal
+        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/part-of: temporal
+    spec:
+      serviceAccountName: default
+      containers:
+        - name: temporal-web
+          image: "temporalio/ui:2.48.2"
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: TEMPORAL_ADDRESS
+              value: "temporal-frontend.enduro-sdps.svc:7233"
+            - name: TEMPORAL_AUTH_ENABLED
+              value: "true"
+            - name: TEMPORAL_AUTH_PROVIDER_URL
+              value: http://keycloak:7470/realms/artefactual
+            - name: TEMPORAL_AUTH_CLIENT_ID
+              value: temporal
+            - name: TEMPORAL_AUTH_CALLBACK_URL
+              value: http://localhost:7440/auth/sso/callback
+            - name: TEMPORAL_AUTH_SCOPES
+              value: openid,profile,email
+          envFrom:
+            - secretRef:
+                name: temporal-web-secret
+          livenessProbe:
+            initialDelaySeconds: 10
+            tcpSocket:
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 10
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          resources:
+            {}
+---
+# Source: temporal/templates/server-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: temporal-schema-1-0-0-1
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.0.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/part-of: temporal
+spec:
+  backoffLimit: 100
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      name: temporal-schema-1-0-0-1
+      labels:
+        app.kubernetes.io/component: database
+        app.kubernetes.io/name: temporal
+        helm.sh/chart: temporal-1.0.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: temporal
+        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/part-of: temporal
+    spec:
+      serviceAccountName: default
+      restartPolicy: OnFailure
+      initContainers:
+        - name: create-default-store
+          image: "temporalio/admin-tools:1.30.4"
+          imagePullPolicy: IfNotPresent
+          command: ['temporal-sql-tool', 'create-database']
+          env:
+            - name: SQL_PLUGIN
+              value: mysql8
+            - name: SQL_HOST
+              value: mysql.enduro-sdps
+            - name: SQL_PORT
+              value: "3306"
+            - name: SQL_DATABASE
+              value: temporal
+            - name: SQL_USER
+              value: "enduro"
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            # Manual patch start: temporal-sql-tool still reads MYSQL_* in this path.
+            - name: MYSQL_SEEDS
+              value: mysql.enduro-sdps
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_DATABASE
+              value: temporal
+            - name: MYSQL_USER
+              value: "enduro"
             - name: MYSQL_PWD
               valueFrom:
                 secretKeyRef:
                   name: mysql-secret
                   key: password
+            # Manual patch end.
+        - name: manage-schema-default-store
+          image: "temporalio/admin-tools:1.30.4"
+          imagePullPolicy: IfNotPresent
+          command: ['sh', '-c']
+          args:
+            - temporal-sql-tool setup-schema -v 0.0 && temporal-sql-tool update-schema --schema-dir /etc/temporal/schema/mysql/v8/temporal/versioned
+          env:
+            - name: SQL_PLUGIN
+              value: mysql8
+            - name: SQL_HOST
+              value: mysql.enduro-sdps
+            - name: SQL_PORT
+              value: "3306"
+            - name: SQL_DATABASE
+              value: temporal
+            - name: SQL_USER
+              value: "enduro"
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            # Manual patch start: temporal-sql-tool still reads MYSQL_* in this path.
             - name: MYSQL_SEEDS
               value: mysql.enduro-sdps
-            - name: DYNAMIC_CONFIG_FILE_PATH
-              value: config/dynamicconfig/development.yaml
-          ports:
-            - containerPort: 7233
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_DATABASE
+              value: temporal
+            - name: MYSQL_USER
+              value: "enduro"
+            - name: MYSQL_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            # Manual patch end.
           volumeMounts:
-            - name: config
-              mountPath: /etc/temporal/config/dynamicconfig
-              readOnly: true
-          resources: {}
-      volumes:
-        - name: config
-          configMap:
-            name: temporal-configmap
+        - name: create-visibility-store
+          image: "temporalio/admin-tools:1.30.4"
+          imagePullPolicy: IfNotPresent
+          command: ['temporal-sql-tool', 'create-database']
+          env:
+            - name: SQL_PLUGIN
+              value: mysql8
+            - name: SQL_HOST
+              value: mysql.enduro-sdps
+            - name: SQL_PORT
+              value: "3306"
+            - name: SQL_DATABASE
+              value: temporal_visibility
+            - name: SQL_USER
+              value: "enduro"
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            # Manual patch start: temporal-sql-tool still reads MYSQL_* in this path.
+            - name: MYSQL_SEEDS
+              value: mysql.enduro-sdps
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_DATABASE
+              value: temporal_visibility
+            - name: MYSQL_USER
+              value: "enduro"
+            - name: MYSQL_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            # Manual patch end.
+        - name: manage-schema-visibility-store
+          image: "temporalio/admin-tools:1.30.4"
+          imagePullPolicy: IfNotPresent
+          command: ['sh', '-c']
+          args:
+            - temporal-sql-tool setup-schema -v 0.0 && temporal-sql-tool update-schema --schema-dir /etc/temporal/schema/mysql/v8/visibility/versioned
+          env:
+            - name: SQL_PLUGIN
+              value: mysql8
+            - name: SQL_HOST
+              value: mysql.enduro-sdps
+            - name: SQL_PORT
+              value: "3306"
+            - name: SQL_DATABASE
+              value: temporal_visibility
+            - name: SQL_USER
+              value: "enduro"
+            - name: SQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            # Manual patch start: temporal-sql-tool still reads MYSQL_* in this path.
+            - name: MYSQL_SEEDS
+              value: mysql.enduro-sdps
+            - name: MYSQL_PORT
+              value: "3306"
+            - name: MYSQL_DATABASE
+              value: temporal_visibility
+            - name: MYSQL_USER
+              value: "enduro"
+            - name: MYSQL_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            # Manual patch end.
+          volumeMounts:
+        - name: create-default-namespace
+          image: "temporalio/admin-tools:1.30.4"
+          imagePullPolicy: IfNotPresent
+          command: ['/bin/sh','-c']
+          args: ['temporal operator namespace describe -n default || temporal operator namespace create -n default --retention 3d']
+          env:
+            - name: TEMPORAL_ADDRESS
+              value: "temporal-frontend.enduro-sdps.svc:7233"
+      containers:
+        - name: done
+          image: "temporalio/admin-tools:1.30.4"
+          imagePullPolicy: IfNotPresent
+          command: ['sh', '-c', 'echo "Store setup completed"']
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  name: temporal
-  labels:
-    app: temporal
-spec:
-  selector:
-    app: temporal
-  ports:
-    - port: 7233
+# Source: temporal/templates/server-pdb.yaml
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: temporal-configmap
-data:
-  development.yaml: |
-    frontend.enableClientVersionCheck:
-    - value: true
-      constraints: {}
-    history.persistenceMaxQPS:
-    - value: 3000
-      constraints: {}
-    frontend.persistenceMaxQPS:
-    - value: 3000
-      constraints: {}
-    frontend.historyMgrNumConns:
-    - value: 10
-      constraints: {}
-    frontend.throttledLogRPS:
-    - value: 20
-      constraints: {}
-    history.historyMgrNumConns:
-    - value: 50
-      constraints: {}
-    history.defaultActivityRetryPolicy:
-    - value:
-        InitialIntervalInSeconds: 1
-        MaximumIntervalCoefficient: 100.0
-        BackoffCoefficient: 2.0
-        MaximumAttempts: 0
-    history.defaultWorkflowRetryPolicy:
-    - value:
-        InitialIntervalInSeconds: 1
-        MaximumIntervalCoefficient: 100.0
-        BackoffCoefficient: 2.0
-        MaximumAttempts: 0
-    system.advancedVisibilityWritingMode:
-      - value: "off"
-        constraints: {}
-    limit.maxIDLength:
-      - value: 255
-        constraints: {}
-    system.forceSearchAttributesCacheRefreshOnRead:
-      - value: true # Dev setup only. Please don't turn this on in production.
-        constraints: {}
+---
+# Source: temporal/templates/server-pdb.yaml
+---
