@@ -81,7 +81,7 @@ platformdirs==4.5.1
     #   virtualenv
 pre-commit==4.5.1
     # via -r requirements.in
-pygments==2.19.2
+pygments==2.20.0
     # via mkdocs-material
 pymdown-extensions==10.20
     # via mkdocs-material
