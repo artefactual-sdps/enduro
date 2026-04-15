@@ -79,9 +79,7 @@ export default defineConfig({
   css: {
     preprocessorOptions: {
       scss: {
-        // Bootstrap v5.3 still emits Sass deprecations, but the modern API
-        // works once the injected import uses a root-resolved path.
-        api: "modern",
+        // Bootstrap v5.3 still emits Sass deprecations.
         additionalData: `@import "/src/styles/bootstrap-base.scss";`,
         silenceDeprecations: [
           "color-functions",
