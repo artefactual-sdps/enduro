@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"strings"
 	"time"
 
 	"github.com/XSAM/otelsql"
@@ -33,7 +34,8 @@ type migrateLogger struct {
 }
 
 func (l *migrateLogger) Printf(format string, a ...any) {
-	l.logger.V(2).Info(fmt.Sprintf(format, a...))
+	msg := strings.TrimRight(fmt.Sprintf(format, a...), "\r\n")
+	l.logger.V(2).Info(msg)
 }
 
 func (l *migrateLogger) Verbose() bool {
