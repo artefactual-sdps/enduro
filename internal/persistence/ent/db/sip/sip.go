@@ -38,6 +38,8 @@ const (
 	FieldUploaderID = "uploader_id"
 	// FieldBatchID holds the string denoting the batch_id field in the database.
 	FieldBatchID = "batch_id"
+	// FieldFileCount holds the string denoting the file_count field in the database.
+	FieldFileCount = "file_count"
 	// EdgeWorkflows holds the string denoting the workflows edge name in mutations.
 	EdgeWorkflows = "workflows"
 	// EdgeUploader holds the string denoting the uploader edge name in mutations.
@@ -83,6 +85,7 @@ var Columns = []string{
 	FieldFailedKey,
 	FieldUploaderID,
 	FieldBatchID,
+	FieldFileCount,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -102,6 +105,8 @@ var (
 	UploaderIDValidator func(int) error
 	// BatchIDValidator is a validator for the "batch_id" field. It is called by the builders before save.
 	BatchIDValidator func(int) error
+	// FileCountValidator is a validator for the "file_count" field. It is called by the builders before save.
+	FileCountValidator func(int32) error
 )
 
 // StatusValidator is a validator for the "status" field enum values. It is called by the builders before save.
@@ -185,6 +190,11 @@ func ByUploaderID(opts ...sql.OrderTermOption) OrderOption {
 // ByBatchID orders the results by the batch_id field.
 func ByBatchID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldBatchID, opts...).ToFunc()
+}
+
+// ByFileCount orders the results by the file_count field.
+func ByFileCount(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFileCount, opts...).ToFunc()
 }
 
 // ByWorkflowsCount orders the results by workflows count.

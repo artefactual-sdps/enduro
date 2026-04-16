@@ -52,6 +52,9 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	if !s.CompletedAt.IsZero() {
 		q.SetCompletedAt(s.CompletedAt)
 	}
+	if s.FileCount > 0 {
+		q.SetFileCount(s.FileCount)
+	}
 
 	// If Uploader is set, find or create the user and link it to the SIP.
 	if s.Uploader != nil {
@@ -138,9 +141,10 @@ func (c *client) UpdateSIP(
 	}
 
 	// Save the updated SIP data to the database.
-	q := tx.SIP.UpdateOneID(dbID).SetName(up.Name)
+	q := tx.SIP.UpdateOneID(dbID).
+		SetName(up.Name)
 
-	// Validate columns.
+	// Set status if the value is valid.
 	if up.Status.IsValid() {
 		q.SetStatus(up.Status)
 	}
@@ -160,6 +164,9 @@ func (c *client) UpdateSIP(
 	}
 	if up.FailedKey != "" {
 		q.SetFailedKey(up.FailedKey)
+	}
+	if up.FileCount > 0 {
+		q.SetFileCount(up.FileCount)
 	}
 
 	// Save changes.

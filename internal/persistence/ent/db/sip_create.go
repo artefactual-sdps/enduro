@@ -157,6 +157,20 @@ func (_c *SIPCreate) SetNillableBatchID(v *int) *SIPCreate {
 	return _c
 }
 
+// SetFileCount sets the "file_count" field.
+func (_c *SIPCreate) SetFileCount(v int32) *SIPCreate {
+	_c.mutation.SetFileCount(v)
+	return _c
+}
+
+// SetNillableFileCount sets the "file_count" field if the given value is not nil.
+func (_c *SIPCreate) SetNillableFileCount(v *int32) *SIPCreate {
+	if v != nil {
+		_c.SetFileCount(*v)
+	}
+	return _c
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (_c *SIPCreate) AddWorkflowIDs(ids ...int) *SIPCreate {
 	_c.mutation.AddWorkflowIDs(ids...)
@@ -257,6 +271,11 @@ func (_c *SIPCreate) check() error {
 			return &ValidationError{Name: "batch_id", err: fmt.Errorf(`db: validator failed for field "SIP.batch_id": %w`, err)}
 		}
 	}
+	if v, ok := _c.mutation.FileCount(); ok {
+		if err := sip.FileCountValidator(v); err != nil {
+			return &ValidationError{Name: "file_count", err: fmt.Errorf(`db: validator failed for field "SIP.file_count": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -319,6 +338,10 @@ func (_c *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.FailedKey(); ok {
 		_spec.SetField(sip.FieldFailedKey, field.TypeString, value)
 		_node.FailedKey = value
+	}
+	if value, ok := _c.mutation.FileCount(); ok {
+		_spec.SetField(sip.FieldFileCount, field.TypeInt32, value)
+		_node.FileCount = value
 	}
 	if nodes := _c.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -572,6 +595,30 @@ func (u *SIPUpsert) ClearBatchID() *SIPUpsert {
 	return u
 }
 
+// SetFileCount sets the "file_count" field.
+func (u *SIPUpsert) SetFileCount(v int32) *SIPUpsert {
+	u.Set(sip.FieldFileCount, v)
+	return u
+}
+
+// UpdateFileCount sets the "file_count" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateFileCount() *SIPUpsert {
+	u.SetExcluded(sip.FieldFileCount)
+	return u
+}
+
+// AddFileCount adds v to the "file_count" field.
+func (u *SIPUpsert) AddFileCount(v int32) *SIPUpsert {
+	u.Add(sip.FieldFileCount, v)
+	return u
+}
+
+// ClearFileCount clears the value of the "file_count" field.
+func (u *SIPUpsert) ClearFileCount() *SIPUpsert {
+	u.SetNull(sip.FieldFileCount)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -792,6 +839,34 @@ func (u *SIPUpsertOne) UpdateBatchID() *SIPUpsertOne {
 func (u *SIPUpsertOne) ClearBatchID() *SIPUpsertOne {
 	return u.Update(func(s *SIPUpsert) {
 		s.ClearBatchID()
+	})
+}
+
+// SetFileCount sets the "file_count" field.
+func (u *SIPUpsertOne) SetFileCount(v int32) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetFileCount(v)
+	})
+}
+
+// AddFileCount adds v to the "file_count" field.
+func (u *SIPUpsertOne) AddFileCount(v int32) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.AddFileCount(v)
+	})
+}
+
+// UpdateFileCount sets the "file_count" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateFileCount() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateFileCount()
+	})
+}
+
+// ClearFileCount clears the value of the "file_count" field.
+func (u *SIPUpsertOne) ClearFileCount() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearFileCount()
 	})
 }
 
@@ -1181,6 +1256,34 @@ func (u *SIPUpsertBulk) UpdateBatchID() *SIPUpsertBulk {
 func (u *SIPUpsertBulk) ClearBatchID() *SIPUpsertBulk {
 	return u.Update(func(s *SIPUpsert) {
 		s.ClearBatchID()
+	})
+}
+
+// SetFileCount sets the "file_count" field.
+func (u *SIPUpsertBulk) SetFileCount(v int32) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetFileCount(v)
+	})
+}
+
+// AddFileCount adds v to the "file_count" field.
+func (u *SIPUpsertBulk) AddFileCount(v int32) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.AddFileCount(v)
+	})
+}
+
+// UpdateFileCount sets the "file_count" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateFileCount() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateFileCount()
+	})
+}
+
+// ClearFileCount clears the value of the "file_count" field.
+func (u *SIPUpsertBulk) ClearFileCount() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearFileCount()
 	})
 }
 

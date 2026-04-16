@@ -45,6 +45,7 @@ func TestCreateSIP(t *testing.T) {
 				Status:      enums.SIPStatusProcessing,
 				StartedAt:   started,
 				CompletedAt: completed,
+				FileCount:   8,
 			},
 			want: &datatypes.SIP{
 				ID:          1,
@@ -55,6 +56,7 @@ func TestCreateSIP(t *testing.T) {
 				CreatedAt:   time.Now(),
 				StartedAt:   started,
 				CompletedAt: completed,
+				FileCount:   8,
 			},
 		},
 		{
@@ -265,6 +267,7 @@ func TestUpdateSIP(t *testing.T) {
 						SIPSCount:  5,
 						CreatedAt:  time.Now(),
 					},
+					FileCount: 0,
 				},
 				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
 					s.ID = 100        // No-op, can't update ID.
@@ -278,6 +281,7 @@ func TestUpdateSIP(t *testing.T) {
 					s.FailedAs = enums.SIPFailedAsSIP
 					s.FailedKey = "failed-key"
 					s.Uploader = &datatypes.User{UUID: uuid.New()} // No-op, can't update Uploader.
+					s.FileCount = 8
 					return s, nil
 				},
 			},
@@ -308,6 +312,7 @@ func TestUpdateSIP(t *testing.T) {
 					SIPSCount:  5,
 					CreatedAt:  time.Now(),
 				},
+				FileCount: 8,
 			},
 		},
 		{
@@ -320,6 +325,7 @@ func TestUpdateSIP(t *testing.T) {
 					AIPID:     aipID,
 					Status:    enums.SIPStatusProcessing,
 					StartedAt: started,
+					FileCount: 0,
 				},
 				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
 					// Immutable.
@@ -328,6 +334,7 @@ func TestUpdateSIP(t *testing.T) {
 					// Mutable.
 					s.Status = enums.SIPStatusIngested
 					s.CompletedAt = completed
+					s.FileCount = 8
 
 					return s, nil
 				},
@@ -341,6 +348,7 @@ func TestUpdateSIP(t *testing.T) {
 				CreatedAt:   time.Now(),
 				StartedAt:   started,
 				CompletedAt: completed,
+				FileCount:   8,
 			},
 		},
 		{
@@ -524,6 +532,7 @@ func TestReadSIP(t *testing.T) {
 					SIPSCount:  5,
 					CreatedAt:  time.Now(),
 				},
+				FileCount: 8,
 			},
 		},
 		{
@@ -559,6 +568,7 @@ func TestReadSIP(t *testing.T) {
 					SetFailedKey(tt.want.FailedKey).
 					SetUploader(user).
 					SetBatchID(tt.want.Batch.ID).
+					SetFileCount(8).
 					Save(ctx)
 				assert.NilError(t, err)
 			}
@@ -620,6 +630,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
+					FileCount:   3,
 				},
 				{
 					UUID:        sipUUID2,
@@ -636,6 +647,7 @@ func TestListSIPs(t *testing.T) {
 						OIDCIss:   "https://example.com/oidc",
 						OIDCSub:   "1234567890",
 					},
+					FileCount: 6,
 				},
 				{
 					UUID:        sipUUID3,
@@ -645,6 +657,7 @@ func TestListSIPs(t *testing.T) {
 					CompletedAt: completed2,
 					FailedAs:    enums.SIPFailedAsPIP,
 					FailedKey:   "failed-key",
+					FileCount:   9,
 				},
 			},
 			want: results{
@@ -658,6 +671,7 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
 						CompletedAt: completed,
+						FileCount:   3,
 					},
 					{
 						ID:          2,
@@ -676,6 +690,7 @@ func TestListSIPs(t *testing.T) {
 							OIDCIss:   "https://example.com/oidc",
 							OIDCSub:   "1234567890",
 						},
+						FileCount: 6,
 					},
 					{
 						ID:          3,
@@ -687,6 +702,7 @@ func TestListSIPs(t *testing.T) {
 						CompletedAt: completed2,
 						FailedAs:    enums.SIPFailedAsPIP,
 						FailedKey:   "failed-key",
+						FileCount:   9,
 					},
 				},
 				page: &persistence.Page{
@@ -705,6 +721,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
+					FileCount:   3,
 				},
 				{
 					UUID:        sipUUID2,
@@ -713,6 +730,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
+					FileCount:   6,
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
@@ -729,6 +747,7 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
 						CompletedAt: completed,
+						FileCount:   3,
 					},
 				},
 				page: &persistence.Page{
@@ -763,6 +782,7 @@ func TestListSIPs(t *testing.T) {
 						OIDCIss:   "https://example.com/oidc",
 						OIDCSub:   "1234567890",
 					},
+					FileCount: 6,
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
@@ -787,6 +807,7 @@ func TestListSIPs(t *testing.T) {
 							OIDCIss:   "https://example.com/oidc",
 							OIDCSub:   "1234567890",
 						},
+						FileCount: 6,
 					},
 				},
 				page: &persistence.Page{
@@ -806,6 +827,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
+					FileCount:   3,
 				},
 				{
 					UUID:        sipUUID2,
@@ -814,6 +836,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
+					FileCount:   6,
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
@@ -830,6 +853,7 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
+						FileCount:   6,
 					},
 				},
 				page: &persistence.Page{
@@ -848,6 +872,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
+					FileCount:   3,
 				},
 				{
 					UUID:        sipUUID2,
@@ -856,6 +881,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
+					FileCount:   6,
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
@@ -872,6 +898,7 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
+						FileCount:   6,
 					},
 				},
 				page: &persistence.Page{
@@ -890,6 +917,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
+					FileCount:   3,
 				},
 				{
 					UUID:        sipUUID2,
@@ -898,6 +926,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
+					FileCount:   6,
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
@@ -914,6 +943,7 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
+						FileCount:   6,
 					},
 				},
 				page: &persistence.Page{
@@ -932,6 +962,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusIngested,
 					StartedAt:   started,
 					CompletedAt: completed,
+					FileCount:   3,
 				},
 				{
 					UUID:        sipUUID2,
@@ -940,6 +971,7 @@ func TestListSIPs(t *testing.T) {
 					Status:      enums.SIPStatusProcessing,
 					StartedAt:   started2,
 					CompletedAt: completed2,
+					FileCount:   6,
 				},
 			},
 			sipFilter: &persistence.SIPFilter{
@@ -965,6 +997,7 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started,
 						CompletedAt: completed,
+						FileCount:   3,
 					},
 					{
 						ID:          2,
@@ -975,6 +1008,7 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   time.Now(),
 						StartedAt:   started2,
 						CompletedAt: completed2,
+						FileCount:   6,
 					},
 				},
 				page: &persistence.Page{
@@ -1170,7 +1204,8 @@ func TestListSIPs(t *testing.T) {
 						SetStatus(sip.Status).
 						SetCreatedAt(time.Now()).
 						SetStartedAt(sip.StartedAt).
-						SetCompletedAt(sip.CompletedAt)
+						SetCompletedAt(sip.CompletedAt).
+						SetFileCount(sip.FileCount)
 
 					if sip.AIPID.Valid {
 						q.SetAipID(sip.AIPID.UUID)

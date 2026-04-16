@@ -102,6 +102,11 @@ func BatchID(v int) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldBatchID, v))
 }
 
+// FileCount applies equality check predicate on the "file_count" field. It's identical to FileCountEQ.
+func FileCount(v int32) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldFileCount, v))
+}
+
 // UUIDEQ applies the EQ predicate on the "uuid" field.
 func UUIDEQ(v uuid.UUID) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldUUID, v))
@@ -600,6 +605,56 @@ func BatchIDIsNil() predicate.SIP {
 // BatchIDNotNil applies the NotNil predicate on the "batch_id" field.
 func BatchIDNotNil() predicate.SIP {
 	return predicate.SIP(sql.FieldNotNull(FieldBatchID))
+}
+
+// FileCountEQ applies the EQ predicate on the "file_count" field.
+func FileCountEQ(v int32) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldFileCount, v))
+}
+
+// FileCountNEQ applies the NEQ predicate on the "file_count" field.
+func FileCountNEQ(v int32) predicate.SIP {
+	return predicate.SIP(sql.FieldNEQ(FieldFileCount, v))
+}
+
+// FileCountIn applies the In predicate on the "file_count" field.
+func FileCountIn(vs ...int32) predicate.SIP {
+	return predicate.SIP(sql.FieldIn(FieldFileCount, vs...))
+}
+
+// FileCountNotIn applies the NotIn predicate on the "file_count" field.
+func FileCountNotIn(vs ...int32) predicate.SIP {
+	return predicate.SIP(sql.FieldNotIn(FieldFileCount, vs...))
+}
+
+// FileCountGT applies the GT predicate on the "file_count" field.
+func FileCountGT(v int32) predicate.SIP {
+	return predicate.SIP(sql.FieldGT(FieldFileCount, v))
+}
+
+// FileCountGTE applies the GTE predicate on the "file_count" field.
+func FileCountGTE(v int32) predicate.SIP {
+	return predicate.SIP(sql.FieldGTE(FieldFileCount, v))
+}
+
+// FileCountLT applies the LT predicate on the "file_count" field.
+func FileCountLT(v int32) predicate.SIP {
+	return predicate.SIP(sql.FieldLT(FieldFileCount, v))
+}
+
+// FileCountLTE applies the LTE predicate on the "file_count" field.
+func FileCountLTE(v int32) predicate.SIP {
+	return predicate.SIP(sql.FieldLTE(FieldFileCount, v))
+}
+
+// FileCountIsNil applies the IsNil predicate on the "file_count" field.
+func FileCountIsNil() predicate.SIP {
+	return predicate.SIP(sql.FieldIsNull(FieldFileCount))
+}
+
+// FileCountNotNil applies the NotNil predicate on the "file_count" field.
+func FileCountNotNil() predicate.SIP {
+	return predicate.SIP(sql.FieldNotNull(FieldFileCount))
 }
 
 // HasWorkflows applies the HasEdge predicate on the "workflows" edge.

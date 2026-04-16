@@ -201,6 +201,33 @@ func (_u *SIPUpdate) ClearBatchID() *SIPUpdate {
 	return _u
 }
 
+// SetFileCount sets the "file_count" field.
+func (_u *SIPUpdate) SetFileCount(v int32) *SIPUpdate {
+	_u.mutation.ResetFileCount()
+	_u.mutation.SetFileCount(v)
+	return _u
+}
+
+// SetNillableFileCount sets the "file_count" field if the given value is not nil.
+func (_u *SIPUpdate) SetNillableFileCount(v *int32) *SIPUpdate {
+	if v != nil {
+		_u.SetFileCount(*v)
+	}
+	return _u
+}
+
+// AddFileCount adds value to the "file_count" field.
+func (_u *SIPUpdate) AddFileCount(v int32) *SIPUpdate {
+	_u.mutation.AddFileCount(v)
+	return _u
+}
+
+// ClearFileCount clears the value of the "file_count" field.
+func (_u *SIPUpdate) ClearFileCount() *SIPUpdate {
+	_u.mutation.ClearFileCount()
+	return _u
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (_u *SIPUpdate) AddWorkflowIDs(ids ...int) *SIPUpdate {
 	_u.mutation.AddWorkflowIDs(ids...)
@@ -313,6 +340,11 @@ func (_u *SIPUpdate) check() error {
 			return &ValidationError{Name: "batch_id", err: fmt.Errorf(`db: validator failed for field "SIP.batch_id": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.FileCount(); ok {
+		if err := sip.FileCountValidator(v); err != nil {
+			return &ValidationError{Name: "file_count", err: fmt.Errorf(`db: validator failed for field "SIP.file_count": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -363,6 +395,15 @@ func (_u *SIPUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.FailedKeyCleared() {
 		_spec.ClearField(sip.FieldFailedKey, field.TypeString)
+	}
+	if value, ok := _u.mutation.FileCount(); ok {
+		_spec.SetField(sip.FieldFileCount, field.TypeInt32, value)
+	}
+	if value, ok := _u.mutation.AddedFileCount(); ok {
+		_spec.AddField(sip.FieldFileCount, field.TypeInt32, value)
+	}
+	if _u.mutation.FileCountCleared() {
+		_spec.ClearField(sip.FieldFileCount, field.TypeInt32)
 	}
 	if _u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -655,6 +696,33 @@ func (_u *SIPUpdateOne) ClearBatchID() *SIPUpdateOne {
 	return _u
 }
 
+// SetFileCount sets the "file_count" field.
+func (_u *SIPUpdateOne) SetFileCount(v int32) *SIPUpdateOne {
+	_u.mutation.ResetFileCount()
+	_u.mutation.SetFileCount(v)
+	return _u
+}
+
+// SetNillableFileCount sets the "file_count" field if the given value is not nil.
+func (_u *SIPUpdateOne) SetNillableFileCount(v *int32) *SIPUpdateOne {
+	if v != nil {
+		_u.SetFileCount(*v)
+	}
+	return _u
+}
+
+// AddFileCount adds value to the "file_count" field.
+func (_u *SIPUpdateOne) AddFileCount(v int32) *SIPUpdateOne {
+	_u.mutation.AddFileCount(v)
+	return _u
+}
+
+// ClearFileCount clears the value of the "file_count" field.
+func (_u *SIPUpdateOne) ClearFileCount() *SIPUpdateOne {
+	_u.mutation.ClearFileCount()
+	return _u
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (_u *SIPUpdateOne) AddWorkflowIDs(ids ...int) *SIPUpdateOne {
 	_u.mutation.AddWorkflowIDs(ids...)
@@ -780,6 +848,11 @@ func (_u *SIPUpdateOne) check() error {
 			return &ValidationError{Name: "batch_id", err: fmt.Errorf(`db: validator failed for field "SIP.batch_id": %w`, err)}
 		}
 	}
+	if v, ok := _u.mutation.FileCount(); ok {
+		if err := sip.FileCountValidator(v); err != nil {
+			return &ValidationError{Name: "file_count", err: fmt.Errorf(`db: validator failed for field "SIP.file_count": %w`, err)}
+		}
+	}
 	return nil
 }
 
@@ -847,6 +920,15 @@ func (_u *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 	}
 	if _u.mutation.FailedKeyCleared() {
 		_spec.ClearField(sip.FieldFailedKey, field.TypeString)
+	}
+	if value, ok := _u.mutation.FileCount(); ok {
+		_spec.SetField(sip.FieldFileCount, field.TypeInt32, value)
+	}
+	if value, ok := _u.mutation.AddedFileCount(); ok {
+		_spec.AddField(sip.FieldFileCount, field.TypeInt32, value)
+	}
+	if _u.mutation.FileCountCleared() {
+		_spec.ClearField(sip.FieldFileCount, field.TypeInt32)
 	}
 	if _u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
