@@ -43,6 +43,8 @@ type SIP struct {
 	UploaderID int `json:"uploader_id,omitempty"`
 	// BatchID holds the value of the "batch_id" field.
 	BatchID int `json:"batch_id,omitempty"`
+	// FileCount holds the value of the "file_count" field.
+	FileCount int32 `json:"file_count,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SIPQuery when eager-loading is set.
 	Edges        SIPEdges `json:"edges"`
@@ -98,7 +100,7 @@ func (*SIP) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case sip.FieldID, sip.FieldUploaderID, sip.FieldBatchID:
+		case sip.FieldID, sip.FieldUploaderID, sip.FieldBatchID, sip.FieldFileCount:
 			values[i] = new(sql.NullInt64)
 		case sip.FieldName, sip.FieldStatus, sip.FieldFailedAs, sip.FieldFailedKey:
 			values[i] = new(sql.NullString)
@@ -193,6 +195,12 @@ func (_m *SIP) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.BatchID = int(value.Int64)
 			}
+		case sip.FieldFileCount:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field file_count", values[i])
+			} else if value.Valid {
+				_m.FileCount = int32(value.Int64)
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -276,6 +284,9 @@ func (_m *SIP) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("batch_id=")
 	builder.WriteString(fmt.Sprintf("%v", _m.BatchID))
+	builder.WriteString(", ")
+	builder.WriteString("file_count=")
+	builder.WriteString(fmt.Sprintf("%v", _m.FileCount))
 	builder.WriteByte(')')
 	return builder.String()
 }

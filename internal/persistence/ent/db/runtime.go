@@ -45,6 +45,10 @@ func init() {
 	sipDescBatchID := sipFields[10].Descriptor()
 	// sip.BatchIDValidator is a validator for the "batch_id" field. It is called by the builders before save.
 	sip.BatchIDValidator = sipDescBatchID.Validators[0].(func(int) error)
+	// sipDescFileCount is the schema descriptor for file_count field.
+	sipDescFileCount := sipFields[11].Descriptor()
+	// sip.FileCountValidator is a validator for the "file_count" field. It is called by the builders before save.
+	sip.FileCountValidator = sipDescFileCount.Validators[0].(func(int32) error)
 	taskFields := schema.Task{}.Fields()
 	_ = taskFields
 	// taskDescWorkflowID is the schema descriptor for workflow_id field.

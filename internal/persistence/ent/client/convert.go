@@ -24,6 +24,7 @@ func convertSIP(sip *db.SIP) *datatypes.SIP {
 		CompletedAt: normalizeTime(sip.CompletedAt),
 		FailedAs:    sip.FailedAs,
 		FailedKey:   sip.FailedKey,
+		FileCount:   sip.FileCount,
 	}
 
 	// Convert optional fields.

@@ -38,6 +38,9 @@ type SIP struct {
 
 	// Batch is the batch this SIP belongs to.
 	Batch *Batch
+
+	// FileCount is the number of files in the SIP.
+	FileCount int32
 }
 
 // Goa returns the API representation of the SIP.

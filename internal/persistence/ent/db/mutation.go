@@ -991,6 +991,8 @@ type SIPMutation struct {
 	completed_at     *time.Time
 	failed_as        *enums.SIPFailedAs
 	failed_key       *string
+	file_count       *int32
+	addfile_count    *int32
 	clearedFields    map[string]struct{}
 	workflows        map[int]struct{}
 	removedworkflows map[int]struct{}
@@ -1589,6 +1591,76 @@ func (m *SIPMutation) ResetBatchID() {
 	delete(m.clearedFields, sip.FieldBatchID)
 }
 
+// SetFileCount sets the "file_count" field.
+func (m *SIPMutation) SetFileCount(i int32) {
+	m.file_count = &i
+	m.addfile_count = nil
+}
+
+// FileCount returns the value of the "file_count" field in the mutation.
+func (m *SIPMutation) FileCount() (r int32, exists bool) {
+	v := m.file_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldFileCount returns the old "file_count" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldFileCount(ctx context.Context) (v int32, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldFileCount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldFileCount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldFileCount: %w", err)
+	}
+	return oldValue.FileCount, nil
+}
+
+// AddFileCount adds i to the "file_count" field.
+func (m *SIPMutation) AddFileCount(i int32) {
+	if m.addfile_count != nil {
+		*m.addfile_count += i
+	} else {
+		m.addfile_count = &i
+	}
+}
+
+// AddedFileCount returns the value that was added to the "file_count" field in this mutation.
+func (m *SIPMutation) AddedFileCount() (r int32, exists bool) {
+	v := m.addfile_count
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ClearFileCount clears the value of the "file_count" field.
+func (m *SIPMutation) ClearFileCount() {
+	m.file_count = nil
+	m.addfile_count = nil
+	m.clearedFields[sip.FieldFileCount] = struct{}{}
+}
+
+// FileCountCleared returns if the "file_count" field was cleared in this mutation.
+func (m *SIPMutation) FileCountCleared() bool {
+	_, ok := m.clearedFields[sip.FieldFileCount]
+	return ok
+}
+
+// ResetFileCount resets all changes to the "file_count" field.
+func (m *SIPMutation) ResetFileCount() {
+	m.file_count = nil
+	m.addfile_count = nil
+	delete(m.clearedFields, sip.FieldFileCount)
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by ids.
 func (m *SIPMutation) AddWorkflowIDs(ids ...int) {
 	if m.workflows == nil {
@@ -1731,7 +1803,7 @@ func (m *SIPMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SIPMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 12)
 	if m.uuid != nil {
 		fields = append(fields, sip.FieldUUID)
 	}
@@ -1765,6 +1837,9 @@ func (m *SIPMutation) Fields() []string {
 	if m.batch != nil {
 		fields = append(fields, sip.FieldBatchID)
 	}
+	if m.file_count != nil {
+		fields = append(fields, sip.FieldFileCount)
+	}
 	return fields
 }
 
@@ -1795,6 +1870,8 @@ func (m *SIPMutation) Field(name string) (ent.Value, bool) {
 		return m.UploaderID()
 	case sip.FieldBatchID:
 		return m.BatchID()
+	case sip.FieldFileCount:
+		return m.FileCount()
 	}
 	return nil, false
 }
@@ -1826,6 +1903,8 @@ func (m *SIPMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldUploaderID(ctx)
 	case sip.FieldBatchID:
 		return m.OldBatchID(ctx)
+	case sip.FieldFileCount:
+		return m.OldFileCount(ctx)
 	}
 	return nil, fmt.Errorf("unknown SIP field %s", name)
 }
@@ -1912,6 +1991,13 @@ func (m *SIPMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetBatchID(v)
 		return nil
+	case sip.FieldFileCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetFileCount(v)
+		return nil
 	}
 	return fmt.Errorf("unknown SIP field %s", name)
 }
@@ -1920,6 +2006,9 @@ func (m *SIPMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *SIPMutation) AddedFields() []string {
 	var fields []string
+	if m.addfile_count != nil {
+		fields = append(fields, sip.FieldFileCount)
+	}
 	return fields
 }
 
@@ -1928,6 +2017,8 @@ func (m *SIPMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *SIPMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
+	case sip.FieldFileCount:
+		return m.AddedFileCount()
 	}
 	return nil, false
 }
@@ -1937,6 +2028,13 @@ func (m *SIPMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *SIPMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case sip.FieldFileCount:
+		v, ok := value.(int32)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddFileCount(v)
+		return nil
 	}
 	return fmt.Errorf("unknown SIP numeric field %s", name)
 }
@@ -1965,6 +2063,9 @@ func (m *SIPMutation) ClearedFields() []string {
 	}
 	if m.FieldCleared(sip.FieldBatchID) {
 		fields = append(fields, sip.FieldBatchID)
+	}
+	if m.FieldCleared(sip.FieldFileCount) {
+		fields = append(fields, sip.FieldFileCount)
 	}
 	return fields
 }
@@ -2000,6 +2101,9 @@ func (m *SIPMutation) ClearField(name string) error {
 		return nil
 	case sip.FieldBatchID:
 		m.ClearBatchID()
+		return nil
+	case sip.FieldFileCount:
+		m.ClearFileCount()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP nullable field %s", name)
@@ -2041,6 +2145,9 @@ func (m *SIPMutation) ResetField(name string) error {
 		return nil
 	case sip.FieldBatchID:
 		m.ResetBatchID()
+		return nil
+	case sip.FieldFileCount:
+		m.ResetFileCount()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP field %s", name)

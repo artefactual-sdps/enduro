@@ -61,6 +61,9 @@ func (SIP) Fields() []ent.Field {
 		field.Int("batch_id").
 			Optional().
 			Positive(),
+		field.Int32("file_count").
+			Optional().
+			NonNegative(),
 	}
 }
 
