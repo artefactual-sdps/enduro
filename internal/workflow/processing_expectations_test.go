@@ -353,6 +353,17 @@ var expectations = map[string]expectationFunc{
 			},
 		).Return(&activities.CountSIPFilesActivityResult{Count: fileCount}, nil)
 	},
+	"saveFileCount": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
+		s.env.OnActivity(
+			updateSIPLocalActivity,
+			ctx,
+			s.workflow.ingestsvc,
+			&updateSIPLocalActivityParams{
+				UUID:      sipUUID,
+				FileCount: fileCount,
+			},
+		).Return(nil, nil)
+	},
 	"validatePREMIS": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
 		s.env.OnActivity(
 			xmlvalidate.Name,

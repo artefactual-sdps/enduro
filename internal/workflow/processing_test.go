@@ -64,6 +64,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	reviewA3mExpectations(s, params)
 	params.updateTaskParams(reviewAIPTaskID, enums.TaskStatusDone, "", "Reviewed and accepted")
 	expectations["completeTask"](s, params)
@@ -120,6 +121,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	reviewA3mExpectations(s, params)
 	params.updateTaskParams(reviewAIPTaskID, enums.TaskStatusDone, "", "Reviewed and rejected")
 	expectations["completeTask"](s, params)
@@ -159,6 +161,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
 	params.retentionPeriod = -1 * time.Second
 	cleanupExpectations(s, params)
@@ -195,6 +198,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 	expectations["classifySIP"](s, params)
 	expectations["createBag"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusInProgress, "Validate PREMIS", "")
 	expectations["createTask"](s, params)
 	params.premisXMLPath = filepath.Join(extractPath, "data", "metadata", "premis.xml")
@@ -374,6 +378,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
 	expectations["completeTask"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
 
 	s.env.OnWorkflow(
@@ -487,6 +492,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
 	expectations["completeTask"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	expectations["bundle"](s, params)
 	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusInProgress, "Validate PREMIS", "")
 	expectations["createTask"](s, params)
@@ -547,6 +553,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	expectations["createBag"](s, params)
 	expectations["zipArchive"](s, params)
 
@@ -605,6 +612,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
 
 	expectations["removePaths"](s, params)
@@ -743,6 +751,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPSourceUpload() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
 
 	expectations["removePaths"](s, params)
@@ -792,6 +801,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPDeletionError() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
 	expectations["removePaths"](s, params)
 	params.updateTaskParams(
@@ -847,6 +857,7 @@ func (s *ProcessingWorkflowTestSuite) TestBatchSignalDoNotContinue() {
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	CountSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
 	expectations["bundle"](s, params)
 
 	// Batch signal handler and expectations.
