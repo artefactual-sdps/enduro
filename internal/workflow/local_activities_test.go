@@ -209,6 +209,7 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 	name := "Test SIP"
 	completedAt := time.Now()
 	failedKey := "failed-key"
+	filecount := int32(42)
 
 	for _, tt := range []struct {
 		name      string
@@ -226,6 +227,7 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 				AIPUUID:     aipUUID.String(),
 				FailedAs:    enums.SIPFailedAsSIP,
 				FailedKey:   failedKey,
+				FileCount:   filecount,
 			},
 			mockCalls: func(ctx context.Context, svc *ingest_fake.MockService) {
 				svc.EXPECT().
@@ -240,6 +242,7 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 								assert.DeepEqual(t, s.Name, name)
 								assert.DeepEqual(t, s.Status, enums.SIPStatusIngested)
 								assert.DeepEqual(t, s.CompletedAt, completedAt)
+								assert.DeepEqual(t, s.FileCount, filecount)
 								assert.DeepEqual(t, s.AIPID, uuid.NullUUID{Valid: true, UUID: aipUUID})
 								assert.DeepEqual(t, s.FailedAs, enums.SIPFailedAsSIP)
 								assert.DeepEqual(t, s.FailedKey, failedKey)
@@ -255,7 +258,7 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 			params: &updateSIPLocalActivityParams{
 				UUID:        sipUUID,
 				Name:        name,
-				Status:      "",
+				Status:      "invalid",
 				CompletedAt: completedAt,
 				AIPUUID:     aipUUID.String(),
 			},

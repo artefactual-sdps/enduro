@@ -481,8 +481,25 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Count the files in the SIP and store the result in the workflow state for
 	// later use.
-	if err := w.CountSIPFiles(sessCtx, state); err != nil {
+	if err := w.countSIPFIles(sessCtx, state); err != nil {
 		return fmt.Errorf("count SIP files: %v", err)
+	}
+
+	// Persist the SIP file count.
+	{
+		opts := withLocalActivityOpts(sessCtx)
+		err := temporalsdk_workflow.ExecuteLocalActivity(
+			opts,
+			updateSIPLocalActivity,
+			w.ingestsvc,
+			&updateSIPLocalActivityParams{
+				UUID:      state.sip.uuid,
+				FileCount: state.sip.fileCount,
+			},
+		).Get(opts, nil)
+		if err != nil {
+			return fmt.Errorf("update SIP file count: %v", err)
+		}
 	}
 
 	// Do preservation.
@@ -1433,7 +1450,7 @@ func (w *ProcessingWorkflow) waitForBatch(
 	return sessCtx, nil
 }
 
-func (w *ProcessingWorkflow) CountSIPFiles(
+func (w *ProcessingWorkflow) countSIPFIles(
 	sessCtx temporalsdk_workflow.Context,
 	state *workflowState,
 ) error {

@@ -105,7 +105,7 @@ type sipInfo struct {
 
 	// fileCount is the number of preservation files in the SIP. It is populated
 	// by the CountSIPFilesActivity after preprocessing.
-	fileCount int
+	fileCount int32
 }
 
 // aipInfo represents the AIP.

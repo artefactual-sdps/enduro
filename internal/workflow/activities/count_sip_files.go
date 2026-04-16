@@ -27,7 +27,7 @@ type (
 
 	CountSIPFilesActivityResult struct {
 		// Count is the number of preservation files in the Bag.
-		Count int
+		Count int32
 	}
 )
 
@@ -57,7 +57,7 @@ func (a *CountSIPFilesActivity) Execute(
 		return nil, fmt.Errorf("count SIP files: directory not found: %s", path)
 	}
 
-	var count int
+	var count int32
 	err = filepath.WalkDir(path, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err

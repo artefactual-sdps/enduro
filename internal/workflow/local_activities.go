@@ -37,6 +37,7 @@ type updateSIPLocalActivityParams struct {
 	Status      enums.SIPStatus
 	FailedAs    enums.SIPFailedAs
 	FailedKey   string
+	FileCount   int32
 }
 
 type updateSIPLocalActivityResult struct{}
@@ -50,17 +51,26 @@ func updateSIPLocalActivity(
 		ctx,
 		params.UUID,
 		func(s *datatypes.SIP) (*datatypes.SIP, error) {
-			s.Name = params.Name
-			s.Status = params.Status
-			s.FailedAs = params.FailedAs
-			s.FailedKey = params.FailedKey
-
-			if !params.Status.IsValid() {
-				return nil, fmt.Errorf("invalid status: %s", params.Status)
+			if params.Name != "" {
+				s.Name = params.Name
 			}
 
-			if params.FailedAs != "" && !params.FailedAs.IsValid() {
-				return nil, fmt.Errorf("invalid failed as: %s", params.FailedAs)
+			if params.Status != "" {
+				if !params.Status.IsValid() {
+					return nil, fmt.Errorf("invalid status: %s", params.Status)
+				}
+				s.Status = params.Status
+			}
+
+			if params.FailedAs != "" {
+				if !params.FailedAs.IsValid() {
+					return nil, fmt.Errorf("invalid failed as: %s", params.FailedAs)
+				}
+				s.FailedAs = params.FailedAs
+			}
+
+			if params.FailedKey != "" {
+				s.FailedKey = params.FailedKey
 			}
 
 			if params.AIPUUID != "" {
@@ -73,6 +83,10 @@ func updateSIPLocalActivity(
 
 			if !params.CompletedAt.IsZero() {
 				s.CompletedAt = params.CompletedAt
+			}
+
+			if params.FileCount > 0 {
+				s.FileCount = params.FileCount
 			}
 
 			return s, nil
