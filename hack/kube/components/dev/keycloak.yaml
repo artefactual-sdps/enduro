@@ -16,7 +16,7 @@ spec:
       serviceAccountName: sdps
       containers:
         - name: keycloak
-          image: quay.io/keycloak/keycloak:26.6
+          image: quay.io/keycloak/keycloak:26.6.1
           command:
             [
               "/opt/keycloak/bin/kc.sh",

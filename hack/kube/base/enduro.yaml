@@ -16,7 +16,7 @@ spec:
       serviceAccountName: sdps
       initContainers:
         - name: check-temporal
-          image: busybox
+          image: busybox:1.37.0
           imagePullPolicy: IfNotPresent
           command:
             [

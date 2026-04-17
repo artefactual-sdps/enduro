@@ -16,7 +16,7 @@ spec:
       serviceAccountName: sdps
       containers:
         - name: redis
-          image: redis:8.4
+          image: redis:8.4.2
           command: ["sh", "-c", "redis-server --appendonly yes"]
           ports:
             - containerPort: 6379
