@@ -80,6 +80,9 @@ func (s *SIP) Goa() *goaingest.SIP {
 		col.BatchIdentifier = new(s.Batch.Identifier)
 		col.BatchStatus = new(s.Batch.Status.String())
 	}
+	if s.FileCount > 0 {
+		col.FileCount = &s.FileCount
+	}
 
 	return &col
 }

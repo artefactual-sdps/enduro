@@ -121,6 +121,8 @@ type SIPView struct {
 	BatchIdentifier *string
 	// Status of the related Batch
 	BatchStatus *string
+	// Number of files in the SIP
+	FileCount *int32
 }
 
 // SIPUpdatedEventView is a type that runs validations on a projected type.
@@ -790,6 +792,7 @@ var (
 			"batch_uuid",
 			"batch_identifier",
 			"batch_status",
+			"file_count",
 		},
 	}
 	// SIPWorkflowsMap is a map indexing the attribute names of SIPWorkflows by
@@ -904,6 +907,7 @@ var (
 			"batch_uuid",
 			"batch_identifier",
 			"batch_status",
+			"file_count",
 		},
 	}
 	// EnduroPageMap is a map indexing the attribute names of EnduroPage by view

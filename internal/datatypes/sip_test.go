@@ -69,6 +69,7 @@ func TestSIPGoa(t *testing.T) {
 					Identifier: "batch-1",
 					Status:     enums.BatchStatusPending,
 				},
+				FileCount: 8,
 			},
 			want: &goaingest.SIP{
 				UUID:            sipUUID,
@@ -86,6 +87,7 @@ func TestSIPGoa(t *testing.T) {
 				BatchUUID:       new(batchUUID),
 				BatchIdentifier: new("batch-1"),
 				BatchStatus:     new(enums.BatchStatusPending.String()),
+				FileCount:       new(int32(8)),
 			},
 		},
 	} {

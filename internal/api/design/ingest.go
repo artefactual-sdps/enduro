@@ -535,6 +535,7 @@ var SIP = ResultType("application/vnd.enduro.ingest.sip", func() {
 		Attribute("batch_status", String, "Status of the related Batch", func() {
 			EnumBatchStatus()
 		})
+		Attribute("file_count", Int32, "Number of files in the SIP")
 	})
 	Required("uuid", "status", "created_at")
 })

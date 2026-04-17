@@ -2098,6 +2098,7 @@ func marshalIngestSIPToSIPResponseBody(v *ingest.SIP) *SIPResponseBody {
 		BatchUUID:       v.BatchUUID,
 		BatchIdentifier: v.BatchIdentifier,
 		BatchStatus:     v.BatchStatus,
+		FileCount:       v.FileCount,
 	}
 
 	return res
@@ -2320,6 +2321,7 @@ func marshalIngestviewsSIPViewToSIPResponseBody(v *ingestviews.SIPView) *SIPResp
 		BatchUUID:       v.BatchUUID,
 		BatchIdentifier: v.BatchIdentifier,
 		BatchStatus:     v.BatchStatus,
+		FileCount:       v.FileCount,
 	}
 
 	return res

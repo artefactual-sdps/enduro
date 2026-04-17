@@ -88,6 +88,8 @@ type ShowSipResponseBody struct {
 	BatchIdentifier *string `form:"batch_identifier,omitempty" json:"batch_identifier,omitempty" xml:"batch_identifier,omitempty"`
 	// Status of the related Batch
 	BatchStatus *string `form:"batch_status,omitempty" json:"batch_status,omitempty" xml:"batch_status,omitempty"`
+	// Number of files in the SIP
+	FileCount *int32 `form:"file_count,omitempty" json:"file_count,omitempty" xml:"file_count,omitempty"`
 }
 
 // ListSipWorkflowsResponseBody is the type of the "ingest" service
@@ -809,6 +811,8 @@ type SIPResponseBody struct {
 	BatchIdentifier *string `form:"batch_identifier,omitempty" json:"batch_identifier,omitempty" xml:"batch_identifier,omitempty"`
 	// Status of the related Batch
 	BatchStatus *string `form:"batch_status,omitempty" json:"batch_status,omitempty" xml:"batch_status,omitempty"`
+	// Number of files in the SIP
+	FileCount *int32 `form:"file_count,omitempty" json:"file_count,omitempty" xml:"file_count,omitempty"`
 }
 
 // SIPUpdatedEventResponseBody is used to define fields on response body types.
@@ -1674,6 +1678,7 @@ func NewShowSipSIPOK(body *ShowSipResponseBody) *ingestviews.SIPView {
 		BatchUUID:       body.BatchUUID,
 		BatchIdentifier: body.BatchIdentifier,
 		BatchStatus:     body.BatchStatus,
+		FileCount:       body.FileCount,
 	}
 
 	return v
