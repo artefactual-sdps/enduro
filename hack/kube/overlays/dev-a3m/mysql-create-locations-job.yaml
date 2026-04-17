@@ -10,7 +10,7 @@ spec:
       restartPolicy: OnFailure
       containers:
         - name: create-locations
-          image: mysql:8.0
+          image: mysql:8.4
           imagePullPolicy: IfNotPresent
           env:
             - name: MYSQL_USER
