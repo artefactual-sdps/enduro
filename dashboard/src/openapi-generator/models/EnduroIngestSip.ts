@@ -68,6 +68,12 @@ export interface EnduroIngestSip {
      */
     failedKey?: string;
     /**
+     * Number of files in the SIP
+     * @type {number}
+     * @memberof EnduroIngestSip
+     */
+    fileCount?: number;
+    /**
      * Name of the SIP
      * @type {string}
      * @memberof EnduroIngestSip
@@ -178,6 +184,7 @@ export function EnduroIngestSipFromJSONTyped(json: any, ignoreDiscriminator: boo
         'createdAt': (new Date(json['created_at'])),
         'failedAs': json['failed_as'] == null ? undefined : json['failed_as'],
         'failedKey': json['failed_key'] == null ? undefined : json['failed_key'],
+        'fileCount': json['file_count'] == null ? undefined : json['file_count'],
         'name': json['name'] == null ? undefined : json['name'],
         'startedAt': json['started_at'] == null ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
@@ -207,6 +214,7 @@ export function EnduroIngestSipToJSONTyped(value?: EnduroIngestSip | null, ignor
         'created_at': value['createdAt'].toISOString(),
         'failed_as': value['failedAs'],
         'failed_key': value['failedKey'],
+        'file_count': value['fileCount'],
         'name': value['name'],
         'started_at': value['startedAt'] == null ? value['startedAt'] : value['startedAt'].toISOString(),
         'status': value['status'],

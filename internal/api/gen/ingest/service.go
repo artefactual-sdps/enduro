@@ -380,6 +380,8 @@ type SIP struct {
 	BatchIdentifier *string
 	// Status of the related Batch
 	BatchStatus *string
+	// Number of files in the SIP
+	FileCount *int32
 }
 
 type SIPCollection []*SIP
@@ -1198,6 +1200,7 @@ func newSIP(vres *ingestviews.SIPView) *SIP {
 		BatchUUID:       vres.BatchUUID,
 		BatchIdentifier: vres.BatchIdentifier,
 		BatchStatus:     vres.BatchStatus,
+		FileCount:       vres.FileCount,
 	}
 	if vres.UUID != nil {
 		res.UUID = *vres.UUID
@@ -1230,6 +1233,7 @@ func newSIPView(res *SIP) *ingestviews.SIPView {
 		BatchUUID:       res.BatchUUID,
 		BatchIdentifier: res.BatchIdentifier,
 		BatchStatus:     res.BatchStatus,
+		FileCount:       res.FileCount,
 	}
 	return vres
 }

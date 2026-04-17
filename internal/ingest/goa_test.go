@@ -350,6 +350,7 @@ var (
 				Email: "uploader@example.com",
 				Name:  "Test Uploader",
 			},
+			FileCount: 2,
 		},
 		{
 			ID:          2,
@@ -360,6 +361,7 @@ var (
 			CreatedAt:   time.Date(2024, 10, 1, 17, 13, 26, 0, time.UTC),
 			StartedAt:   time.Date(2024, 10, 1, 17, 13, 27, 0, time.UTC),
 			CompletedAt: time.Date(2024, 10, 1, 17, 13, 28, 0, time.UTC),
+			FileCount:   4,
 		},
 		{
 			ID:          3,
@@ -371,6 +373,7 @@ var (
 			CompletedAt: time.Date(2024, 10, 1, 17, 13, 28, 0, time.UTC),
 			FailedAs:    enums.SIPFailedAsSIP,
 			FailedKey:   "failed-key",
+			FileCount:   8,
 		},
 	}
 )
@@ -413,6 +416,7 @@ func TestListSIPs(t *testing.T) {
 						UploaderUUID:  new(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
 						UploaderEmail: new("uploader@example.com"),
 						UploaderName:  new("Test Uploader"),
+						FileCount:     new(int32(2)),
 					},
 					{
 						UUID:        sipUUID2,
@@ -422,6 +426,7 @@ func TestListSIPs(t *testing.T) {
 						CreatedAt:   "2024-10-01T17:13:26Z",
 						StartedAt:   new("2024-10-01T17:13:27Z"),
 						CompletedAt: new("2024-10-01T17:13:28Z"),
+						FileCount:   new(int32(4)),
 					},
 					{
 						UUID:        sipUUID3,
@@ -432,6 +437,7 @@ func TestListSIPs(t *testing.T) {
 						CompletedAt: new("2024-10-01T17:13:28Z"),
 						FailedAs:    new(enums.SIPFailedAsSIP.String()),
 						FailedKey:   new("failed-key"),
+						FileCount:   new(int32(8)),
 					},
 				},
 				Page: &goaingest.EnduroPage{
@@ -491,6 +497,7 @@ func TestListSIPs(t *testing.T) {
 						UploaderUUID:  new(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
 						UploaderEmail: new("uploader@example.com"),
 						UploaderName:  new("Test Uploader"),
+						FileCount:     new(int32(2)),
 					},
 				},
 				Page: &goaingest.EnduroPage{
