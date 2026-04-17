@@ -11,6 +11,7 @@ import (
 	temporal_tools "go.artefactual.dev/tools/temporal"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -35,8 +36,14 @@ type PollSIPStatusesActivityParams struct {
 }
 
 type PollSIPStatusesActivityResult struct {
+	// AllExpectedStatus is true if all SIPs in the batch have the
+	// ExpectedStatus.
 	AllExpectedStatus bool
-	SIPIDstoAIPIDs    map[uuid.UUID]uuid.UUID
+
+	// SIPs is a sparse list of the SIPs in this batch, containing only the
+	// AIPID and FileCount fields, so they can be passed to the postbatch
+	// workflow without needing to query the ingest service again.
+	SIPs map[uuid.UUID]datatypes.SIP
 }
 
 // PollSIPStatusesActivity polls the ingest service until all SIPs in a batch
@@ -76,7 +83,7 @@ func (a *PollSIPStatusesActivity) Execute(
 			if result.done {
 				return &PollSIPStatusesActivityResult{
 					AllExpectedStatus: result.allExpected,
-					SIPIDstoAIPIDs:    result.aipIDs,
+					SIPs:              result.sips,
 				}, nil
 			}
 		}
@@ -86,7 +93,7 @@ func (a *PollSIPStatusesActivity) Execute(
 type checkResult struct {
 	done        bool
 	allExpected bool
-	aipIDs      map[uuid.UUID]uuid.UUID
+	sips        map[uuid.UUID]datatypes.SIP
 }
 
 func (a *PollSIPStatusesActivity) checkSIPStatuses(
@@ -95,8 +102,6 @@ func (a *PollSIPStatusesActivity) checkSIPStatuses(
 	expectedSIPCount int,
 	expectedStatus enums.SIPStatus,
 ) (*checkResult, error) {
-	aipIDs := make(map[uuid.UUID]uuid.UUID, expectedSIPCount)
-
 	// Query all SIPs for this batch. Limit to the maximum page size for now,
 	// we may switch to a stats-based or aggregated query approach in the future.
 	result, err := a.ingestsvc.ListSips(ctx, &goaingest.ListSipsPayload{
@@ -113,10 +118,11 @@ func (a *PollSIPStatusesActivity) checkSIPStatuses(
 	}
 
 	expectedStatusCount := 0
-	for _, sip := range result.Items {
-		status, err := enums.ParseSIPStatus(sip.Status)
+	sips := make(map[uuid.UUID]datatypes.SIP, len(result.Items))
+	for _, item := range result.Items {
+		status, err := enums.ParseSIPStatus(item.Status)
 		if err != nil {
-			return nil, fmt.Errorf("invalid SIP status: %s", sip.Status)
+			return nil, fmt.Errorf("invalid SIP status: %s", item.Status)
 		}
 
 		// Check if this SIP has the expected status.
@@ -127,22 +133,30 @@ func (a *PollSIPStatusesActivity) checkSIPStatuses(
 			return &checkResult{done: false}, nil
 		}
 
-		if status == enums.SIPStatusIngested && sip.AipUUID != nil {
-			id, err := uuid.Parse(*sip.AipUUID)
-			if err != nil {
-				return nil, fmt.Errorf("parse AIP UUID: %v", err)
-			}
-			aipIDs[sip.UUID] = id
-		}
+		sips[item.UUID] = goaSIPtoSIP(item)
 	}
 
 	res := &checkResult{
 		done:        true,
 		allExpected: expectedStatusCount == expectedSIPCount,
-	}
-	if len(aipIDs) > 0 {
-		res.aipIDs = aipIDs
+		sips:        sips,
 	}
 
 	return res, nil
+}
+
+func goaSIPtoSIP(goaSIP *goaingest.SIP) datatypes.SIP {
+	sip := datatypes.SIP{
+		UUID:      goaSIP.UUID,
+		FileCount: ref.DerefZero(goaSIP.FileCount),
+	}
+
+	if goaSIP.AipUUID != nil {
+		id, err := uuid.Parse(*goaSIP.AipUUID)
+		if err == nil {
+			sip.AIPID = uuid.NullUUID{UUID: id, Valid: true}
+		}
+	}
+
+	return sip
 }

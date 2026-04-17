@@ -18,7 +18,8 @@ type PostbatchBatch struct {
 }
 
 type PostbatchSIP struct {
-	UUID  uuid.UUID
-	Name  string
-	AIPID *uuid.UUID // Nullable.
+	UUID      uuid.UUID
+	Name      string
+	AIPID     *uuid.UUID // Nullable.
+	FileCount int32
 }
