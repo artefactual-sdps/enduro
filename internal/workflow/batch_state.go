@@ -81,11 +81,11 @@ func (s *batchWorkflowState) addSIPDetails(
 func (s *batchWorkflowState) postbatchSIPs() []*childwf.PostbatchSIP {
 	sips := s.SIPs()
 	pbs := make([]*childwf.PostbatchSIP, len(sips))
-
 	for i, sip := range sips {
 		s := &childwf.PostbatchSIP{
-			UUID: sip.UUID,
-			Name: sip.Name,
+			UUID:      sip.UUID,
+			Name:      sip.Name,
+			FileCount: sip.FileCount,
 		}
 		if sip.AIPID.Valid {
 			s.AIPID = &sip.AIPID.UUID
@@ -96,15 +96,13 @@ func (s *batchWorkflowState) postbatchSIPs() []*childwf.PostbatchSIP {
 	return pbs
 }
 
-// updateAIPIDs updates the AIP IDs of the SIPs in the batch workflow state
-// based on the provided map of SIP UUIDs to AIP UUIDs.
-func (state *batchWorkflowState) updateAIPIDs(aipIDs map[uuid.UUID]uuid.UUID) {
+// updateFromPollIngest updates the SIPs state with data from the poll ingest
+// activity result.
+func (state *batchWorkflowState) updateFromPollIngest(sips map[uuid.UUID]datatypes.SIP) {
 	for _, sd := range state.sipDetails {
-		aipID, ok := aipIDs[sd.sip.UUID]
-		if !ok {
-			continue
+		if sip, ok := sips[sd.sip.UUID]; ok {
+			sd.sip.FileCount = sip.FileCount
+			sd.sip.AIPID = sip.AIPID
 		}
-
-		sd.sip.AIPID = uuid.NullUUID{UUID: aipID, Valid: true}
 	}
 }

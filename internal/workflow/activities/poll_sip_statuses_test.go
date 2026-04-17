@@ -14,6 +14,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	ingestfake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
@@ -52,11 +53,23 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 			mock: func(r *ingestfake.MockServiceMockRecorder) {
 				r.ListSips(mockutil.Context(), payload).
 					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
-						{UUID: sip1UUID, Status: enums.SIPStatusValidated.String()},
-						{UUID: sip2UUID, Status: enums.SIPStatusValidated.String()},
+						{
+							UUID:   sip1UUID,
+							Status: enums.SIPStatusValidated.String(),
+						},
+						{
+							UUID:   sip2UUID,
+							Status: enums.SIPStatusValidated.String(),
+						},
 					}}, nil)
 			},
-			want: &activities.PollSIPStatusesActivityResult{AllExpectedStatus: true},
+			want: &activities.PollSIPStatusesActivityResult{
+				AllExpectedStatus: true,
+				SIPs: map[uuid.UUID]datatypes.SIP{
+					sip1UUID: {UUID: sip1UUID},
+					sip2UUID: {UUID: sip2UUID},
+				},
+			},
 		},
 		{
 			name: "Returns true when all SIPs have ingested status",
@@ -69,22 +82,32 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 				r.ListSips(mockutil.Context(), payload).
 					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
 						{
-							UUID:    sip1UUID,
-							Status:  enums.SIPStatusIngested.String(),
-							AipUUID: new(aip1UUID.String()),
+							UUID:      sip1UUID,
+							Status:    enums.SIPStatusIngested.String(),
+							AipUUID:   new(aip1UUID.String()),
+							FileCount: new(int32(8)),
 						},
 						{
-							UUID:    sip2UUID,
-							Status:  enums.SIPStatusIngested.String(),
-							AipUUID: new(aip2UUID.String()),
+							UUID:      sip2UUID,
+							Status:    enums.SIPStatusIngested.String(),
+							AipUUID:   new(aip2UUID.String()),
+							FileCount: new(int32(16)),
 						},
 					}}, nil)
 			},
 			want: &activities.PollSIPStatusesActivityResult{
 				AllExpectedStatus: true,
-				SIPIDstoAIPIDs: map[uuid.UUID]uuid.UUID{
-					sip1UUID: aip1UUID,
-					sip2UUID: aip2UUID,
+				SIPs: map[uuid.UUID]datatypes.SIP{
+					sip1UUID: {
+						UUID:      sip1UUID,
+						AIPID:     uuid.NullUUID{UUID: aip1UUID, Valid: true},
+						FileCount: 8,
+					},
+					sip2UUID: {
+						UUID:      sip2UUID,
+						AIPID:     uuid.NullUUID{UUID: aip2UUID, Valid: true},
+						FileCount: 16,
+					},
 				},
 			},
 		},
@@ -98,11 +121,23 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 			mock: func(r *ingestfake.MockServiceMockRecorder) {
 				r.ListSips(mockutil.Context(), payload).
 					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
-						{UUID: sip1UUID, Status: enums.SIPStatusValidated.String()},
-						{UUID: sip2UUID, Status: enums.SIPStatusFailed.String()},
+						{
+							UUID:   sip1UUID,
+							Status: enums.SIPStatusValidated.String(),
+						},
+						{
+							UUID:   sip2UUID,
+							Status: enums.SIPStatusFailed.String(),
+						},
 					}}, nil)
 			},
-			want: &activities.PollSIPStatusesActivityResult{AllExpectedStatus: false},
+			want: &activities.PollSIPStatusesActivityResult{
+				AllExpectedStatus: false,
+				SIPs: map[uuid.UUID]datatypes.SIP{
+					sip1UUID: {UUID: sip1UUID},
+					sip2UUID: {UUID: sip2UUID},
+				},
+			},
 		},
 		{
 			name: "Returns false when some SIPs have error status",
@@ -114,11 +149,23 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 			mock: func(r *ingestfake.MockServiceMockRecorder) {
 				r.ListSips(mockutil.Context(), payload).
 					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
-						{UUID: sip1UUID, Status: enums.SIPStatusValidated.String()},
-						{UUID: sip2UUID, Status: enums.SIPStatusError.String()},
+						{
+							UUID:   sip1UUID,
+							Status: enums.SIPStatusValidated.String(),
+						},
+						{
+							UUID:   sip2UUID,
+							Status: enums.SIPStatusError.String(),
+						},
 					}}, nil)
 			},
-			want: &activities.PollSIPStatusesActivityResult{AllExpectedStatus: false},
+			want: &activities.PollSIPStatusesActivityResult{
+				AllExpectedStatus: false,
+				SIPs: map[uuid.UUID]datatypes.SIP{
+					sip1UUID: {UUID: sip1UUID},
+					sip2UUID: {UUID: sip2UUID},
+				},
+			},
 		},
 		{
 			name: "Returns false when some SIPs have canceled status",
@@ -130,11 +177,23 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 			mock: func(r *ingestfake.MockServiceMockRecorder) {
 				r.ListSips(mockutil.Context(), payload).
 					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
-						{UUID: sip1UUID, Status: enums.SIPStatusCanceled.String()},
-						{UUID: sip2UUID, Status: enums.SIPStatusValidated.String()},
+						{
+							UUID:   sip1UUID,
+							Status: enums.SIPStatusCanceled.String(),
+						},
+						{
+							UUID:   sip2UUID,
+							Status: enums.SIPStatusValidated.String(),
+						},
 					}}, nil)
 			},
-			want: &activities.PollSIPStatusesActivityResult{AllExpectedStatus: false},
+			want: &activities.PollSIPStatusesActivityResult{
+				AllExpectedStatus: false,
+				SIPs: map[uuid.UUID]datatypes.SIP{
+					sip1UUID: {UUID: sip1UUID},
+					sip2UUID: {UUID: sip2UUID},
+				},
+			},
 		},
 		{
 			name: "Continues polling when SIPs are not in a final status",
@@ -147,23 +206,47 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 				// First call: SIPs in progress.
 				r.ListSips(mockutil.Context(), payload).
 					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
-						{UUID: sip1UUID, Status: enums.SIPStatusProcessing.String()},
-						{UUID: sip2UUID, Status: enums.SIPStatusQueued.String()},
+						{
+							UUID:   sip1UUID,
+							Status: enums.SIPStatusProcessing.String(),
+						},
+						{
+							UUID:   sip2UUID,
+							Status: enums.SIPStatusQueued.String(),
+						},
 					}}, nil)
 				// Second call: one SIP validated and the other in progress.
 				r.ListSips(mockutil.Context(), payload).
 					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
-						{UUID: sip1UUID, Status: enums.SIPStatusValidated.String()},
-						{UUID: sip2UUID, Status: enums.SIPStatusProcessing.String()},
+						{
+							UUID:   sip1UUID,
+							Status: enums.SIPStatusValidated.String(),
+						},
+						{
+							UUID:   sip2UUID,
+							Status: enums.SIPStatusProcessing.String(),
+						},
 					}}, nil)
 				// Third call: SIPs validated.
 				r.ListSips(mockutil.Context(), payload).
 					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
-						{UUID: sip1UUID, Status: enums.SIPStatusValidated.String()},
-						{UUID: sip2UUID, Status: enums.SIPStatusValidated.String()},
+						{
+							UUID:   sip1UUID,
+							Status: enums.SIPStatusValidated.String(),
+						},
+						{
+							UUID:   sip2UUID,
+							Status: enums.SIPStatusValidated.String(),
+						},
 					}}, nil)
 			},
-			want: &activities.PollSIPStatusesActivityResult{AllExpectedStatus: true},
+			want: &activities.PollSIPStatusesActivityResult{
+				AllExpectedStatus: true,
+				SIPs: map[uuid.UUID]datatypes.SIP{
+					sip1UUID: {UUID: sip1UUID},
+					sip2UUID: {UUID: sip2UUID},
+				},
+			},
 		},
 		{
 			name: "Fails when SIP count doesn't match expected",
@@ -209,26 +292,6 @@ func TestPollSIPStatusesActivity(t *testing.T) {
 					}}, nil)
 			},
 			wantErr: "check SIP statuses: invalid SIP status: unknown",
-		},
-		{
-			name: "Fails on invalid AIP UUID",
-			params: &activities.PollSIPStatusesActivityParams{
-				BatchUUID:        batchUUID,
-				ExpectedSIPCount: 2,
-				ExpectedStatus:   enums.SIPStatusValidated,
-			},
-			mock: func(r *ingestfake.MockServiceMockRecorder) {
-				r.ListSips(mockutil.Context(), payload).
-					Return(&goaingest.SIPs{Items: []*goaingest.SIP{
-						{
-							UUID:    sip1UUID,
-							Status:  enums.SIPStatusIngested.String(),
-							AipUUID: new("invalid-uuid"),
-						},
-						{UUID: sip2UUID, Status: enums.SIPStatusIngested.String()},
-					}}, nil)
-			},
-			wantErr: "check SIP statuses: parse AIP UUID: invalid UUID length: 12",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {

@@ -237,9 +237,17 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 		},
 	).Return(&activities.PollSIPStatusesActivityResult{
 		AllExpectedStatus: true,
-		SIPIDstoAIPIDs: map[uuid.UUID]uuid.UUID{
-			batchSIP1UUID: batchAIP1UUID,
-			batchSIP2UUID: batchAIP2UUID,
+		SIPs: map[uuid.UUID]datatypes.SIP{
+			batchSIP1UUID: {
+				UUID:      batchSIP1UUID,
+				AIPID:     uuid.NullUUID{UUID: batchAIP1UUID, Valid: true},
+				FileCount: 8,
+			},
+			batchSIP2UUID: {
+				UUID:      batchSIP2UUID,
+				AIPID:     uuid.NullUUID{UUID: batchAIP2UUID, Valid: true},
+				FileCount: 16,
+			},
 		},
 	}, nil)
 
@@ -254,14 +262,16 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 			},
 			SIPs: []*childwf.PostbatchSIP{
 				{
-					UUID:  batchSIP1UUID,
-					Name:  batchSIP1Key,
-					AIPID: &batchAIP1UUID,
+					UUID:      batchSIP1UUID,
+					Name:      batchSIP1Key,
+					AIPID:     &batchAIP1UUID,
+					FileCount: 8,
 				},
 				{
-					UUID:  batchSIP2UUID,
-					Name:  batchSIP2Key,
-					AIPID: &batchAIP2UUID,
+					UUID:      batchSIP2UUID,
+					Name:      batchSIP2Key,
+					AIPID:     &batchAIP2UUID,
+					FileCount: 16,
 				},
 			},
 		},

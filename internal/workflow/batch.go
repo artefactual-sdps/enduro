@@ -155,10 +155,10 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 	}
 
 	// Update SIP state AIP IDs so they can be used in the post-storage
-	//  workflow.
-	state.updateAIPIDs(pollIngestedResult.SIPIDstoAIPIDs)
+	// workflow.
+	state.updateFromPollIngest(pollIngestedResult.SIPs)
 
-	// Run post-storage child workflow, if one is configured.
+	// Run postbatch child workflow, if one is configured.
 	if w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePostbatch) != nil {
 		if err := w.postbatchWorkflow(ctx, state); err != nil {
 			return err
