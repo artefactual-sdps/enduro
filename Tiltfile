@@ -22,6 +22,22 @@ true = ("true", "1", "yes", "t", "y")
 LOCAL_A3M = os.environ.get("LOCAL_A3M", "").lower() in true
 DASHBOARD_DEV = os.environ.get("DASHBOARD_DEV", "").lower() in true
 
+def add_enduro_config_secret(yaml):
+  config_path = "enduro.toml"
+  if os.path.exists("enduro.local.toml"):
+    config_path = "enduro.local.toml"
+
+  config = str(read_file(config_path))
+  secret_yaml = encode_yaml({
+    "apiVersion": "v1",
+    "kind": "Secret",
+    "metadata": {"name": "enduro-config", "namespace": "enduro-sdps"},
+    "type": "Opaque",
+    "stringData": {"enduro.toml": config},
+  })
+
+  return [yaml, secret_yaml]
+
 # Docker images
 custom_build(
   ref="enduro:dev",
@@ -69,6 +85,7 @@ if PRES_SYS == 'am':
 
 # Load Kustomize YAML
 yaml = kustomize(KUBE_OVERLAY)
+yaml = add_enduro_config_secret(yaml)
 
 # The CHILD_WORKFLOW_PATHS environment variable is a colon-separated list of 
 # paths to child workflow directories. If set, we load each child workflow's

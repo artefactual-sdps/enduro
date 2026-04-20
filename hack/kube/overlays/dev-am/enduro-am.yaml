@@ -30,6 +30,11 @@ spec:
       containers:
         - name: enduro-am-worker
           image: ghcr.io/artefactual-sdps/enduro-am-worker:main
+          command:
+            - /home/enduro/bin/enduro-am-worker
+          args:
+            - --config
+            - /home/enduro/enduro-config/enduro.toml
           env:
             - name: MYSQL_USER
               valueFrom:
@@ -122,10 +127,16 @@ spec:
                   name: enduro-am-secret
                   key: sftp_private_key_passphrase
           volumeMounts:
+            - name: enduro-config
+              mountPath: /home/enduro/enduro-config
+              readOnly: true
             - name: ssh-volume
               mountPath: "/etc/ssh"
               readOnly: true
       volumes:
+        - name: enduro-config
+          secret:
+            secretName: enduro-config
         - name: ssh-volume
           secret:
             secretName: enduro-am-secret

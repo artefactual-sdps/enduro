@@ -202,6 +202,12 @@ CHILD_WORKFLOW_PATHS='../preprocessing-acme:../acme-enduro-workflows'
 MOUNT_PREPROCESSING_VOLUME=true
 ```
 
+Tilt also renders the `enduro-config` Kubernetes secret from a TOML file in the
+project root. If `enduro.local.toml` exists, Tilt uses it instead of
+`enduro.toml`. When you change either file while Tilt is running, refresh the
+Tiltfile and then refresh the `enduro` and active worker resource
+(`enduro-am` or `enduro-a3m`) so the updated secret is applied in the cluster.
+
 ### TRIGGER_MODE_AUTO
 
 Enables live updates on code changes for the enduro services.

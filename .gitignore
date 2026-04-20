@@ -1,5 +1,6 @@
 /build
 /covreport
 /dist
+/enduro.local.toml
 /.tilt.env
 *.secret

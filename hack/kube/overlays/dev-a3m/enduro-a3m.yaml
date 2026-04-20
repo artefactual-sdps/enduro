@@ -30,6 +30,11 @@ spec:
       containers:
         - name: enduro-a3m-worker
           image: ghcr.io/artefactual-sdps/enduro-a3m-worker:main
+          command:
+            - /home/enduro/bin/enduro-a3m-worker
+          args:
+            - --config
+            - /home/enduro/enduro-config/enduro.toml
           env:
             - name: MYSQL_USER
               valueFrom:
@@ -74,6 +79,9 @@ spec:
             - name: ENDURO_TELEMETRY_TRACES_SAMPLING_RATIO
               value: "1.0"
           volumeMounts:
+            - name: enduro-config
+              mountPath: /home/enduro/enduro-config
+              readOnly: true
             - name: enduro-a3m
               mountPath: /home/a3m/.local/share/a3m/share
         - name: a3m
@@ -87,6 +95,10 @@ spec:
           volumeMounts:
             - name: enduro-a3m
               mountPath: /home/a3m/.local/share/a3m/share
+      volumes:
+        - name: enduro-config
+          secret:
+            secretName: enduro-config
   volumeClaimTemplates:
     - metadata:
         name: enduro-a3m

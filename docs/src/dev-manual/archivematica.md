@@ -35,8 +35,3 @@ The dev-am overlay ships a fixed host key and the matching known_hosts entry.
 
 If you want different credentials or endpoints, provide your own secret and
 update the dev-am overlay to reference it.
-
-## Applying changes
-
-If you edit `.tilt.env` or `enduro.toml` while Tilt is running, refresh the
-Tiltfile and the `enduro-am` resource to apply the changes inside the cluster.

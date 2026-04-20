@@ -27,6 +27,11 @@ spec:
       containers:
         - name: enduro
           image: ghcr.io/artefactual-sdps/enduro:main
+          command:
+            - /home/enduro/bin/enduro
+          args:
+            - --config
+            - /home/enduro/enduro-config/enduro.toml
           env:
             - name: MYSQL_USER
               valueFrom:
@@ -73,7 +78,15 @@ spec:
           ports:
             - containerPort: 9000
             - containerPort: 9002
+          volumeMounts:
+            - name: enduro-config
+              mountPath: /home/enduro/enduro-config
+              readOnly: true
           resources: {}
+      volumes:
+        - name: enduro-config
+          secret:
+            secretName: enduro-config
 ---
 apiVersion: v1
 kind: Service
