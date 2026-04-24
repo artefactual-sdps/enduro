@@ -16,6 +16,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
@@ -45,7 +46,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-	})
+	}, nil)
 
 	// Signal handler that mimics SIP/AIP confirmation.
 	s.env.RegisterDelayedCallback(
@@ -102,7 +103,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-	})
+	}, nil)
 
 	// Signal handler that mimics SIP/AIP rejection.
 	s.env.RegisterDelayedCallback(
@@ -154,7 +155,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-	})
+	}, nil)
 
 	params := defaultParams()
 	downloadExpectations(s, params)
@@ -190,7 +191,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		Preservation:   pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
 		Ingest:         ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: amssLocationID}},
 		ValidatePREMIS: premis.Config{Enabled: true, XSDPath: "/home/enduro/premis.xsd"},
-	})
+	}, nil)
 
 	params := defaultParams()
 	downloadExpectations(s, params)
@@ -318,7 +319,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				WorkflowName: "poststorage",
 			},
 		},
-	})
+	}, nil)
 
 	params := defaultParams()
 	params.downloadDestPath = prepSharedPath
@@ -327,7 +328,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	downloadExpectations(s, params)
 
 	s.env.OnWorkflow(
-		preprocessingChildWorkflow,
+		"preprocessing",
 		internalCtx,
 		&childwf.PreprocessingParams{
 			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
@@ -401,6 +402,124 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	}, false)
 }
 
+// TestPreprocessingDecisionFlow tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - preprocessing child workflow requesting a human decision from the parent.
+// - parent signaling the selected option back to the child.
+func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
+	const preprocessingDecisionTaskID = 109
+
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
+		ChildWorkflows: childwf.Configs{
+			{
+				Type:         enums.ChildWorkflowTypePreprocessing,
+				Namespace:    "default",
+				TaskQueue:    "preprocessing",
+				WorkflowName: "preprocessing",
+				Extract:      true,
+				SharedPath:   prepSharedPath,
+			},
+		},
+	}, func(
+		ctx temporalsdk_workflow.Context,
+		params *childwf.PreprocessingParams,
+	) (*childwf.PreprocessingResult, error) {
+		parent := temporalsdk_workflow.GetInfo(ctx).ParentWorkflowExecution
+		err := temporalsdk_workflow.SignalExternalWorkflow(
+			ctx,
+			parent.ID,
+			parent.RunID,
+			childwf.DecisionRequestSignalName,
+			childwf.DecisionRequest{
+				Message: "Preprocessing requires human decision.",
+				Options: []string{"Cancel", "Continue"},
+			},
+		).Get(ctx, nil)
+		if err != nil {
+			return nil, err
+		}
+
+		var decision childwf.DecisionResponse
+		_ = temporalsdk_workflow.GetSignalChannel(ctx, childwf.DecisionResponseSignalName).Receive(ctx, &decision)
+		s.Equal(decision.Option, "Continue")
+
+		return &childwf.PreprocessingResult{
+			Outcome:      childwf.OutcomeSuccess,
+			RelativePath: strings.TrimPrefix(prepExtractPath, prepSharedPath),
+		}, nil
+	})
+
+	s.env.RegisterDelayedCallback(func() {
+		s.env.SignalWorkflow(
+			childwf.DecisionResponseSignalName,
+			childwf.DecisionResponse{Option: "Continue"},
+		)
+	}, 0)
+
+	params := defaultParams()
+	params.downloadDestPath = prepSharedPath
+	params.downloadPath = prepDownloadPath + "/" + key
+	params.extractPath = prepExtractPath
+	downloadExpectations(s, params)
+
+	params.updateTaskParams(
+		preprocessingDecisionTaskID,
+		enums.TaskStatusPending,
+		"Preprocessing workflow is waiting for user decision",
+		"Preprocessing requires human decision.\n\nAvailable options:\n- Cancel\n- Continue",
+	)
+	expectations["createTask"](s, params)
+	params.sipStatus = enums.SIPStatusPending
+	expectations["setStatus"](s, params)
+	params.workflowStatus = enums.WorkflowStatusPending
+	expectations["setWorkflowStatus"](s, params)
+	params.sipStatus = enums.SIPStatusProcessing
+	expectations["setStatus"](s, params)
+	params.workflowStatus = enums.WorkflowStatusInProgress
+	expectations["setWorkflowStatus"](s, params)
+	params.updateTaskParams(
+		preprocessingDecisionTaskID,
+		enums.TaskStatusDone,
+		"",
+		"Preprocessing requires human decision.\n\nAvailable options:\n- Cancel\n- Continue\n\nUser selected option: Continue",
+	)
+	expectations["completeTask"](s, params)
+
+	params.sipType = enums.SIPTypeBagIt
+	expectations["classifySIP"](s, params)
+	params.updateTaskParams(valBagTaskID, enums.TaskStatusInProgress, "Validate Bag", "")
+	expectations["createTask"](s, params)
+	expectations["validateBag"](s, params)
+	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
+	expectations["completeTask"](s, params)
+	CountSIPFilesExpectations(s, params)
+	s.env.OnActivity(
+		updateSIPLocalActivity,
+		ctx,
+		s.workflow.ingestsvc,
+		&updateSIPLocalActivityParams{
+			UUID:      sipUUID,
+			FileCount: fileCount,
+		},
+	).Return(nil, nil)
+	autoApproveA3mExpectations(s, params)
+	params.removePaths = []string{prepDownloadPath, transferPath}
+	cleanupExpectations(s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		WatcherName:     watcherName,
+		RetentionPeriod: retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAip,
+		Key:             key,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, false)
+}
+
 // TestFailedSIP tests:
 // - a3m as preservation system.
 // - The "create AIP" workflow type.
@@ -423,7 +542,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 				SharedPath:   prepSharedPath,
 			},
 		},
-	})
+	}, nil)
 
 	params := defaultParams()
 	params.downloadDestPath = prepSharedPath
@@ -432,7 +551,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 
 	// Fail the workflow on preprocessing.
 	s.env.OnWorkflow(
-		preprocessingChildWorkflow,
+		"preprocessing",
 		internalCtx,
 		&childwf.PreprocessingParams{
 			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
@@ -479,7 +598,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		Preservation:   pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:         ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 		ValidatePREMIS: premis.Config{Enabled: true, XSDPath: "/home/enduro/premis.xsd"},
-	})
+	}, nil)
 
 	params := defaultParams()
 	downloadExpectations(s, params)
@@ -546,7 +665,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		AM:           am.Config{ZipPIP: true},
 		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: amssLocationID}},
-	})
+	}, nil)
 
 	params := defaultParams()
 	downloadExpectations(s, params)
@@ -593,7 +712,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-	})
+	}, nil)
 
 	params := defaultParams()
 	expectations["setStatusInProgress"](s, params)
@@ -663,7 +782,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUploadError() {
 				SharedPath:   prepSharedPath,
 			},
 		},
-	})
+	}, nil)
 
 	downloadDir := filepath.Join(prepSharedPath, sipUUID.String())
 	params := defaultParams()
@@ -731,7 +850,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPSourceUpload() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-	})
+	}, nil)
 
 	params := defaultParams()
 	expectations["setStatusInProgress"](s, params)
@@ -794,7 +913,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPDeletionError() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-	})
+	}, nil)
 
 	params := defaultParams()
 	downloadExpectations(s, params)
@@ -850,7 +969,7 @@ func (s *ProcessingWorkflowTestSuite) TestBatchSignalDoNotContinue() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-	})
+	}, nil)
 
 	params := defaultParams()
 	downloadExpectations(s, params)

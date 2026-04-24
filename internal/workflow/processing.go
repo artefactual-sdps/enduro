@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"path/filepath"
+	"slices"
 	"strings"
 	"time"
 
@@ -1054,8 +1055,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 		WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, state.sip.uuid.String()),
 		ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,
 	})
-	var ppResult childwf.PreprocessingResult
-	err = temporalsdk_workflow.ExecuteChildWorkflow(
+	childWorkflow := temporalsdk_workflow.ExecuteChildWorkflow(
 		preCtx,
 		cfg.WorkflowName,
 		childwf.PreprocessingParams{
@@ -1064,9 +1064,56 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 			BatchID:      state.req.BatchUUID,
 			SIPName:      state.sip.name,
 		},
-	).Get(preCtx, &ppResult)
-	if err != nil {
+	)
+
+	var childExecution temporalsdk_workflow.Execution
+	if err := childWorkflow.GetChildWorkflowExecution().Get(preCtx, &childExecution); err != nil {
 		return err
+	}
+
+	var ppResult childwf.PreprocessingResult
+	for {
+		var (
+			err  error
+			req  childwf.DecisionRequest
+			done bool
+		)
+
+		// Wait for either the child workflow to complete or a decision request signal.
+		selector := temporalsdk_workflow.NewSelector(preCtx)
+		selector.AddFuture(childWorkflow, func(f temporalsdk_workflow.Future) {
+			done = true
+			err = f.Get(preCtx, &ppResult)
+		})
+		selector.AddReceive(
+			temporalsdk_workflow.GetSignalChannel(preCtx, childwf.DecisionRequestSignalName),
+			func(c temporalsdk_workflow.ReceiveChannel, more bool) {
+				if open := c.Receive(preCtx, &req); !open {
+					err = errors.New("child workflow decision request channel closed")
+				}
+			},
+		)
+		selector.Select(preCtx)
+
+		if err != nil {
+			return err
+		}
+
+		// If the child workflow completed, break the loop.
+		if done {
+			break
+		}
+
+		// Otherwise, handle the decision request and loop again.
+		if err := w.handleChildDecisionRequest(
+			preCtx,
+			state,
+			"Preprocessing workflow is waiting for user decision",
+			childExecution,
+			req,
+		); err != nil {
+			return err
+		}
 	}
 
 	// Set SIP info from preprocessing result on success.
@@ -1108,6 +1155,128 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 		state.status = enums.WorkflowStatusError
 		return fmt.Errorf("preprocessing workflow: unknown outcome %d", ppResult.Outcome)
 	}
+}
+
+// handleChildDecisionRequest records a pending child decision, waits for the
+// selected response, and forwards that response to the child execution.
+func (w *ProcessingWorkflow) handleChildDecisionRequest(
+	ctx temporalsdk_workflow.Context,
+	state *workflowState,
+	taskName string,
+	childExecution temporalsdk_workflow.Execution,
+	req childwf.DecisionRequest,
+) (e error) {
+	if strings.TrimSpace(req.Message) == "" {
+		return errors.New("child workflow decision request is missing a message")
+	}
+	if len(req.Options) == 0 {
+		return errors.New("child workflow decision request is missing options")
+	}
+
+	taskNote := req.Message + "\n\nAvailable options:\n- " + strings.Join(req.Options, "\n- ")
+	taskID, err := w.createTask(
+		ctx,
+		&datatypes.Task{
+			Name:         taskName,
+			Status:       enums.TaskStatusPending,
+			Note:         taskNote,
+			WorkflowUUID: state.workflowUUID,
+		},
+	)
+	if err != nil {
+		return err
+	}
+
+	decision := childwf.DecisionResponse{}
+	defer func() {
+		status := enums.TaskStatusDone
+		note := taskNote + fmt.Sprintf("\n\nUser selected option: %s", decision.Option)
+		if e != nil {
+			status = enums.TaskStatusError
+			note = taskNote + fmt.Sprintf("\n\nSystem error: %v", e)
+		}
+
+		err := w.completeTask(
+			ctx,
+			datatypes.Task{
+				ID:     taskID,
+				Status: status,
+				Note:   note,
+			},
+		)
+		if err != nil {
+			e = errors.Join(e, fmt.Errorf("complete child decision task: %v", err))
+		}
+	}()
+
+	if err := w.updateStatuses(ctx, state, enums.SIPStatusPending, enums.WorkflowStatusPending); err != nil {
+		return err
+	}
+
+	// TODO: Persist/expose the decision request so the API can show it to
+	// the user and submit the selected response back to this workflow.
+	// Use the following command to signal a decision response for testing:
+	// kubectl exec -it -n enduro-sdps deploy/temporal-admintools -- \
+	//   temporal workflow signal \
+	//   --namespace default \
+	//   --workflow-id processing-workflow-<sip-uuid> \
+	//   --name decision-response-signal \
+	//   --input '{"Option":"Continue and overwrite"}'
+	decision, err = w.waitForChildDecisionResponse(ctx, req)
+	if err != nil {
+		return err
+	}
+
+	if err := temporalsdk_workflow.SignalExternalWorkflow(
+		ctx,
+		childExecution.ID,
+		childExecution.RunID,
+		childwf.DecisionResponseSignalName,
+		decision,
+	).Get(ctx, nil); err != nil {
+		return err
+	}
+
+	return w.updateStatuses(ctx, state, enums.SIPStatusProcessing, enums.WorkflowStatusInProgress)
+}
+
+func (w *ProcessingWorkflow) updateStatuses(
+	ctx temporalsdk_workflow.Context, state *workflowState, ss enums.SIPStatus, ws enums.WorkflowStatus,
+) error {
+	activityOpts := withLocalActivityOpts(ctx)
+	if err := temporalsdk_workflow.ExecuteLocalActivity(
+		activityOpts,
+		setStatusLocalActivity,
+		w.ingestsvc,
+		state.sip.uuid,
+		ss,
+	).Get(activityOpts, nil); err != nil {
+		return err
+	}
+
+	return temporalsdk_workflow.ExecuteLocalActivity(
+		activityOpts,
+		setWorkflowStatusLocalActivity,
+		w.ingestsvc,
+		state.workflowID,
+		ws,
+	).Get(activityOpts, nil)
+}
+
+// waitForChildDecisionResponse blocks until the parent receives a child decision
+// response signal and rejects any option that was not in the corresponding request.
+func (w *ProcessingWorkflow) waitForChildDecisionResponse(
+	ctx temporalsdk_workflow.Context, req childwf.DecisionRequest,
+) (childwf.DecisionResponse, error) {
+	var decision childwf.DecisionResponse
+	open := temporalsdk_workflow.GetSignalChannel(ctx, childwf.DecisionResponseSignalName).Receive(ctx, &decision)
+	if !open {
+		return childwf.DecisionResponse{}, fmt.Errorf("%s channel closed", childwf.DecisionResponseSignalName)
+	}
+	if !slices.Contains(req.Options, decision.Option) {
+		return childwf.DecisionResponse{}, fmt.Errorf("invalid child workflow decision option %q", decision.Option)
+	}
+	return decision, nil
 }
 
 // poststorage executes the configured poststorage child workflows. It uses

@@ -52,12 +52,10 @@ type ProcessingWorkflowTestSuite struct {
 	workflow *ProcessingWorkflow
 }
 
-func preprocessingChildWorkflow(
+type preprocessingChildWorkflowFunc func(
 	ctx temporalsdk_workflow.Context,
 	params *childwf.PreprocessingParams,
-) (*childwf.PreprocessingResult, error) {
-	return nil, nil
-}
+) (*childwf.PreprocessingResult, error)
 
 func poststorageChildWorkflow(
 	ctx temporalsdk_workflow.Context,
@@ -72,10 +70,22 @@ func (s *ProcessingWorkflowTestSuite) CreateTransferDir() string {
 	return s.transferDir
 }
 
-func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration) {
+func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(
+	cfg config.Configuration,
+	preprocessingChildWorkflowFn preprocessingChildWorkflowFunc,
+) {
 	s.env = s.NewTestWorkflowEnvironment()
 	s.env.SetWorkerOptions(temporalsdk_worker.Options{EnableSessionWorker: true})
 	s.env.SetStartTime(startTime)
+
+	if preprocessingChildWorkflowFn == nil {
+		preprocessingChildWorkflowFn = func(
+			ctx temporalsdk_workflow.Context,
+			params *childwf.PreprocessingParams,
+		) (*childwf.PreprocessingResult, error) {
+			return nil, nil
+		}
+	}
 
 	ctrl := gomock.NewController(s.T())
 	ingestsvc := ingest_fake.NewMockService(ctrl)
@@ -160,7 +170,7 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration
 	)
 
 	s.env.RegisterWorkflowWithOptions(
-		preprocessingChildWorkflow,
+		preprocessingChildWorkflowFn,
 		temporalsdk_workflow.RegisterOptions{Name: "preprocessing"},
 	)
 	s.env.RegisterWorkflowWithOptions(
