@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
-import WorkflowHelp from "../WorkflowHelp.vue";
+import WorkflowHelp from "./WorkflowHelp.vue";
 
 describe("WorkflowHelp.vue", () => {
   it("renders the component correctly", () => {

@@ -3,7 +3,7 @@ import { VueDatePicker } from "@vuepic/vue-datepicker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
-import TimeDropdown from "../TimeDropdown.vue";
+import TimeDropdown from "./TimeDropdown.vue";
 
 describe("TimeDropdown.vue", () => {
   let wrapper: ReturnType<typeof mount>;

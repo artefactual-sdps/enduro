@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
-import ResultCounter from "../ResultCounter.vue";
+import ResultCounter from "./ResultCounter.vue";
 
 describe("ResultCounter", () => {
   it("renders correctly with zero results", () => {
