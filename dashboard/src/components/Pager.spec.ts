@@ -1,7 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
-import Pager from "../Pager.vue";
+import Pager from "./Pager.vue";
 
 describe("Pager", () => {
   it("renders the correct number of pages when there are less than maxVisiblePages", () => {

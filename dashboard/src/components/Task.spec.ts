@@ -1,7 +1,7 @@
 import { VueWrapper, mount } from "@vue/test-utils";
 import { beforeEach, describe, expect, it } from "vitest";
 
-import Task from "../Task.vue";
+import Task from "./Task.vue";
 
 describe("Task.vue", () => {
   let wrapper: VueWrapper;

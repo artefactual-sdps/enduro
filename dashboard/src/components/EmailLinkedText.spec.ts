@@ -1,7 +1,7 @@
 import { VueWrapper, mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
-import EmailLinkedText from "../EmailLinkedText.vue";
+import EmailLinkedText from "./EmailLinkedText.vue";
 
 describe("EmailLinkedText.vue", () => {
   let wrapper: VueWrapper;

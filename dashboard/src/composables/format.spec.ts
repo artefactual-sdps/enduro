@@ -5,7 +5,7 @@ import {
   formatDateTimeString,
   formatDuration,
   humanFileSize,
-} from "../format";
+} from "./format";
 
 describe("formatDateTime", () => {
   it("formats a date object with time", () => {
