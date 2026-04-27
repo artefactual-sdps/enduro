@@ -1,10 +1,11 @@
 # Validate this file:
-#   curl --data-binary @codecov.yml https://codecov.io/validate
+#   curl --data-binary @.codecov.yml https://codecov.io/validate
 
 # Threshold should not be as high once all packages are being tracked.
 
 comment:
   behavior: default
+  layout: "diff, flags, files"
 
 coverage:
   precision: 2
@@ -19,7 +20,6 @@ coverage:
         threshold: 1.0%
 
 ignore:
-- "dashboard/"
 - "docs/"
 - "hack/"
 - "internal/enums"
@@ -27,3 +27,11 @@ ignore:
 - "internal/**/gen/"
 - "internal/**/ent/db/"
 - "internal/**/ent/schema/"
+
+flags:
+  backend:
+    paths:
+    - "**/*.go"
+  dashboard:
+    paths:
+    - "dashboard/"
