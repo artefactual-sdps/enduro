@@ -1,0 +1,23 @@
+name: Determine skip-codecov
+description: Determine whether the current commit asks CI to skip Codecov uploads.
+outputs:
+  skip:
+    description: Whether Codecov uploads should be skipped.
+    value: ${{ steps.skip-codecov.outputs.skip }}
+runs:
+  using: composite
+  steps:
+    - name: Determine skip-codecov
+      uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
+      id: skip-codecov
+      with:
+        script: |
+          // Sets `ref` to the SHA of the current pull request's head commit,
+          // or, if not present, to the SHA of the commit that triggered the
+          // event.
+          const ref = '${{ github.event.pull_request.head.sha || github.event.after }}';
+          const { repo, owner } = context.repo;
+          const { data: commit } = await github.rest.repos.getCommit({ owner, repo, ref });
+          const commitMessage = commit.commit.message;
+          const skip = commitMessage.includes("[skip codecov]") || commitMessage.includes("[skip-codecov]");
+          core.setOutput("skip", skip);
