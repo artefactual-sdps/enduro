@@ -453,13 +453,6 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 		}, nil
 	})
 
-	s.env.RegisterDelayedCallback(func() {
-		s.env.SignalWorkflow(
-			childwf.DecisionResponseSignalName,
-			childwf.DecisionResponse{Option: "Continue"},
-		)
-	}, 0)
-
 	params := defaultParams()
 	params.downloadDestPath = prepSharedPath
 	params.downloadPath = prepDownloadPath + "/" + key
@@ -474,7 +467,23 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 	)
 	expectations["createTask"](s, params)
 	params.sipStatus = enums.SIPStatusPending
-	expectations["setStatus"](s, params)
+	s.env.OnActivity(
+		setStatusLocalActivity,
+		ctx,
+		s.workflow.ingestsvc,
+		sipUUID,
+		params.sipStatus,
+	).Run(func(args mock.Arguments) {
+		// The update handler is registered from workflow start, but rejects until
+		// the child decision request is recorded. Hook this to the pending-status
+		// activity so the test submits the decision at the same point a user sees it.
+		s.env.UpdateWorkflowNoRejection(
+			ingest.ChildDecisionUpdateName,
+			"preprocessing-decision",
+			s.T(),
+			childwf.DecisionResponse{Option: "Continue"},
+		)
+	}).Return(&setStatusLocalActivityResult{}, nil)
 	params.workflowStatus = enums.WorkflowStatusPending
 	expectations["setWorkflowStatus"](s, params)
 	params.sipStatus = enums.SIPStatusProcessing

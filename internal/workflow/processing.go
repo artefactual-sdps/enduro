@@ -60,6 +60,44 @@ func NewProcessingWorkflow(
 	}
 }
 
+func (w *ProcessingWorkflow) registerChildDecisionHandlers(
+	ctx temporalsdk_workflow.Context,
+	state *workflowState,
+) error {
+	if err := temporalsdk_workflow.SetQueryHandler(
+		ctx,
+		ingest.ChildDecisionQueryName,
+		func() (childwf.DecisionRequest, error) {
+			if state.childDecisionRequest == nil {
+				return childwf.DecisionRequest{}, nil
+			}
+
+			return *state.childDecisionRequest, nil
+		},
+	); err != nil {
+		return err
+	}
+
+	return temporalsdk_workflow.SetUpdateHandler(
+		ctx,
+		ingest.ChildDecisionUpdateName,
+		func(ctx temporalsdk_workflow.Context, decision childwf.DecisionResponse) error {
+			if state.childDecisionRequest == nil {
+				return errors.New("no child workflow decision request is pending")
+			}
+			if state.childDecisionResponse != nil {
+				return errors.New("child workflow decision response already submitted")
+			}
+			if !slices.Contains(state.childDecisionRequest.Options, decision.Option) {
+				return fmt.Errorf("invalid child workflow decision option %q", decision.Option)
+			}
+
+			state.childDecisionResponse = &decision
+			return nil
+		},
+	)
+}
+
 func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *workflowState) {
 	state.logger.Debug("Cleaning up workflow state")
 
@@ -174,6 +212,9 @@ func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, st
 func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.ProcessingWorkflowRequest) error {
 	// Create the initial workflow state.
 	state := newWorkflowState(ctx, req)
+	if err := w.registerChildDecisionHandlers(ctx, state); err != nil {
+		return err
+	}
 
 	// Persist the SIP as early as possible if the request comes from a watcher.
 	if state.req.WatcherName != "" {
@@ -1172,6 +1213,9 @@ func (w *ProcessingWorkflow) handleChildDecisionRequest(
 	if len(req.Options) == 0 {
 		return errors.New("child workflow decision request is missing options")
 	}
+	if state.childDecisionRequest != nil || state.childDecisionResponse != nil {
+		return errors.New("child workflow decision request is already pending")
+	}
 
 	taskNote := req.Message + "\n\nAvailable options:\n- " + strings.Join(req.Options, "\n- ")
 	taskID, err := w.createTask(
@@ -1187,10 +1231,19 @@ func (w *ProcessingWorkflow) handleChildDecisionRequest(
 		return err
 	}
 
-	decision := childwf.DecisionResponse{}
+	state.childDecisionRequest = &req
+	state.childDecisionResponse = nil
+	defer func() {
+		state.childDecisionRequest = nil
+		state.childDecisionResponse = nil
+	}()
+
 	defer func() {
 		status := enums.TaskStatusDone
-		note := taskNote + fmt.Sprintf("\n\nUser selected option: %s", decision.Option)
+		note := taskNote
+		if state.childDecisionResponse != nil {
+			note = taskNote + fmt.Sprintf("\n\nUser selected option: %s", state.childDecisionResponse.Option)
+		}
 		if e != nil {
 			status = enums.TaskStatusError
 			note = taskNote + fmt.Sprintf("\n\nSystem error: %v", e)
@@ -1213,17 +1266,7 @@ func (w *ProcessingWorkflow) handleChildDecisionRequest(
 		return err
 	}
 
-	// TODO: Persist/expose the decision request so the API can show it to
-	// the user and submit the selected response back to this workflow.
-	// Use the following command to signal a decision response for testing:
-	// kubectl exec -it -n enduro-sdps deploy/temporal-admintools -- \
-	//   temporal workflow signal \
-	//   --namespace default \
-	//   --workflow-id processing-workflow-<sip-uuid> \
-	//   --name decision-response-signal \
-	//   --input '{"Option":"Continue and overwrite"}'
-	decision, err = w.waitForChildDecisionResponse(ctx, req)
-	if err != nil {
+	if err := w.waitForChildDecisionResponse(ctx, state); err != nil {
 		return err
 	}
 
@@ -1232,7 +1275,7 @@ func (w *ProcessingWorkflow) handleChildDecisionRequest(
 		childExecution.ID,
 		childExecution.RunID,
 		childwf.DecisionResponseSignalName,
-		decision,
+		*state.childDecisionResponse,
 	).Get(ctx, nil); err != nil {
 		return err
 	}
@@ -1264,19 +1307,14 @@ func (w *ProcessingWorkflow) updateStatuses(
 }
 
 // waitForChildDecisionResponse blocks until the parent receives a child decision
-// response signal and rejects any option that was not in the corresponding request.
+// response through the registered workflow update handler.
 func (w *ProcessingWorkflow) waitForChildDecisionResponse(
-	ctx temporalsdk_workflow.Context, req childwf.DecisionRequest,
-) (childwf.DecisionResponse, error) {
-	var decision childwf.DecisionResponse
-	open := temporalsdk_workflow.GetSignalChannel(ctx, childwf.DecisionResponseSignalName).Receive(ctx, &decision)
-	if !open {
-		return childwf.DecisionResponse{}, fmt.Errorf("%s channel closed", childwf.DecisionResponseSignalName)
-	}
-	if !slices.Contains(req.Options, decision.Option) {
-		return childwf.DecisionResponse{}, fmt.Errorf("invalid child workflow decision option %q", decision.Option)
-	}
-	return decision, nil
+	ctx temporalsdk_workflow.Context,
+	state *workflowState,
+) error {
+	return temporalsdk_workflow.Await(ctx, func() bool {
+		return state.childDecisionResponse != nil
+	})
 }
 
 // poststorage executes the configured poststorage child workflows. It uses

@@ -23,6 +23,12 @@ const (
 	// BatchWorkflowName is the name of the Batch processing workflow.
 	BatchWorkflowName = "batch-workflow"
 
+	// ChildDecisionQueryName returns the decision request from the parent workflow.
+	ChildDecisionQueryName = "child-decision-query"
+
+	// ChildDecisionUpdateName submits a decision response to the parent workflow.
+	ChildDecisionUpdateName = "child-decision-update"
+
 	// ProcessingWorkflowName is the name of the SIP processing workflow.
 	ProcessingWorkflowName = "processing-workflow"
 

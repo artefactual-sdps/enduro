@@ -7,6 +7,7 @@ import (
 	temporalsdk_log "go.temporal.io/sdk/log"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
@@ -40,6 +41,12 @@ type workflowState struct {
 	// sip and aip track the state of the respective packages.
 	sip *sipInfo
 	aip *aipInfo
+
+	// childDecisionRequest tracks an active child workflow decision request.
+	childDecisionRequest *childwf.DecisionRequest
+
+	// childDecisionResponse tracks the selected response submitted by the API.
+	childDecisionResponse *childwf.DecisionResponse
 }
 
 func newWorkflowState(ctx temporalsdk_workflow.Context, req *ingest.ProcessingWorkflowRequest) *workflowState {
