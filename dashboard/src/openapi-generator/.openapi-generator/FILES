@@ -33,6 +33,7 @@ models/EnduroChildworkflow.ts
 models/EnduroIngestBatch.ts
 models/EnduroIngestBatches.ts
 models/EnduroIngestSip.ts
+models/EnduroIngestSipDecision.ts
 models/EnduroIngestSipTask.ts
 models/EnduroIngestSipWorkflow.ts
 models/EnduroIngestSipWorkflows.ts
@@ -76,6 +77,7 @@ models/StorageEventValueValue.ts
 models/StoragePingEvent.ts
 models/SubmitAIPResult.ts
 models/SubmitAipRequestBody.ts
+models/SubmitSipDecisionRequestBody.ts
 models/URLConfig.ts
 models/index.ts
 runtime.ts

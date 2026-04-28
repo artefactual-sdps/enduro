@@ -6,6 +6,7 @@ const (
 	IngestBatchesReadAttr           = "ingest:batches:read"
 	IngestBatchesReviewAttr         = "ingest:batches:review"
 	IngestSIPSCreateAttr            = "ingest:sips:create"
+	IngestSIPSDecisionAttr          = "ingest:sips:decision"
 	IngestSIPSDownloadAttr          = "ingest:sips:download"
 	IngestSIPSListAttr              = "ingest:sips:list"
 	IngestSIPSReadAttr              = "ingest:sips:read"

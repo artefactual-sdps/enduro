@@ -47,6 +47,16 @@ func RejectSipIngestPath(uuid string) string {
 	return fmt.Sprintf("/ingest/sips/%v/reject", uuid)
 }
 
+// ShowSipDecisionIngestPath returns the URL path to the ingest service show_sip_decision HTTP endpoint.
+func ShowSipDecisionIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/sips/%v/decision", uuid)
+}
+
+// SubmitSipDecisionIngestPath returns the URL path to the ingest service submit_sip_decision HTTP endpoint.
+func SubmitSipDecisionIngestPath(uuid string) string {
+	return fmt.Sprintf("/ingest/sips/%v/decision", uuid)
+}
+
 // AddSipIngestPath returns the URL path to the ingest service add_sip HTTP endpoint.
 func AddSipIngestPath() string {
 	return "/ingest/sips"

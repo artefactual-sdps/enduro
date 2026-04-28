@@ -49,6 +49,14 @@ type Client struct {
 	// endpoint.
 	RejectSipDoer goahttp.Doer
 
+	// ShowSipDecision Doer is the HTTP client used to make requests to the
+	// show_sip_decision endpoint.
+	ShowSipDecisionDoer goahttp.Doer
+
+	// SubmitSipDecision Doer is the HTTP client used to make requests to the
+	// submit_sip_decision endpoint.
+	SubmitSipDecisionDoer goahttp.Doer
+
 	// AddSip Doer is the HTTP client used to make requests to the add_sip endpoint.
 	AddSipDoer goahttp.Doer
 
@@ -125,6 +133,8 @@ func NewClient(
 		ListSipWorkflowsDoer:     doer,
 		ConfirmSipDoer:           doer,
 		RejectSipDoer:            doer,
+		ShowSipDecisionDoer:      doer,
+		SubmitSipDecisionDoer:    doer,
 		AddSipDoer:               doer,
 		UploadSipDoer:            doer,
 		DownloadSipRequestDoer:   doer,
@@ -327,6 +337,54 @@ func (c *Client) RejectSip() goa.Endpoint {
 		resp, err := c.RejectSipDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("ingest", "reject_sip", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// ShowSipDecision returns an endpoint that makes HTTP requests to the ingest
+// service show_sip_decision server.
+func (c *Client) ShowSipDecision() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeShowSipDecisionRequest(c.encoder)
+		decodeResponse = DecodeShowSipDecisionResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildShowSipDecisionRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.ShowSipDecisionDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("ingest", "show_sip_decision", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// SubmitSipDecision returns an endpoint that makes HTTP requests to the ingest
+// service submit_sip_decision server.
+func (c *Client) SubmitSipDecision() goa.Endpoint {
+	var (
+		encodeRequest  = EncodeSubmitSipDecisionRequest(c.encoder)
+		decodeResponse = DecodeSubmitSipDecisionResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v any) (any, error) {
+		req, err := c.BuildSubmitSipDecisionRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		err = encodeRequest(req, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.SubmitSipDecisionDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("ingest", "submit_sip_decision", err)
 		}
 		return decodeResponse(resp)
 	}

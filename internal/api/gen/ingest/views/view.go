@@ -40,6 +40,14 @@ type SIPWorkflows struct {
 	View string
 }
 
+// SIPDecision is the viewed result type that is projected based on a view.
+type SIPDecision struct {
+	// Type to project
+	Projected *SIPDecisionView
+	// View to render
+	View string
+}
+
 // Users is the viewed result type that is projected based on a view.
 type Users struct {
 	// Type to project
@@ -265,6 +273,12 @@ type SIPWorkflowsView struct {
 // SIPWorkflowCollectionView is a type that runs validations on a projected
 // type.
 type SIPWorkflowCollectionView []*SIPWorkflowView
+
+// SIPDecisionView is a type that runs validations on a projected type.
+type SIPDecisionView struct {
+	Message *string
+	Options []string
+}
 
 // UsersView is a type that runs validations on a projected type.
 type UsersView struct {
@@ -802,6 +816,14 @@ var (
 			"workflows",
 		},
 	}
+	// SIPDecisionMap is a map indexing the attribute names of SIPDecision by view
+	// name.
+	SIPDecisionMap = map[string][]string{
+		"default": {
+			"message",
+			"options",
+		},
+	}
 	// UsersMap is a map indexing the attribute names of Users by view name.
 	UsersMap = map[string][]string{
 		"default": {
@@ -1027,6 +1049,18 @@ func ValidateSIPWorkflows(result *SIPWorkflows) (err error) {
 	switch result.View {
 	case "default", "":
 		err = ValidateSIPWorkflowsView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
+	}
+	return
+}
+
+// ValidateSIPDecision runs the validations defined on the viewed result type
+// SIPDecision.
+func ValidateSIPDecision(result *SIPDecision) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateSIPDecisionView(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []any{"default"})
 	}
@@ -1588,6 +1622,18 @@ func ValidateSIPWorkflowCollectionView(result SIPWorkflowCollectionView) (err er
 		if err2 := ValidateSIPWorkflowView(item); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
+	}
+	return
+}
+
+// ValidateSIPDecisionView runs the validations defined on SIPDecisionView
+// using the "default" view.
+func ValidateSIPDecisionView(result *SIPDecisionView) (err error) {
+	if result.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "result"))
+	}
+	if result.Options == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("options", "result"))
 	}
 	return
 }

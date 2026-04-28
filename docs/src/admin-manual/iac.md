@@ -241,6 +241,8 @@ endpoints.
 | POST   | /ingest/sips/upload                   | `ingest:sips:upload`             |
 | GET    | /ingest/sips/{uuid}                   | `ingest:sips:read`               |
 | POST   | /ingest/sips/{uuid}/confirm           | `ingest:sips:review`             |
+| GET    | /ingest/sips/{uuid}/decision          | `ingest:sips:decision`           |
+| POST   | /ingest/sips/{uuid}/decision          | `ingest:sips:decision`           |
 | GET    | /ingest/sips/{uuid}/download          | `-`                              |
 | POST   | /ingest/sips/{uuid}/download          | `ingest:sips:download`           |
 | POST   | /ingest/sips/{uuid}/reject            | `ingest:sips:review`             |

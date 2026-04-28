@@ -960,6 +960,337 @@ func DecodeRejectSipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 	}
 }
 
+// BuildShowSipDecisionRequest instantiates a HTTP request object with method
+// and path set to call the "ingest" service "show_sip_decision" endpoint
+func (c *Client) BuildShowSipDecisionRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*ingest.ShowSipDecisionPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("ingest", "show_sip_decision", "*ingest.ShowSipDecisionPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: ShowSipDecisionIngestPath(uuid)}
+	req, err := http.NewRequest("GET", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "show_sip_decision", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeShowSipDecisionRequest returns an encoder for requests sent to the
+// ingest show_sip_decision server.
+func EncodeShowSipDecisionRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.ShowSipDecisionPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "show_sip_decision", "*ingest.ShowSipDecisionPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		return nil
+	}
+}
+
+// DecodeShowSipDecisionResponse returns a decoder for responses returned by
+// the ingest show_sip_decision endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeShowSipDecisionResponse may return the following errors:
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeShowSipDecisionResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusOK:
+			var (
+				body ShowSipDecisionResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_sip_decision", err)
+			}
+			p := NewShowSipDecisionSIPDecisionOK(&body)
+			view := "default"
+			vres := &ingestviews.SIPDecision{Projected: p, View: view}
+			if err = ingestviews.ValidateSIPDecision(vres); err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "show_sip_decision", err)
+			}
+			res := ingest.NewSIPDecision(vres)
+			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body ShowSipDecisionInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_sip_decision", err)
+			}
+			err = ValidateShowSipDecisionInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "show_sip_decision", err)
+			}
+			return nil, NewShowSipDecisionInternalError(&body)
+		case http.StatusConflict:
+			var (
+				body ShowSipDecisionNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_sip_decision", err)
+			}
+			err = ValidateShowSipDecisionNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "show_sip_decision", err)
+			}
+			return nil, NewShowSipDecisionNotAvailable(&body)
+		case http.StatusBadRequest:
+			var (
+				body ShowSipDecisionNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_sip_decision", err)
+			}
+			err = ValidateShowSipDecisionNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "show_sip_decision", err)
+			}
+			return nil, NewShowSipDecisionNotValid(&body)
+		case http.StatusNotFound:
+			var (
+				body ShowSipDecisionNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_sip_decision", err)
+			}
+			err = ValidateShowSipDecisionNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "show_sip_decision", err)
+			}
+			return nil, NewShowSipDecisionNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_sip_decision", err)
+			}
+			return nil, NewShowSipDecisionForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_sip_decision", err)
+			}
+			return nil, NewShowSipDecisionUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "show_sip_decision", resp.StatusCode, string(body))
+		}
+	}
+}
+
+// BuildSubmitSipDecisionRequest instantiates a HTTP request object with method
+// and path set to call the "ingest" service "submit_sip_decision" endpoint
+func (c *Client) BuildSubmitSipDecisionRequest(ctx context.Context, v any) (*http.Request, error) {
+	var (
+		uuid string
+	)
+	{
+		p, ok := v.(*ingest.SubmitSipDecisionPayload)
+		if !ok {
+			return nil, goahttp.ErrInvalidType("ingest", "submit_sip_decision", "*ingest.SubmitSipDecisionPayload", v)
+		}
+		uuid = p.UUID
+	}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: SubmitSipDecisionIngestPath(uuid)}
+	req, err := http.NewRequest("POST", u.String(), nil)
+	if err != nil {
+		return nil, goahttp.ErrInvalidURL("ingest", "submit_sip_decision", u.String(), err)
+	}
+	if ctx != nil {
+		req = req.WithContext(ctx)
+	}
+
+	return req, nil
+}
+
+// EncodeSubmitSipDecisionRequest returns an encoder for requests sent to the
+// ingest submit_sip_decision server.
+func EncodeSubmitSipDecisionRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
+	return func(req *http.Request, v any) error {
+		p, ok := v.(*ingest.SubmitSipDecisionPayload)
+		if !ok {
+			return goahttp.ErrInvalidType("ingest", "submit_sip_decision", "*ingest.SubmitSipDecisionPayload", v)
+		}
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
+		}
+		body := NewSubmitSipDecisionRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("ingest", "submit_sip_decision", err)
+		}
+		return nil
+	}
+}
+
+// DecodeSubmitSipDecisionResponse returns a decoder for responses returned by
+// the ingest submit_sip_decision endpoint. restoreBody controls whether the
+// response body should be restored after having been read.
+// DecodeSubmitSipDecisionResponse may return the following errors:
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
+//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
+//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
+//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
+//   - error: internal error
+func DecodeSubmitSipDecisionResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
+	return func(resp *http.Response) (any, error) {
+		if restoreBody {
+			b, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return nil, err
+			}
+			resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			defer func() {
+				resp.Body = io.NopCloser(bytes.NewBuffer(b))
+			}()
+		} else {
+			defer resp.Body.Close()
+		}
+		switch resp.StatusCode {
+		case http.StatusAccepted:
+			return nil, nil
+		case http.StatusInternalServerError:
+			var (
+				body SubmitSipDecisionInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "submit_sip_decision", err)
+			}
+			err = ValidateSubmitSipDecisionInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "submit_sip_decision", err)
+			}
+			return nil, NewSubmitSipDecisionInternalError(&body)
+		case http.StatusConflict:
+			var (
+				body SubmitSipDecisionNotAvailableResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "submit_sip_decision", err)
+			}
+			err = ValidateSubmitSipDecisionNotAvailableResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "submit_sip_decision", err)
+			}
+			return nil, NewSubmitSipDecisionNotAvailable(&body)
+		case http.StatusBadRequest:
+			var (
+				body SubmitSipDecisionNotValidResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "submit_sip_decision", err)
+			}
+			err = ValidateSubmitSipDecisionNotValidResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "submit_sip_decision", err)
+			}
+			return nil, NewSubmitSipDecisionNotValid(&body)
+		case http.StatusNotFound:
+			var (
+				body SubmitSipDecisionNotFoundResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "submit_sip_decision", err)
+			}
+			err = ValidateSubmitSipDecisionNotFoundResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "submit_sip_decision", err)
+			}
+			return nil, NewSubmitSipDecisionNotFound(&body)
+		case http.StatusForbidden:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "submit_sip_decision", err)
+			}
+			return nil, NewSubmitSipDecisionForbidden(body)
+		case http.StatusUnauthorized:
+			var (
+				body string
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "submit_sip_decision", err)
+			}
+			return nil, NewSubmitSipDecisionUnauthorized(body)
+		default:
+			body, _ := io.ReadAll(resp.Body)
+			return nil, goahttp.ErrInvalidResponse("ingest", "submit_sip_decision", resp.StatusCode, string(body))
+		}
+	}
+}
+
 // BuildAddSipRequest instantiates a HTTP request object with method and path
 // set to call the "ingest" service "add_sip" endpoint
 func (c *Client) BuildAddSipRequest(ctx context.Context, v any) (*http.Request, error) {

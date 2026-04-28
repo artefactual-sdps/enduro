@@ -605,6 +605,118 @@ paths:
                 - http
             security:
                 - jwt_header_Authorization: []
+    /ingest/sips/{uuid}/decision:
+        get:
+            tags:
+                - ingest
+            summary: show_sip_decision ingest
+            description: |-
+                Show the active child workflow decision request for a SIP
+
+                **Required security scopes for jwt**:
+                  * `ingest:sips:decision`
+            operationId: ingest#show_sip_decision
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of SIP to look up
+                  required: true
+                  type: string
+                  format: uuid
+            responses:
+                "200":
+                    description: OK response.
+                    schema:
+                        $ref: '#/definitions/EnduroIngestSipDecision'
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/IngestShowSipDecisionNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/SIPNotFound'
+                        required:
+                            - message
+                            - uuid
+                "409":
+                    description: Conflict response.
+                    schema:
+                        $ref: '#/definitions/IngestShowSipDecisionNotAvailableResponseBody'
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/IngestShowSipDecisionInternalErrorResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
+        post:
+            tags:
+                - ingest
+            summary: submit_sip_decision ingest
+            description: |-
+                Submit a selected child workflow decision option for a SIP
+
+                **Required security scopes for jwt**:
+                  * `ingest:sips:decision`
+            operationId: ingest#submit_sip_decision
+            parameters:
+                - name: uuid
+                  in: path
+                  description: Identifier of SIP to look up
+                  required: true
+                  type: string
+                  format: uuid
+                - name: submit_sip_decision_request_body
+                  in: body
+                  required: true
+                  schema:
+                    $ref: '#/definitions/IngestSubmitSipDecisionRequestBody'
+                    required:
+                        - option
+            responses:
+                "202":
+                    description: Accepted response.
+                "400":
+                    description: Bad Request response.
+                    schema:
+                        $ref: '#/definitions/IngestSubmitSipDecisionNotValidResponseBody'
+                "401":
+                    description: Unauthorized response.
+                    schema:
+                        type: string
+                "403":
+                    description: Forbidden response.
+                    schema:
+                        type: string
+                "404":
+                    description: Not Found response.
+                    schema:
+                        $ref: '#/definitions/SIPNotFound'
+                        required:
+                            - message
+                            - uuid
+                "409":
+                    description: Conflict response.
+                    schema:
+                        $ref: '#/definitions/IngestSubmitSipDecisionNotAvailableResponseBody'
+                "500":
+                    description: Internal Server Error response.
+                    schema:
+                        $ref: '#/definitions/IngestSubmitSipDecisionInternalErrorResponseBody'
+            schemes:
+                - http
+            security:
+                - jwt_header_Authorization: []
     /ingest/sips/{uuid}/download:
         get:
             tags:
@@ -2927,6 +3039,28 @@ definitions:
             - uuid
             - status
             - created_at
+    EnduroIngestSipDecision:
+        title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.decision; view=default'
+        type: object
+        properties:
+            message:
+                type: string
+                example: abc123
+            options:
+                type: array
+                items:
+                    type: string
+                    example: abc123
+                example:
+                    - abc123
+        description: show_sip_decision_response_body result type (default view)
+        example:
+            message: abc123
+            options:
+                - abc123
+        required:
+            - message
+            - options
     EnduroIngestSipTask:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.task; view=default'
         type: object
@@ -4686,6 +4820,135 @@ definitions:
             - temporary
             - timeout
             - fault
+    IngestShowSipDecisionInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: show_sip_decision_internal_error_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestShowSipDecisionNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: show_sip_decision_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestShowSipDecisionNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: show_sip_decision_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
     IngestShowSipNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4729,6 +4992,147 @@ definitions:
             - temporary
             - timeout
             - fault
+    IngestSubmitSipDecisionInternalErrorResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: submit_sip_decision_internal_error_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestSubmitSipDecisionNotAvailableResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: submit_sip_decision_not_available_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestSubmitSipDecisionNotValidResponseBody:
+        title: 'Mediatype identifier: application/vnd.goa.error; view=default'
+        type: object
+        properties:
+            fault:
+                type: boolean
+                description: Is the error a server-side fault?
+                example: false
+            id:
+                type: string
+                description: ID is a unique identifier for this particular occurrence of the problem.
+                example: 123abc
+            message:
+                type: string
+                description: Message is a human-readable explanation specific to this occurrence of the problem.
+                example: parameter 'p' must be an integer
+            name:
+                type: string
+                description: Name is the name of this class of errors.
+                example: bad_request
+            temporary:
+                type: boolean
+                description: Is the error temporary?
+                example: false
+            timeout:
+                type: boolean
+                description: Is the error a timeout?
+                example: false
+        description: submit_sip_decision_not_valid_response_body result type (default view)
+        example:
+            fault: false
+            id: 123abc
+            message: parameter 'p' must be an integer
+            name: bad_request
+            temporary: false
+            timeout: false
+        required:
+            - name
+            - id
+            - message
+            - temporary
+            - timeout
+            - fault
+    IngestSubmitSipDecisionRequestBody:
+        title: IngestSubmitSipDecisionRequestBody
+        type: object
+        properties:
+            option:
+                type: string
+                description: Selected decision option
+                example: abc123
+        example:
+            option: abc123
+        required:
+            - option
     IngestUploadSipInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -7433,6 +7837,7 @@ securityDefinitions:
               * `ingest:batches:read`: no description
               * `ingest:batches:review`: no description
               * `ingest:sips:create`: no description
+              * `ingest:sips:decision`: no description
               * `ingest:sips:download`: no description
               * `ingest:sips:list`: no description
               * `ingest:sips:read`: no description

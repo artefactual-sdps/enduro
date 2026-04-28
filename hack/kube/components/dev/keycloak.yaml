@@ -116,6 +116,7 @@ data:
           "attributes": {
             "enduro": [
               "ingest:sips:create",
+              "ingest:sips:decision",
               "ingest:sips:download",
               "ingest:sips:list",
               "ingest:sips:read",

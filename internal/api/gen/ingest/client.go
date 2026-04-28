@@ -24,6 +24,8 @@ type Client struct {
 	ListSipWorkflowsEndpoint     goa.Endpoint
 	ConfirmSipEndpoint           goa.Endpoint
 	RejectSipEndpoint            goa.Endpoint
+	ShowSipDecisionEndpoint      goa.Endpoint
+	SubmitSipDecisionEndpoint    goa.Endpoint
 	AddSipEndpoint               goa.Endpoint
 	UploadSipEndpoint            goa.Endpoint
 	DownloadSipRequestEndpoint   goa.Endpoint
@@ -37,7 +39,7 @@ type Client struct {
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, addSip, uploadSip, downloadSipRequest, downloadSip, listUsers, listSipSourceObjects, addBatch, listBatches, showBatch, reviewBatch goa.Endpoint) *Client {
+func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, showSipDecision, submitSipDecision, addSip, uploadSip, downloadSipRequest, downloadSip, listUsers, listSipSourceObjects, addBatch, listBatches, showBatch, reviewBatch goa.Endpoint) *Client {
 	return &Client{
 		MonitorRequestEndpoint:       monitorRequest,
 		MonitorEndpoint:              monitor,
@@ -46,6 +48,8 @@ func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, con
 		ListSipWorkflowsEndpoint:     listSipWorkflows,
 		ConfirmSipEndpoint:           confirmSip,
 		RejectSipEndpoint:            rejectSip,
+		ShowSipDecisionEndpoint:      showSipDecision,
+		SubmitSipDecisionEndpoint:    submitSipDecision,
 		AddSipEndpoint:               addSip,
 		UploadSipEndpoint:            uploadSip,
 		DownloadSipRequestEndpoint:   downloadSipRequest,
@@ -159,6 +163,40 @@ func (c *Client) ConfirmSip(ctx context.Context, p *ConfirmSipPayload) (err erro
 //   - error: internal error
 func (c *Client) RejectSip(ctx context.Context, p *RejectSipPayload) (err error) {
 	_, err = c.RejectSipEndpoint(ctx, p)
+	return
+}
+
+// ShowSipDecision calls the "show_sip_decision" endpoint of the "ingest"
+// service.
+// ShowSipDecision may return the following errors:
+//   - "not_found" (type *SIPNotFound): SIP not found
+//   - "internal_error" (type *goa.ServiceError)
+//   - "not_available" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) ShowSipDecision(ctx context.Context, p *ShowSipDecisionPayload) (res *SIPDecision, err error) {
+	var ires any
+	ires, err = c.ShowSipDecisionEndpoint(ctx, p)
+	if err != nil {
+		return
+	}
+	return ires.(*SIPDecision), nil
+}
+
+// SubmitSipDecision calls the "submit_sip_decision" endpoint of the "ingest"
+// service.
+// SubmitSipDecision may return the following errors:
+//   - "not_found" (type *SIPNotFound): SIP not found
+//   - "internal_error" (type *goa.ServiceError)
+//   - "not_available" (type *goa.ServiceError)
+//   - "not_valid" (type *goa.ServiceError)
+//   - "unauthorized" (type Unauthorized)
+//   - "forbidden" (type Forbidden)
+//   - error: internal error
+func (c *Client) SubmitSipDecision(ctx context.Context, p *SubmitSipDecisionPayload) (err error) {
+	_, err = c.SubmitSipDecisionEndpoint(ctx, p)
 	return
 }
 

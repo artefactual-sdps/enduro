@@ -36,6 +36,10 @@ type Service interface {
 	ConfirmSip(context.Context, *ConfirmSipPayload) (err error)
 	// Signal the SIP has been reviewed and rejected
 	RejectSip(context.Context, *RejectSipPayload) (err error)
+	// Show the active child workflow decision request for a SIP
+	ShowSipDecision(context.Context, *ShowSipDecisionPayload) (res *SIPDecision, err error)
+	// Submit a selected child workflow decision option for a SIP
+	SubmitSipDecision(context.Context, *SubmitSipDecisionPayload) (err error)
 	// Ingest a SIP from a SIP Source
 	AddSip(context.Context, *AddSipPayload) (res *AddSipResult, err error)
 	// Upload a SIP to trigger an ingest workflow
@@ -83,7 +87,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [17]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "add_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_sip_source_objects", "add_batch", "list_batches", "show_batch", "review_batch"}
+var MethodNames = [19]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "show_sip_decision", "submit_sip_decision", "add_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_sip_source_objects", "add_batch", "list_batches", "show_batch", "review_batch"}
 
 // MonitorServerStream allows streaming instances of *IngestEvent to the client.
 type MonitorServerStream interface {
@@ -392,6 +396,13 @@ type SIPCreatedEvent struct {
 	Item *SIP
 }
 
+// SIPDecision is the result type of the ingest service show_sip_decision
+// method.
+type SIPDecision struct {
+	Message string
+	Options []string
+}
+
 // SIP not found.
 type SIPNotFound struct {
 	// Message of error
@@ -510,11 +521,29 @@ type ShowBatchPayload struct {
 	Token *string
 }
 
+// ShowSipDecisionPayload is the payload type of the ingest service
+// show_sip_decision method.
+type ShowSipDecisionPayload struct {
+	// Identifier of SIP to look up
+	UUID  string
+	Token *string
+}
+
 // ShowSipPayload is the payload type of the ingest service show_sip method.
 type ShowSipPayload struct {
 	// Identifier of SIP to show
 	UUID  string
 	Token *string
+}
+
+// SubmitSipDecisionPayload is the payload type of the ingest service
+// submit_sip_decision method.
+type SubmitSipDecisionPayload struct {
+	// Identifier of SIP to look up
+	UUID string
+	// Selected decision option
+	Option string
+	Token  *string
 }
 
 // UploadSipPayload is the payload type of the ingest service upload_sip method.
@@ -1136,6 +1165,19 @@ func NewViewedSIPWorkflows(res *SIPWorkflows, view string) *ingestviews.SIPWorkf
 	return &ingestviews.SIPWorkflows{Projected: p, View: "default"}
 }
 
+// NewSIPDecision initializes result type SIPDecision from viewed result type
+// SIPDecision.
+func NewSIPDecision(vres *ingestviews.SIPDecision) *SIPDecision {
+	return newSIPDecision(vres.Projected)
+}
+
+// NewViewedSIPDecision initializes viewed result type SIPDecision from result
+// type SIPDecision using the given view.
+func NewViewedSIPDecision(res *SIPDecision, view string) *ingestviews.SIPDecision {
+	p := newSIPDecisionView(res)
+	return &ingestviews.SIPDecision{Projected: p, View: "default"}
+}
+
 // NewUsers initializes result type Users from viewed result type Users.
 func NewUsers(vres *ingestviews.Users) *Users {
 	return newUsers(vres.Projected)
@@ -1563,6 +1605,39 @@ func newSIPWorkflowCollectionView(res SIPWorkflowCollection) ingestviews.SIPWork
 	vres := make(ingestviews.SIPWorkflowCollectionView, len(res))
 	for i, n := range res {
 		vres[i] = newSIPWorkflowView(n)
+	}
+	return vres
+}
+
+// newSIPDecision converts projected type SIPDecision to service type
+// SIPDecision.
+func newSIPDecision(vres *ingestviews.SIPDecisionView) *SIPDecision {
+	res := &SIPDecision{}
+	if vres.Message != nil {
+		res.Message = *vres.Message
+	}
+	if vres.Options != nil {
+		res.Options = make([]string, len(vres.Options))
+		for i, val := range vres.Options {
+			res.Options[i] = val
+		}
+	}
+	return res
+}
+
+// newSIPDecisionView projects result type SIPDecision to projected type
+// SIPDecisionView using the "default" view.
+func newSIPDecisionView(res *SIPDecision) *ingestviews.SIPDecisionView {
+	vres := &ingestviews.SIPDecisionView{
+		Message: &res.Message,
+	}
+	if res.Options != nil {
+		vres.Options = make([]string, len(res.Options))
+		for i, val := range res.Options {
+			vres.Options[i] = val
+		}
+	} else {
+		vres.Options = []string{}
 	}
 	return vres
 }

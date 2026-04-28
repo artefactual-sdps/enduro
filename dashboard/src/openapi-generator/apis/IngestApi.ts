@@ -22,6 +22,7 @@ import type {
   EnduroIngestBatch,
   EnduroIngestBatches,
   EnduroIngestSip,
+  EnduroIngestSipDecision,
   EnduroIngestSipWorkflows,
   EnduroIngestSips,
   EnduroIngestSipsourceObjects,
@@ -29,6 +30,7 @@ import type {
   IngestEvent,
   ReviewBatchRequestBody,
   SIPNotFound,
+  SubmitSipDecisionRequestBody,
 } from '../models/index';
 import {
     AddBatchRequestBodyFromJSON,
@@ -45,6 +47,8 @@ import {
     EnduroIngestBatchesToJSON,
     EnduroIngestSipFromJSON,
     EnduroIngestSipToJSON,
+    EnduroIngestSipDecisionFromJSON,
+    EnduroIngestSipDecisionToJSON,
     EnduroIngestSipWorkflowsFromJSON,
     EnduroIngestSipWorkflowsToJSON,
     EnduroIngestSipsFromJSON,
@@ -59,6 +63,8 @@ import {
     ReviewBatchRequestBodyToJSON,
     SIPNotFoundFromJSON,
     SIPNotFoundToJSON,
+    SubmitSipDecisionRequestBodyFromJSON,
+    SubmitSipDecisionRequestBodyToJSON,
 } from '../models/index';
 
 export interface IngestAddBatchRequest {
@@ -142,6 +148,15 @@ export interface IngestShowBatchRequest {
 
 export interface IngestShowSipRequest {
     uuid: string;
+}
+
+export interface IngestShowSipDecisionRequest {
+    uuid: string;
+}
+
+export interface IngestSubmitSipDecisionRequest {
+    uuid: string;
+    submitSipDecisionRequestBody: SubmitSipDecisionRequestBody;
 }
 
 export interface IngestUploadSipRequest {
@@ -582,6 +597,56 @@ export interface IngestApiInterface {
      * show_sip ingest
      */
     ingestShowSip(requestParameters: IngestShowSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSip>;
+
+    /**
+     * Creates request options for ingestShowSipDecision without sending the request
+     * @param {string} uuid Identifier of SIP to look up
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestShowSipDecisionRequestOpts(requestParameters: IngestShowSipDecisionRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * Show the active child workflow decision request for a SIP
+     * @summary show_sip_decision ingest
+     * @param {string} uuid Identifier of SIP to look up
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestShowSipDecisionRaw(requestParameters: IngestShowSipDecisionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSipDecision>>;
+
+    /**
+     * Show the active child workflow decision request for a SIP
+     * show_sip_decision ingest
+     */
+    ingestShowSipDecision(requestParameters: IngestShowSipDecisionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSipDecision>;
+
+    /**
+     * Creates request options for ingestSubmitSipDecision without sending the request
+     * @param {string} uuid Identifier of SIP to look up
+     * @param {SubmitSipDecisionRequestBody} submitSipDecisionRequestBody 
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestSubmitSipDecisionRequestOpts(requestParameters: IngestSubmitSipDecisionRequest): Promise<runtime.RequestOpts>;
+
+    /**
+     * Submit a selected child workflow decision option for a SIP
+     * @summary submit_sip_decision ingest
+     * @param {string} uuid Identifier of SIP to look up
+     * @param {SubmitSipDecisionRequestBody} submitSipDecisionRequestBody 
+     * @param {*} [options] Override http request option.
+     * @throws {RequiredError}
+     * @memberof IngestApiInterface
+     */
+    ingestSubmitSipDecisionRaw(requestParameters: IngestSubmitSipDecisionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+
+    /**
+     * Submit a selected child workflow decision option for a SIP
+     * submit_sip_decision ingest
+     */
+    ingestSubmitSipDecision(requestParameters: IngestSubmitSipDecisionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * Creates request options for ingestUploadSip without sending the request
@@ -1554,6 +1619,125 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     async ingestShowSip(requestParameters: IngestShowSipRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSip> {
         const response = await this.ingestShowSipRaw(requestParameters, initOverrides);
         return await response.value();
+    }
+
+    /**
+     * Creates request options for ingestShowSipDecision without sending the request
+     */
+    async ingestShowSipDecisionRequestOpts(requestParameters: IngestShowSipDecisionRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestShowSipDecision().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:decision"]);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/ingest/sips/{uuid}/decision`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
+            method: 'GET',
+            headers: headerParameters,
+            query: queryParameters,
+        };
+    }
+
+    /**
+     * Show the active child workflow decision request for a SIP
+     * show_sip_decision ingest
+     */
+    async ingestShowSipDecisionRaw(requestParameters: IngestShowSipDecisionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EnduroIngestSipDecision>> {
+        const requestOptions = await this.ingestShowSipDecisionRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => EnduroIngestSipDecisionFromJSON(jsonValue));
+    }
+
+    /**
+     * Show the active child workflow decision request for a SIP
+     * show_sip_decision ingest
+     */
+    async ingestShowSipDecision(requestParameters: IngestShowSipDecisionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EnduroIngestSipDecision> {
+        const response = await this.ingestShowSipDecisionRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
+
+    /**
+     * Creates request options for ingestSubmitSipDecision without sending the request
+     */
+    async ingestSubmitSipDecisionRequestOpts(requestParameters: IngestSubmitSipDecisionRequest): Promise<runtime.RequestOpts> {
+        if (requestParameters['uuid'] == null) {
+            throw new runtime.RequiredError(
+                'uuid',
+                'Required parameter "uuid" was null or undefined when calling ingestSubmitSipDecision().'
+            );
+        }
+
+        if (requestParameters['submitSipDecisionRequestBody'] == null) {
+            throw new runtime.RequiredError(
+                'submitSipDecisionRequestBody',
+                'Required parameter "submitSipDecisionRequestBody" was null or undefined when calling ingestSubmitSipDecision().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+        if (this.configuration && this.configuration.accessToken) {
+            const token = this.configuration.accessToken;
+            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:decision"]);
+
+            if (tokenString) {
+                headerParameters["Authorization"] = `Bearer ${tokenString}`;
+            }
+        }
+
+        let urlPath = `/ingest/sips/{uuid}/decision`;
+        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+
+        return {
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: SubmitSipDecisionRequestBodyToJSON(requestParameters['submitSipDecisionRequestBody']),
+        };
+    }
+
+    /**
+     * Submit a selected child workflow decision option for a SIP
+     * submit_sip_decision ingest
+     */
+    async ingestSubmitSipDecisionRaw(requestParameters: IngestSubmitSipDecisionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.ingestSubmitSipDecisionRequestOpts(requestParameters);
+        const response = await this.request(requestOptions, initOverrides);
+
+        return new runtime.VoidApiResponse(response);
+    }
+
+    /**
+     * Submit a selected child workflow decision option for a SIP
+     * submit_sip_decision ingest
+     */
+    async ingestSubmitSipDecision(requestParameters: IngestSubmitSipDecisionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.ingestSubmitSipDecisionRaw(requestParameters, initOverrides);
     }
 
     /**

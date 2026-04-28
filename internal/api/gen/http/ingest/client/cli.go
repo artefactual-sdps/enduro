@@ -273,6 +273,65 @@ func BuildRejectSipPayload(ingestRejectSipUUID string, ingestRejectSipToken stri
 	return v, nil
 }
 
+// BuildShowSipDecisionPayload builds the payload for the ingest
+// show_sip_decision endpoint from CLI flags.
+func BuildShowSipDecisionPayload(ingestShowSipDecisionUUID string, ingestShowSipDecisionToken string) (*ingest.ShowSipDecisionPayload, error) {
+	var err error
+	var uuid string
+	{
+		uuid = ingestShowSipDecisionUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if ingestShowSipDecisionToken != "" {
+			token = &ingestShowSipDecisionToken
+		}
+	}
+	v := &ingest.ShowSipDecisionPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
+// BuildSubmitSipDecisionPayload builds the payload for the ingest
+// submit_sip_decision endpoint from CLI flags.
+func BuildSubmitSipDecisionPayload(ingestSubmitSipDecisionBody string, ingestSubmitSipDecisionUUID string, ingestSubmitSipDecisionToken string) (*ingest.SubmitSipDecisionPayload, error) {
+	var err error
+	var body SubmitSipDecisionRequestBody
+	{
+		err = json.Unmarshal([]byte(ingestSubmitSipDecisionBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"option\": \"abc123\"\n   }'")
+		}
+	}
+	var uuid string
+	{
+		uuid = ingestSubmitSipDecisionUUID
+		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
+		if err != nil {
+			return nil, err
+		}
+	}
+	var token *string
+	{
+		if ingestSubmitSipDecisionToken != "" {
+			token = &ingestSubmitSipDecisionToken
+		}
+	}
+	v := &ingest.SubmitSipDecisionPayload{
+		Option: body.Option,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v, nil
+}
+
 // BuildAddSipPayload builds the payload for the ingest add_sip endpoint from
 // CLI flags.
 func BuildAddSipPayload(ingestAddSipSourceID string, ingestAddSipKey string, ingestAddSipToken string) (*ingest.AddSipPayload, error) {

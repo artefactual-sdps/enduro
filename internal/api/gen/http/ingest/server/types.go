@@ -25,6 +25,13 @@ type ConfirmSipRequestBody struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 }
 
+// SubmitSipDecisionRequestBody is the type of the "ingest" service
+// "submit_sip_decision" endpoint HTTP request body.
+type SubmitSipDecisionRequestBody struct {
+	// Selected decision option
+	Option *string `form:"option,omitempty" json:"option,omitempty" xml:"option,omitempty"`
+}
+
 // AddBatchRequestBody is the type of the "ingest" service "add_batch" endpoint
 // HTTP request body.
 type AddBatchRequestBody struct {
@@ -96,6 +103,13 @@ type ShowSipResponseBody struct {
 // "list_sip_workflows" endpoint HTTP response body.
 type ListSipWorkflowsResponseBody struct {
 	Workflows SIPWorkflowResponseBodyCollection `form:"workflows,omitempty" json:"workflows,omitempty" xml:"workflows,omitempty"`
+}
+
+// ShowSipDecisionResponseBody is the type of the "ingest" service
+// "show_sip_decision" endpoint HTTP response body.
+type ShowSipDecisionResponseBody struct {
+	Message string   `form:"message" json:"message" xml:"message"`
+	Options []string `form:"options" json:"options" xml:"options"`
 }
 
 // AddSipResponseBody is the type of the "ingest" service "add_sip" endpoint
@@ -342,6 +356,136 @@ type RejectSipNotValidResponseBody struct {
 // RejectSipNotFoundResponseBody is the type of the "ingest" service
 // "reject_sip" endpoint HTTP response body for the "not_found" error.
 type RejectSipNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing SIP
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// ShowSipDecisionInternalErrorResponseBody is the type of the "ingest" service
+// "show_sip_decision" endpoint HTTP response body for the "internal_error"
+// error.
+type ShowSipDecisionInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ShowSipDecisionNotAvailableResponseBody is the type of the "ingest" service
+// "show_sip_decision" endpoint HTTP response body for the "not_available"
+// error.
+type ShowSipDecisionNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ShowSipDecisionNotValidResponseBody is the type of the "ingest" service
+// "show_sip_decision" endpoint HTTP response body for the "not_valid" error.
+type ShowSipDecisionNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ShowSipDecisionNotFoundResponseBody is the type of the "ingest" service
+// "show_sip_decision" endpoint HTTP response body for the "not_found" error.
+type ShowSipDecisionNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing SIP
+	UUID string `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// SubmitSipDecisionInternalErrorResponseBody is the type of the "ingest"
+// service "submit_sip_decision" endpoint HTTP response body for the
+// "internal_error" error.
+type SubmitSipDecisionInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// SubmitSipDecisionNotAvailableResponseBody is the type of the "ingest"
+// service "submit_sip_decision" endpoint HTTP response body for the
+// "not_available" error.
+type SubmitSipDecisionNotAvailableResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// SubmitSipDecisionNotValidResponseBody is the type of the "ingest" service
+// "submit_sip_decision" endpoint HTTP response body for the "not_valid" error.
+type SubmitSipDecisionNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// SubmitSipDecisionNotFoundResponseBody is the type of the "ingest" service
+// "submit_sip_decision" endpoint HTTP response body for the "not_found" error.
+type SubmitSipDecisionNotFoundResponseBody struct {
 	// Message of error
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing SIP
@@ -1567,6 +1711,23 @@ func NewListSipWorkflowsResponseBody(res *ingestviews.SIPWorkflowsView) *ListSip
 	return body
 }
 
+// NewShowSipDecisionResponseBody builds the HTTP response body from the result
+// of the "show_sip_decision" endpoint of the "ingest" service.
+func NewShowSipDecisionResponseBody(res *ingestviews.SIPDecisionView) *ShowSipDecisionResponseBody {
+	body := &ShowSipDecisionResponseBody{
+		Message: *res.Message,
+	}
+	if res.Options != nil {
+		body.Options = make([]string, len(res.Options))
+		for i, val := range res.Options {
+			body.Options[i] = val
+		}
+	} else {
+		body.Options = []string{}
+	}
+	return body
+}
+
 // NewAddSipResponseBody builds the HTTP response body from the result of the
 // "add_sip" endpoint of the "ingest" service.
 func NewAddSipResponseBody(res *ingest.AddSipResult) *AddSipResponseBody {
@@ -1824,6 +1985,112 @@ func NewRejectSipNotValidResponseBody(res *goa.ServiceError) *RejectSipNotValidR
 // result of the "reject_sip" endpoint of the "ingest" service.
 func NewRejectSipNotFoundResponseBody(res *ingest.SIPNotFound) *RejectSipNotFoundResponseBody {
 	body := &RejectSipNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
+// NewShowSipDecisionInternalErrorResponseBody builds the HTTP response body
+// from the result of the "show_sip_decision" endpoint of the "ingest" service.
+func NewShowSipDecisionInternalErrorResponseBody(res *goa.ServiceError) *ShowSipDecisionInternalErrorResponseBody {
+	body := &ShowSipDecisionInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewShowSipDecisionNotAvailableResponseBody builds the HTTP response body
+// from the result of the "show_sip_decision" endpoint of the "ingest" service.
+func NewShowSipDecisionNotAvailableResponseBody(res *goa.ServiceError) *ShowSipDecisionNotAvailableResponseBody {
+	body := &ShowSipDecisionNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewShowSipDecisionNotValidResponseBody builds the HTTP response body from
+// the result of the "show_sip_decision" endpoint of the "ingest" service.
+func NewShowSipDecisionNotValidResponseBody(res *goa.ServiceError) *ShowSipDecisionNotValidResponseBody {
+	body := &ShowSipDecisionNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewShowSipDecisionNotFoundResponseBody builds the HTTP response body from
+// the result of the "show_sip_decision" endpoint of the "ingest" service.
+func NewShowSipDecisionNotFoundResponseBody(res *ingest.SIPNotFound) *ShowSipDecisionNotFoundResponseBody {
+	body := &ShowSipDecisionNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
+// NewSubmitSipDecisionInternalErrorResponseBody builds the HTTP response body
+// from the result of the "submit_sip_decision" endpoint of the "ingest"
+// service.
+func NewSubmitSipDecisionInternalErrorResponseBody(res *goa.ServiceError) *SubmitSipDecisionInternalErrorResponseBody {
+	body := &SubmitSipDecisionInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewSubmitSipDecisionNotAvailableResponseBody builds the HTTP response body
+// from the result of the "submit_sip_decision" endpoint of the "ingest"
+// service.
+func NewSubmitSipDecisionNotAvailableResponseBody(res *goa.ServiceError) *SubmitSipDecisionNotAvailableResponseBody {
+	body := &SubmitSipDecisionNotAvailableResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewSubmitSipDecisionNotValidResponseBody builds the HTTP response body from
+// the result of the "submit_sip_decision" endpoint of the "ingest" service.
+func NewSubmitSipDecisionNotValidResponseBody(res *goa.ServiceError) *SubmitSipDecisionNotValidResponseBody {
+	body := &SubmitSipDecisionNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewSubmitSipDecisionNotFoundResponseBody builds the HTTP response body from
+// the result of the "submit_sip_decision" endpoint of the "ingest" service.
+func NewSubmitSipDecisionNotFoundResponseBody(res *ingest.SIPNotFound) *SubmitSipDecisionNotFoundResponseBody {
+	body := &SubmitSipDecisionNotFoundResponseBody{
 		Message: res.Message,
 		UUID:    res.UUID,
 	}
@@ -2241,6 +2508,28 @@ func NewRejectSipPayload(uuid string, token *string) *ingest.RejectSipPayload {
 	return v
 }
 
+// NewShowSipDecisionPayload builds a ingest service show_sip_decision endpoint
+// payload.
+func NewShowSipDecisionPayload(uuid string, token *string) *ingest.ShowSipDecisionPayload {
+	v := &ingest.ShowSipDecisionPayload{}
+	v.UUID = uuid
+	v.Token = token
+
+	return v
+}
+
+// NewSubmitSipDecisionPayload builds a ingest service submit_sip_decision
+// endpoint payload.
+func NewSubmitSipDecisionPayload(body *SubmitSipDecisionRequestBody, uuid string, token *string) *ingest.SubmitSipDecisionPayload {
+	v := &ingest.SubmitSipDecisionPayload{
+		Option: *body.Option,
+	}
+	v.UUID = uuid
+	v.Token = token
+
+	return v
+}
+
 // NewAddSipPayload builds a ingest service add_sip endpoint payload.
 func NewAddSipPayload(sourceID string, key string, token *string) *ingest.AddSipPayload {
 	v := &ingest.AddSipPayload{}
@@ -2358,6 +2647,15 @@ func NewReviewBatchPayload(body *ReviewBatchRequestBody, uuid string, token *str
 func ValidateConfirmSipRequestBody(body *ConfirmSipRequestBody) (err error) {
 	if body.LocationUUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("location_uuid", "body"))
+	}
+	return
+}
+
+// ValidateSubmitSipDecisionRequestBody runs the validations defined on
+// submit_sip_decision_request_body
+func ValidateSubmitSipDecisionRequestBody(body *SubmitSipDecisionRequestBody) (err error) {
+	if body.Option == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("option", "body"))
 	}
 	return
 }

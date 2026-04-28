@@ -27,7 +27,7 @@ import (
 func UsageCommands() []string {
 	return []string{
 		"about about",
-		"ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects|add-batch|list-batches|show-batch|review-batch)",
+		"ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|show-sip-decision|submit-sip-decision|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects|add-batch|list-batches|show-batch|review-batch)",
 		"storage (monitor-request|monitor|list-aips|create-aip|submit-aip|submit-aip-complete|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|aip-deletion-auto|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|aip-deletion-report-request|aip-deletion-report|list-locations|create-location|show-location|list-location-aips)",
 	}
 }
@@ -94,6 +94,15 @@ func ParseEndpoint(
 		ingestRejectSipFlags     = flag.NewFlagSet("reject-sip", flag.ExitOnError)
 		ingestRejectSipUUIDFlag  = ingestRejectSipFlags.String("uuid", "REQUIRED", "Identifier of SIP to look up")
 		ingestRejectSipTokenFlag = ingestRejectSipFlags.String("token", "", "")
+
+		ingestShowSipDecisionFlags     = flag.NewFlagSet("show-sip-decision", flag.ExitOnError)
+		ingestShowSipDecisionUUIDFlag  = ingestShowSipDecisionFlags.String("uuid", "REQUIRED", "Identifier of SIP to look up")
+		ingestShowSipDecisionTokenFlag = ingestShowSipDecisionFlags.String("token", "", "")
+
+		ingestSubmitSipDecisionFlags     = flag.NewFlagSet("submit-sip-decision", flag.ExitOnError)
+		ingestSubmitSipDecisionBodyFlag  = ingestSubmitSipDecisionFlags.String("body", "REQUIRED", "")
+		ingestSubmitSipDecisionUUIDFlag  = ingestSubmitSipDecisionFlags.String("uuid", "REQUIRED", "Identifier of SIP to look up")
+		ingestSubmitSipDecisionTokenFlag = ingestSubmitSipDecisionFlags.String("token", "", "")
 
 		ingestAddSipFlags        = flag.NewFlagSet("add-sip", flag.ExitOnError)
 		ingestAddSipSourceIDFlag = ingestAddSipFlags.String("source-id", "REQUIRED", "")
@@ -264,6 +273,8 @@ func ParseEndpoint(
 	ingestListSipWorkflowsFlags.Usage = ingestListSipWorkflowsUsage
 	ingestConfirmSipFlags.Usage = ingestConfirmSipUsage
 	ingestRejectSipFlags.Usage = ingestRejectSipUsage
+	ingestShowSipDecisionFlags.Usage = ingestShowSipDecisionUsage
+	ingestSubmitSipDecisionFlags.Usage = ingestSubmitSipDecisionUsage
 	ingestAddSipFlags.Usage = ingestAddSipUsage
 	ingestUploadSipFlags.Usage = ingestUploadSipUsage
 	ingestDownloadSipRequestFlags.Usage = ingestDownloadSipRequestUsage
@@ -365,6 +376,12 @@ func ParseEndpoint(
 
 			case "reject-sip":
 				epf = ingestRejectSipFlags
+
+			case "show-sip-decision":
+				epf = ingestShowSipDecisionFlags
+
+			case "submit-sip-decision":
+				epf = ingestSubmitSipDecisionFlags
 
 			case "add-sip":
 				epf = ingestAddSipFlags
@@ -522,6 +539,12 @@ func ParseEndpoint(
 			case "reject-sip":
 				endpoint = c.RejectSip()
 				data, err = ingestc.BuildRejectSipPayload(*ingestRejectSipUUIDFlag, *ingestRejectSipTokenFlag)
+			case "show-sip-decision":
+				endpoint = c.ShowSipDecision()
+				data, err = ingestc.BuildShowSipDecisionPayload(*ingestShowSipDecisionUUIDFlag, *ingestShowSipDecisionTokenFlag)
+			case "submit-sip-decision":
+				endpoint = c.SubmitSipDecision()
+				data, err = ingestc.BuildSubmitSipDecisionPayload(*ingestSubmitSipDecisionBodyFlag, *ingestSubmitSipDecisionUUIDFlag, *ingestSubmitSipDecisionTokenFlag)
 			case "add-sip":
 				endpoint = c.AddSip()
 				data, err = ingestc.BuildAddSipPayload(*ingestAddSipSourceIDFlag, *ingestAddSipKeyFlag, *ingestAddSipTokenFlag)
@@ -678,6 +701,8 @@ func ingestUsage() {
 	fmt.Fprintln(os.Stderr, `    list-sip-workflows: List all workflows for a SIP`)
 	fmt.Fprintln(os.Stderr, `    confirm-sip: Signal the SIP has been reviewed and accepted`)
 	fmt.Fprintln(os.Stderr, `    reject-sip: Signal the SIP has been reviewed and rejected`)
+	fmt.Fprintln(os.Stderr, `    show-sip-decision: Show the active child workflow decision request for a SIP`)
+	fmt.Fprintln(os.Stderr, `    submit-sip-decision: Submit a selected child workflow decision option for a SIP`)
 	fmt.Fprintln(os.Stderr, `    add-sip: Ingest a SIP from a SIP Source`)
 	fmt.Fprintln(os.Stderr, `    upload-sip: Upload a SIP to trigger an ingest workflow`)
 	fmt.Fprintln(os.Stderr, `    download-sip-request: Request access to SIP download`)
@@ -844,6 +869,48 @@ func ingestRejectSipUsage() {
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
 	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "ingest reject-sip --uuid \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\" --token \"abc123\"")
+}
+
+func ingestShowSipDecisionUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] ingest show-sip-decision", os.Args[0])
+	fmt.Fprint(os.Stderr, " -uuid STRING")
+	fmt.Fprint(os.Stderr, " -token STRING")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `Show the active child workflow decision request for a SIP`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -uuid STRING: Identifier of SIP to look up`)
+	fmt.Fprintln(os.Stderr, `    -token STRING: `)
+
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "ingest show-sip-decision --uuid \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\" --token \"abc123\"")
+}
+
+func ingestSubmitSipDecisionUsage() {
+	// Header with flags
+	fmt.Fprintf(os.Stderr, "%s [flags] ingest submit-sip-decision", os.Args[0])
+	fmt.Fprint(os.Stderr, " -body JSON")
+	fmt.Fprint(os.Stderr, " -uuid STRING")
+	fmt.Fprint(os.Stderr, " -token STRING")
+	fmt.Fprintln(os.Stderr)
+
+	// Description
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, `Submit a selected child workflow decision option for a SIP`)
+
+	// Flags list
+	fmt.Fprintln(os.Stderr, `    -body JSON: `)
+	fmt.Fprintln(os.Stderr, `    -uuid STRING: Identifier of SIP to look up`)
+	fmt.Fprintln(os.Stderr, `    -token STRING: `)
+
+	fmt.Fprintln(os.Stderr)
+	fmt.Fprintln(os.Stderr, "Example:")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "ingest submit-sip-decision --body '{\n      \"option\": \"abc123\"\n   }' --uuid \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\" --token \"abc123\"")
 }
 
 func ingestAddSipUsage() {

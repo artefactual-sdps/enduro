@@ -179,6 +179,54 @@ var _ = Service("ingest", func() {
 			Response("not_valid", StatusBadRequest)
 		})
 	})
+	Method("show_sip_decision", func() {
+		Description("Show the active child workflow decision request for a SIP")
+		Security(JWTAuth, func() {
+			Scope(auth.IngestSIPSDecisionAttr)
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of SIP to look up")
+			Token("token", String)
+			Required("uuid")
+		})
+		Result(SIPDecision)
+		Error("not_found", SIPNotFound, "SIP not found")
+		Error("internal_error")
+		Error("not_available")
+		Error("not_valid")
+		HTTP(func() {
+			GET("/sips/{uuid}/decision")
+			Response(StatusOK)
+			Response("not_found", StatusNotFound)
+			Response("internal_error", StatusInternalServerError)
+			Response("not_available", StatusConflict)
+			Response("not_valid", StatusBadRequest)
+		})
+	})
+	Method("submit_sip_decision", func() {
+		Description("Submit a selected child workflow decision option for a SIP")
+		Security(JWTAuth, func() {
+			Scope(auth.IngestSIPSDecisionAttr)
+		})
+		Payload(func() {
+			AttributeUUID("uuid", "Identifier of SIP to look up")
+			Attribute("option", String, "Selected decision option")
+			Token("token", String)
+			Required("uuid", "option")
+		})
+		Error("not_found", SIPNotFound, "SIP not found")
+		Error("internal_error")
+		Error("not_available")
+		Error("not_valid")
+		HTTP(func() {
+			POST("/sips/{uuid}/decision")
+			Response(StatusAccepted)
+			Response("not_found", StatusNotFound)
+			Response("internal_error", StatusInternalServerError)
+			Response("not_available", StatusConflict)
+			Response("not_valid", StatusBadRequest)
+		})
+	})
 	Method("add_sip", func() {
 		Description("Ingest a SIP from a SIP Source")
 		Security(JWTAuth, func() {
@@ -654,6 +702,16 @@ var SIPTask = ResultType("application/vnd.enduro.ingest.sip.task", func() {
 		TypedAttributeUUID("workflow_uuid", "Identifier of related workflow")
 	})
 	Required("uuid", "name", "status", "started_at", "workflow_uuid")
+})
+
+var SIPDecision = ResultType("application/vnd.enduro.ingest.sip.decision", func() {
+	Description("SIPDecision describes an active child workflow decision request.")
+	TypeName("SIPDecision")
+	Attributes(func() {
+		Attribute("message", String)
+		Attribute("options", ArrayOf(String))
+	})
+	Required("message", "options")
 })
 
 var SIPSourceObject = ResultType("application/vnd.enduro.ingest.sipsource.object", func() {

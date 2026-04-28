@@ -31,6 +31,8 @@ type Server struct {
 	ListSipWorkflows     http.Handler
 	ConfirmSip           http.Handler
 	RejectSip            http.Handler
+	ShowSipDecision      http.Handler
+	SubmitSipDecision    http.Handler
 	AddSip               http.Handler
 	UploadSip            http.Handler
 	DownloadSipRequest   http.Handler
@@ -83,6 +85,8 @@ func New(
 			{"ListSipWorkflows", "GET", "/ingest/sips/{uuid}/workflows"},
 			{"ConfirmSip", "POST", "/ingest/sips/{uuid}/confirm"},
 			{"RejectSip", "POST", "/ingest/sips/{uuid}/reject"},
+			{"ShowSipDecision", "GET", "/ingest/sips/{uuid}/decision"},
+			{"SubmitSipDecision", "POST", "/ingest/sips/{uuid}/decision"},
 			{"AddSip", "POST", "/ingest/sips"},
 			{"UploadSip", "POST", "/ingest/sips/upload"},
 			{"DownloadSipRequest", "POST", "/ingest/sips/{uuid}/download"},
@@ -99,6 +103,7 @@ func New(
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/workflows"},
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/confirm"},
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/reject"},
+			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/decision"},
 			{"CORS", "OPTIONS", "/ingest/sips/upload"},
 			{"CORS", "OPTIONS", "/ingest/sips/{uuid}/download"},
 			{"CORS", "OPTIONS", "/ingest/users"},
@@ -114,6 +119,8 @@ func New(
 		ListSipWorkflows:     NewListSipWorkflowsHandler(e.ListSipWorkflows, mux, decoder, encoder, errhandler, formatter),
 		ConfirmSip:           NewConfirmSipHandler(e.ConfirmSip, mux, decoder, encoder, errhandler, formatter),
 		RejectSip:            NewRejectSipHandler(e.RejectSip, mux, decoder, encoder, errhandler, formatter),
+		ShowSipDecision:      NewShowSipDecisionHandler(e.ShowSipDecision, mux, decoder, encoder, errhandler, formatter),
+		SubmitSipDecision:    NewSubmitSipDecisionHandler(e.SubmitSipDecision, mux, decoder, encoder, errhandler, formatter),
 		AddSip:               NewAddSipHandler(e.AddSip, mux, decoder, encoder, errhandler, formatter),
 		UploadSip:            NewUploadSipHandler(e.UploadSip, mux, decoder, encoder, errhandler, formatter),
 		DownloadSipRequest:   NewDownloadSipRequestHandler(e.DownloadSipRequest, mux, decoder, encoder, errhandler, formatter),
@@ -140,6 +147,8 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.ListSipWorkflows = m(s.ListSipWorkflows)
 	s.ConfirmSip = m(s.ConfirmSip)
 	s.RejectSip = m(s.RejectSip)
+	s.ShowSipDecision = m(s.ShowSipDecision)
+	s.SubmitSipDecision = m(s.SubmitSipDecision)
 	s.AddSip = m(s.AddSip)
 	s.UploadSip = m(s.UploadSip)
 	s.DownloadSipRequest = m(s.DownloadSipRequest)
@@ -165,6 +174,8 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountListSipWorkflowsHandler(mux, h.ListSipWorkflows)
 	MountConfirmSipHandler(mux, h.ConfirmSip)
 	MountRejectSipHandler(mux, h.RejectSip)
+	MountShowSipDecisionHandler(mux, h.ShowSipDecision)
+	MountSubmitSipDecisionHandler(mux, h.SubmitSipDecision)
 	MountAddSipHandler(mux, h.AddSip)
 	MountUploadSipHandler(mux, h.UploadSip)
 	MountDownloadSipRequestHandler(mux, h.DownloadSipRequest)
@@ -552,6 +563,112 @@ func NewRejectSipHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "reject_sip")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			if errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+		}
+	})
+}
+
+// MountShowSipDecisionHandler configures the mux to serve the "ingest" service
+// "show_sip_decision" endpoint.
+func MountShowSipDecisionHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/ingest/sips/{uuid}/decision", f)
+}
+
+// NewShowSipDecisionHandler creates a HTTP handler which loads the HTTP
+// request and calls the "ingest" service "show_sip_decision" endpoint.
+func NewShowSipDecisionHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeShowSipDecisionRequest(mux, decoder)
+		encodeResponse = EncodeShowSipDecisionResponse(encoder)
+		encodeError    = EncodeShowSipDecisionError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "show_sip_decision")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			if errhandler != nil {
+				errhandler(ctx, w, err)
+			}
+		}
+	})
+}
+
+// MountSubmitSipDecisionHandler configures the mux to serve the "ingest"
+// service "submit_sip_decision" endpoint.
+func MountSubmitSipDecisionHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("POST", "/ingest/sips/{uuid}/decision", f)
+}
+
+// NewSubmitSipDecisionHandler creates a HTTP handler which loads the HTTP
+// request and calls the "ingest" service "submit_sip_decision" endpoint.
+func NewSubmitSipDecisionHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(ctx context.Context, err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeSubmitSipDecisionRequest(mux, decoder)
+		encodeResponse = EncodeSubmitSipDecisionResponse(encoder)
+		encodeError    = EncodeSubmitSipDecisionError(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "submit_sip_decision")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
 		payload, err := decodeRequest(r)
 		if err != nil {
@@ -1151,6 +1268,7 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/workflows", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/confirm", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/reject", h.ServeHTTP)
+	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/decision", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/upload", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/sips/{uuid}/download", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/ingest/users", h.ServeHTTP)
