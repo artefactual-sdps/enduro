@@ -52,6 +52,10 @@ onMounted(() => {
           <dd>
             {{ uploader(sipStore.current) }}
           </dd>
+          <template v-if="sipStore.current.fileCount !== undefined">
+            <dt>File count</dt>
+            <dd>{{ sipStore.current.fileCount }}</dd>
+          </template>
           <template v-if="sipStore.current.batchUuid">
             <dt>Batch</dt>
             <dd>
