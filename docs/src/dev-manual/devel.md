@@ -234,8 +234,8 @@ image target and serves the dashboard with Nginx.
 ### CHILD_WORKFLOW_PATHS
 
 A colon (:) separated list of relative paths to child workflow repositories. At
-startup Tilt will attempt to load a `Tiltfile.enduro` file from each path which
-will add any workflow specific resources to the Tilt environment (e.g. a child
+startup Tilt will attempt to load a `Tiltfile` file from each path which will
+add any workflow specific resources to the Tilt environment (e.g. a child
 worker). See the [Administrator configuration] docs for instructions on
 configuring the child workflows.
 

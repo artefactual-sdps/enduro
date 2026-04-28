@@ -89,13 +89,12 @@ yaml = add_enduro_config_secret(yaml)
 
 # The CHILD_WORKFLOW_PATHS environment variable is a colon-separated list of 
 # paths to child workflow directories. If set, we load each child workflow's
-# Tiltfile.enduro to load resources required by the workflow (e.g. a Temporal 
-# worker).
+# Tiltfile to load resources required by the workflow (e.g. a Temporal worker).
 CHILD_WORKFLOW_PATHS = os.environ.get("CHILD_WORKFLOW_PATHS", "")
 if CHILD_WORKFLOW_PATHS != "":
   for path in CHILD_WORKFLOW_PATHS.split(":"):
     # Load child workflow Tiltfile for Enduro
-    load_dynamic(path.strip() + "/Tiltfile.enduro")
+    load_dynamic(path.strip() + "/Tiltfile")
 
 # The preprocessing child workflow requires extra setup for a shared directory
 MOUNT_PREPROCESSING_VOLUME = os.environ.get("MOUNT_PREPROCESSING_VOLUME", "")
