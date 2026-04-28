@@ -15,14 +15,17 @@ import (
 	"go.artefactual.dev/tools/ref"
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
+	temporalsdk_converter "go.temporal.io/sdk/converter"
 	temporalsdk_mocks "go.temporal.io/sdk/mocks"
 	"go.uber.org/mock/gomock"
+	goa "goa.design/goa/v3/pkg"
 	"goa.design/goa/v3/security"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -121,6 +124,500 @@ func TestJWTAuth(t *testing.T) {
 			assert.DeepEqual(t, auth.UserClaimsFromContext(ctx), tt.claims)
 		})
 	}
+}
+
+func TestListSipWorkflowsErrors(t *testing.T) {
+	t.Parallel()
+
+	sipUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+
+	for _, tt := range []struct {
+		name    string
+		uuid    string
+		mock    func(*persistence_fake.MockService)
+		wantErr string
+	}{
+		{
+			name:    "Returns not valid for invalid SIP UUID",
+			uuid:    "invalid",
+			mock:    func(psvc *persistence_fake.MockService) {},
+			wantErr: "not_valid",
+		},
+		{
+			name: "Returns not available when SIP cannot be read",
+			uuid: sipUUID.String(),
+			mock: func(psvc *persistence_fake.MockService) {
+				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+					Return(nil, errors.New("database failed"))
+			},
+			wantErr: "not_available",
+		},
+		{
+			name: "Returns not available when workflows cannot be listed",
+			uuid: sipUUID.String(),
+			mock: func(psvc *persistence_fake.MockService) {
+				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+					Return(&datatypes.SIP{UUID: sipUUID}, nil)
+				psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
+					Return(nil, errors.New("database failed"))
+			},
+			wantErr: "not_available",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			psvc := persistence_fake.NewMockService(gomock.NewController(t))
+			tt.mock(psvc)
+			svc := ingest.NewService(ingest.ServiceParams{PersistenceService: psvc})
+
+			_, err := svc.ListSipWorkflows(t.Context(), &goaingest.ListSipWorkflowsPayload{UUID: tt.uuid})
+			assert.Equal(t, err.(*goa.ServiceError).Name, tt.wantErr)
+		})
+	}
+}
+
+func TestShowSipDecision(t *testing.T) {
+	t.Parallel()
+
+	sipUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	workflowUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
+	workflowTemporalID := fmt.Sprintf("processing-workflow-%s", sipUUID)
+	decision := childwf.DecisionRequest{
+		Message: "Preprocessing requires human decision.",
+		Options: []string{"Cancel", "Continue"},
+	}
+
+	encodedDecision := func(t *testing.T, decision childwf.DecisionRequest) temporalsdk_converter.EncodedValue {
+		t.Helper()
+		payloads, err := temporalsdk_converter.GetDefaultDataConverter().ToPayloads(decision)
+		assert.NilError(t, err)
+		return temporalsdk_client.NewValue(payloads)
+	}
+
+	for _, tt := range []struct {
+		name            string
+		mock            func(*testing.T, *persistence_fake.MockService, *temporalsdk_mocks.Client)
+		want            *goaingest.SIPDecision
+		wantErrContains string
+		wantErrName     string
+	}{
+		{
+			name: "Returns active child workflow decision",
+			mock: func(t *testing.T, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+					Return(&datatypes.SIP{UUID: sipUUID}, nil)
+				psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
+					Return([]*datatypes.Workflow{
+						{
+							UUID:       workflowUUID,
+							TemporalID: workflowTemporalID,
+							Type:       enums.WorkflowTypeCreateAip,
+							Status:     enums.WorkflowStatusPending,
+							StartedAt:  time.Now(),
+							SIPUUID:    sipUUID,
+						},
+					}, nil)
+				tc.On(
+					"QueryWorkflow",
+					mock.Anything,
+					workflowTemporalID,
+					"",
+					ingest.ChildDecisionQueryName,
+				).Return(encodedDecision(t, decision), nil)
+			},
+			want: &goaingest.SIPDecision{
+				Message: decision.Message,
+				Options: decision.Options,
+			},
+		},
+		{
+			name: "Returns not available when pending workflow has no child decision",
+			mock: func(t *testing.T, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+					Return(&datatypes.SIP{UUID: sipUUID}, nil)
+				psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
+					Return([]*datatypes.Workflow{
+						{
+							UUID:       workflowUUID,
+							TemporalID: workflowTemporalID,
+							Type:       enums.WorkflowTypeCreateAndReviewAip,
+							Status:     enums.WorkflowStatusPending,
+							StartedAt:  time.Now(),
+							SIPUUID:    sipUUID,
+						},
+					}, nil)
+				tc.On(
+					"QueryWorkflow",
+					mock.Anything,
+					workflowTemporalID,
+					"",
+					ingest.ChildDecisionQueryName,
+				).Return(encodedDecision(t, childwf.DecisionRequest{}), nil)
+			},
+			wantErrContains: "no child workflow decision request is pending",
+		},
+		{
+			name: "Returns not available when the only workflow is not pending",
+			mock: func(t *testing.T, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+					Return(&datatypes.SIP{UUID: sipUUID}, nil)
+				psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
+					Return([]*datatypes.Workflow{
+						{
+							UUID:       workflowUUID,
+							TemporalID: workflowTemporalID,
+							Type:       enums.WorkflowTypeCreateAndReviewAip,
+							Status:     enums.WorkflowStatusInProgress,
+							StartedAt:  time.Now(),
+							SIPUUID:    sipUUID,
+						},
+					}, nil)
+			},
+			wantErrName: "not_available",
+		},
+		{
+			name: "Returns not available when workflows cannot be listed",
+			mock: func(t *testing.T, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+					Return(&datatypes.SIP{UUID: sipUUID}, nil)
+				psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
+					Return(nil, errors.New("database failed"))
+			},
+			wantErrName: "not_available",
+		},
+		{
+			name: "Returns internal error when child decision query fails",
+			mock: func(t *testing.T, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+					Return(&datatypes.SIP{UUID: sipUUID}, nil)
+				psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
+					Return([]*datatypes.Workflow{
+						{
+							UUID:       workflowUUID,
+							TemporalID: workflowTemporalID,
+							Type:       enums.WorkflowTypeCreateAip,
+							Status:     enums.WorkflowStatusPending,
+							StartedAt:  time.Now(),
+							SIPUUID:    sipUUID,
+						},
+					}, nil)
+				tc.On(
+					"QueryWorkflow",
+					mock.Anything,
+					workflowTemporalID,
+					"",
+					ingest.ChildDecisionQueryName,
+				).Return(nil, errors.New("query failed"))
+			},
+			wantErrName: "internal_error",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			psvc := persistence_fake.NewMockService(gomock.NewController(t))
+			tc := &temporalsdk_mocks.Client{}
+			tt.mock(t, psvc, tc)
+			svc := ingest.NewService(ingest.ServiceParams{
+				TemporalClient:     tc,
+				PersistenceService: psvc,
+			})
+
+			got, err := svc.ShowSipDecision(t.Context(), &goaingest.ShowSipDecisionPayload{
+				UUID: sipUUID.String(),
+			})
+			if tt.wantErrName != "" {
+				assert.Equal(t, err.(*goa.ServiceError).Name, tt.wantErrName)
+				return
+			}
+			if tt.wantErrContains != "" {
+				assert.ErrorContains(t, err, tt.wantErrContains)
+				return
+			}
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
+		})
+	}
+}
+
+func TestSubmitSipDecision(t *testing.T) {
+	t.Parallel()
+
+	sipUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	workflowUUID := uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35")
+	workflowTemporalID := fmt.Sprintf("processing-workflow-%s", sipUUID)
+	decision := childwf.DecisionRequest{
+		Message: "Preprocessing requires human decision.",
+		Options: []string{"Cancel", "Continue"},
+	}
+	payloads, err := temporalsdk_converter.GetDefaultDataConverter().ToPayloads(decision)
+	assert.NilError(t, err)
+	encodedDecision := temporalsdk_client.NewValue(payloads)
+
+	setupDecisionRequest := func(psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+		psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+			Return(&datatypes.SIP{UUID: sipUUID}, nil)
+		psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
+			Return([]*datatypes.Workflow{
+				{
+					UUID:       workflowUUID,
+					TemporalID: workflowTemporalID,
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusPending,
+					StartedAt:  time.Now(),
+					SIPUUID:    sipUUID,
+				},
+			}, nil)
+		tc.On(
+			"QueryWorkflow",
+			mock.Anything,
+			workflowTemporalID,
+			"",
+			ingest.ChildDecisionQueryName,
+		).Return(encodedDecision, nil)
+	}
+
+	for _, tt := range []struct {
+		name    string
+		mock    func(*persistence_fake.MockService, *temporalsdk_mocks.Client) *temporalsdk_mocks.WorkflowUpdateHandle
+		wantErr string
+	}{
+		{
+			name: "Submits decision to workflow",
+			mock: func(psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) *temporalsdk_mocks.WorkflowUpdateHandle {
+				setupDecisionRequest(psvc, tc)
+
+				updateHandle := &temporalsdk_mocks.WorkflowUpdateHandle{}
+				updateHandle.On("Get", mock.Anything, mock.Anything).Return(nil)
+
+				tc.On(
+					"UpdateWorkflow",
+					mock.Anything,
+					mock.MatchedBy(func(opts temporalsdk_client.UpdateWorkflowOptions) bool {
+						return opts.WorkflowID == workflowTemporalID &&
+							opts.UpdateName == ingest.ChildDecisionUpdateName &&
+							opts.WaitForStage == temporalsdk_client.WorkflowUpdateStageCompleted &&
+							len(opts.Args) == 1 &&
+							opts.Args[0] == (childwf.DecisionResponse{Option: "Continue"})
+					}),
+				).Return(updateHandle, nil)
+
+				return updateHandle
+			},
+		},
+		{
+			name: "Returns internal error when workflow update fails",
+			mock: func(psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) *temporalsdk_mocks.WorkflowUpdateHandle {
+				setupDecisionRequest(psvc, tc)
+
+				tc.On(
+					"UpdateWorkflow",
+					mock.Anything,
+					mock.MatchedBy(func(opts temporalsdk_client.UpdateWorkflowOptions) bool {
+						return opts.WorkflowID == workflowTemporalID &&
+							opts.UpdateName == ingest.ChildDecisionUpdateName &&
+							opts.WaitForStage == temporalsdk_client.WorkflowUpdateStageCompleted &&
+							len(opts.Args) == 1 &&
+							opts.Args[0] == (childwf.DecisionResponse{Option: "Continue"})
+					}),
+				).Return(nil, errors.New("update failed"))
+
+				return nil
+			},
+			wantErr: "internal_error",
+		},
+		{
+			name: "Returns internal error when workflow update result fails",
+			mock: func(psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) *temporalsdk_mocks.WorkflowUpdateHandle {
+				setupDecisionRequest(psvc, tc)
+
+				updateHandle := &temporalsdk_mocks.WorkflowUpdateHandle{}
+				updateHandle.On("Get", mock.Anything, mock.Anything).Return(errors.New("update result failed"))
+
+				tc.On(
+					"UpdateWorkflow",
+					mock.Anything,
+					mock.MatchedBy(func(opts temporalsdk_client.UpdateWorkflowOptions) bool {
+						return opts.WorkflowID == workflowTemporalID &&
+							opts.UpdateName == ingest.ChildDecisionUpdateName &&
+							opts.WaitForStage == temporalsdk_client.WorkflowUpdateStageCompleted &&
+							len(opts.Args) == 1 &&
+							opts.Args[0] == (childwf.DecisionResponse{Option: "Continue"})
+					}),
+				).Return(updateHandle, nil)
+
+				return updateHandle
+			},
+			wantErr: "internal_error",
+		},
+		{
+			name: "Returns not valid for unknown decision option",
+			mock: func(psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) *temporalsdk_mocks.WorkflowUpdateHandle {
+				setupDecisionRequest(psvc, tc)
+
+				return nil
+			},
+			wantErr: "not_valid",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			psvc := persistence_fake.NewMockService(gomock.NewController(t))
+			tc := &temporalsdk_mocks.Client{}
+			updateHandle := tt.mock(psvc, tc)
+			svc := ingest.NewService(ingest.ServiceParams{
+				TemporalClient:     tc,
+				PersistenceService: psvc,
+			})
+
+			err := svc.SubmitSipDecision(t.Context(), &goaingest.SubmitSipDecisionPayload{
+				UUID: sipUUID.String(),
+				Option: func() string {
+					if tt.wantErr == "not_valid" {
+						return "Unknown"
+					}
+					return "Continue"
+				}(),
+			})
+			if tt.wantErr != "" {
+				assert.Equal(t, err.(*goa.ServiceError).Name, tt.wantErr)
+			} else {
+				assert.NilError(t, err)
+			}
+			tc.AssertExpectations(t)
+			if updateHandle != nil {
+				updateHandle.AssertExpectations(t)
+			}
+		})
+	}
+}
+
+func TestConfirmSip(t *testing.T) {
+	t.Parallel()
+
+	sipUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	locationUUID := uuid.MustParse("30a88cd2-bc2f-42e9-8a1c-1bb226d8436c")
+	workflowTemporalID := fmt.Sprintf("processing-workflow-%s", sipUUID)
+
+	for _, tt := range []struct {
+		name    string
+		mock    func(*persistence_fake.MockService, *temporalsdk_mocks.Client)
+		wantErr string
+	}{
+		{
+			name: "Signals pending workflow",
+			mock: func(psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+					Return(&datatypes.SIP{UUID: sipUUID}, nil)
+				psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
+					Return([]*datatypes.Workflow{
+						{
+							UUID:       uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35"),
+							TemporalID: workflowTemporalID,
+							Type:       enums.WorkflowTypeCreateAndReviewAip,
+							Status:     enums.WorkflowStatusPending,
+							StartedAt:  time.Now(),
+							SIPUUID:    sipUUID,
+						},
+					}, nil)
+				tc.On(
+					"SignalWorkflow",
+					mock.Anything,
+					workflowTemporalID,
+					"",
+					ingest.ReviewPerformedSignalName,
+					ingest.ReviewPerformedSignal{Accepted: true, LocationID: &locationUUID},
+				).Return(nil)
+			},
+		},
+		{
+			name: "Returns not available when workflow is not pending",
+			mock: func(psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
+				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+					Return(&datatypes.SIP{UUID: sipUUID}, nil)
+				psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
+					Return([]*datatypes.Workflow{
+						{
+							UUID:       uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35"),
+							TemporalID: workflowTemporalID,
+							Type:       enums.WorkflowTypeCreateAndReviewAip,
+							Status:     enums.WorkflowStatusInProgress,
+							StartedAt:  time.Now(),
+							SIPUUID:    sipUUID,
+						},
+					}, nil)
+			},
+			wantErr: "not_available",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			psvc := persistence_fake.NewMockService(gomock.NewController(t))
+			tc := &temporalsdk_mocks.Client{}
+			tt.mock(psvc, tc)
+			svc := ingest.NewService(ingest.ServiceParams{
+				TemporalClient:     tc,
+				PersistenceService: psvc,
+			})
+
+			err := svc.ConfirmSip(t.Context(), &goaingest.ConfirmSipPayload{
+				UUID:         sipUUID.String(),
+				LocationUUID: locationUUID,
+			})
+			if tt.wantErr != "" {
+				assert.Equal(t, err.(*goa.ServiceError).Name, tt.wantErr)
+			} else {
+				assert.NilError(t, err)
+			}
+			tc.AssertExpectations(t)
+		})
+	}
+}
+
+func TestRejectSip(t *testing.T) {
+	t.Parallel()
+
+	sipUUID := uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
+	workflowTemporalID := fmt.Sprintf("processing-workflow-%s", sipUUID)
+
+	psvc := persistence_fake.NewMockService(gomock.NewController(t))
+	psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
+		Return(&datatypes.SIP{UUID: sipUUID}, nil)
+	psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
+		Return([]*datatypes.Workflow{
+			{
+				UUID:       uuid.MustParse("8fdfaea1-06ed-4cf6-8bdf-d15d80420f35"),
+				TemporalID: workflowTemporalID,
+				Type:       enums.WorkflowTypeCreateAndReviewAip,
+				Status:     enums.WorkflowStatusPending,
+				StartedAt:  time.Now(),
+				SIPUUID:    sipUUID,
+			},
+		}, nil)
+
+	tc := &temporalsdk_mocks.Client{}
+	tc.On(
+		"SignalWorkflow",
+		mock.Anything,
+		workflowTemporalID,
+		"",
+		ingest.ReviewPerformedSignalName,
+		ingest.ReviewPerformedSignal{Accepted: false},
+	).Return(nil)
+
+	svc := ingest.NewService(ingest.ServiceParams{
+		TemporalClient:     tc,
+		PersistenceService: psvc,
+	})
+
+	err := svc.RejectSip(t.Context(), &goaingest.RejectSipPayload{
+		UUID: sipUUID.String(),
+	})
+	assert.NilError(t, err)
+	tc.AssertExpectations(t)
 }
 
 func TestAddSIP(t *testing.T) {

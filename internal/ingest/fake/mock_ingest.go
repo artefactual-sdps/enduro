@@ -1010,6 +1010,83 @@ func (c *MockServiceShowSipCall) DoAndReturn(f func(context.Context, *ingest.Sho
 	return c
 }
 
+// ShowSipDecision mocks base method.
+func (m *MockService) ShowSipDecision(arg0 context.Context, arg1 *ingest.ShowSipDecisionPayload) (*ingest.SIPDecision, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ShowSipDecision", arg0, arg1)
+	ret0, _ := ret[0].(*ingest.SIPDecision)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ShowSipDecision indicates an expected call of ShowSipDecision.
+func (mr *MockServiceMockRecorder) ShowSipDecision(arg0, arg1 any) *MockServiceShowSipDecisionCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ShowSipDecision", reflect.TypeOf((*MockService)(nil).ShowSipDecision), arg0, arg1)
+	return &MockServiceShowSipDecisionCall{Call: call}
+}
+
+// MockServiceShowSipDecisionCall wrap *gomock.Call
+type MockServiceShowSipDecisionCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceShowSipDecisionCall) Return(res *ingest.SIPDecision, err error) *MockServiceShowSipDecisionCall {
+	c.Call = c.Call.Return(res, err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceShowSipDecisionCall) Do(f func(context.Context, *ingest.ShowSipDecisionPayload) (*ingest.SIPDecision, error)) *MockServiceShowSipDecisionCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceShowSipDecisionCall) DoAndReturn(f func(context.Context, *ingest.ShowSipDecisionPayload) (*ingest.SIPDecision, error)) *MockServiceShowSipDecisionCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
+// SubmitSipDecision mocks base method.
+func (m *MockService) SubmitSipDecision(arg0 context.Context, arg1 *ingest.SubmitSipDecisionPayload) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SubmitSipDecision", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SubmitSipDecision indicates an expected call of SubmitSipDecision.
+func (mr *MockServiceMockRecorder) SubmitSipDecision(arg0, arg1 any) *MockServiceSubmitSipDecisionCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SubmitSipDecision", reflect.TypeOf((*MockService)(nil).SubmitSipDecision), arg0, arg1)
+	return &MockServiceSubmitSipDecisionCall{Call: call}
+}
+
+// MockServiceSubmitSipDecisionCall wrap *gomock.Call
+type MockServiceSubmitSipDecisionCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceSubmitSipDecisionCall) Return(err error) *MockServiceSubmitSipDecisionCall {
+	c.Call = c.Call.Return(err)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceSubmitSipDecisionCall) Do(f func(context.Context, *ingest.SubmitSipDecisionPayload) error) *MockServiceSubmitSipDecisionCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceSubmitSipDecisionCall) DoAndReturn(f func(context.Context, *ingest.SubmitSipDecisionPayload) error) *MockServiceSubmitSipDecisionCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // UpdateBatch mocks base method.
 func (m *MockService) UpdateBatch(arg0 context.Context, arg1 uuid.UUID, arg2 persistence.BatchUpdater) (*datatypes.Batch, error) {
 	m.ctrl.T.Helper()

@@ -3,13 +3,17 @@ package ingest
 import (
 	"context"
 	"errors"
+	"fmt"
+	"slices"
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
+	temporalsdk_client "go.temporal.io/sdk/client"
 	"goa.design/goa/v3/security"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
@@ -197,19 +201,16 @@ func (svc *ingestImpl) ListSipWorkflows(
 }
 
 func (svc *ingestImpl) ConfirmSip(ctx context.Context, payload *goaingest.ConfirmSipPayload) error {
-	goaworkflows, err := svc.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{UUID: payload.UUID})
+	temporalID, err := svc.pendingSIPWorkflowTemporalID(ctx, payload.UUID)
 	if err != nil {
 		return err
-	}
-	if goaworkflows == nil || len(goaworkflows.Workflows) == 0 || len(goaworkflows.Workflows) > 1 {
-		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
 	signal := ReviewPerformedSignal{
 		Accepted:   true,
 		LocationID: &payload.LocationUUID,
 	}
-	err = svc.tc.SignalWorkflow(ctx, goaworkflows.Workflows[0].TemporalID, "", ReviewPerformedSignalName, signal)
+	err = svc.tc.SignalWorkflow(ctx, temporalID, "", ReviewPerformedSignalName, signal)
 	if err != nil {
 		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
@@ -218,23 +219,112 @@ func (svc *ingestImpl) ConfirmSip(ctx context.Context, payload *goaingest.Confir
 }
 
 func (svc *ingestImpl) RejectSip(ctx context.Context, payload *goaingest.RejectSipPayload) error {
-	goaworkflows, err := svc.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{UUID: payload.UUID})
+	temporalID, err := svc.pendingSIPWorkflowTemporalID(ctx, payload.UUID)
 	if err != nil {
 		return err
 	}
-	if goaworkflows == nil || len(goaworkflows.Workflows) == 0 || len(goaworkflows.Workflows) > 1 {
-		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
-	}
 
-	signal := ReviewPerformedSignal{
-		Accepted: false,
-	}
-	err = svc.tc.SignalWorkflow(ctx, goaworkflows.Workflows[0].TemporalID, "", ReviewPerformedSignalName, signal)
+	signal := ReviewPerformedSignal{Accepted: false}
+	err = svc.tc.SignalWorkflow(ctx, temporalID, "", ReviewPerformedSignalName, signal)
 	if err != nil {
 		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
 	}
 
 	return nil
+}
+
+func (svc *ingestImpl) ShowSipDecision(
+	ctx context.Context,
+	payload *goaingest.ShowSipDecisionPayload,
+) (*goaingest.SIPDecision, error) {
+	temporalID, err := svc.pendingSIPWorkflowTemporalID(ctx, payload.UUID)
+	if err != nil {
+		return nil, err
+	}
+
+	decision, err := svc.findChildDecision(ctx, temporalID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &goaingest.SIPDecision{
+		Message: decision.Message,
+		Options: decision.Options,
+	}, nil
+}
+
+func (svc *ingestImpl) SubmitSipDecision(
+	ctx context.Context,
+	payload *goaingest.SubmitSipDecisionPayload,
+) error {
+	temporalID, err := svc.pendingSIPWorkflowTemporalID(ctx, payload.UUID)
+	if err != nil {
+		return err
+	}
+
+	decision, err := svc.findChildDecision(ctx, temporalID)
+	if err != nil {
+		return err
+	}
+	if !slices.Contains(decision.Options, payload.Option) {
+		return goaingest.MakeNotValid(
+			fmt.Errorf("invalid child workflow decision option %q", payload.Option),
+		)
+	}
+
+	handle, err := svc.tc.UpdateWorkflow(ctx, temporalsdk_client.UpdateWorkflowOptions{
+		UpdateID:     uuid.NewString(),
+		WorkflowID:   temporalID,
+		UpdateName:   ChildDecisionUpdateName,
+		Args:         []any{childwf.DecisionResponse{Option: payload.Option}},
+		WaitForStage: temporalsdk_client.WorkflowUpdateStageCompleted,
+	})
+	if err != nil {
+		svc.logger.Error(err, "submit SIP decision: update workflow")
+		return ErrInternalError
+	}
+	if err := handle.Get(ctx, nil); err != nil {
+		svc.logger.Error(err, "submit SIP decision: update workflow result")
+		return ErrInternalError
+	}
+
+	return nil
+}
+
+func (svc *ingestImpl) pendingSIPWorkflowTemporalID(ctx context.Context, sipID string) (string, error) {
+	goaworkflows, err := svc.ListSipWorkflows(ctx, &goaingest.ListSipWorkflowsPayload{UUID: sipID})
+	if err != nil {
+		return "", err
+	}
+	if goaworkflows == nil || len(goaworkflows.Workflows) == 0 || len(goaworkflows.Workflows) > 1 {
+		return "", goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+	if goaworkflows.Workflows[0].Status != enums.WorkflowStatusPending.String() {
+		return "", goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
+	}
+
+	return goaworkflows.Workflows[0].TemporalID, nil
+}
+
+func (svc *ingestImpl) findChildDecision(ctx context.Context, temporalID string) (childwf.DecisionRequest, error) {
+	encoded, err := svc.tc.QueryWorkflow(ctx, temporalID, "", ChildDecisionQueryName)
+	if err != nil {
+		svc.logger.Error(err, "find child decision: query workflow", "workflow_id", temporalID)
+		return childwf.DecisionRequest{}, ErrInternalError
+	}
+
+	var decision childwf.DecisionRequest
+	if err := encoded.Get(&decision); err != nil {
+		svc.logger.Error(err, "find child decision: decode query result", "workflow_id", temporalID)
+		return childwf.DecisionRequest{}, ErrInternalError
+	}
+	if decision.Message == "" {
+		return childwf.DecisionRequest{}, goaingest.MakeNotAvailable(
+			errors.New("no child workflow decision request is pending"),
+		)
+	}
+
+	return decision, nil
 }
 
 // List all SIPs. It implements goaingest.Service.
