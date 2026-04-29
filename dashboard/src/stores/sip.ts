@@ -16,6 +16,11 @@ export const useSipStore = defineStore("sip", {
     // Workflows of the current SIP.
     currentWorkflows: null as api.EnduroIngestSipWorkflows | null,
 
+    // Active child workflow decision request for the current SIP.
+    currentDecision: null as api.EnduroIngestSipDecision | null,
+    currentDecisionError: null as string | null,
+    submittingDecision: false,
+
     // A list of SIPs shown during searches.
     sips: [] as Array<api.EnduroIngestSip>,
 
@@ -104,6 +109,36 @@ export const useSipStore = defineStore("sip", {
           throw new Error("Couldn't load workflows");
         });
     },
+    async fetchCurrentDecision(id: string) {
+      if (!this.isPending) {
+        this.currentDecision = null;
+        this.currentDecisionError = null;
+        return;
+      }
+
+      return client.ingest
+        .ingestShowSipDecision({ uuid: id })
+        .then((decision) => {
+          this.currentDecision = decision;
+          this.currentDecisionError = null;
+        })
+        .catch((e) => {
+          this.currentDecision = null;
+          this.currentDecisionError = null;
+
+          // Don't show an error if the user cannot view workflows or no child
+          // decision is pending.
+          if (
+            e instanceof ResponseError &&
+            (e.response.status === 403 || e.response.status === 409)
+          ) {
+            return;
+          }
+
+          logError(e, "Error fetching SIP decision");
+          throw new Error("Couldn't load SIP decision");
+        });
+    },
     async fetchSips(page: number) {
       return client.ingest
         .ingestListSips({
@@ -168,6 +203,31 @@ export const useSipStore = defineStore("sip", {
         if (!this.current) return;
         this.current.status = api.EnduroIngestSipStatusEnum.Processing;
       });
+    },
+    async submitDecision(option: string) {
+      if (!this.current) return;
+      this.currentDecisionError = null;
+      this.submittingDecision = true;
+
+      try {
+        await client.ingest.ingestSubmitSipDecision({
+          uuid: this.current.uuid,
+          submitSipDecisionRequestBody: { option },
+        });
+        this.currentDecision = null;
+      } catch (err) {
+        let errorMsg = "Unexpected error submitting decision";
+        if (err instanceof ResponseError) {
+          const body = await err.response.json();
+          if (body.message) {
+            errorMsg = body.message;
+          }
+        }
+        this.currentDecisionError = errorMsg;
+        logError(err, "Error submitting SIP decision");
+      } finally {
+        this.submittingDecision = false;
+      }
     },
     async download() {
       if (!this.current) return;

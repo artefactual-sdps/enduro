@@ -18,12 +18,15 @@ const sipStore = useSipStore();
 
 const { execute, error } = useAsyncState(
   sipStore.fetchCurrent(route.params.id.toString()).then(() => {
-    if (
-      sipStore.current?.uuid &&
-      authStore.checkAttributes(["ingest:sips:workflows:list"])
-    ) {
-      return sipStore.fetchCurrentWorkflows(sipStore.current.uuid);
+    if (!sipStore.current?.uuid) return;
+    const promises = [];
+    if (authStore.checkAttributes(["ingest:sips:workflows:list"])) {
+      promises.push(sipStore.fetchCurrentWorkflows(sipStore.current.uuid));
     }
+    if (authStore.checkAttributes(["ingest:sips:decision"])) {
+      promises.push(sipStore.fetchCurrentDecision(sipStore.current.uuid));
+    }
+    return Promise.all(promises);
   }),
   null,
 );

@@ -1,14 +1,17 @@
 <script setup lang="ts">
-import { computed, ref, toRefs } from "vue";
+import { computed, ref, toRefs, watch } from "vue";
 
 import { api } from "@/client";
 import AipDeletionReviewAlert from "@/components/AipDeletionReviewAlert.vue";
+import SipDecisionAlert from "@/components/SipDecisionAlert.vue";
 import SipReviewAlert from "@/components/SipReviewAlert.vue";
 import StatusBadge from "@/components/StatusBadge.vue";
 import Task from "@/components/Task.vue";
 import { useAuthStore } from "@/stores/auth";
+import { useSipStore } from "@/stores/sip";
 
 const authStore = useAuthStore();
+const sipStore = useSipStore();
 const tasks = computed<api.EnduroIngestSipTask[] | api.EnduroStorageAipTask[]>(
   () => {
     if (!props.workflow.tasks) {
@@ -30,20 +33,45 @@ const { workflow, index } = toRefs(props);
 
 let expandCounter = ref<number>(0);
 
-const showSipReviewAlert = () => {
+watch(
+  () => workflow.value.status,
+  (status, previousStatus) => {
+    if (previousStatus === undefined || status === previousStatus) return;
+    if (!api.instanceOfEnduroIngestSipWorkflow(workflow.value)) return;
+    if (!sipStore.current?.uuid) return;
+    if (!authStore.checkAttributes(["ingest:sips:decision"])) return;
+
+    // This is a background refresh after a websocket update. The store handles
+    // the error state, so this catch only prevents duplicate global reporting.
+    void sipStore
+      .fetchCurrentDecision(sipStore.current.uuid)
+      .catch(() => undefined);
+  },
+);
+
+const showSipDecisionAlert = computed(() => {
+  return (
+    api.instanceOfEnduroIngestSipWorkflow(workflow.value) &&
+    workflow.value.status == api.EnduroIngestSipWorkflowStatusEnum.Pending &&
+    !!sipStore.currentDecision
+  );
+});
+
+const showSipReviewAlert = computed(() => {
   return (
     workflow.value.type ==
       api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip &&
-    workflow.value.status == api.EnduroIngestSipWorkflowStatusEnum.Pending
+    workflow.value.status == api.EnduroIngestSipWorkflowStatusEnum.Pending &&
+    !sipStore.currentDecision
   );
-};
+});
 
-const showAipDeletionReviewAlert = () => {
+const showAipDeletionReviewAlert = computed(() => {
   return (
     workflow.value.type == api.EnduroStorageAipWorkflowTypeEnum.DeleteAip &&
     workflow.value.status == api.EnduroStorageAipWorkflowStatusEnum.Pending
   );
-};
+});
 
 const showTasks = computed(() => {
   if (!workflow.value.tasks) {
@@ -70,7 +98,11 @@ const showTasks = computed(() => {
   }
 
   // Show tasks if a user decision is required.
-  if (showSipReviewAlert() || showAipDeletionReviewAlert()) {
+  if (
+    showSipDecisionAlert.value ||
+    showSipReviewAlert.value ||
+    showAipDeletionReviewAlert.value
+  ) {
     return true;
   }
 
@@ -133,16 +165,22 @@ const showTasks = computed(() => {
       :aria-labelledby="'wf' + index + '-heading'"
       data-bs-parent="#workflows"
     >
+      <SipDecisionAlert
+        v-if="
+          showSipDecisionAlert &&
+          authStore.checkAttributes(['ingest:sips:decision'])
+        "
+      />
       <SipReviewAlert
         v-if="
-          showSipReviewAlert() &&
+          showSipReviewAlert &&
           authStore.checkAttributes(['ingest:sips:review'])
         "
         v-model:expand-counter="expandCounter"
       />
       <AipDeletionReviewAlert
         v-if="
-          showAipDeletionReviewAlert() &&
+          showAipDeletionReviewAlert &&
           (authStore.checkAttributes(['storage:aips:deletion:review']) ||
             authStore.checkAttributes(['storage:aips:deletion:request']))
         "

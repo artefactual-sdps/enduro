@@ -259,6 +259,146 @@ describe("useSipStore", () => {
     expect(store.currentWorkflows).toBeNull();
   });
 
+  it("fetches current decision when the current SIP is pending", async () => {
+    const store = useSipStore();
+    const decision = {
+      message: "Pick one",
+      options: ["Continue"],
+    };
+    store.current = {
+      status: api.EnduroIngestSipStatusEnum.Pending,
+      uuid: "sip-uuid",
+    } as api.EnduroIngestSip;
+    client.ingest.ingestShowSipDecision = vi.fn().mockResolvedValue(decision);
+
+    await store.fetchCurrentDecision("sip-uuid");
+
+    expect(client.ingest.ingestShowSipDecision).toHaveBeenCalledWith({
+      uuid: "sip-uuid",
+    });
+    expect(store.currentDecision).toEqual(decision);
+  });
+
+  it("clears current decision when the current SIP is not pending", async () => {
+    const store = useSipStore();
+    store.current = {
+      status: api.EnduroIngestSipStatusEnum.Processing,
+      uuid: "sip-uuid",
+    } as api.EnduroIngestSip;
+    store.currentDecision = {
+      message: "Pick one",
+      options: ["Continue"],
+    };
+    client.ingest.ingestShowSipDecision = vi.fn();
+
+    await store.fetchCurrentDecision("sip-uuid");
+
+    expect(store.currentDecision).toBeNull();
+    expect(client.ingest.ingestShowSipDecision).not.toHaveBeenCalled();
+  });
+
+  it("submits current decision and clears it", async () => {
+    const store = useSipStore();
+    store.current = {
+      status: api.EnduroIngestSipStatusEnum.Pending,
+      uuid: "sip-uuid",
+    } as api.EnduroIngestSip;
+    store.currentDecision = {
+      message: "Pick one",
+      options: ["Continue"],
+    };
+    store.currentDecisionError = "Previous failure";
+    client.ingest.ingestSubmitSipDecision = vi.fn().mockResolvedValue({});
+
+    await store.submitDecision("Continue");
+
+    expect(client.ingest.ingestSubmitSipDecision).toHaveBeenCalledWith({
+      uuid: "sip-uuid",
+      submitSipDecisionRequestBody: { option: "Continue" },
+    });
+    expect(store.currentDecision).toBeNull();
+    expect(store.currentDecisionError).toBeNull();
+    expect(store.submittingDecision).toBe(false);
+  });
+
+  it("does nothing when submitting a decision without a current SIP", () => {
+    const store = useSipStore();
+    client.ingest.ingestSubmitSipDecision = vi.fn();
+
+    store.submitDecision("Continue");
+
+    expect(client.ingest.ingestSubmitSipDecision).not.toHaveBeenCalled();
+  });
+
+  it("sets a decision error from the API response when submission fails", async () => {
+    const store = useSipStore();
+    store.current = {
+      status: api.EnduroIngestSipStatusEnum.Pending,
+      uuid: "sip-uuid",
+    } as api.EnduroIngestSip;
+    store.currentDecision = {
+      message: "Pick one",
+      options: ["Continue"],
+    };
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    client.ingest.ingestSubmitSipDecision = vi.fn().mockRejectedValue(
+      new ResponseError(
+        new Response(JSON.stringify({ message: "Decision expired" }), {
+          status: 500,
+          statusText: "Internal Server Error",
+        }),
+        "Response returned an error code",
+      ),
+    );
+
+    await store.submitDecision("Continue");
+
+    expect(store.currentDecision).toEqual({
+      message: "Pick one",
+      options: ["Continue"],
+    });
+    expect(store.currentDecisionError).toBe("Decision expired");
+    expect(store.submittingDecision).toBe(false);
+    expect(consoleError).toHaveBeenCalledWith(
+      "Error submitting SIP decision:",
+      500,
+      "Internal Server Error",
+    );
+    consoleError.mockRestore();
+  });
+
+  it("sets a fallback decision error when submission fails unexpectedly", async () => {
+    const store = useSipStore();
+    store.current = {
+      status: api.EnduroIngestSipStatusEnum.Pending,
+      uuid: "sip-uuid",
+    } as api.EnduroIngestSip;
+    store.currentDecision = {
+      message: "Pick one",
+      options: ["Continue"],
+    };
+    const consoleError = vi
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
+    client.ingest.ingestSubmitSipDecision = vi
+      .fn()
+      .mockRejectedValue(new Error("network error"));
+
+    await store.submitDecision("Continue");
+
+    expect(store.currentDecisionError).toBe(
+      "Unexpected error submitting decision",
+    );
+    expect(store.submittingDecision).toBe(false);
+    expect(consoleError).toHaveBeenCalledWith(
+      "Error submitting SIP decision:",
+      "network error",
+    );
+    consoleError.mockRestore();
+  });
+
   it("fetches SIPs", async () => {
     const mockSips: api.EnduroIngestSips = {
       items: [
