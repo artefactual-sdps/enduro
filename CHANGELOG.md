@@ -8,6 +8,13 @@ requests.
 
 ## [Unreleased]
 
+## [0.28.0] - 2026-05-01
+
+### Added
+
+- Support preprocessing decision requests ([#1536])
+- File count to dashboard SIP page ([#1595])
+
 ## [0.27.0] - 2026-04-21
 
 ### Added
@@ -339,7 +346,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.27.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.28.0...HEAD
+[0.28.0]: https://github.com/artefactual-sdps/enduro/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/artefactual-sdps/enduro/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/artefactual-sdps/enduro/compare/v0.25.0...v0.26.0
 [0.25.0]: https://github.com/artefactual-sdps/enduro/compare/v0.24.0...v0.25.0
@@ -370,6 +378,7 @@ Initial release.
 [#1595]: https://github.com/artefactual-sdps/enduro/issues/1595
 [#1570]: https://github.com/artefactual-sdps/enduro/pull/1570
 [#1541]: https://github.com/artefactual-sdps/enduro/pull/1541
+[#1536]: https://github.com/artefactual-sdps/enduro/issues/1536
 [#1520]: https://github.com/artefactual-sdps/enduro/pull/1520
 [#1513]: https://github.com/artefactual-sdps/enduro/issues/1513
 [#1499]: https://github.com/artefactual-sdps/enduro/issues/1499
