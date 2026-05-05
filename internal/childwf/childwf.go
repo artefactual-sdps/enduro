@@ -11,13 +11,3 @@ const (
 	OutcomeSystemError
 	OutcomeContentError
 )
-
-type Result struct {
-	// Outcome indicates the overall result of the child workflow. A value of 0
-	// indicates success, while non-zero values indicate various error states.
-	Outcome Outcome
-
-	// Message provides additional context about the result of the child
-	// workflow execution.
-	Message string
-}

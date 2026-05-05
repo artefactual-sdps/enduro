@@ -99,7 +99,7 @@ func (s *BatchWorkflowTestSuite) processingChildWorkflow(
 func postBatchChildWorkflow(
 	ctx temporalsdk_workflow.Context,
 	params *childwf.PostbatchParams,
-) (*childwf.Result, error) {
+) (*childwf.PostbatchResult, error) {
 	return nil, nil
 }
 
@@ -276,7 +276,7 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 			},
 		},
 	).Return(
-		&childwf.Result{
+		&childwf.PostbatchResult{
 			Outcome: childwf.OutcomeSuccess,
 			Message: "Postbatch workflow executed successfully",
 		},

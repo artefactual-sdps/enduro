@@ -350,7 +350,7 @@ func (w *BatchWorkflow) postbatchWorkflow(
 		},
 	)
 
-	var res childwf.Result
+	var res childwf.PostbatchResult
 	err := temporalsdk_workflow.ExecuteChildWorkflow(
 		childCtx,
 		cfg.WorkflowName,
