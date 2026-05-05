@@ -854,7 +854,7 @@ func (w *ProcessingWorkflow) transferA3m(
 			}
 		}
 
-		if err := w.poststorage(sessCtx, state.aip.id); err != nil {
+		if err := w.poststorage(sessCtx, state); err != nil {
 			return sessCtx, err
 		}
 	} else if state.req.Type == enums.WorkflowTypeCreateAndReviewAip {
@@ -1056,7 +1056,7 @@ func (w *ProcessingWorkflow) transferAM(
 		}
 	}
 
-	if err := w.poststorage(sessCtx, state.aip.id); err != nil {
+	if err := w.poststorage(sessCtx, state); err != nil {
 		return sessCtx, err
 	}
 
@@ -1162,6 +1162,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 		state.sip.path = filepath.Join(cfg.SharedPath, filepath.Clean(ppResult.RelativePath))
 		state.sip.isDir = true
 		state.sip.transformed = true
+		state.customMetadata = ppResult.CustomMetadata
 	}
 
 	// Save preprocessing task data.
@@ -1320,7 +1321,7 @@ func (w *ProcessingWorkflow) waitForChildDecisionResponse(
 // poststorage executes the configured poststorage child workflows. It uses
 // a disconnected context, abandon as parent close policy and only waits
 // until the workflows are started, ignoring their results.
-func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, aipUUID string) error {
+func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, state *workflowState) error {
 	cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePoststorage)
 	if cfg == nil {
 		return nil
@@ -1332,14 +1333,17 @@ func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, aipUU
 		temporalsdk_workflow.ChildWorkflowOptions{
 			Namespace:         cfg.Namespace,
 			TaskQueue:         cfg.TaskQueue,
-			WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, aipUUID),
+			WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, state.aip.id),
 			ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_ABANDON,
 		},
 	)
 	err := temporalsdk_workflow.ExecuteChildWorkflow(
 		ctx,
 		cfg.WorkflowName,
-		childwf.PostStorageParams{AIPUUID: aipUUID},
+		childwf.PostStorageParams{
+			AIPUUID:        state.aip.id,
+			CustomMetadata: state.customMetadata,
+		},
 	).GetChildWorkflowExecution().Get(ctx, nil)
 
 	return err

@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -294,6 +295,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 // - a3m as preservation system.
 // - The "create AIP" workflow type.
 // - preprocessing child workflow.
+// - custom metadata from preprocessing to poststorage.
 // - poststorage child workflows.
 // - Bag validation.
 // - Watched bucket download.
@@ -326,6 +328,10 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	params.downloadPath = prepDownloadPath + "/" + key
 	params.extractPath = prepExtractPath
 	downloadExpectations(s, params)
+	customMetadata := map[string]json.RawMessage{
+		"external_id": json.RawMessage(`"12345"`),
+		"flags":       json.RawMessage(`{"validated":true}`),
+	}
 
 	s.env.OnWorkflow(
 		"preprocessing",
@@ -337,8 +343,9 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		},
 	).Return(
 		&childwf.PreprocessingResult{
-			Outcome:      childwf.OutcomeSuccess,
-			RelativePath: strings.TrimPrefix(prepExtractPath, prepSharedPath),
+			Outcome:        childwf.OutcomeSuccess,
+			CustomMetadata: customMetadata,
+			RelativePath:   strings.TrimPrefix(prepExtractPath, prepSharedPath),
 			PreservationTasks: []childwf.Task{
 				{
 					Name:        "Identify SIP structure",
@@ -385,7 +392,10 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.env.OnWorkflow(
 		"poststorage",
 		internalCtx,
-		&childwf.PostStorageParams{AIPUUID: aipUUID.String()},
+		&childwf.PostStorageParams{
+			AIPUUID:        aipUUID.String(),
+			CustomMetadata: customMetadata,
+		},
 	).Return(nil, nil)
 
 	params.removePaths = []string{prepDownloadPath, transferPath}
