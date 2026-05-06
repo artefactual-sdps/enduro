@@ -22,6 +22,9 @@ type PostbatchSIP struct {
 	Name      string
 	AIPID     *uuid.UUID // Nullable.
 	FileCount int32
+
+	// CustomMetadata is opaque metadata returned by the processing workflow.
+	CustomMetadata CustomMetadata
 }
 
 type PostbatchResult struct {

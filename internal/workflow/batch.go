@@ -100,7 +100,10 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 	// TODO: consider errors in child workflows and handle failures, retries, or compensations.
 
 	defer func() {
-		// Always wait for all SIP workflows to complete from this point.
+		// If the batch workflow returns early after starting SIP workflows, still
+		// wait for them to finish. A final SIP status update is not necessarily
+		// the end of the processing workflow because it may still need to run
+		// cleanup operations.
 		if err := w.waitForWorkflowsCompletion(ctx, state); err != nil {
 			e = errors.Join(e, err)
 		}
@@ -157,6 +160,12 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 	// Update SIP state AIP IDs so they can be used in the post-storage
 	// workflow.
 	state.updateFromPollIngest(pollIngestedResult.SIPs)
+
+	// On the successful path, wait for processing workflow results before
+	// constructing postbatch params so opaque SIP metadata can be forwarded.
+	if err := w.waitForWorkflowsCompletion(ctx, state); err != nil {
+		return err
+	}
 
 	// Run postbatch child workflow, if one is configured.
 	if w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePostbatch) != nil {
@@ -305,11 +314,17 @@ func (w *BatchWorkflow) waitForBatchDecision(ctx temporalsdk_workflow.Context, s
 }
 
 func (w *BatchWorkflow) waitForWorkflowsCompletion(ctx temporalsdk_workflow.Context, state *batchWorkflowState) error {
+	if state.workflowsCompleted {
+		return nil
+	}
+
 	selector := temporalsdk_workflow.NewSelector(ctx)
 	for _, sd := range state.sipDetails {
 		selector.AddFuture(sd.workflowFuture, func(f temporalsdk_workflow.Future) {
-			// Ignore error and result, we just want to know when it's done.
-			_ = f.Get(ctx, nil)
+			var res ingest.ProcessingWorkflowResult
+			if err := f.Get(ctx, &res); err == nil {
+				sd.customMetadata = res.CustomMetadata
+			}
 		})
 	}
 
@@ -321,6 +336,8 @@ func (w *BatchWorkflow) waitForWorkflowsCompletion(ctx temporalsdk_workflow.Cont
 			return fmt.Errorf("waiting for workflows: %v", err)
 		}
 	}
+
+	state.workflowsCompleted = true
 
 	return nil
 }

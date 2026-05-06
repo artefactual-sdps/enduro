@@ -272,13 +272,17 @@ func (s *ProcessingWorkflowTestSuite) AfterTest(suiteName, testName string) {
 
 func (s *ProcessingWorkflowTestSuite) ExecuteAndValidateWorkflow(
 	req *ingest.ProcessingWorkflowRequest,
+	expected *ingest.ProcessingWorkflowResult,
 	shouldError bool,
 ) {
 	s.env.ExecuteWorkflow(s.workflow.Execute, req)
 	s.True(s.env.IsWorkflowCompleted())
 	if shouldError {
 		s.Error(s.env.GetWorkflowResult(nil))
-	} else {
-		s.NoError(s.env.GetWorkflowResult(nil))
+		return
 	}
+
+	var res ingest.ProcessingWorkflowResult
+	s.NoError(s.env.GetWorkflowResult(&res))
+	s.Equal(expected, &res)
 }

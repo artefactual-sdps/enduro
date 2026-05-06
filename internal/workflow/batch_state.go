@@ -21,6 +21,12 @@ type batchWorkflowState struct {
 
 	// sipDetails contains details for each SIP in the batch.
 	sipDetails []*sipDetails
+
+	// workflowsCompleted prevents consuming child processing workflow futures
+	// twice. The batch workflow waits explicitly before postbatch to collect
+	// processing results, and also defers a wait to let child workflows finish
+	// cleanup after they have reported final SIP statuses.
+	workflowsCompleted bool
 }
 
 // sipDetails holds information about a single SIP within a batch workflow.
@@ -34,6 +40,9 @@ type sipDetails struct {
 
 	// workflowExecution contains the execution details of the child workflow.
 	workflowExecution temporalsdk_workflow.Execution
+
+	// customMetadata is opaque metadata returned by the processing workflow.
+	customMetadata childwf.CustomMetadata
 }
 
 // newBatchWorkflowState initializes a new batchWorkflowState with the given
@@ -56,14 +65,6 @@ func (s *batchWorkflowState) PostbatchParams() *childwf.PostbatchParams {
 	}
 }
 
-func (s *batchWorkflowState) SIPs() []datatypes.SIP {
-	sips := make([]datatypes.SIP, len(s.sipDetails))
-	for i, sd := range s.sipDetails {
-		sips[i] = sd.sip
-	}
-	return sips
-}
-
 // addSIPDetails adds a new sipDetails entry to the batchWorkflowState at the specified index.
 func (s *batchWorkflowState) addSIPDetails(
 	index int,
@@ -79,16 +80,16 @@ func (s *batchWorkflowState) addSIPDetails(
 }
 
 func (s *batchWorkflowState) postbatchSIPs() []*childwf.PostbatchSIP {
-	sips := s.SIPs()
-	pbs := make([]*childwf.PostbatchSIP, len(sips))
-	for i, sip := range sips {
+	pbs := make([]*childwf.PostbatchSIP, len(s.sipDetails))
+	for i, sd := range s.sipDetails {
 		s := &childwf.PostbatchSIP{
-			UUID:      sip.UUID,
-			Name:      sip.Name,
-			FileCount: sip.FileCount,
+			UUID:           sd.sip.UUID,
+			Name:           sd.sip.Name,
+			FileCount:      sd.sip.FileCount,
+			CustomMetadata: sd.customMetadata,
 		}
-		if sip.AIPID.Valid {
-			s.AIPID = &sip.AIPID.UUID
+		if sd.sip.AIPID.Valid {
+			s.AIPID = &sd.sip.AIPID.UUID
 		}
 		pbs[i] = s
 	}

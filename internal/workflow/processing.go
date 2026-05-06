@@ -3,7 +3,6 @@
 package workflow
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -210,11 +209,14 @@ func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, st
 // Retrying this workflow would result in a new Archivematica transfer. We  do
 // not have a retry policy in place. The user could trigger a new instance via
 // the API.
-func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.ProcessingWorkflowRequest) error {
+func (w *ProcessingWorkflow) Execute(
+	ctx temporalsdk_workflow.Context,
+	req *ingest.ProcessingWorkflowRequest,
+) (*ingest.ProcessingWorkflowResult, error) {
 	// Create the initial workflow state.
 	state := newWorkflowState(ctx, req)
 	if err := w.registerChildDecisionHandlers(ctx, state); err != nil {
-		return err
+		return nil, err
 	}
 
 	// Persist the SIP as early as possible if the request comes from a watcher.
@@ -233,7 +235,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 			},
 		).Get(activityOpts, nil)
 		if err != nil {
-			return fmt.Errorf("error persisting SIP: %v", err)
+			return nil, fmt.Errorf("error persisting SIP: %v", err)
 		}
 	}
 
@@ -256,7 +258,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 				ExecutionTimeout: forever,
 			})
 			if err != nil {
-				return fmt.Errorf("error creating session: %v", err)
+				return nil, fmt.Errorf("error creating session: %v", err)
 			}
 
 			sessErr = w.SessionHandler(ctx, sessCtx, attempt, state)
@@ -269,7 +271,7 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 				(errors.Is(sessErr, temporalsdk_workflow.ErrSessionFailed) || temporalsdk_temporal.IsCanceledError(sessErr)) {
 				// Root context canceled, hence workflow canceled.
 				if ctx.Err() == temporalsdk_workflow.ErrCanceled {
-					return nil
+					return &ingest.ProcessingWorkflowResult{}, nil
 				}
 
 				state.logger.Error(
@@ -287,12 +289,12 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		}
 
 		if sessErr != nil {
-			return sessErr
+			return nil, sessErr
 		}
 	}
 
 	if state.status != enums.WorkflowStatusDone {
-		return nil
+		return &ingest.ProcessingWorkflowResult{}, nil
 	}
 
 	// Schedule deletion or disposal of the original SIP.
@@ -323,7 +325,9 @@ func (w *ProcessingWorkflow) Execute(ctx temporalsdk_workflow.Context, req *inge
 		"status", state.status,
 	)
 
-	return nil
+	return &ingest.ProcessingWorkflowResult{
+		CustomMetadata: state.customMetadata,
+	}, nil
 }
 
 // SessionHandler runs activities that belong to the same session.
@@ -1328,14 +1332,14 @@ func (w *ProcessingWorkflow) savePreservationTasks(
 }
 
 func mergeCustomMetadata(
-	base map[string]json.RawMessage,
-	override map[string]json.RawMessage,
-) map[string]json.RawMessage {
+	base childwf.CustomMetadata,
+	override childwf.CustomMetadata,
+) childwf.CustomMetadata {
 	if len(override) == 0 {
 		return base
 	}
 	if base == nil {
-		base = make(map[string]json.RawMessage, len(override))
+		base = make(childwf.CustomMetadata, len(override))
 	}
 
 	for _, k := range temporalsdk_workflow.DeterministicKeys(override) {

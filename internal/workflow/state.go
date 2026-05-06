@@ -1,7 +1,6 @@
 package workflow
 
 import (
-	"encoding/json"
 	"slices"
 
 	"github.com/google/uuid"
@@ -44,7 +43,7 @@ type workflowState struct {
 	aip *aipInfo
 
 	// customMetadata is opaque metadata shared between child workflows.
-	customMetadata map[string]json.RawMessage
+	customMetadata childwf.CustomMetadata
 
 	// childDecisionRequest tracks an active child workflow decision request.
 	childDecisionRequest *childwf.DecisionRequest

@@ -1,10 +1,6 @@
 package childwf
 
-import (
-	"encoding/json"
-
-	"github.com/google/uuid"
-)
+import "github.com/google/uuid"
 
 type PreprocessingParams struct {
 	// Relative path to the shared path.
@@ -27,7 +23,7 @@ type PreprocessingResult struct {
 	Outcome Outcome
 
 	// CustomMetadata is opaque metadata to carry to later child workflows.
-	CustomMetadata map[string]json.RawMessage
+	CustomMetadata CustomMetadata
 
 	// Relative path to the shared path.
 	RelativePath string

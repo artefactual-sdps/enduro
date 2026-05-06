@@ -1,6 +1,7 @@
 package workflow
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"testing"
@@ -51,6 +52,9 @@ type BatchWorkflowTestSuite struct {
 
 	// childSignals holds the signals received by the child processing workflows.
 	childSignals []ingest.BatchSignal
+
+	// childResults holds the results returned by child processing workflows.
+	childResults map[uuid.UUID]*ingest.ProcessingWorkflowResult
 }
 
 func (s *BatchWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration) {
@@ -85,13 +89,17 @@ func (s *BatchWorkflowTestSuite) SetupWorkflowTest(cfg config.Configuration) {
 // used in tests to capture requests and signals.
 func (s *BatchWorkflowTestSuite) processingChildWorkflow(
 	ctx temporalsdk_workflow.Context, req *ingest.ProcessingWorkflowRequest,
-) error {
+) (*ingest.ProcessingWorkflowResult, error) {
 	s.childRequests = append(s.childRequests, *req)
 	var signal ingest.BatchSignal
 	_ = temporalsdk_workflow.GetSignalChannel(ctx, ingest.BatchSignalName).Receive(ctx, &signal)
 	s.childSignals = append(s.childSignals, signal)
 
-	return nil
+	if res := s.childResults[req.SIPUUID]; res != nil {
+		return res, nil
+	}
+
+	return &ingest.ProcessingWorkflowResult{}, nil
 }
 
 // postBatchChildWorkflow is a no-op workflow that will be replaced with a
@@ -107,6 +115,7 @@ func (s *BatchWorkflowTestSuite) AfterTest(suiteName, testName string) {
 	s.env.AssertExpectations(s.T())
 	s.childRequests = nil
 	s.childSignals = nil
+	s.childResults = nil
 }
 
 // ExecuteAndValidateWorkflow executes the batch workflow with the given request,
@@ -158,6 +167,18 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 		},
 	}
 	s.SetupWorkflowTest(cfg)
+	s.childResults = map[uuid.UUID]*ingest.ProcessingWorkflowResult{
+		batchSIP1UUID: {
+			CustomMetadata: childwf.CustomMetadata{
+				"external_id": json.RawMessage(`"sip-1"`),
+			},
+		},
+		batchSIP2UUID: {
+			CustomMetadata: childwf.CustomMetadata{
+				"external_id": json.RawMessage(`"sip-2"`),
+			},
+		},
+	}
 
 	// Mock initial batch status update.
 	s.env.OnActivity(
@@ -266,12 +287,18 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 					Name:      batchSIP1Key,
 					AIPID:     &batchAIP1UUID,
 					FileCount: 8,
+					CustomMetadata: childwf.CustomMetadata{
+						"external_id": json.RawMessage(`"sip-1"`),
+					},
 				},
 				{
 					UUID:      batchSIP2UUID,
 					Name:      batchSIP2Key,
 					AIPID:     &batchAIP2UUID,
 					FileCount: 16,
+					CustomMetadata: childwf.CustomMetadata{
+						"external_id": json.RawMessage(`"sip-2"`),
+					},
 				},
 			},
 		},

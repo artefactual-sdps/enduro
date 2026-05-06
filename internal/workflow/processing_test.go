@@ -90,7 +90,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 		Type:            enums.WorkflowTypeCreateAndReviewAip,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
-	}, false)
+	}, &ingest.ProcessingWorkflowResult{}, false)
 }
 
 // TestRejection tests:
@@ -143,7 +143,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 		Type:            enums.WorkflowTypeCreateAndReviewAip,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
-	}, false)
+	}, &ingest.ProcessingWorkflowResult{}, false)
 }
 
 // TestAutoApprovedAIP tests:
@@ -175,7 +175,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 		Type:            enums.WorkflowTypeCreateAip,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
-	}, false)
+	}, &ingest.ProcessingWorkflowResult{}, false)
 }
 
 // TestAMWorkflow tests:
@@ -288,7 +288,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
 		BatchUUID:       batchUUID,
-	}, false)
+	}, &ingest.ProcessingWorkflowResult{}, false)
 }
 
 // TestChildWorkflows tests:
@@ -328,9 +328,13 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	params.downloadPath = prepDownloadPath + "/" + key
 	params.extractPath = prepExtractPath
 	downloadExpectations(s, params)
-	customMetadata := map[string]json.RawMessage{
+	preprocessingMetadata := childwf.CustomMetadata{
 		"external_id": json.RawMessage(`"12345"`),
 		"flags":       json.RawMessage(`{"validated":true}`),
+	}
+	poststorageMetadata := childwf.CustomMetadata{
+		"package": json.RawMessage(`{"type":"aip","identifier":"AIP-67890"}`),
+		"storage": json.RawMessage(`{"notified":true,"location":"permanent"}`),
 	}
 
 	s.env.OnWorkflow(
@@ -344,7 +348,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	).Return(
 		&childwf.PreprocessingResult{
 			Outcome:        childwf.OutcomeSuccess,
-			CustomMetadata: customMetadata,
+			CustomMetadata: preprocessingMetadata,
 			RelativePath:   strings.TrimPrefix(prepExtractPath, prepSharedPath),
 			PreservationTasks: []childwf.Task{
 				{
@@ -394,15 +398,12 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		internalCtx,
 		&childwf.PostStorageParams{
 			AIPUUID:        aipUUID.String(),
-			CustomMetadata: customMetadata,
+			CustomMetadata: preprocessingMetadata,
 		},
 	).Return(
 		&childwf.PostStorageResult{
-			Outcome: childwf.OutcomeSuccess,
-			CustomMetadata: map[string]json.RawMessage{
-				"package": json.RawMessage(`{"type":"aip","identifier":"AIP-67890"}`),
-				"storage": json.RawMessage(`{"notified":true,"location":"permanent"}`),
-			},
+			Outcome:        childwf.OutcomeSuccess,
+			CustomMetadata: poststorageMetadata,
 			PreservationTasks: []childwf.Task{
 				{
 					Name:        "Notify external system",
@@ -446,6 +447,13 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		Type:            enums.WorkflowTypeCreateAip,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
+	}, &ingest.ProcessingWorkflowResult{
+		CustomMetadata: childwf.CustomMetadata{
+			"external_id": json.RawMessage(`"12345"`),
+			"flags":       json.RawMessage(`{"validated":true}`),
+			"package":     json.RawMessage(`{"type":"aip","identifier":"AIP-67890"}`),
+			"storage":     json.RawMessage(`{"notified":true,"location":"permanent"}`),
+		},
 	}, false)
 }
 
@@ -573,7 +581,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 		Key:             key,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
-	}, false)
+	}, &ingest.ProcessingWorkflowResult{}, false)
 }
 
 // TestFailedSIP tests:
@@ -638,7 +646,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		Type:        enums.WorkflowTypeCreateAip,
 		SIPUUID:     sipUUID,
 		SIPName:     sipName,
-	}, true)
+	}, nil, true)
 }
 
 // TestFailedSIP tests:
@@ -707,7 +715,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 		Type:        enums.WorkflowTypeCreateAip,
 		SIPUUID:     sipUUID,
 		SIPName:     sipName,
-	}, true)
+	}, nil, true)
 }
 
 // TestFailedPIPAM tests:
@@ -755,7 +763,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 		Key:         key,
 		SIPUUID:     sipUUID,
 		SIPName:     sipName,
-	}, true)
+	}, nil, true)
 }
 
 // TestInternalUpload tests:
@@ -817,7 +825,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
 		Extension:       ".zip",
-	}, false)
+	}, &ingest.ProcessingWorkflowResult{}, false)
 }
 
 // TestInternalUploadError tests:
@@ -893,7 +901,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUploadError() {
 		SIPUUID:   sipUUID,
 		SIPName:   sipName,
 		Extension: ".zip",
-	}, true)
+	}, nil, true)
 }
 
 // TestSIPSourceUpload tests:
@@ -956,7 +964,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPSourceUpload() {
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
 		SIPSourceID:     uuid.New(),
-	}, false)
+	}, &ingest.ProcessingWorkflowResult{}, false)
 }
 
 // TestSIPDeletionError tests:
@@ -1012,7 +1020,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPDeletionError() {
 		Type:            enums.WorkflowTypeCreateAip,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
-	}, false)
+	}, &ingest.ProcessingWorkflowResult{}, false)
 }
 
 // TestBatchSignalDoNotContinue tests:
@@ -1077,5 +1085,5 @@ func (s *ProcessingWorkflowTestSuite) TestBatchSignalDoNotContinue() {
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
 		BatchUUID:       batchUUID,
-	}, true)
+	}, nil, true)
 }

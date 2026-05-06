@@ -1,12 +1,10 @@
 package childwf
 
-import "encoding/json"
-
 type PostStorageParams struct {
 	AIPUUID string
 
 	// CustomMetadata is opaque metadata returned by earlier child workflows.
-	CustomMetadata map[string]json.RawMessage
+	CustomMetadata CustomMetadata
 }
 
 type PostStorageResult struct {
@@ -15,7 +13,7 @@ type PostStorageResult struct {
 	Outcome Outcome
 
 	// CustomMetadata is opaque metadata to carry to later child workflows.
-	CustomMetadata map[string]json.RawMessage
+	CustomMetadata CustomMetadata
 
 	// PreservationTasks is a log of the tasks performed by poststorage.
 	PreservationTasks []Task

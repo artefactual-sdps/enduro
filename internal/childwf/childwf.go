@@ -1,5 +1,7 @@
 package childwf
 
+import "encoding/json"
+
 // Outcome is a status code indicating the overall result of the child
 // workflow, with 0 being reserved for success, 1 indicating a critical system
 // error, and 2 indicating a non-critical content error. Further outcome codes
@@ -11,3 +13,6 @@ const (
 	OutcomeSystemError
 	OutcomeContentError
 )
+
+// CustomMetadata is opaque JSON metadata carried between child workflows.
+type CustomMetadata map[string]json.RawMessage

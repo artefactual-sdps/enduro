@@ -9,6 +9,7 @@ import (
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 )
@@ -98,6 +99,13 @@ type (
 
 		// BatchUUID is the UUID of the batch this SIP belongs to, if any.
 		BatchUUID uuid.UUID
+	}
+
+	// ProcessingWorkflowResult is returned by the SIP processing workflow to
+	// the batch workflow.
+	ProcessingWorkflowResult struct {
+		// CustomMetadata is opaque metadata to carry to later child workflows.
+		CustomMetadata childwf.CustomMetadata
 	}
 
 	ReviewPerformedSignal struct {
