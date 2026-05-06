@@ -14,6 +14,7 @@ const (
 	OutcomeSuccess Outcome = iota
 	OutcomeSystemError
 	OutcomeContentError
+	OutcomeUnknown
 )
 
 // CustomMetadata is opaque JSON metadata carried between child workflows.

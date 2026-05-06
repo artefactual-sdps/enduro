@@ -8,6 +8,9 @@ type PostbatchParams struct {
 
 	// SIPs is the list of SIPs in the batch.
 	SIPs []*PostbatchSIP
+
+	// Test apidiff
+	APIDiff string
 }
 
 type PostbatchBatch struct {
