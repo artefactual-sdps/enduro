@@ -60,8 +60,8 @@ type preprocessingChildWorkflowFunc func(
 func poststorageChildWorkflow(
 	ctx temporalsdk_workflow.Context,
 	params *childwf.PostStorageParams,
-) (*any, error) {
-	return nil, nil
+) (*childwf.PostStorageResult, error) {
+	return &childwf.PostStorageResult{Outcome: childwf.OutcomeSuccess}, nil
 }
 
 func (s *ProcessingWorkflowTestSuite) CreateTransferDir() string {

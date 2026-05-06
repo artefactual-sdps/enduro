@@ -3,6 +3,7 @@
 package workflow
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -1165,23 +1166,8 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 		state.customMetadata = ppResult.CustomMetadata
 	}
 
-	// Save preprocessing task data.
-	if len(ppResult.PreservationTasks) > 0 {
-		opts := withLocalActivityOpts(ctx)
-		var savePPTasksResult localact.SavePreprocessingTasksActivityResult
-		err = temporalsdk_workflow.ExecuteLocalActivity(
-			opts,
-			localact.SavePreprocessingTasksActivity,
-			localact.SavePreprocessingTasksActivityParams{
-				Ingestsvc:    w.ingestsvc,
-				RNG:          w.rng,
-				WorkflowUUID: state.workflowUUID,
-				Tasks:        ppResult.PreservationTasks,
-			},
-		).Get(opts, &savePPTasksResult)
-		if err != nil {
-			return err
-		}
+	if err := w.savePreservationTasks(ctx, state, ppResult.PreservationTasks); err != nil {
+		return err
 	}
 
 	switch ppResult.Outcome {
@@ -1318,25 +1304,66 @@ func (w *ProcessingWorkflow) waitForChildDecisionResponse(
 	})
 }
 
-// poststorage executes the configured poststorage child workflows. It uses
-// a disconnected context, abandon as parent close policy and only waits
-// until the workflows are started, ignoring their results.
+func (w *ProcessingWorkflow) savePreservationTasks(
+	ctx temporalsdk_workflow.Context,
+	state *workflowState,
+	tasks []childwf.Task,
+) error {
+	if len(tasks) == 0 {
+		return nil
+	}
+
+	opts := withLocalActivityOpts(ctx)
+	var res localact.SaveChildwfTasksActivityResult
+	return temporalsdk_workflow.ExecuteLocalActivity(
+		opts,
+		localact.SaveChildwfTasksActivity,
+		localact.SaveChildwfTasksActivityParams{
+			Ingestsvc:    w.ingestsvc,
+			RNG:          w.rng,
+			WorkflowUUID: state.workflowUUID,
+			Tasks:        tasks,
+		},
+	).Get(opts, &res)
+}
+
+func mergeCustomMetadata(
+	base map[string]json.RawMessage,
+	override map[string]json.RawMessage,
+) map[string]json.RawMessage {
+	if len(override) == 0 {
+		return base
+	}
+	if base == nil {
+		base = make(map[string]json.RawMessage, len(override))
+	}
+
+	for _, k := range temporalsdk_workflow.DeterministicKeys(override) {
+		base[k] = override[k]
+	}
+
+	return base
+}
+
+// poststorage executes the configured poststorage child workflow and waits for
+// its result.
 func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, state *workflowState) error {
 	cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePoststorage)
 	if cfg == nil {
 		return nil
 	}
 
-	ctx, _ = temporalsdk_workflow.NewDisconnectedContext(ctx)
 	ctx = temporalsdk_workflow.WithChildOptions(
 		ctx,
 		temporalsdk_workflow.ChildWorkflowOptions{
 			Namespace:         cfg.Namespace,
 			TaskQueue:         cfg.TaskQueue,
 			WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, state.aip.id),
-			ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_ABANDON,
+			ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,
 		},
 	)
+
+	var res childwf.PostStorageResult
 	err := temporalsdk_workflow.ExecuteChildWorkflow(
 		ctx,
 		cfg.WorkflowName,
@@ -1344,9 +1371,30 @@ func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, state
 			AIPUUID:        state.aip.id,
 			CustomMetadata: state.customMetadata,
 		},
-	).GetChildWorkflowExecution().Get(ctx, nil)
+	).Get(ctx, &res)
+	if err != nil {
+		return err
+	}
 
-	return err
+	state.customMetadata = mergeCustomMetadata(state.customMetadata, res.CustomMetadata)
+
+	if err := w.savePreservationTasks(ctx, state, res.PreservationTasks); err != nil {
+		return err
+	}
+
+	switch res.Outcome {
+	case childwf.OutcomeSuccess:
+		return nil
+	case childwf.OutcomeSystemError:
+		state.status = enums.WorkflowStatusError
+		return errors.New("poststorage workflow: system error")
+	case childwf.OutcomeContentError:
+		state.status = enums.WorkflowStatusFailed
+		return errors.New("poststorage workflow: content error")
+	default:
+		state.status = enums.WorkflowStatusError
+		return fmt.Errorf("poststorage workflow: unknown outcome %d", res.Outcome)
+	}
 }
 
 func (w *ProcessingWorkflow) createTask(

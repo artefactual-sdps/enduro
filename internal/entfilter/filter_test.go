@@ -422,24 +422,20 @@ func TestFilter(t *testing.T) {
 			newSortableFields("id"),
 		)
 
-		// Add a string enum entfilter.
-		taskOutcome := enums.PreprocessingTaskOutcomeSuccess
-		f.Equals("outcome", &taskOutcome)
-
-		// Add an integer enum entfilter.
+		// Add an enum entfilter.
 		sipStatus := enums.SIPStatusIngested
 		f.Equals("status", &sipStatus)
 
 		// Omit invalid enum values.
-		f.Equals("outcome2", new(enums.PreprocessingTaskOutcome("invalid")))
+		f.Equals("status2", new(enums.SIPStatus("invalid")))
 
 		// Omit nil enum pointers.
-		f.Equals("status2", (*enums.SIPStatus)(nil))
+		f.Equals("status3", (*enums.SIPStatus)(nil))
 
 		_, whole := f.Apply()
 
-		assert.Equal(t, whole.where, "`data`.`outcome` = ? AND `data`.`status` = ?")
-		assert.DeepEqual(t, whole.args, []any{&taskOutcome, &sipStatus})
+		assert.Equal(t, whole.where, "`data`.`status` = ?")
+		assert.DeepEqual(t, whole.args, []any{&sipStatus})
 	})
 
 	t.Run("Filters on a list of strings", func(t *testing.T) {
