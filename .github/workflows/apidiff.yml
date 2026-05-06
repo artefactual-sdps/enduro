@@ -1,0 +1,18 @@
+name: API diff
+on:
+  pull_request:
+jobs:
+  apidiff:
+    runs-on: ubuntu-latest
+    if: (github.event.action && 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'breaking-change'))
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+        with:
+          fetch-depth: 0
+      - name: Install Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version-file: go.mod
+      - name: Run apidiff
+        uses: joelanford/go-apidiff@60c4206be8f84348ebda2a3e0c3ac9cb54b8f685 # v0.8.3
