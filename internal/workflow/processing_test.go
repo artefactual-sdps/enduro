@@ -21,7 +21,6 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -30,6 +29,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 func TestProcessingWorkflow(t *testing.T) {
@@ -305,9 +305,9 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-		ChildWorkflows: childwf.Configs{
+		ChildWorkflows: config.ChildWorkflowConfigs{
 			{
-				Type:         enums.ChildWorkflowTypePreprocessing,
+				Type:         childwf.WorkflowTypePreprocessing,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -315,7 +315,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				SharedPath:   prepSharedPath,
 			},
 			{
-				Type:         enums.ChildWorkflowTypePoststorage,
+				Type:         childwf.WorkflowTypePoststorage,
 				Namespace:    "default",
 				TaskQueue:    "poststorage",
 				WorkflowName: "poststorage",
@@ -350,11 +350,11 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 			Outcome:        childwf.OutcomeSuccess,
 			CustomMetadata: preprocessingMetadata,
 			RelativePath:   strings.TrimPrefix(prepExtractPath, prepSharedPath),
-			PreservationTasks: []childwf.Task{
+			Tasks: []childwf.Task{
 				{
 					Name:        "Identify SIP structure",
 					Message:     "SIP structure identified: VecteurAIP",
-					Outcome:     enums.ChildwfTaskOutcomeSuccess,
+					Outcome:     childwf.TaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 5, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 5, 33, 0, time.UTC),
 				},
@@ -374,7 +374,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				{
 					Name:        "Identify SIP structure",
 					Message:     "SIP structure identified: VecteurAIP",
-					Outcome:     enums.ChildwfTaskOutcomeSuccess,
+					Outcome:     childwf.TaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 5, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 5, 33, 0, time.UTC),
 				},
@@ -404,11 +404,11 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		&childwf.PostStorageResult{
 			Outcome:        childwf.OutcomeSuccess,
 			CustomMetadata: poststorageMetadata,
-			PreservationTasks: []childwf.Task{
+			Tasks: []childwf.Task{
 				{
 					Name:        "Notify external system",
 					Message:     "External system notified.",
-					Outcome:     enums.ChildwfTaskOutcomeSuccess,
+					Outcome:     childwf.TaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 6, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 6, 33, 0, time.UTC),
 				},
@@ -428,7 +428,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				{
 					Name:        "Notify external system",
 					Message:     "External system notified.",
-					Outcome:     enums.ChildwfTaskOutcomeSuccess,
+					Outcome:     childwf.TaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 6, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 6, 33, 0, time.UTC),
 				},
@@ -469,9 +469,9 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-		ChildWorkflows: childwf.Configs{
+		ChildWorkflows: config.ChildWorkflowConfigs{
 			{
-				Type:         enums.ChildWorkflowTypePreprocessing,
+				Type:         childwf.WorkflowTypePreprocessing,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -596,9 +596,9 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 
 		Ingest: ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-		ChildWorkflows: childwf.Configs{
+		ChildWorkflows: config.ChildWorkflowConfigs{
 			{
-				Type:         enums.ChildWorkflowTypePreprocessing,
+				Type:         childwf.WorkflowTypePreprocessing,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -839,9 +839,9 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUploadError() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-		ChildWorkflows: childwf.Configs{
+		ChildWorkflows: config.ChildWorkflowConfigs{
 			{
-				Type:         enums.ChildWorkflowTypePreprocessing,
+				Type:         childwf.WorkflowTypePreprocessing,
 				WorkflowName: "preprocessing",
 				SharedPath:   prepSharedPath,
 			},

@@ -15,6 +15,6 @@ type PostStorageResult struct {
 	// CustomMetadata is opaque metadata to carry to later child workflows.
 	CustomMetadata CustomMetadata
 
-	// PreservationTasks is a log of the tasks performed by poststorage.
-	PreservationTasks []Task
+	// Tasks is a log of the tasks performed by poststorage.
+	Tasks []Task
 }

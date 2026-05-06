@@ -28,7 +28,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	a3mfake "github.com/artefactual-sdps/enduro/internal/a3m/fake"
 	"github.com/artefactual-sdps/enduro/internal/am"
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
@@ -36,6 +35,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	watcherfake "github.com/artefactual-sdps/enduro/internal/watcher/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 type ProcessingWorkflowTestSuite struct {

@@ -12,7 +12,6 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
-	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -85,7 +84,7 @@ func TestConfigRead(t *testing.T) {
 					Capacity:     20,
 					PollInterval: 10 * time.Second,
 				},
-				API: api.Config{
+				API: config.APIConfig{
 					Listen: "127.0.0.1:9000",
 					Auth: auth.Config{
 						Enabled: true,
@@ -165,7 +164,7 @@ defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
 					Capacity:     20,
 					PollInterval: 10 * time.Second,
 				},
-				API: api.Config{
+				API: config.APIConfig{
 					Listen:     "127.0.0.1:9000",
 					CORSOrigin: "127.0.0.1:9000",
 				},

@@ -1,6 +1,7 @@
 **
 !cmd
 !internal
+!pkg
 !enduro.toml
 !go.mod
 !go.sum

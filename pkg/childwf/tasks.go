@@ -1,10 +1,6 @@
 package childwf
 
-import (
-	"time"
-
-	"github.com/artefactual-sdps/enduro/internal/enums"
-)
+import "time"
 
 type Task struct {
 	// Name is the name of the task.
@@ -14,11 +10,11 @@ type Task struct {
 	Message string
 
 	// Outcome indicates the completion state of the task.
-	Outcome enums.ChildwfTaskOutcome
+	Outcome TaskOutcome
 
 	// StartedAt is the timestamp of the task initiation.
 	StartedAt time.Time
 
-	// StartedAt is the timestamp of the task completion.
+	// CompletedAt is the timestamp of the task completion.
 	CompletedAt time.Time
 }

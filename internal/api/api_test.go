@@ -16,6 +16,7 @@ import (
 	intabout "github.com/artefactual-sdps/enduro/internal/about"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/config"
 	intingest "github.com/artefactual-sdps/enduro/internal/ingest"
 	ingestfake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	storagefake "github.com/artefactual-sdps/enduro/internal/storage/fake"
@@ -58,7 +59,7 @@ func newTestAPI(t *testing.T) *testAPI {
 	server := HTTPServer(
 		logr.Discard(),
 		nil,
-		&Config{Listen: ":0"},
+		&config.APIConfig{Listen: ":0"},
 		ingestSvc,
 		storageSvc,
 		intabout.NewService(logr.Discard(), "", nil, intingest.UploadConfig{}, nil),

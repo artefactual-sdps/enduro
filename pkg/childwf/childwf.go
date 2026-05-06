@@ -1,3 +1,5 @@
+// Package childwf defines the wire contracts shared between Enduro and child
+// workflow implementations.
 package childwf
 
 import "encoding/json"

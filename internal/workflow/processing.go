@@ -28,7 +28,6 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -37,6 +36,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 type ProcessingWorkflow struct {
@@ -413,7 +413,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Extract the transfer if it's not a directory and a preprocessing child
 	// workflow is not doing the extraction.
-	cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePreprocessing)
+	cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePreprocessing)
 	if !state.sip.isDir && (cfg == nil || !cfg.Extract) {
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
 		var result archiveextract.Result
@@ -458,7 +458,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Stop the workflow if preprocessing returned a SIP path that is not a BagIt Bag.
 	if state.sip.sipType != enums.SIPTypeBagIt &&
-		w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePreprocessing) != nil {
+		w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePreprocessing) != nil {
 		return errors.New("preprocessing returned a path that is not a BagIt Bag")
 	}
 
@@ -1084,7 +1084,7 @@ func (w *ProcessingWorkflow) transferAM(
 }
 
 func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, state *workflowState) error {
-	cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePreprocessing)
+	cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePreprocessing)
 	if cfg == nil {
 		return nil
 	}
@@ -1170,7 +1170,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 		state.customMetadata = ppResult.CustomMetadata
 	}
 
-	if err := w.savePreservationTasks(ctx, state, ppResult.PreservationTasks); err != nil {
+	if err := w.saveChildwfTasks(ctx, state, ppResult.Tasks); err != nil {
 		return err
 	}
 
@@ -1308,7 +1308,7 @@ func (w *ProcessingWorkflow) waitForChildDecisionResponse(
 	})
 }
 
-func (w *ProcessingWorkflow) savePreservationTasks(
+func (w *ProcessingWorkflow) saveChildwfTasks(
 	ctx temporalsdk_workflow.Context,
 	state *workflowState,
 	tasks []childwf.Task,
@@ -1352,7 +1352,7 @@ func mergeCustomMetadata(
 // poststorage executes the configured poststorage child workflow and waits for
 // its result.
 func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, state *workflowState) error {
-	cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePoststorage)
+	cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePoststorage)
 	if cfg == nil {
 		return nil
 	}
@@ -1382,7 +1382,7 @@ func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, state
 
 	state.customMetadata = mergeCustomMetadata(state.customMetadata, res.CustomMetadata)
 
-	if err := w.savePreservationTasks(ctx, state, res.PreservationTasks); err != nil {
+	if err := w.saveChildwfTasks(ctx, state, res.Tasks); err != nil {
 		return err
 	}
 

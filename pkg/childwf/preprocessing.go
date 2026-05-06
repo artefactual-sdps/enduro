@@ -28,6 +28,6 @@ type PreprocessingResult struct {
 	// Relative path to the shared path.
 	RelativePath string
 
-	// PreservationTasks is a log of the tasks performed by preprocessing.
-	PreservationTasks []Task
+	// Tasks is a log of the tasks performed by preprocessing.
+	Tasks []Task
 }

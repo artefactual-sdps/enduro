@@ -16,11 +16,10 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaabout "github.com/artefactual-sdps/enduro/internal/api/gen/about"
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
-	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/pres"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 func TestJWTAuth(t *testing.T) {
@@ -81,7 +80,7 @@ func TestJWTAuth(t *testing.T) {
 			srv := about.NewService(
 				logger,
 				"",
-				childwf.Configs{},
+				config.ChildWorkflowConfigs{},
 				ingest.UploadConfig{},
 				tvMock,
 			)
@@ -136,9 +135,9 @@ func TestAbout(t *testing.T) {
 		{
 			name: "Full config",
 			config: config.Configuration{
-				ChildWorkflows: childwf.Configs{
+				ChildWorkflows: config.ChildWorkflowConfigs{
 					{
-						Type:         enums.ChildWorkflowTypePreprocessing,
+						Type:         childwf.WorkflowTypePreprocessing,
 						Namespace:    "default",
 						TaskQueue:    "preprocessing",
 						WorkflowName: "preprocessing",
@@ -146,7 +145,7 @@ func TestAbout(t *testing.T) {
 						SharedPath:   "/tmp",
 					},
 					{
-						Type:         enums.ChildWorkflowTypePoststorage,
+						Type:         childwf.WorkflowTypePoststorage,
 						Namespace:    "default",
 						TaskQueue:    "poststorage",
 						WorkflowName: "poststorage",
@@ -162,12 +161,12 @@ func TestAbout(t *testing.T) {
 				PreservationSystem: "a3m",
 				ChildWorkflows: goaabout.EnduroChildworkflowCollection{
 					{
-						Type:         enums.ChildWorkflowTypePreprocessing.String(),
+						Type:         childwf.WorkflowTypePreprocessing.String(),
 						TaskQueue:    "preprocessing",
 						WorkflowName: "preprocessing",
 					},
 					{
-						Type:         enums.ChildWorkflowTypePoststorage.String(),
+						Type:         childwf.WorkflowTypePoststorage.String(),
 						TaskQueue:    "poststorage",
 						WorkflowName: "poststorage",
 					},

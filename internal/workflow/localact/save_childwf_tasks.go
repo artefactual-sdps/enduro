@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 type SaveChildwfTasksActivityParams struct {
@@ -57,11 +57,11 @@ func SaveChildwfTasksActivity(
 }
 
 func childwfTaskToTask(t childwf.Task) datatypes.Task {
-	taskOutcomeToTaskStatus := map[enums.ChildwfTaskOutcome]enums.TaskStatus{
-		enums.ChildwfTaskOutcomeUnspecified:       enums.TaskStatusUnspecified,
-		enums.ChildwfTaskOutcomeSuccess:           enums.TaskStatusDone,
-		enums.ChildwfTaskOutcomeSystemFailure:     enums.TaskStatusError,
-		enums.ChildwfTaskOutcomeValidationFailure: enums.TaskStatusFailed,
+	taskOutcomeToTaskStatus := map[childwf.TaskOutcome]enums.TaskStatus{
+		childwf.TaskOutcomeUnspecified:       enums.TaskStatusUnspecified,
+		childwf.TaskOutcomeSuccess:           enums.TaskStatusDone,
+		childwf.TaskOutcomeSystemFailure:     enums.TaskStatusError,
+		childwf.TaskOutcomeValidationFailure: enums.TaskStatusFailed,
 	}
 
 	status, found := taskOutcomeToTaskStatus[t.Outcome]

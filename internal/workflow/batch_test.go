@@ -15,13 +15,13 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 	"go.uber.org/mock/gomock"
 
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 const (
@@ -157,9 +157,9 @@ func TestBatchWorkflow(t *testing.T) {
 // - Run postbatch child workflow.
 func (s *BatchWorkflowTestSuite) TestBatch() {
 	cfg := config.Configuration{
-		ChildWorkflows: childwf.Configs{
+		ChildWorkflows: config.ChildWorkflowConfigs{
 			{
-				Type:         enums.ChildWorkflowTypePostbatch,
+				Type:         childwf.WorkflowTypePostbatch,
 				Namespace:    "default",
 				TaskQueue:    "postbatch",
 				WorkflowName: "postbatch",

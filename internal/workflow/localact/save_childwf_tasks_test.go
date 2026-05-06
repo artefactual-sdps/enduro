@@ -12,11 +12,11 @@ import (
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 func TestSaveChildwfTasksActivity(t *testing.T) {
@@ -43,7 +43,7 @@ func TestSaveChildwfTasksActivity(t *testing.T) {
 					{
 						Name:        "Validate SIP structure",
 						Message:     "SIP structure matches validation criteria",
-						Outcome:     enums.ChildwfTaskOutcomeSuccess,
+						Outcome:     childwf.TaskOutcomeSuccess,
 						StartedAt:   startedAt,
 						CompletedAt: completedAt,
 					},
@@ -76,7 +76,7 @@ func TestSaveChildwfTasksActivity(t *testing.T) {
 				Tasks: []childwf.Task{
 					{
 						Message:     "SIP structure matches validation criteria",
-						Outcome:     enums.ChildwfTaskOutcomeSuccess,
+						Outcome:     childwf.TaskOutcomeSuccess,
 						StartedAt:   startedAt,
 						CompletedAt: completedAt,
 					},
