@@ -1314,11 +1314,11 @@ func (w *ProcessingWorkflow) savePreservationTasks(
 	}
 
 	opts := withLocalActivityOpts(ctx)
-	var res localact.SavePreprocessingTasksActivityResult
+	var res localact.SaveChildwfTasksActivityResult
 	return temporalsdk_workflow.ExecuteLocalActivity(
 		opts,
-		localact.SavePreprocessingTasksActivity,
-		localact.SavePreprocessingTasksActivityParams{
+		localact.SaveChildwfTasksActivity,
+		localact.SaveChildwfTasksActivityParams{
 			Ingestsvc:    w.ingestsvc,
 			RNG:          w.rng,
 			WorkflowUUID: state.workflowUUID,

@@ -350,7 +350,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				{
 					Name:        "Identify SIP structure",
 					Message:     "SIP structure identified: VecteurAIP",
-					Outcome:     enums.PreprocessingTaskOutcomeSuccess,
+					Outcome:     enums.ChildwfTaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 5, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 5, 33, 0, time.UTC),
 				},
@@ -360,9 +360,9 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	)
 
 	s.env.OnActivity(
-		localact.SavePreprocessingTasksActivity,
+		localact.SaveChildwfTasksActivity,
 		ctx,
-		localact.SavePreprocessingTasksActivityParams{
+		localact.SaveChildwfTasksActivityParams{
 			Ingestsvc:    s.workflow.ingestsvc,
 			RNG:          s.workflow.rng,
 			WorkflowUUID: workflowUUID,
@@ -370,13 +370,13 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				{
 					Name:        "Identify SIP structure",
 					Message:     "SIP structure identified: VecteurAIP",
-					Outcome:     enums.PreprocessingTaskOutcomeSuccess,
+					Outcome:     enums.ChildwfTaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 5, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 5, 33, 0, time.UTC),
 				},
 			},
 		},
-	).Return(&localact.SavePreprocessingTasksActivityResult{Count: 1}, nil)
+	).Return(&localact.SaveChildwfTasksActivityResult{Count: 1}, nil)
 
 	params.sipType = enums.SIPTypeBagIt
 	expectations["classifySIP"](s, params)
@@ -407,7 +407,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				{
 					Name:        "Notify external system",
 					Message:     "External system notified.",
-					Outcome:     enums.PreprocessingTaskOutcomeSuccess,
+					Outcome:     enums.ChildwfTaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 6, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 6, 33, 0, time.UTC),
 				},
@@ -417,9 +417,9 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	)
 
 	s.env.OnActivity(
-		localact.SavePreprocessingTasksActivity,
+		localact.SaveChildwfTasksActivity,
 		ctx,
-		localact.SavePreprocessingTasksActivityParams{
+		localact.SaveChildwfTasksActivityParams{
 			Ingestsvc:    s.workflow.ingestsvc,
 			RNG:          s.workflow.rng,
 			WorkflowUUID: workflowUUID,
@@ -427,13 +427,13 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				{
 					Name:        "Notify external system",
 					Message:     "External system notified.",
-					Outcome:     enums.PreprocessingTaskOutcomeSuccess,
+					Outcome:     enums.ChildwfTaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 6, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 6, 33, 0, time.UTC),
 				},
 			},
 		},
-	).Return(&localact.SavePreprocessingTasksActivityResult{Count: 1}, nil)
+	).Return(&localact.SaveChildwfTasksActivityResult{Count: 1}, nil)
 
 	params.removePaths = []string{prepDownloadPath, transferPath}
 	params.retentionPeriod = 48 * time.Hour

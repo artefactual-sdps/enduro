@@ -13,7 +13,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 )
 
-type SavePreprocessingTasksActivityParams struct {
+type SaveChildwfTasksActivityParams struct {
 	// Ingestsvc is an ingest service instance.
 	Ingestsvc ingest.Service
 
@@ -23,24 +23,24 @@ type SavePreprocessingTasksActivityParams struct {
 	// WorkflowUUID is the UUID of the parent Workflow.
 	WorkflowUUID uuid.UUID
 
-	// Tasks is a list of preprocessing tasks to save as Tasks.
+	// Tasks is a list of child workflow tasks to save as Tasks.
 	Tasks []childwf.Task
 }
 
-type SavePreprocessingTasksActivityResult struct {
+type SaveChildwfTasksActivityResult struct {
 	// Count is the number of saved Tasks.
 	Count int
 }
 
-func SavePreprocessingTasksActivity(
+func SaveChildwfTasksActivity(
 	ctx context.Context,
-	params SavePreprocessingTasksActivityParams,
-) (*SavePreprocessingTasksActivityResult, error) {
-	var res SavePreprocessingTasksActivityResult
+	params SaveChildwfTasksActivityParams,
+) (*SaveChildwfTasksActivityResult, error) {
+	var res SaveChildwfTasksActivityResult
 
 	tasks := make([]*datatypes.Task, 0, len(params.Tasks))
 	for _, t := range params.Tasks {
-		task := preprocTaskToTask(t)
+		task := childwfTaskToTask(t)
 		task.WorkflowUUID = params.WorkflowUUID
 		// TODO: Create deterministic UUIDs and make activities idempotent.
 		task.UUID = uuid.Must(uuid.NewRandomFromReader(params.RNG))
@@ -50,18 +50,18 @@ func SavePreprocessingTasksActivity(
 	}
 
 	if err := params.Ingestsvc.CreateTasks(ctx, tasks); err != nil {
-		return &res, fmt.Errorf("SavePreprocessingTasksActivity: %v", err)
+		return &res, fmt.Errorf("SaveChildwfTasksActivity: %v", err)
 	}
 
 	return &res, nil
 }
 
-func preprocTaskToTask(t childwf.Task) datatypes.Task {
-	taskOutcomeToTaskStatus := map[enums.PreprocessingTaskOutcome]enums.TaskStatus{
-		enums.PreprocessingTaskOutcomeUnspecified:       enums.TaskStatusUnspecified,
-		enums.PreprocessingTaskOutcomeSuccess:           enums.TaskStatusDone,
-		enums.PreprocessingTaskOutcomeSystemFailure:     enums.TaskStatusError,
-		enums.PreprocessingTaskOutcomeValidationFailure: enums.TaskStatusFailed,
+func childwfTaskToTask(t childwf.Task) datatypes.Task {
+	taskOutcomeToTaskStatus := map[enums.ChildwfTaskOutcome]enums.TaskStatus{
+		enums.ChildwfTaskOutcomeUnspecified:       enums.TaskStatusUnspecified,
+		enums.ChildwfTaskOutcomeSuccess:           enums.TaskStatusDone,
+		enums.ChildwfTaskOutcomeSystemFailure:     enums.TaskStatusError,
+		enums.ChildwfTaskOutcomeValidationFailure: enums.TaskStatusFailed,
 	}
 
 	status, found := taskOutcomeToTaskStatus[t.Outcome]

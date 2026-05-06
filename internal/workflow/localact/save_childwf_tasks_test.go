@@ -19,7 +19,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
 )
 
-func TestSavePreprocessingTasksActivity(t *testing.T) {
+func TestSaveChildwfTasksActivity(t *testing.T) {
 	t.Parallel()
 
 	wUUID := uuid.New()
@@ -29,21 +29,21 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 
 	type test struct {
 		name      string
-		params    localact.SavePreprocessingTasksActivityParams
+		params    localact.SaveChildwfTasksActivityParams
 		mockCalls func(m *ingest_fake.MockServiceMockRecorder)
-		want      *localact.SavePreprocessingTasksActivityResult
+		want      *localact.SaveChildwfTasksActivityResult
 		wantErr   string
 	}
 	for _, tt := range []test{
 		{
 			name: "Saves a preprocessing task",
-			params: localact.SavePreprocessingTasksActivityParams{
+			params: localact.SaveChildwfTasksActivityParams{
 				WorkflowUUID: wUUID,
 				Tasks: []childwf.Task{
 					{
 						Name:        "Validate SIP structure",
 						Message:     "SIP structure matches validation criteria",
-						Outcome:     enums.PreprocessingTaskOutcomeSuccess,
+						Outcome:     enums.ChildwfTaskOutcomeSuccess,
 						StartedAt:   startedAt,
 						CompletedAt: completedAt,
 					},
@@ -65,18 +65,18 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 					},
 				).Return(nil)
 			},
-			want: &localact.SavePreprocessingTasksActivityResult{
+			want: &localact.SaveChildwfTasksActivityResult{
 				Count: 1,
 			},
 		},
 		{
 			name: "Errors when a required value is missing",
-			params: localact.SavePreprocessingTasksActivityParams{
+			params: localact.SaveChildwfTasksActivityParams{
 				WorkflowUUID: wUUID,
 				Tasks: []childwf.Task{
 					{
 						Message:     "SIP structure matches validation criteria",
-						Outcome:     enums.PreprocessingTaskOutcomeSuccess,
+						Outcome:     enums.ChildwfTaskOutcomeSuccess,
 						StartedAt:   startedAt,
 						CompletedAt: completedAt,
 					},
@@ -99,7 +99,7 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 					"task: create: invalid data error: field Name is required",
 				))
 			},
-			wantErr: "SavePreprocessingTasksActivity: task: create: invalid data error: field Name is required",
+			wantErr: "SaveChildwfTasksActivity: task: create: invalid data error: field Name is required",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -115,20 +115,20 @@ func TestSavePreprocessingTasksActivity(t *testing.T) {
 			tt.params.RNG = rand.New(rand.NewSource(1)) // #nosec: G404
 
 			enc, err := env.ExecuteLocalActivity(
-				localact.SavePreprocessingTasksActivity,
+				localact.SaveChildwfTasksActivity,
 				tt.params,
 			)
 			if tt.wantErr != "" {
 				assert.Error(
 					t,
 					err,
-					"activity error (type: SavePreprocessingTasksActivity, scheduledEventID: 0, startedEventID: 0, identity: ): "+tt.wantErr,
+					"activity error (type: SaveChildwfTasksActivity, scheduledEventID: 0, startedEventID: 0, identity: ): "+tt.wantErr,
 				)
 				return
 			}
 			assert.NilError(t, err)
 
-			var res localact.SavePreprocessingTasksActivityResult
+			var res localact.SaveChildwfTasksActivityResult
 			_ = enc.Get(&res)
 			assert.DeepEqual(t, &res, tt.want)
 		})

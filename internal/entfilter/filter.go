@@ -191,8 +191,6 @@ func validPtrValue(ptr any) bool {
 		return t != nil && t.IsValid()
 	case *ingest_enums.BatchStatus:
 		return t != nil && t.IsValid()
-	case *ingest_enums.PreprocessingTaskOutcome:
-		return t != nil && t.IsValid()
 	case *int:
 		return t != nil
 	case *string:

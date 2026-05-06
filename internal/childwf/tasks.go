@@ -14,7 +14,7 @@ type Task struct {
 	Message string
 
 	// Outcome indicates the completion state of the task.
-	Outcome enums.PreprocessingTaskOutcome
+	Outcome enums.ChildwfTaskOutcome
 
 	// StartedAt is the timestamp of the task initiation.
 	StartedAt time.Time
