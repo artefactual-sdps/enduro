@@ -11,12 +11,12 @@ import (
 	temporalsdk_client "go.temporal.io/sdk/client"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 type BatchWorkflow struct {
@@ -168,7 +168,7 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 	}
 
 	// Run postbatch child workflow, if one is configured.
-	if w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePostbatch) != nil {
+	if w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePostbatch) != nil {
 		if err := w.postbatchWorkflow(ctx, state); err != nil {
 			return err
 		}
@@ -346,7 +346,7 @@ func (w *BatchWorkflow) postbatchWorkflow(
 	ctx temporalsdk_workflow.Context,
 	state *batchWorkflowState,
 ) error {
-	cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePostbatch)
+	cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePostbatch)
 	if cfg == nil {
 		return nil
 	}

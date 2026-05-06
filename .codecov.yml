@@ -27,6 +27,7 @@ ignore:
 - "internal/**/gen/"
 - "internal/**/ent/db/"
 - "internal/**/ent/schema/"
+- "pkg/childwf/*_enum.go"
 
 flags:
   backend:

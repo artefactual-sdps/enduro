@@ -18,9 +18,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
-	"github.com/artefactual-sdps/enduro/internal/api"
 	"github.com/artefactual-sdps/enduro/internal/auditlog"
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -59,10 +57,10 @@ type Configuration struct {
 
 	A3m             a3m.Config
 	AM              am.Config
-	InternalAPI     api.Config
-	API             api.Config
+	InternalAPI     APIConfig
+	API             APIConfig
 	BagIt           bagcreate.Config
-	ChildWorkflows  childwf.Configs
+	ChildWorkflows  ChildWorkflowConfigs
 	Database        db.Config
 	Event           event.Config
 	ExtractActivity archiveextract.Config

@@ -96,8 +96,6 @@ gen-enums: tool-go-enum
 	go-enum $(ENUM_FLAGS) \
 		--nocomments \
 		-f internal/enums/batch_status.go \
-		-f internal/enums/child_workflow_type.go \
-		-f internal/enums/childwf_task_outcome.go \
 		-f internal/enums/sip_failed_as.go \
 		-f internal/enums/sip_status.go \
 		-f internal/enums/sip_type.go \
@@ -110,7 +108,9 @@ gen-enums: tool-go-enum
 		-f internal/storage/enums/location_source.go \
 		-f internal/storage/enums/task_status.go \
 		-f internal/storage/enums/workflow_status.go \
-		-f internal/storage/enums/workflow_type.go
+		-f internal/storage/enums/workflow_type.go \
+		-f pkg/childwf/task_outcome.go \
+		-f pkg/childwf/workflow_type.go
 
 gen-goa: # @HELP Generate Goa assets.
 gen-goa: tool-goa

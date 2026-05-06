@@ -1,8 +1,6 @@
 package childwf
 
-import (
-	"github.com/google/uuid"
-)
+import "github.com/google/uuid"
 
 type PostbatchParams struct {
 	// Batch represents data general to the whole batch.

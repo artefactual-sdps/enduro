@@ -1,4 +1,4 @@
-package childwf
+package config
 
 import (
 	"errors"
@@ -6,12 +6,12 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/artefactual-sdps/enduro/internal/enums"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
-type Config struct {
+type ChildWorkflowConfig struct {
 	// Type of the child workflow.
-	Type enums.ChildWorkflowType
+	Type childwf.WorkflowType
 
 	// Namespace is the Temporal namespace of the child workflow.
 	Namespace string
@@ -30,7 +30,7 @@ type Config struct {
 	Extract bool
 }
 
-func (c Config) Validate() error {
+func (c ChildWorkflowConfig) Validate() error {
 	errs := c.missingFields()
 
 	if c.Type != "" && !c.Type.IsValid() {
@@ -40,7 +40,7 @@ func (c Config) Validate() error {
 	return errs
 }
 
-func (c Config) missingFields() error {
+func (c ChildWorkflowConfig) missingFields() error {
 	missing := make([]string, 0)
 
 	if c.Type == "" {
@@ -57,7 +57,7 @@ func (c Config) missingFields() error {
 	}
 
 	// The preprocessing workflow requires SharedPath to be set.
-	if c.Type == enums.ChildWorkflowTypePreprocessing && c.SharedPath == "" {
+	if c.Type == childwf.WorkflowTypePreprocessing && c.SharedPath == "" {
 		missing = append(missing, "sharedPath")
 	}
 
@@ -68,9 +68,9 @@ func (c Config) missingFields() error {
 	return nil
 }
 
-type Configs []Config
+type ChildWorkflowConfigs []ChildWorkflowConfig
 
-func (c Configs) ByType(t enums.ChildWorkflowType) *Config {
+func (c ChildWorkflowConfigs) ByType(t childwf.WorkflowType) *ChildWorkflowConfig {
 	for _, cfg := range c {
 		if cfg.Type == t {
 			return &cfg
@@ -80,9 +80,9 @@ func (c Configs) ByType(t enums.ChildWorkflowType) *Config {
 	return nil
 }
 
-func (c Configs) Validate() error {
+func (c ChildWorkflowConfigs) Validate() error {
 	var (
-		types []enums.ChildWorkflowType
+		types []childwf.WorkflowType
 		errs  error
 	)
 
@@ -92,7 +92,7 @@ func (c Configs) Validate() error {
 		}
 
 		// Don't do duplicate check for empty types, as they are already
-		// reported by the Validate() method above.
+		// reported by the Validate method above.
 		if cfg.Type == "" {
 			continue
 		}

@@ -12,6 +12,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 func (w *ProcessingWorkflow) downloadSIP(sessCtx temporalsdk_workflow.Context, state *workflowState) error {
@@ -36,7 +37,7 @@ func (w *ProcessingWorkflow) downloadSIP(sessCtx temporalsdk_workflow.Context, s
 	}
 
 	var destinationPath string
-	if cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePreprocessing); cfg != nil {
+	if cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePreprocessing); cfg != nil {
 		destinationPath = cfg.SharedPath
 	}
 

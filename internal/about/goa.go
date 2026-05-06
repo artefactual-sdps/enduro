@@ -9,7 +9,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaabout "github.com/artefactual-sdps/enduro/internal/api/gen/about"
-	"github.com/artefactual-sdps/enduro/internal/childwf"
+	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/version"
@@ -18,7 +18,7 @@ import (
 type Service struct {
 	logger        logr.Logger
 	presTaskQueue string
-	cwfConfigs    childwf.Configs
+	cwfConfigs    config.ChildWorkflowConfigs
 	uploadConfig  ingest.UploadConfig
 	tokenVerifier auth.TokenVerifier
 }
@@ -30,7 +30,7 @@ var ErrUnauthorized error = goaabout.Unauthorized("Unauthorized")
 func NewService(
 	logger logr.Logger,
 	presTaskQueue string,
-	cwfConfigs childwf.Configs,
+	cwfConfigs config.ChildWorkflowConfigs,
 	uploadConfig ingest.UploadConfig,
 	tokenVerifier auth.TokenVerifier,
 ) *Service {
@@ -81,7 +81,6 @@ func (s *Service) About(context.Context, *goaabout.AboutPayload) (*goaabout.Endu
 				WorkflowName: cfg.WorkflowName,
 			})
 		}
-
 	}
 
 	return res, nil

@@ -25,7 +25,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -35,6 +34,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/sipsource"
 	sipsource_fake "github.com/artefactual-sdps/enduro/internal/sipsource/fake"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 func TestJWTAuth(t *testing.T) {

@@ -1,4 +1,4 @@
-package enums
+package childwf
 
 /*
 ENUM(
@@ -7,4 +7,4 @@ poststorage       // poststorage runs after AIP storage.
 postbatch         // postbatch runs after ingesting a batch of SIPs.
 )
 */
-type ChildWorkflowType string
+type WorkflowType string

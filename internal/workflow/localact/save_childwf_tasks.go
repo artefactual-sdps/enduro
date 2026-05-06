@@ -7,10 +7,10 @@ import (
 
 	"github.com/google/uuid"
 
-	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 type SaveChildwfTasksActivityParams struct {
@@ -24,7 +24,7 @@ type SaveChildwfTasksActivityParams struct {
 	WorkflowUUID uuid.UUID
 
 	// Tasks is a list of child workflow tasks to save as Tasks.
-	Tasks []childwf.Task
+	Tasks []*childwf.Task
 }
 
 type SaveChildwfTasksActivityResult struct {
@@ -40,6 +40,9 @@ func SaveChildwfTasksActivity(
 
 	tasks := make([]*datatypes.Task, 0, len(params.Tasks))
 	for _, t := range params.Tasks {
+		if t == nil {
+			continue
+		}
 		task := childwfTaskToTask(t)
 		task.WorkflowUUID = params.WorkflowUUID
 		// TODO: Create deterministic UUIDs and make activities idempotent.
@@ -56,12 +59,12 @@ func SaveChildwfTasksActivity(
 	return &res, nil
 }
 
-func childwfTaskToTask(t childwf.Task) datatypes.Task {
-	taskOutcomeToTaskStatus := map[enums.ChildwfTaskOutcome]enums.TaskStatus{
-		enums.ChildwfTaskOutcomeUnspecified:       enums.TaskStatusUnspecified,
-		enums.ChildwfTaskOutcomeSuccess:           enums.TaskStatusDone,
-		enums.ChildwfTaskOutcomeSystemFailure:     enums.TaskStatusError,
-		enums.ChildwfTaskOutcomeValidationFailure: enums.TaskStatusFailed,
+func childwfTaskToTask(t *childwf.Task) datatypes.Task {
+	taskOutcomeToTaskStatus := map[childwf.TaskOutcome]enums.TaskStatus{
+		childwf.TaskOutcomeUnspecified:       enums.TaskStatusUnspecified,
+		childwf.TaskOutcomeSuccess:           enums.TaskStatusDone,
+		childwf.TaskOutcomeSystemFailure:     enums.TaskStatusError,
+		childwf.TaskOutcomeValidationFailure: enums.TaskStatusFailed,
 	}
 
 	status, found := taskOutcomeToTaskStatus[t.Outcome]
