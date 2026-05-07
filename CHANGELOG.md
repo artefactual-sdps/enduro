@@ -8,6 +8,13 @@ requests.
 
 ## [Unreleased]
 
+## [0.29.0] - 2026-05-07
+
+### Added
+
+- Pass custom metadata between child workflows ([#1621])
+- Wait for poststorage child workflow result and record tasks ([#1621])
+
 ## [0.28.0] - 2026-05-01
 
 ### Added
@@ -346,7 +353,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.28.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.29.0...HEAD
+[0.29.0]: https://github.com/artefactual-sdps/enduro/compare/v0.28.0...v0.29.0
 [0.28.0]: https://github.com/artefactual-sdps/enduro/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/artefactual-sdps/enduro/compare/v0.26.0...v0.27.0
 [0.26.0]: https://github.com/artefactual-sdps/enduro/compare/v0.25.0...v0.26.0
@@ -375,6 +383,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1621]: https://github.com/artefactual-sdps/enduro/issues/1621
 [#1595]: https://github.com/artefactual-sdps/enduro/issues/1595
 [#1570]: https://github.com/artefactual-sdps/enduro/pull/1570
 [#1541]: https://github.com/artefactual-sdps/enduro/pull/1541
