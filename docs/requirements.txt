@@ -83,7 +83,7 @@ pre-commit==4.5.1
     # via -r requirements.in
 pygments==2.19.2
     # via mkdocs-material
-pymdown-extensions==10.20
+pymdown-extensions==10.21.2
     # via mkdocs-material
 python-dateutil==2.9.0.post0
     # via ghp-import
