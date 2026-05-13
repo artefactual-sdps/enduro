@@ -508,7 +508,12 @@ func main() {
 
 		// Ingest processing workflow and activities.
 		w.RegisterWorkflowWithOptions(
-			workflow.NewProcessingWorkflow(cfg, rand.Reader, ingestsvc, wsvc).Execute,
+			workflow.NewProcessingWorkflow(
+				cfg,
+				rand.Reader,
+				ingestsvc,
+				wsvc,
+			).Execute,
 			temporalsdk_workflow.RegisterOptions{Name: ingest.ProcessingWorkflowName},
 		)
 		w.RegisterActivityWithOptions(

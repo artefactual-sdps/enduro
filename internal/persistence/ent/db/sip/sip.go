@@ -40,6 +40,10 @@ const (
 	FieldBatchID = "batch_id"
 	// FieldFileCount holds the string denoting the file_count field in the database.
 	FieldFileCount = "file_count"
+	// FieldChecksumAlgorithm holds the string denoting the checksum_algorithm field in the database.
+	FieldChecksumAlgorithm = "checksum_algorithm"
+	// FieldChecksumHash holds the string denoting the checksum_hash field in the database.
+	FieldChecksumHash = "checksum_hash"
 	// EdgeWorkflows holds the string denoting the workflows edge name in mutations.
 	EdgeWorkflows = "workflows"
 	// EdgeUploader holds the string denoting the uploader edge name in mutations.
@@ -86,6 +90,8 @@ var Columns = []string{
 	FieldUploaderID,
 	FieldBatchID,
 	FieldFileCount,
+	FieldChecksumAlgorithm,
+	FieldChecksumHash,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -195,6 +201,16 @@ func ByBatchID(opts ...sql.OrderTermOption) OrderOption {
 // ByFileCount orders the results by the file_count field.
 func ByFileCount(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFileCount, opts...).ToFunc()
+}
+
+// ByChecksumAlgorithm orders the results by the checksum_algorithm field.
+func ByChecksumAlgorithm(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldChecksumAlgorithm, opts...).ToFunc()
+}
+
+// ByChecksumHash orders the results by the checksum_hash field.
+func ByChecksumHash(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldChecksumHash, opts...).ToFunc()
 }
 
 // ByWorkflowsCount orders the results by workflows count.

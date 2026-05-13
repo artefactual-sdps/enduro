@@ -39,24 +39,28 @@ func TestCreateSIP(t *testing.T) {
 		{
 			name: "Creates a new SIP in the DB",
 			sip: &datatypes.SIP{
-				UUID:        sipUUID,
-				Name:        "Test SIP 1",
-				AIPID:       aipID,
-				Status:      enums.SIPStatusProcessing,
-				StartedAt:   started,
-				CompletedAt: completed,
-				FileCount:   8,
+				UUID:              sipUUID,
+				Name:              "Test SIP 1",
+				AIPID:             aipID,
+				Status:            enums.SIPStatusProcessing,
+				StartedAt:         started,
+				CompletedAt:       completed,
+				FileCount:         8,
+				ChecksumAlgorithm: "SHA-256",
+				ChecksumHash:      "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 			},
 			want: &datatypes.SIP{
-				ID:          1,
-				UUID:        sipUUID,
-				Name:        "Test SIP 1",
-				AIPID:       aipID,
-				Status:      enums.SIPStatusProcessing,
-				CreatedAt:   time.Now(),
-				StartedAt:   started,
-				CompletedAt: completed,
-				FileCount:   8,
+				ID:                1,
+				UUID:              sipUUID,
+				Name:              "Test SIP 1",
+				AIPID:             aipID,
+				Status:            enums.SIPStatusProcessing,
+				CreatedAt:         time.Now(),
+				StartedAt:         started,
+				CompletedAt:       completed,
+				FileCount:         8,
+				ChecksumAlgorithm: "SHA-256",
+				ChecksumHash:      "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 			},
 		},
 		{
@@ -282,6 +286,8 @@ func TestUpdateSIP(t *testing.T) {
 					s.FailedKey = "failed-key"
 					s.Uploader = &datatypes.User{UUID: uuid.New()} // No-op, can't update Uploader.
 					s.FileCount = 8
+					s.ChecksumAlgorithm = "SHA-256"
+					s.ChecksumHash = "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"
 					return s, nil
 				},
 			},
@@ -312,7 +318,9 @@ func TestUpdateSIP(t *testing.T) {
 					SIPSCount:  5,
 					CreatedAt:  time.Now(),
 				},
-				FileCount: 8,
+				FileCount:         8,
+				ChecksumAlgorithm: "SHA-256",
+				ChecksumHash:      "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 			},
 		},
 		{
@@ -320,12 +328,14 @@ func TestUpdateSIP(t *testing.T) {
 			args: params{
 				sipUUID: sipUUID,
 				sip: &datatypes.SIP{
-					UUID:      sipUUID,
-					Name:      "Test SIP",
-					AIPID:     aipID,
-					Status:    enums.SIPStatusProcessing,
-					StartedAt: started,
-					FileCount: 0,
+					UUID:              sipUUID,
+					Name:              "Test SIP",
+					AIPID:             aipID,
+					Status:            enums.SIPStatusProcessing,
+					StartedAt:         started,
+					FileCount:         0,
+					ChecksumAlgorithm: "SHA-256",
+					ChecksumHash:      "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 				},
 				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
 					// Immutable.
@@ -340,15 +350,17 @@ func TestUpdateSIP(t *testing.T) {
 				},
 			},
 			want: &datatypes.SIP{
-				ID:          1,
-				UUID:        sipUUID,
-				Name:        "Test SIP",
-				AIPID:       aipID,
-				Status:      enums.SIPStatusIngested,
-				CreatedAt:   time.Now(),
-				StartedAt:   started,
-				CompletedAt: completed,
-				FileCount:   8,
+				ID:                1,
+				UUID:              sipUUID,
+				Name:              "Test SIP",
+				AIPID:             aipID,
+				Status:            enums.SIPStatusIngested,
+				CreatedAt:         time.Now(),
+				StartedAt:         started,
+				CompletedAt:       completed,
+				FileCount:         8,
+				ChecksumAlgorithm: "SHA-256",
+				ChecksumHash:      "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 			},
 		},
 		{
@@ -532,7 +544,9 @@ func TestReadSIP(t *testing.T) {
 					SIPSCount:  5,
 					CreatedAt:  time.Now(),
 				},
-				FileCount: 8,
+				FileCount:         8,
+				ChecksumAlgorithm: "SHA-256",
+				ChecksumHash:      "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 			},
 		},
 		{
@@ -569,6 +583,8 @@ func TestReadSIP(t *testing.T) {
 					SetUploader(user).
 					SetBatchID(tt.want.Batch.ID).
 					SetFileCount(8).
+					SetChecksumAlgorithm(tt.want.ChecksumAlgorithm).
+					SetChecksumHash(tt.want.ChecksumHash).
 					Save(ctx)
 				assert.NilError(t, err)
 			}
@@ -609,28 +625,34 @@ func TestListSIPs(t *testing.T) {
 	completed := started.Add(time.Second)
 	completed2 := started2.Add(time.Second)
 
+	checksumAlgo := "SHA-256"
+	checksum := "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"
+	checksum2 := "3a6eb079e9e5c9f0d1caa8b1a7c0cfd8e311d278bfb0b1aabdcdcdcdedbbbd2"
+
 	type results struct {
 		data []*datatypes.SIP
 		page *persistence.Page
 	}
 	tests := []struct {
-		name      string
-		data      []*datatypes.SIP
-		sipFilter *persistence.SIPFilter
-		want      results
-		wantErr   string
+		name    string
+		data    []*datatypes.SIP
+		filter  *persistence.SIPFilter
+		want    results
+		wantErr string
 	}{
 		{
 			name: "Returns all SIPs",
 			data: []*datatypes.SIP{
 				{
-					UUID:        sipUUID,
-					Name:        "Test SIP 1",
-					AIPID:       aipID,
-					Status:      enums.SIPStatusIngested,
-					StartedAt:   started,
-					CompletedAt: completed,
-					FileCount:   3,
+					UUID:              sipUUID,
+					Name:              "Test SIP 1",
+					AIPID:             aipID,
+					Status:            enums.SIPStatusIngested,
+					StartedAt:         started,
+					CompletedAt:       completed,
+					FileCount:         3,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 				{
 					UUID:        sipUUID2,
@@ -647,7 +669,9 @@ func TestListSIPs(t *testing.T) {
 						OIDCIss:   "https://example.com/oidc",
 						OIDCSub:   "1234567890",
 					},
-					FileCount: 6,
+					FileCount:         6,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum2,
 				},
 				{
 					UUID:        sipUUID3,
@@ -663,15 +687,17 @@ func TestListSIPs(t *testing.T) {
 			want: results{
 				data: []*datatypes.SIP{
 					{
-						ID:          1,
-						UUID:        sipUUID,
-						Name:        "Test SIP 1",
-						AIPID:       aipID,
-						Status:      enums.SIPStatusIngested,
-						CreatedAt:   time.Now(),
-						StartedAt:   started,
-						CompletedAt: completed,
-						FileCount:   3,
+						ID:                1,
+						UUID:              sipUUID,
+						Name:              "Test SIP 1",
+						AIPID:             aipID,
+						Status:            enums.SIPStatusIngested,
+						CreatedAt:         time.Now(),
+						StartedAt:         started,
+						CompletedAt:       completed,
+						FileCount:         3,
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum,
 					},
 					{
 						ID:          2,
@@ -690,7 +716,9 @@ func TestListSIPs(t *testing.T) {
 							OIDCIss:   "https://example.com/oidc",
 							OIDCSub:   "1234567890",
 						},
-						FileCount: 6,
+						FileCount:         6,
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum2,
 					},
 					{
 						ID:          3,
@@ -715,39 +743,45 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns first page of SIPs",
 			data: []*datatypes.SIP{
 				{
-					UUID:        sipUUID,
-					Name:        "Test SIP 1",
-					AIPID:       aipID,
-					Status:      enums.SIPStatusIngested,
-					StartedAt:   started,
-					CompletedAt: completed,
-					FileCount:   3,
+					UUID:              sipUUID,
+					Name:              "Test SIP 1",
+					AIPID:             aipID,
+					Status:            enums.SIPStatusIngested,
+					StartedAt:         started,
+					CompletedAt:       completed,
+					FileCount:         3,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 				{
-					UUID:        sipUUID2,
-					Name:        "Test SIP 2",
-					AIPID:       aipID2,
-					Status:      enums.SIPStatusProcessing,
-					StartedAt:   started2,
-					CompletedAt: completed2,
-					FileCount:   6,
+					UUID:              sipUUID2,
+					Name:              "Test SIP 2",
+					AIPID:             aipID2,
+					Status:            enums.SIPStatusProcessing,
+					StartedAt:         started2,
+					CompletedAt:       completed2,
+					FileCount:         6,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 			},
-			sipFilter: &persistence.SIPFilter{
+			filter: &persistence.SIPFilter{
 				Page: persistence.Page{Limit: 1},
 			},
 			want: results{
 				data: []*datatypes.SIP{
 					{
-						ID:          1,
-						UUID:        sipUUID,
-						Name:        "Test SIP 1",
-						AIPID:       aipID,
-						Status:      enums.SIPStatusIngested,
-						CreatedAt:   time.Now(),
-						StartedAt:   started,
-						CompletedAt: completed,
-						FileCount:   3,
+						ID:                1,
+						UUID:              sipUUID,
+						Name:              "Test SIP 1",
+						AIPID:             aipID,
+						Status:            enums.SIPStatusIngested,
+						CreatedAt:         time.Now(),
+						StartedAt:         started,
+						CompletedAt:       completed,
+						FileCount:         3,
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum,
 					},
 				},
 				page: &persistence.Page{
@@ -760,12 +794,14 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns second page of SIPs",
 			data: []*datatypes.SIP{
 				{
-					UUID:        sipUUID,
-					Name:        "Test SIP 1",
-					AIPID:       aipID,
-					Status:      enums.SIPStatusIngested,
-					StartedAt:   started,
-					CompletedAt: completed,
+					UUID:              sipUUID,
+					Name:              "Test SIP 1",
+					AIPID:             aipID,
+					Status:            enums.SIPStatusIngested,
+					StartedAt:         started,
+					CompletedAt:       completed,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 				{
 					UUID:        sipUUID2,
@@ -782,10 +818,12 @@ func TestListSIPs(t *testing.T) {
 						OIDCIss:   "https://example.com/oidc",
 						OIDCSub:   "1234567890",
 					},
-					FileCount: 6,
+					FileCount:         6,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum2,
 				},
 			},
-			sipFilter: &persistence.SIPFilter{
+			filter: &persistence.SIPFilter{
 				Page: persistence.Page{Limit: 1, Offset: 1},
 			},
 			want: results{
@@ -807,7 +845,9 @@ func TestListSIPs(t *testing.T) {
 							OIDCIss:   "https://example.com/oidc",
 							OIDCSub:   "1234567890",
 						},
-						FileCount: 6,
+						FileCount:         6,
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum2,
 					},
 				},
 				page: &persistence.Page{
@@ -821,39 +861,45 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns SIPs whose names contain a string",
 			data: []*datatypes.SIP{
 				{
-					UUID:        sipUUID,
-					Name:        "Test SIP",
-					AIPID:       aipID,
-					Status:      enums.SIPStatusIngested,
-					StartedAt:   started,
-					CompletedAt: completed,
-					FileCount:   3,
+					UUID:              sipUUID,
+					Name:              "Test SIP",
+					AIPID:             aipID,
+					Status:            enums.SIPStatusIngested,
+					StartedAt:         started,
+					CompletedAt:       completed,
+					FileCount:         3,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 				{
-					UUID:        sipUUID2,
-					Name:        "small.zip",
-					AIPID:       aipID2,
-					Status:      enums.SIPStatusProcessing,
-					StartedAt:   started2,
-					CompletedAt: completed2,
-					FileCount:   6,
+					UUID:              sipUUID2,
+					Name:              "small.zip",
+					AIPID:             aipID2,
+					Status:            enums.SIPStatusProcessing,
+					StartedAt:         started2,
+					CompletedAt:       completed2,
+					FileCount:         6,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum2,
 				},
 			},
-			sipFilter: &persistence.SIPFilter{
+			filter: &persistence.SIPFilter{
 				Name: new("small"),
 			},
 			want: results{
 				data: []*datatypes.SIP{
 					{
-						ID:          2,
-						UUID:        sipUUID2,
-						Name:        "small.zip",
-						AIPID:       aipID2,
-						Status:      enums.SIPStatusProcessing,
-						CreatedAt:   time.Now(),
-						StartedAt:   started2,
-						CompletedAt: completed2,
-						FileCount:   6,
+						ID:                2,
+						UUID:              sipUUID2,
+						Name:              "small.zip",
+						AIPID:             aipID2,
+						Status:            enums.SIPStatusProcessing,
+						CreatedAt:         time.Now(),
+						StartedAt:         started2,
+						CompletedAt:       completed2,
+						FileCount:         6,
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum2,
 					},
 				},
 				page: &persistence.Page{
@@ -866,39 +912,45 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns SIPs filtered by AIPID",
 			data: []*datatypes.SIP{
 				{
-					UUID:        sipUUID,
-					Name:        "Test SIP 1",
-					AIPID:       aipID,
-					Status:      enums.SIPStatusIngested,
-					StartedAt:   started,
-					CompletedAt: completed,
-					FileCount:   3,
+					UUID:              sipUUID,
+					Name:              "Test SIP 1",
+					AIPID:             aipID,
+					Status:            enums.SIPStatusIngested,
+					StartedAt:         started,
+					CompletedAt:       completed,
+					FileCount:         3,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 				{
-					UUID:        sipUUID2,
-					Name:        "Test SIP 2",
-					AIPID:       aipID2,
-					Status:      enums.SIPStatusProcessing,
-					StartedAt:   started2,
-					CompletedAt: completed2,
-					FileCount:   6,
+					UUID:              sipUUID2,
+					Name:              "Test SIP 2",
+					AIPID:             aipID2,
+					Status:            enums.SIPStatusProcessing,
+					StartedAt:         started2,
+					CompletedAt:       completed2,
+					FileCount:         6,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum2,
 				},
 			},
-			sipFilter: &persistence.SIPFilter{
+			filter: &persistence.SIPFilter{
 				AIPID: &aipID2.UUID,
 			},
 			want: results{
 				data: []*datatypes.SIP{
 					{
-						ID:          2,
-						UUID:        sipUUID2,
-						Name:        "Test SIP 2",
-						AIPID:       aipID2,
-						Status:      enums.SIPStatusProcessing,
-						CreatedAt:   time.Now(),
-						StartedAt:   started2,
-						CompletedAt: completed2,
-						FileCount:   6,
+						ID:                2,
+						UUID:              sipUUID2,
+						Name:              "Test SIP 2",
+						AIPID:             aipID2,
+						Status:            enums.SIPStatusProcessing,
+						CreatedAt:         time.Now(),
+						StartedAt:         started2,
+						CompletedAt:       completed2,
+						FileCount:         6,
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum2,
 					},
 				},
 				page: &persistence.Page{
@@ -911,39 +963,45 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns SIPs filtered by status",
 			data: []*datatypes.SIP{
 				{
-					UUID:        sipUUID,
-					Name:        "Test SIP 1",
-					AIPID:       aipID,
-					Status:      enums.SIPStatusIngested,
-					StartedAt:   started,
-					CompletedAt: completed,
-					FileCount:   3,
+					UUID:              sipUUID,
+					Name:              "Test SIP 1",
+					AIPID:             aipID,
+					Status:            enums.SIPStatusIngested,
+					StartedAt:         started,
+					CompletedAt:       completed,
+					FileCount:         3,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 				{
-					UUID:        sipUUID2,
-					Name:        "Test SIP 2",
-					AIPID:       aipID2,
-					Status:      enums.SIPStatusProcessing,
-					StartedAt:   started2,
-					CompletedAt: completed2,
-					FileCount:   6,
+					UUID:              sipUUID2,
+					Name:              "Test SIP 2",
+					AIPID:             aipID2,
+					Status:            enums.SIPStatusProcessing,
+					StartedAt:         started2,
+					CompletedAt:       completed2,
+					FileCount:         6,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum2,
 				},
 			},
-			sipFilter: &persistence.SIPFilter{
+			filter: &persistence.SIPFilter{
 				Status: ref.New(enums.SIPStatusProcessing),
 			},
 			want: results{
 				data: []*datatypes.SIP{
 					{
-						ID:          2,
-						UUID:        sipUUID2,
-						Name:        "Test SIP 2",
-						AIPID:       aipID2,
-						Status:      enums.SIPStatusProcessing,
-						CreatedAt:   time.Now(),
-						StartedAt:   started2,
-						CompletedAt: completed2,
-						FileCount:   6,
+						ID:                2,
+						UUID:              sipUUID2,
+						Name:              "Test SIP 2",
+						AIPID:             aipID2,
+						Status:            enums.SIPStatusProcessing,
+						CreatedAt:         time.Now(),
+						StartedAt:         started2,
+						CompletedAt:       completed2,
+						FileCount:         6,
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum2,
 					},
 				},
 				page: &persistence.Page{
@@ -956,25 +1014,29 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns SIPs filtered by CreatedAt",
 			data: []*datatypes.SIP{
 				{
-					UUID:        sipUUID,
-					Name:        "Test SIP 1",
-					AIPID:       aipID,
-					Status:      enums.SIPStatusIngested,
-					StartedAt:   started,
-					CompletedAt: completed,
-					FileCount:   3,
+					UUID:              sipUUID,
+					Name:              "Test SIP 1",
+					AIPID:             aipID,
+					Status:            enums.SIPStatusIngested,
+					StartedAt:         started,
+					CompletedAt:       completed,
+					FileCount:         3,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 				{
-					UUID:        sipUUID2,
-					Name:        "Test SIP 2",
-					AIPID:       aipID2,
-					Status:      enums.SIPStatusProcessing,
-					StartedAt:   started2,
-					CompletedAt: completed2,
-					FileCount:   6,
+					UUID:              sipUUID2,
+					Name:              "Test SIP 2",
+					AIPID:             aipID2,
+					Status:            enums.SIPStatusProcessing,
+					StartedAt:         started2,
+					CompletedAt:       completed2,
+					FileCount:         6,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum2,
 				},
 			},
-			sipFilter: &persistence.SIPFilter{
+			filter: &persistence.SIPFilter{
 				CreatedAt: func(t *testing.T) *timerange.Range {
 					r, err := timerange.New(
 						time.Now().Add(-1*time.Minute),
@@ -989,26 +1051,30 @@ func TestListSIPs(t *testing.T) {
 			want: results{
 				data: []*datatypes.SIP{
 					{
-						ID:          1,
-						UUID:        sipUUID,
-						Name:        "Test SIP 1",
-						AIPID:       aipID,
-						Status:      enums.SIPStatusIngested,
-						CreatedAt:   time.Now(),
-						StartedAt:   started,
-						CompletedAt: completed,
-						FileCount:   3,
+						ID:                1,
+						UUID:              sipUUID,
+						Name:              "Test SIP 1",
+						AIPID:             aipID,
+						Status:            enums.SIPStatusIngested,
+						CreatedAt:         time.Now(),
+						StartedAt:         started,
+						CompletedAt:       completed,
+						FileCount:         3,
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum,
 					},
 					{
-						ID:          2,
-						UUID:        sipUUID2,
-						Name:        "Test SIP 2",
-						AIPID:       aipID2,
-						Status:      enums.SIPStatusProcessing,
-						CreatedAt:   time.Now(),
-						StartedAt:   started2,
-						CompletedAt: completed2,
-						FileCount:   6,
+						ID:                2,
+						UUID:              sipUUID2,
+						Name:              "Test SIP 2",
+						AIPID:             aipID2,
+						Status:            enums.SIPStatusProcessing,
+						CreatedAt:         time.Now(),
+						StartedAt:         started2,
+						CompletedAt:       completed2,
+						FileCount:         6,
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum2,
 					},
 				},
 				page: &persistence.Page{
@@ -1021,23 +1087,27 @@ func TestListSIPs(t *testing.T) {
 			name: "Returns no results when no SIPs match CreatedAt range",
 			data: []*datatypes.SIP{
 				{
-					UUID:        sipUUID,
-					Name:        "Test SIP 1",
-					AIPID:       aipID,
-					Status:      enums.SIPStatusIngested,
-					StartedAt:   started,
-					CompletedAt: completed,
+					UUID:              sipUUID,
+					Name:              "Test SIP 1",
+					AIPID:             aipID,
+					Status:            enums.SIPStatusIngested,
+					StartedAt:         started,
+					CompletedAt:       completed,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 				{
-					UUID:        sipUUID2,
-					Name:        "Test SIP 2",
-					AIPID:       aipID2,
-					Status:      enums.SIPStatusProcessing,
-					StartedAt:   started2,
-					CompletedAt: completed2,
+					UUID:              sipUUID2,
+					Name:              "Test SIP 2",
+					AIPID:             aipID2,
+					Status:            enums.SIPStatusProcessing,
+					StartedAt:         started2,
+					CompletedAt:       completed2,
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum2,
 				},
 			},
-			sipFilter: &persistence.SIPFilter{
+			filter: &persistence.SIPFilter{
 				CreatedAt: func(t *testing.T) *timerange.Range {
 					r, err := timerange.New(
 						time.Now().Add(time.Minute),
@@ -1075,6 +1145,8 @@ func TestListSIPs(t *testing.T) {
 						OIDCIss:   "https://example.com/oidc",
 						OIDCSub:   "1234567890",
 					},
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 				{
 					UUID:        sipUUID2,
@@ -1091,9 +1163,11 @@ func TestListSIPs(t *testing.T) {
 						OIDCIss:   "https://example.com/oidc",
 						OIDCSub:   "otheruser",
 					},
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum2,
 				},
 			},
-			sipFilter: &persistence.SIPFilter{
+			filter: &persistence.SIPFilter{
 				UploaderID: new(uploaderID2),
 			},
 			want: results{
@@ -1115,6 +1189,8 @@ func TestListSIPs(t *testing.T) {
 							OIDCIss:   "https://example.com/oidc",
 							OIDCSub:   "otheruser",
 						},
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum2,
 					},
 				},
 				page: &persistence.Page{
@@ -1140,6 +1216,8 @@ func TestListSIPs(t *testing.T) {
 						SIPSCount:  5,
 						CreatedAt:  time.Now(),
 					},
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
 				},
 				{
 					UUID:        sipUUID2,
@@ -1155,9 +1233,11 @@ func TestListSIPs(t *testing.T) {
 						SIPSCount:  10,
 						CreatedAt:  time.Now(),
 					},
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum2,
 				},
 			},
-			sipFilter: &persistence.SIPFilter{
+			filter: &persistence.SIPFilter{
 				BatchID: new(batchID2),
 			},
 			want: results{
@@ -1179,6 +1259,79 @@ func TestListSIPs(t *testing.T) {
 							SIPSCount:  10,
 							CreatedAt:  time.Now(),
 						},
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum2,
+					},
+				},
+				page: &persistence.Page{
+					Limit: entfilter.DefaultPageSize,
+					Total: 1,
+				},
+			},
+		},
+		{
+			name: "Returns SIPs filtered by checksum",
+			data: []*datatypes.SIP{
+				{
+					UUID:        sipUUID,
+					Name:        "Test SIP 1",
+					AIPID:       aipID,
+					Status:      enums.SIPStatusIngested,
+					StartedAt:   started,
+					CompletedAt: completed,
+					Batch: &datatypes.Batch{
+						UUID:       batchID,
+						Identifier: "Test Batch 1",
+						Status:     enums.BatchStatusIngested,
+						SIPSCount:  5,
+						CreatedAt:  time.Now(),
+					},
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum,
+				},
+				{
+					UUID:        sipUUID2,
+					Name:        "Test SIP 2",
+					AIPID:       aipID2,
+					Status:      enums.SIPStatusProcessing,
+					StartedAt:   started2,
+					CompletedAt: completed2,
+					Batch: &datatypes.Batch{
+						UUID:       batchID2,
+						Identifier: "Test Batch 2",
+						Status:     enums.BatchStatusProcessing,
+						SIPSCount:  10,
+						CreatedAt:  time.Now(),
+					},
+					ChecksumAlgorithm: checksumAlgo,
+					ChecksumHash:      checksum2,
+				},
+			},
+			filter: &persistence.SIPFilter{
+				ChecksumAlgorithm: new(checksumAlgo),
+				ChecksumHash:      new(checksum2),
+			},
+			want: results{
+				data: []*datatypes.SIP{
+					{
+						ID:          2,
+						UUID:        sipUUID2,
+						Name:        "Test SIP 2",
+						AIPID:       aipID2,
+						Status:      enums.SIPStatusProcessing,
+						CreatedAt:   time.Now(),
+						StartedAt:   started2,
+						CompletedAt: completed2,
+						Batch: &datatypes.Batch{
+							ID:         2,
+							UUID:       batchID2,
+							Identifier: "Test Batch 2",
+							Status:     enums.BatchStatusProcessing,
+							SIPSCount:  10,
+							CreatedAt:  time.Now(),
+						},
+						ChecksumAlgorithm: checksumAlgo,
+						ChecksumHash:      checksum2,
 					},
 				},
 				page: &persistence.Page{
@@ -1205,7 +1358,9 @@ func TestListSIPs(t *testing.T) {
 						SetCreatedAt(time.Now()).
 						SetStartedAt(sip.StartedAt).
 						SetCompletedAt(sip.CompletedAt).
-						SetFileCount(sip.FileCount)
+						SetFileCount(sip.FileCount).
+						SetChecksumAlgorithm(sip.ChecksumAlgorithm).
+						SetChecksumHash(sip.ChecksumHash)
 
 					if sip.AIPID.Valid {
 						q.SetAipID(sip.AIPID.UUID)
@@ -1245,7 +1400,7 @@ func TestListSIPs(t *testing.T) {
 				}
 			}
 
-			got, pg, err := svc.ListSIPs(ctx, tt.sipFilter)
+			got, pg, err := svc.ListSIPs(ctx, tt.filter)
 			assert.NilError(t, err)
 
 			assert.DeepEqual(t, got, tt.want.data,

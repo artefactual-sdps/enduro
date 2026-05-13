@@ -109,6 +109,14 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(
 		temporalsdk_activity.RegisterOptions{Name: activities.GetSIPExtensionActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
+		activities.NewCalcFileChecksumActivity().Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.CalcFileChecksumActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
+		activities.NewCheckDuplicateSIPActivity(ingestsvc).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.CheckDuplicateSIPActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
 		archiveextract.New(cfg.ExtractActivity).Execute,
 		temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
 	)

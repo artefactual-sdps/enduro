@@ -84,8 +84,8 @@ claimPathSeparator = ""
 # to a value of ["*"] when `claimValuePrefix = "enduro:"`. The default "" will
 # not filter any value.
 claimValuePrefix = ""
-# Consider the values obtained from the claim as roles and use the `rolesMapping`
-# config below to map them to Enduro attributes.
+# Consider the values obtained from the claim as roles and use the 
+# `rolesMapping` config below to map them to Enduro attributes.
 useRoles = false
 # A JSON formatted string specifying a mapping from expected roles to Enduro
 # attributes. JSON format:
@@ -332,6 +332,19 @@ url = "file:///home/enduro/internal-storage/sip-source?metadata=skip"
 # namespace = "default"
 # taskQueue = "postbatch"
 # workflowName = "postbatch"
+
+# ingest configures the ingest service.
+[ingest]
+
+# allowDuplicates toggles whether a SIP can be ingested more than once.
+# The default value (false) will stop ingest with a content error when a SIP
+# archive file (e.g. zip) is submitted that has the same checksum as a
+# previously ingested SIP. SIPs submitted as a directory are not checked for
+# duplicate contents.
+#
+# See https://enduro.readthedocs.io/admin-manual/configuration/#allowduplicates 
+# for more details.
+allowDuplicates = false
 
 # [ingest.storage] configures ingest as a client of the storage API.
 # Use this section for cross-domain integration values:

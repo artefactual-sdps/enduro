@@ -22,6 +22,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/config"
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/premis"
@@ -63,9 +64,11 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	params := defaultParams()
 	params.workflowType = enums.WorkflowTypeCreateAndReviewAip
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	reviewA3mExpectations(s, params)
 	params.updateTaskParams(reviewAIPTaskID, enums.TaskStatusDone, "", "Reviewed and accepted")
@@ -120,9 +123,11 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	params := defaultParams()
 	params.workflowType = enums.WorkflowTypeCreateAndReviewAip
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	reviewA3mExpectations(s, params)
 	params.updateTaskParams(reviewAIPTaskID, enums.TaskStatusDone, "", "Reviewed and rejected")
@@ -160,9 +165,11 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 
 	params := defaultParams()
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
 	params.retentionPeriod = -1 * time.Second
@@ -196,10 +203,12 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	params := defaultParams()
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
 	expectations["createBag"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusInProgress, "Validate PREMIS", "")
 	expectations["createTask"](s, params)
@@ -328,6 +337,8 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	params.downloadPath = prepDownloadPath + "/" + key
 	params.extractPath = prepExtractPath
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	preprocessingMetadata := childwf.CustomMetadata{
 		"external_id": json.RawMessage(`"12345"`),
 		"flags":       json.RawMessage(`{"validated":true}`),
@@ -389,7 +400,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	expectations["validateBag"](s, params)
 	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
 	expectations["completeTask"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
 
@@ -513,6 +524,8 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 	params.downloadPath = prepDownloadPath + "/" + key
 	params.extractPath = prepExtractPath
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 
 	params.updateTaskParams(
 		preprocessingDecisionTaskID,
@@ -560,7 +573,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 	expectations["validateBag"](s, params)
 	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
 	expectations["completeTask"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	s.env.OnActivity(
 		updateSIPLocalActivity,
 		ctx,
@@ -612,6 +625,8 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	params.downloadDestPath = prepSharedPath
 	params.downloadPath = prepDownloadPath + "/" + key
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 
 	// Fail the workflow on preprocessing.
 	s.env.OnWorkflow(
@@ -666,6 +681,8 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 
 	params := defaultParams()
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	params.sipType = enums.SIPTypeBagIt
 	expectations["classifySIP"](s, params)
@@ -674,7 +691,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPA3m() {
 	expectations["validateBag"](s, params)
 	params.updateTaskParams(valBagTaskID, enums.TaskStatusDone, "", "Bag successfully validated")
 	expectations["completeTask"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	expectations["bundle"](s, params)
 	params.updateTaskParams(valPREMISTaskID, enums.TaskStatusInProgress, "Validate PREMIS", "")
@@ -733,9 +750,11 @@ func (s *ProcessingWorkflowTestSuite) TestFailedPIPAM() {
 
 	params := defaultParams()
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	expectations["createBag"](s, params)
 	expectations["zipArchive"](s, params)
@@ -792,9 +811,11 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 
 	params.updateTaskParams(copySIPTaskID, enums.TaskStatusDone, "", "SIP successfully copied")
 	expectations["completeTask"](s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
 
@@ -850,6 +871,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUploadError() {
 
 	downloadDir := filepath.Join(prepSharedPath, sipUUID.String())
 	params := defaultParams()
+	params.downloadPath = filepath.Join(downloadDir, key)
 	expectations["setStatusInProgress"](s, params)
 	expectations["createWorkflow"](s, params)
 	params.updateTaskParams(copySIPTaskID, enums.TaskStatusInProgress, "Copy SIP to workspace", "")
@@ -862,16 +884,18 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUploadError() {
 			Key:     key,
 			DirPath: downloadDir,
 		},
-	).Return(&bucketdownload.Result{FilePath: downloadDir + "/" + key}, nil)
+	).Return(&bucketdownload.Result{FilePath: params.downloadPath}, nil)
 
 	params.updateTaskParams(copySIPTaskID, enums.TaskStatusDone, "", "SIP successfully copied")
 	expectations["completeTask"](s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 
 	// Fail the workflow on extraction.
 	s.env.OnActivity(
 		archiveextract.Name,
 		sessionCtx,
-		&archiveextract.Params{SourcePath: downloadDir + "/" + key},
+		&archiveextract.Params{SourcePath: params.downloadPath},
 	).Return(nil, errors.New("extract error"))
 	s.env.OnActivity(
 		bucketcopy.Name,
@@ -930,10 +954,12 @@ func (s *ProcessingWorkflowTestSuite) TestSIPSourceUpload() {
 
 	params.updateTaskParams(copySIPTaskID, enums.TaskStatusDone, "", "SIP successfully copied")
 	expectations["completeTask"](s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	expectations["getSIPExtension"](s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
 
@@ -981,9 +1007,11 @@ func (s *ProcessingWorkflowTestSuite) TestSIPDeletionError() {
 
 	params := defaultParams()
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
 	expectations["removePaths"](s, params)
@@ -1037,9 +1065,11 @@ func (s *ProcessingWorkflowTestSuite) TestBatchSignalDoNotContinue() {
 
 	params := defaultParams()
 	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
 	expectations["archiveExtract"](s, params)
 	expectations["classifySIP"](s, params)
-	CountSIPFilesExpectations(s, params)
+	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	expectations["bundle"](s, params)
 
@@ -1085,5 +1115,179 @@ func (s *ProcessingWorkflowTestSuite) TestBatchSignalDoNotContinue() {
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
 		BatchUUID:       batchUUID,
+	}, nil, true)
+}
+
+// TestDuplicateSIP tests:
+// - Archivematica as preservation system.
+// - The "create AIP" workflow type.
+// - Content error due to SIP being a duplicate.
+// - Move to failed SIP.
+// - Watched bucket download.
+func (s *ProcessingWorkflowTestSuite) TestDuplicateSIP() {
+	duplicateSIPID := uuid.New()
+	s.SetupWorkflowTest(config.Configuration{
+		AM:           am.Config{ZipPIP: true},
+		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: amssLocationID}},
+	}, nil)
+
+	params := defaultParams()
+	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+
+	params.updateTaskParams(
+		duplicateSIPTaskID,
+		enums.TaskStatusInProgress,
+		"Check if SIP has already been ingested",
+		"",
+	)
+	expectations["createTask"](s, params)
+
+	// Fail the workflow on duplicate SIP.
+	s.env.OnActivity(
+		activities.CheckDuplicateSIPActivityName,
+		sessionCtx,
+		activities.CheckDuplicateSIPActivityParams{
+			SIPID: sipUUID,
+			Checksum: datatypes.Checksum{
+				Algorithm: datatypes.ChecksumAlgoSHA256,
+				Hash:      "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+			},
+		},
+	).Return(
+		&activities.CheckDuplicateSIPActivityResult{
+			Duplicate: &datatypes.SIP{
+				UUID:   duplicateSIPID,
+				Name:   "existing_sip.zip",
+				Status: enums.SIPStatusIngested,
+			},
+		},
+		nil,
+	)
+
+	params.updateTaskParams(
+		duplicateSIPTaskID,
+		enums.TaskStatusFailed,
+		"",
+		fmt.Sprintf(
+			"Content error: SIP has already been ingested.\n\nA previously ingested SIP (UUID: %s) has the same checksum as the current SIP. Please ensure you have submitted the correct SIP and that it has not been previously submitted.",
+			duplicateSIPID,
+		),
+	)
+	expectations["completeTask"](s, params)
+
+	params.sipStatus = enums.SIPStatusFailed
+	params.failedAs = enums.SIPFailedAsSIP
+	params.failedKey = failedSIPKey
+	params.removePaths = []string{tempPath}
+	expectations["uploadToFailed"](s, params)
+	expectations["removePaths"](s, params)
+	expectations["updateSIPFailed"](s, params)
+	expectations["completeWorkflow"](s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:         key,
+		WatcherName: watcherName,
+		Type:        enums.WorkflowTypeCreateAip,
+		SIPUUID:     sipUUID,
+		SIPName:     sipName,
+	}, nil, true)
+}
+
+// TestAllowDuplicateSIP tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - Don't check for duplicate SIPs (config override).
+// - Watched bucket download.
+// - Watched bucket negative retention period.
+func (s *ProcessingWorkflowTestSuite) TestAllowDuplicateSIP() {
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Ingest: ingest.Config{
+			AllowDuplicates: true,
+			Storage:         ingest.StorageConfig{DefaultPermanentLocationID: locationID},
+		},
+	}, nil)
+
+	params := defaultParams()
+	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	expectations["archiveExtract"](s, params)
+	expectations["classifySIP"](s, params)
+	countSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
+	autoApproveA3mExpectations(s, params)
+	params.retentionPeriod = -1 * time.Second
+	cleanupExpectations(s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		WatcherName:     watcherName,
+		RetentionPeriod: params.retentionPeriod,
+		Type:            enums.WorkflowTypeCreateAip,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, &ingest.ProcessingWorkflowResult{}, false)
+}
+
+// TestCalculateSIPChecksumSysError tests:
+// - Archivematica as preservation system.
+// - The "create AIP" workflow type.
+// - System error calculating checksum.
+// - Move to failed SIP.
+// - Watched bucket download.
+func (s *ProcessingWorkflowTestSuite) TestCalculateSIPChecksumSysError() {
+	s.SetupWorkflowTest(config.Configuration{
+		AM:           am.Config{ZipPIP: true},
+		Preservation: pres.Config{TaskQueue: temporal.AmWorkerTaskQueue},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: amssLocationID}},
+	}, nil)
+
+	params := defaultParams()
+	downloadExpectations(s, params)
+
+	params.updateTaskParams(
+		calcChecksumTaskID,
+		enums.TaskStatusInProgress,
+		"Calculate SIP checksum",
+		"",
+	)
+	expectations["createTask"](s, params)
+
+	// Return error from CalcFileChecksumActivity.
+	s.env.OnActivity(
+		activities.CalcFileChecksumActivityName,
+		sessionCtx,
+		&activities.CalcFileChecksumActivityParams{Path: params.downloadPath},
+	).Return(
+		nil,
+		errors.New("checksum error"),
+	)
+
+	params.updateTaskParams(
+		calcChecksumTaskID,
+		enums.TaskStatusError,
+		"",
+		"System error: Calculating SIP checksum failed.\n\nAn error has occurred while calculating the SIP checksum. Please try again, or ask a system administrator to investigate.",
+	)
+	expectations["completeTask"](s, params)
+
+	params.sipStatus = enums.SIPStatusError
+	params.failedAs = enums.SIPFailedAsSIP
+	params.failedKey = failedSIPKey
+	params.removePaths = []string{tempPath}
+	expectations["uploadToFailed"](s, params)
+	expectations["removePaths"](s, params)
+	expectations["updateSIPFailed"](s, params)
+	expectations["completeWorkflow"](s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:         key,
+		WatcherName: watcherName,
+		Type:        enums.WorkflowTypeCreateAip,
+		SIPUUID:     sipUUID,
+		SIPName:     sipName,
 	}, nil, true)
 }

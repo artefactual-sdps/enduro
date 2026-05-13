@@ -45,6 +45,10 @@ type SIP struct {
 	BatchID int `json:"batch_id,omitempty"`
 	// FileCount holds the value of the "file_count" field.
 	FileCount int32 `json:"file_count,omitempty"`
+	// ChecksumAlgorithm holds the value of the "checksum_algorithm" field.
+	ChecksumAlgorithm string `json:"checksum_algorithm,omitempty"`
+	// ChecksumHash holds the value of the "checksum_hash" field.
+	ChecksumHash string `json:"checksum_hash,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the SIPQuery when eager-loading is set.
 	Edges        SIPEdges `json:"edges"`
@@ -102,7 +106,7 @@ func (*SIP) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case sip.FieldID, sip.FieldUploaderID, sip.FieldBatchID, sip.FieldFileCount:
 			values[i] = new(sql.NullInt64)
-		case sip.FieldName, sip.FieldStatus, sip.FieldFailedAs, sip.FieldFailedKey:
+		case sip.FieldName, sip.FieldStatus, sip.FieldFailedAs, sip.FieldFailedKey, sip.FieldChecksumAlgorithm, sip.FieldChecksumHash:
 			values[i] = new(sql.NullString)
 		case sip.FieldCreatedAt, sip.FieldStartedAt, sip.FieldCompletedAt:
 			values[i] = new(sql.NullTime)
@@ -201,6 +205,18 @@ func (_m *SIP) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				_m.FileCount = int32(value.Int64)
 			}
+		case sip.FieldChecksumAlgorithm:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field checksum_algorithm", values[i])
+			} else if value.Valid {
+				_m.ChecksumAlgorithm = value.String
+			}
+		case sip.FieldChecksumHash:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field checksum_hash", values[i])
+			} else if value.Valid {
+				_m.ChecksumHash = value.String
+			}
 		default:
 			_m.selectValues.Set(columns[i], values[i])
 		}
@@ -287,6 +303,12 @@ func (_m *SIP) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("file_count=")
 	builder.WriteString(fmt.Sprintf("%v", _m.FileCount))
+	builder.WriteString(", ")
+	builder.WriteString("checksum_algorithm=")
+	builder.WriteString(_m.ChecksumAlgorithm)
+	builder.WriteString(", ")
+	builder.WriteString("checksum_hash=")
+	builder.WriteString(_m.ChecksumHash)
 	builder.WriteByte(')')
 	return builder.String()
 }

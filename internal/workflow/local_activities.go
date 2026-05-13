@@ -30,14 +30,16 @@ func createSIPLocalActivity(
 }
 
 type updateSIPLocalActivityParams struct {
-	UUID        uuid.UUID
-	Name        string
-	AIPUUID     string
-	CompletedAt time.Time
-	Status      enums.SIPStatus
-	FailedAs    enums.SIPFailedAs
-	FailedKey   string
-	FileCount   int32
+	UUID         uuid.UUID
+	Name         string
+	AIPUUID      string
+	CompletedAt  time.Time
+	Status       enums.SIPStatus
+	FailedAs     enums.SIPFailedAs
+	FailedKey    string
+	FileCount    int32
+	ChecksumAlgo datatypes.ChecksumAlgo
+	ChecksumHash string
 }
 
 type updateSIPLocalActivityResult struct{}
@@ -87,6 +89,14 @@ func updateSIPLocalActivity(
 
 			if params.FileCount > 0 {
 				s.FileCount = params.FileCount
+			}
+
+			if params.ChecksumAlgo != "" {
+				s.ChecksumAlgorithm = string(params.ChecksumAlgo)
+			}
+
+			if params.ChecksumHash != "" {
+				s.ChecksumHash = params.ChecksumHash
 			}
 
 			return s, nil

@@ -42,10 +42,14 @@ const (
 	deleteSIPTaskID     = 106
 	valBagTaskID        = 107
 	CountSIPFilesTaskID = 108
-	sipName             = "name.zip"
-	key                 = "transfer.zip"
-	watcherName         = "watcher"
-	fileCount           = 5
+	calcChecksumTaskID  = 109
+	duplicateSIPTaskID  = 110
+
+	sipName     = "name.zip"
+	key         = "transfer.zip"
+	watcherName = "watcher"
+	fileCount   = 5
+	sipChecksum = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
 )
 
 var (
@@ -255,6 +259,46 @@ var expectations = map[string]expectationFunc{
 				DestinationPath: params.downloadDestPath,
 			},
 		).Return(&activities.DownloadActivityResult{Path: params.downloadPath}, nil)
+	},
+	"calcFileChecksum": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
+		s.env.OnActivity(
+			activities.CalcFileChecksumActivityName,
+			sessionCtx,
+			&activities.CalcFileChecksumActivityParams{Path: params.downloadPath},
+		).Return(
+			&activities.CalcFileChecksumActivityResult{
+				Checksum: datatypes.Checksum{
+					Algorithm: datatypes.ChecksumAlgoSHA256,
+					Hash:      "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+				},
+			},
+			nil,
+		)
+	},
+	"saveChecksum": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
+		s.env.OnActivity(
+			updateSIPLocalActivity,
+			ctx,
+			s.workflow.ingestsvc,
+			&updateSIPLocalActivityParams{
+				UUID:         sipUUID,
+				ChecksumAlgo: datatypes.ChecksumAlgoSHA256,
+				ChecksumHash: sipChecksum,
+			},
+		).Return(nil, nil)
+	},
+	"checkDuplicateSIP": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
+		s.env.OnActivity(
+			activities.CheckDuplicateSIPActivityName,
+			sessionCtx,
+			activities.CheckDuplicateSIPActivityParams{
+				SIPID: sipUUID,
+				Checksum: datatypes.Checksum{
+					Algorithm: datatypes.ChecksumAlgoSHA256,
+					Hash:      "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+				},
+			},
+		).Return(&activities.CheckDuplicateSIPActivityResult{}, nil)
 	},
 	"getSIPExtension": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
 		s.env.OnActivity(
@@ -521,7 +565,7 @@ func cleanupExpectations(s *ProcessingWorkflowTestSuite, params expectationParam
 	expectations["completeWorkflow"](s, params)
 }
 
-func CountSIPFilesExpectations(s *ProcessingWorkflowTestSuite, params expectationParams) {
+func countSIPFilesExpectations(s *ProcessingWorkflowTestSuite, params expectationParams) {
 	params.updateTaskParams(CountSIPFilesTaskID, enums.TaskStatusInProgress, "Count SIP Files", "")
 	expectations["createTask"](s, params)
 	expectations["countSIPFiles"](s, params)
@@ -530,6 +574,43 @@ func CountSIPFilesExpectations(s *ProcessingWorkflowTestSuite, params expectatio
 		enums.TaskStatusDone,
 		"",
 		fmt.Sprintf("SIP contains %d files", fileCount),
+	)
+	expectations["completeTask"](s, params)
+}
+
+func calcChecksumExpectations(s *ProcessingWorkflowTestSuite, params expectationParams) {
+	params.updateTaskParams(
+		calcChecksumTaskID,
+		enums.TaskStatusInProgress,
+		"Calculate SIP checksum",
+		"",
+	)
+	expectations["createTask"](s, params)
+	expectations["calcFileChecksum"](s, params)
+	params.updateTaskParams(
+		calcChecksumTaskID,
+		enums.TaskStatusDone,
+		"",
+		"SIP checksum calculated: 9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08",
+	)
+	expectations["completeTask"](s, params)
+	expectations["saveChecksum"](s, params)
+}
+
+func checkDuplicateSIPExpectations(s *ProcessingWorkflowTestSuite, params expectationParams) {
+	params.updateTaskParams(
+		duplicateSIPTaskID,
+		enums.TaskStatusInProgress,
+		"Check if SIP has already been ingested",
+		"",
+	)
+	expectations["createTask"](s, params)
+	expectations["checkDuplicateSIP"](s, params)
+	params.updateTaskParams(
+		duplicateSIPTaskID,
+		enums.TaskStatusDone,
+		"",
+		"SIP has not been previously ingested",
 	)
 	expectations["completeTask"](s, params)
 }

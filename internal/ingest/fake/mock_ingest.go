@@ -470,6 +470,45 @@ func (c *MockServiceDownloadSipRequestCall) DoAndReturn(f func(context.Context, 
 	return c
 }
 
+// FindDuplicateSIP mocks base method.
+func (m *MockService) FindDuplicateSIP(arg0 context.Context, arg1 uuid.UUID, arg2 datatypes.Checksum) (*datatypes.SIP, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FindDuplicateSIP", arg0, arg1, arg2)
+	ret0, _ := ret[0].(*datatypes.SIP)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// FindDuplicateSIP indicates an expected call of FindDuplicateSIP.
+func (mr *MockServiceMockRecorder) FindDuplicateSIP(arg0, arg1, arg2 any) *MockServiceFindDuplicateSIPCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindDuplicateSIP", reflect.TypeOf((*MockService)(nil).FindDuplicateSIP), arg0, arg1, arg2)
+	return &MockServiceFindDuplicateSIPCall{Call: call}
+}
+
+// MockServiceFindDuplicateSIPCall wrap *gomock.Call
+type MockServiceFindDuplicateSIPCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockServiceFindDuplicateSIPCall) Return(arg0 *datatypes.SIP, arg1 error) *MockServiceFindDuplicateSIPCall {
+	c.Call = c.Call.Return(arg0, arg1)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockServiceFindDuplicateSIPCall) Do(f func(context.Context, uuid.UUID, datatypes.Checksum) (*datatypes.SIP, error)) *MockServiceFindDuplicateSIPCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockServiceFindDuplicateSIPCall) DoAndReturn(f func(context.Context, uuid.UUID, datatypes.Checksum) (*datatypes.SIP, error)) *MockServiceFindDuplicateSIPCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ListBatches mocks base method.
 func (m *MockService) ListBatches(arg0 context.Context, arg1 *ingest.ListBatchesPayload) (*ingest.Batches, error) {
 	m.ctrl.T.Helper()
