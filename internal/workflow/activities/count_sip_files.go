@@ -38,7 +38,8 @@ func NewCountSIPFilesActivity() *CountSIPFilesActivity {
 // Execute counts the number of preservation files in the SIP at params.Path.
 //
 // If the SIP is a BagIt Bag, Execute counts the files in the "data" directory.
-// If the SIP type is unknown, Execute counts all the files in the SIP.
+// If the SIP type is unknown, Execute counts all the files in the SIP except
+// for files in any directories named "metadata".
 func (a *CountSIPFilesActivity) Execute(
 	ctx context.Context,
 	params *CountSIPFilesActivityParams,
@@ -61,6 +62,10 @@ func (a *CountSIPFilesActivity) Execute(
 	err = filepath.WalkDir(path, func(path string, d os.DirEntry, err error) error {
 		if err != nil {
 			return err
+		}
+		if d.IsDir() && d.Name() == "metadata" {
+			// Skip any directories named "metadata" and their contents.
+			return filepath.SkipDir
 		}
 		if !d.IsDir() {
 			count++
