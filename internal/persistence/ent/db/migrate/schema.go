@@ -78,6 +78,8 @@ var (
 		{Name: "failed_as", Type: field.TypeEnum, Nullable: true, Enums: []string{"SIP", "PIP"}},
 		{Name: "failed_key", Type: field.TypeString, Nullable: true, Size: 1024},
 		{Name: "file_count", Type: field.TypeInt32, Nullable: true},
+		{Name: "checksum_algorithm", Type: field.TypeString, Nullable: true},
+		{Name: "checksum_value", Type: field.TypeString, Nullable: true},
 		{Name: "batch_id", Type: field.TypeInt, Nullable: true},
 		{Name: "uploader_id", Type: field.TypeInt, Nullable: true},
 	}
@@ -89,13 +91,13 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "sip_batch_sips",
-				Columns:    []*schema.Column{SipColumns[11]},
+				Columns:    []*schema.Column{SipColumns[13]},
 				RefColumns: []*schema.Column{BatchColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
 			{
 				Symbol:     "sip_user_uploaded_sips",
-				Columns:    []*schema.Column{SipColumns[12]},
+				Columns:    []*schema.Column{SipColumns[14]},
 				RefColumns: []*schema.Column{UserColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
@@ -132,12 +134,17 @@ var (
 			{
 				Name:    "sip_uploader_id_idx",
 				Unique:  false,
-				Columns: []*schema.Column{SipColumns[12]},
+				Columns: []*schema.Column{SipColumns[14]},
 			},
 			{
 				Name:    "sip_batch_id_idx",
 				Unique:  false,
-				Columns: []*schema.Column{SipColumns[11]},
+				Columns: []*schema.Column{SipColumns[13]},
+			},
+			{
+				Name:    "sip_checksum_value_idx",
+				Unique:  false,
+				Columns: []*schema.Column{SipColumns[12]},
 			},
 		},
 	}

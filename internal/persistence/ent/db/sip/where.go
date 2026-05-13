@@ -107,6 +107,16 @@ func FileCount(v int32) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldFileCount, v))
 }
 
+// ChecksumAlgorithm applies equality check predicate on the "checksum_algorithm" field. It's identical to ChecksumAlgorithmEQ.
+func ChecksumAlgorithm(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumValue applies equality check predicate on the "checksum_value" field. It's identical to ChecksumValueEQ.
+func ChecksumValue(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldChecksumValue, v))
+}
+
 // UUIDEQ applies the EQ predicate on the "uuid" field.
 func UUIDEQ(v uuid.UUID) predicate.SIP {
 	return predicate.SIP(sql.FieldEQ(FieldUUID, v))
@@ -655,6 +665,156 @@ func FileCountIsNil() predicate.SIP {
 // FileCountNotNil applies the NotNil predicate on the "file_count" field.
 func FileCountNotNil() predicate.SIP {
 	return predicate.SIP(sql.FieldNotNull(FieldFileCount))
+}
+
+// ChecksumAlgorithmEQ applies the EQ predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmEQ(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumAlgorithmNEQ applies the NEQ predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmNEQ(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldNEQ(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumAlgorithmIn applies the In predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmIn(vs ...string) predicate.SIP {
+	return predicate.SIP(sql.FieldIn(FieldChecksumAlgorithm, vs...))
+}
+
+// ChecksumAlgorithmNotIn applies the NotIn predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmNotIn(vs ...string) predicate.SIP {
+	return predicate.SIP(sql.FieldNotIn(FieldChecksumAlgorithm, vs...))
+}
+
+// ChecksumAlgorithmGT applies the GT predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmGT(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldGT(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumAlgorithmGTE applies the GTE predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmGTE(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldGTE(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumAlgorithmLT applies the LT predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmLT(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldLT(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumAlgorithmLTE applies the LTE predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmLTE(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldLTE(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumAlgorithmContains applies the Contains predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmContains(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldContains(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumAlgorithmHasPrefix applies the HasPrefix predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmHasPrefix(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldHasPrefix(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumAlgorithmHasSuffix applies the HasSuffix predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmHasSuffix(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldHasSuffix(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumAlgorithmIsNil applies the IsNil predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmIsNil() predicate.SIP {
+	return predicate.SIP(sql.FieldIsNull(FieldChecksumAlgorithm))
+}
+
+// ChecksumAlgorithmNotNil applies the NotNil predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmNotNil() predicate.SIP {
+	return predicate.SIP(sql.FieldNotNull(FieldChecksumAlgorithm))
+}
+
+// ChecksumAlgorithmEqualFold applies the EqualFold predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmEqualFold(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldEqualFold(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumAlgorithmContainsFold applies the ContainsFold predicate on the "checksum_algorithm" field.
+func ChecksumAlgorithmContainsFold(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldContainsFold(FieldChecksumAlgorithm, v))
+}
+
+// ChecksumValueEQ applies the EQ predicate on the "checksum_value" field.
+func ChecksumValueEQ(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldEQ(FieldChecksumValue, v))
+}
+
+// ChecksumValueNEQ applies the NEQ predicate on the "checksum_value" field.
+func ChecksumValueNEQ(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldNEQ(FieldChecksumValue, v))
+}
+
+// ChecksumValueIn applies the In predicate on the "checksum_value" field.
+func ChecksumValueIn(vs ...string) predicate.SIP {
+	return predicate.SIP(sql.FieldIn(FieldChecksumValue, vs...))
+}
+
+// ChecksumValueNotIn applies the NotIn predicate on the "checksum_value" field.
+func ChecksumValueNotIn(vs ...string) predicate.SIP {
+	return predicate.SIP(sql.FieldNotIn(FieldChecksumValue, vs...))
+}
+
+// ChecksumValueGT applies the GT predicate on the "checksum_value" field.
+func ChecksumValueGT(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldGT(FieldChecksumValue, v))
+}
+
+// ChecksumValueGTE applies the GTE predicate on the "checksum_value" field.
+func ChecksumValueGTE(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldGTE(FieldChecksumValue, v))
+}
+
+// ChecksumValueLT applies the LT predicate on the "checksum_value" field.
+func ChecksumValueLT(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldLT(FieldChecksumValue, v))
+}
+
+// ChecksumValueLTE applies the LTE predicate on the "checksum_value" field.
+func ChecksumValueLTE(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldLTE(FieldChecksumValue, v))
+}
+
+// ChecksumValueContains applies the Contains predicate on the "checksum_value" field.
+func ChecksumValueContains(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldContains(FieldChecksumValue, v))
+}
+
+// ChecksumValueHasPrefix applies the HasPrefix predicate on the "checksum_value" field.
+func ChecksumValueHasPrefix(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldHasPrefix(FieldChecksumValue, v))
+}
+
+// ChecksumValueHasSuffix applies the HasSuffix predicate on the "checksum_value" field.
+func ChecksumValueHasSuffix(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldHasSuffix(FieldChecksumValue, v))
+}
+
+// ChecksumValueIsNil applies the IsNil predicate on the "checksum_value" field.
+func ChecksumValueIsNil() predicate.SIP {
+	return predicate.SIP(sql.FieldIsNull(FieldChecksumValue))
+}
+
+// ChecksumValueNotNil applies the NotNil predicate on the "checksum_value" field.
+func ChecksumValueNotNil() predicate.SIP {
+	return predicate.SIP(sql.FieldNotNull(FieldChecksumValue))
+}
+
+// ChecksumValueEqualFold applies the EqualFold predicate on the "checksum_value" field.
+func ChecksumValueEqualFold(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldEqualFold(FieldChecksumValue, v))
+}
+
+// ChecksumValueContainsFold applies the ContainsFold predicate on the "checksum_value" field.
+func ChecksumValueContainsFold(v string) predicate.SIP {
+	return predicate.SIP(sql.FieldContainsFold(FieldChecksumValue, v))
 }
 
 // HasWorkflows applies the HasEdge predicate on the "workflows" edge.

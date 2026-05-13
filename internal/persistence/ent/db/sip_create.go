@@ -171,6 +171,34 @@ func (_c *SIPCreate) SetNillableFileCount(v *int32) *SIPCreate {
 	return _c
 }
 
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (_c *SIPCreate) SetChecksumAlgorithm(v string) *SIPCreate {
+	_c.mutation.SetChecksumAlgorithm(v)
+	return _c
+}
+
+// SetNillableChecksumAlgorithm sets the "checksum_algorithm" field if the given value is not nil.
+func (_c *SIPCreate) SetNillableChecksumAlgorithm(v *string) *SIPCreate {
+	if v != nil {
+		_c.SetChecksumAlgorithm(*v)
+	}
+	return _c
+}
+
+// SetChecksumValue sets the "checksum_value" field.
+func (_c *SIPCreate) SetChecksumValue(v string) *SIPCreate {
+	_c.mutation.SetChecksumValue(v)
+	return _c
+}
+
+// SetNillableChecksumValue sets the "checksum_value" field if the given value is not nil.
+func (_c *SIPCreate) SetNillableChecksumValue(v *string) *SIPCreate {
+	if v != nil {
+		_c.SetChecksumValue(*v)
+	}
+	return _c
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (_c *SIPCreate) AddWorkflowIDs(ids ...int) *SIPCreate {
 	_c.mutation.AddWorkflowIDs(ids...)
@@ -342,6 +370,14 @@ func (_c *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.FileCount(); ok {
 		_spec.SetField(sip.FieldFileCount, field.TypeInt32, value)
 		_node.FileCount = value
+	}
+	if value, ok := _c.mutation.ChecksumAlgorithm(); ok {
+		_spec.SetField(sip.FieldChecksumAlgorithm, field.TypeString, value)
+		_node.ChecksumAlgorithm = value
+	}
+	if value, ok := _c.mutation.ChecksumValue(); ok {
+		_spec.SetField(sip.FieldChecksumValue, field.TypeString, value)
+		_node.ChecksumValue = value
 	}
 	if nodes := _c.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -619,6 +655,42 @@ func (u *SIPUpsert) ClearFileCount() *SIPUpsert {
 	return u
 }
 
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (u *SIPUpsert) SetChecksumAlgorithm(v string) *SIPUpsert {
+	u.Set(sip.FieldChecksumAlgorithm, v)
+	return u
+}
+
+// UpdateChecksumAlgorithm sets the "checksum_algorithm" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateChecksumAlgorithm() *SIPUpsert {
+	u.SetExcluded(sip.FieldChecksumAlgorithm)
+	return u
+}
+
+// ClearChecksumAlgorithm clears the value of the "checksum_algorithm" field.
+func (u *SIPUpsert) ClearChecksumAlgorithm() *SIPUpsert {
+	u.SetNull(sip.FieldChecksumAlgorithm)
+	return u
+}
+
+// SetChecksumValue sets the "checksum_value" field.
+func (u *SIPUpsert) SetChecksumValue(v string) *SIPUpsert {
+	u.Set(sip.FieldChecksumValue, v)
+	return u
+}
+
+// UpdateChecksumValue sets the "checksum_value" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateChecksumValue() *SIPUpsert {
+	u.SetExcluded(sip.FieldChecksumValue)
+	return u
+}
+
+// ClearChecksumValue clears the value of the "checksum_value" field.
+func (u *SIPUpsert) ClearChecksumValue() *SIPUpsert {
+	u.SetNull(sip.FieldChecksumValue)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -867,6 +939,48 @@ func (u *SIPUpsertOne) UpdateFileCount() *SIPUpsertOne {
 func (u *SIPUpsertOne) ClearFileCount() *SIPUpsertOne {
 	return u.Update(func(s *SIPUpsert) {
 		s.ClearFileCount()
+	})
+}
+
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (u *SIPUpsertOne) SetChecksumAlgorithm(v string) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetChecksumAlgorithm(v)
+	})
+}
+
+// UpdateChecksumAlgorithm sets the "checksum_algorithm" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateChecksumAlgorithm() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateChecksumAlgorithm()
+	})
+}
+
+// ClearChecksumAlgorithm clears the value of the "checksum_algorithm" field.
+func (u *SIPUpsertOne) ClearChecksumAlgorithm() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearChecksumAlgorithm()
+	})
+}
+
+// SetChecksumValue sets the "checksum_value" field.
+func (u *SIPUpsertOne) SetChecksumValue(v string) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetChecksumValue(v)
+	})
+}
+
+// UpdateChecksumValue sets the "checksum_value" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateChecksumValue() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateChecksumValue()
+	})
+}
+
+// ClearChecksumValue clears the value of the "checksum_value" field.
+func (u *SIPUpsertOne) ClearChecksumValue() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearChecksumValue()
 	})
 }
 
@@ -1284,6 +1398,48 @@ func (u *SIPUpsertBulk) UpdateFileCount() *SIPUpsertBulk {
 func (u *SIPUpsertBulk) ClearFileCount() *SIPUpsertBulk {
 	return u.Update(func(s *SIPUpsert) {
 		s.ClearFileCount()
+	})
+}
+
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (u *SIPUpsertBulk) SetChecksumAlgorithm(v string) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetChecksumAlgorithm(v)
+	})
+}
+
+// UpdateChecksumAlgorithm sets the "checksum_algorithm" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateChecksumAlgorithm() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateChecksumAlgorithm()
+	})
+}
+
+// ClearChecksumAlgorithm clears the value of the "checksum_algorithm" field.
+func (u *SIPUpsertBulk) ClearChecksumAlgorithm() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearChecksumAlgorithm()
+	})
+}
+
+// SetChecksumValue sets the "checksum_value" field.
+func (u *SIPUpsertBulk) SetChecksumValue(v string) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetChecksumValue(v)
+	})
+}
+
+// UpdateChecksumValue sets the "checksum_value" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateChecksumValue() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateChecksumValue()
+	})
+}
+
+// ClearChecksumValue clears the value of the "checksum_value" field.
+func (u *SIPUpsertBulk) ClearChecksumValue() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearChecksumValue()
 	})
 }
 

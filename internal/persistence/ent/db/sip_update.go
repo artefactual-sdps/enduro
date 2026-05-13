@@ -228,6 +228,46 @@ func (_u *SIPUpdate) ClearFileCount() *SIPUpdate {
 	return _u
 }
 
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (_u *SIPUpdate) SetChecksumAlgorithm(v string) *SIPUpdate {
+	_u.mutation.SetChecksumAlgorithm(v)
+	return _u
+}
+
+// SetNillableChecksumAlgorithm sets the "checksum_algorithm" field if the given value is not nil.
+func (_u *SIPUpdate) SetNillableChecksumAlgorithm(v *string) *SIPUpdate {
+	if v != nil {
+		_u.SetChecksumAlgorithm(*v)
+	}
+	return _u
+}
+
+// ClearChecksumAlgorithm clears the value of the "checksum_algorithm" field.
+func (_u *SIPUpdate) ClearChecksumAlgorithm() *SIPUpdate {
+	_u.mutation.ClearChecksumAlgorithm()
+	return _u
+}
+
+// SetChecksumValue sets the "checksum_value" field.
+func (_u *SIPUpdate) SetChecksumValue(v string) *SIPUpdate {
+	_u.mutation.SetChecksumValue(v)
+	return _u
+}
+
+// SetNillableChecksumValue sets the "checksum_value" field if the given value is not nil.
+func (_u *SIPUpdate) SetNillableChecksumValue(v *string) *SIPUpdate {
+	if v != nil {
+		_u.SetChecksumValue(*v)
+	}
+	return _u
+}
+
+// ClearChecksumValue clears the value of the "checksum_value" field.
+func (_u *SIPUpdate) ClearChecksumValue() *SIPUpdate {
+	_u.mutation.ClearChecksumValue()
+	return _u
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (_u *SIPUpdate) AddWorkflowIDs(ids ...int) *SIPUpdate {
 	_u.mutation.AddWorkflowIDs(ids...)
@@ -404,6 +444,18 @@ func (_u *SIPUpdate) sqlSave(ctx context.Context) (_node int, err error) {
 	}
 	if _u.mutation.FileCountCleared() {
 		_spec.ClearField(sip.FieldFileCount, field.TypeInt32)
+	}
+	if value, ok := _u.mutation.ChecksumAlgorithm(); ok {
+		_spec.SetField(sip.FieldChecksumAlgorithm, field.TypeString, value)
+	}
+	if _u.mutation.ChecksumAlgorithmCleared() {
+		_spec.ClearField(sip.FieldChecksumAlgorithm, field.TypeString)
+	}
+	if value, ok := _u.mutation.ChecksumValue(); ok {
+		_spec.SetField(sip.FieldChecksumValue, field.TypeString, value)
+	}
+	if _u.mutation.ChecksumValueCleared() {
+		_spec.ClearField(sip.FieldChecksumValue, field.TypeString)
 	}
 	if _u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -723,6 +775,46 @@ func (_u *SIPUpdateOne) ClearFileCount() *SIPUpdateOne {
 	return _u
 }
 
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (_u *SIPUpdateOne) SetChecksumAlgorithm(v string) *SIPUpdateOne {
+	_u.mutation.SetChecksumAlgorithm(v)
+	return _u
+}
+
+// SetNillableChecksumAlgorithm sets the "checksum_algorithm" field if the given value is not nil.
+func (_u *SIPUpdateOne) SetNillableChecksumAlgorithm(v *string) *SIPUpdateOne {
+	if v != nil {
+		_u.SetChecksumAlgorithm(*v)
+	}
+	return _u
+}
+
+// ClearChecksumAlgorithm clears the value of the "checksum_algorithm" field.
+func (_u *SIPUpdateOne) ClearChecksumAlgorithm() *SIPUpdateOne {
+	_u.mutation.ClearChecksumAlgorithm()
+	return _u
+}
+
+// SetChecksumValue sets the "checksum_value" field.
+func (_u *SIPUpdateOne) SetChecksumValue(v string) *SIPUpdateOne {
+	_u.mutation.SetChecksumValue(v)
+	return _u
+}
+
+// SetNillableChecksumValue sets the "checksum_value" field if the given value is not nil.
+func (_u *SIPUpdateOne) SetNillableChecksumValue(v *string) *SIPUpdateOne {
+	if v != nil {
+		_u.SetChecksumValue(*v)
+	}
+	return _u
+}
+
+// ClearChecksumValue clears the value of the "checksum_value" field.
+func (_u *SIPUpdateOne) ClearChecksumValue() *SIPUpdateOne {
+	_u.mutation.ClearChecksumValue()
+	return _u
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (_u *SIPUpdateOne) AddWorkflowIDs(ids ...int) *SIPUpdateOne {
 	_u.mutation.AddWorkflowIDs(ids...)
@@ -929,6 +1021,18 @@ func (_u *SIPUpdateOne) sqlSave(ctx context.Context) (_node *SIP, err error) {
 	}
 	if _u.mutation.FileCountCleared() {
 		_spec.ClearField(sip.FieldFileCount, field.TypeInt32)
+	}
+	if value, ok := _u.mutation.ChecksumAlgorithm(); ok {
+		_spec.SetField(sip.FieldChecksumAlgorithm, field.TypeString, value)
+	}
+	if _u.mutation.ChecksumAlgorithmCleared() {
+		_spec.ClearField(sip.FieldChecksumAlgorithm, field.TypeString)
+	}
+	if value, ok := _u.mutation.ChecksumValue(); ok {
+		_spec.SetField(sip.FieldChecksumValue, field.TypeString, value)
+	}
+	if _u.mutation.ChecksumValueCleared() {
+		_spec.ClearField(sip.FieldChecksumValue, field.TypeString)
 	}
 	if _u.mutation.WorkflowsCleared() {
 		edge := &sqlgraph.EdgeSpec{

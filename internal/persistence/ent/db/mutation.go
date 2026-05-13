@@ -979,31 +979,33 @@ func (m *BatchMutation) ResetEdge(name string) error {
 // SIPMutation represents an operation that mutates the SIP nodes in the graph.
 type SIPMutation struct {
 	config
-	op               Op
-	typ              string
-	id               *int
-	uuid             *uuid.UUID
-	name             *string
-	aip_id           *uuid.UUID
-	status           *enums.SIPStatus
-	created_at       *time.Time
-	started_at       *time.Time
-	completed_at     *time.Time
-	failed_as        *enums.SIPFailedAs
-	failed_key       *string
-	file_count       *int32
-	addfile_count    *int32
-	clearedFields    map[string]struct{}
-	workflows        map[int]struct{}
-	removedworkflows map[int]struct{}
-	clearedworkflows bool
-	uploader         *int
-	cleareduploader  bool
-	batch            *int
-	clearedbatch     bool
-	done             bool
-	oldValue         func(context.Context) (*SIP, error)
-	predicates       []predicate.SIP
+	op                 Op
+	typ                string
+	id                 *int
+	uuid               *uuid.UUID
+	name               *string
+	aip_id             *uuid.UUID
+	status             *enums.SIPStatus
+	created_at         *time.Time
+	started_at         *time.Time
+	completed_at       *time.Time
+	failed_as          *enums.SIPFailedAs
+	failed_key         *string
+	file_count         *int32
+	addfile_count      *int32
+	checksum_algorithm *string
+	checksum_value     *string
+	clearedFields      map[string]struct{}
+	workflows          map[int]struct{}
+	removedworkflows   map[int]struct{}
+	clearedworkflows   bool
+	uploader           *int
+	cleareduploader    bool
+	batch              *int
+	clearedbatch       bool
+	done               bool
+	oldValue           func(context.Context) (*SIP, error)
+	predicates         []predicate.SIP
 }
 
 var _ ent.Mutation = (*SIPMutation)(nil)
@@ -1661,6 +1663,104 @@ func (m *SIPMutation) ResetFileCount() {
 	delete(m.clearedFields, sip.FieldFileCount)
 }
 
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (m *SIPMutation) SetChecksumAlgorithm(s string) {
+	m.checksum_algorithm = &s
+}
+
+// ChecksumAlgorithm returns the value of the "checksum_algorithm" field in the mutation.
+func (m *SIPMutation) ChecksumAlgorithm() (r string, exists bool) {
+	v := m.checksum_algorithm
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChecksumAlgorithm returns the old "checksum_algorithm" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldChecksumAlgorithm(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldChecksumAlgorithm is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldChecksumAlgorithm requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChecksumAlgorithm: %w", err)
+	}
+	return oldValue.ChecksumAlgorithm, nil
+}
+
+// ClearChecksumAlgorithm clears the value of the "checksum_algorithm" field.
+func (m *SIPMutation) ClearChecksumAlgorithm() {
+	m.checksum_algorithm = nil
+	m.clearedFields[sip.FieldChecksumAlgorithm] = struct{}{}
+}
+
+// ChecksumAlgorithmCleared returns if the "checksum_algorithm" field was cleared in this mutation.
+func (m *SIPMutation) ChecksumAlgorithmCleared() bool {
+	_, ok := m.clearedFields[sip.FieldChecksumAlgorithm]
+	return ok
+}
+
+// ResetChecksumAlgorithm resets all changes to the "checksum_algorithm" field.
+func (m *SIPMutation) ResetChecksumAlgorithm() {
+	m.checksum_algorithm = nil
+	delete(m.clearedFields, sip.FieldChecksumAlgorithm)
+}
+
+// SetChecksumValue sets the "checksum_value" field.
+func (m *SIPMutation) SetChecksumValue(s string) {
+	m.checksum_value = &s
+}
+
+// ChecksumValue returns the value of the "checksum_value" field in the mutation.
+func (m *SIPMutation) ChecksumValue() (r string, exists bool) {
+	v := m.checksum_value
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldChecksumValue returns the old "checksum_value" field's value of the SIP entity.
+// If the SIP object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *SIPMutation) OldChecksumValue(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldChecksumValue is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldChecksumValue requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldChecksumValue: %w", err)
+	}
+	return oldValue.ChecksumValue, nil
+}
+
+// ClearChecksumValue clears the value of the "checksum_value" field.
+func (m *SIPMutation) ClearChecksumValue() {
+	m.checksum_value = nil
+	m.clearedFields[sip.FieldChecksumValue] = struct{}{}
+}
+
+// ChecksumValueCleared returns if the "checksum_value" field was cleared in this mutation.
+func (m *SIPMutation) ChecksumValueCleared() bool {
+	_, ok := m.clearedFields[sip.FieldChecksumValue]
+	return ok
+}
+
+// ResetChecksumValue resets all changes to the "checksum_value" field.
+func (m *SIPMutation) ResetChecksumValue() {
+	m.checksum_value = nil
+	delete(m.clearedFields, sip.FieldChecksumValue)
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by ids.
 func (m *SIPMutation) AddWorkflowIDs(ids ...int) {
 	if m.workflows == nil {
@@ -1803,7 +1903,7 @@ func (m *SIPMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *SIPMutation) Fields() []string {
-	fields := make([]string, 0, 12)
+	fields := make([]string, 0, 14)
 	if m.uuid != nil {
 		fields = append(fields, sip.FieldUUID)
 	}
@@ -1840,6 +1940,12 @@ func (m *SIPMutation) Fields() []string {
 	if m.file_count != nil {
 		fields = append(fields, sip.FieldFileCount)
 	}
+	if m.checksum_algorithm != nil {
+		fields = append(fields, sip.FieldChecksumAlgorithm)
+	}
+	if m.checksum_value != nil {
+		fields = append(fields, sip.FieldChecksumValue)
+	}
 	return fields
 }
 
@@ -1872,6 +1978,10 @@ func (m *SIPMutation) Field(name string) (ent.Value, bool) {
 		return m.BatchID()
 	case sip.FieldFileCount:
 		return m.FileCount()
+	case sip.FieldChecksumAlgorithm:
+		return m.ChecksumAlgorithm()
+	case sip.FieldChecksumValue:
+		return m.ChecksumValue()
 	}
 	return nil, false
 }
@@ -1905,6 +2015,10 @@ func (m *SIPMutation) OldField(ctx context.Context, name string) (ent.Value, err
 		return m.OldBatchID(ctx)
 	case sip.FieldFileCount:
 		return m.OldFileCount(ctx)
+	case sip.FieldChecksumAlgorithm:
+		return m.OldChecksumAlgorithm(ctx)
+	case sip.FieldChecksumValue:
+		return m.OldChecksumValue(ctx)
 	}
 	return nil, fmt.Errorf("unknown SIP field %s", name)
 }
@@ -1998,6 +2112,20 @@ func (m *SIPMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetFileCount(v)
 		return nil
+	case sip.FieldChecksumAlgorithm:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChecksumAlgorithm(v)
+		return nil
+	case sip.FieldChecksumValue:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetChecksumValue(v)
+		return nil
 	}
 	return fmt.Errorf("unknown SIP field %s", name)
 }
@@ -2067,6 +2195,12 @@ func (m *SIPMutation) ClearedFields() []string {
 	if m.FieldCleared(sip.FieldFileCount) {
 		fields = append(fields, sip.FieldFileCount)
 	}
+	if m.FieldCleared(sip.FieldChecksumAlgorithm) {
+		fields = append(fields, sip.FieldChecksumAlgorithm)
+	}
+	if m.FieldCleared(sip.FieldChecksumValue) {
+		fields = append(fields, sip.FieldChecksumValue)
+	}
 	return fields
 }
 
@@ -2104,6 +2238,12 @@ func (m *SIPMutation) ClearField(name string) error {
 		return nil
 	case sip.FieldFileCount:
 		m.ClearFileCount()
+		return nil
+	case sip.FieldChecksumAlgorithm:
+		m.ClearChecksumAlgorithm()
+		return nil
+	case sip.FieldChecksumValue:
+		m.ClearChecksumValue()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP nullable field %s", name)
@@ -2148,6 +2288,12 @@ func (m *SIPMutation) ResetField(name string) error {
 		return nil
 	case sip.FieldFileCount:
 		m.ResetFileCount()
+		return nil
+	case sip.FieldChecksumAlgorithm:
+		m.ResetChecksumAlgorithm()
+		return nil
+	case sip.FieldChecksumValue:
+		m.ResetChecksumValue()
 		return nil
 	}
 	return fmt.Errorf("unknown SIP field %s", name)
