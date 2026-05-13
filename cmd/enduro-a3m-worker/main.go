@@ -273,6 +273,14 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: activities.GetSIPExtensionActivityName},
 		)
 		w.RegisterActivityWithOptions(
+			activities.NewCalcFileChecksumActivity().Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.CalcFileChecksumActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			activities.NewCheckDuplicateSIPActivity(ingestsvc).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.CheckDuplicateSIPActivityName},
+		)
+		w.RegisterActivityWithOptions(
 			archiveextract.New(cfg.ExtractActivity).Execute,
 			temporalsdk_activity.RegisterOptions{Name: archiveextract.Name},
 		)

@@ -691,6 +691,35 @@ When using Azure Blob Storage, Enduro supports two authentication modes:
 If both authentication modes are configured, the client secret settings take
 precedence.
 
+### Ingest settings
+
+The ingest configuration section configures the SIP ingest workflow.
+
+**Example configuration**:
+
+```toml
+[ingest]
+allowDuplicates = false
+```
+
+#### allowDuplicates
+
+The `allowDuplicates` setting toggles whether a SIP can be ingested more than
+once by Enduro. The default value (false) will stop ingest with a content error
+when a SIP archive file (e.g. a zip) is submitted that has the same checksum as
+a previously ingested SIP. SIPs submitted as a directory are not checked for
+duplicate contents.
+
+A SIP is only considered a duplicate if the checksum matches an existing
+SIP with a status of: "ingested", "pending", "processing", "queued", or
+"validated". If the SIP status is "error", "failed" or "canceled" the
+SIP will be ignored when checking for duplicates.
+
+A checksum is calculated and stored for every SIP archive ingested by Enduro,
+regardless of this setting. When `allowDuplicates` is false, a new ingest's
+checksum will be checked against all previously ingested SIP checksums, even if
+`allowDuplicates` was true when the old SIPs were ingested.
+
 ### Ingest storage settings
 
 This element configures the Enduro storage service API endpoint. Even when using

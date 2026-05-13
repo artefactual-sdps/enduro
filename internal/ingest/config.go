@@ -10,6 +10,24 @@ import (
 )
 
 type Config struct {
+	// AllowDuplicates toggles whether a SIP can be ingested more than once.
+	// The default value (false) will stop ingest with a content error when a
+	// SIP archive file (e.g. zip) is submitted that has the same checksum as a
+	// previously ingested SIP. SIPs submitted as a directory are not checked
+	// for duplicate contents.
+	//
+	// A SIP is only considered a duplicate if the checksum matches an existing
+	// SIP with a status of: "ingested", "pending", "processing", "queued", or
+	// "validated". If the SIP status is "error", "failed" or "canceled" the
+	// SIP will be ignored when checking for duplicates.
+	//
+	// A checksum is calculated and stored for every SIP archive ingested by
+	// Enduro, regardless of this setting. When `allowDuplicates` is false, a
+	// new ingest's checksum will be checked against all previously ingested SIP
+	// checksums, even if `allowDuplicates` was true when the old SIPs were
+	// ingested.
+	AllowDuplicates bool
+
 	Storage StorageConfig
 }
 

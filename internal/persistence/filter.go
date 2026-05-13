@@ -38,11 +38,13 @@ type SIPFilter struct {
 	// Name filters for SIPs whose names contain the given string.
 	Name *string
 
-	AIPID      *uuid.UUID
-	Status     *enums.SIPStatus
-	CreatedAt  *timerange.Range
-	UploaderID *uuid.UUID
-	BatchID    *uuid.UUID
+	AIPID             *uuid.UUID
+	Status            *enums.SIPStatus
+	CreatedAt         *timerange.Range
+	UploaderID        *uuid.UUID
+	BatchID           *uuid.UUID
+	ChecksumAlgorithm *string
+	ChecksumHash      *string
 
 	entfilter.Sort
 	Page

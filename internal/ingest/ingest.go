@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"slices"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -39,6 +40,7 @@ type Service interface {
 
 	CreateSIP(context.Context, *datatypes.SIP) error
 	UpdateSIP(context.Context, uuid.UUID, persistence.SIPUpdater) (*datatypes.SIP, error)
+	FindDuplicateSIP(context.Context, uuid.UUID, datatypes.Checksum) (*datatypes.SIP, error)
 	SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error
 	SetStatusInProgress(ctx context.Context, id uuid.UUID, startedAt time.Time) error
 	CreateWorkflow(ctx context.Context, w *datatypes.Workflow) error
@@ -141,6 +143,47 @@ func (svc *ingestImpl) UpdateSIP(
 	PublishEvent(ctx, svc.evsvc, ev)
 
 	return s, nil
+}
+
+func (svc *ingestImpl) FindDuplicateSIP(
+	ctx context.Context,
+	sipID uuid.UUID,
+	checksum datatypes.Checksum,
+) (*datatypes.SIP, error) {
+	// existingSIPStatuses is the list of SIP statuses that indicate a SIP has
+	// been ingested or is still active in the system. If a SIP has one of these
+	// statuses, its checksum should be considered a duplicate.
+	existingSIPStatuses := []enums.SIPStatus{
+		enums.SIPStatusIngested,
+		enums.SIPStatusPending,
+		enums.SIPStatusProcessing,
+		enums.SIPStatusQueued,
+		enums.SIPStatusValidated,
+	}
+
+	sips, _, err := svc.perSvc.ListSIPs(
+		ctx,
+		&persistence.SIPFilter{
+			ChecksumAlgorithm: new(string(checksum.Algorithm)),
+			ChecksumHash:      &checksum.Hash,
+		},
+	)
+	if err != nil {
+		return nil, fmt.Errorf("find duplicate SIP: %v", err)
+	}
+
+	for _, sip := range sips {
+		// Don't check the current SIP's checksum against itself.
+		if sip.UUID == sipID {
+			continue
+		}
+
+		if slices.Contains(existingSIPStatuses, sip.Status) {
+			return sip, nil
+		}
+	}
+
+	return nil, nil
 }
 
 func (svc *ingestImpl) SetStatus(ctx context.Context, id uuid.UUID, status enums.SIPStatus) error {

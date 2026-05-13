@@ -64,6 +64,12 @@ func (SIP) Fields() []ent.Field {
 		field.Int32("file_count").
 			Optional().
 			NonNegative(),
+		field.String("checksum_algorithm").
+			Optional(),
+		// checksum_hash is the hash of a SIP archive (e.g. zip file) before it
+		// is extracted for processing.
+		field.String("checksum_hash").
+			Optional(),
 	}
 }
 
@@ -101,5 +107,7 @@ func (SIP) Indexes() []ent.Index {
 			StorageKey("sip_uploader_id_idx"),
 		index.Fields("batch_id").
 			StorageKey("sip_batch_id_idx"),
+		index.Fields("checksum_algorithm", "checksum_hash").
+			StorageKey("sip_checksum_idx"),
 	}
 }

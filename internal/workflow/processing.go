@@ -411,6 +411,21 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
+	// Calculate the SIP checksum if the SIP is not a directory.
+	if !state.sip.isDir {
+		if err := w.calcSIPChecksum(sessCtx, state); err != nil {
+			return err
+		}
+
+		// If duplicate SIPs are not allowed, check if a SIP with the same
+		// checksum has already been ingested or is being processed.
+		if !w.cfg.Ingest.AllowDuplicates {
+			if err := w.checkForDuplicateSIP(sessCtx, state); err != nil {
+				return err
+			}
+		}
+	}
+
 	// Extract the transfer if it's not a directory and a preprocessing child
 	// workflow is not doing the extraction.
 	cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePreprocessing)
@@ -1767,4 +1782,149 @@ func (w *ProcessingWorkflow) countSIPFIles(
 	state.sip.fileCount = result.Count
 
 	return nil
+}
+
+func (w *ProcessingWorkflow) calcSIPChecksum(
+	sessCtx temporalsdk_workflow.Context,
+	state *workflowState,
+) (err error) {
+	id, err := w.createTask(
+		sessCtx,
+		&datatypes.Task{
+			Name:         "Calculate SIP checksum",
+			Status:       enums.TaskStatusInProgress,
+			WorkflowUUID: state.workflowUUID,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("calculate SIP checksum: create task: %v", err)
+	}
+
+	// Set the default (successful) task completion values.
+	task := datatypes.Task{ID: id, Status: enums.TaskStatusDone}
+
+	// Complete the task when calcSIPChecksum() returns.
+	defer func() {
+		if e := w.completeTask(sessCtx, task); e != nil {
+			err = errors.Join(
+				err,
+				fmt.Errorf("calculate SIP checksum: complete task: %v", e),
+			)
+		}
+	}()
+
+	var result activities.CalcFileChecksumActivityResult
+	opts := withActivityOptsForLocalAction(sessCtx)
+	err = temporalsdk_workflow.ExecuteActivity(
+		opts,
+		activities.CalcFileChecksumActivityName,
+		&activities.CalcFileChecksumActivityParams{
+			Path: state.sip.path,
+		},
+	).Get(opts, &result)
+	if err != nil {
+		task.SystemError(
+			"Calculating SIP checksum failed.",
+			"An error has occurred while calculating the SIP checksum. Please try again, or ask a system administrator to investigate.",
+		)
+		state.status = enums.WorkflowStatusError
+		return err
+	}
+
+	state.sip.checksum = result.Checksum
+	task.Note = fmt.Sprintf("SIP checksum calculated: %s", state.sip.checksum.Hash)
+
+	// Persist the SIP checksum.
+	opts = withLocalActivityOpts(sessCtx)
+	err = temporalsdk_workflow.ExecuteLocalActivity(
+		opts,
+		updateSIPLocalActivity,
+		w.ingestsvc,
+		&updateSIPLocalActivityParams{
+			UUID:         state.sip.uuid,
+			ChecksumAlgo: state.sip.checksum.Algorithm,
+			ChecksumHash: state.sip.checksum.Hash,
+		},
+	).Get(opts, nil)
+	if err != nil {
+		task.SystemError(
+			"Saving SIP checksum failed.",
+			"An error has occurred while saving the SIP checksum. Please try again, or ask a system administrator to investigate.",
+		)
+		state.status = enums.WorkflowStatusError
+		return fmt.Errorf("save SIP checksum: %v", err)
+	}
+
+	return nil
+}
+
+func (w *ProcessingWorkflow) checkForDuplicateSIP(
+	ctx temporalsdk_workflow.Context,
+	state *workflowState,
+) error {
+	id, err := w.createTask(
+		ctx,
+		&datatypes.Task{
+			Name:         "Check if SIP has already been ingested",
+			Status:       enums.TaskStatusInProgress,
+			WorkflowUUID: state.workflowUUID,
+		},
+	)
+	if err != nil {
+		return fmt.Errorf("duplicate SIP check: create task: %v", err)
+	}
+
+	// Set the default (successful) task completion values.
+	task := datatypes.Task{
+		ID:     id,
+		Status: enums.TaskStatusDone,
+		Note:   "SIP has not been previously ingested",
+	}
+
+	// Search the database for any ingested or processing SIPs with the same
+	// checksum.
+	var duplicateResult activities.CheckDuplicateSIPActivityResult
+	opts := withActivityOptsForLocalAction(ctx)
+	err = temporalsdk_workflow.ExecuteActivity(
+		opts,
+		activities.CheckDuplicateSIPActivityName,
+		activities.CheckDuplicateSIPActivityParams{
+			SIPID:    state.sip.uuid,
+			Checksum: state.sip.checksum,
+		},
+	).Get(opts, &duplicateResult)
+	if err != nil {
+		task.SystemError(
+			"Duplicate SIP check has failed.",
+			"An error has occurred while checking for duplicate SIPs. Please try again, or ask a system administrator to investigate.",
+		)
+		state.status = enums.WorkflowStatusError
+	}
+
+	// If the SIP is a duplicate, halt the workflow with a content failure.
+	if err == nil && duplicateResult.Duplicate != nil {
+		task.Failed(
+			"SIP has already been ingested.",
+			fmt.Sprintf(
+				"A previously ingested SIP (UUID: %s) has the same checksum as the current SIP. Please ensure you have submitted the correct SIP and that it has not been previously submitted.",
+				duplicateResult.Duplicate.UUID,
+			),
+		)
+		state.status = enums.WorkflowStatusFailed
+		err = fmt.Errorf(
+			"duplicate SIP check: SIP %s is a duplicate of %s (status: %s)",
+			state.sip.uuid,
+			duplicateResult.Duplicate.UUID,
+			duplicateResult.Duplicate.Status,
+		)
+	}
+
+	if e := w.completeTask(ctx, task); e != nil {
+		return errors.Join(
+			err,
+			fmt.Errorf("duplicate SIP check: complete task: %v", e),
+		)
+	}
+
+	return err
 }

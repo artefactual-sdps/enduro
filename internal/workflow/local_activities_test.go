@@ -210,6 +210,7 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 	completedAt := time.Now()
 	failedKey := "failed-key"
 	filecount := int32(42)
+	hash := "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
 
 	for _, tt := range []struct {
 		name      string
@@ -220,14 +221,16 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 		{
 			name: "Updates a SIP",
 			params: &updateSIPLocalActivityParams{
-				UUID:        sipUUID,
-				Name:        name,
-				Status:      enums.SIPStatusIngested,
-				CompletedAt: completedAt,
-				AIPUUID:     aipUUID.String(),
-				FailedAs:    enums.SIPFailedAsSIP,
-				FailedKey:   failedKey,
-				FileCount:   filecount,
+				UUID:         sipUUID,
+				Name:         name,
+				Status:       enums.SIPStatusIngested,
+				CompletedAt:  completedAt,
+				AIPUUID:      aipUUID.String(),
+				FailedAs:     enums.SIPFailedAsSIP,
+				FailedKey:    failedKey,
+				FileCount:    filecount,
+				ChecksumAlgo: datatypes.ChecksumAlgoSHA256,
+				ChecksumHash: hash,
 			},
 			mockCalls: func(ctx context.Context, svc *ingest_fake.MockService) {
 				svc.EXPECT().
@@ -239,13 +242,15 @@ func TestUpdateSIPLocalActivity(t *testing.T) {
 							func(updater persistence.SIPUpdater) error {
 								s, err := updater(&datatypes.SIP{})
 								assert.NilError(t, err)
-								assert.DeepEqual(t, s.Name, name)
-								assert.DeepEqual(t, s.Status, enums.SIPStatusIngested)
-								assert.DeepEqual(t, s.CompletedAt, completedAt)
-								assert.DeepEqual(t, s.FileCount, filecount)
-								assert.DeepEqual(t, s.AIPID, uuid.NullUUID{Valid: true, UUID: aipUUID})
-								assert.DeepEqual(t, s.FailedAs, enums.SIPFailedAsSIP)
-								assert.DeepEqual(t, s.FailedKey, failedKey)
+								assert.Equal(t, s.Name, name)
+								assert.Equal(t, s.Status, enums.SIPStatusIngested)
+								assert.Equal(t, s.CompletedAt, completedAt)
+								assert.Equal(t, s.FileCount, filecount)
+								assert.Equal(t, s.AIPID, uuid.NullUUID{Valid: true, UUID: aipUUID})
+								assert.Equal(t, s.FailedAs, enums.SIPFailedAsSIP)
+								assert.Equal(t, s.FailedKey, failedKey)
+								assert.Equal(t, s.ChecksumAlgorithm, string(datatypes.ChecksumAlgoSHA256))
+								assert.Equal(t, s.ChecksumHash, hash)
 								return nil
 							},
 						),

@@ -7,6 +7,7 @@ import (
 	temporalsdk_log "go.temporal.io/sdk/log"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 
+	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/pkg/childwf"
@@ -116,6 +117,9 @@ type sipInfo struct {
 	// fileCount is the number of preservation files in the SIP. It is populated
 	// by the CountSIPFilesActivity after preprocessing.
 	fileCount int32
+
+	// checksum is the SIP checksum calculated by CalcSIPChecksumActivity.
+	checksum datatypes.Checksum
 }
 
 // aipInfo represents the AIP.

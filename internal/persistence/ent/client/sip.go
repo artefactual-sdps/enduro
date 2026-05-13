@@ -55,6 +55,12 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	if s.FileCount > 0 {
 		q.SetFileCount(s.FileCount)
 	}
+	if s.ChecksumAlgorithm != "" {
+		q.SetChecksumAlgorithm(s.ChecksumAlgorithm)
+	}
+	if s.ChecksumHash != "" {
+		q.SetChecksumHash(s.ChecksumHash)
+	}
 
 	// If Uploader is set, find or create the user and link it to the SIP.
 	if s.Uploader != nil {
@@ -168,6 +174,12 @@ func (c *client) UpdateSIP(
 	if up.FileCount > 0 {
 		q.SetFileCount(up.FileCount)
 	}
+	if up.ChecksumAlgorithm != "" {
+		q.SetChecksumAlgorithm(up.ChecksumAlgorithm)
+	}
+	if up.ChecksumHash != "" {
+		q.SetChecksumHash(up.ChecksumHash)
+	}
 
 	// Save changes.
 	dbs, err = q.Save(ctx)
@@ -266,6 +278,8 @@ func filterSIPs(q *db.SIPQuery, f *persistence.SIPFilter) (page, whole *db.SIPQu
 	qf.Equals(sip.FieldAipID, f.AIPID)
 	qf.Equals(sip.FieldStatus, f.Status)
 	qf.AddDateRange(sip.FieldCreatedAt, f.CreatedAt)
+	qf.Equals(sip.FieldChecksumAlgorithm, f.ChecksumAlgorithm)
+	qf.Equals(sip.FieldChecksumHash, f.ChecksumHash)
 	qf.OrderBy(f.Sort)
 	qf.Page(f.Limit, f.Offset)
 

@@ -30,6 +30,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 	"github.com/artefactual-sdps/enduro/internal/sipsource"
+	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
 func testSvc(t *testing.T, internalBucket *blob.Bucket, uploadMaxSize int64) (
@@ -266,6 +267,189 @@ func TestUpdateSIP(t *testing.T) {
 
 			assert.NilError(t, err)
 			assert.DeepEqual(t, s, tt.want)
+		})
+	}
+}
+
+func TestFindDuplicateSIP(t *testing.T) {
+	t.Parallel()
+
+	sipID := uuid.MustParse("e8d32bd5-faa4-4ce1-bb50-55d9c28b306d")
+	hash := "abc123"
+	duplicateID := uuid.MustParse("f8d32bd5-faa4-4ce1-bb50-55d9c28b306d")
+
+	for _, tt := range []struct {
+		name      string
+		params    activities.CheckDuplicateSIPActivityParams
+		mockCalls func(*persistence_fake.MockServiceMockRecorder)
+		want      *datatypes.SIP
+		wantErr   string
+	}{
+		{
+			name: "Finds an ingested SIP with a duplicate checksum",
+			params: activities.CheckDuplicateSIPActivityParams{
+				SIPID: sipID,
+				Checksum: datatypes.Checksum{
+					Algorithm: datatypes.ChecksumAlgoSHA256,
+					Hash:      hash,
+				},
+			},
+			mockCalls: func(m *persistence_fake.MockServiceMockRecorder) {
+				m.ListSIPs(
+					mockutil.Context(),
+					&persistence.SIPFilter{
+						ChecksumAlgorithm: new(string(datatypes.ChecksumAlgoSHA256)),
+						ChecksumHash:      &hash,
+					},
+				).Return(
+					[]*datatypes.SIP{
+						{
+							UUID:              sipID,
+							Status:            enums.SIPStatusProcessing,
+							ChecksumAlgorithm: string(datatypes.ChecksumAlgoSHA256),
+							ChecksumHash:      hash,
+						},
+						{
+							UUID:              duplicateID,
+							Status:            enums.SIPStatusIngested,
+							ChecksumAlgorithm: string(datatypes.ChecksumAlgoSHA256),
+							ChecksumHash:      hash,
+						},
+					},
+					&persistence.Page{Total: 2},
+					nil,
+				)
+			},
+			want: &datatypes.SIP{
+				UUID:              duplicateID,
+				Status:            enums.SIPStatusIngested,
+				ChecksumAlgorithm: string(datatypes.ChecksumAlgoSHA256),
+				ChecksumHash:      hash,
+			},
+		},
+		{
+			name: "Finds a pending SIP with a duplicate checksum",
+			params: activities.CheckDuplicateSIPActivityParams{
+				SIPID: sipID,
+				Checksum: datatypes.Checksum{
+					Algorithm: datatypes.ChecksumAlgoSHA256,
+					Hash:      hash,
+				},
+			},
+			mockCalls: func(m *persistence_fake.MockServiceMockRecorder) {
+				m.ListSIPs(
+					mockutil.Context(),
+					&persistence.SIPFilter{
+						ChecksumAlgorithm: new(string(datatypes.ChecksumAlgoSHA256)),
+						ChecksumHash:      &hash,
+					},
+				).Return(
+					[]*datatypes.SIP{
+						{
+							UUID:              sipID,
+							Status:            enums.SIPStatusProcessing,
+							ChecksumAlgorithm: string(datatypes.ChecksumAlgoSHA256),
+							ChecksumHash:      hash,
+						},
+						{
+							UUID:              duplicateID,
+							Status:            enums.SIPStatusPending,
+							ChecksumAlgorithm: string(datatypes.ChecksumAlgoSHA256),
+							ChecksumHash:      hash,
+						},
+					},
+					&persistence.Page{Total: 2},
+					nil,
+				)
+			},
+			want: &datatypes.SIP{
+				UUID:              duplicateID,
+				Status:            enums.SIPStatusPending,
+				ChecksumAlgorithm: string(datatypes.ChecksumAlgoSHA256),
+				ChecksumHash:      hash,
+			},
+		},
+		{
+			name: "Ignores a failed SIP with a duplicate checksum",
+			params: activities.CheckDuplicateSIPActivityParams{
+				SIPID: sipID,
+				Checksum: datatypes.Checksum{
+					Algorithm: datatypes.ChecksumAlgoSHA256,
+					Hash:      hash,
+				},
+			},
+			mockCalls: func(m *persistence_fake.MockServiceMockRecorder) {
+				m.ListSIPs(
+					mockutil.Context(),
+					&persistence.SIPFilter{
+						ChecksumAlgorithm: new(string(datatypes.ChecksumAlgoSHA256)),
+						ChecksumHash:      &hash,
+					},
+				).Return(
+					[]*datatypes.SIP{
+						{
+							UUID:              sipID,
+							Status:            enums.SIPStatusProcessing,
+							ChecksumAlgorithm: string(datatypes.ChecksumAlgoSHA256),
+							ChecksumHash:      hash,
+						},
+						{
+							UUID:              duplicateID,
+							Status:            enums.SIPStatusFailed,
+							ChecksumAlgorithm: string(datatypes.ChecksumAlgoSHA256),
+							ChecksumHash:      hash,
+						},
+					},
+					&persistence.Page{Total: 2},
+					nil,
+				)
+			},
+			want: nil,
+		},
+		{
+			name: "Returns an error if the persistence service returns an error",
+			params: activities.CheckDuplicateSIPActivityParams{
+				SIPID: sipID,
+				Checksum: datatypes.Checksum{
+					Algorithm: datatypes.ChecksumAlgoSHA256,
+					Hash:      hash,
+				},
+			},
+			mockCalls: func(m *persistence_fake.MockServiceMockRecorder) {
+				m.ListSIPs(
+					mockutil.Context(),
+					&persistence.SIPFilter{
+						ChecksumAlgorithm: new(string(datatypes.ChecksumAlgoSHA256)),
+						ChecksumHash:      &hash,
+					},
+				).Return(nil, nil, fmt.Errorf("an error"))
+			},
+			wantErr: "find duplicate SIP: an error",
+			want:    nil,
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ingestsvc, perSvc, _ := testSvc(t, nil, 0)
+			tt.mockCalls(perSvc.EXPECT())
+
+			got, err := ingestsvc.FindDuplicateSIP(
+				context.Background(),
+				sipID,
+				datatypes.Checksum{
+					Algorithm: datatypes.ChecksumAlgoSHA256,
+					Hash:      hash,
+				},
+			)
+
+			if tt.wantErr != "" {
+				assert.Error(t, err, tt.wantErr)
+				return
+			}
+
+			assert.NilError(t, err)
+			assert.DeepEqual(t, got, tt.want)
 		})
 	}
 }

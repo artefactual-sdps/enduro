@@ -171,6 +171,34 @@ func (_c *SIPCreate) SetNillableFileCount(v *int32) *SIPCreate {
 	return _c
 }
 
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (_c *SIPCreate) SetChecksumAlgorithm(v string) *SIPCreate {
+	_c.mutation.SetChecksumAlgorithm(v)
+	return _c
+}
+
+// SetNillableChecksumAlgorithm sets the "checksum_algorithm" field if the given value is not nil.
+func (_c *SIPCreate) SetNillableChecksumAlgorithm(v *string) *SIPCreate {
+	if v != nil {
+		_c.SetChecksumAlgorithm(*v)
+	}
+	return _c
+}
+
+// SetChecksumHash sets the "checksum_hash" field.
+func (_c *SIPCreate) SetChecksumHash(v string) *SIPCreate {
+	_c.mutation.SetChecksumHash(v)
+	return _c
+}
+
+// SetNillableChecksumHash sets the "checksum_hash" field if the given value is not nil.
+func (_c *SIPCreate) SetNillableChecksumHash(v *string) *SIPCreate {
+	if v != nil {
+		_c.SetChecksumHash(*v)
+	}
+	return _c
+}
+
 // AddWorkflowIDs adds the "workflows" edge to the Workflow entity by IDs.
 func (_c *SIPCreate) AddWorkflowIDs(ids ...int) *SIPCreate {
 	_c.mutation.AddWorkflowIDs(ids...)
@@ -342,6 +370,14 @@ func (_c *SIPCreate) createSpec() (*SIP, *sqlgraph.CreateSpec) {
 	if value, ok := _c.mutation.FileCount(); ok {
 		_spec.SetField(sip.FieldFileCount, field.TypeInt32, value)
 		_node.FileCount = value
+	}
+	if value, ok := _c.mutation.ChecksumAlgorithm(); ok {
+		_spec.SetField(sip.FieldChecksumAlgorithm, field.TypeString, value)
+		_node.ChecksumAlgorithm = value
+	}
+	if value, ok := _c.mutation.ChecksumHash(); ok {
+		_spec.SetField(sip.FieldChecksumHash, field.TypeString, value)
+		_node.ChecksumHash = value
 	}
 	if nodes := _c.mutation.WorkflowsIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
@@ -619,6 +655,42 @@ func (u *SIPUpsert) ClearFileCount() *SIPUpsert {
 	return u
 }
 
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (u *SIPUpsert) SetChecksumAlgorithm(v string) *SIPUpsert {
+	u.Set(sip.FieldChecksumAlgorithm, v)
+	return u
+}
+
+// UpdateChecksumAlgorithm sets the "checksum_algorithm" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateChecksumAlgorithm() *SIPUpsert {
+	u.SetExcluded(sip.FieldChecksumAlgorithm)
+	return u
+}
+
+// ClearChecksumAlgorithm clears the value of the "checksum_algorithm" field.
+func (u *SIPUpsert) ClearChecksumAlgorithm() *SIPUpsert {
+	u.SetNull(sip.FieldChecksumAlgorithm)
+	return u
+}
+
+// SetChecksumHash sets the "checksum_hash" field.
+func (u *SIPUpsert) SetChecksumHash(v string) *SIPUpsert {
+	u.Set(sip.FieldChecksumHash, v)
+	return u
+}
+
+// UpdateChecksumHash sets the "checksum_hash" field to the value that was provided on create.
+func (u *SIPUpsert) UpdateChecksumHash() *SIPUpsert {
+	u.SetExcluded(sip.FieldChecksumHash)
+	return u
+}
+
+// ClearChecksumHash clears the value of the "checksum_hash" field.
+func (u *SIPUpsert) ClearChecksumHash() *SIPUpsert {
+	u.SetNull(sip.FieldChecksumHash)
+	return u
+}
+
 // UpdateNewValues updates the mutable fields using the new values that were set on create.
 // Using this option is equivalent to using:
 //
@@ -867,6 +939,48 @@ func (u *SIPUpsertOne) UpdateFileCount() *SIPUpsertOne {
 func (u *SIPUpsertOne) ClearFileCount() *SIPUpsertOne {
 	return u.Update(func(s *SIPUpsert) {
 		s.ClearFileCount()
+	})
+}
+
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (u *SIPUpsertOne) SetChecksumAlgorithm(v string) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetChecksumAlgorithm(v)
+	})
+}
+
+// UpdateChecksumAlgorithm sets the "checksum_algorithm" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateChecksumAlgorithm() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateChecksumAlgorithm()
+	})
+}
+
+// ClearChecksumAlgorithm clears the value of the "checksum_algorithm" field.
+func (u *SIPUpsertOne) ClearChecksumAlgorithm() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearChecksumAlgorithm()
+	})
+}
+
+// SetChecksumHash sets the "checksum_hash" field.
+func (u *SIPUpsertOne) SetChecksumHash(v string) *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetChecksumHash(v)
+	})
+}
+
+// UpdateChecksumHash sets the "checksum_hash" field to the value that was provided on create.
+func (u *SIPUpsertOne) UpdateChecksumHash() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateChecksumHash()
+	})
+}
+
+// ClearChecksumHash clears the value of the "checksum_hash" field.
+func (u *SIPUpsertOne) ClearChecksumHash() *SIPUpsertOne {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearChecksumHash()
 	})
 }
 
@@ -1284,6 +1398,48 @@ func (u *SIPUpsertBulk) UpdateFileCount() *SIPUpsertBulk {
 func (u *SIPUpsertBulk) ClearFileCount() *SIPUpsertBulk {
 	return u.Update(func(s *SIPUpsert) {
 		s.ClearFileCount()
+	})
+}
+
+// SetChecksumAlgorithm sets the "checksum_algorithm" field.
+func (u *SIPUpsertBulk) SetChecksumAlgorithm(v string) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetChecksumAlgorithm(v)
+	})
+}
+
+// UpdateChecksumAlgorithm sets the "checksum_algorithm" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateChecksumAlgorithm() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateChecksumAlgorithm()
+	})
+}
+
+// ClearChecksumAlgorithm clears the value of the "checksum_algorithm" field.
+func (u *SIPUpsertBulk) ClearChecksumAlgorithm() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearChecksumAlgorithm()
+	})
+}
+
+// SetChecksumHash sets the "checksum_hash" field.
+func (u *SIPUpsertBulk) SetChecksumHash(v string) *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.SetChecksumHash(v)
+	})
+}
+
+// UpdateChecksumHash sets the "checksum_hash" field to the value that was provided on create.
+func (u *SIPUpsertBulk) UpdateChecksumHash() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.UpdateChecksumHash()
+	})
+}
+
+// ClearChecksumHash clears the value of the "checksum_hash" field.
+func (u *SIPUpsertBulk) ClearChecksumHash() *SIPUpsertBulk {
+	return u.Update(func(s *SIPUpsert) {
+		s.ClearChecksumHash()
 	})
 }
 
