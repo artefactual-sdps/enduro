@@ -51,6 +51,13 @@ func TestBundleActivity(t *testing.T) {
 				IsDir:       true,
 			},
 			wantFs: fs.Expected(t, fs.WithMode(activities.ModeDir),
+				fs.WithDir("metadata", fs.WithMode(activities.ModeDir),
+					fs.WithFile(
+						"checksum.sha256",
+						"4450c8a88130a3b397bfc659245c4f0f87a8c79d017a60bdb1bd32f4b51c8133  small.txt\n",
+						fs.WithMode(activities.ModeFile),
+					),
+				),
 				fs.WithFile("small.txt", "I am a small file.\n", fs.WithMode(activities.ModeFile)),
 			),
 		},
