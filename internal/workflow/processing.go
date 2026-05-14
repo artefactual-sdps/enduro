@@ -411,6 +411,20 @@ func (w *ProcessingWorkflow) SessionHandler(
 		}
 	}
 
+	// Calculate the SIP checksum.
+	if !state.sip.isDir {
+		opts := withActivityOptsForLocalAction(sessCtx)
+		var result activities.CalcFileChecksumActivityResult
+		err := temporalsdk_workflow.ExecuteActivity(
+			opts,
+			activities.CalcFileChecksumActivityName,
+			&activities.CalcFileChecksumActivityParams{Path: state.sip.path},
+		).Get(opts, &result)
+		if err != nil {
+			return fmt.Errorf("calculate SIP checksum: %v", err)
+		}
+	}
+
 	// Extract the transfer if it's not a directory and a preprocessing child
 	// workflow is not doing the extraction.
 	cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePreprocessing)
