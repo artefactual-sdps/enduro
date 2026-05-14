@@ -15,16 +15,18 @@ import (
 func convertSIP(sip *db.SIP) *datatypes.SIP {
 	// Convert required fields.
 	s := datatypes.SIP{
-		ID:          sip.ID,
-		UUID:        sip.UUID,
-		Name:        sip.Name,
-		Status:      sip.Status,
-		CreatedAt:   sip.CreatedAt,
-		StartedAt:   normalizeTime(sip.StartedAt),
-		CompletedAt: normalizeTime(sip.CompletedAt),
-		FailedAs:    sip.FailedAs,
-		FailedKey:   sip.FailedKey,
-		FileCount:   sip.FileCount,
+		ID:            sip.ID,
+		UUID:          sip.UUID,
+		Name:          sip.Name,
+		Status:        sip.Status,
+		CreatedAt:     sip.CreatedAt,
+		StartedAt:     normalizeTime(sip.StartedAt),
+		CompletedAt:   normalizeTime(sip.CompletedAt),
+		FailedAs:      sip.FailedAs,
+		FailedKey:     sip.FailedKey,
+		FileCount:     sip.FileCount,
+		ChecksumAlgo:  sip.ChecksumAlgorithm,
+		ChecksumValue: sip.ChecksumValue,
 	}
 
 	// Convert optional fields.

@@ -55,6 +55,12 @@ func (c *client) CreateSIP(ctx context.Context, s *datatypes.SIP) error {
 	if s.FileCount > 0 {
 		q.SetFileCount(s.FileCount)
 	}
+	if s.ChecksumAlgo != "" {
+		q.SetChecksumAlgorithm(s.ChecksumAlgo)
+	}
+	if s.ChecksumValue != "" {
+		q.SetChecksumValue(s.ChecksumValue)
+	}
 
 	// If Uploader is set, find or create the user and link it to the SIP.
 	if s.Uploader != nil {
@@ -167,6 +173,12 @@ func (c *client) UpdateSIP(
 	}
 	if up.FileCount > 0 {
 		q.SetFileCount(up.FileCount)
+	}
+	if up.ChecksumAlgo != "" {
+		q.SetChecksumAlgorithm(up.ChecksumAlgo)
+	}
+	if up.ChecksumValue != "" {
+		q.SetChecksumValue(up.ChecksumValue)
 	}
 
 	// Save changes.

@@ -41,6 +41,14 @@ type SIP struct {
 
 	// FileCount is the number of files in the SIP.
 	FileCount int32
+
+	// ChecksumAlgo is the algorithm used to calculate the checksum of the
+	// SIP.
+	ChecksumAlgo string
+
+	// ChecksumValue is the checksum of an archived SIP (e.g. zip file) before
+	// it is extracted for processing.
+	ChecksumValue string
 }
 
 // Goa returns the API representation of the SIP.

@@ -39,24 +39,28 @@ func TestCreateSIP(t *testing.T) {
 		{
 			name: "Creates a new SIP in the DB",
 			sip: &datatypes.SIP{
-				UUID:        sipUUID,
-				Name:        "Test SIP 1",
-				AIPID:       aipID,
-				Status:      enums.SIPStatusProcessing,
-				StartedAt:   started,
-				CompletedAt: completed,
-				FileCount:   8,
+				UUID:          sipUUID,
+				Name:          "Test SIP 1",
+				AIPID:         aipID,
+				Status:        enums.SIPStatusProcessing,
+				StartedAt:     started,
+				CompletedAt:   completed,
+				FileCount:     8,
+				ChecksumAlgo:  "SHA-256",
+				ChecksumValue: "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 			},
 			want: &datatypes.SIP{
-				ID:          1,
-				UUID:        sipUUID,
-				Name:        "Test SIP 1",
-				AIPID:       aipID,
-				Status:      enums.SIPStatusProcessing,
-				CreatedAt:   time.Now(),
-				StartedAt:   started,
-				CompletedAt: completed,
-				FileCount:   8,
+				ID:            1,
+				UUID:          sipUUID,
+				Name:          "Test SIP 1",
+				AIPID:         aipID,
+				Status:        enums.SIPStatusProcessing,
+				CreatedAt:     time.Now(),
+				StartedAt:     started,
+				CompletedAt:   completed,
+				FileCount:     8,
+				ChecksumAlgo:  "SHA-256",
+				ChecksumValue: "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 			},
 		},
 		{
@@ -282,6 +286,8 @@ func TestUpdateSIP(t *testing.T) {
 					s.FailedKey = "failed-key"
 					s.Uploader = &datatypes.User{UUID: uuid.New()} // No-op, can't update Uploader.
 					s.FileCount = 8
+					s.ChecksumAlgo = "SHA-256"
+					s.ChecksumValue = "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049"
 					return s, nil
 				},
 			},
@@ -312,7 +318,9 @@ func TestUpdateSIP(t *testing.T) {
 					SIPSCount:  5,
 					CreatedAt:  time.Now(),
 				},
-				FileCount: 8,
+				FileCount:     8,
+				ChecksumAlgo:  "SHA-256",
+				ChecksumValue: "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 			},
 		},
 		{
@@ -320,12 +328,14 @@ func TestUpdateSIP(t *testing.T) {
 			args: params{
 				sipUUID: sipUUID,
 				sip: &datatypes.SIP{
-					UUID:      sipUUID,
-					Name:      "Test SIP",
-					AIPID:     aipID,
-					Status:    enums.SIPStatusProcessing,
-					StartedAt: started,
-					FileCount: 0,
+					UUID:          sipUUID,
+					Name:          "Test SIP",
+					AIPID:         aipID,
+					Status:        enums.SIPStatusProcessing,
+					StartedAt:     started,
+					FileCount:     0,
+					ChecksumAlgo:  "SHA-256",
+					ChecksumValue: "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 				},
 				updater: func(s *datatypes.SIP) (*datatypes.SIP, error) {
 					// Immutable.
@@ -340,15 +350,17 @@ func TestUpdateSIP(t *testing.T) {
 				},
 			},
 			want: &datatypes.SIP{
-				ID:          1,
-				UUID:        sipUUID,
-				Name:        "Test SIP",
-				AIPID:       aipID,
-				Status:      enums.SIPStatusIngested,
-				CreatedAt:   time.Now(),
-				StartedAt:   started,
-				CompletedAt: completed,
-				FileCount:   8,
+				ID:            1,
+				UUID:          sipUUID,
+				Name:          "Test SIP",
+				AIPID:         aipID,
+				Status:        enums.SIPStatusIngested,
+				CreatedAt:     time.Now(),
+				StartedAt:     started,
+				CompletedAt:   completed,
+				FileCount:     8,
+				ChecksumAlgo:  "SHA-256",
+				ChecksumValue: "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 			},
 		},
 		{
@@ -532,7 +544,9 @@ func TestReadSIP(t *testing.T) {
 					SIPSCount:  5,
 					CreatedAt:  time.Now(),
 				},
-				FileCount: 8,
+				FileCount:     8,
+				ChecksumAlgo:  "SHA-256",
+				ChecksumValue: "73475cb40a568e8da8a045ced110137e159f890ac4da883b6b17dc651b3a8049",
 			},
 		},
 		{
@@ -569,6 +583,8 @@ func TestReadSIP(t *testing.T) {
 					SetUploader(user).
 					SetBatchID(tt.want.Batch.ID).
 					SetFileCount(8).
+					SetChecksumAlgorithm(tt.want.ChecksumAlgo).
+					SetChecksumValue(tt.want.ChecksumValue).
 					Save(ctx)
 				assert.NilError(t, err)
 			}
