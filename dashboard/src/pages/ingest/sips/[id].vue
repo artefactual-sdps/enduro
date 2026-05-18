@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAsyncState } from "@vueuse/core";
+import { onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import IconDetails from "~icons/clarity/details-line?font-size=20px";
@@ -42,6 +43,10 @@ const tabs = [
     show: authStore.checkAttributes(["ingest:sips:read"]),
   },
 ];
+
+onUnmounted(() => {
+  sipStore.$reset();
+});
 </script>
 
 <template>

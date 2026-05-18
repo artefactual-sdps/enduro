@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useAsyncState } from "@vueuse/core";
 import Tooltip from "bootstrap/js/dist/tooltip";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onMounted, onUnmounted, ref, watch } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import type { LocationQueryValue } from "vue-router";
 
@@ -272,6 +272,10 @@ const statuses = [
       "The AIP is about to be part of an active workflow and is awaiting processing.",
   },
 ];
+
+onUnmounted(() => {
+  aipStore.$reset();
+});
 </script>
 
 <template>
