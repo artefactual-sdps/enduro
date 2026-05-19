@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { onUnmounted } from "vue";
 import { openDialog } from "vue3-promise-dialog";
 
 import LocationDialog from "@/components/LocationDialog.vue";
@@ -25,6 +26,10 @@ const confirm = async () => {
   if (!locationId) return;
   sipStore.confirm(locationId);
 };
+
+onUnmounted(() => {
+  aipStore.$reset();
+});
 </script>
 
 <template>

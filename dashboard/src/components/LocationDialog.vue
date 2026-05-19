@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Modal from "bootstrap/js/dist/modal";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { closeDialog } from "vue3-promise-dialog";
 
 import useEventListener from "@/composables/useEventListener";
@@ -35,6 +35,10 @@ const onChoose = (locationId: string) => {
   data = locationId;
   modal.value?.hide();
 };
+
+onUnmounted(() => {
+  locationStore.$reset();
+});
 </script>
 
 <template>

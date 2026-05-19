@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useAsyncState } from "@vueuse/core";
+import { onUnmounted } from "vue";
 
 import IconLocations from "~icons/octicon/server-24";
 
@@ -17,6 +18,10 @@ const locationStore = useLocationStore();
 const { execute, error } = useAsyncState(() => {
   return locationStore.fetchLocations();
 }, null);
+
+onUnmounted(() => {
+  locationStore.$reset();
+});
 </script>
 
 <template>
