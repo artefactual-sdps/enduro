@@ -41,7 +41,7 @@ describe("AipLocationCard.vue", () => {
         </div></span></p>
         <div data-v-09f60ec4="">
           <transition-stub data-v-09f60ec4="" mode="out-in" appear="false" persisted="false" css="true">
-            <div data-v-09f60ec4="" class="d-flex flex-wrap gap-2"><button data-v-09f60ec4="" type="button" class="btn btn-primary btn-sm"> Download </button>
+            <div data-v-09f60ec4="" class="d-flex flex-wrap gap-2"><button data-v-09f60ec4="" type="button" class="btn btn-primary btn-sm">Download</button>
               <!--v-if--><button data-v-09f60ec4="" type="button" class="btn btn-primary btn-sm"> Delete </button>
             </div>
           </transition-stub>
@@ -274,6 +274,32 @@ describe("AipLocationCard.vue", () => {
     });
 
     getByRole("button", { name: "Download" });
+  });
+
+  it("disables the download button and shows a spinner while downloading", async () => {
+    const { getByRole, getByText } = render(AipLocationCard, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: {
+              aip: {
+                current: {
+                  status: api.EnduroStorageAipStatusEnum.Stored,
+                  locationUuid: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+                } as api.EnduroStorageAip,
+                downloading: true,
+              },
+            },
+          }),
+        ],
+      },
+    });
+
+    const button = getByRole("button", { name: /Downloading/ });
+    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(button.querySelector(".spinner-grow")).not.toBeNull();
+    getByText("Downloading...");
   });
 
   it("hides the download button", async () => {

@@ -67,9 +67,18 @@ const requestDeletion = async () => {
               "
               type="button"
               class="btn btn-primary btn-sm"
+              :disabled="aipStore.downloading"
               @click="aipStore.download()"
             >
-              Download
+              <template v-if="aipStore.downloading">
+                <span
+                  class="spinner-grow spinner-grow-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                />
+                Downloading...
+              </template>
+              <template v-else>Download</template>
             </button>
             <button
               v-if="

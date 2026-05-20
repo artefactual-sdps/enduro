@@ -1,7 +1,7 @@
 import { createPinia, setActivePinia } from "pinia";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { api, client } from "@/client";
+import { api, client, getPath } from "@/client";
 import { ResponseError } from "@/openapi-generator";
 import { useAipStore } from "@/stores/aip";
 import { useLayoutStore } from "@/stores/layout";
@@ -435,5 +435,159 @@ describe("canCancelDeletion", () => {
       "Internal Server Error",
     );
     expect(res).toBe(false);
+  });
+});
+
+describe("download", () => {
+  let originalOpen: typeof window.open;
+
+  beforeEach(() => {
+    originalOpen = window.open;
+    window.open = vi.fn();
+  });
+
+  afterEach(() => {
+    window.open = originalOpen;
+  });
+
+  it("does nothing if current is null", async () => {
+    const store = useAipStore();
+    store.$patch({ current: null });
+
+    await store.download();
+
+    expect(window.open).not.toHaveBeenCalled();
+    expect(store.downloading).toBe(false);
+  });
+
+  it("downloads in a new window", async () => {
+    const store = useAipStore();
+    store.$patch({
+      current: {
+        createdAt: new Date(),
+        uuid: "00000000-0000-0000-0000-000000000000",
+        status: api.EnduroStorageAipStatusEnum.Stored,
+      },
+    });
+    client.storage.storageDownloadAipRequest = vi.fn().mockResolvedValue({});
+
+    await store.download();
+
+    expect(window.open).toHaveBeenCalledWith(
+      getPath() + "/storage/aips/00000000-0000-0000-0000-000000000000/download",
+      "_blank",
+    );
+    expect(store.downloadError).toBeNull();
+    expect(store.downloading).toBe(false);
+  });
+
+  it("sets downloading state while download is in progress", async () => {
+    const store = useAipStore();
+    store.$patch({
+      current: {
+        createdAt: new Date(),
+        uuid: "00000000-0000-0000-0000-000000000000",
+        status: api.EnduroStorageAipStatusEnum.Stored,
+      },
+    });
+
+    let resolveDownload: () => void;
+    client.storage.storageDownloadAipRequest = vi.fn().mockReturnValue(
+      new Promise<void>((resolve) => {
+        resolveDownload = resolve;
+      }),
+    );
+
+    const downloadPromise = store.download();
+
+    expect(store.downloading).toBe(true);
+    expect(window.open).not.toHaveBeenCalled();
+
+    // Resolve the download request to allow the method to complete.
+    resolveDownload!();
+    await downloadPromise;
+
+    expect(store.downloading).toBe(false);
+    expect(window.open).toHaveBeenCalledWith(
+      getPath() + "/storage/aips/00000000-0000-0000-0000-000000000000/download",
+      "_blank",
+    );
+  });
+
+  it("sets downloadError from response body when request fails", async () => {
+    const store = useAipStore();
+    store.$patch({
+      current: {
+        createdAt: new Date(),
+        uuid: "00000000-0000-0000-0000-000000000000",
+        status: api.EnduroStorageAipStatusEnum.Stored,
+      },
+    });
+    const errorMsg = "an error occurred";
+    client.storage.storageDownloadAipRequest = vi
+      .fn()
+      .mockRejectedValue(
+        new ResponseError(
+          new Response(JSON.stringify({ message: errorMsg })),
+          "API error",
+        ),
+      );
+
+    await store.download();
+
+    expect(window.open).not.toHaveBeenCalled();
+    expect(store.downloadError).toBe(errorMsg);
+    expect(store.downloading).toBe(false);
+
+    // Error message should be cleared after 5 seconds.
+    vi.advanceTimersByTime(5000);
+    expect(store.downloadError).toBeNull();
+  });
+
+  it("sets a generic downloadError when ResponseError has no message", async () => {
+    const store = useAipStore();
+    store.$patch({
+      current: {
+        createdAt: new Date(),
+        uuid: "00000000-0000-0000-0000-000000000000",
+        status: api.EnduroStorageAipStatusEnum.Stored,
+      },
+    });
+    client.storage.storageDownloadAipRequest = vi
+      .fn()
+      .mockRejectedValue(
+        new ResponseError(new Response(JSON.stringify({})), "API error"),
+      );
+
+    await store.download();
+
+    expect(store.downloadError).toBe("Unexpected error downloading AIP");
+    expect(store.downloading).toBe(false);
+
+    vi.advanceTimersByTime(5000);
+    expect(store.downloadError).toBeNull();
+  });
+
+  it("sets a generic downloadError for unexpected (non-ResponseError) errors", async () => {
+    const store = useAipStore();
+    store.$patch({
+      current: {
+        createdAt: new Date(),
+        uuid: "00000000-0000-0000-0000-000000000000",
+        status: api.EnduroStorageAipStatusEnum.Stored,
+      },
+    });
+    client.storage.storageDownloadAipRequest = vi
+      .fn()
+      .mockRejectedValue(new Error("network failure"));
+
+    await store.download();
+
+    expect(window.open).not.toHaveBeenCalled();
+    expect(store.downloadError).toBe("Unexpected error downloading AIP");
+    expect(store.downloading).toBe(false);
+
+    vi.advanceTimersByTime(5000);
+    expect(store.downloadError).toBeNull();
   });
 });

@@ -33,6 +33,7 @@ export const useAipStore = defineStore("aip", {
       earliestCreatedTime: undefined as Date | undefined,
       latestCreatedTime: undefined as Date | undefined,
     },
+    downloading: false,
     downloadError: null as string | null,
   }),
   getters: {
@@ -262,6 +263,7 @@ export const useAipStore = defineStore("aip", {
     },
     async download() {
       if (!this.current) return;
+      this.downloading = true;
       try {
         await client.storage.storageDownloadAipRequest({
           uuid: this.current.uuid,
@@ -283,6 +285,8 @@ export const useAipStore = defineStore("aip", {
         }
         this.downloadError = errorMsg;
         setTimeout(() => (this.downloadError = null), 5000);
+      } finally {
+        this.downloading = false;
       }
     },
     async fetchAipsDebounced(page: number) {
