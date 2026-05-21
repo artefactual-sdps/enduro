@@ -11,8 +11,9 @@ type PostbatchParams struct {
 }
 
 type PostbatchBatch struct {
-	UUID      uuid.UUID
-	SIPSCount int
+	UUID       uuid.UUID
+	Identifier string
+	SIPSCount  int
 }
 
 type PostbatchSIP struct {
