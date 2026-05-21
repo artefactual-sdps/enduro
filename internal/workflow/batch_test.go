@@ -278,8 +278,9 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 		internalCtx,
 		&childwf.PostbatchParams{
 			Batch: &childwf.PostbatchBatch{
-				UUID:      batchUUID,
-				SIPSCount: 2,
+				UUID:       batchUUID,
+				Identifier: batchIdentifier,
+				SIPSCount:  2,
 			},
 			SIPs: []*childwf.PostbatchSIP{
 				{

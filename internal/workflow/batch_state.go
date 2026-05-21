@@ -58,8 +58,9 @@ func newBatchWorkflowState(ctx temporalsdk_workflow.Context, req *ingest.BatchWo
 func (s *batchWorkflowState) PostbatchParams() *childwf.PostbatchParams {
 	return &childwf.PostbatchParams{
 		Batch: &childwf.PostbatchBatch{
-			UUID:      s.batch.UUID,
-			SIPSCount: s.batch.SIPSCount,
+			UUID:       s.batch.UUID,
+			Identifier: s.batch.Identifier,
+			SIPSCount:  s.batch.SIPSCount,
 		},
 		SIPs: s.postbatchSIPs(),
 	}
