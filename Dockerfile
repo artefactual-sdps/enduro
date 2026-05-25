@@ -63,25 +63,27 @@ RUN apt-get update && apt-get install -y --no-install-recommends libxml2-utils
 RUN groupadd --gid 1000 enduro \
 	&& useradd --uid 1000 --gid 1000 -m enduro
 USER enduro
+COPY --link --chown=1000:1000 hack/xsd/premis.xsd /home/enduro/premis.xsd
+RUN ["mkdir", "-m", "700", "-p", \
+    "/home/enduro/logs", \
+    "/home/enduro/internal-storage/ingest", \
+    "/home/enduro/internal-storage/storage", \
+    "/home/enduro/internal-storage/sip-source"]
 
 FROM base AS enduro
 COPY --link --chown=1000:1000 --from=build-enduro /out/enduro /home/enduro/bin/enduro
 COPY --link --chown=1000:1000 --from=build-enduro /src/enduro.toml /home/enduro/.config/enduro.toml
 COPY --link --chown=1000:1000 assets/Enduro_AIP_deletion_report_v3.tmpl.pdf /home/enduro/Enduro_AIP_deletion_report_v3.tmpl.pdf
-COPY --link --chown=1000:1000 hack/xsd/premis.xsd /home/enduro/premis.xsd
-RUN ["mkdir", "-m", "700", "-p", "/home/enduro/logs"]
 CMD ["/home/enduro/bin/enduro", "--config", "/home/enduro/.config/enduro.toml"]
 
 FROM base AS enduro-a3m-worker
-COPY --link --from=build-enduro-a3m-worker /out/enduro-a3m-worker /home/enduro/bin/enduro-a3m-worker
-COPY --link --from=build-enduro-a3m-worker /src/enduro.toml /home/enduro/.config/enduro.toml
-COPY --link hack/xsd/premis.xsd /home/enduro/premis.xsd
+COPY --link --chown=1000:1000 --from=build-enduro-a3m-worker /out/enduro-a3m-worker /home/enduro/bin/enduro-a3m-worker
+COPY --link --chown=1000:1000 --from=build-enduro-a3m-worker /src/enduro.toml /home/enduro/.config/enduro.toml
 CMD ["/home/enduro/bin/enduro-a3m-worker", "--config", "/home/enduro/.config/enduro.toml"]
 
 FROM base AS enduro-am-worker
-COPY --link --from=build-enduro-am-worker /out/enduro-am-worker /home/enduro/bin/enduro-am-worker
-COPY --link --from=build-enduro-am-worker /src/enduro.toml /home/enduro/.config/enduro.toml
-COPY --link hack/xsd/premis.xsd /home/enduro/premis.xsd
+COPY --link --chown=1000:1000 --from=build-enduro-am-worker /out/enduro-am-worker /home/enduro/bin/enduro-am-worker
+COPY --link --chown=1000:1000 --from=build-enduro-am-worker /src/enduro.toml /home/enduro/.config/enduro.toml
 CMD ["/home/enduro/bin/enduro-am-worker", "--config", "/home/enduro/.config/enduro.toml"]
 
 FROM ${TARGET}

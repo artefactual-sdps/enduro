@@ -1,0 +1,12 @@
+# The default filesystem-backed internal storage assumes all Enduro
+# pods using this PVC are scheduled on the same Kubernetes node.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: enduro-internal-storage
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi

@@ -18,6 +18,18 @@ spec:
       securityContext:
         fsGroup: 1000
       initContainers:
+        - name: init-internal-storage
+          image: busybox:1.37.0
+          imagePullPolicy: IfNotPresent
+          command:
+            [
+              "sh",
+              "-c",
+              "mkdir -p /home/enduro/internal-storage/ingest /home/enduro/internal-storage/storage /home/enduro/internal-storage/sip-source && chown -R 1000:1000 /home/enduro/internal-storage",
+            ]
+          volumeMounts:
+            - name: enduro-internal-storage
+              mountPath: /home/enduro/internal-storage
         - name: check-temporal
           image: busybox:1.37.0
           imagePullPolicy: IfNotPresent
@@ -82,6 +94,8 @@ spec:
             - name: enduro-config
               mountPath: /home/enduro/enduro-config
               readOnly: true
+            - name: enduro-internal-storage
+              mountPath: /home/enduro/internal-storage
             - name: enduro-a3m
               mountPath: /home/a3m/.local/share/a3m/share
         - name: a3m
@@ -99,6 +113,9 @@ spec:
         - name: enduro-config
           secret:
             secretName: enduro-config
+        - name: enduro-internal-storage
+          persistentVolumeClaim:
+            claimName: enduro-internal-storage
   volumeClaimTemplates:
     - metadata:
         name: enduro-a3m
