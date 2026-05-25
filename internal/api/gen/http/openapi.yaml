@@ -12,9 +12,6 @@ produces:
 paths:
     /about:
         get:
-            tags:
-                - about
-            summary: about about
             description: Get information about the system
             operationId: about#about
             responses:
@@ -29,58 +26,61 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
+                - bearer_header_Authorization: []
+            summary: about about
+            tags:
+                - about
+            x-required-scopes: []
     /ingest/batches:
         get:
-            tags:
-                - ingest
-            summary: list_batches ingest
             description: |-
                 List all ingested Batches
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:batches:list`
             operationId: ingest#list_batches
             parameters:
-                - name: identifier
-                  in: query
+                - in: query
+                  name: identifier
                   required: false
                   type: string
-                - name: earliest_created_time
+                - format: date-time
                   in: query
+                  name: earliest_created_time
                   required: false
                   type: string
-                  format: date-time
-                - name: latest_created_time
+                - format: date-time
                   in: query
+                  name: latest_created_time
                   required: false
                   type: string
-                  format: date-time
-                - name: status
-                  in: query
-                  required: false
-                  type: string
-                  enum:
+                - enum:
                     - queued
                     - processing
                     - pending
                     - ingested
                     - canceled
                     - failed
-                - name: uploader_uuid
                   in: query
-                  description: UUID of the Batch uploader
+                  name: status
                   required: false
                   type: string
+                - description: UUID of the Batch uploader
                   format: uuid
-                - name: limit
                   in: query
-                  description: Limit number of results to return
+                  name: uploader_uuid
+                  required: false
+                  type: string
+                - description: Limit number of results to return
+                  format: int64
+                  in: query
+                  name: limit
                   required: false
                   type: integer
-                - name: offset
+                - description: Offset from the beginning of the found set
+                  format: int64
                   in: query
-                  description: Offset from the beginning of the found set
+                  name: offset
                   required: false
                   type: integer
             responses:
@@ -107,20 +107,22 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-        post:
+                - bearer_header_Authorization: []
+            summary: list_batches ingest
             tags:
                 - ingest
-            summary: add_batch ingest
+            x-required-scopes:
+                - ingest:batches:list
+        post:
             description: |-
                 Ingest a Batch from a SIP Source
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:batches:create`
             operationId: ingest#add_batch
             parameters:
-                - name: add_batch_request_body
-                  in: body
+                - in: body
+                  name: add_batch_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/IngestAddBatchRequestBody'
@@ -153,25 +155,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/batches/{uuid}:
-        get:
+                - bearer_header_Authorization: []
+            summary: add_batch ingest
             tags:
                 - ingest
-            summary: show_batch ingest
+            x-required-scopes:
+                - ingest:batches:create
+    /ingest/batches/{uuid}:
+        get:
             description: |-
                 Show Batch by UUID
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:batches:read`
             operationId: ingest#show_batch
             parameters:
-                - name: uuid
+                - description: Identifier of Batch to show
+                  format: uuid
                   in: path
-                  description: Identifier of Batch to show
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -203,27 +207,29 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/batches/{uuid}/review:
-        post:
+                - bearer_header_Authorization: []
+            summary: show_batch ingest
             tags:
                 - ingest
-            summary: review_batch ingest
+            x-required-scopes:
+                - ingest:batches:read
+    /ingest/batches/{uuid}/review:
+        post:
             description: |-
                 Review a Batch awaiting user decision
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:batches:review`
             operationId: ingest#review_batch
             parameters:
-                - name: uuid
+                - description: Identifier of Batch to review
+                  format: uuid
                   in: path
-                  description: Identifier of Batch to review
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
-                - name: review_batch_request_body
-                  in: body
+                - in: body
+                  name: review_batch_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/IngestReviewBatchRequestBody'
@@ -258,7 +264,12 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
+                - bearer_header_Authorization: []
+            summary: review_batch ingest
+            tags:
+                - ingest
+            x-required-scopes:
+                - ingest:batches:review
     /ingest/monitor:
         get:
             tags:
@@ -285,10 +296,8 @@ paths:
                         $ref: '#/definitions/IngestMonitorInternalErrorResponseBody'
             schemes:
                 - ws
+            security: []
         post:
-            tags:
-                - ingest
-            summary: monitor_request ingest
             description: Request access to the /monitor WebSocket
             operationId: ingest#monitor_request
             responses:
@@ -309,35 +318,37 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/sip-sources/{uuid}/objects:
-        get:
+                - bearer_header_Authorization: []
+            summary: monitor_request ingest
             tags:
                 - ingest
-            summary: list_sip_source_objects ingest
+            x-required-scopes: []
+    /ingest/sip-sources/{uuid}/objects:
+        get:
             description: |-
                 List the objects in a SIP source
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sipsources:objects:list`
             operationId: ingest#list_sip_source_objects
             parameters:
-                - name: limit
+                - description: Limit the number of results to return
+                  format: int64
                   in: query
-                  description: Limit the number of results to return
+                  name: limit
                   required: false
                   type: integer
-                - name: cursor
+                - description: Cursor token to get subsequent pages
                   in: query
-                  description: Cursor token to get subsequent pages
+                  name: cursor
                   required: false
                   type: string
-                - name: uuid
+                - description: SIP source identifier -- CURRENTLY NOT USED
+                  format: uuid
                   in: path
-                  description: SIP source identifier -- CURRENTLY NOT USED
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -366,44 +377,42 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/sips:
-        get:
+                - bearer_header_Authorization: []
+            summary: list_sip_source_objects ingest
             tags:
                 - ingest
-            summary: list_sips ingest
+            x-required-scopes:
+                - ingest:sipsources:objects:list
+    /ingest/sips:
+        get:
             description: |-
                 List all ingested SIPs
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sips:list`
             operationId: ingest#list_sips
             parameters:
-                - name: name
-                  in: query
+                - in: query
+                  name: name
                   required: false
                   type: string
-                - name: aip_uuid
-                  in: query
-                  description: Identifier of AIP
-                  required: false
-                  type: string
+                - description: Identifier of AIP
                   format: uuid
-                - name: earliest_created_time
                   in: query
+                  name: aip_uuid
                   required: false
                   type: string
-                  format: date-time
-                - name: latest_created_time
+                - format: date-time
                   in: query
+                  name: earliest_created_time
                   required: false
                   type: string
-                  format: date-time
-                - name: status
+                - format: date-time
                   in: query
+                  name: latest_created_time
                   required: false
                   type: string
-                  enum:
+                - enum:
                     - error
                     - failed
                     - queued
@@ -412,26 +421,32 @@ paths:
                     - ingested
                     - validated
                     - canceled
-                - name: uploader_uuid
                   in: query
-                  description: UUID of the SIP uploader
+                  name: status
                   required: false
                   type: string
+                - description: UUID of the SIP uploader
                   format: uuid
-                - name: batch_uuid
                   in: query
-                  description: UUID of the related Batch
+                  name: uploader_uuid
                   required: false
                   type: string
+                - description: UUID of the related Batch
                   format: uuid
-                - name: limit
                   in: query
-                  description: Limit number of results to return
+                  name: batch_uuid
+                  required: false
+                  type: string
+                - description: Limit number of results to return
+                  format: int64
+                  in: query
+                  name: limit
                   required: false
                   type: integer
-                - name: offset
+                - description: Offset from the beginning of the found set
+                  format: int64
                   in: query
-                  description: Offset from the beginning of the found set
+                  name: offset
                   required: false
                   type: integer
             responses:
@@ -454,27 +469,29 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-        post:
+                - bearer_header_Authorization: []
+            summary: list_sips ingest
             tags:
                 - ingest
-            summary: add_sip ingest
+            x-required-scopes:
+                - ingest:sips:list
+        post:
             description: |-
                 Ingest a SIP from a SIP Source
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sips:create`
             operationId: ingest#add_sip
             parameters:
-                - name: source_id
+                - description: Identifier of SIP source -- CURRENTLY NOT USED
+                  format: uuid
                   in: query
-                  description: Identifier of SIP source -- CURRENTLY NOT USED
+                  name: source_id
                   required: true
                   type: string
-                  format: uuid
-                - name: key
+                - description: Key of the item to ingest
                   in: query
-                  description: Key of the item to ingest
+                  name: key
                   required: true
                   type: string
             responses:
@@ -503,25 +520,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/sips/{uuid}:
-        get:
+                - bearer_header_Authorization: []
+            summary: add_sip ingest
             tags:
                 - ingest
-            summary: show_sip ingest
+            x-required-scopes:
+                - ingest:sips:create
+    /ingest/sips/{uuid}:
+        get:
             description: |-
                 Show SIP by ID
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sips:read`
             operationId: ingest#show_sip
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to show
+                  format: uuid
                   in: path
-                  description: Identifier of SIP to show
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -549,27 +568,29 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/sips/{uuid}/confirm:
-        post:
+                - bearer_header_Authorization: []
+            summary: show_sip ingest
             tags:
                 - ingest
-            summary: confirm_sip ingest
+            x-required-scopes:
+                - ingest:sips:read
+    /ingest/sips/{uuid}/confirm:
+        post:
             description: |-
                 Signal the SIP has been reviewed and accepted
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sips:review`
             operationId: ingest#confirm_sip
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to look up
+                  format: uuid
                   in: path
-                  description: Identifier of SIP to look up
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
-                - name: confirm_sip_request_body
-                  in: body
+                - in: body
+                  name: confirm_sip_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/IngestConfirmSipRequestBody'
@@ -604,25 +625,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/sips/{uuid}/decision:
-        get:
+                - bearer_header_Authorization: []
+            summary: confirm_sip ingest
             tags:
                 - ingest
-            summary: show_sip_decision ingest
+            x-required-scopes:
+                - ingest:sips:review
+    /ingest/sips/{uuid}/decision:
+        get:
             description: |-
                 Show the active child workflow decision request for a SIP
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sips:decision`
             operationId: ingest#show_sip_decision
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to look up
+                  format: uuid
                   in: path
-                  description: Identifier of SIP to look up
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -658,26 +681,28 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-        post:
+                - bearer_header_Authorization: []
+            summary: show_sip_decision ingest
             tags:
                 - ingest
-            summary: submit_sip_decision ingest
+            x-required-scopes:
+                - ingest:sips:decision
+        post:
             description: |-
                 Submit a selected child workflow decision option for a SIP
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sips:decision`
             operationId: ingest#submit_sip_decision
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to look up
+                  format: uuid
                   in: path
-                  description: Identifier of SIP to look up
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
-                - name: submit_sip_decision_request_body
-                  in: body
+                - in: body
+                  name: submit_sip_decision_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/IngestSubmitSipDecisionRequestBody'
@@ -716,7 +741,12 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
+                - bearer_header_Authorization: []
+            summary: submit_sip_decision ingest
+            tags:
+                - ingest
+            x-required-scopes:
+                - ingest:sips:decision
     /ingest/sips/{uuid}/download:
         get:
             tags:
@@ -738,7 +768,8 @@ paths:
                         Content-Disposition:
                             type: string
                         Content-Length:
-                            type: int64
+                            type: integer
+                            format: int64
                         Content-Type:
                             type: string
                 "400":
@@ -766,23 +797,21 @@ paths:
                         $ref: '#/definitions/IngestDownloadSipInternalErrorResponseBody'
             schemes:
                 - http
+            security: []
         post:
-            tags:
-                - ingest
-            summary: download_sip_request ingest
             description: |-
                 Request access to SIP download
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sips:download`
             operationId: ingest#download_sip_request
             parameters:
-                - name: uuid
+                - description: Identifier of the SIP to download
+                  format: uuid
                   in: path
-                  description: Identifier of the SIP to download
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -812,25 +841,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/sips/{uuid}/reject:
-        post:
+                - bearer_header_Authorization: []
+            summary: download_sip_request ingest
             tags:
                 - ingest
-            summary: reject_sip ingest
+            x-required-scopes:
+                - ingest:sips:download
+    /ingest/sips/{uuid}/reject:
+        post:
             description: |-
                 Signal the SIP has been reviewed and rejected
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sips:review`
             operationId: ingest#reject_sip
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to look up
+                  format: uuid
                   in: path
-                  description: Identifier of SIP to look up
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "202":
                     description: Accepted response.
@@ -860,25 +891,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/sips/{uuid}/workflows:
-        get:
+                - bearer_header_Authorization: []
+            summary: reject_sip ingest
             tags:
                 - ingest
-            summary: list_sip_workflows ingest
+            x-required-scopes:
+                - ingest:sips:review
+    /ingest/sips/{uuid}/workflows:
+        get:
             description: |-
                 List all workflows for a SIP
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sips:workflows:list`
             operationId: ingest#list_sip_workflows
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to look up
+                  format: uuid
                   in: path
-                  description: Identifier of SIP to look up
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -902,26 +935,28 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/sips/upload:
-        post:
+                - bearer_header_Authorization: []
+            summary: list_sip_workflows ingest
             tags:
                 - ingest
-            summary: upload_sip ingest
+            x-required-scopes:
+                - ingest:sips:workflows:list
+    /ingest/sips/upload:
+        post:
             description: |-
                 Upload a SIP to trigger an ingest workflow
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:sips:upload`
             operationId: ingest#upload_sip
             parameters:
-                - name: Content-Type
-                  in: header
+                - default: multipart/form-data; boundary=goa
                   description: Content-Type header, must define value for multipart boundary.
+                  in: header
+                  name: Content-Type
+                  pattern: multipart/[^;]+; boundary=.+
                   required: false
                   type: string
-                  default: multipart/form-data; boundary=goa
-                  pattern: multipart/[^;]+; boundary=.+
             responses:
                 "202":
                     description: Accepted response.
@@ -948,37 +983,41 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /ingest/users:
-        get:
+                - bearer_header_Authorization: []
+            summary: upload_sip ingest
             tags:
                 - ingest
-            summary: list_users ingest
+            x-required-scopes:
+                - ingest:sips:upload
+    /ingest/users:
+        get:
             description: |-
                 List all users
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `ingest:users:list`
             operationId: ingest#list_users
             parameters:
-                - name: email
+                - description: Email of the user
                   in: query
-                  description: Email of the user
+                  name: email
                   required: false
                   type: string
-                - name: name
+                - description: Name of the user
                   in: query
-                  description: Name of the user
+                  name: name
                   required: false
                   type: string
-                - name: limit
+                - description: Limit number of results to return
+                  format: int64
                   in: query
-                  description: Limit number of results to return
+                  name: limit
                   required: false
                   type: integer
-                - name: offset
+                - description: Offset from the beginning of the found set
+                  format: int64
                   in: query
-                  description: Offset from the beginning of the found set
+                  name: offset
                   required: false
                   type: integer
             responses:
@@ -1001,53 +1040,57 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
+                - bearer_header_Authorization: []
+            summary: list_users ingest
+            tags:
+                - ingest
+            x-required-scopes:
+                - ingest:users:list
     /storage/aips:
         get:
-            tags:
-                - storage
-            summary: list_aips storage
             description: |-
                 List all AIPs
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:list`
             operationId: storage#list_aips
             parameters:
-                - name: query
+                - description: Search query to filter AIPs by name or UUID
                   in: query
-                  description: Search query to filter AIPs by name or UUID
+                  name: query
                   required: false
                   type: string
-                - name: earliest_created_time
+                - format: date-time
                   in: query
+                  name: earliest_created_time
                   required: false
                   type: string
-                  format: date-time
-                - name: latest_created_time
+                - format: date-time
                   in: query
+                  name: latest_created_time
                   required: false
                   type: string
-                  format: date-time
-                - name: status
-                  in: query
-                  required: false
-                  type: string
-                  enum:
+                - enum:
                     - unspecified
                     - stored
                     - pending
                     - processing
                     - deleted
                     - queued
-                - name: limit
                   in: query
-                  description: Limit number of results to return
+                  name: status
+                  required: false
+                  type: string
+                - description: Limit number of results to return
+                  format: int64
+                  in: query
+                  name: limit
                   required: false
                   type: integer
-                - name: offset
+                - description: Offset from the beginning of the found set
+                  format: int64
                   in: query
-                  description: Offset from the beginning of the found set
+                  name: offset
                   required: false
                   type: integer
             responses:
@@ -1074,20 +1117,22 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-        post:
+                - bearer_header_Authorization: []
+            summary: list_aips storage
             tags:
                 - storage
-            summary: create_aip storage
+            x-required-scopes:
+                - storage:aips:list
+        post:
             description: |-
                 Create a new AIP
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:create`
             operationId: storage#create_aip
             parameters:
-                - name: create_aip_request_body
-                  in: body
+                - in: body
+                  name: create_aip_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/StorageCreateAipRequestBody'
@@ -1115,25 +1160,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/aips/{uuid}:
-        get:
+                - bearer_header_Authorization: []
+            summary: create_aip storage
             tags:
                 - storage
-            summary: show_aip storage
+            x-required-scopes:
+                - storage:aips:create
+    /storage/aips/{uuid}:
+        get:
             description: |-
                 Show AIP by AIPID
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:read`
             operationId: storage#show_aip
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -1157,27 +1204,29 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/aips/{uuid}/deletion-auto:
-        post:
+                - bearer_header_Authorization: []
+            summary: show_aip storage
             tags:
                 - storage
-            summary: aip_deletion_auto storage
+            x-required-scopes:
+                - storage:aips:read
+    /storage/aips/{uuid}/deletion-auto:
+        post:
             description: |-
                 AIP deletion with auto-approval
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:deletion:auto`
             operationId: storage#aip_deletion_auto
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
-                - name: aip_deletion_auto_request_body
-                  in: body
+                - in: body
+                  name: aip_deletion_auto_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/StorageAipDeletionAutoRequestBody'
@@ -1212,27 +1261,29 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/aips/{uuid}/deletion-cancel:
-        post:
+                - bearer_header_Authorization: []
+            summary: aip_deletion_auto storage
             tags:
                 - storage
-            summary: cancel_aip_deletion storage
+            x-required-scopes:
+                - storage:aips:deletion:auto
+    /storage/aips/{uuid}/deletion-cancel:
+        post:
             description: |-
                 Cancel an AIP deletion request
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:deletion:request`
             operationId: storage#cancel_aip_deletion
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
-                - name: cancel_aip_deletion_request_body
-                  in: body
+                - in: body
+                  name: cancel_aip_deletion_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/StorageCancelAipDeletionRequestBody'
@@ -1265,7 +1316,12 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
+                - bearer_header_Authorization: []
+            summary: cancel_aip_deletion storage
+            tags:
+                - storage
+            x-required-scopes:
+                - storage:aips:deletion:request
     /storage/aips/{uuid}/deletion-report:
         get:
             tags:
@@ -1287,7 +1343,8 @@ paths:
                         Content-Disposition:
                             type: string
                         Content-Length:
-                            type: int64
+                            type: integer
+                            format: int64
                         Content-Type:
                             type: string
                 "400":
@@ -1312,23 +1369,21 @@ paths:
                         $ref: '#/definitions/StorageAipDeletionReportInternalErrorResponseBody'
             schemes:
                 - http
+            security: []
         post:
-            tags:
-                - storage
-            summary: aip_deletion_report_request storage
             description: |-
                 Request access to download a deletion report
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:deletion:report`
             operationId: storage#aip_deletion_report_request
             parameters:
-                - name: uuid
+                - description: UUID of the AIP
+                  format: uuid
                   in: path
-                  description: UUID of the AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -1355,27 +1410,29 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/aips/{uuid}/deletion-request:
-        post:
+                - bearer_header_Authorization: []
+            summary: aip_deletion_report_request storage
             tags:
                 - storage
-            summary: request_aip_deletion storage
+            x-required-scopes:
+                - storage:aips:deletion:report
+    /storage/aips/{uuid}/deletion-request:
+        post:
             description: |-
                 Request an AIP deletion
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:deletion:request`
             operationId: storage#request_aip_deletion
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
-                - name: request_aip_deletion_request_body
-                  in: body
+                - in: body
+                  name: request_aip_deletion_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/StorageRequestAipDeletionRequestBody'
@@ -1410,27 +1467,29 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/aips/{uuid}/deletion-review:
-        post:
+                - bearer_header_Authorization: []
+            summary: request_aip_deletion storage
             tags:
                 - storage
-            summary: review_aip_deletion storage
+            x-required-scopes:
+                - storage:aips:deletion:request
+    /storage/aips/{uuid}/deletion-review:
+        post:
             description: |-
                 Review an AIP deletion request
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:deletion:review`
             operationId: storage#review_aip_deletion
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
-                - name: review_aip_deletion_request_body
-                  in: body
+                - in: body
+                  name: review_aip_deletion_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/StorageReviewAipDeletionRequestBody'
@@ -1465,7 +1524,12 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
+                - bearer_header_Authorization: []
+            summary: review_aip_deletion storage
+            tags:
+                - storage
+            x-required-scopes:
+                - storage:aips:deletion:review
     /storage/aips/{uuid}/download:
         get:
             tags:
@@ -1487,7 +1551,8 @@ paths:
                         Content-Disposition:
                             type: string
                         Content-Length:
-                            type: int64
+                            type: integer
+                            format: int64
                         Content-Type:
                             type: string
                 "400":
@@ -1515,23 +1580,21 @@ paths:
                         $ref: '#/definitions/StorageDownloadAipInternalErrorResponseBody'
             schemes:
                 - http
+            security: []
         post:
-            tags:
-                - storage
-            summary: download_aip_request storage
             description: |-
                 Request access to AIP download
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:download`
             operationId: storage#download_aip_request
             parameters:
-                - name: uuid
+                - description: Identifier of the AIP to download
+                  format: uuid
                   in: path
-                  description: Identifier of the AIP to download
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -1561,25 +1624,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/aips/{uuid}/reject:
-        post:
+                - bearer_header_Authorization: []
+            summary: download_aip_request storage
             tags:
                 - storage
-            summary: reject_aip storage
+            x-required-scopes:
+                - storage:aips:download
+    /storage/aips/{uuid}/reject:
+        post:
             description: |-
                 Reject an AIP
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:review`
             operationId: storage#reject_aip
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "202":
                     description: Accepted response.
@@ -1609,25 +1674,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/aips/{uuid}/store:
-        get:
+                - bearer_header_Authorization: []
+            summary: reject_aip storage
             tags:
                 - storage
-            summary: move_aip_status storage
+            x-required-scopes:
+                - storage:aips:review
+    /storage/aips/{uuid}/store:
+        get:
             description: |-
                 Retrieve the status of a permanent storage location move of the AIP
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:move`
             operationId: storage#move_aip_status
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -1657,26 +1724,28 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-        post:
+                - bearer_header_Authorization: []
+            summary: move_aip_status storage
             tags:
                 - storage
-            summary: move_aip storage
+            x-required-scopes:
+                - storage:aips:move
+        post:
             description: |-
                 Move an AIP to a permanent storage location
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:move`
             operationId: storage#move_aip
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
-                - name: move_aip_request_body
-                  in: body
+                - in: body
+                  name: move_aip_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/StorageMoveAipRequestBody'
@@ -1711,27 +1780,29 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/aips/{uuid}/submit:
-        post:
+                - bearer_header_Authorization: []
+            summary: move_aip storage
             tags:
                 - storage
-            summary: submit_aip storage
+            x-required-scopes:
+                - storage:aips:move
+    /storage/aips/{uuid}/submit:
+        post:
             description: |-
                 Start the submission of an AIP
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:submit`
             operationId: storage#submit_aip
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
-                - name: submit_aip_request_body
-                  in: body
+                - in: body
+                  name: submit_aip_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/StorageSubmitAipRequestBody'
@@ -1763,25 +1834,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/aips/{uuid}/submit-complete:
-        post:
+                - bearer_header_Authorization: []
+            summary: submit_aip storage
             tags:
                 - storage
-            summary: submit_aip_complete storage
+            x-required-scopes:
+                - storage:aips:submit
+    /storage/aips/{uuid}/submit-complete:
+        post:
             description: |-
                 Signal that an AIP submission is complete
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:submit`
             operationId: storage#submit_aip_complete
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "202":
                     description: Accepted response.
@@ -1804,24 +1877,22 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/aips/{uuid}/workflows:
-        get:
+                - bearer_header_Authorization: []
+            summary: submit_aip_complete storage
             tags:
                 - storage
-            summary: list_aip_workflows storage
+            x-required-scopes:
+                - storage:aips:submit
+    /storage/aips/{uuid}/workflows:
+        get:
             description: |-
                 List workflows related to an AIP
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:aips:workflows:list`
             operationId: storage#list_aip_workflows
             parameters:
-                - name: status
-                  in: query
-                  required: false
-                  type: string
-                  enum:
+                - enum:
                     - unspecified
                     - in progress
                     - done
@@ -1829,21 +1900,25 @@ paths:
                     - queued
                     - pending
                     - canceled
-                - name: type
                   in: query
+                  name: status
                   required: false
                   type: string
-                  enum:
+                - enum:
                     - unspecified
                     - upload aip
                     - move aip
                     - delete aip
-                - name: uuid
+                  in: query
+                  name: type
+                  required: false
+                  type: string
+                - description: Identifier of AIP
+                  format: uuid
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -1867,16 +1942,18 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/locations:
-        get:
+                - bearer_header_Authorization: []
+            summary: list_aip_workflows storage
             tags:
                 - storage
-            summary: list_locations storage
+            x-required-scopes:
+                - storage:aips:workflows:list
+    /storage/locations:
+        get:
             description: |-
                 List locations
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:locations:list`
             operationId: storage#list_locations
             responses:
@@ -1895,20 +1972,22 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-        post:
+                - bearer_header_Authorization: []
+            summary: list_locations storage
             tags:
                 - storage
-            summary: create_location storage
+            x-required-scopes:
+                - storage:locations:list
+        post:
             description: |-
                 Create a storage location
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:locations:create`
             operationId: storage#create_location
             parameters:
-                - name: create_location_request_body
-                  in: body
+                - in: body
+                  name: create_location_request_body
                   required: true
                   schema:
                     $ref: '#/definitions/StorageCreateLocationRequestBody'
@@ -1938,25 +2017,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/locations/{uuid}:
-        get:
+                - bearer_header_Authorization: []
+            summary: create_location storage
             tags:
                 - storage
-            summary: show_location storage
+            x-required-scopes:
+                - storage:locations:create
+    /storage/locations/{uuid}:
+        get:
             description: |-
                 Show location by UUID
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:locations:read`
             operationId: storage#show_location
             parameters:
-                - name: uuid
+                - description: Identifier of location
+                  format: uuid
                   in: path
-                  description: Identifier of location
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -1980,25 +2061,27 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
-    /storage/locations/{uuid}/aips:
-        get:
+                - bearer_header_Authorization: []
+            summary: show_location storage
             tags:
                 - storage
-            summary: list_location_aips storage
+            x-required-scopes:
+                - storage:locations:read
+    /storage/locations/{uuid}/aips:
+        get:
             description: |-
                 List all the AIPs stored in the location with UUID
 
-                **Required security scopes for jwt**:
+                **Required security scopes for bearer**:
                   * `storage:locations:aips:list`
             operationId: storage#list_location_aips
             parameters:
-                - name: uuid
+                - description: Identifier of location
+                  format: uuid
                   in: path
-                  description: Identifier of location
+                  name: uuid
                   required: true
                   type: string
-                  format: uuid
             responses:
                 "200":
                     description: OK response.
@@ -2026,7 +2109,12 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
+                - bearer_header_Authorization: []
+            summary: list_location_aips storage
+            tags:
+                - storage
+            x-required-scopes:
+                - storage:locations:aips:list
     /storage/monitor:
         get:
             tags:
@@ -2053,10 +2141,8 @@ paths:
                         $ref: '#/definitions/StorageMonitorInternalErrorResponseBody'
             schemes:
                 - ws
+            security: []
         post:
-            tags:
-                - storage
-            summary: monitor_request storage
             description: Request access to the /monitor WebSocket
             operationId: storage#monitor_request
             responses:
@@ -2077,7 +2163,11 @@ paths:
             schemes:
                 - http
             security:
-                - jwt_header_Authorization: []
+                - bearer_header_Authorization: []
+            summary: monitor_request storage
+            tags:
+                - storage
+            x-required-scopes: []
 definitions:
     AIPCreatedEvent:
         title: AIPCreatedEvent
@@ -7826,10 +7916,10 @@ definitions:
               name: Jane Doe
               uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
 securityDefinitions:
-    jwt_header_Authorization:
+    bearer_header_Authorization:
         type: apiKey
         description: |-
-            Secures endpoint by requiring a valid JWT token.
+            Secures endpoint by requiring a valid bearer token.
 
             **Security Scopes**:
               * `ingest:batches:create`: no description

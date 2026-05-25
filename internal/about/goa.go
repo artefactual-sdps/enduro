@@ -43,7 +43,11 @@ func NewService(
 	}
 }
 
-func (s *Service) JWTAuth(ctx context.Context, token string, scheme *security.JWTScheme) (context.Context, error) {
+func (s *Service) BearerAuth(
+	ctx context.Context,
+	token string,
+	scheme *security.BearerScheme,
+) (context.Context, error) {
 	claims, err := s.tokenVerifier.Verify(ctx, token)
 	if err != nil {
 		if !errors.Is(err, auth.ErrUnauthorized) {

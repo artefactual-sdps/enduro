@@ -8,6 +8,8 @@ in gRPC. Services define their own methods, errors, etc...
 package design
 
 import (
+	"encoding/json"
+
 	. "goa.design/goa/v3/dsl" //nolint:staticcheck
 	"goa.design/goa/v3/expr"
 	cors "goa.design/plugins/v3/cors/dsl"
@@ -15,8 +17,8 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
 )
 
-var JWTAuth = JWTSecurity("jwt", func() {
-	Description("Secures endpoint by requiring a valid JWT token.")
+var BearerAuth = BearerSecurity("bearer", func() {
+	Description("Secures endpoint by requiring a valid bearer token.")
 	Scope(auth.IngestBatchesCreateAttr)
 	Scope(auth.IngestBatchesListAttr)
 	Scope(auth.IngestBatchesReadAttr)
@@ -49,6 +51,21 @@ var JWTAuth = JWTSecurity("jwt", func() {
 	Scope(auth.StorageLocationsReadAttr)
 })
 
+func BearerAuthScopes(scopes ...string) {
+	Security(BearerAuth, func() {
+		for _, scope := range scopes {
+			Scope(scope)
+		}
+	})
+
+	requiredScopes := append([]string{}, scopes...)
+	data, err := json.Marshal(requiredScopes)
+	if err != nil {
+		panic(err)
+	}
+	Meta("openapi:extension:x-required-scopes", string(data))
+}
+
 var _ = API("enduro", func() {
 	Title("Enduro API")
 	Randomizer(expr.NewDeterministicRandomizer())
@@ -58,7 +75,7 @@ var _ = API("enduro", func() {
 			URI("http://localhost:9000")
 		})
 	})
-	Security(JWTAuth)
+	Security(BearerAuth)
 	HTTP(func() {
 		Consumes("application/json")
 	})

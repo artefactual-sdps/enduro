@@ -14,7 +14,7 @@ import (
 	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 )
 
-func TestJWTAuth(t *testing.T) {
+func TestBearerAuth(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
@@ -91,7 +91,7 @@ func TestJWTAuth(t *testing.T) {
 				tokenVerifier: tvMock,
 			}
 
-			ctx, err := svc.JWTAuth(context.Background(), "abc", &security.JWTScheme{RequiredScopes: tt.scopes})
+			ctx, err := svc.BearerAuth(context.Background(), "abc", &security.BearerScheme{RequiredScopes: tt.scopes})
 			assert.Equal(t, logged, tt.logged)
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)

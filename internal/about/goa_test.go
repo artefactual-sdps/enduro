@@ -22,7 +22,7 @@ import (
 	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
-func TestJWTAuth(t *testing.T) {
+func TestBearerAuth(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
@@ -85,7 +85,7 @@ func TestJWTAuth(t *testing.T) {
 				tvMock,
 			)
 
-			ctx, err := srv.JWTAuth(context.Background(), "abc", nil)
+			ctx, err := srv.BearerAuth(context.Background(), "abc", nil)
 			assert.Equal(t, logged, tt.logged)
 			if tt.wantErr != nil {
 				assert.ErrorIs(t, err, tt.wantErr)

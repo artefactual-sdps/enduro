@@ -698,7 +698,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:batches:create"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -768,7 +768,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:create"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -831,7 +831,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:review"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -933,7 +933,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:download"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1008,7 +1008,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:batches:list"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1070,7 +1070,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sipsources:objects:list"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1125,7 +1125,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:workflows:list"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1209,7 +1209,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:list"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1272,7 +1272,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:users:list"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1357,7 +1357,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1410,7 +1410,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:review"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1473,7 +1473,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:batches:review"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1528,7 +1528,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:batches:read"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1583,7 +1583,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:read"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1638,7 +1638,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:decision"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1702,7 +1702,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:decision"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1754,7 +1754,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["ingest:sips:upload"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;

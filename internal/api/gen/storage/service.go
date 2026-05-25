@@ -80,8 +80,8 @@ type Service interface {
 
 // Auther defines the authorization functions to be implemented by the service.
 type Auther interface {
-	// JWTAuth implements the authorization logic for the JWT security scheme.
-	JWTAuth(ctx context.Context, token string, schema *security.JWTScheme) (context.Context, error)
+	// BearerAuth implements the authorization logic for the Bearer security scheme.
+	BearerAuth(ctx context.Context, token string, schema *security.BearerScheme) (context.Context, error)
 }
 
 // APIName is the name of the API as defined in the design.

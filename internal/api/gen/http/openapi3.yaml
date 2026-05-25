@@ -7,18 +7,12 @@ servers:
 paths:
     /about:
         get:
-            tags:
-                - about
-            summary: about about
             description: Get information about the system
             operationId: about#about
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroAbout'
                             example:
                                 child_workflows:
                                     - task_queue: abc123
@@ -27,53 +21,56 @@ paths:
                                 preservation_system: abc123
                                 upload_max_size: 1
                                 version: abc123
+                            schema:
+                                $ref: '#/components/schemas/EnduroAbout'
+                    description: OK response.
                 "401":
-                    description: 'unauthorized: Unauthorized response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'unauthorized: Unauthorized response.'
             security:
-                - jwt_header_Authorization: []
+                - bearer_header_Authorization: []
+            summary: about about
+            tags:
+                - about
+            x-required-scopes: []
     /ingest/batches:
         get:
-            tags:
-                - ingest
-            summary: list_batches ingest
             description: List all ingested Batches
             operationId: ingest#list_batches
             parameters:
-                - name: identifier
-                  in: query
-                  allowEmptyValue: true
-                  schema:
-                    type: string
-                    example: abc123
+                - allowEmptyValue: true
                   example: abc123
-                - name: earliest_created_time
                   in: query
-                  allowEmptyValue: true
+                  name: identifier
                   schema:
+                    example: abc123
                     type: string
+                - allowEmptyValue: true
+                  example: "1970-01-01T00:00:01Z"
+                  in: query
+                  name: earliest_created_time
+                  schema:
                     example: "1970-01-01T00:00:01Z"
                     format: date-time
-                  example: "1970-01-01T00:00:01Z"
-                - name: latest_created_time
-                  in: query
-                  allowEmptyValue: true
-                  schema:
                     type: string
+                - allowEmptyValue: true
+                  example: "1970-01-01T00:00:01Z"
+                  in: query
+                  name: latest_created_time
+                  schema:
                     example: "1970-01-01T00:00:01Z"
                     format: date-time
-                  example: "1970-01-01T00:00:01Z"
-                - name: status
-                  in: query
-                  allowEmptyValue: true
-                  schema:
                     type: string
-                    example: processing
+                - allowEmptyValue: true
+                  example: processing
+                  in: query
+                  name: status
+                  schema:
                     enum:
                         - queued
                         - processing
@@ -81,44 +78,42 @@ paths:
                         - ingested
                         - canceled
                         - failed
-                  example: processing
-                - name: uploader_uuid
-                  in: query
-                  description: UUID of the Batch uploader
-                  allowEmptyValue: true
-                  schema:
+                    example: processing
                     type: string
+                - allowEmptyValue: true
+                  description: UUID of the Batch uploader
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  in: query
+                  name: uploader_uuid
+                  schema:
                     description: UUID of the Batch uploader
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                - name: limit
-                  in: query
+                    type: string
+                - allowEmptyValue: true
                   description: Limit number of results to return
-                  allowEmptyValue: true
+                  example: 1
+                  in: query
+                  name: limit
                   schema:
-                    type: integer
                     description: Limit number of results to return
                     example: 1
                     format: int64
-                  example: 1
-                - name: offset
-                  in: query
-                  description: Offset from the beginning of the found set
-                  allowEmptyValue: true
-                  schema:
                     type: integer
+                - allowEmptyValue: true
+                  description: Offset from the beginning of the found set
+                  example: 1
+                  in: query
+                  name: offset
+                  schema:
                     description: Offset from the beginning of the found set
                     example: 1
                     format: int64
-                  example: 1
+                    type: integer
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroIngestBatches'
                             example:
                                 items:
                                     - completed_at: "1970-01-01T00:00:01Z"
@@ -135,119 +130,121 @@ paths:
                                     limit: 1
                                     offset: 1
                                     total: 1
+                            schema:
+                                $ref: '#/components/schemas/EnduroIngestBatches'
+                    description: OK response.
                 "400":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:batches:list
-        post:
+                - bearer_header_Authorization: []
+            summary: list_batches ingest
             tags:
                 - ingest
-            summary: add_batch ingest
+            x-required-scopes:
+                - ingest:batches:list
+        post:
             description: Ingest a Batch from a SIP Source
             operationId: ingest#add_batch
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/AddBatchRequestBody'
                         example:
                             identifier: abc123
                             keys:
                                 - abc123
                             source_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                        schema:
+                            $ref: '#/components/schemas/AddBatchRequestBody'
+                required: true
             responses:
                 "201":
-                    description: Created response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AddSipResponseBody'
                             example:
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/AddSipResponseBody'
+                    description: Created response.
                 "400":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:batches:create
-    /ingest/batches/{uuid}:
-        get:
+                - bearer_header_Authorization: []
+            summary: add_batch ingest
             tags:
                 - ingest
-            summary: show_batch ingest
+            x-required-scopes:
+                - ingest:batches:create
+    /ingest/batches/{uuid}:
+        get:
             description: Show Batch by UUID
             operationId: ingest#show_batch
             parameters:
-                - name: uuid
+                - description: Identifier of Batch to show
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of Batch to show
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of Batch to show
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroIngestBatch'
                             example:
                                 completed_at: "1970-01-01T00:00:01Z"
                                 created_at: "1970-01-01T00:00:01Z"
@@ -259,115 +256,123 @@ paths:
                                 uploader_name: abc123
                                 uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/EnduroIngestBatch'
+                    description: OK response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: Batch not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/BatchNotFound'
                             example:
                                 message: abc123
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/BatchNotFound'
+                    description: 'not_found: Batch not found'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:batches:read
-    /ingest/batches/{uuid}/review:
-        post:
+                - bearer_header_Authorization: []
+            summary: show_batch ingest
             tags:
                 - ingest
-            summary: review_batch ingest
+            x-required-scopes:
+                - ingest:batches:read
+    /ingest/batches/{uuid}/review:
+        post:
             description: Review a Batch awaiting user decision
             operationId: ingest#review_batch
             parameters:
-                - name: uuid
+                - description: Identifier of Batch to review
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of Batch to review
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of Batch to review
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/ReviewBatchRequestBody'
                         example:
                             continue: false
+                        schema:
+                            $ref: '#/components/schemas/ReviewBatchRequestBody'
+                required: true
             responses:
                 "202":
                     description: Accepted response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: Batch not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/BatchNotFound'
                             example:
                                 message: abc123
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/BatchNotFound'
+                    description: 'not_found: Batch not found'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:batches:review
+                - bearer_header_Authorization: []
+            summary: review_batch ingest
+            tags:
+                - ingest
+            x-required-scopes:
+                - ingest:batches:review
     /ingest/monitor:
         get:
             tags:
@@ -432,10 +437,8 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+            security: []
         post:
-            tags:
-                - ingest
-            summary: monitor_request ingest
             description: Request access to the /monitor WebSocket
             operationId: ingest#monitor_request
             responses:
@@ -443,78 +446,76 @@ paths:
                     description: OK response.
                     headers:
                         Set-Cookie:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization: []
-    /ingest/sip-sources/{uuid}/objects:
-        get:
+                - bearer_header_Authorization: []
+            summary: monitor_request ingest
             tags:
                 - ingest
-            summary: list_sip_source_objects ingest
+            x-required-scopes: []
+    /ingest/sip-sources/{uuid}/objects:
+        get:
             description: List the objects in a SIP source
             operationId: ingest#list_sip_source_objects
             parameters:
-                - name: limit
-                  in: query
+                - allowEmptyValue: true
                   description: Limit the number of results to return
-                  allowEmptyValue: true
+                  example: 1
+                  in: query
+                  name: limit
                   schema:
-                    type: integer
                     description: Limit the number of results to return
                     example: 1
                     format: int64
-                  example: 1
-                - name: cursor
-                  in: query
+                    type: integer
+                - allowEmptyValue: true
                   description: Cursor token to get subsequent pages
-                  allowEmptyValue: true
+                  example: abc123
+                  in: query
+                  name: cursor
                   schema:
-                    type: string
                     description: Cursor token to get subsequent pages
                     example: abc123
-                  example: abc123
-                - name: uuid
+                    type: string
+                - description: SIP source identifier -- CURRENTLY NOT USED
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: SIP source identifier -- CURRENTLY NOT USED
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: SIP source identifier -- CURRENTLY NOT USED
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroIngestSipsourceObjects'
                             example:
                                 limit: 1
                                 next: abc123
@@ -523,90 +524,93 @@ paths:
                                       key: abc123
                                       mod_time: "1970-01-01T00:00:01Z"
                                       size: 1
+                            schema:
+                                $ref: '#/components/schemas/EnduroIngestSipsourceObjects'
+                    description: OK response.
                 "400":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_found: Not Found response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sipsources:objects:list
-    /ingest/sips:
-        get:
+                - bearer_header_Authorization: []
+            summary: list_sip_source_objects ingest
             tags:
                 - ingest
-            summary: list_sips ingest
+            x-required-scopes:
+                - ingest:sipsources:objects:list
+    /ingest/sips:
+        get:
             description: List all ingested SIPs
             operationId: ingest#list_sips
             parameters:
-                - name: name
-                  in: query
-                  allowEmptyValue: true
-                  schema:
-                    type: string
-                    example: abc123
+                - allowEmptyValue: true
                   example: abc123
-                - name: aip_uuid
                   in: query
-                  description: Identifier of AIP
-                  allowEmptyValue: true
+                  name: name
                   schema:
+                    example: abc123
                     type: string
+                - allowEmptyValue: true
+                  description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  in: query
+                  name: aip_uuid
+                  schema:
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                - name: earliest_created_time
-                  in: query
-                  allowEmptyValue: true
-                  schema:
                     type: string
+                - allowEmptyValue: true
+                  example: "1970-01-01T00:00:01Z"
+                  in: query
+                  name: earliest_created_time
+                  schema:
                     example: "1970-01-01T00:00:01Z"
                     format: date-time
-                  example: "1970-01-01T00:00:01Z"
-                - name: latest_created_time
-                  in: query
-                  allowEmptyValue: true
-                  schema:
                     type: string
+                - allowEmptyValue: true
+                  example: "1970-01-01T00:00:01Z"
+                  in: query
+                  name: latest_created_time
+                  schema:
                     example: "1970-01-01T00:00:01Z"
                     format: date-time
-                  example: "1970-01-01T00:00:01Z"
-                - name: status
-                  in: query
-                  allowEmptyValue: true
-                  schema:
                     type: string
-                    example: failed
+                - allowEmptyValue: true
+                  example: failed
+                  in: query
+                  name: status
+                  schema:
                     enum:
                         - error
                         - failed
@@ -616,54 +620,52 @@ paths:
                         - ingested
                         - validated
                         - canceled
-                  example: failed
-                - name: uploader_uuid
-                  in: query
-                  description: UUID of the SIP uploader
-                  allowEmptyValue: true
-                  schema:
+                    example: failed
                     type: string
+                - allowEmptyValue: true
+                  description: UUID of the SIP uploader
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  in: query
+                  name: uploader_uuid
+                  schema:
                     description: UUID of the SIP uploader
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                - name: batch_uuid
-                  in: query
-                  description: UUID of the related Batch
-                  allowEmptyValue: true
-                  schema:
                     type: string
+                - allowEmptyValue: true
+                  description: UUID of the related Batch
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  in: query
+                  name: batch_uuid
+                  schema:
                     description: UUID of the related Batch
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                - name: limit
-                  in: query
+                    type: string
+                - allowEmptyValue: true
                   description: Limit number of results to return
-                  allowEmptyValue: true
+                  example: 1
+                  in: query
+                  name: limit
                   schema:
-                    type: integer
                     description: Limit number of results to return
                     example: 1
                     format: int64
-                  example: 1
-                - name: offset
-                  in: query
-                  description: Offset from the beginning of the found set
-                  allowEmptyValue: true
-                  schema:
                     type: integer
+                - allowEmptyValue: true
+                  description: Offset from the beginning of the found set
+                  example: 1
+                  in: query
+                  name: offset
+                  schema:
                     description: Offset from the beginning of the found set
                     example: 1
                     format: int64
-                  example: 1
+                    type: integer
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroIngestSips'
                             example:
                                 items:
                                     - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -686,124 +688,126 @@ paths:
                                     limit: 1
                                     offset: 1
                                     total: 1
+                            schema:
+                                $ref: '#/components/schemas/EnduroIngestSips'
+                    description: OK response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:list
-        post:
+                - bearer_header_Authorization: []
+            summary: list_sips ingest
             tags:
                 - ingest
-            summary: add_sip ingest
+            x-required-scopes:
+                - ingest:sips:list
+        post:
             description: Ingest a SIP from a SIP Source
             operationId: ingest#add_sip
             parameters:
-                - name: source_id
-                  in: query
+                - allowEmptyValue: true
                   description: Identifier of SIP source -- CURRENTLY NOT USED
-                  allowEmptyValue: true
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                  in: query
+                  name: source_id
                   required: true
                   schema:
-                    type: string
                     description: Identifier of SIP source -- CURRENTLY NOT USED
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                - name: key
-                  in: query
+                    type: string
+                - allowEmptyValue: true
                   description: Key of the item to ingest
-                  allowEmptyValue: true
+                  example: abc123
+                  in: query
+                  name: key
                   required: true
                   schema:
-                    type: string
                     description: Key of the item to ingest
                     example: abc123
-                  example: abc123
+                    type: string
             responses:
                 "201":
-                    description: Created response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AddSipResponseBody'
                             example:
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/AddSipResponseBody'
+                    description: Created response.
                 "400":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:create
-    /ingest/sips/{uuid}:
-        get:
+                - bearer_header_Authorization: []
+            summary: add_sip ingest
             tags:
                 - ingest
-            summary: show_sip ingest
+            x-required-scopes:
+                - ingest:sips:create
+    /ingest/sips/{uuid}:
+        get:
             description: Show SIP by ID
             operationId: ingest#show_sip
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to show
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of SIP to show
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of SIP to show
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroIngestSip'
                             example:
                                 aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                 batch_identifier: abc123
@@ -821,258 +825,268 @@ paths:
                                 uploader_name: abc123
                                 uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/EnduroIngestSip'
+                    description: OK response.
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: SIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 message: abc123
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                    description: 'not_found: SIP not found'
                 "409":
-                    description: 'not_available: Conflict response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_available: Conflict response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:read
-    /ingest/sips/{uuid}/confirm:
-        post:
+                - bearer_header_Authorization: []
+            summary: show_sip ingest
             tags:
                 - ingest
-            summary: confirm_sip ingest
+            x-required-scopes:
+                - ingest:sips:read
+    /ingest/sips/{uuid}/confirm:
+        post:
             description: Signal the SIP has been reviewed and accepted
             operationId: ingest#confirm_sip
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to look up
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of SIP to look up
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of SIP to look up
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/ConfirmSipRequestBody'
                         example:
                             location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                        schema:
+                            $ref: '#/components/schemas/ConfirmSipRequestBody'
+                required: true
             responses:
                 "202":
                     description: Accepted response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: SIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 message: abc123
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                    description: 'not_found: SIP not found'
                 "409":
-                    description: 'not_available: Conflict response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_available: Conflict response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:review
-    /ingest/sips/{uuid}/decision:
-        get:
+                - bearer_header_Authorization: []
+            summary: confirm_sip ingest
             tags:
                 - ingest
-            summary: show_sip_decision ingest
+            x-required-scopes:
+                - ingest:sips:review
+    /ingest/sips/{uuid}/decision:
+        get:
             description: Show the active child workflow decision request for a SIP
             operationId: ingest#show_sip_decision
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to look up
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of SIP to look up
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of SIP to look up
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroIngestSipDecision'
                             example:
                                 message: abc123
                                 options:
                                     - abc123
+                            schema:
+                                $ref: '#/components/schemas/EnduroIngestSipDecision'
+                    description: OK response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: SIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 message: abc123
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                    description: 'not_found: SIP not found'
                 "409":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_available: Conflict response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:decision
-        post:
+                - bearer_header_Authorization: []
+            summary: show_sip_decision ingest
             tags:
                 - ingest
-            summary: submit_sip_decision ingest
+            x-required-scopes:
+                - ingest:sips:decision
+        post:
             description: Submit a selected child workflow decision option for a SIP
             operationId: ingest#submit_sip_decision
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to look up
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of SIP to look up
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of SIP to look up
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/SubmitSipDecisionRequestBody'
                         example:
                             option: abc123
+                        schema:
+                            $ref: '#/components/schemas/SubmitSipDecisionRequestBody'
+                required: true
             responses:
                 "202":
                     description: Accepted response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: SIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 message: abc123
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                    description: 'not_found: SIP not found'
                 "409":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_available: Conflict response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:decision
+                - bearer_header_Authorization: []
+            summary: submit_sip_decision ingest
+            tags:
+                - ingest
+            x-required-scopes:
+                - ingest:sips:decision
     /ingest/sips/{uuid}/download:
         get:
             tags:
@@ -1160,158 +1174,155 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+            security: []
         post:
-            tags:
-                - ingest
-            summary: download_sip_request ingest
             description: Request access to SIP download
             operationId: ingest#download_sip_request
             parameters:
-                - name: uuid
+                - description: Identifier of the SIP to download
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of the SIP to download
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of the SIP to download
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
                     description: OK response.
                     headers:
                         Set-Cookie:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: SIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 message: abc123
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                    description: 'not_found: SIP not found'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:download
-    /ingest/sips/{uuid}/reject:
-        post:
+                - bearer_header_Authorization: []
+            summary: download_sip_request ingest
             tags:
                 - ingest
-            summary: reject_sip ingest
+            x-required-scopes:
+                - ingest:sips:download
+    /ingest/sips/{uuid}/reject:
+        post:
             description: Signal the SIP has been reviewed and rejected
             operationId: ingest#reject_sip
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to look up
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of SIP to look up
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of SIP to look up
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "202":
                     description: Accepted response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: SIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 message: abc123
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                    description: 'not_found: SIP not found'
                 "409":
-                    description: 'not_available: Conflict response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_available: Conflict response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:review
-    /ingest/sips/{uuid}/workflows:
-        get:
+                - bearer_header_Authorization: []
+            summary: reject_sip ingest
             tags:
                 - ingest
-            summary: list_sip_workflows ingest
+            x-required-scopes:
+                - ingest:sips:review
+    /ingest/sips/{uuid}/workflows:
+        get:
             description: List all workflows for a SIP
             operationId: ingest#list_sip_workflows
             parameters:
-                - name: uuid
+                - description: Identifier of SIP to look up
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of SIP to look up
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of SIP to look up
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroIngestSipWorkflows'
                             example:
                                 workflows:
                                     - completed_at: "1970-01-01T00:00:01Z"
@@ -1329,146 +1340,148 @@ paths:
                                       temporal_id: abc123
                                       type: create and review aip
                                       uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/EnduroIngestSipWorkflows'
+                    description: OK response.
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: SIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/SIPNotFound'
                             example:
                                 message: abc123
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/SIPNotFound'
+                    description: 'not_found: SIP not found'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:workflows:list
-    /ingest/sips/upload:
-        post:
+                - bearer_header_Authorization: []
+            summary: list_sip_workflows ingest
             tags:
                 - ingest
-            summary: upload_sip ingest
+            x-required-scopes:
+                - ingest:sips:workflows:list
+    /ingest/sips/upload:
+        post:
             description: Upload a SIP to trigger an ingest workflow
             operationId: ingest#upload_sip
             parameters:
-                - name: Content-Type
-                  in: header
+                - allowEmptyValue: true
                   description: Content-Type header, must define value for multipart boundary.
-                  allowEmptyValue: true
+                  example: multipart/form-data; boundary=goa
+                  in: header
+                  name: Content-Type
                   schema:
-                    type: string
-                    description: Content-Type header, must define value for multipart boundary.
                     default: multipart/form-data; boundary=goa
+                    description: Content-Type header, must define value for multipart boundary.
                     example: multipart/form-data; boundary=goa
                     pattern: multipart/[^;]+; boundary=.+
-                  example: multipart/form-data; boundary=goa
+                    type: string
             responses:
                 "202":
-                    description: Accepted response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AddSipResponseBody'
                             example:
                                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            schema:
+                                $ref: '#/components/schemas/AddSipResponseBody'
+                    description: Accepted response.
                 "400":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'invalid_multipart_request: Error returned when the request body is not a valid multipart content.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "500":
-                    description: 'internal_error: Fault while processing upload.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Fault while processing upload.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:sips:upload
-    /ingest/users:
-        get:
+                - bearer_header_Authorization: []
+            summary: upload_sip ingest
             tags:
                 - ingest
-            summary: list_users ingest
+            x-required-scopes:
+                - ingest:sips:upload
+    /ingest/users:
+        get:
             description: List all users
             operationId: ingest#list_users
             parameters:
-                - name: email
-                  in: query
+                - allowEmptyValue: true
                   description: Email of the user
-                  allowEmptyValue: true
+                  example: nobody@example.com
+                  in: query
+                  name: email
                   schema:
-                    type: string
                     description: Email of the user
                     example: nobody@example.com
-                  example: nobody@example.com
-                - name: name
-                  in: query
-                  description: Name of the user
-                  allowEmptyValue: true
-                  schema:
                     type: string
+                - allowEmptyValue: true
+                  description: Name of the user
+                  example: Jane Doe
+                  in: query
+                  name: name
+                  schema:
                     description: Name of the user
                     example: Jane Doe
-                  example: Jane Doe
-                - name: limit
-                  in: query
+                    type: string
+                - allowEmptyValue: true
                   description: Limit number of results to return
-                  allowEmptyValue: true
+                  example: 1
+                  in: query
+                  name: limit
                   schema:
-                    type: integer
                     description: Limit number of results to return
                     example: 1
                     format: int64
-                  example: 1
-                - name: offset
-                  in: query
-                  description: Offset from the beginning of the found set
-                  allowEmptyValue: true
-                  schema:
                     type: integer
+                - allowEmptyValue: true
+                  description: Offset from the beginning of the found set
+                  example: 1
+                  in: query
+                  name: offset
+                  schema:
                     description: Offset from the beginning of the found set
                     example: 1
                     format: int64
-                  example: 1
+                    type: integer
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroIngestUsers'
                             example:
                                 items:
                                     - created_at: "1970-01-01T00:00:01Z"
@@ -1479,70 +1492,73 @@ paths:
                                     limit: 1
                                     offset: 1
                                     total: 1
+                            schema:
+                                $ref: '#/components/schemas/EnduroIngestUsers'
+                    description: OK response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
             security:
-                - jwt_header_Authorization:
-                    - ingest:users:list
+                - bearer_header_Authorization: []
+            summary: list_users ingest
+            tags:
+                - ingest
+            x-required-scopes:
+                - ingest:users:list
     /storage/aips:
         get:
-            tags:
-                - storage
-            summary: list_aips storage
             description: List all AIPs
             operationId: storage#list_aips
             parameters:
-                - name: query
-                  in: query
+                - allowEmptyValue: true
                   description: Search query to filter AIPs by name or UUID
-                  allowEmptyValue: true
+                  example: abc123
+                  in: query
+                  name: query
                   schema:
-                    type: string
                     description: Search query to filter AIPs by name or UUID
                     example: abc123
-                  example: abc123
-                - name: earliest_created_time
-                  in: query
-                  allowEmptyValue: true
-                  schema:
                     type: string
+                - allowEmptyValue: true
+                  example: "1970-01-01T00:00:01Z"
+                  in: query
+                  name: earliest_created_time
+                  schema:
                     example: "1970-01-01T00:00:01Z"
                     format: date-time
-                  example: "1970-01-01T00:00:01Z"
-                - name: latest_created_time
-                  in: query
-                  allowEmptyValue: true
-                  schema:
                     type: string
+                - allowEmptyValue: true
+                  example: "1970-01-01T00:00:01Z"
+                  in: query
+                  name: latest_created_time
+                  schema:
                     example: "1970-01-01T00:00:01Z"
                     format: date-time
-                  example: "1970-01-01T00:00:01Z"
-                - name: status
-                  in: query
-                  allowEmptyValue: true
-                  schema:
                     type: string
-                    example: stored
+                - allowEmptyValue: true
+                  example: stored
+                  in: query
+                  name: status
+                  schema:
                     enum:
                         - unspecified
                         - stored
@@ -1550,34 +1566,32 @@ paths:
                         - processing
                         - deleted
                         - queued
-                  example: stored
-                - name: limit
-                  in: query
+                    example: stored
+                    type: string
+                - allowEmptyValue: true
                   description: Limit number of results to return
-                  allowEmptyValue: true
+                  example: 1
+                  in: query
+                  name: limit
                   schema:
-                    type: integer
                     description: Limit number of results to return
                     example: 1
                     format: int64
-                  example: 1
-                - name: offset
-                  in: query
-                  description: Offset from the beginning of the found set
-                  allowEmptyValue: true
-                  schema:
                     type: integer
+                - allowEmptyValue: true
+                  description: Offset from the beginning of the found set
+                  example: 1
+                  in: query
+                  name: offset
+                  schema:
                     description: Offset from the beginning of the found set
                     example: 1
                     format: int64
-                  example: 1
+                    type: integer
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroStorageAips'
                             example:
                                 items:
                                     - created_at: "1970-01-01T00:00:01Z"
@@ -1591,62 +1605,63 @@ paths:
                                     limit: 1
                                     offset: 1
                                     total: 1
+                            schema:
+                                $ref: '#/components/schemas/EnduroStorageAips'
+                    description: OK response.
                 "400":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "409":
-                    description: 'not_available: Conflict response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_available: Conflict response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:list
-        post:
+                - bearer_header_Authorization: []
+            summary: list_aips storage
             tags:
                 - storage
-            summary: create_aip storage
+            x-required-scopes:
+                - storage:aips:list
+        post:
             description: Create a new AIP
             operationId: storage#create_aip
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/CreateAipRequestBody'
                         example:
                             location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                             name: abc123
                             object_key: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                             status: stored
                             uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                        schema:
+                            $ref: '#/components/schemas/CreateAipRequestBody'
+                required: true
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroStorageAip'
                             example:
                                 created_at: "1970-01-01T00:00:01Z"
                                 deletion_report_key: abc123
@@ -1655,56 +1670,57 @@ paths:
                                 object_key: abc123
                                 status: stored
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/EnduroStorageAip'
+                    description: OK response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:create
-    /storage/aips/{uuid}:
-        get:
+                - bearer_header_Authorization: []
+            summary: create_aip storage
             tags:
                 - storage
-            summary: show_aip storage
+            x-required-scopes:
+                - storage:aips:create
+    /storage/aips/{uuid}:
+        get:
             description: Show AIP by AIPID
             operationId: storage#show_aip
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroStorageAip'
                             example:
                                 created_at: "1970-01-01T00:00:01Z"
                                 deletion_report_key: abc123
@@ -1713,173 +1729,182 @@ paths:
                                 object_key: abc123
                                 status: stored
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/EnduroStorageAip'
+                    description: OK response.
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: AIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                    description: 'not_found: AIP not found'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:read
-    /storage/aips/{uuid}/deletion-auto:
-        post:
+                - bearer_header_Authorization: []
+            summary: show_aip storage
             tags:
                 - storage
-            summary: aip_deletion_auto storage
+            x-required-scopes:
+                - storage:aips:read
+    /storage/aips/{uuid}/deletion-auto:
+        post:
             description: AIP deletion with auto-approval
             operationId: storage#aip_deletion_auto
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/AipDeletionAutoRequestBody'
                         example:
                             reason: abc123
                             skip_report: false
+                        schema:
+                            $ref: '#/components/schemas/AipDeletionAutoRequestBody'
+                required: true
             responses:
                 "202":
                     description: Accepted response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: AIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                    description: 'not_found: AIP not found'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:deletion:auto
-    /storage/aips/{uuid}/deletion-cancel:
-        post:
+                - bearer_header_Authorization: []
+            summary: aip_deletion_auto storage
             tags:
                 - storage
-            summary: cancel_aip_deletion storage
+            x-required-scopes:
+                - storage:aips:deletion:auto
+    /storage/aips/{uuid}/deletion-cancel:
+        post:
             description: Cancel an AIP deletion request
             operationId: storage#cancel_aip_deletion
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/CancelAipDeletionRequestBody'
                         example:
                             check: false
+                        schema:
+                            $ref: '#/components/schemas/CancelAipDeletionRequestBody'
+                required: true
             responses:
                 "202":
                     description: Accepted response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: AIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                    description: 'not_found: AIP not found'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:deletion:request
+                - bearer_header_Authorization: []
+            summary: cancel_aip_deletion storage
+            tags:
+                - storage
+            x-required-scopes:
+                - storage:aips:deletion:request
     /storage/aips/{uuid}/deletion-report:
         get:
             tags:
@@ -1964,207 +1989,211 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+            security: []
         post:
-            tags:
-                - storage
-            summary: aip_deletion_report_request storage
             description: Request access to download a deletion report
             operationId: storage#aip_deletion_report_request
             parameters:
-                - name: uuid
+                - description: UUID of the AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: UUID of the AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: UUID of the AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
                     description: OK response.
                     headers:
                         Set-Cookie:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                 "400":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_found: Not Found response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:deletion:report
-    /storage/aips/{uuid}/deletion-request:
-        post:
+                - bearer_header_Authorization: []
+            summary: aip_deletion_report_request storage
             tags:
                 - storage
-            summary: request_aip_deletion storage
+            x-required-scopes:
+                - storage:aips:deletion:report
+    /storage/aips/{uuid}/deletion-request:
+        post:
             description: Request an AIP deletion
             operationId: storage#request_aip_deletion
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/RequestAipDeletionRequestBody'
                         example:
                             reason: abc123
+                        schema:
+                            $ref: '#/components/schemas/RequestAipDeletionRequestBody'
+                required: true
             responses:
                 "202":
                     description: Accepted response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: AIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                    description: 'not_found: AIP not found'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:deletion:request
-    /storage/aips/{uuid}/deletion-review:
-        post:
+                - bearer_header_Authorization: []
+            summary: request_aip_deletion storage
             tags:
                 - storage
-            summary: review_aip_deletion storage
+            x-required-scopes:
+                - storage:aips:deletion:request
+    /storage/aips/{uuid}/deletion-review:
+        post:
             description: Review an AIP deletion request
             operationId: storage#review_aip_deletion
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/ReviewAipDeletionRequestBody'
                         example:
                             approved: false
+                        schema:
+                            $ref: '#/components/schemas/ReviewAipDeletionRequestBody'
+                required: true
             responses:
                 "202":
                     description: Accepted response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: AIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                    description: 'not_found: AIP not found'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:deletion:review
+                - bearer_header_Authorization: []
+            summary: review_aip_deletion storage
+            tags:
+                - storage
+            x-required-scopes:
+                - storage:aips:deletion:review
     /storage/aips/{uuid}/download:
         get:
             tags:
@@ -2252,394 +2281,397 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+            security: []
         post:
-            tags:
-                - storage
-            summary: download_aip_request storage
             description: Request access to AIP download
             operationId: storage#download_aip_request
             parameters:
-                - name: uuid
+                - description: Identifier of the AIP to download
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of the AIP to download
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of the AIP to download
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
                     description: OK response.
                     headers:
                         Set-Cookie:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: AIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                    description: 'not_found: AIP not found'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:download
-    /storage/aips/{uuid}/reject:
-        post:
+                - bearer_header_Authorization: []
+            summary: download_aip_request storage
             tags:
                 - storage
-            summary: reject_aip storage
+            x-required-scopes:
+                - storage:aips:download
+    /storage/aips/{uuid}/reject:
+        post:
             description: Reject an AIP
             operationId: storage#reject_aip
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "202":
                     description: Accepted response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: AIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                    description: 'not_found: AIP not found'
                 "409":
-                    description: 'not_available: Conflict response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_available: Conflict response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:review
-    /storage/aips/{uuid}/store:
-        get:
+                - bearer_header_Authorization: []
+            summary: reject_aip storage
             tags:
                 - storage
-            summary: move_aip_status storage
+            x-required-scopes:
+                - storage:aips:review
+    /storage/aips/{uuid}/store:
+        get:
             description: Retrieve the status of a permanent storage location move of the AIP
             operationId: storage#move_aip_status
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/MoveStatusResult'
                             example:
                                 done: false
+                            schema:
+                                $ref: '#/components/schemas/MoveStatusResult'
+                    description: OK response.
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: AIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                    description: 'not_found: AIP not found'
                 "424":
-                    description: 'failed_dependency: Failed Dependency response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'failed_dependency: Failed Dependency response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:move
-        post:
+                - bearer_header_Authorization: []
+            summary: move_aip_status storage
             tags:
                 - storage
-            summary: move_aip storage
+            x-required-scopes:
+                - storage:aips:move
+        post:
             description: Move an AIP to a permanent storage location
             operationId: storage#move_aip
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/ConfirmSipRequestBody'
                         example:
                             location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                        schema:
+                            $ref: '#/components/schemas/ConfirmSipRequestBody'
+                required: true
             responses:
                 "202":
                     description: Accepted response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: AIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                    description: 'not_found: AIP not found'
                 "409":
-                    description: 'not_available: Conflict response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_available: Conflict response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:move
-    /storage/aips/{uuid}/submit:
-        post:
+                - bearer_header_Authorization: []
+            summary: move_aip storage
             tags:
                 - storage
-            summary: submit_aip storage
+            x-required-scopes:
+                - storage:aips:move
+    /storage/aips/{uuid}/submit:
+        post:
             description: Start the submission of an AIP
             operationId: storage#submit_aip
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/SubmitAipRequestBody'
                         example:
                             name: abc123
+                        schema:
+                            $ref: '#/components/schemas/SubmitAipRequestBody'
+                required: true
             responses:
                 "202":
-                    description: Accepted response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/SubmitAIPResult'
                             example:
                                 url: abc123
+                            schema:
+                                $ref: '#/components/schemas/SubmitAIPResult'
+                    description: Accepted response.
                 "400":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "409":
-                    description: 'not_available: Conflict response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_available: Conflict response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:submit
-    /storage/aips/{uuid}/submit-complete:
-        post:
+                - bearer_header_Authorization: []
+            summary: submit_aip storage
             tags:
                 - storage
-            summary: submit_aip_complete storage
+            x-required-scopes:
+                - storage:aips:submit
+    /storage/aips/{uuid}/submit-complete:
+        post:
             description: Signal that an AIP submission is complete
             operationId: storage#submit_aip_complete
             parameters:
-                - name: uuid
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "202":
                     description: Accepted response.
                 "400":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
                     description: 'not_valid: Bad Request response.'
-                    content:
-                        application/vnd.goa.error:
-                            schema:
-                                $ref: '#/components/schemas/Error'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "409":
-                    description: 'not_available: Conflict response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_available: Conflict response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:submit
-    /storage/aips/{uuid}/workflows:
-        get:
+                - bearer_header_Authorization: []
+            summary: submit_aip_complete storage
             tags:
                 - storage
-            summary: list_aip_workflows storage
+            x-required-scopes:
+                - storage:aips:submit
+    /storage/aips/{uuid}/workflows:
+        get:
             description: List workflows related to an AIP
             operationId: storage#list_aip_workflows
             parameters:
-                - name: status
+                - allowEmptyValue: true
+                  example: in progress
                   in: query
-                  allowEmptyValue: true
+                  name: status
                   schema:
-                    type: string
-                    example: in progress
                     enum:
                         - unspecified
                         - in progress
@@ -2648,36 +2680,34 @@ paths:
                         - queued
                         - pending
                         - canceled
-                  example: in progress
-                - name: type
-                  in: query
-                  allowEmptyValue: true
-                  schema:
+                    example: in progress
                     type: string
-                    example: upload aip
+                - allowEmptyValue: true
+                  example: upload aip
+                  in: query
+                  name: type
+                  schema:
                     enum:
                         - unspecified
                         - upload aip
                         - move aip
                         - delete aip
-                  example: upload aip
-                - name: uuid
+                    example: upload aip
+                    type: string
+                - description: Identifier of AIP
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of AIP
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroStorageAipWorkflows'
                             example:
                                 workflows:
                                     - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -2695,48 +2725,49 @@ paths:
                                       temporal_id: abc123
                                       type: upload aip
                                       uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/EnduroStorageAipWorkflows'
+                    description: OK response.
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: AIP not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPNotFound'
+                    description: 'not_found: AIP not found'
             security:
-                - jwt_header_Authorization:
-                    - storage:aips:workflows:list
-    /storage/locations:
-        get:
+                - bearer_header_Authorization: []
+            summary: list_aip_workflows storage
             tags:
                 - storage
-            summary: list_locations storage
+            x-required-scopes:
+                - storage:aips:workflows:list
+    /storage/locations:
+        get:
             description: List locations
             operationId: storage#list_locations
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/LocationResponseCollection'
                             example:
                                 - created_at: "1970-01-01T00:00:01Z"
                                   description: abc123
@@ -2744,37 +2775,38 @@ paths:
                                   purpose: aip_store
                                   source: minio
                                   uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/LocationResponseCollection'
+                    description: OK response.
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:locations:list
-        post:
+                - bearer_header_Authorization: []
+            summary: list_locations storage
             tags:
                 - storage
-            summary: create_location storage
+            x-required-scopes:
+                - storage:locations:list
+        post:
             description: Create a storage location
             operationId: storage#create_location
             requestBody:
-                required: true
                 content:
                     application/json:
-                        schema:
-                            $ref: '#/components/schemas/CreateLocationRequestBody'
                         example:
                             config:
                                 bucket: abc123
@@ -2789,65 +2821,66 @@ paths:
                             name: abc123
                             purpose: aip_store
                             source: minio
+                        schema:
+                            $ref: '#/components/schemas/CreateLocationRequestBody'
+                required: true
             responses:
                 "201":
-                    description: Created response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/CreateLocationResult'
                             example:
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/CreateLocationResult'
+                    description: Created response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
             security:
-                - jwt_header_Authorization:
-                    - storage:locations:create
-    /storage/locations/{uuid}:
-        get:
+                - bearer_header_Authorization: []
+            summary: create_location storage
             tags:
                 - storage
-            summary: show_location storage
+            x-required-scopes:
+                - storage:locations:create
+    /storage/locations/{uuid}:
+        get:
             description: Show location by UUID
             operationId: storage#show_location
             parameters:
-                - name: uuid
+                - description: Identifier of location
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of location
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of location
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/EnduroStorageLocation'
                             example:
                                 config:
                                     bucket: abc123
@@ -2864,59 +2897,60 @@ paths:
                                 purpose: aip_store
                                 source: minio
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/EnduroStorageLocation'
+                    description: OK response.
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: Storage location not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/LocationNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/LocationNotFound'
+                    description: 'not_found: Storage location not found'
             security:
-                - jwt_header_Authorization:
-                    - storage:locations:read
-    /storage/locations/{uuid}/aips:
-        get:
+                - bearer_header_Authorization: []
+            summary: show_location storage
             tags:
                 - storage
-            summary: list_location_aips storage
+            x-required-scopes:
+                - storage:locations:read
+    /storage/locations/{uuid}/aips:
+        get:
             description: List all the AIPs stored in the location with UUID
             operationId: storage#list_location_aips
             parameters:
-                - name: uuid
+                - description: Identifier of location
+                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                   in: path
-                  description: Identifier of location
+                  name: uuid
                   required: true
                   schema:
-                    type: string
                     description: Identifier of location
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-                  example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    type: string
             responses:
                 "200":
-                    description: OK response.
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/AIPResponseCollection'
                             example:
                                 - created_at: "1970-01-01T00:00:01Z"
                                   deletion_report_key: abc123
@@ -2925,40 +2959,47 @@ paths:
                                   object_key: abc123
                                   status: stored
                                   uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/AIPResponseCollection'
+                    description: OK response.
                 "400":
-                    description: 'not_valid: Bad Request response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'not_valid: Bad Request response.'
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "404":
-                    description: 'not_found: Storage location not found'
                     content:
                         application/json:
-                            schema:
-                                $ref: '#/components/schemas/LocationNotFound'
                             example:
                                 message: abc123
                                 uuid: abc123
+                            schema:
+                                $ref: '#/components/schemas/LocationNotFound'
+                    description: 'not_found: Storage location not found'
             security:
-                - jwt_header_Authorization:
-                    - storage:locations:aips:list
+                - bearer_header_Authorization: []
+            summary: list_location_aips storage
+            tags:
+                - storage
+            x-required-scopes:
+                - storage:locations:aips:list
     /storage/monitor:
         get:
             tags:
@@ -3022,10 +3063,8 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+            security: []
         post:
-            tags:
-                - storage
-            summary: monitor_request storage
             description: Request access to the /monitor WebSocket
             operationId: storage#monitor_request
             responses:
@@ -3033,34 +3072,38 @@ paths:
                     description: OK response.
                     headers:
                         Set-Cookie:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                 "401":
+                    content:
+                        application/json:
+                            example: abc123
+                            schema:
+                                example: abc123
+                                type: string
                     description: 'unauthorized: Unauthorized response.'
-                    content:
-                        application/json:
-                            schema:
-                                type: string
-                                example: abc123
-                            example: abc123
                 "403":
-                    description: 'forbidden: Forbidden response.'
                     content:
                         application/json:
-                            schema:
-                                type: string
-                                example: abc123
                             example: abc123
+                            schema:
+                                example: abc123
+                                type: string
+                    description: 'forbidden: Forbidden response.'
                 "500":
-                    description: 'internal_error: Internal Server Error response.'
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
-                - jwt_header_Authorization: []
+                - bearer_header_Authorization: []
+            summary: monitor_request storage
+            tags:
+                - storage
+            x-required-scopes: []
 components:
     schemas:
         AIPCollection:
@@ -5312,9 +5355,9 @@ components:
                   name: Jane Doe
                   uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     securitySchemes:
-        jwt_header_Authorization:
+        bearer_header_Authorization:
             type: http
-            description: Secures endpoint by requiring a valid JWT token.
+            description: Secures endpoint by requiring a valid bearer token.
             scheme: bearer
 tags:
     - name: about
@@ -5324,4 +5367,4 @@ tags:
     - name: storage
       description: The storage service manages locations and AIPs.
 security:
-    - jwt_header_: []
+    - bearer_header_Authorization: []

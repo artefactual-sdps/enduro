@@ -20,9 +20,9 @@ var _ = Service("ingest", func() {
 		Description("Request access to the /monitor WebSocket")
 		// Do not require any scope, user claims will be stored internally
 		// and checked in the monitor endpoint after validating the cookie.
-		Security(JWTAuth)
+		BearerAuthScopes()
 		Payload(func() {
-			Token("token", String)
+			BearerToken("token", String)
 		})
 		Result(func() {
 			Attribute("ticket", String)
@@ -41,7 +41,7 @@ var _ = Service("ingest", func() {
 	})
 	Method("monitor", func() {
 		Description("Obtain access to the /monitor WebSocket")
-		// Disable JWTAuth security (it validates the previous method cookie).
+		// Disable BearerAuth security (it validates the previous method's cookie).
 		NoSecurity()
 		Payload(func() {
 			Attribute("ticket", String)
@@ -57,9 +57,7 @@ var _ = Service("ingest", func() {
 	})
 	Method("list_sips", func() {
 		Description("List all ingested SIPs")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSListAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSListAttr)
 		Payload(func() {
 			Attribute("name", String)
 			AttributeUUID("aip_uuid", "Identifier of AIP")
@@ -77,7 +75,7 @@ var _ = Service("ingest", func() {
 			Attribute("limit", Int, "Limit number of results to return")
 			Attribute("offset", Int, "Offset from the beginning of the found set")
 
-			Token("token", String)
+			BearerToken("token", String)
 		})
 		Result(SIPs)
 		Error("not_valid")
@@ -100,12 +98,10 @@ var _ = Service("ingest", func() {
 	})
 	Method("show_sip", func() {
 		Description("Show SIP by ID")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSReadAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSReadAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to show")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(SIP)
@@ -120,12 +116,10 @@ var _ = Service("ingest", func() {
 	})
 	Method("list_sip_workflows", func() {
 		Description("List all workflows for a SIP")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSWorkflowsListAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSWorkflowsListAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to look up")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(SIPWorkflows)
@@ -138,13 +132,11 @@ var _ = Service("ingest", func() {
 	})
 	Method("confirm_sip", func() {
 		Description("Signal the SIP has been reviewed and accepted")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSReviewAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSReviewAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to look up")
 			TypedAttributeUUID("location_uuid", "Identifier of storage location")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid", "location_uuid")
 		})
 		Error("not_found", SIPNotFound, "SIP not found")
@@ -160,12 +152,10 @@ var _ = Service("ingest", func() {
 	})
 	Method("reject_sip", func() {
 		Description("Signal the SIP has been reviewed and rejected")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSReviewAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSReviewAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to look up")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Error("not_found", SIPNotFound, "SIP not found")
@@ -181,12 +171,10 @@ var _ = Service("ingest", func() {
 	})
 	Method("show_sip_decision", func() {
 		Description("Show the active child workflow decision request for a SIP")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSDecisionAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSDecisionAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to look up")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(SIPDecision)
@@ -205,13 +193,11 @@ var _ = Service("ingest", func() {
 	})
 	Method("submit_sip_decision", func() {
 		Description("Submit a selected child workflow decision option for a SIP")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSDecisionAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSDecisionAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of SIP to look up")
 			Attribute("option", String, "Selected decision option")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid", "option")
 		})
 		Error("not_found", SIPNotFound, "SIP not found")
@@ -229,13 +215,11 @@ var _ = Service("ingest", func() {
 	})
 	Method("add_sip", func() {
 		Description("Ingest a SIP from a SIP Source")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSCreateAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSCreateAttr)
 		Payload(func() {
 			AttributeUUID("source_id", "Identifier of SIP source -- CURRENTLY NOT USED")
 			Attribute("key", String, "Key of the item to ingest")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("source_id", "key")
 		})
 		Result(func() {
@@ -257,16 +241,14 @@ var _ = Service("ingest", func() {
 	})
 	Method("upload_sip", func() {
 		Description("Upload a SIP to trigger an ingest workflow")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSUploadAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSUploadAttr)
 		Payload(func() {
 			Attribute("content_type", String, "Content-Type header, must define value for multipart boundary.", func() {
 				Default("multipart/form-data; boundary=goa")
 				Pattern("multipart/[^;]+; boundary=.+")
 				Example("multipart/form-data; boundary=goa")
 			})
-			Token("token", String)
+			BearerToken("token", String)
 		})
 
 		Result(func() {
@@ -305,12 +287,10 @@ var _ = Service("ingest", func() {
 	})
 	Method("download_sip_request", func() {
 		Description("Request access to SIP download")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSDownloadAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSDownloadAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of the SIP to download")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(func() {
@@ -338,7 +318,7 @@ var _ = Service("ingest", func() {
 				"It will be the original SIP or the transformed PIP, " +
 				"based on the SIP's `failed_as` value.",
 		)
-		// Disable JWTAuth security (it validates the previous method cookie).
+		// Disable BearerAuth security (it validates the previous method's cookie).
 		NoSecurity()
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of the SIP to download")
@@ -371,9 +351,7 @@ var _ = Service("ingest", func() {
 	})
 	Method("list_users", func() {
 		Description("List all users")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestUsersListAttr)
-		})
+		BearerAuthScopes(auth.IngestUsersListAttr)
 		Payload(func() {
 			Attribute("email", String, "Email of the user", func() {
 				Example("nobody@example.com")
@@ -384,7 +362,7 @@ var _ = Service("ingest", func() {
 			Attribute("limit", Int, "Limit number of results to return")
 			Attribute("offset", Int, "Offset from the beginning of the found set")
 
-			Token("token", String)
+			BearerToken("token", String)
 		})
 		Result(Users)
 		Error("not_valid")
@@ -406,14 +384,12 @@ var _ = Service("ingest", func() {
 	})
 	Method("list_sip_source_objects", func() {
 		Description("List the objects in a SIP source")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestSIPSourcesObjectsListAttr)
-		})
+		BearerAuthScopes(auth.IngestSIPSourcesObjectsListAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "SIP source identifier -- CURRENTLY NOT USED")
 			Attribute("limit", Int, "Limit the number of results to return")
 			Attribute("cursor", String, "Cursor token to get subsequent pages")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(SIPSourceObjects)
@@ -434,14 +410,12 @@ var _ = Service("ingest", func() {
 	})
 	Method("add_batch", func() {
 		Description("Ingest a Batch from a SIP Source")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestBatchesCreateAttr)
-		})
+		BearerAuthScopes(auth.IngestBatchesCreateAttr)
 		Payload(func() {
 			AttributeUUID("source_id", "Identifier of SIP source -- CURRENTLY NOT USED")
 			Attribute("keys", ArrayOf(String), "Key of the SIPs to ingest as part of the batch")
 			Attribute("identifier", String, "Optional Batch identifier assigned by the user")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("source_id", "keys")
 		})
 		Result(func() {
@@ -459,9 +433,7 @@ var _ = Service("ingest", func() {
 	})
 	Method("list_batches", func() {
 		Description("List all ingested Batches")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestBatchesListAttr)
-		})
+		BearerAuthScopes(auth.IngestBatchesListAttr)
 		Payload(func() {
 			Attribute("identifier", String)
 			Attribute("earliest_created_time", String, func() {
@@ -477,7 +449,7 @@ var _ = Service("ingest", func() {
 			Attribute("limit", Int, "Limit number of results to return")
 			Attribute("offset", Int, "Offset from the beginning of the found set")
 
-			Token("token", String)
+			BearerToken("token", String)
 		})
 		Result(Batches)
 		Error("not_valid")
@@ -500,12 +472,10 @@ var _ = Service("ingest", func() {
 	})
 	Method("show_batch", func() {
 		Description("Show Batch by UUID")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestBatchesReadAttr)
-		})
+		BearerAuthScopes(auth.IngestBatchesReadAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of Batch to show")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(Batch)
@@ -522,13 +492,11 @@ var _ = Service("ingest", func() {
 	})
 	Method("review_batch", func() {
 		Description("Review a Batch awaiting user decision")
-		Security(JWTAuth, func() {
-			Scope(auth.IngestBatchesReviewAttr)
-		})
+		BearerAuthScopes(auth.IngestBatchesReviewAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of Batch to review")
 			Attribute("continue", Boolean)
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid", "continue")
 		})
 		Error("not_found", BatchNotFound, "Batch not found")
