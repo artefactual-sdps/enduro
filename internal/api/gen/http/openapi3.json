@@ -2988,8 +2988,8 @@
       }
     },
     "securitySchemes": {
-      "jwt_header_Authorization": {
-        "description": "Secures endpoint by requiring a valid JWT token.",
+      "bearer_header_Authorization": {
+        "description": "Secures endpoint by requiring a valid bearer token.",
         "scheme": "bearer",
         "type": "http"
       }
@@ -3043,13 +3043,14 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "about about",
         "tags": [
           "about"
-        ]
+        ],
+        "x-required-scopes": []
       }
     },
     "/ingest/batches": {
@@ -3226,14 +3227,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:batches:list"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "list_batches ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:batches:list"
         ]
       },
       "post": {
@@ -3317,14 +3319,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:batches:create"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "add_batch ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:batches:create"
         ]
       }
     },
@@ -3431,14 +3434,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:batches:read"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "show_batch ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:batches:read"
         ]
       }
     },
@@ -3539,14 +3543,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:batches:review"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "review_batch ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:batches:review"
         ]
       }
     },
@@ -3635,6 +3640,7 @@
             "description": "internal_error: Internal Server Error response."
           }
         },
+        "security": [],
         "summary": "monitor ingest",
         "tags": [
           "ingest"
@@ -3693,13 +3699,14 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "monitor_request ingest",
         "tags": [
           "ingest"
-        ]
+        ],
+        "x-required-scopes": []
       }
     },
     "/ingest/sip-sources/{uuid}/objects": {
@@ -3826,14 +3833,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sipsources:objects:list"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "list_sip_source_objects ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sipsources:objects:list"
         ]
       }
     },
@@ -4035,14 +4043,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sips:list"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "list_sips ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:list"
         ]
       },
       "post": {
@@ -4138,14 +4147,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sips:create"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "add_sip ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:create"
         ]
       }
     },
@@ -4230,14 +4240,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sips:upload"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "upload_sip ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:upload"
         ]
       }
     },
@@ -4340,14 +4351,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sips:read"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "show_sip ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:read"
         ]
       }
     },
@@ -4448,14 +4460,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sips:review"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "confirm_sip ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:review"
         ]
       }
     },
@@ -4566,14 +4579,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sips:decision"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "show_sip_decision ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:decision"
         ]
       },
       "post": {
@@ -4682,14 +4696,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sips:decision"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "submit_sip_decision ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:decision"
         ]
       }
     },
@@ -4817,6 +4832,7 @@
             "description": "internal_error: Internal Server Error response."
           }
         },
+        "security": [],
         "summary": "download_sip ingest",
         "tags": [
           "ingest"
@@ -4914,14 +4930,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sips:download"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "download_sip_request ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:download"
         ]
       }
     },
@@ -5009,14 +5026,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sips:review"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "reject_sip ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:review"
         ]
       }
     },
@@ -5115,14 +5133,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:sips:workflows:list"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "list_sip_workflows ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:workflows:list"
         ]
       }
     },
@@ -5245,14 +5264,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "ingest:users:list"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "list_users ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:users:list"
         ]
       }
     },
@@ -5416,14 +5436,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:list"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "list_aips storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:list"
         ]
       },
       "post": {
@@ -5503,14 +5524,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:create"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "create_aip storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:create"
         ]
       }
     },
@@ -5594,14 +5616,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:read"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "show_aip storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:read"
         ]
       }
     },
@@ -5703,14 +5726,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:deletion:auto"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "aip_deletion_auto storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:deletion:auto"
         ]
       }
     },
@@ -5811,14 +5835,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:deletion:request"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "cancel_aip_deletion storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:deletion:request"
         ]
       }
     },
@@ -5942,6 +5967,7 @@
             "description": "internal_error: Internal Server Error response."
           }
         },
+        "security": [],
         "summary": "aip_deletion_report storage",
         "tags": [
           "storage"
@@ -6035,14 +6061,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:deletion:report"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "aip_deletion_report_request storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:deletion:report"
         ]
       }
     },
@@ -6143,14 +6170,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:deletion:request"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "request_aip_deletion storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:deletion:request"
         ]
       }
     },
@@ -6251,14 +6279,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:deletion:review"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "review_aip_deletion storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:deletion:review"
         ]
       }
     },
@@ -6386,6 +6415,7 @@
             "description": "internal_error: Internal Server Error response."
           }
         },
+        "security": [],
         "summary": "download_aip storage",
         "tags": [
           "storage"
@@ -6483,14 +6513,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:download"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "download_aip_request storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:download"
         ]
       }
     },
@@ -6578,14 +6609,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:review"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "reject_aip storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:review"
         ]
       }
     },
@@ -6673,14 +6705,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:move"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "move_aip_status storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:move"
         ]
       },
       "post": {
@@ -6779,14 +6812,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:move"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "move_aip storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:move"
         ]
       }
     },
@@ -6883,14 +6917,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:submit"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "submit_aip storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:submit"
         ]
       }
     },
@@ -6964,14 +6999,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:submit"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "submit_aip_complete storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:submit"
         ]
       }
     },
@@ -7105,14 +7141,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:aips:workflows:list"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "list_aip_workflows storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:workflows:list"
         ]
       }
     },
@@ -7168,14 +7205,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:locations:list"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "list_locations storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:locations:list"
         ]
       },
       "post": {
@@ -7258,14 +7296,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:locations:create"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "create_location storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:locations:create"
         ]
       }
     },
@@ -7358,14 +7397,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:locations:read"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "show_location storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:locations:read"
         ]
       }
     },
@@ -7461,14 +7501,15 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": [
-              "storage:locations:aips:list"
-            ]
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "list_location_aips storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:locations:aips:list"
         ]
       }
     },
@@ -7557,6 +7598,7 @@
             "description": "internal_error: Internal Server Error response."
           }
         },
+        "security": [],
         "summary": "monitor storage",
         "tags": [
           "storage"
@@ -7615,19 +7657,20 @@
         },
         "security": [
           {
-            "jwt_header_Authorization": []
+            "bearer_header_Authorization": []
           }
         ],
         "summary": "monitor_request storage",
         "tags": [
           "storage"
-        ]
+        ],
+        "x-required-scopes": []
       }
     }
   },
   "security": [
     {
-      "jwt_header_": []
+      "bearer_header_Authorization": []
     }
   ],
   "servers": [

@@ -15,9 +15,9 @@ var _ = Service("about", func() {
 	})
 	Method("about", func() {
 		Description("Get information about the system")
-		Security(JWTAuth)
+		BearerAuthScopes()
 		Payload(func() {
-			Token("token", String)
+			BearerToken("token", String)
 		})
 		Result(About)
 		HTTP(func() {

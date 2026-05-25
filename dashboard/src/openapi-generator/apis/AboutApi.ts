@@ -68,7 +68,7 @@ export class AboutApi extends runtime.BaseAPI implements AboutApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;

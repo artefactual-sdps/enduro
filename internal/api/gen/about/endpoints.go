@@ -25,7 +25,7 @@ func NewEndpoints(s Service) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
 	return &Endpoints{
-		About: NewAboutEndpoint(s, a.JWTAuth),
+		About: NewAboutEndpoint(s, a.BearerAuth),
 	}
 }
 
@@ -36,12 +36,12 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 
 // NewAboutEndpoint returns an endpoint function that calls the method "about"
 // of service "about".
-func NewAboutEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewAboutEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*AboutPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{},
 		}
@@ -49,7 +49,7 @@ func NewAboutEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}

@@ -75,29 +75,29 @@ func NewEndpoints(s Service) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
 	return &Endpoints{
-		MonitorRequest:           NewMonitorRequestEndpoint(s, a.JWTAuth),
+		MonitorRequest:           NewMonitorRequestEndpoint(s, a.BearerAuth),
 		Monitor:                  NewMonitorEndpoint(s),
-		ListAips:                 NewListAipsEndpoint(s, a.JWTAuth),
-		CreateAip:                NewCreateAipEndpoint(s, a.JWTAuth),
-		SubmitAip:                NewSubmitAipEndpoint(s, a.JWTAuth),
-		SubmitAipComplete:        NewSubmitAipCompleteEndpoint(s, a.JWTAuth),
-		DownloadAipRequest:       NewDownloadAipRequestEndpoint(s, a.JWTAuth),
+		ListAips:                 NewListAipsEndpoint(s, a.BearerAuth),
+		CreateAip:                NewCreateAipEndpoint(s, a.BearerAuth),
+		SubmitAip:                NewSubmitAipEndpoint(s, a.BearerAuth),
+		SubmitAipComplete:        NewSubmitAipCompleteEndpoint(s, a.BearerAuth),
+		DownloadAipRequest:       NewDownloadAipRequestEndpoint(s, a.BearerAuth),
 		DownloadAip:              NewDownloadAipEndpoint(s),
-		MoveAip:                  NewMoveAipEndpoint(s, a.JWTAuth),
-		MoveAipStatus:            NewMoveAipStatusEndpoint(s, a.JWTAuth),
-		RejectAip:                NewRejectAipEndpoint(s, a.JWTAuth),
-		ShowAip:                  NewShowAipEndpoint(s, a.JWTAuth),
-		ListAipWorkflows:         NewListAipWorkflowsEndpoint(s, a.JWTAuth),
-		AipDeletionAuto:          NewAipDeletionAutoEndpoint(s, a.JWTAuth),
-		RequestAipDeletion:       NewRequestAipDeletionEndpoint(s, a.JWTAuth),
-		ReviewAipDeletion:        NewReviewAipDeletionEndpoint(s, a.JWTAuth),
-		CancelAipDeletion:        NewCancelAipDeletionEndpoint(s, a.JWTAuth),
-		AipDeletionReportRequest: NewAipDeletionReportRequestEndpoint(s, a.JWTAuth),
+		MoveAip:                  NewMoveAipEndpoint(s, a.BearerAuth),
+		MoveAipStatus:            NewMoveAipStatusEndpoint(s, a.BearerAuth),
+		RejectAip:                NewRejectAipEndpoint(s, a.BearerAuth),
+		ShowAip:                  NewShowAipEndpoint(s, a.BearerAuth),
+		ListAipWorkflows:         NewListAipWorkflowsEndpoint(s, a.BearerAuth),
+		AipDeletionAuto:          NewAipDeletionAutoEndpoint(s, a.BearerAuth),
+		RequestAipDeletion:       NewRequestAipDeletionEndpoint(s, a.BearerAuth),
+		ReviewAipDeletion:        NewReviewAipDeletionEndpoint(s, a.BearerAuth),
+		CancelAipDeletion:        NewCancelAipDeletionEndpoint(s, a.BearerAuth),
+		AipDeletionReportRequest: NewAipDeletionReportRequestEndpoint(s, a.BearerAuth),
 		AipDeletionReport:        NewAipDeletionReportEndpoint(s),
-		ListLocations:            NewListLocationsEndpoint(s, a.JWTAuth),
-		CreateLocation:           NewCreateLocationEndpoint(s, a.JWTAuth),
-		ShowLocation:             NewShowLocationEndpoint(s, a.JWTAuth),
-		ListLocationAips:         NewListLocationAipsEndpoint(s, a.JWTAuth),
+		ListLocations:            NewListLocationsEndpoint(s, a.BearerAuth),
+		CreateLocation:           NewCreateLocationEndpoint(s, a.BearerAuth),
+		ShowLocation:             NewShowLocationEndpoint(s, a.BearerAuth),
+		ListLocationAips:         NewListLocationAipsEndpoint(s, a.BearerAuth),
 	}
 }
 
@@ -130,12 +130,12 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 
 // NewMonitorRequestEndpoint returns an endpoint function that calls the method
 // "monitor_request" of service "storage".
-func NewMonitorRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewMonitorRequestEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*MonitorRequestPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{},
 		}
@@ -143,7 +143,7 @@ func NewMonitorRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.En
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -162,12 +162,12 @@ func NewMonitorEndpoint(s Service) goa.Endpoint {
 
 // NewListAipsEndpoint returns an endpoint function that calls the method
 // "list_aips" of service "storage".
-func NewListAipsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewListAipsEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*ListAipsPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:list"},
 		}
@@ -175,7 +175,7 @@ func NewListAipsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -190,12 +190,12 @@ func NewListAipsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint
 
 // NewCreateAipEndpoint returns an endpoint function that calls the method
 // "create_aip" of service "storage".
-func NewCreateAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewCreateAipEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*CreateAipPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:create"},
 		}
@@ -203,7 +203,7 @@ func NewCreateAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -218,12 +218,12 @@ func NewCreateAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 
 // NewSubmitAipEndpoint returns an endpoint function that calls the method
 // "submit_aip" of service "storage".
-func NewSubmitAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewSubmitAipEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*SubmitAipPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:submit"},
 		}
@@ -231,7 +231,7 @@ func NewSubmitAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -241,12 +241,12 @@ func NewSubmitAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 
 // NewSubmitAipCompleteEndpoint returns an endpoint function that calls the
 // method "submit_aip_complete" of service "storage".
-func NewSubmitAipCompleteEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewSubmitAipCompleteEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*SubmitAipCompletePayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:submit"},
 		}
@@ -254,7 +254,7 @@ func NewSubmitAipCompleteEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -264,12 +264,12 @@ func NewSubmitAipCompleteEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa
 
 // NewDownloadAipRequestEndpoint returns an endpoint function that calls the
 // method "download_aip_request" of service "storage".
-func NewDownloadAipRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewDownloadAipRequestEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*DownloadAipRequestPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:download"},
 		}
@@ -277,7 +277,7 @@ func NewDownloadAipRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) go
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -300,12 +300,12 @@ func NewDownloadAipEndpoint(s Service) goa.Endpoint {
 
 // NewMoveAipEndpoint returns an endpoint function that calls the method
 // "move_aip" of service "storage".
-func NewMoveAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewMoveAipEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*MoveAipPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:move"},
 		}
@@ -313,7 +313,7 @@ func NewMoveAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint 
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -323,12 +323,12 @@ func NewMoveAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint 
 
 // NewMoveAipStatusEndpoint returns an endpoint function that calls the method
 // "move_aip_status" of service "storage".
-func NewMoveAipStatusEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewMoveAipStatusEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*MoveAipStatusPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:move"},
 		}
@@ -336,7 +336,7 @@ func NewMoveAipStatusEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.End
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -346,12 +346,12 @@ func NewMoveAipStatusEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.End
 
 // NewRejectAipEndpoint returns an endpoint function that calls the method
 // "reject_aip" of service "storage".
-func NewRejectAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewRejectAipEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*RejectAipPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:review"},
 		}
@@ -359,7 +359,7 @@ func NewRejectAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -369,12 +369,12 @@ func NewRejectAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoin
 
 // NewShowAipEndpoint returns an endpoint function that calls the method
 // "show_aip" of service "storage".
-func NewShowAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewShowAipEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*ShowAipPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:read"},
 		}
@@ -382,7 +382,7 @@ func NewShowAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint 
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -397,12 +397,12 @@ func NewShowAipEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint 
 
 // NewListAipWorkflowsEndpoint returns an endpoint function that calls the
 // method "list_aip_workflows" of service "storage".
-func NewListAipWorkflowsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewListAipWorkflowsEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*ListAipWorkflowsPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:workflows:list"},
 		}
@@ -410,7 +410,7 @@ func NewListAipWorkflowsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -425,12 +425,12 @@ func NewListAipWorkflowsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.
 
 // NewAipDeletionAutoEndpoint returns an endpoint function that calls the
 // method "aip_deletion_auto" of service "storage".
-func NewAipDeletionAutoEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewAipDeletionAutoEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*AipDeletionAutoPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:deletion:auto"},
 		}
@@ -438,7 +438,7 @@ func NewAipDeletionAutoEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.E
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -448,12 +448,12 @@ func NewAipDeletionAutoEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.E
 
 // NewRequestAipDeletionEndpoint returns an endpoint function that calls the
 // method "request_aip_deletion" of service "storage".
-func NewRequestAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewRequestAipDeletionEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*RequestAipDeletionPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:deletion:request"},
 		}
@@ -461,7 +461,7 @@ func NewRequestAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) go
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -471,12 +471,12 @@ func NewRequestAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) go
 
 // NewReviewAipDeletionEndpoint returns an endpoint function that calls the
 // method "review_aip_deletion" of service "storage".
-func NewReviewAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewReviewAipDeletionEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*ReviewAipDeletionPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:deletion:review"},
 		}
@@ -484,7 +484,7 @@ func NewReviewAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -494,12 +494,12 @@ func NewReviewAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa
 
 // NewCancelAipDeletionEndpoint returns an endpoint function that calls the
 // method "cancel_aip_deletion" of service "storage".
-func NewCancelAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewCancelAipDeletionEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*CancelAipDeletionPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:deletion:request"},
 		}
@@ -507,7 +507,7 @@ func NewCancelAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -517,12 +517,12 @@ func NewCancelAipDeletionEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa
 
 // NewAipDeletionReportRequestEndpoint returns an endpoint function that calls
 // the method "aip_deletion_report_request" of service "storage".
-func NewAipDeletionReportRequestEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewAipDeletionReportRequestEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*AipDeletionReportRequestPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:aips:deletion:report"},
 		}
@@ -530,7 +530,7 @@ func NewAipDeletionReportRequestEndpoint(s Service, authJWTFn security.AuthJWTFu
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -553,12 +553,12 @@ func NewAipDeletionReportEndpoint(s Service) goa.Endpoint {
 
 // NewListLocationsEndpoint returns an endpoint function that calls the method
 // "list_locations" of service "storage".
-func NewListLocationsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewListLocationsEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*ListLocationsPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:locations:list"},
 		}
@@ -566,7 +566,7 @@ func NewListLocationsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.End
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -581,12 +581,12 @@ func NewListLocationsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.End
 
 // NewCreateLocationEndpoint returns an endpoint function that calls the method
 // "create_location" of service "storage".
-func NewCreateLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewCreateLocationEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*CreateLocationPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:locations:create"},
 		}
@@ -594,7 +594,7 @@ func NewCreateLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.En
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -604,12 +604,12 @@ func NewCreateLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.En
 
 // NewShowLocationEndpoint returns an endpoint function that calls the method
 // "show_location" of service "storage".
-func NewShowLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewShowLocationEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*ShowLocationPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:locations:read"},
 		}
@@ -617,7 +617,7 @@ func NewShowLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endp
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
@@ -632,12 +632,12 @@ func NewShowLocationEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endp
 
 // NewListLocationAipsEndpoint returns an endpoint function that calls the
 // method "list_location_aips" of service "storage".
-func NewListLocationAipsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.Endpoint {
+func NewListLocationAipsEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
 		p := req.(*ListLocationAipsPayload)
 		var err error
-		sc := security.JWTScheme{
-			Name:           "jwt",
+		sc := security.BearerScheme{
+			Name:           "bearer",
 			Scopes:         []string{"ingest:batches:create", "ingest:batches:list", "ingest:batches:read", "ingest:batches:review", "ingest:sips:create", "ingest:sips:decision", "ingest:sips:download", "ingest:sips:list", "ingest:sips:read", "ingest:sips:review", "ingest:sips:upload", "ingest:sips:workflows:list", "ingest:sipsources:objects:list", "ingest:users:list", "storage:aips:create", "storage:aips:deletion:auto", "storage:aips:deletion:report", "storage:aips:deletion:request", "storage:aips:deletion:review", "storage:aips:download", "storage:aips:list", "storage:aips:move", "storage:aips:read", "storage:aips:review", "storage:aips:submit", "storage:aips:workflows:list", "storage:locations:aips:list", "storage:locations:create", "storage:locations:list", "storage:locations:read"},
 			RequiredScopes: []string{"storage:locations:aips:list"},
 		}
@@ -645,7 +645,7 @@ func NewListLocationAipsEndpoint(s Service, authJWTFn security.AuthJWTFunc) goa.
 		if p.Token != nil {
 			token = *p.Token
 		}
-		ctx, err = authJWTFn(ctx, token, &sc)
+		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}

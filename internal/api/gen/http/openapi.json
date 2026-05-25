@@ -7302,18 +7302,19 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "about about",
         "tags": [
           "about"
-        ]
+        ],
+        "x-required-scopes": []
       }
     },
     "/ingest/batches": {
       "get": {
-        "description": "List all ingested Batches\n\n**Required security scopes for jwt**:\n  * `ingest:batches:list`",
+        "description": "List all ingested Batches\n\n**Required security scopes for bearer**:\n  * `ingest:batches:list`",
         "operationId": "ingest#list_batches",
         "parameters": [
           {
@@ -7360,6 +7361,7 @@
           },
           {
             "description": "Limit number of results to return",
+            "format": "int64",
             "in": "query",
             "name": "limit",
             "required": false,
@@ -7367,6 +7369,7 @@
           },
           {
             "description": "Offset from the beginning of the found set",
+            "format": "int64",
             "in": "query",
             "name": "offset",
             "required": false,
@@ -7410,16 +7413,19 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "list_batches ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:batches:list"
         ]
       },
       "post": {
-        "description": "Ingest a Batch from a SIP Source\n\n**Required security scopes for jwt**:\n  * `ingest:batches:create`",
+        "description": "Ingest a Batch from a SIP Source\n\n**Required security scopes for bearer**:\n  * `ingest:batches:create`",
         "operationId": "ingest#add_batch",
         "parameters": [
           {
@@ -7475,18 +7481,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "add_batch ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:batches:create"
         ]
       }
     },
     "/ingest/batches/{uuid}": {
       "get": {
-        "description": "Show Batch by UUID\n\n**Required security scopes for jwt**:\n  * `ingest:batches:read`",
+        "description": "Show Batch by UUID\n\n**Required security scopes for bearer**:\n  * `ingest:batches:read`",
         "operationId": "ingest#show_batch",
         "parameters": [
           {
@@ -7545,18 +7554,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "show_batch ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:batches:read"
         ]
       }
     },
     "/ingest/batches/{uuid}/review": {
       "post": {
-        "description": "Review a Batch awaiting user decision\n\n**Required security scopes for jwt**:\n  * `ingest:batches:review`",
+        "description": "Review a Batch awaiting user decision\n\n**Required security scopes for bearer**:\n  * `ingest:batches:review`",
         "operationId": "ingest#review_batch",
         "parameters": [
           {
@@ -7623,12 +7635,15 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "review_batch ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:batches:review"
         ]
       }
     },
@@ -7665,6 +7680,7 @@
         "schemes": [
           "ws"
         ],
+        "security": [],
         "summary": "monitor ingest",
         "tags": [
           "ingest"
@@ -7701,22 +7717,24 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "monitor_request ingest",
         "tags": [
           "ingest"
-        ]
+        ],
+        "x-required-scopes": []
       }
     },
     "/ingest/sip-sources/{uuid}/objects": {
       "get": {
-        "description": "List the objects in a SIP source\n\n**Required security scopes for jwt**:\n  * `ingest:sipsources:objects:list`",
+        "description": "List the objects in a SIP source\n\n**Required security scopes for bearer**:\n  * `ingest:sipsources:objects:list`",
         "operationId": "ingest#list_sip_source_objects",
         "parameters": [
           {
             "description": "Limit the number of results to return",
+            "format": "int64",
             "in": "query",
             "name": "limit",
             "required": false,
@@ -7781,18 +7799,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "list_sip_source_objects ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sipsources:objects:list"
         ]
       }
     },
     "/ingest/sips": {
       "get": {
-        "description": "List all ingested SIPs\n\n**Required security scopes for jwt**:\n  * `ingest:sips:list`",
+        "description": "List all ingested SIPs\n\n**Required security scopes for bearer**:\n  * `ingest:sips:list`",
         "operationId": "ingest#list_sips",
         "parameters": [
           {
@@ -7857,6 +7878,7 @@
           },
           {
             "description": "Limit number of results to return",
+            "format": "int64",
             "in": "query",
             "name": "limit",
             "required": false,
@@ -7864,6 +7886,7 @@
           },
           {
             "description": "Offset from the beginning of the found set",
+            "format": "int64",
             "in": "query",
             "name": "offset",
             "required": false,
@@ -7901,16 +7924,19 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "list_sips ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:list"
         ]
       },
       "post": {
-        "description": "Ingest a SIP from a SIP Source\n\n**Required security scopes for jwt**:\n  * `ingest:sips:create`",
+        "description": "Ingest a SIP from a SIP Source\n\n**Required security scopes for bearer**:\n  * `ingest:sips:create`",
         "operationId": "ingest#add_sip",
         "parameters": [
           {
@@ -7969,18 +7995,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "add_sip ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:create"
         ]
       }
     },
     "/ingest/sips/upload": {
       "post": {
-        "description": "Upload a SIP to trigger an ingest workflow\n\n**Required security scopes for jwt**:\n  * `ingest:sips:upload`",
+        "description": "Upload a SIP to trigger an ingest workflow\n\n**Required security scopes for bearer**:\n  * `ingest:sips:upload`",
         "operationId": "ingest#upload_sip",
         "parameters": [
           {
@@ -8033,18 +8062,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "upload_sip ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:upload"
         ]
       }
     },
     "/ingest/sips/{uuid}": {
       "get": {
-        "description": "Show SIP by ID\n\n**Required security scopes for jwt**:\n  * `ingest:sips:read`",
+        "description": "Show SIP by ID\n\n**Required security scopes for bearer**:\n  * `ingest:sips:read`",
         "operationId": "ingest#show_sip",
         "parameters": [
           {
@@ -8097,18 +8129,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "show_sip ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:read"
         ]
       }
     },
     "/ingest/sips/{uuid}/confirm": {
       "post": {
-        "description": "Signal the SIP has been reviewed and accepted\n\n**Required security scopes for jwt**:\n  * `ingest:sips:review`",
+        "description": "Signal the SIP has been reviewed and accepted\n\n**Required security scopes for bearer**:\n  * `ingest:sips:review`",
         "operationId": "ingest#confirm_sip",
         "parameters": [
           {
@@ -8175,18 +8210,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "confirm_sip ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:review"
         ]
       }
     },
     "/ingest/sips/{uuid}/decision": {
       "get": {
-        "description": "Show the active child workflow decision request for a SIP\n\n**Required security scopes for jwt**:\n  * `ingest:sips:decision`",
+        "description": "Show the active child workflow decision request for a SIP\n\n**Required security scopes for bearer**:\n  * `ingest:sips:decision`",
         "operationId": "ingest#show_sip_decision",
         "parameters": [
           {
@@ -8251,16 +8289,19 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "show_sip_decision ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:decision"
         ]
       },
       "post": {
-        "description": "Submit a selected child workflow decision option for a SIP\n\n**Required security scopes for jwt**:\n  * `ingest:sips:decision`",
+        "description": "Submit a selected child workflow decision option for a SIP\n\n**Required security scopes for bearer**:\n  * `ingest:sips:decision`",
         "operationId": "ingest#submit_sip_decision",
         "parameters": [
           {
@@ -8333,12 +8374,15 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "submit_sip_decision ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:decision"
         ]
       }
     },
@@ -8364,7 +8408,8 @@
                 "type": "string"
               },
               "Content-Length": {
-                "type": "int64"
+                "format": "int64",
+                "type": "integer"
               },
               "Content-Type": {
                 "type": "string"
@@ -8409,13 +8454,14 @@
         "schemes": [
           "http"
         ],
+        "security": [],
         "summary": "download_sip ingest",
         "tags": [
           "ingest"
         ]
       },
       "post": {
-        "description": "Request access to SIP download\n\n**Required security scopes for jwt**:\n  * `ingest:sips:download`",
+        "description": "Request access to SIP download\n\n**Required security scopes for bearer**:\n  * `ingest:sips:download`",
         "operationId": "ingest#download_sip_request",
         "parameters": [
           {
@@ -8471,18 +8517,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "download_sip_request ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:download"
         ]
       }
     },
     "/ingest/sips/{uuid}/reject": {
       "post": {
-        "description": "Signal the SIP has been reviewed and rejected\n\n**Required security scopes for jwt**:\n  * `ingest:sips:review`",
+        "description": "Signal the SIP has been reviewed and rejected\n\n**Required security scopes for bearer**:\n  * `ingest:sips:review`",
         "operationId": "ingest#reject_sip",
         "parameters": [
           {
@@ -8538,18 +8587,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "reject_sip ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:review"
         ]
       }
     },
     "/ingest/sips/{uuid}/workflows": {
       "get": {
-        "description": "List all workflows for a SIP\n\n**Required security scopes for jwt**:\n  * `ingest:sips:workflows:list`",
+        "description": "List all workflows for a SIP\n\n**Required security scopes for bearer**:\n  * `ingest:sips:workflows:list`",
         "operationId": "ingest#list_sip_workflows",
         "parameters": [
           {
@@ -8596,18 +8648,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "list_sip_workflows ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:sips:workflows:list"
         ]
       }
     },
     "/ingest/users": {
       "get": {
-        "description": "List all users\n\n**Required security scopes for jwt**:\n  * `ingest:users:list`",
+        "description": "List all users\n\n**Required security scopes for bearer**:\n  * `ingest:users:list`",
         "operationId": "ingest#list_users",
         "parameters": [
           {
@@ -8626,6 +8681,7 @@
           },
           {
             "description": "Limit number of results to return",
+            "format": "int64",
             "in": "query",
             "name": "limit",
             "required": false,
@@ -8633,6 +8689,7 @@
           },
           {
             "description": "Offset from the beginning of the found set",
+            "format": "int64",
             "in": "query",
             "name": "offset",
             "required": false,
@@ -8670,18 +8727,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "list_users ingest",
         "tags": [
           "ingest"
+        ],
+        "x-required-scopes": [
+          "ingest:users:list"
         ]
       }
     },
     "/storage/aips": {
       "get": {
-        "description": "List all AIPs\n\n**Required security scopes for jwt**:\n  * `storage:aips:list`",
+        "description": "List all AIPs\n\n**Required security scopes for bearer**:\n  * `storage:aips:list`",
         "operationId": "storage#list_aips",
         "parameters": [
           {
@@ -8721,6 +8781,7 @@
           },
           {
             "description": "Limit number of results to return",
+            "format": "int64",
             "in": "query",
             "name": "limit",
             "required": false,
@@ -8728,6 +8789,7 @@
           },
           {
             "description": "Offset from the beginning of the found set",
+            "format": "int64",
             "in": "query",
             "name": "offset",
             "required": false,
@@ -8771,16 +8833,19 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "list_aips storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:list"
         ]
       },
       "post": {
-        "description": "Create a new AIP\n\n**Required security scopes for jwt**:\n  * `storage:aips:create`",
+        "description": "Create a new AIP\n\n**Required security scopes for bearer**:\n  * `storage:aips:create`",
         "operationId": "storage#create_aip",
         "parameters": [
           {
@@ -8828,18 +8893,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "create_aip storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:create"
         ]
       }
     },
     "/storage/aips/{uuid}": {
       "get": {
-        "description": "Show AIP by AIPID\n\n**Required security scopes for jwt**:\n  * `storage:aips:read`",
+        "description": "Show AIP by AIPID\n\n**Required security scopes for bearer**:\n  * `storage:aips:read`",
         "operationId": "storage#show_aip",
         "parameters": [
           {
@@ -8886,18 +8954,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "show_aip storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:read"
         ]
       }
     },
     "/storage/aips/{uuid}/deletion-auto": {
       "post": {
-        "description": "AIP deletion with auto-approval\n\n**Required security scopes for jwt**:\n  * `storage:aips:deletion:auto`",
+        "description": "AIP deletion with auto-approval\n\n**Required security scopes for bearer**:\n  * `storage:aips:deletion:auto`",
         "operationId": "storage#aip_deletion_auto",
         "parameters": [
           {
@@ -8964,18 +9035,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "aip_deletion_auto storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:deletion:auto"
         ]
       }
     },
     "/storage/aips/{uuid}/deletion-cancel": {
       "post": {
-        "description": "Cancel an AIP deletion request\n\n**Required security scopes for jwt**:\n  * `storage:aips:deletion:request`",
+        "description": "Cancel an AIP deletion request\n\n**Required security scopes for bearer**:\n  * `storage:aips:deletion:request`",
         "operationId": "storage#cancel_aip_deletion",
         "parameters": [
           {
@@ -9039,12 +9113,15 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "cancel_aip_deletion storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:deletion:request"
         ]
       }
     },
@@ -9070,7 +9147,8 @@
                 "type": "string"
               },
               "Content-Length": {
-                "type": "int64"
+                "format": "int64",
+                "type": "integer"
               },
               "Content-Type": {
                 "type": "string"
@@ -9111,13 +9189,14 @@
         "schemes": [
           "http"
         ],
+        "security": [],
         "summary": "aip_deletion_report storage",
         "tags": [
           "storage"
         ]
       },
       "post": {
-        "description": "Request access to download a deletion report\n\n**Required security scopes for jwt**:\n  * `storage:aips:deletion:report`",
+        "description": "Request access to download a deletion report\n\n**Required security scopes for bearer**:\n  * `storage:aips:deletion:report`",
         "operationId": "storage#aip_deletion_report_request",
         "parameters": [
           {
@@ -9169,18 +9248,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "aip_deletion_report_request storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:deletion:report"
         ]
       }
     },
     "/storage/aips/{uuid}/deletion-request": {
       "post": {
-        "description": "Request an AIP deletion\n\n**Required security scopes for jwt**:\n  * `storage:aips:deletion:request`",
+        "description": "Request an AIP deletion\n\n**Required security scopes for bearer**:\n  * `storage:aips:deletion:request`",
         "operationId": "storage#request_aip_deletion",
         "parameters": [
           {
@@ -9247,18 +9329,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "request_aip_deletion storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:deletion:request"
         ]
       }
     },
     "/storage/aips/{uuid}/deletion-review": {
       "post": {
-        "description": "Review an AIP deletion request\n\n**Required security scopes for jwt**:\n  * `storage:aips:deletion:review`",
+        "description": "Review an AIP deletion request\n\n**Required security scopes for bearer**:\n  * `storage:aips:deletion:review`",
         "operationId": "storage#review_aip_deletion",
         "parameters": [
           {
@@ -9325,12 +9410,15 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "review_aip_deletion storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:deletion:review"
         ]
       }
     },
@@ -9356,7 +9444,8 @@
                 "type": "string"
               },
               "Content-Length": {
-                "type": "int64"
+                "format": "int64",
+                "type": "integer"
               },
               "Content-Type": {
                 "type": "string"
@@ -9401,13 +9490,14 @@
         "schemes": [
           "http"
         ],
+        "security": [],
         "summary": "download_aip storage",
         "tags": [
           "storage"
         ]
       },
       "post": {
-        "description": "Request access to AIP download\n\n**Required security scopes for jwt**:\n  * `storage:aips:download`",
+        "description": "Request access to AIP download\n\n**Required security scopes for bearer**:\n  * `storage:aips:download`",
         "operationId": "storage#download_aip_request",
         "parameters": [
           {
@@ -9463,18 +9553,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "download_aip_request storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:download"
         ]
       }
     },
     "/storage/aips/{uuid}/reject": {
       "post": {
-        "description": "Reject an AIP\n\n**Required security scopes for jwt**:\n  * `storage:aips:review`",
+        "description": "Reject an AIP\n\n**Required security scopes for bearer**:\n  * `storage:aips:review`",
         "operationId": "storage#reject_aip",
         "parameters": [
           {
@@ -9530,18 +9623,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "reject_aip storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:review"
         ]
       }
     },
     "/storage/aips/{uuid}/store": {
       "get": {
-        "description": "Retrieve the status of a permanent storage location move of the AIP\n\n**Required security scopes for jwt**:\n  * `storage:aips:move`",
+        "description": "Retrieve the status of a permanent storage location move of the AIP\n\n**Required security scopes for bearer**:\n  * `storage:aips:move`",
         "operationId": "storage#move_aip_status",
         "parameters": [
           {
@@ -9597,16 +9693,19 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "move_aip_status storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:move"
         ]
       },
       "post": {
-        "description": "Move an AIP to a permanent storage location\n\n**Required security scopes for jwt**:\n  * `storage:aips:move`",
+        "description": "Move an AIP to a permanent storage location\n\n**Required security scopes for bearer**:\n  * `storage:aips:move`",
         "operationId": "storage#move_aip",
         "parameters": [
           {
@@ -9673,18 +9772,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "move_aip storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:move"
         ]
       }
     },
     "/storage/aips/{uuid}/submit": {
       "post": {
-        "description": "Start the submission of an AIP\n\n**Required security scopes for jwt**:\n  * `storage:aips:submit`",
+        "description": "Start the submission of an AIP\n\n**Required security scopes for bearer**:\n  * `storage:aips:submit`",
         "operationId": "storage#submit_aip",
         "parameters": [
           {
@@ -9747,18 +9849,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "submit_aip storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:submit"
         ]
       }
     },
     "/storage/aips/{uuid}/submit-complete": {
       "post": {
-        "description": "Signal that an AIP submission is complete\n\n**Required security scopes for jwt**:\n  * `storage:aips:submit`",
+        "description": "Signal that an AIP submission is complete\n\n**Required security scopes for bearer**:\n  * `storage:aips:submit`",
         "operationId": "storage#submit_aip_complete",
         "parameters": [
           {
@@ -9804,18 +9909,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "submit_aip_complete storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:submit"
         ]
       }
     },
     "/storage/aips/{uuid}/workflows": {
       "get": {
-        "description": "List workflows related to an AIP\n\n**Required security scopes for jwt**:\n  * `storage:aips:workflows:list`",
+        "description": "List workflows related to an AIP\n\n**Required security scopes for bearer**:\n  * `storage:aips:workflows:list`",
         "operationId": "storage#list_aip_workflows",
         "parameters": [
           {
@@ -9889,18 +9997,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "list_aip_workflows storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:aips:workflows:list"
         ]
       }
     },
     "/storage/locations": {
       "get": {
-        "description": "List locations\n\n**Required security scopes for jwt**:\n  * `storage:locations:list`",
+        "description": "List locations\n\n**Required security scopes for bearer**:\n  * `storage:locations:list`",
         "operationId": "storage#list_locations",
         "responses": {
           "200": {
@@ -9927,16 +10038,19 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "list_locations storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:locations:list"
         ]
       },
       "post": {
-        "description": "Create a storage location\n\n**Required security scopes for jwt**:\n  * `storage:locations:create`",
+        "description": "Create a storage location\n\n**Required security scopes for bearer**:\n  * `storage:locations:create`",
         "operationId": "storage#create_location",
         "parameters": [
           {
@@ -9987,18 +10101,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "create_location storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:locations:create"
         ]
       }
     },
     "/storage/locations/{uuid}": {
       "get": {
-        "description": "Show location by UUID\n\n**Required security scopes for jwt**:\n  * `storage:locations:read`",
+        "description": "Show location by UUID\n\n**Required security scopes for bearer**:\n  * `storage:locations:read`",
         "operationId": "storage#show_location",
         "parameters": [
           {
@@ -10045,18 +10162,21 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "show_location storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:locations:read"
         ]
       }
     },
     "/storage/locations/{uuid}/aips": {
       "get": {
-        "description": "List all the AIPs stored in the location with UUID\n\n**Required security scopes for jwt**:\n  * `storage:locations:aips:list`",
+        "description": "List all the AIPs stored in the location with UUID\n\n**Required security scopes for bearer**:\n  * `storage:locations:aips:list`",
         "operationId": "storage#list_location_aips",
         "parameters": [
           {
@@ -10109,12 +10229,15 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "list_location_aips storage",
         "tags": [
           "storage"
+        ],
+        "x-required-scopes": [
+          "storage:locations:aips:list"
         ]
       }
     },
@@ -10151,6 +10274,7 @@
         "schemes": [
           "ws"
         ],
+        "security": [],
         "summary": "monitor storage",
         "tags": [
           "storage"
@@ -10187,13 +10311,14 @@
         ],
         "security": [
           {
-            "jwt_header_Authorization": null
+            "bearer_header_Authorization": null
           }
         ],
         "summary": "monitor_request storage",
         "tags": [
           "storage"
-        ]
+        ],
+        "x-required-scopes": []
       }
     }
   },
@@ -10203,8 +10328,8 @@
     "application/gob"
   ],
   "securityDefinitions": {
-    "jwt_header_Authorization": {
-      "description": "Secures endpoint by requiring a valid JWT token.\n\n**Security Scopes**:\n  * `ingest:batches:create`: no description\n  * `ingest:batches:list`: no description\n  * `ingest:batches:read`: no description\n  * `ingest:batches:review`: no description\n  * `ingest:sips:create`: no description\n  * `ingest:sips:decision`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:auto`: no description\n  * `storage:aips:deletion:report`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
+    "bearer_header_Authorization": {
+      "description": "Secures endpoint by requiring a valid bearer token.\n\n**Security Scopes**:\n  * `ingest:batches:create`: no description\n  * `ingest:batches:list`: no description\n  * `ingest:batches:read`: no description\n  * `ingest:batches:review`: no description\n  * `ingest:sips:create`: no description\n  * `ingest:sips:decision`: no description\n  * `ingest:sips:download`: no description\n  * `ingest:sips:list`: no description\n  * `ingest:sips:read`: no description\n  * `ingest:sips:review`: no description\n  * `ingest:sips:upload`: no description\n  * `ingest:sips:workflows:list`: no description\n  * `ingest:sipsources:objects:list`: no description\n  * `ingest:users:list`: no description\n  * `storage:aips:create`: no description\n  * `storage:aips:deletion:auto`: no description\n  * `storage:aips:deletion:report`: no description\n  * `storage:aips:deletion:request`: no description\n  * `storage:aips:deletion:review`: no description\n  * `storage:aips:download`: no description\n  * `storage:aips:list`: no description\n  * `storage:aips:move`: no description\n  * `storage:aips:read`: no description\n  * `storage:aips:review`: no description\n  * `storage:aips:submit`: no description\n  * `storage:aips:workflows:list`: no description\n  * `storage:locations:aips:list`: no description\n  * `storage:locations:create`: no description\n  * `storage:locations:list`: no description\n  * `storage:locations:read`: no description",
       "in": "header",
       "name": "Authorization",
       "type": "apiKey"

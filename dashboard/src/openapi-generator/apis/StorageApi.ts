@@ -796,7 +796,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:deletion:auto"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -898,7 +898,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:deletion:report"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -961,7 +961,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:deletion:request"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1018,7 +1018,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:create"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1075,7 +1075,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:locations:create"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1177,7 +1177,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:download"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1239,7 +1239,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:workflows:list"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1311,7 +1311,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:list"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1365,7 +1365,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:locations:aips:list"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1413,7 +1413,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:locations:list"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1498,7 +1498,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", []);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1560,7 +1560,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:move"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1615,7 +1615,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:move"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1670,7 +1670,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:review"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1733,7 +1733,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:deletion:request"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1797,7 +1797,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:deletion:review"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1852,7 +1852,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:read"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1907,7 +1907,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:locations:read"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -1971,7 +1971,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:submit"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;
@@ -2027,7 +2027,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
-            const tokenString = await token("jwt_header_Authorization", ["storage:aips:submit"]);
+            const tokenString = await token("bearer_header_Authorization", []);
 
             if (tokenString) {
                 headerParameters["Authorization"] = `Bearer ${tokenString}`;

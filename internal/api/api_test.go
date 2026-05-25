@@ -26,10 +26,10 @@ type testStorageService struct {
 	*storagefake.MockService
 }
 
-func (s *testStorageService) JWTAuth(
+func (s *testStorageService) BearerAuth(
 	ctx context.Context,
 	token string,
-	_ *security.JWTScheme,
+	_ *security.BearerScheme,
 ) (context.Context, error) {
 	return ctx, nil
 }
@@ -38,7 +38,11 @@ type testIngestService struct {
 	*ingestfake.MockService
 }
 
-func (s *testIngestService) JWTAuth(ctx context.Context, token string, _ *security.JWTScheme) (context.Context, error) {
+func (s *testIngestService) BearerAuth(
+	ctx context.Context,
+	token string,
+	_ *security.BearerScheme,
+) (context.Context, error) {
 	return ctx, nil
 }
 

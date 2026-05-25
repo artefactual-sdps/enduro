@@ -21,9 +21,9 @@ var _ = Service("storage", func() {
 		Description("Request access to the /monitor WebSocket")
 		// Do not require any scope, user claims will be stored internally
 		// and checked in the monitor endpoint after validating the cookie.
-		Security(JWTAuth)
+		BearerAuthScopes()
 		Payload(func() {
-			Token("token", String)
+			BearerToken("token", String)
 		})
 		Result(func() {
 			Attribute("ticket", String)
@@ -42,7 +42,7 @@ var _ = Service("storage", func() {
 	})
 	Method("monitor", func() {
 		Description("Obtain access to the /monitor WebSocket")
-		// Disable JWTAuth security (it validates the previous method cookie).
+		// Disable BearerAuth security (it validates the previous method's cookie).
 		NoSecurity()
 		Payload(func() {
 			Attribute("ticket", String)
@@ -58,9 +58,7 @@ var _ = Service("storage", func() {
 	})
 	Method("list_aips", func() {
 		Description("List all AIPs")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSListAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSListAttr)
 		Payload(func() {
 			Attribute("query", String, "Search query to filter AIPs by name or UUID")
 			Attribute("earliest_created_time", String, func() {
@@ -75,7 +73,7 @@ var _ = Service("storage", func() {
 			Attribute("limit", Int, "Limit number of results to return")
 			Attribute("offset", Int, "Offset from the beginning of the found set")
 
-			Token("token", String)
+			BearerToken("token", String)
 		})
 		Result(AIPs)
 		Error("not_available")
@@ -97,9 +95,7 @@ var _ = Service("storage", func() {
 	})
 	Method("create_aip", func() {
 		Description("Create a new AIP")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSCreateAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSCreateAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of the AIP")
 			Attribute("name", String, "Name of the AIP")
@@ -109,7 +105,7 @@ var _ = Service("storage", func() {
 				Default("unspecified")
 			})
 			TypedAttributeUUID("location_uuid", "Identifier of the AIP's storage location")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid", "name", "object_key")
 		})
 		Result(AIP)
@@ -122,13 +118,11 @@ var _ = Service("storage", func() {
 	})
 	Method("submit_aip", func() {
 		Description("Start the submission of an AIP")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSSubmitAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSSubmitAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
 			Attribute("name", String)
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid", "name")
 		})
 		Result(SubmitAIPResult)
@@ -144,12 +138,10 @@ var _ = Service("storage", func() {
 	})
 	Method("submit_aip_complete", func() {
 		Description("Signal that an AIP submission is complete")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSSubmitAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSSubmitAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
@@ -164,12 +156,10 @@ var _ = Service("storage", func() {
 	})
 	Method("download_aip_request", func() {
 		Description("Request access to AIP download")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSDownloadAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSDownloadAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of the AIP to download")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(func() {
@@ -193,7 +183,7 @@ var _ = Service("storage", func() {
 	})
 	Method("download_aip", func() {
 		Description("Download AIP by AIPID")
-		// Disable JWTAuth security (it validates the previous method cookie).
+		// Disable BearerAuth security (it validates the previous method's cookie).
 		NoSecurity()
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of the AIP to download")
@@ -226,13 +216,11 @@ var _ = Service("storage", func() {
 	})
 	Method("move_aip", func() {
 		Description("Move an AIP to a permanent storage location")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSMoveAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSMoveAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
 			TypedAttributeUUID("location_uuid", "Identifier of storage location")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid", "location_uuid")
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
@@ -248,12 +236,10 @@ var _ = Service("storage", func() {
 	})
 	Method("move_aip_status", func() {
 		Description("Retrieve the status of a permanent storage location move of the AIP")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSMoveAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSMoveAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(MoveStatusResult)
@@ -268,12 +254,10 @@ var _ = Service("storage", func() {
 	})
 	Method("reject_aip", func() {
 		Description("Reject an AIP")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSReviewAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSReviewAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
@@ -289,12 +273,10 @@ var _ = Service("storage", func() {
 	})
 	Method("show_aip", func() {
 		Description("Show AIP by AIPID")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSReadAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSReadAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(AIP)
@@ -307,9 +289,7 @@ var _ = Service("storage", func() {
 	})
 	Method("list_aip_workflows", func() {
 		Description("List workflows related to an AIP")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSWorkflowsListAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSWorkflowsListAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
 			Attribute("status", String, func() {
@@ -318,7 +298,7 @@ var _ = Service("storage", func() {
 			Attribute("type", String, func() {
 				EnumAIPWorkflowType()
 			})
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(AIPWorkflows)
@@ -335,12 +315,10 @@ var _ = Service("storage", func() {
 	})
 	Method("aip_deletion_auto", func() {
 		Description("AIP deletion with auto-approval")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSDeletionAutoAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSDeletionAutoAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
-			Token("token", String)
+			BearerToken("token", String)
 			Attribute("reason", String)
 			Attribute("skip_report", Boolean, "Skip AIP deletion report generation")
 			Required("uuid", "reason")
@@ -358,12 +336,10 @@ var _ = Service("storage", func() {
 	})
 	Method("request_aip_deletion", func() {
 		Description("Request an AIP deletion")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSDeletionRequestAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSDeletionRequestAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
-			Token("token", String)
+			BearerToken("token", String)
 			Attribute("reason", String)
 			Required("uuid", "reason")
 		})
@@ -380,12 +356,10 @@ var _ = Service("storage", func() {
 	})
 	Method("review_aip_deletion", func() {
 		Description("Review an AIP deletion request")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSDeletionReviewAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSDeletionReviewAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
-			Token("token", String)
+			BearerToken("token", String)
 			Attribute("approved", Boolean)
 			Required("uuid", "approved")
 		})
@@ -402,12 +376,10 @@ var _ = Service("storage", func() {
 	})
 	Method("cancel_aip_deletion", func() {
 		Description("Cancel an AIP deletion request")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSDeletionRequestAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSDeletionRequestAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "Identifier of AIP")
-			Token("token", String)
+			BearerToken("token", String)
 			Attribute(
 				"check",
 				Boolean,
@@ -428,12 +400,10 @@ var _ = Service("storage", func() {
 	})
 	Method("aip_deletion_report_request", func() {
 		Description("Request access to download a deletion report")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageAIPSDeletionReportAttr)
-		})
+		BearerAuthScopes(auth.StorageAIPSDeletionReportAttr)
 		Payload(func() {
 			AttributeUUID("uuid", "UUID of the AIP")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(func() {
@@ -457,7 +427,7 @@ var _ = Service("storage", func() {
 	})
 	Method("aip_deletion_report", func() {
 		Description("Download deletion report by UUID")
-		// Disable JWTAuth security (it validates the previous method cookie).
+		// Disable BearerAuth security (it validates the previous method's cookie).
 		NoSecurity()
 		Payload(func() {
 			AttributeUUID("uuid", "UUID of the AIP")
@@ -490,11 +460,9 @@ var _ = Service("storage", func() {
 	})
 	Method("list_locations", func() {
 		Description("List locations")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageLocationsListAttr)
-		})
+		BearerAuthScopes(auth.StorageLocationsListAttr)
 		Payload(func() {
-			Token("token", String)
+			BearerToken("token", String)
 		})
 		Result(CollectionOf(Location), func() { View("default") })
 		HTTP(func() {
@@ -504,9 +472,7 @@ var _ = Service("storage", func() {
 	})
 	Method("create_location", func() {
 		Description("Create a storage location")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageLocationsCreateAttr)
-		})
+		BearerAuthScopes(auth.StorageLocationsCreateAttr)
 		Payload(func() {
 			Attribute("name", String)
 			Attribute("description", String)
@@ -522,7 +488,7 @@ var _ = Service("storage", func() {
 				Attribute("sftp", SFTPConfig)
 				Attribute("url", URLConfig)
 			})
-			Token("token", String)
+			BearerToken("token", String)
 			Required("name", "source", "purpose")
 		})
 		Result(CreateLocationResult)
@@ -535,13 +501,11 @@ var _ = Service("storage", func() {
 	})
 	Method("show_location", func() {
 		Description("Show location by UUID")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageLocationsReadAttr)
-		})
+		BearerAuthScopes(auth.StorageLocationsReadAttr)
 		Payload(func() {
 			// TODO: explore how we can use uuid.UUID that are also URL params.
 			AttributeUUID("uuid", "Identifier of location")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(Location)
@@ -554,13 +518,11 @@ var _ = Service("storage", func() {
 	})
 	Method("list_location_aips", func() {
 		Description("List all the AIPs stored in the location with UUID")
-		Security(JWTAuth, func() {
-			Scope(auth.StorageLocationsAIPSListAttr)
-		})
+		BearerAuthScopes(auth.StorageLocationsAIPSListAttr)
 		Payload(func() {
 			// TODO: explore how we can use uuid.UUID that are also URL params.
 			AttributeUUID("uuid", "Identifier of location")
-			Token("token", String)
+			BearerToken("token", String)
 			Required("uuid")
 		})
 		Result(CollectionOf(AIP), func() { View("default") })

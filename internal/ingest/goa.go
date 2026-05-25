@@ -27,10 +27,10 @@ var (
 	ErrInternalError         error = goaingest.MakeInternalError(errors.New("internal error"))
 )
 
-func (svc *ingestImpl) JWTAuth(
+func (svc *ingestImpl) BearerAuth(
 	ctx context.Context,
 	token string,
-	scheme *security.JWTScheme,
+	scheme *security.BearerScheme,
 ) (context.Context, error) {
 	claims, err := svc.tokenVerifier.Verify(ctx, token)
 	if err != nil {
