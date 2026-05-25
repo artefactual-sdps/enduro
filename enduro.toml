@@ -248,31 +248,9 @@ maxSize = 4294967296
 # It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
 retentionPeriod = "0"
 
-# internalStorage section configures a bucket where Enduro will place uploaded
-# SIPs and failed SIPs/PIPs. Make sure it doesn't match any of the watched buckets.
-# URL takes precedence over the individual settings below.
+# https://enduro.readthedocs.io/admin-manual/configuration/#internal-storage-configuration
 [internalStorage]
-url = "" # Azure example: "azblob://enduro-ingest"
-endpoint = "http://minio.enduro-sdps:9000"
-pathStyle = true
-accessKey = "minio"
-secretKey = "minio123"
-region = "us-west-1"
-bucket = "enduro-ingest"
-
-# Azure Blob Storage configuration. If the bucket is in Azure, set the URL as shown
-# in the example above and provide the storage account name and credentials here.
-[internalStorage.azure]
-storageAccount = ""
-
-# Shared key credential.
-storageKey = ""
-
-# Client secret credentials. All are required and they take precedence over the shared
-# key credential if both are provided.
-tenantID = ""
-clientID = ""
-clientSecret = ""
+url = "file:///home/enduro/internal-storage/ingest?metadata=skip&no_tmp_dir=true"
 
 # sipsource configures a SIP Source location where SIPs can be put and later
 # ingested via the Dashboard or API.
@@ -280,37 +258,16 @@ clientSecret = ""
 # id uniquely identifies the SIP Source and must be a valid Version 4 UUID.
 id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
 # name is a human-readable name for the SIP Source.
-name = "MinIO SIP Source"
+name = "Filesystem SIP Source"
 # retentionPeriod is the duration to retain SIPs before they are deleted after a
 # successful ingest. Set to a negative value to disable automatic deletion of SIPs.
 # Set to "0" (default) to delete SIPs immediately after they have been ingested.
 # It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
 retentionPeriod = "0"
 
-# sipsource.bucket is a bucket where SIPs can be put for ingest — make sure it doesn't
-# match any of the watched buckets. URL takes precedence over the individual settings below.
+# https://enduro.readthedocs.io/admin-manual/configuration/#sip-source-location-bucket
 [sipsource.bucket]
-url = "" # Azure example: "azblob://sipsource"
-endpoint = "http://minio.enduro-sdps:9000"
-pathStyle = true
-accessKey = "minio"
-secretKey = "minio123"
-region = "us-west-1"
-bucket = "sipsource"
-
-# Azure Blob Storage configuration. If the bucket is in Azure, set the URL as shown
-# in the example above and provide the storage account name and credentials here.
-[sipsource.bucket.azure]
-storageAccount = ""
-
-# Shared key credential.
-storageKey = ""
-
-# Client secret credentials. All are required and they take precedence over the shared
-# key credential if both are provided.
-tenantID = ""
-clientID = ""
-clientSecret = ""
+url = "file:///home/enduro/internal-storage/sip-source?metadata=skip"
 
 [telemetry.traces]
 enabled = false
@@ -415,31 +372,9 @@ driver = "mysql"
 dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro_storage"
 migrate = true
 
-# storage.internal section configures a bucket where Enduro will place staging AIPs
-# and reports. Make sure it doesn't match any of the ingest watched buckets.
-# URL takes precedence over the individual settings below.
+# https://enduro.readthedocs.io/admin-manual/configuration/#internal-location-used-for-storing-staging-aips-and-reports
 [storage.internal]
-url = "" # Azure example: "azblob://enduro-storage"
-endpoint = "http://minio.enduro-sdps:9000"
-pathStyle = true
-accessKey = "minio"
-secretKey = "minio123"
-region = "us-west-1"
-bucket = "enduro-storage"
-
-# Azure Blob Storage configuration. If the bucket is in Azure, set the URL as shown
-# in the example above and provide the storage account name and credentials here.
-[storage.internal.azure]
-storageAccount = ""
-
-# Shared key credential.
-storageKey = ""
-
-# Client secret credentials. All are required and they take precedence over the shared
-# key credential if both are provided.
-tenantID = ""
-clientID = ""
-clientSecret = ""
+url = "file:///home/enduro/internal-storage/storage?metadata=skip&no_tmp_dir=true"
 
 [storage.event]
 redisAddress = "redis://redis.enduro-sdps:6379"

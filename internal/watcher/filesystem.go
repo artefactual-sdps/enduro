@@ -14,7 +14,6 @@ import (
 	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/fsutil"
 	"gocloud.dev/blob"
-	_ "gocloud.dev/blob/fileblob"
 
 	"github.com/artefactual-sdps/enduro/internal/filenotify"
 )

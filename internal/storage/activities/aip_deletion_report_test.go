@@ -13,8 +13,6 @@ import (
 	temporalsdk_activity "go.temporal.io/sdk/activity"
 	temporalsdk_testsuite "go.temporal.io/sdk/testsuite"
 	"go.uber.org/mock/gomock"
-	"gocloud.dev/blob"
-	_ "gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -71,7 +69,10 @@ func expectReadWorkflows(msvc *fake.MockService, id int) {
 func expectLocation(t *testing.T, msvc *fake.MockService) {
 	t.Helper()
 
-	loc, err := storage.NewInternalLocation(t.Context(), &bucket.Config{URL: "mem://"})
+	loc, err := storage.NewInternalLocation(
+		t.Context(),
+		&bucket.Config{URL: "file://" + t.TempDir() + "?metadata=skip&no_tmp_dir=true"},
+	)
 	if err != nil {
 		t.Fatalf("couldn't create internal location: %v", err)
 	}
@@ -292,12 +293,6 @@ func TestAIPDeletionReportActivity(t *testing.T) {
 			if tc.expectedFormFill != nil {
 				tc.expectedFormFill(t, mff, aipID)
 			}
-
-			bucket, err := blob.OpenBucket(t.Context(), "mem://")
-			if err != nil {
-				t.Fatalf("failed to open in-memory bucket: %v", err)
-			}
-			defer bucket.Close()
 
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()

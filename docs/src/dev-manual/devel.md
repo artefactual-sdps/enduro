@@ -268,6 +268,18 @@ cURL by running the following make target:
 make upload-sample-transfer
 ```
 
+### Add a SIP to the filesystem SIP source
+
+When the local development configuration uses the filesystem-backed SIP source,
+copy a local SIP into the shared internal-storage PVC through the `enduro` pod:
+
+```bash
+POD=$(kubectl -n enduro-sdps get pod -l app=enduro -o jsonpath='{.items[0].metadata.name}')
+
+kubectl -n enduro-sdps -c enduro cp ./sip.zip \
+  "$POD":/home/enduro/internal-storage/sip-source/sip.zip
+```
+
 ### Flush
 
 Also in the Tilt UI header, click the trash button to flush the existing data.

@@ -24,7 +24,6 @@ import (
 	"go.uber.org/mock/gomock"
 	goa "goa.design/goa/v3/pkg"
 	"gocloud.dev/blob"
-	_ "gocloud.dev/blob/fileblob"
 	"gotest.tools/v3/assert"
 	tfs "gotest.tools/v3/fs"
 

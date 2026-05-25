@@ -27,6 +27,10 @@ func TestNewInternalLocation(t *testing.T) {
 			config: &bucket.Config{URL: "mem://"},
 		},
 		{
+			name:   "Returns an internal filesystem location",
+			config: &bucket.Config{URL: "file://" + t.TempDir() + "?metadata=skip&no_tmp_dir=true"},
+		},
+		{
 			name:   "Errors on an empty configuration",
 			config: &bucket.Config{},
 			errMsg: "NewInternalLocation: open bucket: s3blob.OpenBucket: bucketName is required",

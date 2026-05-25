@@ -11,9 +11,9 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/bucket"
 	"go.uber.org/mock/gomock"
 	"gocloud.dev/blob"
-	"gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
@@ -36,8 +36,12 @@ var (
 	content = []byte("zipcontent")
 )
 
-func setupBucket(t *testing.T) *blob.Bucket {
-	bucket := memblob.OpenBucket(nil)
+func setupBucket(t *testing.T, params string) *blob.Bucket {
+	bucket, err := bucket.NewWithConfig(
+		t.Context(),
+		&bucket.Config{URL: "file://" + t.TempDir() + params},
+	)
+	assert.NilError(t, err)
 	t.Cleanup(func() {
 		if err := bucket.Close(); err != nil {
 			t.Fatalf("close bucket: %v", err)
@@ -55,8 +59,6 @@ func setupBucket(t *testing.T) *blob.Bucket {
 
 func TestDownloadSipRequest(t *testing.T) {
 	t.Parallel()
-
-	bucket := setupBucket(t)
 
 	for _, tt := range []struct {
 		name    string
@@ -144,6 +146,7 @@ func TestDownloadSipRequest(t *testing.T) {
 			t.Parallel()
 
 			ctx := t.Context()
+			bucket := setupBucket(t, "")
 			ticketStoreMock := auth_fake.NewMockTicketStore(gomock.NewController(t))
 			psvcMock := persistence_fake.NewMockService(gomock.NewController(t))
 			if tt.mock != nil {
@@ -174,15 +177,14 @@ func TestDownloadSipRequest(t *testing.T) {
 func TestDownloadSip(t *testing.T) {
 	t.Parallel()
 
-	bucket := setupBucket(t)
-
 	for _, tt := range []struct {
-		name     string
-		payload  *goaingest.DownloadSipPayload
-		mock     func(context.Context, *auth_fake.MockTicketStore, *persistence_fake.MockService)
-		wantErr  string
-		wantRes  *goaingest.DownloadSipResult
-		wantBody []byte
+		name         string
+		bucketParams string
+		payload      *goaingest.DownloadSipPayload
+		mock         func(context.Context, *auth_fake.MockTicketStore, *persistence_fake.MockService)
+		wantErr      string
+		wantRes      *goaingest.DownloadSipResult
+		wantBody     []byte
 	}{
 		{
 			name:    "Fails to download a SIP (missing ticket)",
@@ -283,11 +285,35 @@ func TestDownloadSip(t *testing.T) {
 				ContentLength:      int64(len(content)),
 			},
 		},
+		{
+			name:         "Downloads a SIP with metadata=skip in fileblob bucket URL",
+			bucketParams: "?metadata=skip",
+			payload: &goaingest.DownloadSipPayload{
+				Ticket: new("valid-ticket"),
+				UUID:   sipUUID.String(),
+			},
+			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
+				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
+				psvc.EXPECT().
+					ReadSIP(ctx, sipUUID).
+					Return(
+						&datatypes.SIP{UUID: sipUUID, FailedAs: enums.SIPFailedAsSIP, FailedKey: key},
+						nil,
+					)
+			},
+			wantBody: content,
+			wantRes: &goaingest.DownloadSipResult{
+				ContentDisposition: fmt.Sprintf("attachment; filename=%q", key),
+				ContentType:        "application/octet-stream",
+				ContentLength:      int64(len(content)),
+			},
+		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
 			ctx := t.Context()
+			bucket := setupBucket(t, tt.bucketParams)
 			ticketStoreMock := auth_fake.NewMockTicketStore(gomock.NewController(t))
 			psvcMock := persistence_fake.NewMockService(gomock.NewController(t))
 			if tt.mock != nil {
