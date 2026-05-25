@@ -4,7 +4,10 @@ Depending on how Enduro is configured during installation, there are several
 different ways that operators can initiate an ingest workflow. Currently, in all
 cases Enduro needs one or more
 [SIPs](../glossary.md#submission-information-package-sip) to initiate an ingest
-workflow. Below are instructions on the 3 different ways that operators can
+workflow. SIPs can be uploaded individually or you can upload several SIPs
+together and have Enduro treat them as a batch.
+
+Below are instructions on the 3 different ways that operators can
 submit SIPs for ingest in Enduro.
 
 ## Prepare digital objects
@@ -37,13 +40,14 @@ For more information on how a3m/Archivematica implement the BagIt specification,
 please see [Unzipped and zipped bags][Unzipped and zipped bags]
 in the Archivematica documentation.
 
-## Upload SIPs via the user interface
+## Ingest single SIPs using local upload
 
 Enduro includes an upload page that allows operators to upload SIPs for ingest
 directly via the web browser. A system administrator can
 [configure a SIP upload size limit] — when configured the browser will check
 the package size upon submission and return an error to the operator if the
-package exceeds the configured limit.
+package exceeds the configured limit. Note that the local upload only allows for
+single SIP ingest — it does not support batches at this time.
 
 **To upload SIPs via the user interface**:
 
@@ -112,16 +116,16 @@ package exceeds the configured limit.
    at the top of the browse results. Each SIP uploaded will be ingested via its
    own separate workflow.
 
-## Initiate ingest using SIPs uploaded to a source location
+## Ingest single SIPs from a source location
 
 Another method of initiating ingest is by selecting packages previously uploaded
 to a [source location]. A **SIP source location** is an object storage location
 or filesystem directory for the deposit of SIPs that can then be ingested by an
 Enduro operator. The [SIP source configuration] must be set up by a system
-administrator. Unlike a [watched location] where an action is automatically
-triggered upon deposit, a source location is intended for asynchronous manual
-follow-up. In this case, Enduro operators can select zipped packages found in a
-configured source location and initiate ingest via the user interface.
+administrator. Unlike a [watched location], where an action is automatically
+triggered upon deposit, a source location is intended to hold SIPs until a user
+manually starts the ingest. In this case, Enduro operators can select zipped
+packages found in a configured source location and initiate ingest via the user interface.
 
 The deposit or upload process will depend on the source location used - to see
 an example of how packages are uploaded to a [MinIO] object store, see the
@@ -130,13 +134,13 @@ watched location [example shown below](#example---upload-via-minio).
 **To initiate ingest using SIPs in a source location**:
 
 1. Using the [navbar](../overview.md#navigation) on the left side of the screen,
-   click on "Upload SIPs." Enduro will redirect you to the SIP upload  page.
+   click on "Upload SIPs." Enduro will redirect you to the SIP upload page.
 
     ![The upload SIPs page](../screenshots/local-upload.png)
 
-2. For SIP ingest from a source location, click the "Select from source" tab at
-   the top of the page. Enduro will display a picker interface showing any
-   zipped packages that have been added to the configured source location
+2. Click the "Select from source" tab at the top of the page. Enduro will
+   display a picker interface showing any zipped packages that have been added
+   to the configured source location.
 
     !!! warning
 
@@ -166,13 +170,81 @@ watched location [example shown below](#example---upload-via-minio).
    at the bottom of the page.
 
     After a moment, the page will reload and you will be redirected to the SIP
-    browse page, where any new worklfows started by this process  will be
-    visible at the top of the browse results. Each SIP uploaded will be ingested
+    browse page, where any new workflows started by this process will be visible
+    at the top of the browse results. Each SIP uploaded will be ingested
     separately in its own workflow.
 
-    ![SIP ingests started from a source location](../screenshots/sip-source-upload-started.png)
+    ![SIP ingests started from a source
+    location](../screenshots/sip-source-upload-started.png)
 
-## Initiate ingest via a watched location upload
+## Ingest a batch of SIPs from a source location
+
+You can also use the source location ingest method to ingest a collection of
+SIPs as a [batch](../glossary.md#batch). The batch functionality groups
+individual SIPs together, making it easier to track a selection of SIPs as they
+are ingested into Enduro. It is also possible to write a [child
+workflow](../glossary.md#child-workflow) that performs an actions based on the
+result of a batch, rather than the result of an individual SIP.
+
+**To initiate ingest using SIPs in a source location**:
+
+1. Using the [navbar](../overview.md#navigation) on the left side of the screen,
+   click on "Upload SIPs." Enduro will redirect you to the SIP upload page.
+
+    ![The upload SIPs page](../screenshots/local-upload.png)
+
+2. Click the "Select from source" tab at the top of the page. Enduro will
+   display a picker interface showing any zipped packages that have been added
+   to the configured source location.
+
+    !!! warning
+
+        SIPs **must be zipped** to be properly ingested into Enduro. You cannot
+        start an ingest workflow from an unzipped directory.
+
+        SIPs _may_ be placed in subdirectories, but these subdirectories will
+        only be visible as part of the filepath to a file in the directory
+        (such as a ZIP file) - see for example the last SIP shown in the
+        screenshot below, which is in a `my-stuff` folder in the configured
+        source location.
+
+    ![The source location SIP picker](../screenshots/sip-source-upload-selection.png)
+
+3. Use the checkboxes next to the SIPs listed to select one or more SIPs for
+   ingest.
+
+    A count of selected SIPs will be shown above the right side of the picker.
+    You can click the "Select all" link to select all SIPs in the source
+    location, and/or use the "Clear all selections" link to uncheck any
+    previously selected SIPs.
+
+    ![2 SIPs selected from a source location](../screenshots/sip-source-start-upload.png)
+
+4. To group the selected SIPs as a batch, click on the toggle for "Treat this
+   ingest as a batch?" You can optionally give your batch a custom identifier,
+   which may make it easier to identify a particular batch later.
+
+    ![Batch mode toggled on and custom identifier
+    provided](../screenshots/sip-source-add-batch-id.png)
+
+5. When you are happy with your SIP selection, click the "Start ingest" button
+   at the bottom of the page.
+
+    After a moment, the page will reload and you will be redirected to the batch
+    details page, where you will see details about your batch and a list of all
+    of the SIPs in the batch. Each SIP uploaded will be ingested
+    separately in its own workflow, but you can track the batch as a whole from
+    this page.
+
+    ![A batch of SIPs in progress](../screenshots/batch-detail-page.png)
+
+To see a list of all batches, you can click on "Batches" in the left-hand
+sidebar. This will take you to the batch list.
+
+![List of all batches](../screenshots/batch-page.png)
+
+
+## Ingest single SIPs via a watched location upload
 
 It is also possible to configure Enduro to use a watched location for ingest.
 The [watched location configuration] must be done by a system administrator. The
