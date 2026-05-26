@@ -1,6 +1,9 @@
 name: SBOM (Dependency-Track)
 
 on:
+  pull_request:
+    paths:
+      - .github/workflows/generate-sbom.yml
   push:
     branches:
       - main
@@ -16,7 +19,7 @@ permissions:
 
 env:
   PROJECT_NAME: ${{ github.repository_owner }}-${{ github.event.repository.name }}
-  PROJECT_VERSION: ${{ (github.event_name == 'release' && github.event.release.tag_name) || github.ref_name }}
+  PROJECT_VERSION: ${{ (github.event_name == 'release' && github.event.release.tag_name) || github.sha }}
 
 jobs:
   sbom:
@@ -28,6 +31,9 @@ jobs:
             echo "Dependency-Track secrets not configured; set DEPENDENCY_TRACK_HOSTNAME and DEPENDENCY_TRACK_API_KEY."
             exit 1
           fi
+        env:
+          DEPENDENCY_TRACK_HOSTNAME: ${{ secrets.DEPENDENCY_TRACK_HOSTNAME }}
+          DEPENDENCY_TRACK_API_KEY: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
 
       - name: Checkout code
         uses: actions/checkout@v6
@@ -55,6 +61,7 @@ jobs:
 
       - name: Upload to Dependency-Track
         uses: DependencyTrack/gh-upload-sbom@v3
+        if: github.event_name == 'push' || github.event_name == 'release'
         with:
           serverhostname: ${{ secrets.DEPENDENCY_TRACK_HOSTNAME }}
           apikey: ${{ secrets.DEPENDENCY_TRACK_API_KEY }}
