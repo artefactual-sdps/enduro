@@ -56,7 +56,7 @@ require (
 	go.temporal.io/api v1.44.1
 	go.temporal.io/sdk v1.33.1
 	go.temporal.io/sdk/contrib/opentelemetry v0.6.0
-	go.uber.org/mock v0.4.0
+	go.uber.org/mock v0.6.0
 	goa.design/goa/v3 v3.28.0
 	goa.design/plugins/v3 v3.28.0
 	gocloud.dev v0.45.0
