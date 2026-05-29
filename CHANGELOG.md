@@ -8,6 +8,21 @@ requests.
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-05-29
+
+### Fixed
+
+- Avoid stale resources display while loading new ones ([#1637])
+
+### Changed
+
+- Exclude metadata files from SIP file count ([#1595])
+
+### Added
+
+- Pass batch identifier to postbatch child workflow ([#1646])
+- Show loading state on AIP download button ([#1629])
+
 ## [0.29.0] - 2026-05-07
 
 ### Added
@@ -353,7 +368,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.29.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.30.0...HEAD
+[0.30.0]: https://github.com/artefactual-sdps/enduro/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/artefactual-sdps/enduro/compare/v0.28.0...v0.29.0
 [0.28.0]: https://github.com/artefactual-sdps/enduro/compare/v0.27.0...v0.28.0
 [0.27.0]: https://github.com/artefactual-sdps/enduro/compare/v0.26.0...v0.27.0
@@ -383,6 +399,9 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1646]: https://github.com/artefactual-sdps/enduro/pull/1646
+[#1637]: https://github.com/artefactual-sdps/enduro/issues/1637
+[#1629]: https://github.com/artefactual-sdps/enduro/issues/1629
 [#1621]: https://github.com/artefactual-sdps/enduro/issues/1621
 [#1595]: https://github.com/artefactual-sdps/enduro/issues/1595
 [#1570]: https://github.com/artefactual-sdps/enduro/pull/1570
