@@ -3,114 +3,108 @@ package activities
 import (
 	"context"
 	"errors"
-	"io"
-	"net/http"
-	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/mockutil"
 	"go.uber.org/mock/gomock"
+	"gocloud.dev/blob"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/ingest/fake"
-	"github.com/artefactual-sdps/enduro/internal/storage"
+	storage_enums "github.com/artefactual-sdps/enduro/internal/storage/enums"
 )
 
-func MinIOUploadPreSignedURLHandler(t *testing.T) func(rw http.ResponseWriter, req *http.Request) {
-	return func(rw http.ResponseWriter, req *http.Request) {
-		bytes, err := io.ReadAll(req.Body)
-		defer req.Body.Close()
-
-		assert.NilError(t, err)
-		assert.DeepEqual(t, bytes, []byte("contents-of-the-aip"))
-	}
-}
-
 func TestUploadActivity(t *testing.T) {
-	t.Run("Activity runs successfully", func(t *testing.T) {
-		minioTestServer := httptest.NewServer(http.HandlerFunc(MinIOUploadPreSignedURLHandler(t)))
-		defer minioTestServer.Close()
+	t.Parallel()
 
-		aipUUID := uuid.New().String()
-		aipName := "aip.7z"
+	type test struct {
+		name        string
+		sourceFile  bool
+		createErr   error
+		wantErr     string
+		wantContent string
+	}
 
-		mockClient := fake.NewMockStorageClient(gomock.NewController(t))
-		mockClient.EXPECT().
-			SubmitAip(
-				mockutil.Context(),
-				&goastorage.SubmitAipPayload{
-					UUID: aipUUID,
-					Name: aipName,
+	for _, tc := range []test{
+		{
+			name:        "Activity runs successfully",
+			sourceFile:  true,
+			wantContent: "contents-of-the-aip",
+		},
+		{
+			name:       "Activity returns an error if CreateAIP fails",
+			sourceFile: true,
+			createErr:  errors.New("create failed"),
+			wantErr:    "create failed",
+		},
+		{
+			name:    "Activity returns an error if the source file is missing",
+			wantErr: "open",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			aipUUID := uuid.New().String()
+			aipName := "aip.7z"
+
+			mockClient := fake.NewMockStorageClient(gomock.NewController(t))
+			if tc.sourceFile {
+				mockClient.EXPECT().
+					CreateAip(
+						mockutil.Context(),
+						&goastorage.CreateAipPayload{
+							UUID:      aipUUID,
+							Name:      aipName,
+							ObjectKey: aipUUID,
+							Status:    storage_enums.AIPStatusPending.String(),
+						},
+					).
+					Return(&goastorage.AIP{}, tc.createErr)
+			}
+
+			var tmpDir *fs.Dir
+			if tc.sourceFile {
+				tmpDir = fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))
+			} else {
+				tmpDir = fs.NewDir(t, "")
+			}
+			defer tmpDir.Remove()
+
+			sharedDir := fs.NewDir(t, "")
+			defer sharedDir.Remove()
+			stagingBucket, err := bucket.NewWithConfig(
+				t.Context(),
+				&bucket.Config{
+					URL: "file://" + sharedDir.Path() + "?metadata=skip&no_tmp_dir=true",
 				},
-			).
-			Return(
-				&goastorage.SubmitAIPResult{
-					URL: minioTestServer.URL + "/" + storage.AIPPrefix + "foobar.7z",
-				},
-				nil,
 			)
-		mockClient.EXPECT().
-			SubmitAipComplete(
-				mockutil.Context(),
-				&goastorage.SubmitAipCompletePayload{UUID: aipUUID},
-			).
-			Return(nil)
+			assert.NilError(t, err)
+			defer stagingBucket.Close()
 
-		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))
-		defer tmpDir.Remove()
+			activity := NewUploadActivity(mockClient, blob.PrefixedBucket(stagingBucket, "aips/"))
 
-		activity := NewUploadActivity(mockClient)
+			_, err = activity.Execute(context.Background(), &UploadActivityParams{
+				AIPPath: tmpDir.Join(aipName),
+				AIPID:   aipUUID,
+				Name:    aipName,
+			})
+			if tc.wantErr != "" {
+				assert.ErrorContains(t, err, tc.wantErr)
+				return
+			}
+			assert.NilError(t, err)
 
-		_, err := activity.Execute(context.Background(), &UploadActivityParams{
-			AIPPath: tmpDir.Join(aipName),
-			AIPID:   aipUUID,
-			Name:    aipName,
+			if tc.wantContent != "" {
+				contents, err := os.ReadFile(sharedDir.Join("aips/", aipUUID))
+				assert.NilError(t, err)
+				assert.DeepEqual(t, string(contents), tc.wantContent)
+			}
 		})
-		assert.NilError(t, err)
-	})
-
-	t.Run("Activity returns an error if final Update call fails", func(t *testing.T) {
-		minioTestServer := httptest.NewServer(http.HandlerFunc(MinIOUploadPreSignedURLHandler(t)))
-		defer minioTestServer.Close()
-
-		aipUUID := uuid.New().String()
-		aipName := "aip.7z"
-
-		mockClient := fake.NewMockStorageClient(gomock.NewController(t))
-		mockClient.EXPECT().
-			SubmitAip(
-				mockutil.Context(),
-				&goastorage.SubmitAipPayload{
-					UUID: aipUUID,
-					Name: aipName,
-				},
-			).
-			Return(
-				&goastorage.SubmitAIPResult{
-					URL: minioTestServer.URL + "/" + storage.AIPPrefix + "foobar.7z",
-				},
-				nil,
-			)
-		mockClient.EXPECT().
-			SubmitAipComplete(
-				mockutil.Context(),
-				&goastorage.SubmitAipCompletePayload{UUID: aipUUID},
-			).
-			Return(errors.New("update failed"))
-
-		tmpDir := fs.NewDir(t, "", fs.WithFile("aip.7z", "contents-of-the-aip"))
-		defer tmpDir.Remove()
-
-		activity := NewUploadActivity(mockClient)
-
-		_, err := activity.Execute(context.Background(), &UploadActivityParams{
-			AIPPath: tmpDir.Join(aipName),
-			AIPID:   aipUUID,
-			Name:    aipName,
-		})
-		assert.Error(t, err, "update failed")
-	})
+	}
 }

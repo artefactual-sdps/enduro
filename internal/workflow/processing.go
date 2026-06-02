@@ -679,7 +679,7 @@ func (w *ProcessingWorkflow) transferA3m(
 		uploadTaskID = id
 	}
 
-	// Upload AIP to MinIO.
+	// Upload AIP to staging bucket.
 	{
 		activityOpts := temporalsdk_workflow.WithActivityOptions(sessCtx, temporalsdk_workflow.ActivityOptions{
 			StartToCloseTimeout: time.Hour * 24,

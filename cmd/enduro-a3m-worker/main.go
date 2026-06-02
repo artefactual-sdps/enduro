@@ -33,6 +33,7 @@ import (
 	temporalsdk_contrib_opentelemetry "go.temporal.io/sdk/contrib/opentelemetry"
 	temporalsdk_interceptor "go.temporal.io/sdk/interceptor"
 	temporalsdk_worker "go.temporal.io/sdk/worker"
+	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
@@ -53,6 +54,9 @@ import (
 
 const (
 	appName = "enduro-a3m-worker"
+
+	// aipStagingPrefix must match storage.AIPPrefix.
+	aipStagingPrefix = "aips/"
 )
 
 func main() {
@@ -213,6 +217,22 @@ func main() {
 		}
 	}
 
+	// Set up the storage API client.
+	storageClient, err := ingest.NewStorageClient(ctx, tp, cfg.Ingest.Storage)
+	if err != nil {
+		logger.Error(err, "Error setting up storage API client.")
+		os.Exit(1)
+	}
+
+	// Set up the AIP staging bucket.
+	aipStagingBucket, err := bucket.NewWithConfig(ctx, &cfg.A3m.AIPStaging)
+	if err != nil {
+		logger.Error(err, "Error setting up AIP staging bucket.")
+		os.Exit(1)
+	}
+	aipStagingBucket = blob.PrefixedBucket(aipStagingBucket, aipStagingPrefix)
+	defer aipStagingBucket.Close()
+
 	var g run.Group
 
 	// Activity worker.
@@ -289,17 +309,10 @@ func main() {
 			removepaths.New().Execute,
 			temporalsdk_activity.RegisterOptions{Name: removepaths.Name},
 		)
-
-		storageClient, err := ingest.NewStorageClient(ctx, tp, cfg.Ingest.Storage)
-		if err != nil {
-			logger.Error(err, "Error setting up storage API client.")
-			os.Exit(1)
-		}
 		w.RegisterActivityWithOptions(
-			activities.NewUploadActivity(storageClient).Execute,
+			activities.NewUploadActivity(storageClient, aipStagingBucket).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName},
 		)
-
 		w.RegisterActivityWithOptions(
 			activities.NewMoveToPermanentStorageActivity(storageClient).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.MoveToPermanentStorageActivityName},

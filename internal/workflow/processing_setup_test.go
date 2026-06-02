@@ -249,7 +249,7 @@ func (s *ProcessingWorkflowTestSuite) setupA3mWorkflowTest(
 		temporalsdk_activity.RegisterOptions{Name: a3m.CreateAIPActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		activities.NewUploadActivity(nil).Execute,
+		activities.NewUploadActivity(nil, nil).Execute,
 		temporalsdk_activity.RegisterOptions{Name: activities.UploadActivityName},
 	)
 	s.env.RegisterActivityWithOptions(

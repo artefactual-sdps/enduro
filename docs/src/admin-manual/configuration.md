@@ -550,6 +550,7 @@ Several Enduro settings use the same bucket configuration shape for filesystem
 or object store locations:
 
 * `[storage.internal]`
+* `[a3m.aipStaging]`
 * `[internalStorage]`
 * `[sipsource.bucket]`
 
@@ -561,8 +562,8 @@ alternatively be configured with the endpoint, credentials, region, and bucket
 fields below.
 
 Use the examples below with the section you are configuring. Replace
-`[example.bucket]` with `[storage.internal]`, `[internalStorage]`, or
-`[sipsource.bucket]` as appropriate.
+`[example.bucket]` with `[storage.internal]`, `[internalStorage]`,
+`[a3m.aipStaging]`, or `[sipsource.bucket]` as appropriate.
 
 **Example filesystem URL configuration**:
 
@@ -644,6 +645,7 @@ value. Then add the matching Azure authentication section:
 
 * `[storage.internal]` uses `[storage.internal.azure]`.
 * `[internalStorage]` uses `[internalStorage.azure]`.
+* `[a3m.aipStaging]` uses `[a3m.aipStaging.azure]`.
 * `[sipsource.bucket]` uses `[sipsource.bucket.azure]`.
 
 **Example Azure shared key configuration**:
@@ -814,9 +816,17 @@ Because Enduro writes to this bucket through `fileblob`, include
 be on another filesystem.
 
 For Archivematica deployments, this internal location is used for AIP deletion
-reports while final AIPs are stored in Archivematica Storage Service. The a3m
-AIP staging flow still requires an internal location backend that supports
-signed URLs.
+reports while final AIPs are stored in Archivematica Storage Service.
+
+For a3m deployments, the a3m worker writes completed AIPs directly to this
+bucket through its own `[a3m.aipStaging]` configuration, and the storage
+service later reads staged AIPs from this bucket. Both sections must point to
+the same bucket root. For filesystem-backed storage, this means the configured
+path must be mounted at the same path for both processes.
+
+Staged a3m AIPs are written under the fixed `aips/` prefix inside
+`[storage.internal]`. Configure the bucket URL as the root of the internal
+storage bucket, not as the `aips/` directory itself.
 
 #### Storage event listener
 
@@ -903,6 +913,28 @@ capacity = 1
     ```
 
 * `capacity`: Limits the number of SIPs a worker can process at one time.
+
+#### a3m AIP staging bucket
+
+These settings configure the ingest-domain view of the bucket where the a3m
+worker writes completed AIPs before the storage domain reads them. Configure
+this bucket with the shared
+[bucket configuration options](#bucket-configuration-options), using
+`[a3m.aipStaging]` as the bucket section. For Azure Blob Storage, use
+`[a3m.aipStaging.azure]` as the matching authentication section.
+
+For a3m deployments, this bucket must point to the same bucket root as
+`[storage.internal]`. Staged AIPs are written under the fixed `aips/` prefix
+inside the bucket.
+
+For Archivematica deployments this bucket configuration is ignored.
+
+**Example filesystem configuration**:
+
+```toml
+[a3m.aipStaging]
+url = "file:///home/enduro/internal-storage/storage?metadata=skip&no_tmp_dir=true"
+```
 
 #### a3m processing configuration
 

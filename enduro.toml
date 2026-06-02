@@ -3,6 +3,14 @@
 # parameter can be turned into an environment variable. See the Enduro
 # Administrator's manual for further guidance.
 
+#########################################################################
+#                                                                       #
+#                         GLOBAL CONFIGURATION                          #
+#                                                                       #
+#  The settings below are used by both the ingest and storage domains.  #
+#                                                                       #
+#########################################################################
+
 debug = true
 debugListen = "127.0.0.1:9001"
 # verbosity supports values from 0-128, with 0 as least verbose and 128
@@ -112,6 +120,19 @@ maxSize = 100
 # (default: false).
 compress = false
 
+[telemetry.traces]
+enabled = false
+address = ""
+samplingRatio = 1.0
+
+#########################################################################
+#                                                                       #
+#                         INGEST CONFIGURATION                          #
+#                                                                       #
+#         The settings below are only used by the ingest domain.        #
+#                                                                       #
+#########################################################################
+
 [database]
 driver = "mysql"
 dsn = "enduro:enduro123@tcp(mysql.enduro-sdps:3306)/enduro"
@@ -170,6 +191,10 @@ taskqueue = "am"
 [a3m]
 address = "127.0.0.1:7000"
 shareDir = "/home/a3m/.local/share/a3m/share"
+
+# https://enduro.readthedocs.io/admin-manual/configuration/#a3m-aip-staging-bucket
+[a3m.aipStaging]
+url = "file:///home/enduro/internal-storage/storage?metadata=skip&no_tmp_dir=true"
 
 [a3m.processing]
 AssignUuidsToDirectories = true
@@ -269,11 +294,6 @@ retentionPeriod = "0"
 [sipsource.bucket]
 url = "file:///home/enduro/internal-storage/sip-source?metadata=skip"
 
-[telemetry.traces]
-enabled = false
-address = ""
-samplingRatio = 1.0
-
 # Configuration for a preprocessing child workflow run before preservation.
 # Uncomment to activate. All fields except "extract" are required.
 # [[childWorkflows]]
@@ -350,9 +370,9 @@ retryBackoffCoefficient = 2.0
 
 #########################################################################
 #                                                                       #
-#                     STORAGE SERVICE CONFIGURATION                     #
+#                         STORAGE CONFIGURATION                         #
 #                                                                       #
-# The configuration settings below are specific to the storage service. #
+#        The settings below are only used by the storage domain.        #
 #                                                                       #
 #########################################################################
 

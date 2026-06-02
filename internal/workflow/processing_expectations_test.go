@@ -25,6 +25,7 @@ const (
 	tempPath            = "/tmp/enduro123456"
 	extractPath         = "/tmp/enduro123456/extract"
 	transferPath        = "/home/a3m/.local/share/a3m/share/enduro2985726865"
+	a3mAIPPath          = "/home/a3m/.local/share/a3m/share/completed/name.zip-9e8161cc-2815-4d6f-8a75-f003c41b257b.7z"
 	prepSharedPath      = "/home/enduro/preprocessing/"
 	prepDownloadPath    = "/home/enduro/preprocessing/enduro123456"
 	prepExtractPath     = "/home/enduro/preprocessing/enduro123456/extract"
@@ -419,15 +420,16 @@ var expectations = map[string]expectationFunc{
 				Path:         transferPath,
 				WorkflowUUID: workflowUUID,
 			},
-		).Return(&a3m.CreateAIPActivityResult{UUID: aipUUID.String()}, nil)
+		).Return(&a3m.CreateAIPActivityResult{UUID: aipUUID.String(), Path: a3mAIPPath}, nil)
 	},
 	"uploadAIP": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
 		s.env.OnActivity(
 			activities.UploadActivityName,
 			sessionCtx,
 			&activities.UploadActivityParams{
-				Name:  sipName,
-				AIPID: aipUUID.String(),
+				Name:    sipName,
+				AIPID:   aipUUID.String(),
+				AIPPath: a3mAIPPath,
 			},
 		).Return(nil, nil)
 	},

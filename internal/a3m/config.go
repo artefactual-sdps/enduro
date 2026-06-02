@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	transferservice "buf.build/gen/go/artefactual/a3m/protocolbuffers/go/a3m/api/transferservice/v1beta1"
+	"go.artefactual.dev/tools/bucket"
 )
 
 const (
@@ -15,6 +16,8 @@ type Config struct {
 	Name     string
 	ShareDir string
 	Address  string
+
+	AIPStaging bucket.Config
 
 	Processing
 }
