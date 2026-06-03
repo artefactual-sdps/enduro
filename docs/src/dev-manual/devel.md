@@ -268,7 +268,14 @@ cURL by running the following make target:
 make upload-sample-transfer
 ```
 
-### Interact with the internal-storage volume
+### Flush
+
+Also in the Tilt UI header, click the trash button to flush the existing data.
+This will recreate the Enduro MySQL databases, and restart the required
+resources. It does not recreate the Temporal databases or clean the
+internal-storage volume; data in those locations remains after the flush.
+
+## Interact with the internal-storage volume
 
 The local development environment mounts the shared internal-storage PVC in the
 `enduro` pod at `/home/enduro/internal-storage`. The volume contains internal
@@ -341,31 +348,6 @@ kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
 kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
   rm -rf "$INTERNAL_STORAGE/sip-source/example-transfer"
 ```
-
-### Flush
-
-Also in the Tilt UI header, click the trash button to flush the existing data.
-This will recreate the MySQL databases and the MinIO buckets, and restart the
-required resources.
-
-### Generators
-
-Grouped as tools, there are some code generators:
-
-- `gen-goa`: generates the Go API code based on the Goa design.
-- `gen-dashboard-client`: generates the TypeScript client code for the API.
-- `gen-ent`: generates the Go database code.
-
-This resources need to be triggered manually by default, but they can be
-configured to run automatically on code changes in the Tilt UI.
-
-## Known issues
-
-### MinIO uploads don't trigger workflows
-
-The setup of the Minio buckets and the communication between Minio and Redis
-is sometimes not setup properly. To solve it, from the Tilt UI, restart the
-`minio` resource and then trigger the `minio-setup-buckets` resource.
 
 [administrator configuration]: ../admin-manual/configuration.md
 [docker]: https://docs.docker.com/get-docker/

@@ -264,7 +264,6 @@ cmd_button(
     "kubectl config set-context --current --namespace enduro-sdps; \
     kubectl delete job --all; \
     kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml; \
-    kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml; \
     kubectl wait --for=condition=complete --timeout=120s job --all; \
     kubectl rollout restart deployment enduro; \
     kubectl rollout restart {kind} enduro-{pres_sys}; \
