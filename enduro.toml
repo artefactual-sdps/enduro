@@ -288,7 +288,7 @@ name = "Filesystem SIP Source"
 # successful ingest. Set to a negative value to disable automatic deletion of SIPs.
 # Set to "0" (default) to delete SIPs immediately after they have been ingested.
 # It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
-retentionPeriod = "0"
+retentionPeriod = "-1s"
 
 # https://enduro.readthedocs.io/admin-manual/configuration/#sip-source-location-bucket
 [sipsource.bucket]
