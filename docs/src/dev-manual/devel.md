@@ -268,16 +268,78 @@ cURL by running the following make target:
 make upload-sample-transfer
 ```
 
-### Add a SIP to the filesystem SIP source
+### Interact with the internal-storage volume
 
-When the local development configuration uses the filesystem-backed SIP source,
-copy a local SIP into the shared internal-storage PVC through the `enduro` pod:
+The local development environment mounts the shared internal-storage PVC in the
+`enduro` pod at `/home/enduro/internal-storage`. The volume contains internal
+folders used by different local workflows:
+
+- `ingest`: internal storage for the ingest domain.
+- `storage`: internal storage for the storage domain.
+- `sip-source`: filesystem-backed SIP source.
+- `perma-aips`: local permanent AIP storage.
+
+Use the `enduro` pod as an access point for copying, listing, and removing files
+in any of those folders. Declare the following variables related to the Enduro
+Kubernetes pod in the same BASH script as the subsequent `kubectl` commands:
 
 ```bash
-POD=$(kubectl -n enduro-sdps get pod -l app=enduro -o jsonpath='{.items[0].metadata.name}')
+NAMESPACE=enduro-sdps
+CONTAINER=enduro
+INTERNAL_STORAGE=/home/enduro/internal-storage
+POD=$(kubectl -n "$NAMESPACE" get pod -l app=enduro \
+  -o jsonpath='{.items[0].metadata.name}')
+```
 
-kubectl -n enduro-sdps -c enduro cp ./sip.zip \
-  "$POD":/home/enduro/internal-storage/sip-source/sip.zip
+Copy a single local file ("./sip.zip") into the "sip-source" folder in the
+Enduro pod:
+
+```bash
+kubectl -n "$NAMESPACE" cp -c "$CONTAINER" ./sip.zip \
+  "$POD:$INTERNAL_STORAGE/sip-source/sip.zip"
+```
+
+Copy the contents of a local directory into one of the internal folders without
+creating an extra parent directory in the volume:
+
+```bash
+tar -C ./local-sips -cf - . | \
+  kubectl -n "$NAMESPACE" exec -i "$POD" -c "$CONTAINER" -- \
+    tar -C "$INTERNAL_STORAGE/sip-source" -xf -
+```
+
+List the internal-storage volume locations, or inspect a specific location:
+
+```bash
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  ls -la "$INTERNAL_STORAGE"
+
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  ls -la "$INTERNAL_STORAGE/sip-source"
+
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  ls -la "$INTERNAL_STORAGE/perma-aips"
+```
+
+Copy a stored AIP from the internal-storage volume to your host. The source path
+uses the storage object key. If you download the same AIP from the Enduro UI,
+the downloaded file uses the full AIP name with its extension, not just the UUID;
+with the default a3m configuration, that extension should be `.7z`.
+
+```bash
+kubectl -n "$NAMESPACE" cp -c "$CONTAINER" \
+  "$POD:$INTERNAL_STORAGE/perma-aips/1a1453ed-ec55-4bf3-8900-37df6ee1634d" \
+  "./1a1453ed-ec55-4bf3-8900-37df6ee1634d.7z"
+```
+
+Delete an individual file or folder from the volume:
+
+```bash
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  rm -f "$INTERNAL_STORAGE/sip-source/sip.zip"
+
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  rm -rf "$INTERNAL_STORAGE/sip-source/example-transfer"
 ```
 
 ### Flush
