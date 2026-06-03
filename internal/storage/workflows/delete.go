@@ -193,7 +193,7 @@ func (w *StorageDeleteWorkflow) Execute(
 	switch locationInfo.Source {
 	case enums.LocationSourceAmss:
 		deleted, err = w.deleteAIPFromAMSSLocation(ctx, aip.UUID, locationInfo.Config)
-	case enums.LocationSourceS3:
+	case enums.LocationSourceS3, enums.LocationSourceFilesystem:
 		activityOpts := localActivityOptions(ctx)
 		err = temporalsdk_workflow.ExecuteLocalActivity(
 			activityOpts,

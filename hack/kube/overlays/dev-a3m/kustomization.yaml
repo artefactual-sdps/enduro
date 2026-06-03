@@ -5,7 +5,7 @@ resources:
   - ../../base
   - ../../components/dev
   - enduro-a3m.yaml
-  - mysql-create-locations-job.yaml
+  - mysql-create-a3m-location-job.yaml
 images:
   - name: ghcr.io/artefactual-sdps/enduro:main
     newName: enduro

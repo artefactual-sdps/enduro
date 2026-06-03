@@ -213,13 +213,13 @@ k8s_resource("redis", labels=["Others"])
 k8s_resource("minio-setup-buckets", labels=["Tools"], resource_deps=["minio"])
 if PRES_SYS == 'am':
   k8s_resource(
-    "mysql-create-amss-location",
+    "mysql-create-am-location",
     labels=["Tools"],
     resource_deps=["enduro"],
   )
 else:
   k8s_resource(
-    "mysql-create-locations",
+    "mysql-create-a3m-location",
     labels=["Tools"],
     resource_deps=["enduro"],
   )
@@ -266,10 +266,12 @@ cmd_button(
     kubectl create -f hack/kube/tools/mysql-recreate-databases-job.yaml; \
     kubectl create -f hack/kube/tools/minio-recreate-buckets-job.yaml; \
     kubectl wait --for=condition=complete --timeout=120s job --all; \
-    kubectl rollout restart deployment temporal; \
     kubectl rollout restart deployment enduro; \
-    kubectl rollout restart statefulset enduro-{pres_sys}; \
-    kubectl create -f hack/kube/base/mysql-create-locations-job.yaml;".format(pres_sys=PRES_SYS),
+    kubectl rollout restart {kind} enduro-{pres_sys}; \
+    kubectl create -f hack/kube/base/mysql-create-{pres_sys}-location-job.yaml;".format(
+      pres_sys=PRES_SYS,
+      kind="statefulset" if PRES_SYS == "a3m" else "deployment",
+    ),
   ],
   location="nav",
   icon_name="delete",

@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: mysql-create-amss-location
+  name: mysql-create-am-location
 spec:
   backoffLimit: 100
   template:
@@ -9,7 +9,7 @@ spec:
       serviceAccountName: sdps
       restartPolicy: OnFailure
       containers:
-        - name: create-locations
+        - name: create-am-location
           image: mysql:8.4.8
           imagePullPolicy: IfNotPresent
           env:

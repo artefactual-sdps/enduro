@@ -7,7 +7,7 @@ resources:
   - ambox.yaml
   - enduro-am-secret.yaml
   - enduro-am.yaml
-  - mysql-create-amss-location-job.yaml
+  - mysql-create-am-location-job.yaml
 images:
   - name: ghcr.io/artefactual-sdps/enduro:main
     newName: enduro

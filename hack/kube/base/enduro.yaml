@@ -21,11 +21,15 @@ spec:
           image: busybox:1.37.0
           imagePullPolicy: IfNotPresent
           command:
-            [
-              "sh",
-              "-c",
-              "mkdir -p /home/enduro/internal-storage/ingest /home/enduro/internal-storage/storage /home/enduro/internal-storage/sip-source && chown -R 1000:1000 /home/enduro/internal-storage",
-            ]
+            - sh
+            - -c
+            - |
+              mkdir -p \
+                /home/enduro/internal-storage/ingest \
+                /home/enduro/internal-storage/storage \
+                /home/enduro/internal-storage/sip-source \
+                /home/enduro/internal-storage/perma-aips
+              chown -R 1000:1000 /home/enduro/internal-storage
           volumeMounts:
             - name: enduro-internal-storage
               mountPath: /home/enduro/internal-storage

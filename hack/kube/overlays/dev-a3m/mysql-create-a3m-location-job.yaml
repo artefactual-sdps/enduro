@@ -1,0 +1,34 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-create-a3m-location
+spec:
+  backoffLimit: 100
+  template:
+    spec:
+      serviceAccountName: sdps
+      restartPolicy: OnFailure
+      containers:
+        - name: create-a3m-location
+          image: mysql:8.4.8
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+          command:
+            - sh
+            - -c
+            - >
+              LOC='{"url": {"url": "file:///home/enduro/internal-storage/perma-aips?metadata=skip&no_tmp_dir=true"}}' &&
+              mysql -h mysql.enduro-sdps -u $MYSQL_USER -p$MYSQL_PASSWORD --execute "
+                INSERT IGNORE INTO enduro_storage.location (name, description, source, purpose, uuid, created_at, config)
+                VALUES ('perma-aips', '', 'filesystem', 'aip_store', '48a27da2-9b26-47b2-9aa1-bc572c6cf67f', NOW(), '$LOC');
+              " && echo "Location created"

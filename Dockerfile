@@ -68,7 +68,8 @@ RUN ["mkdir", "-m", "700", "-p", \
     "/home/enduro/logs", \
     "/home/enduro/internal-storage/ingest", \
     "/home/enduro/internal-storage/storage", \
-    "/home/enduro/internal-storage/sip-source"]
+    "/home/enduro/internal-storage/sip-source", \
+    "/home/enduro/internal-storage/perma-aips"]
 
 FROM base AS enduro
 COPY --link --chown=1000:1000 --from=build-enduro /out/enduro /home/enduro/bin/enduro
