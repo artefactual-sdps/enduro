@@ -727,7 +727,7 @@
           "description": "abc123",
           "name": "abc123",
           "purpose": "aip_store",
-          "source": "minio"
+          "source": "s3"
         },
         "properties": {
           "config": {
@@ -793,11 +793,12 @@
           "source": {
             "enum": [
               "unspecified",
-              "minio",
+              "s3",
               "sftp",
-              "amss"
+              "amss",
+              "filesystem"
             ],
-            "example": "minio",
+            "example": "s3",
             "type": "string"
           }
         },
@@ -1881,7 +1882,7 @@
           "description": "abc123",
           "name": "abc123",
           "purpose": "aip_store",
-          "source": "minio",
+          "source": "s3",
           "uuid": "abc123"
         },
         "properties": {
@@ -1960,11 +1961,12 @@
             "description": "Data source of the location",
             "enum": [
               "unspecified",
-              "minio",
+              "s3",
               "sftp",
-              "amss"
+              "amss",
+              "filesystem"
             ],
-            "example": "minio",
+            "example": "s3",
             "type": "string"
           },
           "uuid": {
@@ -2168,7 +2170,7 @@
             "description": "abc123",
             "name": "abc123",
             "purpose": "aip_store",
-            "source": "minio",
+            "source": "s3",
             "uuid": "abc123"
           },
           "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
@@ -2219,7 +2221,7 @@
           "description": "abc123",
           "name": "abc123",
           "purpose": "aip_store",
-          "source": "minio",
+          "source": "s3",
           "uuid": "abc123"
         },
         "properties": {
@@ -2254,11 +2256,12 @@
             "description": "Data source of the location",
             "enum": [
               "unspecified",
-              "minio",
+              "s3",
               "sftp",
-              "amss"
+              "amss",
+              "filesystem"
             ],
-            "example": "minio",
+            "example": "s3",
             "type": "string"
           },
           "uuid": {
@@ -2283,7 +2286,7 @@
             "description": "abc123",
             "name": "abc123",
             "purpose": "aip_store",
-            "source": "minio",
+            "source": "s3",
             "uuid": "abc123"
           }
         ],
@@ -2810,7 +2813,7 @@
               "description": "abc123",
               "name": "abc123",
               "purpose": "aip_store",
-              "source": "minio",
+              "source": "s3",
               "uuid": "abc123"
             },
             "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
@@ -2834,7 +2837,7 @@
                 "description": "abc123",
                 "name": "abc123",
                 "purpose": "aip_store",
-                "source": "minio",
+                "source": "s3",
                 "uuid": "abc123"
               },
               "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
@@ -7167,7 +7170,7 @@
                     "description": "abc123",
                     "name": "abc123",
                     "purpose": "aip_store",
-                    "source": "minio",
+                    "source": "s3",
                     "uuid": "abc123"
                   }
                 ],
@@ -7236,7 +7239,7 @@
                 "description": "abc123",
                 "name": "abc123",
                 "purpose": "aip_store",
-                "source": "minio"
+                "source": "s3"
               },
               "schema": {
                 "$ref": "#/components/schemas/CreateLocationRequestBody"
@@ -7346,7 +7349,7 @@
                   "description": "abc123",
                   "name": "abc123",
                   "purpose": "aip_store",
-                  "source": "minio",
+                  "source": "s3",
                   "uuid": "abc123"
                 },
                 "schema": {
@@ -7550,7 +7553,7 @@
                       "description": "abc123",
                       "name": "abc123",
                       "purpose": "aip_store",
-                      "source": "minio",
+                      "source": "s3",
                       "uuid": "abc123"
                     },
                     "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"

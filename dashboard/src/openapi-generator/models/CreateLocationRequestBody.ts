@@ -74,9 +74,10 @@ export type CreateLocationRequestBodyPurposeEnum = typeof CreateLocationRequestB
  */
 export const CreateLocationRequestBodySourceEnum = {
     Unspecified: 'unspecified',
-    Minio: 'minio',
+    S3: 's3',
     Sftp: 'sftp',
-    Amss: 'amss'
+    Amss: 'amss',
+    Filesystem: 'filesystem'
 } as const;
 export type CreateLocationRequestBodySourceEnum = typeof CreateLocationRequestBodySourceEnum[keyof typeof CreateLocationRequestBodySourceEnum];
 

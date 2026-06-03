@@ -531,14 +531,14 @@ func TestServiceList(t *testing.T) {
 			{
 				Name:        "perma-aips-1",
 				Description: new("One"),
-				Source:      "minio",
+				Source:      "s3",
 				Purpose:     "aip_store",
 				UUID:        uuid.New(),
 			},
 			{
 				Name:        "perma-aips-2",
 				Description: new("Two"),
-				Source:      "minio",
+				Source:      "s3",
 				Purpose:     "aip_store",
 				UUID:        uuid.New(),
 			},
@@ -1652,7 +1652,7 @@ func TestServiceAddLocation(t *testing.T) {
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
-			Source:  enums.LocationSourceMinio.String(),
+			Source:  enums.LocationSourceS3.String(),
 			Purpose: enums.LocationPurposeAipStore.String(),
 			Config:  goastorage.Config{},
 		})
@@ -1669,7 +1669,7 @@ func TestServiceAddLocation(t *testing.T) {
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
-			Source:  enums.LocationSourceMinio.String(),
+			Source:  enums.LocationSourceS3.String(),
 			Purpose: enums.LocationPurposeAipStore.String(),
 			Config:  goastorage.NewConfigS3(&goastorage.S3Config{}),
 		})
@@ -1689,7 +1689,7 @@ func TestServiceAddLocation(t *testing.T) {
 				gomock.AssignableToTypeOf(ctx),
 				&goastorage.Location{
 					Name:    "perma-aips-1",
-					Source:  enums.LocationSourceMinio.String(),
+					Source:  enums.LocationSourceS3.String(),
 					Purpose: enums.LocationPurposeAipStore.String(),
 					UUID:    uuid0,
 				},
@@ -1707,7 +1707,7 @@ func TestServiceAddLocation(t *testing.T) {
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
-			Source:  enums.LocationSourceMinio.String(),
+			Source:  enums.LocationSourceS3.String(),
 			Purpose: enums.LocationPurposeAipStore.String(),
 			Config: goastorage.NewConfigS3(&goastorage.S3Config{
 				Bucket: "perma-aips-1",
@@ -1730,7 +1730,7 @@ func TestServiceAddLocation(t *testing.T) {
 				gomock.AssignableToTypeOf(ctx),
 				&goastorage.Location{
 					Name:    "perma-aips-1",
-					Source:  enums.LocationSourceMinio.String(),
+					Source:  enums.LocationSourceS3.String(),
 					Purpose: enums.LocationPurposeAipStore.String(),
 					UUID:    uuid0,
 				},
@@ -1748,7 +1748,7 @@ func TestServiceAddLocation(t *testing.T) {
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
-			Source:  enums.LocationSourceMinio.String(),
+			Source:  enums.LocationSourceS3.String(),
 			Purpose: enums.LocationPurposeAipStore.String(),
 			Config: goastorage.NewConfigS3(&goastorage.S3Config{
 				Bucket: "perma-aips-1",
@@ -1770,7 +1770,7 @@ func TestServiceAddLocation(t *testing.T) {
 				gomock.AssignableToTypeOf(ctx),
 				&goastorage.Location{
 					Name:    "perma-aips-1",
-					Source:  enums.LocationSourceMinio.String(),
+					Source:  enums.LocationSourceS3.String(),
 					Purpose: enums.LocationPurposeAipStore.String(),
 					UUID:    uuid0,
 				},
@@ -1787,7 +1787,7 @@ func TestServiceAddLocation(t *testing.T) {
 
 		res, err := svc.CreateLocation(ctx, &goastorage.CreateLocationPayload{
 			Name:    "perma-aips-1",
-			Source:  enums.LocationSourceMinio.String(),
+			Source:  enums.LocationSourceS3.String(),
 			Purpose: enums.LocationPurposeAipStore.String(),
 			Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 				URL: "mem://",

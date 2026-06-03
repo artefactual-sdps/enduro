@@ -80,7 +80,7 @@ func TestReadLocationInfoLocalActivity(t *testing.T) {
 	ctx := context.Background()
 	location := &goastorage.Location{
 		UUID:   locationID,
-		Source: enums.LocationSourceMinio.String(),
+		Source: enums.LocationSourceS3.String(),
 		Config: goastorage.NewConfigURL(&goastorage.URLConfig{URL: "mem://"}),
 	}
 	svc.EXPECT().ReadLocation(ctx, locationID).Return(location, nil)
@@ -88,7 +88,7 @@ func TestReadLocationInfoLocalActivity(t *testing.T) {
 	re, err := storage.ReadLocationInfoLocalActivity(ctx, svc, locationID)
 	assert.NilError(t, err)
 	assert.DeepEqual(t, re, &storage.ReadLocationInfoLocalActivityResult{
-		Source: enums.LocationSourceMinio,
+		Source: enums.LocationSourceS3,
 		Config: types.LocationConfig{Value: &types.URLConfig{URL: "mem://"}},
 	})
 }

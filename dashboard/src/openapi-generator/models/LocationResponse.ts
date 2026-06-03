@@ -72,9 +72,10 @@ export type LocationResponsePurposeEnum = typeof LocationResponsePurposeEnum[key
  */
 export const LocationResponseSourceEnum = {
     Unspecified: 'unspecified',
-    Minio: 'minio',
+    S3: 's3',
     Sftp: 'sftp',
-    Amss: 'amss'
+    Amss: 'amss',
+    Filesystem: 'filesystem'
 } as const;
 export type LocationResponseSourceEnum = typeof LocationResponseSourceEnum[keyof typeof LocationResponseSourceEnum];
 

@@ -1610,7 +1610,7 @@ func storageCreateLocationUsage() {
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "storage create-location --body '{\n      \"config\": {\n         \"bucket\": \"abc123\",\n         \"endpoint\": \"abc123\",\n         \"key\": \"abc123\",\n         \"path_style\": false,\n         \"profile\": \"abc123\",\n         \"region\": \"abc123\",\n         \"secret\": \"abc123\",\n         \"token\": \"abc123\"\n      },\n      \"description\": \"abc123\",\n      \"name\": \"abc123\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"minio\"\n   }' --token \"abc123\"")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "storage create-location --body '{\n      \"config\": {\n         \"bucket\": \"abc123\",\n         \"endpoint\": \"abc123\",\n         \"key\": \"abc123\",\n         \"path_style\": false,\n         \"profile\": \"abc123\",\n         \"region\": \"abc123\",\n         \"secret\": \"abc123\",\n         \"token\": \"abc123\"\n      },\n      \"description\": \"abc123\",\n      \"name\": \"abc123\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"s3\"\n   }' --token \"abc123\"")
 }
 
 func storageShowLocationUsage() {

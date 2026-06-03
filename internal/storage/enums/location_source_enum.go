@@ -13,18 +13,20 @@ import (
 
 const (
 	LocationSourceUnspecified LocationSource = "unspecified"
-	LocationSourceMinio       LocationSource = "minio"
+	LocationSourceS3          LocationSource = "s3"
 	LocationSourceSftp        LocationSource = "sftp"
 	LocationSourceAmss        LocationSource = "amss"
+	LocationSourceFilesystem  LocationSource = "filesystem"
 )
 
 var ErrInvalidLocationSource = fmt.Errorf("not a valid LocationSource, try [%s]", strings.Join(_LocationSourceNames, ", "))
 
 var _LocationSourceNames = []string{
 	string(LocationSourceUnspecified),
-	string(LocationSourceMinio),
+	string(LocationSourceS3),
 	string(LocationSourceSftp),
 	string(LocationSourceAmss),
+	string(LocationSourceFilesystem),
 }
 
 // LocationSourceNames returns a list of possible string values of LocationSource.
@@ -48,9 +50,10 @@ func (x LocationSource) IsValid() bool {
 
 var _LocationSourceValue = map[string]LocationSource{
 	"unspecified": LocationSourceUnspecified,
-	"minio":       LocationSourceMinio,
+	"s3":          LocationSourceS3,
 	"sftp":        LocationSourceSftp,
 	"amss":        LocationSourceAmss,
+	"filesystem":  LocationSourceFilesystem,
 }
 
 // ParseLocationSource attempts to convert a string to a LocationSource.

@@ -3651,12 +3651,13 @@ definitions:
                 type: string
                 description: Data source of the location
                 default: unspecified
-                example: minio
+                example: s3
                 enum:
                     - unspecified
-                    - minio
+                    - s3
                     - sftp
                     - amss
+                    - filesystem
             uuid:
                 type: string
                 example: abc123
@@ -3666,7 +3667,7 @@ definitions:
             description: abc123
             name: abc123
             purpose: aip_store
-            source: minio
+            source: s3
             uuid: abc123
         required:
             - name
@@ -5390,7 +5391,7 @@ definitions:
                 description: abc123
                 name: abc123
                 purpose: aip_store
-                source: minio
+                source: s3
                 uuid: abc123
             uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         required:
@@ -5443,12 +5444,13 @@ definitions:
                 type: string
                 description: Data source of the location
                 default: unspecified
-                example: minio
+                example: s3
                 enum:
                     - unspecified
-                    - minio
+                    - s3
                     - sftp
                     - amss
+                    - filesystem
             uuid:
                 type: string
                 example: abc123
@@ -5458,7 +5460,7 @@ definitions:
             description: abc123
             name: abc123
             purpose: aip_store
-            source: minio
+            source: s3
             uuid: abc123
         required:
             - name
@@ -6741,12 +6743,13 @@ definitions:
                     - aip_store
             source:
                 type: string
-                example: minio
+                example: s3
                 enum:
                     - unspecified
-                    - minio
+                    - s3
                     - sftp
                     - amss
+                    - filesystem
         example:
             config:
                 bucket: abc123
@@ -6760,7 +6763,7 @@ definitions:
             description: abc123
             name: abc123
             purpose: aip_store
-            source: minio
+            source: s3
         required:
             - name
             - source
@@ -6984,7 +6987,7 @@ definitions:
                         description: abc123
                         name: abc123
                         purpose: aip_store
-                        source: minio
+                        source: s3
                         uuid: abc123
                     uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 required:
@@ -7006,7 +7009,7 @@ definitions:
                     description: abc123
                     name: abc123
                     purpose: aip_store
-                    source: minio
+                    source: s3
                     uuid: abc123
                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     StorageListAipsNotAvailableResponseBody:
@@ -7149,7 +7152,7 @@ definitions:
               description: abc123
               name: abc123
               purpose: aip_store
-              source: minio
+              source: s3
               uuid: abc123
     StorageMonitorInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'

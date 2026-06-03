@@ -4551,8 +4551,8 @@ func ValidateLocationResponseBody(body *LocationResponseBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Source != nil {
-		if !(*body.Source == "unspecified" || *body.Source == "minio" || *body.Source == "sftp" || *body.Source == "amss") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []any{"unspecified", "minio", "sftp", "amss"}))
+		if !(*body.Source == "unspecified" || *body.Source == "s3" || *body.Source == "sftp" || *body.Source == "amss" || *body.Source == "filesystem") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []any{"unspecified", "s3", "sftp", "amss", "filesystem"}))
 		}
 	}
 	if body.Purpose != nil {
@@ -4966,8 +4966,8 @@ func ValidateLocationResponse(body *LocationResponse) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "body"))
 	}
 	if body.Source != nil {
-		if !(*body.Source == "unspecified" || *body.Source == "minio" || *body.Source == "sftp" || *body.Source == "amss") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []any{"unspecified", "minio", "sftp", "amss"}))
+		if !(*body.Source == "unspecified" || *body.Source == "s3" || *body.Source == "sftp" || *body.Source == "amss" || *body.Source == "filesystem") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []any{"unspecified", "s3", "sftp", "amss", "filesystem"}))
 		}
 	}
 	if body.Purpose != nil {

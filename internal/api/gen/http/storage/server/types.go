@@ -3234,8 +3234,8 @@ func ValidateCreateLocationRequestBody(body *CreateLocationRequestBody) (err err
 		err = goa.MergeErrors(err, goa.MissingFieldError("purpose", "body"))
 	}
 	if body.Source != nil {
-		if !(*body.Source == "unspecified" || *body.Source == "minio" || *body.Source == "sftp" || *body.Source == "amss") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []any{"unspecified", "minio", "sftp", "amss"}))
+		if !(*body.Source == "unspecified" || *body.Source == "s3" || *body.Source == "sftp" || *body.Source == "amss" || *body.Source == "filesystem") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", *body.Source, []any{"unspecified", "s3", "sftp", "amss", "filesystem"}))
 		}
 	}
 	if body.Purpose != nil {

@@ -1256,8 +1256,8 @@ func ValidateLocationView(result *LocationView) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("created_at", "result"))
 	}
 	if result.Source != nil {
-		if !(*result.Source == "unspecified" || *result.Source == "minio" || *result.Source == "sftp" || *result.Source == "amss") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.source", *result.Source, []any{"unspecified", "minio", "sftp", "amss"}))
+		if !(*result.Source == "unspecified" || *result.Source == "s3" || *result.Source == "sftp" || *result.Source == "amss" || *result.Source == "filesystem") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("result.source", *result.Source, []any{"unspecified", "s3", "sftp", "amss", "filesystem"}))
 		}
 	}
 	if result.Purpose != nil {

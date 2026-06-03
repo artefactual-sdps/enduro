@@ -3,9 +3,10 @@ package enums
 /*
 ENUM(
 unspecified
-minio
+s3
 sftp
 amss
+filesystem
 )
 */
 type LocationSource string

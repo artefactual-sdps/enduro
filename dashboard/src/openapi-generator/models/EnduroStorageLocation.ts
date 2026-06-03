@@ -86,9 +86,10 @@ export type EnduroStorageLocationPurposeEnum = typeof EnduroStorageLocationPurpo
  */
 export const EnduroStorageLocationSourceEnum = {
     Unspecified: 'unspecified',
-    Minio: 'minio',
+    S3: 's3',
     Sftp: 'sftp',
-    Amss: 'amss'
+    Amss: 'amss',
+    Filesystem: 'filesystem'
 } as const;
 export type EnduroStorageLocationSourceEnum = typeof EnduroStorageLocationSourceEnum[keyof typeof EnduroStorageLocationSourceEnum];
 

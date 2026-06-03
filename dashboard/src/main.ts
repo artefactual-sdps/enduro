@@ -66,12 +66,14 @@ app.config.globalProperties.$filters = {
   },
   getLocationSourceLabel(value: api.EnduroStorageLocationSourceEnum) {
     switch (value) {
-      case api.EnduroStorageLocationSourceEnum.Minio:
-        return "MinIO";
+      case api.EnduroStorageLocationSourceEnum.S3:
+        return "S3";
       case api.EnduroStorageLocationSourceEnum.Sftp:
         return "SFTP";
       case api.EnduroStorageLocationSourceEnum.Amss:
         return "AMSS";
+      case api.EnduroStorageLocationSourceEnum.Filesystem:
+        return "Filesystem";
       case api.EnduroStorageLocationSourceEnum.Unspecified:
         return "Unspecified";
       default:
