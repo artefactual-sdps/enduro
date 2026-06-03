@@ -60,14 +60,14 @@ func TestUpdateAIPStatusLocalActivity(t *testing.T) {
 	assert.NilError(t, err)
 }
 
-func TestDeleteFromMinIOLocationLocalActivity(t *testing.T) {
+func TestDeleteAIPLocalActivity(t *testing.T) {
 	t.Parallel()
 
 	svc := fake.NewMockService(gomock.NewController(t))
 	ctx := context.Background()
 	svc.EXPECT().DeleteAip(ctx, aipID).Return(nil)
 
-	err := storage.DeleteFromMinIOLocationLocalActivity(ctx, svc, &storage.DeleteFromMinIOLocationLocalActivityParams{
+	err := storage.DeleteAIPLocalActivity(ctx, svc, &storage.DeleteAIPLocalActivityParams{
 		AIPID: aipID,
 	})
 	assert.NilError(t, err)

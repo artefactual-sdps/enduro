@@ -102,10 +102,10 @@ func TestStorageMoveWorkflow(t *testing.T) {
 	).Return(deleteTaskDBID, nil)
 
 	env.OnActivity(
-		storage.DeleteFromMinIOLocationLocalActivity,
+		storage.DeleteAIPLocalActivity,
 		mock.AnythingOfType("*context.valueCtx"),
 		storagesvc,
-		&storage.DeleteFromMinIOLocationLocalActivityParams{
+		&storage.DeleteAIPLocalActivityParams{
 			AIPID: req.AIPID,
 		},
 	).Return(nil)

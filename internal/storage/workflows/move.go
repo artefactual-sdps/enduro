@@ -120,9 +120,9 @@ func (w *StorageMoveWorkflow) Execute(
 		activityOpts := localActivityOptions(ctx)
 		err := temporalsdk_workflow.ExecuteLocalActivity(
 			activityOpts,
-			storage.DeleteFromMinIOLocationLocalActivity,
+			storage.DeleteAIPLocalActivity,
 			w.storagesvc,
-			&storage.DeleteFromMinIOLocationLocalActivityParams{
+			&storage.DeleteAIPLocalActivityParams{
 				AIPID: req.AIPID,
 			},
 		).Get(activityOpts, nil)

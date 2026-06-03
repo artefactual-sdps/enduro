@@ -197,9 +197,9 @@ func (w *StorageDeleteWorkflow) Execute(
 		activityOpts := localActivityOptions(ctx)
 		err = temporalsdk_workflow.ExecuteLocalActivity(
 			activityOpts,
-			storage.DeleteFromMinIOLocationLocalActivity,
+			storage.DeleteAIPLocalActivity,
 			w.storagesvc,
-			&storage.DeleteFromMinIOLocationLocalActivityParams{AIPID: req.AIPID},
+			&storage.DeleteAIPLocalActivityParams{AIPID: req.AIPID},
 		).Get(activityOpts, nil)
 	default:
 		err = fmt.Errorf("unsupported location source: %s", locationInfo.Source)

@@ -45,14 +45,14 @@ func UpdateAIPStatusLocalActivity(
 	return storagesvc.UpdateAipStatus(ctx, params.AIPID, params.Status)
 }
 
-type DeleteFromMinIOLocationLocalActivityParams struct {
+type DeleteAIPLocalActivityParams struct {
 	AIPID uuid.UUID
 }
 
-func DeleteFromMinIOLocationLocalActivity(
+func DeleteAIPLocalActivity(
 	ctx context.Context,
 	storagesvc Service,
-	params *DeleteFromMinIOLocationLocalActivityParams,
+	params *DeleteAIPLocalActivityParams,
 ) error {
 	return storagesvc.DeleteAip(ctx, params.AIPID)
 }
