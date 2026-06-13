@@ -16,13 +16,13 @@ run failure-oblivious and durable preservation workflows.
 
 This version of Enduro can use either [a3m][a3m] or
 [Archivematica][archivematica] as its preservation engine, alongside
-[MinIO][MinIO] for object storage and [Temporal][Temporal] to manage the
-workflow. This combination of tools is intended to be lightweight, scalable, and
-easy to install.
+filesystem-backed storage and S3-compatible storage locations. Enduro also
+supports Azure Blob Storage for internal buckets and SIP sources.
+[Temporal][Temporal] manages the workflow. This combination of tools is
+intended to be lightweight, scalable, and easy to install.
 
 [a3m]: https://github.com/artefactual-labs/a3m
 [archivematica]: https://archivematica.org
 [automation-tools]: https://github.com/artefactual/automation-tools
 [Enduro]: https://github.com/artefactual-sdps/enduro
-[MinIO]: https://min.io/
 [Temporal]: https://temporal.io/

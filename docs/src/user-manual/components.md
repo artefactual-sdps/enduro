@@ -21,9 +21,8 @@ If needed when using a3m as the configured
 [be configured] for the long-term storage of Archival Information Packages
 (AIPs) after preservation has completed succesfully.
 
-Currently, Enduro uses [MinIO](https://min.io/) as its default object storage,
-though a local filesystem directory, Azure blob, or other S3-like object store
-can be used instead.
+Enduro can use filesystem-backed internal object storage. It can also use Azure
+Blob Storage or S3-like object stores for internal buckets.
 
 ## Messaging queue
 
@@ -143,6 +142,6 @@ Enduro uses its own lightweight storage functionality to cover basic storage
 service requirements, and an S3-like object store or local filesystem directory
 can [be configured] for AIP storage.
 
-[be configured]: ../admin-manual/configuration.md#internal-location-used-for-storing-aips-a3m
+[be configured]: ../admin-manual/configuration.md#internal-location-used-for-storing-staging-aips-and-reports
 [configured queue]: ../admin-manual/configuration.md#watched-location-configuration
 [watched location]: ../user-manual/ingest/submitting-content.md#initiate-ingest-via-a-watched-location-upload

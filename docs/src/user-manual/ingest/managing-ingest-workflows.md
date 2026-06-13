@@ -418,7 +418,7 @@ the workflow.
 [preprocessing-base]: https://github.com/artefactual-sdps/preprocessing-base
 [preprocessing-sfa]: https://github.com/artefactual-sdps/preprocessing-sfa
 [preservation engine]: ../glossary.md#preservation-engine
-[SIP source location]: submitting-content.md#add-sips-via-a-source-location
+[SIP source location]: submitting-content.md#initiate-ingest-using-sips-uploaded-to-a-source-location
 [Submitting content for ingest]: submitting-content.md
 [system error]: ../glossary.md#system-error
 [task]: ../glossary.md#task

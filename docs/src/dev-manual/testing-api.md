@@ -8,7 +8,7 @@ The development environment exposes two APIs from the Kubernetes cluster:
 - **Port 9002** serves the API without authentication.
 
 The latter is used to remove the need for an access token during development,
-like running `make upload-sample-transfer`, while the first one can be used to
+like running `make upload-sip`, while the first one can be used to
 test the [identity and access control configuration](../admin-manual/iac.md).
 
 ## Getting an access token

@@ -126,14 +126,13 @@ Keycloack:
 | Service       | URL                     | Username    | Password       |
 | ------------- | ----------------------- | ----------- | -------------- |
 | Dashboard     | <http://localhost:8080> | `admin`     | `admin123`     |
-| MinIO console | <http://localhost:7460> | `minio`     | `minio123`     |
 | Temporal UI   | <http://localhost:7440> | `admin`     | `admin123`     |
 | Grafana       | <http://localhost:7490> | `admin`     | `admin123`     |
 | Keycloak      | <http://localhost:7470> | `keycloak`  | `keycloak123`  |
 
-## Submit your first transfer
+## Submit your first SIP
 
-You're all set up! Go ahead and [submit your first transfer].
+You're all set up! Go ahead and [submit your first SIP].
 
 ## Live updates
 
@@ -248,24 +247,24 @@ preprocessing manifests and be called `preprocessing-pvc`.
 
 ## Tilt UI helpers
 
-### Upload to MinIO
+### Submit a SIP
 
-In the Tilt UI header there is a cloud icon/button that allows you to configure
-and trigger an upload to the `sips` bucket in MinIO. Click the caret to set the
-path to a file/directory in the host and a MinIO object name, then click the
-cloud icon to trigger the upload.
+In the Tilt UI header there is a cloud icon/button that uploads a SIP through
+the internal API. Open the button menu to set a local ZIP path, or leave the
+path empty to upload the default sample SIP.
 
-For example, to upload an existing sample ZIP from the project folder (make
-sure you update `/path/to/enduro` to the proper project folder in the host):
-
-- Host path: `/path/to/enduro/hack/sampledata/StructB-AM.zip`
-- Object name: `StructB-AM.zip`
-
-Alternatively, you can submit a transfer using the `/ingest/sip/upload` API via
-cURL by running the following make target:
+Alternatively, you can submit a SIP using the `/ingest/sip/upload` API via cURL
+by running the following make target:
 
 ```bash
-make upload-sample-transfer
+make upload-sip
+```
+
+By default, this uploads `internal/testdata/zipped_transfer/small.zip`. To
+upload a different ZIP file, pass its local path:
+
+```bash
+make upload-sip LOCAL_PATH=/path/to/sip.zip
 ```
 
 ### Flush
@@ -368,5 +367,5 @@ kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
 [gcc]: https://gcc.gnu.org/
 [visual studio code]: https://code.visualstudio.com/
 [working with archivematica]: archivematica.md
-[submit your first transfer]: devel.md#upload-to-minio
+[submit your first SIP]: devel.md#submit-a-sip
 [bine]: https://github.com/artefactual-labs/bine

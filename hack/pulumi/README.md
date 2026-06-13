@@ -46,8 +46,6 @@ Use the [Pulumi CLI] `config set` and `config set-all` commands to configure.
 - `mysqlUser` **secret**: MySQL user for the Enduro and Temporal databases.
 - `mysqlPassword` **secret**: Password for the MySQL user.
 - `mysqlRootPassword` **secret**: Password for the MySQL root user.
-- `minioUser` **secret**: MinIO user for the UI and API.
-- `minioPassword` **secret**: Password for the MinIO user.
 - `oidcUrl` **secret**: OIDC provider URL.
 - `oidcEnduroClientId` **secret**: OIDC client id for Enduro.
 - `oidcTemporalClientId` **secret**: OIDC client id for Temporal.
@@ -78,8 +76,6 @@ pulumi config set-all \
   --secret mysqlUser=abc123 \
   --secret mysqlPassword=abc123 \
   --secret mysqlRootPassword=abc123 \
-  --secret minioUser=abc123 \
-  --secret minioPassword=abc123 \
   --plaintext buildImages=true \
   --secret oidcUrl=abc123 \
   --secret oidcEnduroClientId=abc123 \

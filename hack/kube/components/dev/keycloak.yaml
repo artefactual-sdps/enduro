@@ -94,9 +94,6 @@ data:
           "attributes": {
             "enduro": [
               "*"
-            ],
-            "minio": [
-              "consoleAdmin"
             ]
           }
         },
@@ -255,15 +252,6 @@ data:
           "protocol": "openid-connect"
         },
         {
-          "id": "414cb0db-7ea3-4f4b-a14a-ed5963fd4d3c",
-          "clientId": "minio",
-          "name": "MinIO",
-          "enabled": true,
-          "secret": "K5do3lZeHEzR3ajzCEudH4OGe7KWUmfe",
-          "redirectUris": ["http://localhost:7460/oauth_callback"],
-          "protocol": "openid-connect"
-        },
-        {
           "id": "42c7a9e6-d81c-4b3f-aaeb-32de8dea0bf2",
           "clientId": "grafana",
           "name": "Grafana",
@@ -370,31 +358,6 @@ data:
               }
             }
           ]
-        },
-        {
-          "id": "5a80ac85-4aa1-4c17-8db9-a4ff0c6d505c",
-          "name": "minio",
-          "description": "Custom scope for MinIO policies",
-          "protocol": "openid-connect",
-          "attributes": {
-            "include.in.token.scope": "true"
-          },
-          "protocolMappers": [
-            {
-              "id": "d7424a01-3209-40d3-b8a9-cb1058ae8547",
-              "name": "minio-scope-mapper",
-              "protocol": "openid-connect",
-              "protocolMapper": "oidc-usermodel-attribute-mapper",
-              "config": {
-                "multivalued": "true",
-                "user.attribute": "minio",
-                "id.token.claim": "true",
-                "access.token.claim": "true",
-                "claim.name": "minio",
-                "jsonType.label": "String"
-              }
-            }
-          ]
         }
       ],
       "defaultDefaultClientScopes": [
@@ -402,7 +365,6 @@ data:
         "email"
       ],
       "defaultOptionalClientScopes": [
-        "enduro",
-        "minio"
+        "enduro"
       ]
     }

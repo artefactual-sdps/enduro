@@ -383,7 +383,7 @@ long-term preservation. See: [Components](components.md).
 PREMIS Editorial Committee - "PREMIS Data Dictionary for Preservation Metadata,"
 Version 3.0. June 2015. Glossary, p. 270.
 
-[Add SIPs via a source location]: ../user-manual/ingest/submitting-content.md#add-sips-via-a-source-location
+[Add SIPs via a source location]: ../user-manual/ingest/submitting-content.md#initiate-ingest-using-sips-uploaded-to-a-source-location
 [Initiate ingest via a watched location upload]: ../user-manual/ingest/submitting-content.md#initiate-ingest-via-a-watched-location-upload
 [object storage]: https://en.wikipedia.org/wiki/Object_storage
 [Watched location configuration]: ../admin-manual/configuration.md#watched-location-configuration

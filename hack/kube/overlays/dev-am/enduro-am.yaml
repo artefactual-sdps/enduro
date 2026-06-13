@@ -62,16 +62,6 @@ spec:
                 secretKeyRef:
                   name: mysql-secret
                   key: password
-            - name: MINIO_USER
-              valueFrom:
-                secretKeyRef:
-                  name: minio-secret
-                  key: user
-            - name: MINIO_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: minio-secret
-                  key: password
             - name: ENDURO_DATABASE_DSN
               value: $(MYSQL_USER):$(MYSQL_PASSWORD)@tcp(mysql.enduro-sdps:3306)/enduro
             - name: ENDURO_STORAGE_DATABASE_DSN
@@ -81,10 +71,6 @@ spec:
                 secretKeyRef:
                   name: enduro-am-secret
                   key: amss_location_id
-            - name: ENDURO_WATCHER_EMBEDDED_KEY
-              value: $(MINIO_USER)
-            - name: ENDURO_WATCHER_EMBEDDED_SECRET
-              value: $(MINIO_PASSWORD)
             - name: ENDURO_TELEMETRY_TRACES_ENABLED
               value: "true"
             - name: ENDURO_TELEMETRY_TRACES_ADDRESS

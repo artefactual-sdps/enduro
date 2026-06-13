@@ -228,12 +228,11 @@ tparse: # @HELP Run all tests and output a coverage report using tparse.
 tparse: tool-tparse
 	go test -count=1 -json -cover $(TEST_PACKAGES) | tparse -follow -all -notests
 
-upload-sample-transfer: # @HELP Upload sample transfer (small.zip).
-upload-sample-transfer: ADDRESS ?= localhost:9002
-upload-sample-transfer:
-	curl \
-		-F "file=@$(CURDIR)/internal/testdata/zipped_transfer/small.zip" \
-		http://$(ADDRESS)/ingest/sips/upload
+upload-sip: # @HELP Upload SIP via the internal API.
+upload-sip: ADDRESS ?= localhost:9002
+upload-sip: LOCAL_PATH ?= $(CURDIR)/internal/testdata/zipped_transfer/small.zip
+upload-sip:
+	curl -F "file=@$(LOCAL_PATH)" http://$(ADDRESS)/ingest/sips/upload
 
 workflowcheck: # @HELP Detect non-determinism in workflow functions.
 workflowcheck: tool-workflowcheck

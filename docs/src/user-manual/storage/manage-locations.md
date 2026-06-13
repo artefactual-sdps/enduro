@@ -6,8 +6,8 @@ An overview of Locations in the Storage domain of Enduro.
 
 A **location** in Enduro is a space configured for the storage of information
 packages. This can be a directory on a local server or a third-party object
-store (such as those provided by MinIO, S3, and Azure). See the Administrator's
-manual for more information on supported storage solutions and configuration.
+store, such as S3-compatible storage. See the Administrator's manual for more
+information on supported storage solutions and configuration.
 
 You can browse configured locations, see basic details about them, and
 view a list of AIPs associated with a given location.

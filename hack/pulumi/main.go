@@ -269,24 +269,6 @@ func main() {
 			return err
 		}
 
-		// Create MinIO secret.
-		_, err = core.NewSecret(ctx, "minio-secret",
-			&core.SecretArgs{
-				Metadata: &meta.ObjectMetaArgs{
-					Name: pulumi.String("minio-secret"),
-				},
-				StringData: pulumi.StringMap{
-					"user":     cfg.RequireSecret("minioUser"),
-					"password": cfg.RequireSecret("minioPassword"),
-				},
-				Type: pulumi.String("Opaque"),
-			},
-			pulumi.Provider(k8sProvider),
-		)
-		if err != nil {
-			return err
-		}
-
 		// Create MySQL secret.
 		_, err = core.NewSecret(ctx, "mysql-secret",
 			&core.SecretArgs{
@@ -335,7 +317,6 @@ func main() {
 		}
 		endpoints := []Endpoint{
 			{Name: "enduro", Service: "enduro-dashboard", Port: 80},
-			{Name: "minio", Service: "minio", Port: 9001},
 			{Name: "temporal", Service: "temporal-ui", Port: 8080},
 		}
 

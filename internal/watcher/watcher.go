@@ -99,7 +99,10 @@ var _ Service = (*serviceImpl)(nil)
 
 func New(ctx context.Context, tp trace.TracerProvider, logger logr.Logger, c *Config) (*serviceImpl, error) {
 	watchers := map[string]Watcher{}
-	minioConfigs := append(c.Minio, c.Embedded)
+	minioConfigs := c.Minio
+	if c.Embedded != nil {
+		minioConfigs = append(minioConfigs, c.Embedded)
+	}
 
 	for _, item := range minioConfigs {
 		w, err := NewMinioWatcher(ctx, tp, logger, item)
@@ -117,10 +120,6 @@ func New(ctx context.Context, tp trace.TracerProvider, logger logr.Logger, c *Co
 		}
 
 		watchers[item.Name] = w
-	}
-
-	if len(watchers) == 0 {
-		return nil, errors.New("there are not watchers configured")
 	}
 
 	return &serviceImpl{watchers: watchers}, nil

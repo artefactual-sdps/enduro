@@ -20,10 +20,6 @@ config:
     secure: AAABAO8wjf2S4UlF9iVne78C8k+sGf42VLcDRmx1zcnJX8xclFUVVF2xWBXYY/rVlxvpUSRLV3mfSOrktY2T8w==
   enduro:doToken:
     secure: AAABAMoETbs11pPZrd8S1WMCdnaaILVqC3EjNI0LY+lpNUc4V5HKlZBHcskvRr+RgKosKEH93jy9hbw/AEITt4zKfD5JQXnxp3CoVAF2mN4Wn4XFbG7ZN0QHO5P3K9qey1+3MzIkxw==
-  enduro:minioPassword:
-    secure: AAABAMVZrPTRhbeRjM5ieLNT7eYJ+TkjZYGHAmwnBQUcyNSRQ10Rm5TJ+x9a
-  enduro:minioUser:
-    secure: AAABAKGBXHlmQTdauzUaJPHZv01yVQadjTwqItl5XhT6EdlAc+extleK
   enduro:mysqlPassword:
     secure: AAABAOQ1hh1PJJjUya0lLiLQHasuSBdK4j3+WRE3NTl+l7FlUjGcxYHAP/E=
   enduro:mysqlRootPassword:

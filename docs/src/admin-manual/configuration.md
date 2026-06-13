@@ -480,42 +480,46 @@ xsdPath = "/home/enduro/premis.xsd"
 ### Watched location configuration
 
 These configuration settings, when enabled, allow Enduro to initiate SIP ingest
-from a watched location. The configured watched location can be an object store
-bucket such as one provided by MinIO, S3, or Azure. Once this section is
-configured, the chosen watched location should then be configured to publish
-an event to Enduro's message queue (in this case, [Redis], listening for events
-in the queue defined by the `redisList` parameter below) any time a new zipped
-package is added to the watched location. Enduro's internal watcher will watch
-for new deposit events at the configured `redisAddress` and queue, and will
-trigger the ingest workflow when it detects a SIP deposit in the configured
-watched location. For more information on ingests from a watched location, see:
+from a watched location. The current Redis-backed object-store watcher consumes
+the MinIO Redis notification event format. This watcher is still available for
+existing deployments with MinIO-compatible event publishers, but the development
+environment no longer deploys MinIO and the default configuration leaves this
+section commented out. Enduro does not currently support Azure Blob Storage or
+generic S3-compatible buckets as watched locations.
+
+Once this section is enabled, the chosen watched location must publish an event
+to Enduro's message queue (in this case, [Redis], listening for events in the
+queue defined by the `redisList` parameter below) any time a new zipped package
+is added to the watched location. Enduro's internal watcher will watch for new
+deposit events at the configured `redisAddress` and queue, and will trigger the
+ingest workflow when it detects a SIP deposit in the configured watched
+location. For more information on ingests from a watched location, see:
 
 * [Initiate ingest via a watched location upload][watched-location]
 
 At this time, [Redis] is the only supported messaging queue - as such, the
 `redisAddress` and `redisList` fields are required.
 
-All other default parameters are S3-specific, and might not be needed for other
-watched location types. The default configuration included uses a [MinIO] bucket
-as the example watched location. MinIO uses Amazon [S3] syntax for its
-configuration properties. Different object stores may have different parameters
-to be configured. Consult the corresponding object store provider's
-documentation for more information.
+All other default parameters are MinIO bucket access settings and might not be
+needed for other watched location types.
 
 **Example configuration**:
 
 ```toml
-[watcher.embedded]
-name = "dev-minio"
-redisAddress = "redis://redis.enduro-sdps:6379"
-redisList = "minio-events"
-endpoint = "http://minio.enduro-sdps:9000"
-pathStyle = true
-key = "minio"
-secret = "minio123"
-region = "us-west-1"
-bucket = "sips"
-workflowType = "create aip"
+# The legacy watched-location watcher consumes MinIO Redis notification events.
+# Keep this block commented unless your deployment provides MinIO-compatible
+# Redis notification events.
+# [watcher.embedded]
+# name = "legacy-minio-events"
+# redisAddress = "redis://redis.enduro-sdps:6379"
+# redisList = "minio-events"
+# endpoint = "http://minio.example:9000"
+# pathStyle = true
+# key = "example-access-key"
+# secret = "example-secret-key"
+# region = "us-west-1"
+# bucket = "sips"
+# workflowType = "create aip"
 ```
 
 * `name`: Defines a name to be used internally for the watched location. Useful
@@ -523,15 +527,15 @@ workflowType = "create aip"
 * `redisAddress`: Binds Redis to a specific address and port.
 * `redisList`: The name of the queue that Redis should use for the watched
   location SIP deposit events.
-* `endpoint`: API endpoint for the target S3-compatible object store.
+* `endpoint`: API endpoint for the MinIO S3 API.
 * `pathStyle`: Currently Amazon Web Services support two different URL
   construction methods when interacting with an object store bucket via API. The
   "path-style" method constructs the bucket's access URL using the configured
   properties, such as region, bucket name, and object key. For Enduro
   integrations, the second virtual "host-style" method is not currently
-  supported so if using an S3-like object store, ensure this is set to `true`.
-* `key`: Username for accessing the configured S3-like bucket.
-* `secret`: Password for accessing the configured S3-like bucket.
+  supported. MinIO deployments typically use `pathStyle = true`.
+* `key`: Access key for the configured bucket.
+* `secret`: Secret key for the configured bucket.
 * `region`: AWS S3 buckets are created in a specific region. When interacting
   with S3, you can specify the region during the bucket creation process. For
   a full list of available regions and the syntax to specify them, consult the
@@ -607,10 +611,10 @@ url = "s3://example-bucket?region=us-west-1"
 ```toml
 [example.bucket]
 url = ""
-endpoint = "http://minio.enduro-sdps:9000"
+endpoint = "https://s3.example.com"
 pathStyle = true
-accessKey = "minio"
-secretKey = "minio123"
+accessKey = "example-access-key"
+secretKey = "example-secret-key"
 region = "us-west-1"
 bucket = "example-bucket"
 ```
@@ -1404,7 +1408,6 @@ workflowName = "postbatch"
 [Gibibytes]: https://www.difference.wiki/gigabyte-vs-gibibyte/
 [GoLang]: https://go.dev/
 [METS]: https://www.loc.gov/standards/mets/
-[MinIO]: https://www.min.io
 [OIDC]: https://en.wikipedia.org/wiki/OpenID#OpenID_Connect_(OIDC)
 [OIDC specification]: https://openid.net/specs/openid-connect-core-1_0.html
 [OpenTelemetry]: https://opentelemetry.io/docs/what-is-opentelemetry/
@@ -1415,10 +1418,9 @@ workflowName = "postbatch"
 [PREMIS]: https://www.loc.gov/standards/premis/
 [preservation engine]: ../user-manual/glossary.md#preservation-engine
 [Redis]: https://redis.io/
-[S3]: https://aws.amazon.com/s3/
 [S3-regions]: https://docs.aws.amazon.com/AmazonS3/latest/userguide/s3-tables-regions-quotas.html#s3-tables-regions
 [SI prefix]: https://en.wikipedia.org/wiki/Metric_prefix
-[sip-source]: ../user-manual/ingest/submitting-content.md#add-sips-via-a-source-location
+[sip-source]: ../user-manual/ingest/submitting-content.md#initiate-ingest-using-sips-uploaded-to-a-source-location
 [Storage Service]: https://archivematica.org/docs/storage-service-latest/
 [system errors]: ../user-manual/glossary.md#system-error
 [Task Queue]: https://docs.temporal.io/task-queue

@@ -157,28 +157,32 @@ fileMode = "0o600"
 enabled = true
 xsdPath = "/home/enduro/premis.xsd"
 
-[watcher.embedded]
-# Defines a given location or object store as a watched location, where zipped
-# packages will be ingested automatically when deposited.
-name = "dev-minio"
-redisAddress = "redis://redis.enduro-sdps:6379"
-redisList = "minio-events"
-endpoint = "http://minio.enduro-sdps:9000"
-pathStyle = true
-key = "minio"
-secret = "minio123"
-region = "us-west-1"
-bucket = "sips"
-# workflowType is the processing workflow type related to this watcher.
-# Available workflow types are "create aip" and "create and review aip",
-# the later only works properly when the preservation system is "a3m".
-# Default: "create aip".
-workflowType = "create aip"
-# retentionPeriod is the duration to retain SIPs before they are deleted after a
-# successful ingest. Set to a negative value to disable automatic deletion of SIPs.
-# Set to "0" (default) to delete SIPs immediately after they have been ingested.
-# It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
-retentionPeriod = "0"
+# The legacy watched-location watcher consumes MinIO Redis notification events.
+# The development environment no longer deploys MinIO, so the example remains
+# here only as a reference for compatible deployments.
+# [watcher.embedded]
+# # Defines a given location or object store as a watched location, where zipped
+# # packages will be ingested automatically when deposited.
+# name = "legacy-minio-events"
+# redisAddress = "redis://redis.enduro-sdps:6379"
+# redisList = "minio-events"
+# endpoint = "http://minio.example:9000"
+# pathStyle = true
+# key = "example-access-key"
+# secret = "example-secret-key"
+# region = "us-west-1"
+# bucket = "sips"
+# # workflowType is the processing workflow type related to this watcher.
+# # Available workflow types are "create aip" and "create and review aip",
+# # the later only works properly when the preservation system is "a3m".
+# # Default: "create aip".
+# workflowType = "create aip"
+# # retentionPeriod is the duration to retain SIPs before they are deleted after
+# # a successful ingest. Set to a negative value to disable automatic deletion of
+# # SIPs. Set to "0" (default) to delete SIPs immediately after they have been
+# # ingested. It must be a string format compatible with
+# # https://pkg.go.dev/time#ParseDuration.
+# retentionPeriod = "0"
 
 # Change the taskqueue setting to your prefered preservation system, by default
 # it is 'am' (Archivematica). Use 'a3m' to configure a3m instead.

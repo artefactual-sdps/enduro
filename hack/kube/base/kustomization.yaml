@@ -5,8 +5,6 @@ resources:
   - enduro-dashboard.yaml
   - enduro-internal-storage.yaml
   - enduro.yaml
-  - minio-setup-buckets-job.yaml
-  - minio.yaml
   - mysql.yaml
   - namespace.yaml
   - redis.yaml

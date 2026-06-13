@@ -123,9 +123,7 @@ triggered upon deposit, a source location is intended for asynchronous manual
 follow-up. In this case, Enduro operators can select zipped packages found in a
 configured source location and initiate ingest via the user interface.
 
-The deposit or upload process will depend on the source location used - to see
-an example of how packages are uploaded to a [MinIO] object store, see the
-watched location [example shown below](#example---upload-via-minio).
+The deposit or upload process will depend on the source location used.
 
 **To initiate ingest using SIPs in a source location**:
 
@@ -175,44 +173,27 @@ watched location [example shown below](#example---upload-via-minio).
 ## Initiate ingest via a watched location upload
 
 It is also possible to configure Enduro to use a watched location for ingest.
-The [watched location configuration] must be done by a system administrator. The
-watched location can be an object store bucket such as one provided by MinIO,
-S3, or Azure.
+The [watched location configuration] must be done by a system administrator.
 
 Once configured, any time a new zipped package is added to the location,
 Enduro's [messaging queue][mq] will see it and automatically initiate an ingest
 workflow.
 
-The example below will use [MinIO][MinIO] - details may vary depending on the
-type of object store used.
+The legacy object-store watcher currently consumes MinIO Redis notification
+events. Existing deployments can continue using it with MinIO-compatible event
+publishers. Azure Blob Storage and generic S3-compatible buckets are not
+supported as watched locations; use direct upload or SIP source locations for
+those sources.
 
 !!! note
 
     Packages **must** be zipped to be properly ingested into Enduro.
-
-### Example - Upload via MinIO
-
-1. In MinIO, navigate to the Object Browser and select your upload bucket. In
-   this example, the upload bucket is called `sips`.
-
-    ![The Object Browser page in MinIO. The body of the page shows four buckets:
-    aips, perma-aips1, perma-aips2, and sips.](../screenshots/minio-buckets.jpeg)
-
-2. Click on **Upload** and then select **Upload file**. This will open a file
-   browser.
-
-    ![The sips bucket page in MinIO, with the Upload button circled in red. The
-    bucket contains two SIPs already.](../screenshots/minio-upload.jpeg)
-
-3. In the file browser, locate your SIP and upload it to MinIO.
-   Once the progress bar has completed, Enduro will begin ingesting the SIP.
 
 [a3m]: https://github.com/artefactual-labs/a3m
 [Archivematica]: https://archivematica.org
 [BagIt]: https://tools.ietf.org/html/rfc8493
 [SIP source configuration]: ../../admin-manual/configuration.md#sip-source-location-configuration
 [watched location configuration]: ../../admin-manual/configuration.md#watched-location-configuration
-[MinIO]: https://min.io/
 [mq]: ../components.md#messaging-queue
 [source location]: ../glossary.md#source-location
 [Unzipped and zipped bags]: https://www.archivematica.org/docs/latest/user-manual/transfer/bags/#bags

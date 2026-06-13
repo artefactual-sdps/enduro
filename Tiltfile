@@ -202,15 +202,9 @@ k8s_resource(
 # Other resources
 k8s_resource("keycloak", labels=["Others"], port_forwards="7470")
 k8s_resource("mysql", labels=["Others"], port_forwards="3306")
-k8s_resource(
-  "minio",
-  labels=["Others"],
-  port_forwards=["7460:9001", "0.0.0.0:7461:9000"]
-)
 k8s_resource("redis", labels=["Others"])
 
 # Tools
-k8s_resource("minio-setup-buckets", labels=["Tools"], resource_deps=["minio"])
 if PRES_SYS == 'am':
   k8s_resource(
     "mysql-create-am-location",
@@ -234,27 +228,18 @@ if config.tilt_subcommand != "ci":
 
 # Buttons
 cmd_button(
-  "minio-upload",
+  "upload-sip",
   argv=[
     "sh",
     "-c",
-    "docker run --rm \
-      --add-host=host-gateway:host-gateway \
-      --entrypoint=/bin/bash \
-      -v $HOST_PATH:/sampledata/$OBJECT_NAME \
-      minio/mc -c ' \
-        mc alias set enduro http://host-gateway:7461 minio minio123; \
-        mc cp -r /sampledata/$OBJECT_NAME enduro/sips/$OBJECT_NAME; \
-      ' \
-    ",
+    'if [ -n "$LOCAL_PATH" ]; then make upload-sip LOCAL_PATH="$LOCAL_PATH"; else unset LOCAL_PATH; make upload-sip; fi',
   ],
   location="nav",
   icon_name="cloud_upload",
-  text="Minio upload",
+  text="Upload SIP",
   inputs=[
-    text_input("HOST_PATH", label="Host path"),
-    text_input("OBJECT_NAME", label="Object name"),
-  ]
+    text_input("LOCAL_PATH", label="Local path"),
+  ],
 )
 cmd_button(
   "flush",
