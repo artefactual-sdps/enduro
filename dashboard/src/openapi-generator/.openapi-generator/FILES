@@ -75,8 +75,6 @@ models/StorageEvent.ts
 models/StorageEventValue.ts
 models/StorageEventValueValue.ts
 models/StoragePingEvent.ts
-models/SubmitAIPResult.ts
-models/SubmitAipRequestBody.ts
 models/SubmitSipDecisionRequestBody.ts
 models/URLConfig.ts
 models/index.ts

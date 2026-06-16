@@ -174,65 +174,6 @@ func BuildCreateAipPayload(storageCreateAipBody string, storageCreateAipToken st
 	return v, nil
 }
 
-// BuildSubmitAipPayload builds the payload for the storage submit_aip endpoint
-// from CLI flags.
-func BuildSubmitAipPayload(storageSubmitAipBody string, storageSubmitAipUUID string, storageSubmitAipToken string) (*storage.SubmitAipPayload, error) {
-	var err error
-	var body SubmitAipRequestBody
-	{
-		err = json.Unmarshal([]byte(storageSubmitAipBody), &body)
-		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"name\": \"abc123\"\n   }'")
-		}
-	}
-	var uuid string
-	{
-		uuid = storageSubmitAipUUID
-		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
-		if err != nil {
-			return nil, err
-		}
-	}
-	var token *string
-	{
-		if storageSubmitAipToken != "" {
-			token = &storageSubmitAipToken
-		}
-	}
-	v := &storage.SubmitAipPayload{
-		Name: body.Name,
-	}
-	v.UUID = uuid
-	v.Token = token
-
-	return v, nil
-}
-
-// BuildSubmitAipCompletePayload builds the payload for the storage
-// submit_aip_complete endpoint from CLI flags.
-func BuildSubmitAipCompletePayload(storageSubmitAipCompleteUUID string, storageSubmitAipCompleteToken string) (*storage.SubmitAipCompletePayload, error) {
-	var err error
-	var uuid string
-	{
-		uuid = storageSubmitAipCompleteUUID
-		err = goa.MergeErrors(err, goa.ValidateFormat("uuid", uuid, goa.FormatUUID))
-		if err != nil {
-			return nil, err
-		}
-	}
-	var token *string
-	{
-		if storageSubmitAipCompleteToken != "" {
-			token = &storageSubmitAipCompleteToken
-		}
-	}
-	v := &storage.SubmitAipCompletePayload{}
-	v.UUID = uuid
-	v.Token = token
-
-	return v, nil
-}
-
 // BuildDownloadAipRequestPayload builds the payload for the storage
 // download_aip_request endpoint from CLI flags.
 func BuildDownloadAipRequestPayload(storageDownloadAipRequestUUID string, storageDownloadAipRequestToken string) (*storage.DownloadAipRequestPayload, error) {

@@ -22,9 +22,6 @@ type StorageClient interface {
 	ListAips(context.Context, *goastorage.ListAipsPayload) (*goastorage.AIPs, error)
 	ShowAip(context.Context, *goastorage.ShowAipPayload) (*goastorage.AIP, error)
 
-	SubmitAip(context.Context, *goastorage.SubmitAipPayload) (*goastorage.SubmitAIPResult, error)
-	SubmitAipComplete(context.Context, *goastorage.SubmitAipCompletePayload) error
-
 	DownloadAipRequest(
 		context.Context,
 		*goastorage.DownloadAipRequestPayload,
@@ -101,8 +98,6 @@ func NewStorageClient(
 		storageHTTPClient.Monitor(),
 		storageHTTPClient.ListAips(),
 		storageHTTPClient.CreateAip(),
-		storageHTTPClient.SubmitAip(),
-		storageHTTPClient.SubmitAipComplete(),
 		storageHTTPClient.DownloadAipRequest(),
 		storageHTTPClient.DownloadAip(),
 		storageHTTPClient.MoveAip(),

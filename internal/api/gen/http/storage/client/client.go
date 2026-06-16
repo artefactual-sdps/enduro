@@ -37,14 +37,6 @@ type Client struct {
 	// endpoint.
 	CreateAipDoer goahttp.Doer
 
-	// SubmitAip Doer is the HTTP client used to make requests to the submit_aip
-	// endpoint.
-	SubmitAipDoer goahttp.Doer
-
-	// SubmitAipComplete Doer is the HTTP client used to make requests to the
-	// submit_aip_complete endpoint.
-	SubmitAipCompleteDoer goahttp.Doer
-
 	// DownloadAipRequest Doer is the HTTP client used to make requests to the
 	// download_aip_request endpoint.
 	DownloadAipRequestDoer goahttp.Doer
@@ -147,8 +139,6 @@ func NewClient(
 		MonitorDoer:                  doer,
 		ListAipsDoer:                 doer,
 		CreateAipDoer:                doer,
-		SubmitAipDoer:                doer,
-		SubmitAipCompleteDoer:        doer,
 		DownloadAipRequestDoer:       doer,
 		DownloadAipDoer:              doer,
 		MoveAipDoer:                  doer,
@@ -286,54 +276,6 @@ func (c *Client) CreateAip() goa.Endpoint {
 		resp, err := c.CreateAipDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("storage", "create_aip", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// SubmitAip returns an endpoint that makes HTTP requests to the storage
-// service submit_aip server.
-func (c *Client) SubmitAip() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeSubmitAipRequest(c.encoder)
-		decodeResponse = DecodeSubmitAipResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildSubmitAipRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.SubmitAipDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "submit_aip", err)
-		}
-		return decodeResponse(resp)
-	}
-}
-
-// SubmitAipComplete returns an endpoint that makes HTTP requests to the
-// storage service submit_aip_complete server.
-func (c *Client) SubmitAipComplete() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeSubmitAipCompleteRequest(c.encoder)
-		decodeResponse = DecodeSubmitAipCompleteResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildSubmitAipCompleteRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.SubmitAipCompleteDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "submit_aip_complete", err)
 		}
 		return decodeResponse(resp)
 	}

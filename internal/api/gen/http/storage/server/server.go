@@ -28,8 +28,6 @@ type Server struct {
 	Monitor                  http.Handler
 	ListAips                 http.Handler
 	CreateAip                http.Handler
-	SubmitAip                http.Handler
-	SubmitAipComplete        http.Handler
 	DownloadAipRequest       http.Handler
 	DownloadAip              http.Handler
 	MoveAip                  http.Handler
@@ -86,8 +84,6 @@ func New(
 			{"Monitor", "GET", "/storage/monitor"},
 			{"ListAips", "GET", "/storage/aips"},
 			{"CreateAip", "POST", "/storage/aips"},
-			{"SubmitAip", "POST", "/storage/aips/{uuid}/submit"},
-			{"SubmitAipComplete", "POST", "/storage/aips/{uuid}/submit-complete"},
 			{"DownloadAipRequest", "POST", "/storage/aips/{uuid}/download"},
 			{"DownloadAip", "GET", "/storage/aips/{uuid}/download"},
 			{"MoveAip", "POST", "/storage/aips/{uuid}/store"},
@@ -107,8 +103,6 @@ func New(
 			{"ListLocationAips", "GET", "/storage/locations/{uuid}/aips"},
 			{"CORS", "OPTIONS", "/storage/monitor"},
 			{"CORS", "OPTIONS", "/storage/aips"},
-			{"CORS", "OPTIONS", "/storage/aips/{uuid}/submit"},
-			{"CORS", "OPTIONS", "/storage/aips/{uuid}/submit-complete"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/download"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/store"},
 			{"CORS", "OPTIONS", "/storage/aips/{uuid}/reject"},
@@ -127,8 +121,6 @@ func New(
 		Monitor:                  NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
 		ListAips:                 NewListAipsHandler(e.ListAips, mux, decoder, encoder, errhandler, formatter),
 		CreateAip:                NewCreateAipHandler(e.CreateAip, mux, decoder, encoder, errhandler, formatter),
-		SubmitAip:                NewSubmitAipHandler(e.SubmitAip, mux, decoder, encoder, errhandler, formatter),
-		SubmitAipComplete:        NewSubmitAipCompleteHandler(e.SubmitAipComplete, mux, decoder, encoder, errhandler, formatter),
 		DownloadAipRequest:       NewDownloadAipRequestHandler(e.DownloadAipRequest, mux, decoder, encoder, errhandler, formatter),
 		DownloadAip:              NewDownloadAipHandler(e.DownloadAip, mux, decoder, encoder, errhandler, formatter),
 		MoveAip:                  NewMoveAipHandler(e.MoveAip, mux, decoder, encoder, errhandler, formatter),
@@ -159,8 +151,6 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Monitor = m(s.Monitor)
 	s.ListAips = m(s.ListAips)
 	s.CreateAip = m(s.CreateAip)
-	s.SubmitAip = m(s.SubmitAip)
-	s.SubmitAipComplete = m(s.SubmitAipComplete)
 	s.DownloadAipRequest = m(s.DownloadAipRequest)
 	s.DownloadAip = m(s.DownloadAip)
 	s.MoveAip = m(s.MoveAip)
@@ -190,8 +180,6 @@ func Mount(mux goahttp.Muxer, h *Server) {
 	MountMonitorHandler(mux, h.Monitor)
 	MountListAipsHandler(mux, h.ListAips)
 	MountCreateAipHandler(mux, h.CreateAip)
-	MountSubmitAipHandler(mux, h.SubmitAip)
-	MountSubmitAipCompleteHandler(mux, h.SubmitAipComplete)
 	MountDownloadAipRequestHandler(mux, h.DownloadAipRequest)
 	MountDownloadAipHandler(mux, h.DownloadAip)
 	MountMoveAipHandler(mux, h.MoveAip)
@@ -427,112 +415,6 @@ func NewCreateAipHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "create_aip")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			if errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-		}
-	})
-}
-
-// MountSubmitAipHandler configures the mux to serve the "storage" service
-// "submit_aip" endpoint.
-func MountSubmitAipHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("POST", "/storage/aips/{uuid}/submit", f)
-}
-
-// NewSubmitAipHandler creates a HTTP handler which loads the HTTP request and
-// calls the "storage" service "submit_aip" endpoint.
-func NewSubmitAipHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(ctx context.Context, err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		decodeRequest  = DecodeSubmitAipRequest(mux, decoder)
-		encodeResponse = EncodeSubmitAipResponse(encoder)
-		encodeError    = EncodeSubmitAipError(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "submit_aip")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			if errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-		}
-	})
-}
-
-// MountSubmitAipCompleteHandler configures the mux to serve the "storage"
-// service "submit_aip_complete" endpoint.
-func MountSubmitAipCompleteHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("POST", "/storage/aips/{uuid}/submit-complete", f)
-}
-
-// NewSubmitAipCompleteHandler creates a HTTP handler which loads the HTTP
-// request and calls the "storage" service "submit_aip_complete" endpoint.
-func NewSubmitAipCompleteHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(ctx context.Context, err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		decodeRequest  = DecodeSubmitAipCompleteRequest(mux, decoder)
-		encodeResponse = EncodeSubmitAipCompleteResponse(encoder)
-		encodeError    = EncodeSubmitAipCompleteError(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "submit_aip_complete")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
 		payload, err := decodeRequest(r)
 		if err != nil {
@@ -1534,8 +1416,6 @@ func MountCORSHandler(mux goahttp.Muxer, h http.Handler) {
 	h = HandleStorageOrigin(h)
 	mux.Handle("OPTIONS", "/storage/monitor", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/storage/aips/{uuid}/submit", h.ServeHTTP)
-	mux.Handle("OPTIONS", "/storage/aips/{uuid}/submit-complete", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}/download", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}/store", h.ServeHTTP)
 	mux.Handle("OPTIONS", "/storage/aips/{uuid}/reject", h.ServeHTTP)

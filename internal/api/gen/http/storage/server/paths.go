@@ -32,16 +32,6 @@ func CreateAipStoragePath() string {
 	return "/storage/aips"
 }
 
-// SubmitAipStoragePath returns the URL path to the storage service submit_aip HTTP endpoint.
-func SubmitAipStoragePath(uuid string) string {
-	return fmt.Sprintf("/storage/aips/%v/submit", uuid)
-}
-
-// SubmitAipCompleteStoragePath returns the URL path to the storage service submit_aip_complete HTTP endpoint.
-func SubmitAipCompleteStoragePath(uuid string) string {
-	return fmt.Sprintf("/storage/aips/%v/submit-complete", uuid)
-}
-
 // DownloadAipRequestStoragePath returns the URL path to the storage service download_aip_request HTTP endpoint.
 func DownloadAipRequestStoragePath(uuid string) string {
 	return fmt.Sprintf("/storage/aips/%v/download", uuid)

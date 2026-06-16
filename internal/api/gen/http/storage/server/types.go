@@ -33,12 +33,6 @@ type CreateAipRequestBody struct {
 	LocationUUID *uuid.UUID `form:"location_uuid,omitempty" json:"location_uuid,omitempty" xml:"location_uuid,omitempty"`
 }
 
-// SubmitAipRequestBody is the type of the "storage" service "submit_aip"
-// endpoint HTTP request body.
-type SubmitAipRequestBody struct {
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-}
-
 // MoveAipRequestBody is the type of the "storage" service "move_aip" endpoint
 // HTTP request body.
 type MoveAipRequestBody struct {
@@ -111,12 +105,6 @@ type CreateAipResponseBody struct {
 	CreatedAt string `form:"created_at" json:"created_at" xml:"created_at"`
 	// Deletion report key
 	DeletionReportKey *string `form:"deletion_report_key,omitempty" json:"deletion_report_key,omitempty" xml:"deletion_report_key,omitempty"`
-}
-
-// SubmitAipResponseBody is the type of the "storage" service "submit_aip"
-// endpoint HTTP response body.
-type SubmitAipResponseBody struct {
-	URL string `form:"url" json:"url" xml:"url"`
 }
 
 // MoveAipStatusResponseBody is the type of the "storage" service
@@ -252,79 +240,6 @@ type ListAipsNotValidResponseBody struct {
 // CreateAipNotValidResponseBody is the type of the "storage" service
 // "create_aip" endpoint HTTP response body for the "not_valid" error.
 type CreateAipNotValidResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// SubmitAipNotAvailableResponseBody is the type of the "storage" service
-// "submit_aip" endpoint HTTP response body for the "not_available" error.
-type SubmitAipNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// SubmitAipNotValidResponseBody is the type of the "storage" service
-// "submit_aip" endpoint HTTP response body for the "not_valid" error.
-type SubmitAipNotValidResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// SubmitAipCompleteNotAvailableResponseBody is the type of the "storage"
-// service "submit_aip_complete" endpoint HTTP response body for the
-// "not_available" error.
-type SubmitAipCompleteNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
-// SubmitAipCompleteNotValidResponseBody is the type of the "storage" service
-// "submit_aip_complete" endpoint HTTP response body for the "not_valid" error.
-type SubmitAipCompleteNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -2153,15 +2068,6 @@ func NewCreateAipResponseBody(res *storageviews.AIPView) *CreateAipResponseBody 
 	return body
 }
 
-// NewSubmitAipResponseBody builds the HTTP response body from the result of
-// the "submit_aip" endpoint of the "storage" service.
-func NewSubmitAipResponseBody(res *storage.SubmitAIPResult) *SubmitAipResponseBody {
-	body := &SubmitAipResponseBody{
-		URL: res.URL,
-	}
-	return body
-}
-
 // NewMoveAipStatusResponseBody builds the HTTP response body from the result
 // of the "move_aip_status" endpoint of the "storage" service.
 func NewMoveAipStatusResponseBody(res *storage.MoveStatusResult) *MoveAipStatusResponseBody {
@@ -2314,63 +2220,6 @@ func NewListAipsNotValidResponseBody(res *goa.ServiceError) *ListAipsNotValidRes
 // result of the "create_aip" endpoint of the "storage" service.
 func NewCreateAipNotValidResponseBody(res *goa.ServiceError) *CreateAipNotValidResponseBody {
 	body := &CreateAipNotValidResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewSubmitAipNotAvailableResponseBody builds the HTTP response body from the
-// result of the "submit_aip" endpoint of the "storage" service.
-func NewSubmitAipNotAvailableResponseBody(res *goa.ServiceError) *SubmitAipNotAvailableResponseBody {
-	body := &SubmitAipNotAvailableResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewSubmitAipNotValidResponseBody builds the HTTP response body from the
-// result of the "submit_aip" endpoint of the "storage" service.
-func NewSubmitAipNotValidResponseBody(res *goa.ServiceError) *SubmitAipNotValidResponseBody {
-	body := &SubmitAipNotValidResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewSubmitAipCompleteNotAvailableResponseBody builds the HTTP response body
-// from the result of the "submit_aip_complete" endpoint of the "storage"
-// service.
-func NewSubmitAipCompleteNotAvailableResponseBody(res *goa.ServiceError) *SubmitAipCompleteNotAvailableResponseBody {
-	body := &SubmitAipCompleteNotAvailableResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
-// NewSubmitAipCompleteNotValidResponseBody builds the HTTP response body from
-// the result of the "submit_aip_complete" endpoint of the "storage" service.
-func NewSubmitAipCompleteNotValidResponseBody(res *goa.ServiceError) *SubmitAipCompleteNotValidResponseBody {
-	body := &SubmitAipCompleteNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -2919,27 +2768,6 @@ func NewCreateAipPayload(body *CreateAipRequestBody, token *string) *storage.Cre
 	return v
 }
 
-// NewSubmitAipPayload builds a storage service submit_aip endpoint payload.
-func NewSubmitAipPayload(body *SubmitAipRequestBody, uuid string, token *string) *storage.SubmitAipPayload {
-	v := &storage.SubmitAipPayload{
-		Name: *body.Name,
-	}
-	v.UUID = uuid
-	v.Token = token
-
-	return v
-}
-
-// NewSubmitAipCompletePayload builds a storage service submit_aip_complete
-// endpoint payload.
-func NewSubmitAipCompletePayload(uuid string, token *string) *storage.SubmitAipCompletePayload {
-	v := &storage.SubmitAipCompletePayload{}
-	v.UUID = uuid
-	v.Token = token
-
-	return v
-}
-
 // NewDownloadAipRequestPayload builds a storage service download_aip_request
 // endpoint payload.
 func NewDownloadAipRequestPayload(uuid string, token *string) *storage.DownloadAipRequestPayload {
@@ -3172,15 +3000,6 @@ func ValidateCreateAipRequestBody(body *CreateAipRequestBody) (err error) {
 		if !(*body.Status == "unspecified" || *body.Status == "stored" || *body.Status == "pending" || *body.Status == "processing" || *body.Status == "deleted" || *body.Status == "queued") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.status", *body.Status, []any{"unspecified", "stored", "pending", "processing", "deleted", "queued"}))
 		}
-	}
-	return
-}
-
-// ValidateSubmitAipRequestBody runs the validations defined on
-// submit_aip_request_body
-func ValidateSubmitAipRequestBody(body *SubmitAipRequestBody) (err error) {
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
 	return
 }

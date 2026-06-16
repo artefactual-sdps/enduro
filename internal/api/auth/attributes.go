@@ -25,7 +25,6 @@ const (
 	StorageAIPSMoveAttr             = "storage:aips:move"
 	StorageAIPSReadAttr             = "storage:aips:read"
 	StorageAIPSReviewAttr           = "storage:aips:review"
-	StorageAIPSSubmitAttr           = "storage:aips:submit"
 	StorageAIPSWorkflowsListAttr    = "storage:aips:workflows:list"
 	StorageLocationsAIPSListAttr    = "storage:locations:aips:list"
 	StorageLocationsCreateAttr      = "storage:locations:create"

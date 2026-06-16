@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"time"
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
@@ -29,8 +28,6 @@ const (
 	AIPPrefix    = "aips/"
 	ReportPrefix = "reports/"
 )
-
-var SubmitURLExpirationTime = 15 * time.Minute
 
 // Service provides an interface for persisting storage data.
 type Service interface {
@@ -180,84 +177,6 @@ func (s *serviceImpl) Location(ctx context.Context, locationID uuid.UUID) (Locat
 	}
 
 	return NewLocation(goaLoc)
-}
-
-func (s *serviceImpl) SubmitAip(
-	ctx context.Context,
-	payload *goastorage.SubmitAipPayload,
-) (*goastorage.SubmitAIPResult, error) {
-	aipID, err := uuid.Parse(payload.UUID)
-	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot perform operation"))
-	}
-
-	_, err = InitStorageUploadWorkflow(ctx, s.tc, &StorageUploadWorkflowRequest{
-		AIPID:     aipID,
-		TaskQueue: s.config.TaskQueue,
-	})
-	if err != nil {
-		s.logger.Error(err, "storage service: InitStorageUploadWorkflow")
-		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
-	}
-
-	objectKey := uuid.Must(uuid.NewRandomFromReader(s.rander))
-
-	aip, err := s.storagePersistence.CreateAIP(ctx, &goastorage.AIP{
-		Name:      payload.Name,
-		UUID:      aipID,
-		ObjectKey: objectKey,
-	})
-	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot create AIP"))
-	}
-
-	PublishEvent(ctx, s.evsvc, &goastorage.AIPCreatedEvent{
-		UUID: aipID,
-		Item: aip,
-	})
-
-	bucket, err := s.openBucket(ctx, s.internal)
-	if err != nil {
-		return nil, err
-	}
-	bucket = blob.PrefixedBucket(bucket, AIPPrefix)
-	defer bucket.Close()
-
-	opts := &blob.SignedURLOptions{
-		Expiry: SubmitURLExpirationTime,
-		Method: http.MethodPut,
-	}
-	url, err := bucket.SignedURL(ctx, objectKey.String(), opts)
-	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot sign URL"))
-	}
-
-	result := &goastorage.SubmitAIPResult{
-		URL: url,
-	}
-	return result, nil
-}
-
-func (s *serviceImpl) SubmitAipComplete(ctx context.Context, payload *goastorage.SubmitAipCompletePayload) error {
-	aipID, err := uuid.Parse(payload.UUID)
-	if err != nil {
-		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
-	}
-
-	signal := UploadDoneSignal{}
-	workflowID := fmt.Sprintf("%s-%s", StorageUploadWorkflowName, aipID)
-	err = s.tc.SignalWorkflow(ctx, workflowID, "", UploadDoneSignalName, signal)
-	if err != nil {
-		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
-	}
-
-	// Update AIP status to pending.
-	err = s.UpdateAipStatus(ctx, aipID, enums.AIPStatusPending)
-	if err != nil {
-		return goastorage.MakeNotValid(errors.New("cannot update AIP status"))
-	}
-
-	return nil
 }
 
 func (s *serviceImpl) CreateAip(ctx context.Context, payload *goastorage.CreateAipPayload) (*goastorage.AIP, error) {

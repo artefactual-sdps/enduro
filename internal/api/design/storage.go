@@ -116,44 +116,6 @@ var _ = Service("storage", func() {
 			Response("not_valid", StatusBadRequest)
 		})
 	})
-	Method("submit_aip", func() {
-		Description("Start the submission of an AIP")
-		BearerAuthScopes(auth.StorageAIPSSubmitAttr)
-		Payload(func() {
-			AttributeUUID("uuid", "Identifier of AIP")
-			Attribute("name", String)
-			BearerToken("token", String)
-			Required("uuid", "name")
-		})
-		Result(SubmitAIPResult)
-		Error("not_found", AIPNotFound, "AIP not found")
-		Error("not_available")
-		Error("not_valid")
-		HTTP(func() {
-			POST("/aips/{uuid}/submit")
-			Response(StatusAccepted)
-			Response("not_available", StatusConflict)
-			Response("not_valid", StatusBadRequest)
-		})
-	})
-	Method("submit_aip_complete", func() {
-		Description("Signal that an AIP submission is complete")
-		BearerAuthScopes(auth.StorageAIPSSubmitAttr)
-		Payload(func() {
-			AttributeUUID("uuid", "Identifier of AIP")
-			BearerToken("token", String)
-			Required("uuid")
-		})
-		Error("not_found", AIPNotFound, "AIP not found")
-		Error("not_available")
-		Error("not_valid")
-		HTTP(func() {
-			POST("/aips/{uuid}/submit-complete")
-			Response(StatusAccepted)
-			Response("not_available", StatusConflict)
-			Response("not_valid", StatusBadRequest)
-		})
-	})
 	Method("download_aip_request", func() {
 		Description("Request access to AIP download")
 		BearerAuthScopes(auth.StorageAIPSDownloadAttr)
@@ -535,12 +497,6 @@ var _ = Service("storage", func() {
 			Response("not_valid", StatusBadRequest)
 		})
 	})
-})
-
-var SubmitAIPResult = Type("SubmitAIPResult", func() {
-	TypeName("SubmitAIPResult")
-	Attribute("url", String)
-	Required("url")
 })
 
 var AIPNotFound = Type("AIPNotFound", func() {

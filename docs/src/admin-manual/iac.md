@@ -262,8 +262,6 @@ endpoints.
 | POST   | /storage/aips/{uuid}/reject           | `storage:aips:review`            |
 | GET    | /storage/aips/{uuid}/store            | `storage:aips:move`              |
 | POST   | /storage/aips/{uuid}/store            | `storage:aips:move`              |
-| POST   | /storage/aips/{uuid}/submit           | `storage:aips:submit`            |
-| POST   | /storage/aips/{uuid}/submit-complete  | `storage:aips:submit`            |
 | GET    | /storage/aips/{uuid}/workflows        | `storage:aips:workflows:list`    |
 | GET    | /storage/locations                    | `storage:locations:list`         |
 | POST   | /storage/locations                    | `storage:locations:create`       |

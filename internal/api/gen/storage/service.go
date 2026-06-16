@@ -30,10 +30,6 @@ type Service interface {
 	ListAips(context.Context, *ListAipsPayload) (res *AIPs, err error)
 	// Create a new AIP
 	CreateAip(context.Context, *CreateAipPayload) (res *AIP, err error)
-	// Start the submission of an AIP
-	SubmitAip(context.Context, *SubmitAipPayload) (res *SubmitAIPResult, err error)
-	// Signal that an AIP submission is complete
-	SubmitAipComplete(context.Context, *SubmitAipCompletePayload) (err error)
 	// Request access to AIP download
 	DownloadAipRequest(context.Context, *DownloadAipRequestPayload) (res *DownloadAipRequestResult, err error)
 	// Download AIP by AIPID
@@ -98,7 +94,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [23]string{"monitor_request", "monitor", "list_aips", "create_aip", "submit_aip", "submit_aip_complete", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "aip_deletion_auto", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "aip_deletion_report_request", "aip_deletion_report", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [21]string{"monitor_request", "monitor", "list_aips", "create_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "aip_deletion_auto", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "aip_deletion_report_request", "aip_deletion_report", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // MonitorServerStream allows streaming instances of *StorageEvent to the
 // client.
@@ -546,28 +542,6 @@ type StorageEvent struct {
 
 type StoragePingEvent struct {
 	Message *string
-}
-
-// SubmitAIPResult is the result type of the storage service submit_aip method.
-type SubmitAIPResult struct {
-	URL string
-}
-
-// SubmitAipCompletePayload is the payload type of the storage service
-// submit_aip_complete method.
-type SubmitAipCompletePayload struct {
-	// Identifier of AIP
-	UUID  string
-	Token *string
-}
-
-// SubmitAipPayload is the payload type of the storage service submit_aip
-// method.
-type SubmitAipPayload struct {
-	// Identifier of AIP
-	UUID  string
-	Name  string
-	Token *string
 }
 
 type URLConfig struct {

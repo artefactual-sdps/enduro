@@ -71,7 +71,5 @@ export * from './StorageEvent';
 export * from './StorageEventValue';
 export * from './StorageEventValueValue';
 export * from './StoragePingEvent';
-export * from './SubmitAIPResult';
-export * from './SubmitAipRequestBody';
 export * from './SubmitSipDecisionRequestBody';
 export * from './URLConfig';

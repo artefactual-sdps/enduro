@@ -43,7 +43,6 @@ var BearerAuth = BearerSecurity("bearer", func() {
 	Scope(auth.StorageAIPSMoveAttr)
 	Scope(auth.StorageAIPSReadAttr)
 	Scope(auth.StorageAIPSReviewAttr)
-	Scope(auth.StorageAIPSSubmitAttr)
 	Scope(auth.StorageAIPSWorkflowsListAttr)
 	Scope(auth.StorageLocationsAIPSListAttr)
 	Scope(auth.StorageLocationsCreateAttr)

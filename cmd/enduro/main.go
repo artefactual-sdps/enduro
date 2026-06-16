@@ -565,10 +565,6 @@ func main() {
 			temporalsdk_workflow.RegisterOptions{Name: storage.StorageDeleteWorkflowName},
 		)
 		w.RegisterWorkflowWithOptions(
-			storage_workflows.NewStorageUploadWorkflow().Execute,
-			temporalsdk_workflow.RegisterOptions{Name: storage.StorageUploadWorkflowName},
-		)
-		w.RegisterWorkflowWithOptions(
 			storage_workflows.NewStorageMoveWorkflow(storagesvc).Execute,
 			temporalsdk_workflow.RegisterOptions{Name: storage.StorageMoveWorkflowName},
 		)
