@@ -23,6 +23,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 const txtMultipartBody = `Content-Type: multipart/form-data; boundary="foobar"
@@ -218,6 +219,7 @@ func TestUpload(t *testing.T) {
 					},
 					ingest.ProcessingWorkflowName,
 					&ingest.ProcessingWorkflowRequest{
+						User:      &childwf.User{Email: "nobody@example.com"},
 						SIPUUID:   uuid0,
 						SIPName:   "first.zip",
 						Type:      enums.WorkflowTypeCreateAip,

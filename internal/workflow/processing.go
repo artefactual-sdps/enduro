@@ -1120,6 +1120,7 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 		preCtx,
 		cfg.WorkflowName,
 		childwf.PreprocessingParams{
+			User:         state.req.User,
 			RelativePath: relPath,
 			SIPID:        state.sip.uuid,
 			BatchID:      state.req.BatchUUID,
@@ -1387,6 +1388,7 @@ func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, state
 		ctx,
 		cfg.WorkflowName,
 		childwf.PostStorageParams{
+			User:           state.req.User,
 			AIPUUID:        state.aip.id,
 			CustomMetadata: state.customMetadata,
 		},

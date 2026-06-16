@@ -94,6 +94,7 @@ func (svc *ingestImpl) AddSip(ctx context.Context, payload *goaingest.AddSipPayl
 
 	// Initialize the processing workflow.
 	req := ProcessingWorkflowRequest{
+		User:            childWorkflowUserFromClaims(claims),
 		SIPUUID:         s.UUID,
 		SIPSourceID:     sourceID,
 		SIPName:         s.Name,

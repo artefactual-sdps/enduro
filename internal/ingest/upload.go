@@ -132,6 +132,7 @@ func (svc *ingestImpl) initSIP(
 	}
 
 	req := ProcessingWorkflowRequest{
+		User:            childWorkflowUserFromClaims(claims),
 		SIPUUID:         id,
 		SIPName:         name,
 		Type:            wType,

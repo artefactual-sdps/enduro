@@ -246,6 +246,7 @@ func (w *BatchWorkflow) startSIPWorkflow(
 		processingCtx,
 		ingest.ProcessingWorkflowName,
 		&ingest.ProcessingWorkflowRequest{
+			User:            state.user,
 			SIPUUID:         sipUUID,
 			SIPName:         key,
 			Key:             key,

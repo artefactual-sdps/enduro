@@ -25,6 +25,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/persistence/fake"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
+	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 func TestAddBatch(t *testing.T) {
@@ -185,6 +186,7 @@ func TestAddBatch(t *testing.T) {
 					},
 					ingest.BatchWorkflowName,
 					&ingest.BatchWorkflowRequest{
+						User:        &childwf.User{Email: "nobody@example.com"},
 						Batch:       *batchWithUploader,
 						SIPSourceID: sourceID,
 						Keys:        keys,

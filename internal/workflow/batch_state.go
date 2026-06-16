@@ -19,6 +19,10 @@ type batchWorkflowState struct {
 	// batch represents the batch being processed.
 	batch datatypes.Batch
 
+	// user contains non-sensitive information about the user who initiated the
+	// batch, when available.
+	user *childwf.User
+
 	// sipDetails contains details for each SIP in the batch.
 	sipDetails []*sipDetails
 
@@ -51,12 +55,14 @@ func newBatchWorkflowState(ctx temporalsdk_workflow.Context, req *ingest.BatchWo
 	return &batchWorkflowState{
 		logger:     temporalsdk_workflow.GetLogger(ctx),
 		batch:      req.Batch,
+		user:       req.User,
 		sipDetails: make([]*sipDetails, len(req.Keys)),
 	}
 }
 
 func (s *batchWorkflowState) PostbatchParams() *childwf.PostbatchParams {
 	return &childwf.PostbatchParams{
+		User: s.user,
 		Batch: &childwf.PostbatchBatch{
 			UUID:       s.batch.UUID,
 			Identifier: s.batch.Identifier,

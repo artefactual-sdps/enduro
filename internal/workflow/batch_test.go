@@ -155,7 +155,9 @@ func TestBatchWorkflow(t *testing.T) {
 // - Wait for all child workflows to complete.
 // - Update batch status (ingested).
 // - Run postbatch child workflow.
+// - Propagate user context to child workflows.
 func (s *BatchWorkflowTestSuite) TestBatch() {
+	user := &childwf.User{Email: "nobody@example.com"}
 	cfg := config.Configuration{
 		ChildWorkflows: config.ChildWorkflowConfigs{
 			{
@@ -277,6 +279,7 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 		postBatchChildWorkflow,
 		internalCtx,
 		&childwf.PostbatchParams{
+			User: user,
 			Batch: &childwf.PostbatchBatch{
 				UUID:       batchUUID,
 				Identifier: batchIdentifier,
@@ -326,6 +329,7 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 
 	s.ExecuteAndValidateWorkflow(
 		&ingest.BatchWorkflowRequest{
+			User: user,
 			Batch: datatypes.Batch{
 				UUID:       batchUUID,
 				Identifier: batchIdentifier,
@@ -338,6 +342,7 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 		},
 		[]ingest.ProcessingWorkflowRequest{
 			{
+				User:            user,
 				SIPUUID:         batchSIP1UUID,
 				SIPName:         batchSIP1Key,
 				Key:             batchSIP1Key,
@@ -347,6 +352,7 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 				BatchUUID:       batchUUID,
 			},
 			{
+				User:            user,
 				SIPUUID:         batchSIP2UUID,
 				SIPName:         batchSIP2Key,
 				Key:             batchSIP2Key,

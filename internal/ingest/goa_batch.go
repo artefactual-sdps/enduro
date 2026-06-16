@@ -64,6 +64,7 @@ func (svc *ingestImpl) AddBatch(
 	}
 
 	req := BatchWorkflowRequest{
+		User:            childWorkflowUserFromClaims(claims),
 		Batch:           *b,
 		SIPSourceID:     sourceID,
 		Keys:            payload.Keys,

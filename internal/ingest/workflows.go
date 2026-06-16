@@ -9,6 +9,7 @@ import (
 	temporalsdk_api_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 
+	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/pkg/childwf"
@@ -49,6 +50,10 @@ type (
 	}
 
 	BatchWorkflowRequest struct {
+		// User contains non-sensitive information about the user who initiated
+		// the workflow, when available.
+		User *childwf.User
+
 		// Batch contains the Batch details.
 		Batch datatypes.Batch
 
@@ -64,6 +69,10 @@ type (
 	}
 
 	ProcessingWorkflowRequest struct {
+		// User contains non-sensitive information about the user who initiated
+		// the workflow, when available.
+		User *childwf.User
+
 		// SIPUUID is the unique identifier of the SIP.
 		SIPUUID uuid.UUID
 
@@ -153,4 +162,12 @@ func InitProcessingWorkflow(
 
 func BatchWorkflowID(batchID uuid.UUID) string {
 	return fmt.Sprintf("%s-%s", BatchWorkflowName, batchID)
+}
+
+func childWorkflowUserFromClaims(claims *auth.Claims) *childwf.User {
+	if claims == nil || claims.Email == "" {
+		return nil
+	}
+
+	return &childwf.User{Email: claims.Email}
 }

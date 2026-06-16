@@ -7,6 +7,10 @@ import (
 )
 
 type PreprocessingParams struct {
+	// User contains non-sensitive information about the user who initiated the
+	// workflow, when available.
+	User *User
+
 	// Relative path to the shared path.
 	RelativePath string
 

@@ -3,6 +3,10 @@ package childwf
 import "time"
 
 type PostStorageParams struct {
+	// User contains non-sensitive information about the user who initiated the
+	// workflow, when available.
+	User *User
+
 	AIPUUID string
 
 	// CustomMetadata is opaque metadata returned by earlier child workflows.

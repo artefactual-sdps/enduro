@@ -785,6 +785,7 @@ func TestAddSIP(t *testing.T) {
 					},
 					ingest.ProcessingWorkflowName,
 					&ingest.ProcessingWorkflowRequest{
+						User:        &childwf.User{Email: "nobody@example.com"},
 						SIPUUID:     sipUUID,
 						SIPSourceID: sourceID,
 						SIPName:     key,

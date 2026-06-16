@@ -306,10 +306,12 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 // - preprocessing child workflow.
 // - custom metadata from preprocessing to poststorage.
 // - poststorage child workflows.
+// - user context propagation to child workflows.
 // - Bag validation.
 // - Watched bucket download.
 // - Watched bucket custom retention period.
 func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
+	user := &childwf.User{Email: "nobody@example.com"}
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
@@ -352,6 +354,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		"preprocessing",
 		internalCtx,
 		&childwf.PreprocessingParams{
+			User:         user,
 			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
 			SIPID:        sipUUID,
 			SIPName:      sipName,
@@ -408,6 +411,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		"poststorage",
 		internalCtx,
 		&childwf.PostStorageParams{
+			User:           user,
 			AIPUUID:        aipUUID.String(),
 			CustomMetadata: preprocessingMetadata,
 		},
@@ -452,6 +456,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	cleanupExpectations(s, params)
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		User:            user,
 		Key:             key,
 		WatcherName:     watcherName,
 		RetentionPeriod: params.retentionPeriod,

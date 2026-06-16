@@ -3,6 +3,10 @@ package childwf
 import "github.com/google/uuid"
 
 type PostbatchParams struct {
+	// User contains non-sensitive information about the user who initiated the
+	// workflow, when available.
+	User *User
+
 	// Batch represents data general to the whole batch.
 	Batch *PostbatchBatch
 

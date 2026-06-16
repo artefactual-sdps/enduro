@@ -18,3 +18,8 @@ const (
 
 // CustomMetadata is opaque JSON metadata carried between child workflows.
 type CustomMetadata map[string]json.RawMessage
+
+// User carries non-sensitive user information to child workflows.
+type User struct {
+	Email string
+}
