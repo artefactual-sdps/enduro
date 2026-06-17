@@ -69,6 +69,8 @@ RUN ["mkdir", "-m", "700", "-p", \
     "/home/enduro/internal-storage/ingest", \
     "/home/enduro/internal-storage/storage", \
     "/home/enduro/internal-storage/sip-source", \
+    "/home/enduro/internal-storage/watched", \
+    "/home/enduro/internal-storage/watched-complete", \
     "/home/enduro/internal-storage/perma-aips"]
 
 FROM base AS enduro

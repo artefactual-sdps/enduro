@@ -157,6 +157,34 @@ fileMode = "0o600"
 enabled = true
 xsdPath = "/home/enduro/premis.xsd"
 
+# Filesystem watched locations ingest SIPs automatically when completed files
+# or directories are moved into the watched path.
+[[watcher.filesystem]]
+name = "filesystem-watched-location"
+path = "/home/enduro/internal-storage/watched"
+# ignore is an optional regular expression matched against the deposited file
+# or directory name. Dot-prefixed names and temporary staging names ending in
+# ".tmp" are ignored.
+ignore = "(^\\.)|(\\.tmp$)"
+# Set inotify to true to prefer filesystem event notifications where
+# available. When false, Enduro uses polling.
+inotify = false
+pollInterval = "200ms"
+# retentionPeriod is the duration to retain SIPs before they are deleted after
+# a successful ingest. Set to a negative value to disable automatic deletion.
+# Set to "0" (default) to delete SIPs immediately after they have been
+# ingested. It must be a string format compatible with
+# https://pkg.go.dev/time#ParseDuration.
+retentionPeriod = "-1s"
+# completedDir moves successfully ingested SIPs instead of deleting them.
+# It can only be used when retentionPeriod is negative.
+completedDir = "/home/enduro/internal-storage/watched-complete"
+# workflowType is the processing workflow type related to this watcher.
+# Available workflow types are "create aip" and "create and review aip",
+# the later only works properly when the preservation system is "a3m".
+# Default: "create aip".
+workflowType = "create aip"
+
 # The legacy watched-location watcher consumes MinIO Redis notification events.
 # The development environment no longer deploys MinIO, so the example remains
 # here only as a reference for compatible deployments.

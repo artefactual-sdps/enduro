@@ -283,6 +283,8 @@ folders used by different local workflows:
 - `ingest`: internal storage for the ingest domain.
 - `storage`: internal storage for the storage domain.
 - `sip-source`: filesystem-backed SIP source.
+- `watched`: filesystem watched location.
+- `watched-complete`: successfully ingested watched-location SIPs.
 - `perma-aips`: local permanent AIP storage.
 
 Use the `enduro` pod as an access point for copying, listing, and removing files
@@ -305,6 +307,38 @@ kubectl -n "$NAMESPACE" cp -c "$CONTAINER" ./sip.zip \
   "$POD:$INTERNAL_STORAGE/sip-source/sip.zip"
 ```
 
+Copy a single local file into the filesystem watched location under an ignored
+temporary name, then rename it when the copy is complete. The default watcher
+configuration ignores names ending in `.tmp`, so the watcher will not process
+the file until it has its final name:
+
+```bash
+kubectl -n "$NAMESPACE" cp -c "$CONTAINER" ./sip.zip \
+  "$POD:$INTERNAL_STORAGE/watched/sip.zip.tmp"
+
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  mv "$INTERNAL_STORAGE/watched/sip.zip.tmp" \
+    "$INTERNAL_STORAGE/watched/sip.zip"
+```
+
+Copy a full local directory ("./example-sip") into the filesystem watched
+location under an ignored temporary directory, then rename it when the copy is
+complete. Copy the SIP contents into the temporary directory so the final
+renamed directory is the SIP root:
+
+```bash
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  mkdir -p "$INTERNAL_STORAGE/watched/example-sip.tmp"
+
+tar -C ./example-sip -cf - . | \
+  kubectl -n "$NAMESPACE" exec -i "$POD" -c "$CONTAINER" -- \
+    tar -C "$INTERNAL_STORAGE/watched/example-sip.tmp" -xf -
+
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  mv "$INTERNAL_STORAGE/watched/example-sip.tmp" \
+    "$INTERNAL_STORAGE/watched/example-sip"
+```
+
 Copy the contents of a local directory into one of the internal folders without
 creating an extra parent directory in the volume:
 
@@ -322,6 +356,12 @@ kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
 
 kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
   ls -la "$INTERNAL_STORAGE/sip-source"
+
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  ls -la "$INTERNAL_STORAGE/watched"
+
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  ls -la "$INTERNAL_STORAGE/watched-complete"
 
 kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
   ls -la "$INTERNAL_STORAGE/perma-aips"
@@ -345,7 +385,16 @@ kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
   rm -f "$INTERNAL_STORAGE/sip-source/sip.zip"
 
 kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
-  rm -rf "$INTERNAL_STORAGE/sip-source/example-transfer"
+  rm -rf "$INTERNAL_STORAGE/sip-source/example-sip"
+```
+
+Clean the watcher completed directory. This removes every completed SIP from
+`watched-complete` while keeping the directory itself:
+
+```bash
+kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
+  find "$INTERNAL_STORAGE/watched-complete" -mindepth 1 -maxdepth 1 \
+    -exec rm -rf {} +
 ```
 
 [administrator configuration]: ../admin-manual/configuration.md

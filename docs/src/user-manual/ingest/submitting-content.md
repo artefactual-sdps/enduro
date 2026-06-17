@@ -175,26 +175,29 @@ The deposit or upload process will depend on the source location used.
 It is also possible to configure Enduro to use a watched location for ingest.
 The [watched location configuration] must be done by a system administrator.
 
-Once configured, any time a new zipped package is added to the location,
-Enduro's [messaging queue][mq] will see it and automatically initiate an ingest
-workflow.
+Once configured, any time a new package is added to the location, Enduro will
+automatically initiate an ingest workflow. Filesystem watched locations can
+detect files or directories that are moved into the watched path. The watcher
+reacts when the top-level file or directory appears; it does not wait for
+contents that are still being copied. Stage the SIP elsewhere, then move or
+rename the completed archive or full directory into the watched location.
 
-The legacy object-store watcher currently consumes MinIO Redis notification
-events. Existing deployments can continue using it with MinIO-compatible event
-publishers. Azure Blob Storage and generic S3-compatible buckets are not
-supported as watched locations; use direct upload or SIP source locations for
-those sources.
+The legacy object-store watcher consumes MinIO Redis notification events for
+zipped packages. Existing deployments can continue using it with
+MinIO-compatible event publishers. Azure Blob Storage and generic S3-compatible
+buckets are not supported as watched locations; use direct upload or SIP source
+locations for those sources.
 
 !!! note
 
-    Packages **must** be zipped to be properly ingested into Enduro.
+    Legacy object-store watched-location packages **must** be zipped. Filesystem
+    watched locations may submit either a SIP archive file or a directory.
 
 [a3m]: https://github.com/artefactual-labs/a3m
 [Archivematica]: https://archivematica.org
 [BagIt]: https://tools.ietf.org/html/rfc8493
 [SIP source configuration]: ../../admin-manual/configuration.md#sip-source-location-configuration
 [watched location configuration]: ../../admin-manual/configuration.md#watched-location-configuration
-[mq]: ../components.md#messaging-queue
 [source location]: ../glossary.md#source-location
 [Unzipped and zipped bags]: https://www.archivematica.org/docs/latest/user-manual/transfer/bags/#bags
 [configure a SIP upload size limit]: ../../admin-manual/configuration.md#user-interface-sip-upload-filesize-limit

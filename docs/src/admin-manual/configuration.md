@@ -480,28 +480,82 @@ xsdPath = "/home/enduro/premis.xsd"
 ### Watched location configuration
 
 These configuration settings, when enabled, allow Enduro to initiate SIP ingest
-from a watched location. The current Redis-backed object-store watcher consumes
-the MinIO Redis notification event format. This watcher is still available for
-existing deployments with MinIO-compatible event publishers, but the development
-environment no longer deploys MinIO and the default configuration leaves this
-section commented out. Enduro does not currently support Azure Blob Storage or
-generic S3-compatible buckets as watched locations.
+from a watched location. Enduro supports two watched-location implementations:
 
-Once this section is enabled, the chosen watched location must publish an event
-to Enduro's message queue (in this case, [Redis], listening for events in the
-queue defined by the `redisList` parameter below) any time a new zipped package
-is added to the watched location. Enduro's internal watcher will watch for new
-deposit events at the configured `redisAddress` and queue, and will trigger the
-ingest workflow when it detects a SIP deposit in the configured watched
-location. For more information on ingests from a watched location, see:
+* Filesystem watchers monitor a local directory for new files or directories.
+  They do not use a message queue.
+* Legacy object-store watchers consume MinIO Redis notification events. This
+  path is still available for deployments with MinIO-compatible event
+  publishers.
+
+For filesystem watchers, make the deposit appear at its final name only after it
+is complete. The watcher reacts to top-level create or rename events; it does
+not wait for a file copy or directory tree copy to become stable. Copy or build
+the package in a staging location outside the watched path, then move or rename
+the completed file or directory into the watched path. If staging inside the
+watched path is required, configure `ignore` to match the temporary name, then
+rename the completed deposit to an unignored final name. The process running the
+watcher must be able to read the watched path and must have permission to delete
+or move deposits if retention or `completedDir` cleanup is enabled.
+
+For legacy object-store watchers, the watched location must publish an event to
+Enduro's message queue ([Redis], listening for events in the queue defined by
+the `redisList` parameter below) any time a new zipped package is added.
+Enduro's internal watcher will trigger the ingest workflow when it detects a SIP
+deposit in the configured watched location. Enduro does not currently support
+Azure Blob Storage or generic S3-compatible buckets as event-driven watched
+locations. For more information on ingests from a watched location, see:
 
 * [Initiate ingest via a watched location upload][watched-location]
 
-At this time, [Redis] is the only supported messaging queue - as such, the
-`redisAddress` and `redisList` fields are required.
+#### Filesystem watcher
 
-All other default parameters are MinIO bucket access settings and might not be
-needed for other watched location types.
+Use a repeated `[[watcher.filesystem]]` table for each filesystem watched
+location.
+
+**Example configuration**:
+
+```toml
+[[watcher.filesystem]]
+name = "filesystem-dropbox"
+path = "/home/enduro/watched"
+ignore = "^\\."
+inotify = false
+pollInterval = "200ms"
+retentionPeriod = "-1s"
+completedDir = "/home/enduro/watched-complete"
+workflowType = "create aip"
+```
+
+* `name`: Defines a name to be used internally for the watched location.
+  This must be unique across all configured watchers.
+* `path`: Filesystem directory that Enduro watches for new deposits. The
+  directory must exist before Enduro starts.
+* `ignore`: Optional regular expression matched against the base name of a
+  created file or directory. Matching deposits are ignored. Use this when an
+  incomplete deposit must be staged inside the watched path under a temporary
+  name before being renamed to its final name.
+* `inotify`: Set to `true` to prefer filesystem event notifications on
+  platforms where they are available. The default `false` uses polling.
+* `pollInterval`: Time between filesystem polls when polling is used. The
+  default is `200ms`; use a string format compatible with [ParseDuration].
+* `retentionPeriod`: Duration to retain the original SIP before deleting it
+  after a successful ingest. Set to a negative value to disable automatic
+  deletion. Set to `"0"` to delete immediately. Use a string format compatible
+  with [ParseDuration].
+* `completedDir`: Directory where Enduro moves the original SIP after a
+  successful ingest. This setting can only be used when `retentionPeriod` is
+  negative.
+* `workflowType`: Specifies the name of the Enduro workflow type to be run when
+  SIPs are deposited in the watched location. Currently the only supported
+  values are "create aip" and "create and review aip". The latter review
+  workflow also only works if [a3m] is the configured [preservation engine].
+
+#### Legacy MinIO Redis watcher
+
+At this time, [Redis] is the only supported messaging queue for legacy
+object-store watchers, so `redisAddress` and `redisList` are required.
+All other default parameters are MinIO bucket access settings.
 
 **Example configuration**:
 
