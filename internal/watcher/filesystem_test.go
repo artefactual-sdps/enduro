@@ -163,6 +163,35 @@ func TestFileSystemWatcher(t *testing.T) {
 		)))
 	})
 
+	t.Run("Download copies a file to the destination path", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := t.Context()
+
+		src := fs.NewDir(t, "enduro-test-fswatcher",
+			fs.WithFile("sip.zip", "A test file."),
+		)
+		dest := fs.NewDir(t, "enduro-test-fswatcher")
+
+		w, err := watcher.NewFilesystemWatcher(ctx, &watcher.FilesystemConfig{
+			Name: "filesystem",
+			Path: src.Path(),
+		})
+		assert.NilError(t, err)
+
+		destPath := filepath.Join(dest.Path(), "sip.zip")
+		err = w.Download(context.Background(), destPath, "sip.zip")
+		assert.NilError(t, err)
+
+		info, err := os.Stat(destPath)
+		assert.NilError(t, err)
+		assert.Assert(t, !info.IsDir())
+
+		got, err := os.ReadFile(destPath)
+		assert.NilError(t, err)
+		assert.Equal(t, string(got), "A test file.")
+	})
+
 	t.Run("Download copies a directory", func(t *testing.T) {
 		t.Parallel()
 
@@ -183,7 +212,7 @@ func TestFileSystemWatcher(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		err = w.Download(context.Background(), dest.Path(), "transfer")
+		err = w.Download(context.Background(), filepath.Join(dest.Path(), "transfer"), "transfer")
 		assert.NilError(t, err)
 		assert.Assert(t, fs.Equal(dest.Path(), fs.Expected(t, fs.WithMode(0o700),
 			fs.WithDir("transfer", fs.WithMode(0o755),

@@ -177,12 +177,10 @@ func (w *filesystemWatcher) Dispose(key string) error {
 	return fsutil.Move(src, dst)
 }
 
-// Download recursively copies the contents of key to dest. Key may be the name
-// of a directory or file.
+// Download copies key to dest. Key may be the name of a directory or file.
 func (w *filesystemWatcher) Download(ctx context.Context, dest, key string) error {
 	src := filepath.Clean(filepath.Join(w.path, key))
-	dest = filepath.Clean(filepath.Join(dest, key))
-	if err := cp.Copy(src, dest); err != nil {
+	if err := cp.Copy(src, filepath.Clean(dest)); err != nil {
 		return fmt.Errorf("filesystem watcher: download: %v", err)
 	}
 
