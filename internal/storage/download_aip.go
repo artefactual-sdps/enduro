@@ -28,19 +28,24 @@ func (s *serviceImpl) DownloadAipRequest(
 		return nil, goastorage.MakeNotValid(errors.New("AIP is not available for download"))
 	}
 
-	// Check if the failed AIP exists in the location bucket.
-	reader, err := s.AipReader(ctx, aip)
+	bucket, err := s.openAIPBucket(ctx, aip)
+	if err != nil {
+		s.logger.Error(fmt.Errorf("open AIP bucket: %v", err), "AIP UUID", aip.UUID)
+		return nil, goastorage.MakeInternalError(errors.New("error opening AIP storage location"))
+	}
+	defer bucket.Close()
+
+	_, err = bucket.Attributes(ctx, aip.UUID.String())
 	if err != nil {
 		if gcerrors.Code(err) == gcerrors.NotFound {
 			return nil, &goastorage.AIPNotFound{
 				UUID:    aip.UUID,
-				Message: "AIP file not found in the location bucket",
+				Message: "AIP not found",
 			}
 		} else {
-			return nil, goastorage.MakeInternalError(errors.New("error checking AIP file"))
+			return nil, goastorage.MakeInternalError(errors.New("error getting AIP attributes"))
 		}
 	}
-	reader.Close()
 
 	// Request a ticket.
 	ticket, err := s.ticketProvider.Request(ctx, nil)
@@ -97,7 +102,7 @@ func (s *serviceImpl) DownloadAip(
 		if gcerrors.Code(err) == gcerrors.NotFound {
 			return nil, nil, &goastorage.AIPNotFound{
 				UUID:    aip.UUID,
-				Message: "AIP file not found in the location bucket",
+				Message: "AIP not found",
 			}
 		} else {
 			return nil, nil, goastorage.MakeInternalError(errors.New("error reading AIP file"))
