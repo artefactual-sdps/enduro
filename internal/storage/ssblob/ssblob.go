@@ -129,7 +129,36 @@ func (b *bucket) ErrorAs(err error, i any) bool {
 }
 
 func (b *bucket) Attributes(ctx context.Context, key string) (*driver.Attributes, error) {
-	return nil, errNotImplemented
+	id, err := uuid.Parse(key)
+	if err != nil {
+		return nil, err
+	}
+
+	pkg, err := b.client.Packages().Get(ctx, id)
+	if err != nil {
+		if apiErr := apiError(err); apiErr != nil {
+			return nil, apiErr
+		}
+		return nil, err
+	}
+
+	if pkg.GetStatus() == nil || *pkg.GetStatus() == "DELETED" {
+		return nil, &APIError{
+			Status: "Not Found",
+			Code:   http.StatusNotFound,
+			Cause:  errors.New("resource deleted"),
+		}
+	}
+
+	drv := &driver.Attributes{
+		ContentDisposition: "attachment",
+		ContentType:        "application/octet-stream",
+	}
+	if pkg.GetSize() != nil {
+		drv.Size = *pkg.GetSize()
+	}
+
+	return drv, nil
 }
 
 func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driver.ListPage, error) {

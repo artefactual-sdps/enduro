@@ -9,6 +9,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"go.artefactual.dev/ssclient"
 	"gocloud.dev/blob"
 	"gocloud.dev/gcerrors"
@@ -155,10 +156,6 @@ func TestBucket(t *testing.T) {
 
 		ctx := context.Background()
 
-		attrs, err := b.Attributes(ctx, "2db707f3-3cd2-44b7-9012-9b68eb10d207")
-		assert.Assert(t, attrs == nil)
-		assert.Equal(t, gcerrors.Code(err), gcerrors.Unimplemented)
-
 		objs, nextPageToken, err := b.ListPage(ctx, nil, 10, nil)
 		assert.Assert(t, objs == nil)
 		assert.Assert(t, nextPageToken == nil)
@@ -261,5 +258,83 @@ func TestBucket(t *testing.T) {
 		})
 		assert.ErrorContains(t, err, "net/url: invalid control character in URL")
 		assert.Assert(t, b == nil)
+	})
+
+	t.Run("Returns blob attributes", func(t *testing.T) {
+		t.Parallel()
+
+		aipID := "2db707f3-3cd2-44b7-9012-9b68eb10d207"
+
+		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, r.URL.Path, fmt.Sprintf("/api/v2/file/%s/", aipID))
+
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Content-Disposition", "inline")
+			w.WriteHeader(http.StatusAccepted)
+			_, err := w.Write([]byte(`{
+"package_type": "AIP",
+"size": 12345,
+"status": "UPLOADED",
+"uuid": "` + aipID + `"
+}`))
+			assert.NilError(t, err)
+		}, nil)
+
+		attrs, err := b.Attributes(context.Background(), aipID)
+		assert.NilError(t, err)
+		assert.DeepEqual(t,
+			attrs,
+			&blob.Attributes{
+				ContentDisposition: "attachment",
+				ContentType:        "application/octet-stream",
+				Size:               12345,
+			},
+			cmpopts.IgnoreUnexported(blob.Attributes{}),
+		)
+	})
+
+	t.Run("bucket.Attributes returns not found when file deleted", func(t *testing.T) {
+		t.Parallel()
+
+		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
+			http.Error(w, "AIP not found.", http.StatusNotFound)
+		}, nil)
+
+		attrs, err := b.Attributes(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207")
+		assert.Equal(t, gcerrors.Code(err), gcerrors.NotFound)
+		assert.Assert(t, attrs == nil)
+
+		apiErr := &ssblob.APIError{}
+		assert.Equal(t, b.ErrorAs(err, &apiErr), true)
+		assert.Equal(t, apiErr.Code, http.StatusNotFound)
+	})
+
+	t.Run("Returns blob attributes", func(t *testing.T) {
+		t.Parallel()
+
+		aipID := "2db707f3-3cd2-44b7-9012-9b68eb10d207"
+
+		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
+			assert.Equal(t, r.URL.Path, fmt.Sprintf("/api/v2/file/%s/", aipID))
+
+			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set("Content-Disposition", "inline")
+			w.WriteHeader(http.StatusAccepted)
+			_, err := w.Write([]byte(`{
+"package_type": "AIP",
+"size": 12345,
+"status": "DELETED",
+"uuid": "` + aipID + `"
+}`))
+			assert.NilError(t, err)
+		}, nil)
+
+		_, err := b.Attributes(context.Background(), aipID)
+
+		var apiErr *ssblob.APIError
+		assert.Assert(t, errors.As(err, &apiErr))
+		assert.Equal(t, apiErr.Code, http.StatusNotFound)
+		assert.Equal(t, apiErr.Error(), "Not Found")
+		assert.Equal(t, apiErr.Cause.Error(), "resource deleted")
 	})
 }

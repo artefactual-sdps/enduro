@@ -353,65 +353,42 @@ func (s *serviceImpl) UpdateAipLocationID(ctx context.Context, aipID, locationID
 	return nil
 }
 
-// aipLocation returns the bucket and the key of the given AIP.
-func (s *serviceImpl) aipLocation(ctx context.Context, a *goastorage.AIP) (Location, string, error) {
-	// AIP is still in the internal processing bucket.
-	if a.LocationUUID == nil || *a.LocationUUID == uuid.Nil {
-		return s.internal, a.ObjectKey.String(), nil
-	}
-
-	location, err := s.Location(ctx, *a.LocationUUID)
-	if err != nil {
-		return nil, "", err
-	}
-	return location, a.UUID.String(), nil
-}
-
 func (s *serviceImpl) DeleteAip(ctx context.Context, aipID uuid.UUID) error {
 	aip, err := s.ReadAip(ctx, aipID)
 	if err != nil {
 		return err
 	}
 
-	location, key, err := s.aipLocation(ctx, aip)
+	bucket, err := s.openAIPBucket(ctx, aip)
 	if err != nil {
-		return err
-	}
-
-	bucket, err := s.openBucket(ctx, location)
-	if err != nil {
-		return err
-	}
-
-	// If the location is the internal processing location, use the AIP prefix.
-	if location.UUID() == uuid.Nil {
-		bucket = blob.PrefixedBucket(bucket, AIPPrefix)
+		return fmt.Errorf("open AIP bucket: %v", err)
 	}
 	defer bucket.Close()
 
-	return bucket.Delete(ctx, key)
+	err = bucket.Delete(ctx, aip.UUID.String())
+	if err != nil {
+		return fmt.Errorf("delete AIP: %v", err)
+	}
+
+	return nil
 }
 
+// AipReader returns a blob.Reader for the AIP content.
+//
+// If the AIP is stored in the Archivematica Storage Service, reader does not
+// support ranged reads, and the AIP will be immediately downloaded. For other
+// storage types, the reader supports range reads and the AIP contents are
+// streamed from the source on read.
 func (s *serviceImpl) AipReader(ctx context.Context, a *goastorage.AIP) (*blob.Reader, error) {
-	location, key, err := s.aipLocation(ctx, a)
+	bucket, err := s.openAIPBucket(ctx, a)
 	if err != nil {
-		return nil, err
-	}
-
-	bucket, err := s.openBucket(ctx, location)
-	if err != nil {
-		return nil, err
-	}
-
-	// If the location is the internal processing location, use the AIP prefix.
-	if location.UUID() == uuid.Nil {
-		bucket = blob.PrefixedBucket(bucket, AIPPrefix)
+		return nil, fmt.Errorf("open AIP bucket: %w", err)
 	}
 	defer bucket.Close()
 
-	reader, err := bucket.NewReader(ctx, key, nil)
+	reader, err := bucket.NewReader(ctx, a.UUID.String(), nil)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("new AIP reader: %w", err)
 	}
 
 	return reader, nil
@@ -433,12 +410,40 @@ func (s *serviceImpl) openBucket(ctx context.Context, location Location) (*blob.
 		return loc.OpenBucket(ctx)
 	}
 
-	config, ok := loc.config.Value.(*types.AMSSConfig)
-	if !ok {
-		return loc.OpenBucket(ctx)
+	if cfg, ok := loc.config.Value.(*types.AMSSConfig); ok {
+		return cfg.OpenBucketWithHTTPClient(ctx, s.amssHTTPClient)
 	}
 
-	return config.OpenBucketWithHTTPClient(ctx, s.amssHTTPClient)
+	return loc.OpenBucket(ctx)
+}
+
+// openAIPBucket returns the bucket where an AIP is stored.
+func (s *serviceImpl) openAIPBucket(ctx context.Context, aip *goastorage.AIP) (*blob.Bucket, error) {
+	if aip == nil {
+		return nil, errors.New("AIP is nil")
+	}
+
+	var locID uuid.UUID
+	if aip.LocationUUID != nil {
+		locID = *aip.LocationUUID
+	}
+
+	loc, err := s.Location(ctx, locID)
+	if err != nil {
+		return nil, fmt.Errorf("get AIP location: %w", err)
+	}
+
+	bucket, err := s.openBucket(ctx, loc)
+	if err != nil {
+		return nil, fmt.Errorf("open bucket: %w", err)
+	}
+
+	// If the location is the internal processing location, use the AIP prefix.
+	if loc.UUID() == uuid.Nil {
+		bucket = blob.PrefixedBucket(bucket, AIPPrefix)
+	}
+
+	return bucket, nil
 }
 
 func (s *serviceImpl) ListAipWorkflows(

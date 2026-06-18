@@ -673,7 +673,7 @@ func TestServiceDeleteAip(t *testing.T) {
 
 		err := svc.DeleteAip(ctx, aipID)
 		assert.Error(t, err, fmt.Sprintf(
-			"blob (key %q) (code=NotFound): remove %s/%s: no such file or directory",
+			"delete AIP: blob (key %q) (code=NotFound): remove %s/%s: no such file or directory",
 			aipID.String(), td.Path(), aipID.String(),
 		))
 	})
@@ -837,7 +837,7 @@ func TestAipReader(t *testing.T) {
 			LocationUUID: &locationID,
 		})
 		assert.Error(t, err, fmt.Sprintf(
-			"blob (key %q) (code=NotFound): blob not found",
+			"new AIP reader: blob (key %q) (code=NotFound): blob not found",
 			aipID.String(),
 		))
 	})
