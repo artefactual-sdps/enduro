@@ -16,7 +16,6 @@ import (
 
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
-	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/jonboulle/clockwork"
@@ -515,26 +514,6 @@ func main() {
 				wsvc,
 			).Execute,
 			temporalsdk_workflow.RegisterOptions{Name: ingest.ProcessingWorkflowName},
-		)
-		w.RegisterActivityWithOptions(
-			activities.NewDeleteOriginalActivity(wsvc).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName},
-		)
-		// TODO: At some point there may be multiple SIP sources, this activity should
-		// work similar to the watched bucket delete original activity and use the
-		// source ID to determine which bucket to use. Alternatively, we could register
-		// multiple copies of this activity, one per source.
-		w.RegisterActivityWithOptions(
-			bucketdelete.New(sipSource.Bucket).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalFromSIPSourceActivityName},
-		)
-		w.RegisterActivityWithOptions(
-			bucketdelete.New(internalStorage).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalFromInternalBucketActivityName},
-		)
-		w.RegisterActivityWithOptions(
-			activities.NewDisposeOriginalActivity(wsvc).Execute,
-			temporalsdk_activity.RegisterOptions{Name: activities.DisposeOriginalActivityName},
 		)
 
 		// Ingest batch workflow and activities.

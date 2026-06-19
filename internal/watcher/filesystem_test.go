@@ -138,11 +138,13 @@ func TestFileSystemWatcher(t *testing.T) {
 		assert.Assert(t, fs.Equal(w.Path(), fs.Expected(t)))
 	})
 
-	t.Run("Dispose moves transfer to CompletedDir", func(t *testing.T) {
+	t.Run("Dispose moves SIP to CompletedDir", func(t *testing.T) {
 		t.Parallel()
 
 		src := fs.NewDir(t, "enduro-test-fswatcher",
-			fs.WithDir("transfer", fs.WithFile("test.txt", "A test file.")),
+			fs.WithDir("example-sip",
+				fs.WithDir("objects", fs.WithFile("test.txt", "A test file.")),
+			),
 		)
 		dest := fs.NewDir(t, "enduro-test-fswatcher")
 
@@ -156,10 +158,21 @@ func TestFileSystemWatcher(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		err = w.Dispose("transfer")
+		srcPath := filepath.Join(w.Path(), "example-sip")
+		info, err := os.Stat(srcPath)
 		assert.NilError(t, err)
+		assert.Assert(t, info.IsDir())
+
+		err = w.Dispose("example-sip")
+		assert.NilError(t, err)
+
+		_, err = os.Stat(srcPath)
+		assert.Assert(t, os.IsNotExist(err))
+
 		assert.Assert(t, fs.Equal(dest.Path(), fs.Expected(t,
-			fs.WithDir("transfer", fs.WithFile("test.txt", "A test file.")),
+			fs.WithDir("example-sip",
+				fs.WithDir("objects", fs.WithFile("test.txt", "A test file.")),
+			),
 		)))
 	})
 
@@ -198,7 +211,7 @@ func TestFileSystemWatcher(t *testing.T) {
 		ctx := t.Context()
 
 		src := fs.NewDir(t, "enduro-test-fswatcher",
-			fs.WithDir("transfer",
+			fs.WithDir("example-sip",
 				fs.WithFile("test.txt", "A test file."),
 				fs.WithFile("test2", "Another test file."),
 			),
@@ -212,10 +225,10 @@ func TestFileSystemWatcher(t *testing.T) {
 		})
 		assert.NilError(t, err)
 
-		err = w.Download(context.Background(), filepath.Join(dest.Path(), "transfer"), "transfer")
+		err = w.Download(context.Background(), filepath.Join(dest.Path(), "example-sip"), "example-sip")
 		assert.NilError(t, err)
 		assert.Assert(t, fs.Equal(dest.Path(), fs.Expected(t, fs.WithMode(0o700),
-			fs.WithDir("transfer", fs.WithMode(0o755),
+			fs.WithDir("example-sip", fs.WithMode(0o755),
 				fs.WithFile("test.txt", "A test file.", fs.WithMode(0o644)),
 				fs.WithFile("test2", "Another test file.", fs.WithMode(0o644)),
 			),

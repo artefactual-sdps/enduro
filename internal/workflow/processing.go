@@ -297,25 +297,6 @@ func (w *ProcessingWorkflow) Execute(
 		return &ingest.ProcessingWorkflowResult{}, nil
 	}
 
-	// Schedule deletion or disposal of the original SIP.
-	if req.RetentionPeriod >= 0 {
-		if err := w.deleteOriginalSIP(ctx, state); err != nil {
-			state.logger.Error("Failed to delete original SIP", "err", err.Error())
-		}
-	} else if req.CompletedDir != "" {
-		activityOpts := withActivityOptsForLocalAction(ctx)
-		err := temporalsdk_workflow.ExecuteActivity(
-			activityOpts,
-			activities.DisposeOriginalActivityName,
-			req.WatcherName,
-			req.CompletedDir,
-			req.Key,
-		).Get(activityOpts, nil)
-		if err != nil {
-			state.logger.Error("Failed to dispose original SIP", "err", err.Error())
-		}
-	}
-
 	state.logger.Info(
 		"Workflow completed successfully!",
 		"SIPUUID", state.sip.uuid,
@@ -579,6 +560,26 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Set status to done so it's considered in the session cleanup.
 	state.status = enums.WorkflowStatusDone
+
+	// Original SIP cleanup for filesystem-backed inputs must run in the
+	// session so it executes on the worker with access to the local path.
+	if state.req.RetentionPeriod >= 0 {
+		if err := w.deleteOriginalSIP(sessCtx, state); err != nil {
+			state.logger.Error("Failed to delete original SIP", "err", err.Error())
+		}
+	} else if state.req.CompletedDir != "" {
+		activityOpts := withActivityOptsForLocalAction(sessCtx)
+		err := temporalsdk_workflow.ExecuteActivity(
+			activityOpts,
+			activities.DisposeOriginalActivityName,
+			state.req.WatcherName,
+			state.req.CompletedDir,
+			state.req.Key,
+		).Get(activityOpts, nil)
+		if err != nil {
+			state.logger.Error("Failed to dispose original SIP", "err", err.Error())
+		}
+	}
 
 	return nil
 }

@@ -46,7 +46,7 @@ func (w *ProcessingWorkflow) deleteOriginalSIP(ctx temporalsdk_workflow.Context,
 	}
 
 	// Delete the original SIP based on its origin.
-	activityOpts := withActivityOptsForRequestOnQueue(ctx, w.cfg.Temporal.TaskQueue)
+	activityOpts := withActivityOptsForRequest(ctx)
 	if state.req.WatcherName != "" {
 		err = temporalsdk_workflow.ExecuteActivity(
 			activityOpts,

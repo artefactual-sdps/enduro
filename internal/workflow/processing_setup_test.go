@@ -153,6 +153,10 @@ func (s *ProcessingWorkflowTestSuite) SetupWorkflowTest(
 		temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
+		activities.NewDisposeOriginalActivity(wsvc).Execute,
+		temporalsdk_activity.RegisterOptions{Name: activities.DisposeOriginalActivityName},
+	)
+	s.env.RegisterActivityWithOptions(
 		archivezip.New().Execute,
 		temporalsdk_activity.RegisterOptions{Name: archivezip.Name},
 	)

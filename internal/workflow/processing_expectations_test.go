@@ -45,11 +45,12 @@ const (
 	calcChecksumTaskID  = 109
 	duplicateSIPTaskID  = 110
 
-	sipName     = "name.zip"
-	key         = "transfer.zip"
-	watcherName = "watcher"
-	fileCount   = 5
-	sipChecksum = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+	sipName      = "name.zip"
+	key          = "transfer.zip"
+	watcherName  = "watcher"
+	fileCount    = 5
+	sipChecksum  = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08"
+	completedDir = "/home/enduro/watched-complete"
 )
 
 var (
@@ -118,6 +119,9 @@ type expectationParams struct {
 
 	// Retention period for original SIP deletion.
 	retentionPeriod time.Duration
+
+	// Completed directory for original SIP disposal.
+	completedDir string
 }
 
 // defaultParams returns a new expectationParams instance with sensible defaults.
@@ -381,6 +385,15 @@ var expectations = map[string]expectationFunc{
 			key,
 		).Return(nil, nil)
 	},
+	"disposeOriginal": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
+		s.env.OnActivity(
+			activities.DisposeOriginalActivityName,
+			sessionCtx,
+			watcherName,
+			params.completedDir,
+			key,
+		).Return(nil, nil)
+	},
 	"validateBag": func(s *ProcessingWorkflowTestSuite, params expectationParams) {
 		s.env.OnActivity(
 			bagvalidate.Name,
@@ -560,6 +573,8 @@ func cleanupExpectations(s *ProcessingWorkflowTestSuite, params expectationParam
 		expectations["deleteOriginal"](s, params)
 		params.updateTaskParams(deleteSIPTaskID, enums.TaskStatusDone, "", "SIP successfully deleted")
 		expectations["completeTask"](s, params)
+	} else if params.completedDir != "" {
+		expectations["disposeOriginal"](s, params)
 	}
 	expectations["updateSIPIngested"](s, params)
 	expectations["completeWorkflow"](s, params)

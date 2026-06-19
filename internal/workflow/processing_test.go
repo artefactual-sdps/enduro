@@ -185,6 +185,50 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	}, &ingest.ProcessingWorkflowResult{}, false)
 }
 
+// TestFilesystemWatcherDispose tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - Filesystem watcher directory SIP download.
+// - Filesystem watcher completedDir disposal.
+func (s *ProcessingWorkflowTestSuite) TestFilesystemWatcherDispose() {
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
+	}, nil)
+
+	params := defaultParams()
+	params.downloadPath = filepath.Join(tempPath, "example-sip")
+	params.extractPath = params.downloadPath
+
+	expectations["createSIP"](s, params)
+	expectations["setStatusInProgress"](s, params)
+	expectations["createWorkflow"](s, params)
+	params.updateTaskParams(copySIPTaskID, enums.TaskStatusInProgress, "Copy SIP to workspace", "")
+	expectations["createTask"](s, params)
+	expectations["download"](s, params)
+	params.updateTaskParams(copySIPTaskID, enums.TaskStatusDone, "", "SIP successfully copied")
+	expectations["completeTask"](s, params)
+	expectations["classifySIP"](s, params)
+	countSIPFilesExpectations(s, params)
+	expectations["saveFileCount"](s, params)
+	autoApproveA3mExpectations(s, params)
+	params.retentionPeriod = -1 * time.Second
+	params.completedDir = completedDir
+	cleanupExpectations(s, params)
+
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:             key,
+		WatcherName:     watcherName,
+		RetentionPeriod: params.retentionPeriod,
+		CompletedDir:    params.completedDir,
+		IsDir:           true,
+		Type:            enums.WorkflowTypeCreateAip,
+		SIPUUID:         sipUUID,
+		SIPName:         sipName,
+	}, &ingest.ProcessingWorkflowResult{}, false)
+}
+
 // TestAMWorkflow tests:
 // - Archivematica as preservation system.
 // - The "create AIP" workflow type.
