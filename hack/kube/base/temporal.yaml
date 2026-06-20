@@ -6,10 +6,10 @@ metadata:
   name: "temporal-config"
   labels:
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 data:
   config_template.yaml: |-
@@ -106,6 +106,7 @@ data:
     dynamicConfigClient:
       filepath: "/etc/temporal/dynamic_config/dynamic_config.yaml"
       pollInterval: "10s"
+
 ---
 # Source: temporal/templates/server-dynamicconfigmap.yaml
 apiVersion: v1
@@ -114,13 +115,14 @@ metadata:
   name: "temporal-dynamic-config"
   labels:
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 data:
   dynamic_config.yaml: |-
+
 ---
 # Source: temporal/templates/server-service.yaml
 apiVersion: v1
@@ -130,10 +132,10 @@ metadata:
   labels:
     app.kubernetes.io/component: frontend
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 spec:
   type: ClusterIP
@@ -166,12 +168,12 @@ metadata:
   labels:
     app.kubernetes.io/component: frontend
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
-    app.kubernetes.io/headless: 'true'
+    app.kubernetes.io/headless: "true"
   annotations:
     # Use this annotation in addition to the actual field below because the
     # annotation will stop being respected soon but the field is broken in
@@ -179,7 +181,7 @@ metadata:
     # https://github.com/kubernetes/kubernetes/issues/58662
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
     prometheus.io/job: temporal-frontend
-    prometheus.io/scrape: 'true'
+    prometheus.io/scrape: "true"
     prometheus.io/scheme: http
     prometheus.io/port: "9090"
 
@@ -223,12 +225,12 @@ metadata:
   labels:
     app.kubernetes.io/component: matching
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
-    app.kubernetes.io/headless: 'true'
+    app.kubernetes.io/headless: "true"
   annotations:
     # Use this annotation in addition to the actual field below because the
     # annotation will stop being respected soon but the field is broken in
@@ -236,7 +238,7 @@ metadata:
     # https://github.com/kubernetes/kubernetes/issues/58662
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
     prometheus.io/job: temporal-matching
-    prometheus.io/scrape: 'true'
+    prometheus.io/scrape: "true"
     prometheus.io/scheme: http
     prometheus.io/port: "9090"
 
@@ -280,12 +282,12 @@ metadata:
   labels:
     app.kubernetes.io/component: history
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
-    app.kubernetes.io/headless: 'true'
+    app.kubernetes.io/headless: "true"
   annotations:
     # Use this annotation in addition to the actual field below because the
     # annotation will stop being respected soon but the field is broken in
@@ -293,7 +295,7 @@ metadata:
     # https://github.com/kubernetes/kubernetes/issues/58662
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
     prometheus.io/job: temporal-history
-    prometheus.io/scrape: 'true'
+    prometheus.io/scrape: "true"
     prometheus.io/scheme: http
     prometheus.io/port: "9090"
 
@@ -337,12 +339,12 @@ metadata:
   labels:
     app.kubernetes.io/component: worker
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
-    app.kubernetes.io/headless: 'true'
+    app.kubernetes.io/headless: "true"
   annotations:
     # Use this annotation in addition to the actual field below because the
     # annotation will stop being respected soon but the field is broken in
@@ -350,7 +352,7 @@ metadata:
     # https://github.com/kubernetes/kubernetes/issues/58662
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
     prometheus.io/job: temporal-worker
-    prometheus.io/scrape: 'true'
+    prometheus.io/scrape: "true"
     prometheus.io/scheme: http
     prometheus.io/port: "9090"
 
@@ -394,10 +396,10 @@ metadata:
   labels:
     app.kubernetes.io/component: web
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 spec:
   type: ClusterIP
@@ -411,6 +413,7 @@ spec:
     app.kubernetes.io/name: temporal
     app.kubernetes.io/instance: temporal
     app.kubernetes.io/component: web
+
 ---
 # Source: temporal/templates/admintools-deployment.yaml
 apiVersion: apps/v1
@@ -418,14 +421,14 @@ kind: Deployment
 metadata:
   name: temporal-admintools
   annotations:
-    
+
   labels:
     app.kubernetes.io/component: admintools
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 spec:
   replicas: 1
@@ -437,20 +440,20 @@ spec:
   template:
     metadata:
       annotations:
-        
+
       labels:
         app.kubernetes.io/component: admintools
         app.kubernetes.io/name: temporal
-        helm.sh/chart: temporal-1.0.0
+        helm.sh/chart: temporal-1.2.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/instance: temporal
-        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/version: "1.31.0"
         app.kubernetes.io/part-of: temporal
     spec:
       serviceAccountName: default
       containers:
         - name: admin-tools
-          image: "temporalio/admin-tools:1.30.4"
+          image: "temporalio/admin-tools:1.31.0"
           imagePullPolicy: IfNotPresent
           env:
             # TEMPORAL_CLI_ADDRESS is deprecated, use TEMPORAL_ADDRESS instead
@@ -459,12 +462,13 @@ spec:
             - name: TEMPORAL_ADDRESS
               value: temporal-frontend:7233
           livenessProbe:
-              exec:
-                command:
+            exec:
+              command:
                 - ls
                 - /
-              initialDelaySeconds: 5
-              periodSeconds: 5
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
 ---
 # Source: temporal/templates/server-deployment.yaml
 apiVersion: apps/v1
@@ -472,14 +476,14 @@ kind: Deployment
 metadata:
   name: temporal-frontend
   annotations:
-    
+
   labels:
     app.kubernetes.io/component: frontend
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 spec:
   replicas: 1
@@ -491,19 +495,19 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 4836bb40e07e68b25a72dba2df8a8c10a504532ced66f00709d5ec163a5cb0b0
+        checksum/config: 2e35991d169d9eac8f426ed2ceafbb311a5777ab33da303875a65a464d4d5d9a
         prometheus.io/job: temporal-frontend
-        prometheus.io/scrape: 'true'
+        prometheus.io/scrape: "true"
         prometheus.io/scheme: http
-        prometheus.io/port: '9090'
-        
+        prometheus.io/port: "9090"
+
       labels:
         app.kubernetes.io/component: frontend
         app.kubernetes.io/name: temporal
-        helm.sh/chart: temporal-1.0.0
+        helm.sh/chart: temporal-1.2.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/instance: temporal
-        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/version: "1.31.0"
         app.kubernetes.io/part-of: temporal
     spec:
       serviceAccountName: default
@@ -512,7 +516,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: temporal-frontend
-          image: "temporalio/server:1.30.4"
+          image: "temporalio/server:1.31.0"
           imagePullPolicy: IfNotPresent
           env:
             - name: POD_IP
@@ -564,8 +568,7 @@ spec:
               subPath: config_template.yaml
             - name: dynamic-config
               mountPath: /etc/temporal/dynamic_config
-          resources:
-            {}
+          resources: {}
       volumes:
         - name: config
           configMap:
@@ -574,8 +577,8 @@ spec:
           configMap:
             name: "temporal-dynamic-config"
             items:
-            - key: dynamic_config.yaml
-              path: dynamic_config.yaml
+              - key: dynamic_config.yaml
+                path: dynamic_config.yaml
       terminationGracePeriodSeconds:
 ---
 # Source: temporal/templates/server-deployment.yaml
@@ -584,14 +587,14 @@ kind: Deployment
 metadata:
   name: temporal-history
   annotations:
-    
+
   labels:
     app.kubernetes.io/component: history
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 spec:
   replicas: 1
@@ -603,19 +606,19 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 4836bb40e07e68b25a72dba2df8a8c10a504532ced66f00709d5ec163a5cb0b0
+        checksum/config: 2e35991d169d9eac8f426ed2ceafbb311a5777ab33da303875a65a464d4d5d9a
         prometheus.io/job: temporal-history
-        prometheus.io/scrape: 'true'
+        prometheus.io/scrape: "true"
         prometheus.io/scheme: http
-        prometheus.io/port: '9090'
-        
+        prometheus.io/port: "9090"
+
       labels:
         app.kubernetes.io/component: history
         app.kubernetes.io/name: temporal
-        helm.sh/chart: temporal-1.0.0
+        helm.sh/chart: temporal-1.2.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/instance: temporal
-        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/version: "1.31.0"
         app.kubernetes.io/part-of: temporal
     spec:
       serviceAccountName: default
@@ -624,7 +627,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: temporal-history
-          image: "temporalio/server:1.30.4"
+          image: "temporalio/server:1.31.0"
           imagePullPolicy: IfNotPresent
           env:
             - name: POD_IP
@@ -669,8 +672,7 @@ spec:
               subPath: config_template.yaml
             - name: dynamic-config
               mountPath: /etc/temporal/dynamic_config
-          resources:
-            {}
+          resources: {}
       volumes:
         - name: config
           configMap:
@@ -679,8 +681,8 @@ spec:
           configMap:
             name: "temporal-dynamic-config"
             items:
-            - key: dynamic_config.yaml
-              path: dynamic_config.yaml
+              - key: dynamic_config.yaml
+                path: dynamic_config.yaml
       terminationGracePeriodSeconds:
 ---
 # Source: temporal/templates/server-deployment.yaml
@@ -689,14 +691,14 @@ kind: Deployment
 metadata:
   name: temporal-matching
   annotations:
-    
+
   labels:
     app.kubernetes.io/component: matching
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 spec:
   replicas: 1
@@ -708,19 +710,19 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 4836bb40e07e68b25a72dba2df8a8c10a504532ced66f00709d5ec163a5cb0b0
+        checksum/config: 2e35991d169d9eac8f426ed2ceafbb311a5777ab33da303875a65a464d4d5d9a
         prometheus.io/job: temporal-matching
-        prometheus.io/scrape: 'true'
+        prometheus.io/scrape: "true"
         prometheus.io/scheme: http
-        prometheus.io/port: '9090'
-        
+        prometheus.io/port: "9090"
+
       labels:
         app.kubernetes.io/component: matching
         app.kubernetes.io/name: temporal
-        helm.sh/chart: temporal-1.0.0
+        helm.sh/chart: temporal-1.2.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/instance: temporal
-        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/version: "1.31.0"
         app.kubernetes.io/part-of: temporal
     spec:
       serviceAccountName: default
@@ -729,7 +731,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: temporal-matching
-          image: "temporalio/server:1.30.4"
+          image: "temporalio/server:1.31.0"
           imagePullPolicy: IfNotPresent
           env:
             - name: POD_IP
@@ -774,8 +776,7 @@ spec:
               subPath: config_template.yaml
             - name: dynamic-config
               mountPath: /etc/temporal/dynamic_config
-          resources:
-            {}
+          resources: {}
       volumes:
         - name: config
           configMap:
@@ -784,8 +785,8 @@ spec:
           configMap:
             name: "temporal-dynamic-config"
             items:
-            - key: dynamic_config.yaml
-              path: dynamic_config.yaml
+              - key: dynamic_config.yaml
+                path: dynamic_config.yaml
       terminationGracePeriodSeconds:
 ---
 # Source: temporal/templates/server-deployment.yaml
@@ -794,14 +795,14 @@ kind: Deployment
 metadata:
   name: temporal-worker
   annotations:
-    
+
   labels:
     app.kubernetes.io/component: worker
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 spec:
   replicas: 1
@@ -813,19 +814,19 @@ spec:
   template:
     metadata:
       annotations:
-        checksum/config: 4836bb40e07e68b25a72dba2df8a8c10a504532ced66f00709d5ec163a5cb0b0
+        checksum/config: 2e35991d169d9eac8f426ed2ceafbb311a5777ab33da303875a65a464d4d5d9a
         prometheus.io/job: temporal-worker
-        prometheus.io/scrape: 'true'
+        prometheus.io/scrape: "true"
         prometheus.io/scheme: http
-        prometheus.io/port: '9090'
-        
+        prometheus.io/port: "9090"
+
       labels:
         app.kubernetes.io/component: worker
         app.kubernetes.io/name: temporal
-        helm.sh/chart: temporal-1.0.0
+        helm.sh/chart: temporal-1.2.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/instance: temporal
-        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/version: "1.31.0"
         app.kubernetes.io/part-of: temporal
     spec:
       serviceAccountName: default
@@ -834,7 +835,7 @@ spec:
         runAsUser: 1000
       containers:
         - name: temporal-worker
-          image: "temporalio/server:1.30.4"
+          image: "temporalio/server:1.31.0"
           imagePullPolicy: IfNotPresent
           env:
             - name: POD_IP
@@ -872,8 +873,7 @@ spec:
               subPath: config_template.yaml
             - name: dynamic-config
               mountPath: /etc/temporal/dynamic_config
-          resources:
-            {}
+          resources: {}
       volumes:
         - name: config
           configMap:
@@ -882,8 +882,8 @@ spec:
           configMap:
             name: "temporal-dynamic-config"
             items:
-            - key: dynamic_config.yaml
-              path: dynamic_config.yaml
+              - key: dynamic_config.yaml
+                path: dynamic_config.yaml
       terminationGracePeriodSeconds:
 ---
 # Source: temporal/templates/web-deployment.yaml
@@ -892,14 +892,14 @@ kind: Deployment
 metadata:
   name: temporal-web
   annotations:
-    
+
   labels:
     app.kubernetes.io/component: web
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 spec:
   replicas: 1
@@ -911,20 +911,20 @@ spec:
   template:
     metadata:
       annotations:
-        
+
       labels:
         app.kubernetes.io/component: web
         app.kubernetes.io/name: temporal
-        helm.sh/chart: temporal-1.0.0
+        helm.sh/chart: temporal-1.2.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/instance: temporal
-        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/version: "1.31.0"
         app.kubernetes.io/part-of: temporal
     spec:
       serviceAccountName: default
       containers:
         - name: temporal-web
-          image: "temporalio/ui:2.48.2"
+          image: "temporalio/ui:2.49.1"
           imagePullPolicy: IfNotPresent
           env:
             - name: TEMPORAL_ADDRESS
@@ -955,44 +955,103 @@ spec:
             - name: http
               containerPort: 8080
               protocol: TCP
-          resources:
-            {}
+          resources: {}
+
 ---
-# Source: temporal/templates/server-job.yaml
+# Source: temporal/templates/server-namespace-job.yaml
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: temporal-schema-1-0-0-1
+  name: temporal-namespace-1-2-0-1
   labels:
     app.kubernetes.io/component: database
     app.kubernetes.io/name: temporal
-    helm.sh/chart: temporal-1.0.0
+    helm.sh/chart: temporal-1.2.0
     app.kubernetes.io/managed-by: Helm
     app.kubernetes.io/instance: temporal
-    app.kubernetes.io/version: "1.30.3"
+    app.kubernetes.io/version: "1.31.0"
     app.kubernetes.io/part-of: temporal
 spec:
   backoffLimit: 100
   ttlSecondsAfterFinished: 86400
   template:
     metadata:
-      name: temporal-schema-1-0-0-1
+      name: temporal-namespace-1-2-0-1
       labels:
         app.kubernetes.io/component: database
         app.kubernetes.io/name: temporal
-        helm.sh/chart: temporal-1.0.0
+        helm.sh/chart: temporal-1.2.0
         app.kubernetes.io/managed-by: Helm
         app.kubernetes.io/instance: temporal
-        app.kubernetes.io/version: "1.30.3"
+        app.kubernetes.io/version: "1.31.0"
+        app.kubernetes.io/part-of: temporal
+    spec:
+      serviceAccountName: default
+      restartPolicy: OnFailure
+      initContainers:
+        - name: create-default-namespace
+          image: "temporalio/admin-tools:1.31.0"
+          imagePullPolicy: IfNotPresent
+          command: ["/bin/sh", "-c"]
+          args:
+            [
+              "temporal operator namespace describe -n default || temporal operator namespace create -n default --retention 3d",
+            ]
+          env:
+            - name: TEMPORAL_ADDRESS
+              value: "temporal-frontend.enduro-sdps.svc:7233"
+      containers:
+        - name: done
+          image: "temporalio/admin-tools:1.31.0"
+          imagePullPolicy: IfNotPresent
+          command: ["sh", "-c", 'echo "Namespace setup completed"']
+
+---
+# Source: temporal/templates/server-pdb.yaml
+---
+---
+# Source: temporal/templates/server-pdb.yaml
+---
+---
+# Source: temporal/templates/server-job.yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: temporal-schema-1-2-0-1
+  labels:
+    app.kubernetes.io/component: database
+    app.kubernetes.io/name: temporal
+    helm.sh/chart: temporal-1.2.0
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: temporal
+    app.kubernetes.io/version: "1.31.0"
+    app.kubernetes.io/part-of: temporal
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation
+spec:
+  backoffLimit: 100
+  ttlSecondsAfterFinished: 86400
+  template:
+    metadata:
+      name: temporal-schema-1-2-0-1
+      labels:
+        app.kubernetes.io/component: database
+        app.kubernetes.io/name: temporal
+        helm.sh/chart: temporal-1.2.0
+        app.kubernetes.io/managed-by: Helm
+        app.kubernetes.io/instance: temporal
+        app.kubernetes.io/version: "1.31.0"
         app.kubernetes.io/part-of: temporal
     spec:
       serviceAccountName: default
       restartPolicy: OnFailure
       initContainers:
         - name: create-default-store
-          image: "temporalio/admin-tools:1.30.4"
+          image: "temporalio/admin-tools:1.31.0"
           imagePullPolicy: IfNotPresent
-          command: ['temporal-sql-tool', 'create-database']
+          command: ["temporal-sql-tool", "create-database"]
           env:
             - name: SQL_PLUGIN
               value: mysql8
@@ -1025,9 +1084,9 @@ spec:
                   key: password
             # Manual patch end.
         - name: manage-schema-default-store
-          image: "temporalio/admin-tools:1.30.4"
+          image: "temporalio/admin-tools:1.31.0"
           imagePullPolicy: IfNotPresent
-          command: ['sh', '-c']
+          command: ["sh", "-c"]
           args:
             - temporal-sql-tool setup-schema -v 0.0 && temporal-sql-tool update-schema --schema-dir /etc/temporal/schema/mysql/v8/temporal/versioned
           env:
@@ -1063,9 +1122,9 @@ spec:
             # Manual patch end.
           volumeMounts:
         - name: create-visibility-store
-          image: "temporalio/admin-tools:1.30.4"
+          image: "temporalio/admin-tools:1.31.0"
           imagePullPolicy: IfNotPresent
-          command: ['temporal-sql-tool', 'create-database']
+          command: ["temporal-sql-tool", "create-database"]
           env:
             - name: SQL_PLUGIN
               value: mysql8
@@ -1088,7 +1147,7 @@ spec:
             - name: MYSQL_PORT
               value: "3306"
             - name: MYSQL_DATABASE
-              value: temporal_visibility
+              value: temporal
             - name: MYSQL_USER
               value: "enduro"
             - name: MYSQL_PWD
@@ -1098,9 +1157,9 @@ spec:
                   key: password
             # Manual patch end.
         - name: manage-schema-visibility-store
-          image: "temporalio/admin-tools:1.30.4"
+          image: "temporalio/admin-tools:1.31.0"
           imagePullPolicy: IfNotPresent
-          command: ['sh', '-c']
+          command: ["sh", "-c"]
           args:
             - temporal-sql-tool setup-schema -v 0.0 && temporal-sql-tool update-schema --schema-dir /etc/temporal/schema/mysql/v8/visibility/versioned
           env:
@@ -1125,7 +1184,7 @@ spec:
             - name: MYSQL_PORT
               value: "3306"
             - name: MYSQL_DATABASE
-              value: temporal_visibility
+              value: temporal
             - name: MYSQL_USER
               value: "enduro"
             - name: MYSQL_PWD
@@ -1135,22 +1194,9 @@ spec:
                   key: password
             # Manual patch end.
           volumeMounts:
-        - name: create-default-namespace
-          image: "temporalio/admin-tools:1.30.4"
-          imagePullPolicy: IfNotPresent
-          command: ['/bin/sh','-c']
-          args: ['temporal operator namespace describe -n default || temporal operator namespace create -n default --retention 3d']
-          env:
-            - name: TEMPORAL_ADDRESS
-              value: "temporal-frontend.enduro-sdps.svc:7233"
+
       containers:
         - name: done
-          image: "temporalio/admin-tools:1.30.4"
+          image: "temporalio/admin-tools:1.31.0"
           imagePullPolicy: IfNotPresent
-          command: ['sh', '-c', 'echo "Store setup completed"']
----
-# Source: temporal/templates/server-pdb.yaml
----
----
-# Source: temporal/templates/server-pdb.yaml
----
+          command: ["sh", "-c", 'echo "Store setup completed"']
