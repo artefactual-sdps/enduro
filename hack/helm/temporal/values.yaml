@@ -1,6 +1,6 @@
 server:
   image:
-    tag: 1.30.4
+    tag: 1.31.0
   config:
     namespaces:
       create: true
@@ -32,10 +32,10 @@ server:
             secretKey: password
 admintools:
   image:
-    tag: 1.30.4
+    tag: 1.31.0
 web:
   image:
-    tag: 2.48.2
+    tag: 2.49.1
   additionalEnv:
     - name: TEMPORAL_AUTH_ENABLED
       value: "true"
