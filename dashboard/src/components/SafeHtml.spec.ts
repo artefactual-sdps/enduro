@@ -1,3 +1,6 @@
+// @vitest-environment jsdom
+// DOMPurify and happy-dom don't work well together, so we use jsdom for these
+// tests to ensure the sanitization logic is properly tested.
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
