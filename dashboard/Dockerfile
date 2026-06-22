@@ -45,6 +45,14 @@ server {
     # add_header Reporting-Endpoints 'csp="https://example.com/csp"' always;
     # (Append to CSP) ... ; report-to csp
 
+    location ~ "^/api/ingest/sips/([0-9a-fA-F-]{36})/download" {
+      proxy_pass http://backend/ingest/sips/\$1/download;
+      proxy_buffering off;
+    }
+    location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/download" {
+      proxy_pass http://backend/storage/aips/\$1/download;
+      proxy_buffering off;
+    }
     location /api/ingest/monitor {
         proxy_pass http://backend/ingest/monitor;
         proxy_http_version 1.1;

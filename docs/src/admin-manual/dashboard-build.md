@@ -183,6 +183,18 @@ server {
     # add_header Reporting-Endpoints 'csp="https://example.com/csp"' always;
     # (Append to CSP) ... ; report-to csp
 
+    # Large file support for SIP downloads
+    location ~ "^/api/ingest/sips/([0-9a-fA-F-]{36})/download" {
+      proxy_pass http://backend/ingest/sips/$1/download;
+      proxy_buffering off;
+    }
+
+    # Large file support for AIP downloads
+    location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/download" {
+      proxy_pass http://backend/storage/aips/$1/download;
+      proxy_buffering off;
+    }
+
     # WebSocket support for ingest monitoring
     location /api/ingest/monitor {
         proxy_pass http://backend/ingest/monitor;
