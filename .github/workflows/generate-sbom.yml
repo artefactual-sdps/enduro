@@ -38,7 +38,7 @@ jobs:
           ref: ${{ env.PROJECT_VERSION }}
 
       - name: Set up Trivy cache
-        uses: actions/cache@v5
+        uses: actions/cache@v6
         with:
           path: .trivycache
           key: ${{ runner.os }}-trivy-${{ hashFiles('**/go.sum', '**/package-lock.json', '**/requirements.txt') }}

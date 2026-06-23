@@ -19,7 +19,7 @@ jobs:
         run: |
           echo "DATE=$(date -u '+%Y-%m')" >> $GITHUB_ENV
       - name: Restore golangci-lint cache
-        uses: actions/cache@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+        uses: actions/cache@2c8a9bd7457de244a408f35966fab2fb45fda9c8 # v6.0.0
         timeout-minutes: 10
         continue-on-error: true
         with:
