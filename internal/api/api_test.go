@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -61,6 +62,7 @@ func newTestAPI(t *testing.T) *testAPI {
 
 	server := HTTPServer(
 		logr.Discard(),
+		slog.New(slog.DiscardHandler),
 		nil,
 		&Config{Listen: ":0"},
 		ingestSvc,

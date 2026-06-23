@@ -152,15 +152,17 @@ port should **not be exposed publicly**.
 ```toml
 [internalapi]
 listen = "0.0.0.0:9002"
-debug = false
+
+[internalapi.log]
+path = "stdout"
+level = "warn"
+format = "json"
 ```
 
 * `listen`: tells Enduro what IP address and port to use for internal API
   communication across components.
-* `debug`: Enables (set to `true`) or disables (set to `false`) debug mode for
-  the internal API. When enabled, debug prints detailed information about
-  incoming requests and outgoing responses, including all headers, parameters,
-  and bodies.
+
+See [API Logs](#api-logs) for logging configuration details.
 
 ### API
 
@@ -178,20 +180,22 @@ external facing [API]. This first block sets the basic configuration of the API.
 ```toml
 [api]
 listen = "0.0.0.0:9000"
-debug = false
 corsOrigin = "http://localhost"
+
+[api.log]
+path = "/var/log/enduro/api.log"
+level = "warn"
+format = "json"
 ```
 
 * `listen`: Specifies the address and port the API will bind to for
   communication.
-* `debug`: Enables (set to `true`) or disables (set to `false`) debug mode for
-  the API. When enabled, debug prints detailed information about incoming
-  requests and outgoing responses, including all headers, parameters,
-  and bodies.
 * `corsOrigin`: [CORS] (short for Cross-Origin Resource Sharing) is a security
   mechanism implemented by web browsers that controls how web pages can access
   resources from different domains, ports, or protocols. This setting defines a
   policy for Enduro to use the specified value as the primary origin domain.
+
+See [API Logs](#api-logs) for logging configuration details.
 
 #### API timeout behavior
 
@@ -382,6 +386,53 @@ prefix = "enduro"
 * `prefix`: Defines a namespace that can be used as a prefix to differentiate
   instances if you have multiple Enduro installations running. Otherwise, there
   is no reason to change the default "enduro" value.
+
+#### API Logs
+
+Enduro API logs are handled separately from the application logs due to
+different volume, retention, routing, and alerting needs. API logs include HTTP
+request and response data and can be written to a file, standard output
+(stdout), or standard error (stderr). API log messages are encoded in text or
+or JSON format.
+
+The API and Internal API logs are configured independently and can log to
+separate files or the same file.
+
+**Example configurations**:
+
+```toml
+[api.log]
+path = "/var/log/enduro/api.log"
+level = "info"
+format = "json"
+
+[internalapi.log]
+path = "stdout"
+level = "warn"
+format = "text"
+```
+
+* `path`: sets the path of the API log file. If `path` is set to a regular file
+  path, logs messages are appended to that file. If `path` is set to "stdout" or
+  "stderr" log messages are written to standard output or standard error
+  respectively. If `path` is not set, or set to an empty string, API logging is
+  disabled.
+* `level` defines the verbosity of the API logs:
+    * "debug" - log all responses (incl. OPTIONS)
+    * "info"  - log responses (excl. OPTIONS)
+    * "warn"  - log 4xx and 5xx responses only (except for 429)
+    * "error" - log 5xx responses only
+  The default `level` is "info", and level names are case-insensitive.
+* `format`: sets the output encoding of the log messages. Supported formats are
+  "json" (the default) and "text". If set to "json" log messages are encoded as
+  line delimited JSON, intended for machine analysis or aggregation. If set to
+  "text" log messages are encoded as plain text with "key=value" data pairs. The
+  "text" format is intended for human readability.
+
+**N.B.** If `path` is a normal file (not stdout or stderr) the log file will
+be created by Enduro if it does not exist already, but the full directory path
+to the file must exist when the Enduro worker is started or the worker will exit
+with an error.
 
 ### BagIt bag creation
 

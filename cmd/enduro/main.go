@@ -352,6 +352,15 @@ func main() {
 		}
 	}
 
+	// Set up the API logger for logging HTTP requests and responses.
+	apiLog, err := api.NewFileLogger(cfg.API.Log)
+	if err != nil {
+		logger.Error(err, "Failed to open API log file")
+		os.Exit(1)
+	}
+	apiLog = apiLog.WithName(appName + ".api")
+	defer apiLog.Close()
+
 	var g run.Group
 
 	// API server.
@@ -360,7 +369,7 @@ func main() {
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, tp, &cfg.API, ingestsvc, storagesvc, aboutsvc)
+				srv = api.HTTPServer(logger, apiLog.Logger, tp, &cfg.API, ingestsvc, storagesvc, aboutsvc)
 				return srv.ListenAndServe()
 			},
 			func(err error) {
@@ -418,11 +427,19 @@ func main() {
 			&auth.NoopTokenVerifier{},
 		)
 
+		iaLog, err := api.NewFileLogger(cfg.InternalAPI.Log)
+		if err != nil {
+			logger.Error(err, "Failed to open internal API log file")
+			os.Exit(1)
+		}
+		iaLog = iaLog.WithName(appName + ".api.internal")
+		defer iaLog.Close()
+
 		var srv *http.Server
 
 		g.Add(
 			func() error {
-				srv = api.HTTPServer(logger, tp, &cfg.InternalAPI, ips, iss, ias)
+				srv = api.HTTPServer(logger, iaLog.Logger, tp, &cfg.InternalAPI, ips, iss, ias)
 				return srv.ListenAndServe()
 			},
 			func(err error) {
