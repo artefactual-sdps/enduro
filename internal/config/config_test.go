@@ -1,6 +1,7 @@
 package config_test
 
 import (
+	"log/slog"
 	"testing"
 	"time"
 
@@ -29,6 +30,16 @@ debugListen = "127.0.0.1:9001"
 
 [temporal]
 address = "host:port"
+
+[api]
+listen = "https://example.com:9000"
+CORSOrigin = "https://*.example.com"
+debug = true
+
+[api.log]
+path = "stdout"
+level = "WARN"
+format = "text"
 
 [api.auth]
 enabled = true
@@ -106,7 +117,7 @@ func TestConfigRead(t *testing.T) {
 					PollInterval: 10 * time.Second,
 				},
 				API: api.Config{
-					Listen: "127.0.0.1:9000",
+					Listen: "https://example.com:9000",
 					Auth: auth.Config{
 						Enabled: true,
 						OIDC: auth.OIDCConfigs{
@@ -130,7 +141,18 @@ func TestConfigRead(t *testing.T) {
 							},
 						},
 					},
-					CORSOrigin: "127.0.0.1:9000",
+					CORSOrigin: "https://*.example.com",
+					Log: api.LogConfig{
+						Path:   "stdout",
+						Level:  slog.LevelWarn,
+						Format: api.LogFormatText,
+					},
+				},
+				InternalAPI: api.Config{
+					Log: api.LogConfig{
+						Format: api.LogFormatJSON,
+						Level:  slog.LevelInfo,
+					},
 				},
 				BagIt: bagcreate.Config{
 					ChecksumAlgorithm: "sha256",
@@ -205,6 +227,16 @@ defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
 				API: api.Config{
 					Listen:     "127.0.0.1:9000",
 					CORSOrigin: "127.0.0.1:9000",
+					Log: api.LogConfig{
+						Format: api.LogFormatJSON,
+						Level:  slog.LevelInfo,
+					},
+				},
+				InternalAPI: api.Config{
+					Log: api.LogConfig{
+						Format: api.LogFormatJSON,
+						Level:  slog.LevelInfo,
+					},
 				},
 				BagIt: bagcreate.Config{
 					ChecksumAlgorithm: "sha512",
@@ -254,6 +286,14 @@ rolesMapping = "not-a-json"`,
 * error decoding 'API.Auth.OIDC[0].ABAC.RolesMapping': invalid character 'o' in literal null (expecting 'u')`,
 		},
 		{
+			name: "Returns error if string to log level hook fails",
+			config: `[api.log]
+level = "panic"`,
+			wantErr: `failed to unmarshal configuration: 1 error(s) decoding:
+
+* error decoding 'API.Log.Level': invalid log level 'panic', valid values are: debug, info, warn, error`,
+		},
+		{
 			name: "Returns error if validation fails",
 			config: `[ingest.storage]
 address = "storage-api:9000"
@@ -282,6 +322,8 @@ aipCompressionLevel = 10`,
 			assert.NilError(t, err)
 			assert.Equal(t, found, true)
 			assert.Equal(t, configFileUsed, configFile)
+
+			assert.NilError(t, c.Validate())
 			assert.DeepEqual(t, c, tc.want)
 		})
 	}

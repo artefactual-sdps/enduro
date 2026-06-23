@@ -11,8 +11,8 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"log/slog"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -20,7 +20,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
 	goahttp "goa.design/goa/v3/http"
-	goahttpmwr "goa.design/goa/v3/http/middleware"
 	goamiddleware "goa.design/goa/v3/middleware"
 
 	intabout "github.com/artefactual-sdps/enduro/internal/about"
@@ -37,6 +36,7 @@ import (
 
 func HTTPServer(
 	logger logr.Logger,
+	apiLogger *slog.Logger,
 	tp trace.TracerProvider,
 	config *Config,
 	ingestsvc intingest.Service,
@@ -90,9 +90,11 @@ func HTTPServer(
 	// Global middlewares.
 	var handler http.Handler = mux
 	handler = middleware.VersionHeader("X-Enduro-Version", version.Short)(handler)
-	if config.Debug {
-		handler = goahttpmwr.Log(loggerAdapter(logger))(handler) //nolint SA1019: deprecated - use OpenTelemetry.
-		handler = goahttpmwr.Debug(mux, os.Stdout)(handler)
+
+	// Add logging middleware if an API logger is configured. The log level is
+	// set to the configured log level.
+	if apiLogger != nil {
+		handler = requestLogger(apiLogger, config.Log.Level)(handler)
 	}
 
 	return &http.Server{

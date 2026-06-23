@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"reflect"
+	"slices"
 	"strings"
 	"time"
 
@@ -33,6 +35,13 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
+
+var logLevels = []string{
+	"debug",
+	"info",
+	"warn",
+	"error",
+}
 
 type ConfigurationValidator interface {
 	Validate() error
@@ -84,7 +93,8 @@ type Configuration struct {
 func (c *Configuration) Validate() error {
 	return errors.Join(
 		c.A3m.Validate(),
-		c.API.Auth.Validate(),
+		c.API.Validate(),
+		c.InternalAPI.Validate(),
 		c.BagIt.Validate(),
 		c.BagItValidator.Validate(),
 		c.ChildWorkflows.Validate(),
@@ -136,6 +146,7 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 		// StringToUUIDHookFunc is a custom string to UUID decoder.
 		stringToUUIDHookFunc(),
 		stringToMapHookFunc(),
+		stringToLogLevelHookFunc(),
 	)
 
 	err = v.Unmarshal(config, viper.DecodeHook(decodeHookFunc))
@@ -160,13 +171,8 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 
 // setCORSOriginEnv sets the CORS Origin environment variable needed by
 // Goa-generated code for the API.
-func setCORSOriginEnv(config *Configuration) error {
-	if config.API.CORSOrigin == "" {
-		// Default to the API URI to disallow all cross-origin requests.
-		config.API.CORSOrigin = config.API.Listen
-	}
-
-	if err := os.Setenv("ENDURO_API_CORS_ORIGIN", config.API.CORSOrigin); err != nil {
+func setCORSOriginEnv(cfg *Configuration) error {
+	if err := os.Setenv("ENDURO_API_CORS_ORIGIN", cfg.API.CORSOrigin); err != nil {
 		return err
 	}
 
@@ -200,5 +206,28 @@ func stringToMapHookFunc() mapstructure.DecodeHookFunc {
 		}
 
 		return value, nil
+	}
+}
+
+func stringToLogLevelHookFunc() mapstructure.DecodeHookFunc {
+	return func(f, t reflect.Type, data any) (any, error) {
+		if f.Kind() != reflect.String || t != reflect.TypeFor[slog.Level]() {
+			return data, nil
+		}
+
+		name := strings.ToLower(data.(string))
+		if slices.Contains(logLevels, name) {
+			var lvl slog.Level
+			if err := lvl.UnmarshalText([]byte(name)); err != nil {
+				return nil, fmt.Errorf("failed to unmarshal log level '%s': %w", data.(string), err)
+			}
+			return lvl, nil
+		} else {
+			return nil, fmt.Errorf(
+				"invalid log level '%s', valid values are: %s",
+				data.(string),
+				strings.Join(logLevels, ", "),
+			)
+		}
 	}
 }

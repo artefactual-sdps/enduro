@@ -23,15 +23,46 @@ namespace = "default"
 taskQueue = "global"
 
 [internalapi]
-# Used for internal component communication. Does NOT support authentication -
-# for security, do not expose this port publicly.
+# Address of the internal API server. Used for internal component communication.
+# Does NOT support authentication - for security, do not expose this address
+# publicly.
 listen = "0.0.0.0:9002"
-debug = false
+
+[internalapi.log]
+# Path to the internal API log file. Accepts stdout or stderr for console
+# output. If `path` is not set, or set to an empty string, logging is disabled.
+path = "stdout"
+
+# Log level sets the log verbosity. Valid values are: "debug", "info" (default),
+# "warn", and "error" (case-insensitive).
+# See https://enduro.readthedocs.io/admin-manual/configuration/#api-logs for
+# detailed level information.
+level = "warn"
+
+# Format of the log messages. Valid values are: "json" (default) and "text".
+format = "text"
 
 [api]
+# Address of the API server.
 listen = "0.0.0.0:9000"
-debug = false
+
+# CORS Access-Control-Allow-Origin policy for the API server. Defaults to the
+# listen address if not set.
 corsOrigin = "http://localhost"
+
+[api.log]
+# Path to the API log file. Accepts stdout or stderr for console output. If
+# `path` is not set, or set to an empty string, logging is disabled.
+path = "stdout"
+
+# Log level sets the log verbosity. Valid values are: "debug", "info" (default),
+# "warn", and "error" (case-insensitive).
+# See https://enduro.readthedocs.io/admin-manual/configuration/#api-logs for
+# detailed level information.
+level = "warn"
+
+# Format of the log messages. Valid values are: "json" (default) and "text".
+format = "text"
 
 [api.auth]
 # Enable API authentication. OIDC is the only protocol supported at the
