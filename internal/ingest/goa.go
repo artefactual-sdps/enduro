@@ -130,11 +130,12 @@ func (svc *ingestImpl) ListSips(ctx context.Context, payload *goaingest.ListSips
 
 	pf, err := listSipsPayloadToSIPFilter(payload)
 	if err != nil {
-		return nil, err
+		return nil, goaingest.MakeNotValid(err)
 	}
 
 	r, pg, err := svc.perSvc.ListSIPs(ctx, pf)
 	if err != nil {
+		svc.logger.Error(err, "list SIPs")
 		return nil, goaingest.MakeInternalError(err)
 	}
 
