@@ -12,7 +12,6 @@ import (
 	"context"
 	"encoding/json"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/go-logr/logr"
@@ -21,7 +20,6 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
 	goahttp "goa.design/goa/v3/http"
-	goahttpmwr "goa.design/goa/v3/http/middleware"
 	goamiddleware "goa.design/goa/v3/middleware"
 
 	intabout "github.com/artefactual-sdps/enduro/internal/about"
@@ -81,10 +79,7 @@ func HTTPServer(
 	// Global middlewares.
 	var handler http.Handler = mux
 	handler = middleware.VersionHeader("X-Enduro-Version", version.Short)(handler)
-	if config.Debug {
-		handler = goahttpmwr.Log(loggerAdapter(logger))(handler) //nolint SA1019: deprecated - use OpenTelemetry.
-		handler = goahttpmwr.Debug(mux, os.Stdout)(handler)
-	}
+	handler = logHandler(logger, config.Debug)(handler)
 
 	return &http.Server{
 		Addr:         config.Listen,

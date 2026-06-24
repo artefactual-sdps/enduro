@@ -17,6 +17,7 @@ require (
 	github.com/dolmen-go/contextio v1.0.0
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/gliderlabs/ssh v0.3.6
+	github.com/go-chi/httplog/v3 v3.4.0
 	github.com/go-jose/go-jose/v4 v4.1.4
 	github.com/go-logr/logr v1.4.3
 	github.com/go-sql-driver/mysql v1.9.3
