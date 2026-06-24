@@ -11,6 +11,7 @@ require (
 	entgo.io/ent v0.14.5
 	github.com/XSAM/otelsql v0.40.0
 	github.com/alicebob/miniredis/v2 v2.32.1
+	github.com/artefactual-labs/bagit-gython v0.6.0
 	github.com/artefactual-sdps/temporal-activities v0.0.0-20260406175419-303edb7db3db
 	github.com/coreos/go-oidc/v3 v3.17.0
 	github.com/cyphar/filepath-securejoin v0.2.4
@@ -86,7 +87,6 @@ require (
 	github.com/andybalholm/brotli v1.2.0 // indirect
 	github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be // indirect
 	github.com/apparentlymart/go-textseg/v15 v15.0.0 // indirect
-	github.com/artefactual-labs/bagit-gython v0.2.0 // indirect
 	github.com/artefactual-labs/bine v0.28.3 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.41.5 // indirect
 	github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.8 // indirect
@@ -126,6 +126,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-logr/zapr v1.3.0 // indirect
 	github.com/go-openapi/inflect v0.19.0 // indirect
+	github.com/gofrs/flock v0.13.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/gohugoio/hashstructure v0.6.0 // indirect
 	github.com/golang-jwt/jwt/v5 v5.3.0 // indirect
@@ -151,7 +152,7 @@ require (
 	github.com/hhrutter/tiff v1.0.3 // indirect
 	github.com/klauspost/compress v1.18.6 // indirect
 	github.com/klauspost/pgzip v1.2.6 // indirect
-	github.com/kluctl/go-embed-python v0.0.0-3.12.3-20240415-1 // indirect
+	github.com/kluctl/go-embed-python v0.0.0-3.14.6-20260610-1 // indirect
 	github.com/kr/fs v0.1.0 // indirect
 	github.com/kylelemons/godebug v1.1.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
@@ -180,10 +181,9 @@ require (
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/redis/go-redis/extra/rediscmd/v9 v9.14.0 // indirect
 	github.com/robfig/cron v1.2.0 // indirect
-	github.com/rogpeppe/go-internal v1.15.0 // indirect
 	github.com/sagikazarmark/locafero v0.4.0 // indirect
 	github.com/sagikazarmark/slog-shim v0.1.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/sorairolake/lzip-go v0.3.8 // indirect
 	github.com/sourcegraph/conc v0.3.0 // indirect
 	github.com/spf13/cast v1.6.0 // indirect
@@ -210,7 +210,7 @@ require (
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
-	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.38.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.45.0 // indirect
