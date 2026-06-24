@@ -8,6 +8,25 @@ requests.
 
 ## [Unreleased]
 
+### Added
+
+- Support filesystem bucket configuration ([#1660])
+- Filesystem storage location source ([#1660])
+- Check for duplicate SIP submissions ([#1617])
+- Pass user email to child workflows ([#1666])
+
+### Fixed
+
+- Filesystem watcher SIP downloads ([#1660])
+
+### Changed
+
+- Stage a3m AIPs through a shared bucket ([#1660])
+
+### Removed
+
+- Storage AIP submit API endpoints and upload workflow ([#1660])
+
 ## [0.30.0] - 2026-05-29
 
 ### Fixed
@@ -399,10 +418,13 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1666]: https://github.com/artefactual-sdps/enduro/issues/1666
+[#1660]: https://github.com/artefactual-sdps/enduro/issues/1660
 [#1646]: https://github.com/artefactual-sdps/enduro/pull/1646
 [#1637]: https://github.com/artefactual-sdps/enduro/issues/1637
 [#1629]: https://github.com/artefactual-sdps/enduro/issues/1629
 [#1621]: https://github.com/artefactual-sdps/enduro/issues/1621
+[#1617]: https://github.com/artefactual-sdps/enduro/issues/1617
 [#1595]: https://github.com/artefactual-sdps/enduro/issues/1595
 [#1570]: https://github.com/artefactual-sdps/enduro/pull/1570
 [#1541]: https://github.com/artefactual-sdps/enduro/pull/1541
