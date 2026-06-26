@@ -1,0 +1,58 @@
+discovery.kubernetes "enduro_pods" {
+	role = "pod"
+
+	selectors {
+		role  = "pod"
+		label = "app in (enduro,enduro-am,enduro-a3m)"
+	}
+
+	namespaces {
+		own_namespace = true
+	}
+}
+
+discovery.relabel "enduro_logs" {
+	targets = discovery.kubernetes.enduro_pods.targets
+
+	rule {
+		source_labels = ["__meta_kubernetes_pod_container_init"]
+		regex         = "true"
+		action        = "drop"
+	}
+
+	rule {
+		source_labels = ["__meta_kubernetes_namespace"]
+		target_label  = "namespace"
+	}
+
+	rule {
+		source_labels = ["__meta_kubernetes_pod_name"]
+		target_label  = "pod"
+	}
+
+	rule {
+		source_labels = ["__meta_kubernetes_pod_container_name"]
+		target_label  = "container"
+	}
+
+	rule {
+		source_labels = ["__meta_kubernetes_pod_label_app"]
+		target_label  = "app"
+	}
+
+	rule {
+		source_labels = ["__meta_kubernetes_pod_label_app"]
+		target_label  = "service_name"
+	}
+}
+
+loki.source.kubernetes "enduro" {
+	targets    = discovery.relabel.enduro_logs.output
+	forward_to = [loki.write.lgtm.receiver]
+}
+
+loki.write "lgtm" {
+	endpoint {
+		url = "http://lgtm:3100/loki/api/v1/push"
+	}
+}
