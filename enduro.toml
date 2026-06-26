@@ -372,7 +372,7 @@ url = "file:///home/enduro/internal-storage/sip-source?metadata=skip"
 #
 # See https://enduro.readthedocs.io/admin-manual/configuration/#allowduplicates 
 # for more details.
-allowDuplicates = false
+allowDuplicates = true
 
 # [ingest.storage] configures ingest as a client of the storage API.
 # Use this section for cross-domain integration values:
