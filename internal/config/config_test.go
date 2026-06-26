@@ -13,6 +13,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	"github.com/artefactual-sdps/enduro/internal/bagit"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/pres"
@@ -42,6 +43,13 @@ rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:w
 providerURL = "https://idp.example.com/realms/enduro-internal"
 clientID = "enduro-s2s"
 skipEmailVerifiedCheck = true
+
+[bagit]
+checksumAlgorithm = "sha256"
+
+[bagitValidator]
+cacheDir = "/home/enduro/bagvalidator_cache"
+poolSize = 2
 
 [ingest.storage]
 address = "storage-api:9000"
@@ -112,7 +120,11 @@ func TestConfigRead(t *testing.T) {
 					CORSOrigin: "127.0.0.1:9000",
 				},
 				BagIt: bagcreate.Config{
-					ChecksumAlgorithm: "sha512",
+					ChecksumAlgorithm: "sha256",
+				},
+				BagItValidator: bagit.ValidatorConfig{
+					CacheDir: "/home/enduro/bagvalidator_cache",
+					PoolSize: 2,
 				},
 				Ingest: ingest.Config{
 					Storage: ingest.StorageConfig{
@@ -170,6 +182,9 @@ defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
 				},
 				BagIt: bagcreate.Config{
 					ChecksumAlgorithm: "sha512",
+				},
+				BagItValidator: bagit.ValidatorConfig{
+					PoolSize: 1,
 				},
 				Ingest: ingest.Config{
 					Storage: ingest.StorageConfig{

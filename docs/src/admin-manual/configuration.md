@@ -346,6 +346,57 @@ prefix = "enduro"
   instances if you have multiple Enduro installations running. Otherwise, there
   is no reason to change the default "enduro" value.
 
+### BagIt bag creation
+
+Enduro makes each PIP delivered to [Archivematica] a [BagIt] bag, providing
+file integrity checksums to ensure the PIP contents are not corrupted or
+truncated in transmission. The BagIt settings configure how these bags are
+created.
+
+[a3m] does not support ingest of BagIt bags, so PIPs are structured as
+an [Archivematica transfer with existing checksums] when [a3m] is used for
+preservation and these settings are not relevant.
+
+**Example configuration**:
+
+```toml
+[bagit]
+chechecksumAlgorithm = "sha512"
+```
+
+* `checksumAlgorithm` sets the hashing algorithm used to generate file checksums
+  in created BagIt bag manifests. Valid values are "md5", "sha1", "sha256", and
+  "sha512" (the default).
+
+### BagIt validation
+
+Enduro validates any [BagIt] bags submitted for ingest to ensure the contents
+have not been altered or corrupted. In addition Enduro requires a
+[Preprocessing child workflow](#preprocessing-child-workflow) to deliver a
+[BagIt] bag to Enduro, and these bags are also validated by Enduro to ensure
+file integrity.
+
+**Example configuration**:
+
+```toml
+[bagitValidator]
+cacheDir = "/home/enduro/.cache/bagit-gython"
+poolSize = 2
+```
+
+* `cacheDir` sets the cache directory used by the [bagit-gython] validator's
+  runtime and runners. If `cacheDir` is an empty string or omitted, the
+  validator will attempt to create a cache directory in the process user's home
+  directory (e.g. /home/enduro/.cache/bagit-gython). If the user's home
+  directory is not available (e.g. because the process has no home
+  directory), the validator will fall back to using a unique temporary directory
+  (e.g. /tmp/bagit-gython-12345) that will be deleted at shutdown.
+* `poolSize` sets the number of available concurrent bag validation runners.
+  `poolSize` must be 1 (the default value) or greater. If the number of
+  requested validation jobs exceeds the available runners, the extra jobs will
+  be queued and run when a runner becomes available. See the
+  [bagit-gython README] for more details on how the validator pool works.
+
 ### Database connection
 
 These settings configure the connection information for Enduro's MySQL database.
@@ -1481,8 +1532,11 @@ workflowName = "postbatch"
 [API]: ../dev-manual/api.md
 [Archivematica]: https://archivematica.org/
 [Archivematica processing configuration fields]: https://archivematica.org/docs/latest/user-manual/administer/dashboard-admin/#processing-configuration-fields
+[Archivematica transfer with existing checksums]: https://www.archivematica.org/en/docs/latest/user-manual/transfer/transfer/#create-a-transfer-with-existing-checksums
 [Azure]: https://azure.microsoft.com/en-us/products/storage/blobs/
 [BagIt]: https://www.rfc-editor.org/rfc/rfc8493
+[bagit-gython]: https://github.com/artefactual-labs/bagit-gython
+[bagit-gython README]: https://github.com/artefactual-labs/bagit-gython/blob/main/README.md
 [child workflow]: ../user-manual/glossary.md#child-workflow
 [components]: ../user-manual/components.md
 [CORS]: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing

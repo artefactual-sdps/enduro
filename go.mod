@@ -11,7 +11,7 @@ require (
 	entgo.io/ent v0.14.5
 	github.com/XSAM/otelsql v0.40.0
 	github.com/alicebob/miniredis/v2 v2.32.1
-	github.com/artefactual-labs/bagit-gython v0.6.0
+	github.com/artefactual-labs/bagit-gython v0.6.1
 	github.com/artefactual-sdps/temporal-activities v0.0.0-20260406175419-303edb7db3db
 	github.com/coreos/go-oidc/v3 v3.17.0
 	github.com/cyphar/filepath-securejoin v0.2.4
