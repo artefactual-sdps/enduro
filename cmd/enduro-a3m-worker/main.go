@@ -235,7 +235,10 @@ func main() {
 	defer aipStagingBucket.Close()
 
 	// Set up the BagIt bag validator.
-	bagValidator, err := bagit.NewValidator(bagit.WithPoolSize(1))
+	bagValidator, err := bagit.NewValidator(
+		bagit.WithCacheDir(cfg.BagItValidator.CacheDir),
+		bagit.WithPoolSize(cfg.BagItValidator.PoolSize),
+	)
 	if err != nil {
 		logger.Error(err, "Error setting up bag validator.")
 		os.Exit(1)

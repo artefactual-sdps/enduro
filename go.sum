@@ -469,8 +469,8 @@ github.com/anmitsu/go-shlex v0.0.0-20200514113438-38f4b401e2be/go.mod h1:ySMOLuW
 github.com/antihax/optional v1.0.0/go.mod h1:uupD/76wgC+ih3iEmQUL+0Ugr19nfwCT1kdvxnR2qWY=
 github.com/apparentlymart/go-textseg/v15 v15.0.0 h1:uYvfpb3DyLSCGWnctWKGj857c6ew1u1fNQOlOtuGxQY=
 github.com/apparentlymart/go-textseg/v15 v15.0.0/go.mod h1:K8XmNZdhEBkdlyDdvbmmsvpAG721bKi0joRfFdHIWJ4=
-github.com/artefactual-labs/bagit-gython v0.6.0 h1:n59naq9vT9vw4WqNnFK0xY22p242mRYhP1RhI6q1dkA=
-github.com/artefactual-labs/bagit-gython v0.6.0/go.mod h1:4l3AoC/OlXJgfC2me9g9SC6QLV2n/wi8ZltiGB2NQvU=
+github.com/artefactual-labs/bagit-gython v0.6.1 h1:yCs4Zk+xDn4m2YvYZSGOapp7RQhrS6P2RVVYZEaXwmk=
+github.com/artefactual-labs/bagit-gython v0.6.1/go.mod h1:4l3AoC/OlXJgfC2me9g9SC6QLV2n/wi8ZltiGB2NQvU=
 github.com/artefactual-labs/bine v0.28.3 h1:pDPcxuxjL102JPa3aG7oitYkuZxRJqVZEoW1IHBVtjE=
 github.com/artefactual-labs/bine v0.28.3/go.mod h1:E0JTUTzaakkToz6UlUOViEMkCCzHbGTKw5G5mgeYj0M=
 github.com/artefactual-sdps/temporal-activities v0.0.0-20260406175419-303edb7db3db h1:/oTyIMjn5Goo/+OK9LEA4iqpWXomSwxmhovO/+Z2MQw=
