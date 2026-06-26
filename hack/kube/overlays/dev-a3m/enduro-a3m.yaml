@@ -71,7 +71,7 @@ spec:
             - name: ENDURO_TELEMETRY_TRACES_ENABLED
               value: "true"
             - name: ENDURO_TELEMETRY_TRACES_ADDRESS
-              value: "grafana-alloy.enduro-sdps:4317"
+              value: "lgtm.enduro-sdps:4317"
             - name: ENDURO_TELEMETRY_TRACES_SAMPLING_RATIO
               value: "1.0"
           volumeMounts:

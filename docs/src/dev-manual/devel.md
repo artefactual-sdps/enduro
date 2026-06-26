@@ -120,8 +120,7 @@ documentation to know more about it.
 
 ## Access
 
-There are four services available from the host, three of them using SSO with
-Keycloack:
+The main local services are available from the host:
 
 | Service       | URL                     | Username    | Password       |
 | ------------- | ----------------------- | ----------- | -------------- |
