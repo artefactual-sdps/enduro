@@ -93,7 +93,12 @@ func (svc *ingestImpl) UploadSip(
 		claims,
 	); err != nil {
 		// Delete SIP from internal bucket.
-		err := errors.Join(err, svc.internalStorage.Delete(ctx, objectKey))
+		err := errors.Join(
+			err,
+			withRollbackCleanupContext(ctx, func(cleanupCtx context.Context) error {
+				return svc.internalStorage.Delete(cleanupCtx, objectKey)
+			}),
+		)
 		svc.logger.Error(err, "upload SIP")
 		return nil, ErrInternalError
 	}
@@ -142,7 +147,12 @@ func (svc *ingestImpl) initSIP(
 	}
 	if err := InitProcessingWorkflow(ctx, svc.tc, svc.taskQueue, &req); err != nil {
 		// Delete SIP from persistence.
-		return errors.Join(err, svc.perSvc.DeleteSIP(ctx, id))
+		return errors.Join(
+			err,
+			withRollbackCleanupContext(ctx, func(cleanupCtx context.Context) error {
+				return svc.perSvc.DeleteSIP(cleanupCtx, id)
+			}),
+		)
 	}
 
 	PublishEvent(ctx, svc.evsvc, sipToCreatedEvent(s))

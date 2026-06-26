@@ -72,7 +72,12 @@ func (svc *ingestImpl) AddBatch(
 	}
 	if err := InitBatchWorkflow(ctx, svc.tc, svc.taskQueue, &req); err != nil {
 		// Delete Batch from persistence.
-		err = errors.Join(err, svc.perSvc.DeleteBatch(ctx, b.UUID))
+		err = errors.Join(
+			err,
+			withRollbackCleanupContext(ctx, func(cleanupCtx context.Context) error {
+				return svc.perSvc.DeleteBatch(cleanupCtx, b.UUID)
+			}),
+		)
 		svc.logger.Error(err, "AddBatch")
 		return nil, ErrInternalError
 	}
