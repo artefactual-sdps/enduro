@@ -70,12 +70,16 @@ spec:
             - name: ENDURO_TELEMETRY_TRACES_ENABLED
               value: "true"
             - name: ENDURO_TELEMETRY_TRACES_ADDRESS
-              value: "grafana-alloy.enduro-sdps:4317"
+              value: "lgtm.enduro-sdps:4317"
             - name: ENDURO_TELEMETRY_TRACES_SAMPLING_RATIO
               value: "1.0"
+            - name: ENDURO_DEBUGLISTEN
+              value: "0.0.0.0:9001"
           ports:
             - containerPort: 9000
             - containerPort: 9002
+            - containerPort: 9001
+              name: debug
           volumeMounts:
             - name: enduro-config
               mountPath: /home/enduro/enduro-config
@@ -105,3 +109,5 @@ spec:
       port: 9000
     - name: internalapi
       port: 9002
+    - name: debug
+      port: 9001
