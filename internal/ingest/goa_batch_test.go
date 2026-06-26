@@ -63,6 +63,7 @@ func TestAddBatch(t *testing.T) {
 		mock    func(context.Context, *persistence_fake.MockService, *temporalsdk_mocks.Client)
 		want    *goaingest.AddBatchResult
 		wantErr string
+		expired bool
 	}{
 		{
 			name:    "Returns not valid error (missing payload)",
@@ -109,6 +110,7 @@ func TestAddBatch(t *testing.T) {
 		{
 			name:    "Returns Temporal error",
 			payload: &goaingest.AddBatchPayload{SourceID: sourceID.String(), Keys: keys},
+			expired: true,
 			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
 				psvc.EXPECT().
 					CreateBatch(ctx, batch).
@@ -116,7 +118,7 @@ func TestAddBatch(t *testing.T) {
 
 				tc.On(
 					"ExecuteWorkflow",
-					mock.AnythingOfType("*context.timerCtx"),
+					mock.Anything,
 					temporalsdk_client.StartWorkflowOptions{
 						ID:                    fmt.Sprintf("%s-%s", ingest.BatchWorkflowName, batchUUID.String()),
 						TaskQueue:             "test",
@@ -130,7 +132,12 @@ func TestAddBatch(t *testing.T) {
 					},
 				).Return(nil, errors.New("temporal error"))
 
-				psvc.EXPECT().DeleteBatch(ctx, batchUUID)
+				psvc.EXPECT().
+					DeleteBatch(mockutil.Context(), batchUUID).
+					DoAndReturn(func(ctx context.Context, id uuid.UUID) error {
+						assertRollbackCleanupContext(t, ctx)
+						return nil
+					})
 			},
 			wantErr: "internal error",
 		},
@@ -201,6 +208,12 @@ func TestAddBatch(t *testing.T) {
 
 			svc, psvc, tc := testSvc(t, nil, 0)
 			ctx := t.Context()
+			if tt.expired {
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithTimeout(ctx, time.Nanosecond)
+				t.Cleanup(cancel)
+				<-ctx.Done()
+			}
 			if tt.mock != nil {
 				tt.mock(ctx, psvc, tc)
 			}

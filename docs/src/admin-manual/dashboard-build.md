@@ -183,16 +183,31 @@ server {
     # add_header Reporting-Endpoints 'csp="https://example.com/csp"' always;
     # (Append to CSP) ... ; report-to csp
 
-    # Large file support for SIP downloads
+    # Large file support for downloads. The 24h proxy timeouts are a generous
+    # upper bound for slow clients, not an expected transfer duration.
+    #
+    # SIP downloads
     location ~ "^/api/ingest/sips/([0-9a-fA-F-]{36})/download" {
       proxy_pass http://backend/ingest/sips/$1/download;
       proxy_buffering off;
+      proxy_read_timeout 24h;
+      proxy_send_timeout 24h;
     }
 
-    # Large file support for AIP downloads
+    # AIP downloads
     location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/download" {
       proxy_pass http://backend/storage/aips/$1/download;
       proxy_buffering off;
+      proxy_read_timeout 24h;
+      proxy_send_timeout 24h;
+    }
+
+    # AIP deletion report downloads
+    location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/deletion-report" {
+      proxy_pass http://backend/storage/aips/$1/deletion-report;
+      proxy_buffering off;
+      proxy_read_timeout 24h;
+      proxy_send_timeout 24h;
     }
 
     # WebSocket support for ingest monitoring
@@ -202,6 +217,8 @@ server {
         proxy_set_header Connection "Upgrade";
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Host $http_host;
+        proxy_read_timeout 24h;
+        proxy_send_timeout 24h;
     }
 
     # Large file upload support for SIP uploads
@@ -220,12 +237,19 @@ server {
         proxy_set_header Connection "Upgrade";
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Host $http_host;
+        proxy_read_timeout 24h;
+        proxy_send_timeout 24h;
     }
 
-    # General API proxy
+    # General API proxy. Normal API handlers have a 5s service-level timeout
+    # and the Enduro API server has a 7s write timeout, so keep the proxy
+    # timeout above that. Long-lived upload, download, and WebSocket routes are
+    # handled separately above.
     location /api/ {
         proxy_pass http://backend/;
         proxy_redirect / /api/;
+        proxy_read_timeout 10s;
+        proxy_send_timeout 10s;
     }
 
     # Custom content

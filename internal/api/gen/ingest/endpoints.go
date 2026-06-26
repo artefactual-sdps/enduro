@@ -67,10 +67,10 @@ type DownloadSipResponseData struct {
 }
 
 // NewEndpoints wraps the methods of the "ingest" service with endpoints.
-func NewEndpoints(s Service) *Endpoints {
+func NewEndpoints(s Service, si ServerInterceptors) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
-	return &Endpoints{
+	endpoints := &Endpoints{
 		MonitorRequest:       NewMonitorRequestEndpoint(s, a.BearerAuth),
 		Monitor:              NewMonitorEndpoint(s),
 		ListSips:             NewListSipsEndpoint(s, a.BearerAuth),
@@ -91,6 +91,26 @@ func NewEndpoints(s Service) *Endpoints {
 		ShowBatch:            NewShowBatchEndpoint(s, a.BearerAuth),
 		ReviewBatch:          NewReviewBatchEndpoint(s, a.BearerAuth),
 	}
+	endpoints.MonitorRequest = WrapMonitorRequestEndpoint(endpoints.MonitorRequest, si)
+	endpoints.Monitor = WrapMonitorEndpoint(endpoints.Monitor, si)
+	endpoints.ListSips = WrapListSipsEndpoint(endpoints.ListSips, si)
+	endpoints.ShowSip = WrapShowSipEndpoint(endpoints.ShowSip, si)
+	endpoints.ListSipWorkflows = WrapListSipWorkflowsEndpoint(endpoints.ListSipWorkflows, si)
+	endpoints.ConfirmSip = WrapConfirmSipEndpoint(endpoints.ConfirmSip, si)
+	endpoints.RejectSip = WrapRejectSipEndpoint(endpoints.RejectSip, si)
+	endpoints.ShowSipDecision = WrapShowSipDecisionEndpoint(endpoints.ShowSipDecision, si)
+	endpoints.SubmitSipDecision = WrapSubmitSipDecisionEndpoint(endpoints.SubmitSipDecision, si)
+	endpoints.AddSip = WrapAddSipEndpoint(endpoints.AddSip, si)
+	endpoints.UploadSip = WrapUploadSipEndpoint(endpoints.UploadSip, si)
+	endpoints.DownloadSipRequest = WrapDownloadSipRequestEndpoint(endpoints.DownloadSipRequest, si)
+	endpoints.DownloadSip = WrapDownloadSipEndpoint(endpoints.DownloadSip, si)
+	endpoints.ListUsers = WrapListUsersEndpoint(endpoints.ListUsers, si)
+	endpoints.ListSipSourceObjects = WrapListSipSourceObjectsEndpoint(endpoints.ListSipSourceObjects, si)
+	endpoints.AddBatch = WrapAddBatchEndpoint(endpoints.AddBatch, si)
+	endpoints.ListBatches = WrapListBatchesEndpoint(endpoints.ListBatches, si)
+	endpoints.ShowBatch = WrapShowBatchEndpoint(endpoints.ShowBatch, si)
+	endpoints.ReviewBatch = WrapReviewBatchEndpoint(endpoints.ReviewBatch, si)
+	return endpoints
 }
 
 // Use applies the given middleware to all the "ingest" service endpoints.

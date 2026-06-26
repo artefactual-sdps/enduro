@@ -193,6 +193,41 @@ corsOrigin = "http://localhost"
   resources from different domains, ports, or protocols. This setting defines a
   policy for Enduro to use the specified value as the primary origin domain.
 
+#### API timeout behavior
+
+Enduro applies a service-level operation timeout to normal Goa API request
+handlers. This timeout bounds backend work after the request has been decoded
+and before the response is written.
+
+Normal API request handlers have a 5 second operation timeout. Operations that
+exceed this budget are canceled through the request context, logged as timed out,
+recorded on the active OpenTelemetry span, and returned as an internal API
+error when the transport is still open. Operations slower than 2 seconds are
+recorded as slow operations.
+
+This service-level timeout is different from HTTP transport and proxy timeouts:
+
+* The service-level timeout controls backend work owned by Enduro.
+* The API server write timeout controls how long the HTTP connection can remain
+  open while Enduro handles and writes the response. Enduro sets this to 7
+  seconds so normal API handlers have time to return a timeout response after
+  the 5 second service budget expires.
+* Reverse proxy timeouts, such as NGINX `proxy_read_timeout`, should be higher
+  than Enduro's API write timeout for normal API routes.
+
+The generic service-level timeout is not applied to streaming, upload, download,
+or WebSocket endpoints. These endpoints have different timeout requirements and
+must be handled by transport, proxy, and endpoint-specific setup timeouts. This
+includes:
+
+* SIP upload: `/api/ingest/sips/upload`
+* SIP download: `/api/ingest/sips/{uuid}/download`
+* AIP download: `/api/storage/aips/{uuid}/download`
+* AIP deletion report download:
+  `/api/storage/aips/{uuid}/deletion-report`
+* Ingest monitor WebSocket: `/api/ingest/monitor`
+* Storage monitor WebSocket: `/api/storage/monitor`
+
 #### Enable API authentication
 
 This setting determines whether or not authentication is enabled for Enduro's

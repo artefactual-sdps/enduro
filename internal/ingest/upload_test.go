@@ -141,7 +141,12 @@ func TestUpload(t *testing.T) {
 					},
 				).Return(nil, errors.New("temporal error"))
 
-				psvc.EXPECT().DeleteSIP(ctx, uuid0)
+				psvc.EXPECT().
+					DeleteSIP(mockutil.Context(), uuid0).
+					DoAndReturn(func(ctx context.Context, id uuid.UUID) error {
+						assertRollbackCleanupContext(t, ctx)
+						return nil
+					})
 			},
 			multipartBody: zipMmultipartBody,
 			contentType:   "multipart/form-data; boundary=foobar",

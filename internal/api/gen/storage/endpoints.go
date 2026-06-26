@@ -69,10 +69,10 @@ type AipDeletionReportResponseData struct {
 }
 
 // NewEndpoints wraps the methods of the "storage" service with endpoints.
-func NewEndpoints(s Service) *Endpoints {
+func NewEndpoints(s Service, si ServerInterceptors) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
-	return &Endpoints{
+	endpoints := &Endpoints{
 		MonitorRequest:           NewMonitorRequestEndpoint(s, a.BearerAuth),
 		Monitor:                  NewMonitorEndpoint(s),
 		ListAips:                 NewListAipsEndpoint(s, a.BearerAuth),
@@ -95,6 +95,28 @@ func NewEndpoints(s Service) *Endpoints {
 		ShowLocation:             NewShowLocationEndpoint(s, a.BearerAuth),
 		ListLocationAips:         NewListLocationAipsEndpoint(s, a.BearerAuth),
 	}
+	endpoints.MonitorRequest = WrapMonitorRequestEndpoint(endpoints.MonitorRequest, si)
+	endpoints.Monitor = WrapMonitorEndpoint(endpoints.Monitor, si)
+	endpoints.ListAips = WrapListAipsEndpoint(endpoints.ListAips, si)
+	endpoints.CreateAip = WrapCreateAipEndpoint(endpoints.CreateAip, si)
+	endpoints.DownloadAipRequest = WrapDownloadAipRequestEndpoint(endpoints.DownloadAipRequest, si)
+	endpoints.DownloadAip = WrapDownloadAipEndpoint(endpoints.DownloadAip, si)
+	endpoints.MoveAip = WrapMoveAipEndpoint(endpoints.MoveAip, si)
+	endpoints.MoveAipStatus = WrapMoveAipStatusEndpoint(endpoints.MoveAipStatus, si)
+	endpoints.RejectAip = WrapRejectAipEndpoint(endpoints.RejectAip, si)
+	endpoints.ShowAip = WrapShowAipEndpoint(endpoints.ShowAip, si)
+	endpoints.ListAipWorkflows = WrapListAipWorkflowsEndpoint(endpoints.ListAipWorkflows, si)
+	endpoints.AipDeletionAuto = WrapAipDeletionAutoEndpoint(endpoints.AipDeletionAuto, si)
+	endpoints.RequestAipDeletion = WrapRequestAipDeletionEndpoint(endpoints.RequestAipDeletion, si)
+	endpoints.ReviewAipDeletion = WrapReviewAipDeletionEndpoint(endpoints.ReviewAipDeletion, si)
+	endpoints.CancelAipDeletion = WrapCancelAipDeletionEndpoint(endpoints.CancelAipDeletion, si)
+	endpoints.AipDeletionReportRequest = WrapAipDeletionReportRequestEndpoint(endpoints.AipDeletionReportRequest, si)
+	endpoints.AipDeletionReport = WrapAipDeletionReportEndpoint(endpoints.AipDeletionReport, si)
+	endpoints.ListLocations = WrapListLocationsEndpoint(endpoints.ListLocations, si)
+	endpoints.CreateLocation = WrapCreateLocationEndpoint(endpoints.CreateLocation, si)
+	endpoints.ShowLocation = WrapShowLocationEndpoint(endpoints.ShowLocation, si)
+	endpoints.ListLocationAips = WrapListLocationAipsEndpoint(endpoints.ListLocationAips, si)
+	return endpoints
 }
 
 // Use applies the given middleware to all the "storage" service endpoints.

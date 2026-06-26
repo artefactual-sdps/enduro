@@ -104,7 +104,12 @@ func (svc *ingestImpl) AddSip(ctx context.Context, payload *goaingest.AddSipPayl
 	}
 	if err := InitProcessingWorkflow(ctx, svc.tc, svc.taskQueue, &req); err != nil {
 		// Delete SIP from persistence.
-		err = errors.Join(err, svc.perSvc.DeleteSIP(ctx, s.UUID))
+		err = errors.Join(
+			err,
+			withRollbackCleanupContext(ctx, func(cleanupCtx context.Context) error {
+				return svc.perSvc.DeleteSIP(cleanupCtx, s.UUID)
+			}),
+		)
 		svc.logger.Error(err, "add SIP")
 		return nil, ErrInternalError
 	}
