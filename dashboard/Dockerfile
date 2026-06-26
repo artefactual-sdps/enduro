@@ -53,6 +53,10 @@ server {
       proxy_pass http://backend/storage/aips/\$1/download;
       proxy_buffering off;
     }
+    location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/deletion-report" {
+      proxy_pass http://backend/storage/aips/\$1/deletion-report;
+      proxy_buffering off;
+    }
     location /api/ingest/monitor {
         proxy_pass http://backend/ingest/monitor;
         proxy_http_version 1.1;
@@ -64,8 +68,6 @@ server {
         client_max_body_size 4096M;
         proxy_pass http://backend/ingest/sips/upload;
         proxy_request_buffering off;
-        proxy_read_timeout 24h;
-        proxy_send_timeout 24h;
     }
     location /api/storage/monitor {
         proxy_pass http://backend/storage/monitor;

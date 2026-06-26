@@ -54,9 +54,13 @@ func HTTPServer(
 		HandshakeTimeout: time.Second,
 		CheckOrigin:      sameOriginChecker(logger),
 	}
+	operationInterceptors := newOperationInterceptors(logger)
 
 	// Ingest service.
-	ingestEndpoints := ingest.NewEndpoints(ingestsvc)
+	ingestEndpoints := ingest.NewEndpoints(
+		ingestsvc,
+		&ingestServerInterceptors{operationInterceptors: operationInterceptors},
+	)
 	ingestErrorHandler := errorHandler(logger, "Ingest error.")
 	ingestServer := ingestsvr.New(ingestEndpoints, mux, dec, enc, ingestErrorHandler, nil, websocketUpgrader, nil)
 	ingestServer.DownloadSip = middleware.WriteTimeout(0)(ingestServer.DownloadSip)
@@ -65,14 +69,23 @@ func HTTPServer(
 	ingestsvr.Mount(mux, ingestServer)
 
 	// Storage service.
-	storageEndpoints := storage.NewEndpoints(storagesvc)
+	storageEndpoints := storage.NewEndpoints(
+		storagesvc,
+		&storageServerInterceptors{operationInterceptors: operationInterceptors},
+	)
 	storageErrorHandler := errorHandler(logger, "Storage error.")
 	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil, websocketUpgrader, nil)
+	// Streaming downloads can legitimately take longer than the API write
+	// timeout while bytes are sent to slow clients or proxies.
 	storageServer.DownloadAip = middleware.WriteTimeout(0)(storageServer.DownloadAip)
+	storageServer.AipDeletionReport = middleware.WriteTimeout(0)(storageServer.AipDeletionReport)
 	storagesvr.Mount(mux, storageServer)
 
 	// About service.
-	aboutEndpoints := about.NewEndpoints(aboutsvc)
+	aboutEndpoints := about.NewEndpoints(
+		aboutsvc,
+		&aboutServerInterceptors{operationInterceptors: operationInterceptors},
+	)
 	aboutErrorHandler := errorHandler(logger, "About error.")
 	aboutServer := aaboutsvr.New(aboutEndpoints, mux, dec, enc, aboutErrorHandler, nil)
 	aaboutsvr.Mount(mux, aboutServer)
@@ -86,10 +99,12 @@ func HTTPServer(
 	}
 
 	return &http.Server{
-		Addr:         config.Listen,
-		Handler:      handler,
-		ReadTimeout:  time.Second * 5,
-		WriteTimeout: time.Second * 5,
+		Addr:        config.Listen,
+		Handler:     handler,
+		ReadTimeout: time.Second * 5,
+		// Keep this above defaultAPIOperationTimeout so normal handlers can
+		// return a timeout response. Streaming handlers opt out above.
+		WriteTimeout: time.Second * 7,
 		IdleTimeout:  time.Second * 120,
 	}
 }

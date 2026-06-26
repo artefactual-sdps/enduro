@@ -158,6 +158,9 @@ is required to forward API requests to the actual Enduro API server.
 
 #### NGINX example
 
+NGINX proxy read/send timeouts are idle timers, so the defaults are usually
+sufficient for long uploads or downloads that continue transferring data.
+
 ```nginx
 upstream backend {
     least_conn;
@@ -183,15 +186,23 @@ server {
     # add_header Reporting-Endpoints 'csp="https://example.com/csp"' always;
     # (Append to CSP) ... ; report-to csp
 
-    # Large file support for SIP downloads
+    # Large file support for downloads.
+    #
+    # SIP downloads
     location ~ "^/api/ingest/sips/([0-9a-fA-F-]{36})/download" {
       proxy_pass http://backend/ingest/sips/$1/download;
       proxy_buffering off;
     }
 
-    # Large file support for AIP downloads
+    # AIP downloads
     location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/download" {
       proxy_pass http://backend/storage/aips/$1/download;
+      proxy_buffering off;
+    }
+
+    # AIP deletion report downloads
+    location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/deletion-report" {
+      proxy_pass http://backend/storage/aips/$1/deletion-report;
       proxy_buffering off;
     }
 
@@ -209,8 +220,6 @@ server {
         client_max_body_size 4096M;
         proxy_pass http://backend/ingest/sips/upload;
         proxy_request_buffering off;
-        proxy_read_timeout 24h;
-        proxy_send_timeout 24h;
     }
 
     # WebSocket support for storage monitoring

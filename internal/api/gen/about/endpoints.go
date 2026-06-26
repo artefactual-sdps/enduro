@@ -21,12 +21,14 @@ type Endpoints struct {
 }
 
 // NewEndpoints wraps the methods of the "about" service with endpoints.
-func NewEndpoints(s Service) *Endpoints {
+func NewEndpoints(s Service, si ServerInterceptors) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
-	return &Endpoints{
+	endpoints := &Endpoints{
 		About: NewAboutEndpoint(s, a.BearerAuth),
 	}
+	endpoints.About = WrapAboutEndpoint(endpoints.About, si)
+	return endpoints
 }
 
 // Use applies the given middleware to all the "about" service endpoints.

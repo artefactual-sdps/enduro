@@ -635,6 +635,7 @@ func TestAddSIP(t *testing.T) {
 		mock    func(context.Context, *persistence_fake.MockService, *temporalsdk_mocks.Client)
 		want    *goaingest.AddSipResult
 		wantErr string
+		expired bool
 	}{
 		{
 			name:    "Returns not valid error (missing payload)",
@@ -680,6 +681,7 @@ func TestAddSIP(t *testing.T) {
 		{
 			name:    "Returns Temporal error",
 			payload: &goaingest.AddSipPayload{SourceID: sourceID.String(), Key: key},
+			expired: true,
 			mock: func(ctx context.Context, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
 				psvc.EXPECT().CreateSIP(
 					ctx,
@@ -695,7 +697,7 @@ func TestAddSIP(t *testing.T) {
 
 				tc.On(
 					"ExecuteWorkflow",
-					mock.AnythingOfType("*context.timerCtx"),
+					mock.Anything,
 					temporalsdk_client.StartWorkflowOptions{
 						ID:                    fmt.Sprintf("processing-workflow-%s", sipUUID.String()),
 						TaskQueue:             "test",
@@ -711,7 +713,12 @@ func TestAddSIP(t *testing.T) {
 					},
 				).Return(nil, errors.New("temporal error"))
 
-				psvc.EXPECT().DeleteSIP(ctx, sipUUID)
+				psvc.EXPECT().
+					DeleteSIP(mockutil.Context(), sipUUID).
+					DoAndReturn(func(ctx context.Context, id uuid.UUID) error {
+						assertFailedIngestCleanupContext(t, ctx)
+						return nil
+					})
 			},
 			wantErr: "internal error",
 		},
@@ -802,6 +809,12 @@ func TestAddSIP(t *testing.T) {
 
 			svc, psvc, tc := testSvc(t, nil, 0)
 			ctx := t.Context()
+			if tt.expired {
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithTimeout(ctx, time.Nanosecond)
+				t.Cleanup(cancel)
+				<-ctx.Done()
+			}
 			if tt.mock != nil {
 				tt.mock(ctx, psvc, tc)
 			}
