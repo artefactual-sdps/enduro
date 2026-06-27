@@ -14,7 +14,7 @@ import (
 	"goa.design/goa/v3/expr"
 	cors "goa.design/plugins/v3/cors/dsl"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	"github.com/artefactual-sdps/enduro/internal/auth"
 )
 
 var BearerAuth = BearerSecurity("bearer", func() {

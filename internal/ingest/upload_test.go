@@ -17,8 +17,8 @@ import (
 	"gocloud.dev/blob/memblob"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/auth"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"

@@ -15,13 +15,14 @@ import (
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
 	"go.uber.org/mock/gomock"
 
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	ingest_fake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
-	"github.com/artefactual-sdps/enduro/pkg/childwf"
+	childwf_pkg "github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 const (
@@ -106,8 +107,8 @@ func (s *BatchWorkflowTestSuite) processingChildWorkflow(
 // mock in test.
 func postBatchChildWorkflow(
 	ctx temporalsdk_workflow.Context,
-	params *childwf.PostbatchParams,
-) (*childwf.PostbatchResult, error) {
+	params *childwf_pkg.PostbatchParams,
+) (*childwf_pkg.PostbatchResult, error) {
 	return nil, nil
 }
 
@@ -157,11 +158,11 @@ func TestBatchWorkflow(t *testing.T) {
 // - Run postbatch child workflow.
 // - Propagate user context to child workflows.
 func (s *BatchWorkflowTestSuite) TestBatch() {
-	user := &childwf.User{Email: "nobody@example.com"}
+	user := &childwf_pkg.User{Email: "nobody@example.com"}
 	cfg := config.Configuration{
-		ChildWorkflows: config.ChildWorkflowConfigs{
+		ChildWorkflows: childwf.Configs{
 			{
-				Type:         childwf.WorkflowTypePostbatch,
+				Type:         childwf_pkg.WorkflowTypePostbatch,
 				Namespace:    "default",
 				TaskQueue:    "postbatch",
 				WorkflowName: "postbatch",
@@ -171,12 +172,12 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 	s.SetupWorkflowTest(cfg)
 	s.childResults = map[uuid.UUID]*ingest.ProcessingWorkflowResult{
 		batchSIP1UUID: {
-			CustomMetadata: childwf.CustomMetadata{
+			CustomMetadata: childwf_pkg.CustomMetadata{
 				"external_id": json.RawMessage(`"sip-1"`),
 			},
 		},
 		batchSIP2UUID: {
-			CustomMetadata: childwf.CustomMetadata{
+			CustomMetadata: childwf_pkg.CustomMetadata{
 				"external_id": json.RawMessage(`"sip-2"`),
 			},
 		},
@@ -278,20 +279,20 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 	s.env.OnWorkflow(
 		postBatchChildWorkflow,
 		internalCtx,
-		&childwf.PostbatchParams{
+		&childwf_pkg.PostbatchParams{
 			User: user,
-			Batch: &childwf.PostbatchBatch{
+			Batch: &childwf_pkg.PostbatchBatch{
 				UUID:       batchUUID,
 				Identifier: batchIdentifier,
 				SIPSCount:  2,
 			},
-			SIPs: []*childwf.PostbatchSIP{
+			SIPs: []*childwf_pkg.PostbatchSIP{
 				{
 					UUID:      batchSIP1UUID,
 					Name:      batchSIP1Key,
 					AIPID:     &batchAIP1UUID,
 					FileCount: 8,
-					CustomMetadata: childwf.CustomMetadata{
+					CustomMetadata: childwf_pkg.CustomMetadata{
 						"external_id": json.RawMessage(`"sip-1"`),
 					},
 				},
@@ -300,15 +301,15 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 					Name:      batchSIP2Key,
 					AIPID:     &batchAIP2UUID,
 					FileCount: 16,
-					CustomMetadata: childwf.CustomMetadata{
+					CustomMetadata: childwf_pkg.CustomMetadata{
 						"external_id": json.RawMessage(`"sip-2"`),
 					},
 				},
 			},
 		},
 	).Return(
-		&childwf.PostbatchResult{
-			Outcome: childwf.OutcomeSuccess,
+		&childwf_pkg.PostbatchResult{
+			Outcome: childwf_pkg.OutcomeSuccess,
 			Message: "Postbatch workflow executed successfully",
 		},
 		nil,

@@ -13,13 +13,14 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/about"
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
-	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaabout "github.com/artefactual-sdps/enduro/internal/api/gen/about"
+	"github.com/artefactual-sdps/enduro/internal/auth"
+	authfake "github.com/artefactual-sdps/enduro/internal/auth/fake"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/pres"
-	"github.com/artefactual-sdps/enduro/pkg/childwf"
+	childwf_pkg "github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 func TestBearerAuth(t *testing.T) {
@@ -80,7 +81,7 @@ func TestBearerAuth(t *testing.T) {
 			srv := about.NewService(
 				logger,
 				"",
-				config.ChildWorkflowConfigs{},
+				childwf.Configs{},
 				ingest.UploadConfig{},
 				tvMock,
 			)
@@ -135,9 +136,9 @@ func TestAbout(t *testing.T) {
 		{
 			name: "Full config",
 			config: config.Configuration{
-				ChildWorkflows: config.ChildWorkflowConfigs{
+				ChildWorkflows: childwf.Configs{
 					{
-						Type:         childwf.WorkflowTypePreprocessing,
+						Type:         childwf_pkg.WorkflowTypePreprocessing,
 						Namespace:    "default",
 						TaskQueue:    "preprocessing",
 						WorkflowName: "preprocessing",
@@ -145,7 +146,7 @@ func TestAbout(t *testing.T) {
 						SharedPath:   "/tmp",
 					},
 					{
-						Type:         childwf.WorkflowTypePoststorage,
+						Type:         childwf_pkg.WorkflowTypePoststorage,
 						Namespace:    "default",
 						TaskQueue:    "poststorage",
 						WorkflowName: "poststorage",
@@ -161,12 +162,12 @@ func TestAbout(t *testing.T) {
 				PreservationSystem: "a3m",
 				ChildWorkflows: goaabout.EnduroChildworkflowCollection{
 					{
-						Type:         childwf.WorkflowTypePreprocessing.String(),
+						Type:         childwf_pkg.WorkflowTypePreprocessing.String(),
 						TaskQueue:    "preprocessing",
 						WorkflowName: "preprocessing",
 					},
 					{
-						Type:         childwf.WorkflowTypePoststorage.String(),
+						Type:         childwf_pkg.WorkflowTypePoststorage.String(),
 						TaskQueue:    "poststorage",
 						WorkflowName: "poststorage",
 					},

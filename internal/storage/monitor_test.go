@@ -12,9 +12,9 @@ import (
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
-	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/auth"
+	authfake "github.com/artefactual-sdps/enduro/internal/auth/fake"
 	"github.com/artefactual-sdps/enduro/internal/event"
 )
 

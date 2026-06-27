@@ -14,9 +14,9 @@ import (
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
-	auth_fake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/auth"
+	auth_fake "github.com/artefactual-sdps/enduro/internal/auth/fake"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/storage/persistence/fake"
 )

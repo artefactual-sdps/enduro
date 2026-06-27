@@ -11,7 +11,7 @@ import (
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/assert/cmp"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	"github.com/artefactual-sdps/enduro/internal/auth"
 )
 
 const (

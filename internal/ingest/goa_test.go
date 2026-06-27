@@ -22,9 +22,9 @@ import (
 	"goa.design/goa/v3/security"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
-	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/auth"
+	authfake "github.com/artefactual-sdps/enduro/internal/auth/fake"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/entfilter"
 	"github.com/artefactual-sdps/enduro/internal/enums"

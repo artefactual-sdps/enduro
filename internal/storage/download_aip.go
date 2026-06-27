@@ -9,9 +9,9 @@ import (
 	"go.artefactual.dev/tools/fsutil"
 	"gocloud.dev/gcerrors"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/auditlog"
+	"github.com/artefactual-sdps/enduro/internal/auth"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 )
 

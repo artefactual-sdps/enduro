@@ -10,8 +10,8 @@ import (
 	"go.uber.org/mock/gomock"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
-	"github.com/artefactual-sdps/enduro/internal/api/auth/fake"
+	"github.com/artefactual-sdps/enduro/internal/auth"
+	"github.com/artefactual-sdps/enduro/internal/auth/fake"
 )
 
 func TestTicketProviderNop(t *testing.T) {

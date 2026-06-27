@@ -31,7 +31,6 @@ import (
 	storagesvr "github.com/artefactual-sdps/enduro/internal/api/gen/http/storage/server"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	"github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	"github.com/artefactual-sdps/enduro/internal/config"
 	intingest "github.com/artefactual-sdps/enduro/internal/ingest"
 	intstorage "github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/version"
@@ -40,7 +39,7 @@ import (
 func HTTPServer(
 	logger logr.Logger,
 	tp trace.TracerProvider,
-	config *config.APIConfig,
+	config *Config,
 	ingestsvc intingest.Service,
 	storagesvc intstorage.Service,
 	aboutsvc *intabout.Service,

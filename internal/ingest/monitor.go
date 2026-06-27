@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/auth"
 )
 
 func (svc *ingestImpl) MonitorRequest(
