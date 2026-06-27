@@ -87,7 +87,7 @@ if PRES_SYS == 'am':
 yaml = kustomize(KUBE_OVERLAY)
 yaml = add_enduro_config_secret(yaml)
 
-# The CHILD_WORKFLOW_PATHS environment variable is a colon-separated list of 
+# The CHILD_WORKFLOW_PATHS environment variable is a colon-separated list of
 # paths to child workflow directories. If set, we load each child workflow's
 # Tiltfile to load resources required by the workflow (e.g. a Temporal worker).
 CHILD_WORKFLOW_PATHS = os.environ.get("CHILD_WORKFLOW_PATHS", "")
@@ -257,7 +257,7 @@ cmd_button(
     kubectl wait --for=condition=complete --timeout=120s job --all; \
     kubectl rollout restart deployment enduro; \
     kubectl rollout restart {kind} enduro-{pres_sys}; \
-    kubectl create -f hack/kube/base/mysql-create-{pres_sys}-location-job.yaml;".format(
+    kubectl create -f hack/kube/overlays/dev-{pres_sys}/mysql-create-{pres_sys}-location-job.yaml;".format(
       pres_sys=PRES_SYS,
       kind="statefulset" if PRES_SYS == "a3m" else "deployment",
     ),
