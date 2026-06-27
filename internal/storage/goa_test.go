@@ -10,8 +10,8 @@ import (
 	"goa.design/goa/v3/security"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
-	authfake "github.com/artefactual-sdps/enduro/internal/api/auth/fake"
+	"github.com/artefactual-sdps/enduro/internal/auth"
+	authfake "github.com/artefactual-sdps/enduro/internal/auth/fake"
 )
 
 func TestBearerAuth(t *testing.T) {

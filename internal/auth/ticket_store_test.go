@@ -11,7 +11,7 @@ import (
 	"go.opentelemetry.io/otel/trace/noop"
 	"gotest.tools/v3/assert"
 
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	"github.com/artefactual-sdps/enduro/internal/auth"
 )
 
 func TestRedisStore(t *testing.T) {

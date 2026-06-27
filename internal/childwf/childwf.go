@@ -1,4 +1,4 @@
-package config
+package childwf
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
-type ChildWorkflowConfig struct {
+type Config struct {
 	// Type of the child workflow.
 	Type childwf.WorkflowType
 
@@ -30,7 +30,7 @@ type ChildWorkflowConfig struct {
 	Extract bool
 }
 
-func (c ChildWorkflowConfig) Validate() error {
+func (c Config) Validate() error {
 	errs := c.missingFields()
 
 	if c.Type != "" && !c.Type.IsValid() {
@@ -40,7 +40,7 @@ func (c ChildWorkflowConfig) Validate() error {
 	return errs
 }
 
-func (c ChildWorkflowConfig) missingFields() error {
+func (c Config) missingFields() error {
 	missing := make([]string, 0)
 
 	if c.Type == "" {
@@ -68,9 +68,9 @@ func (c ChildWorkflowConfig) missingFields() error {
 	return nil
 }
 
-type ChildWorkflowConfigs []ChildWorkflowConfig
+type Configs []Config
 
-func (c ChildWorkflowConfigs) ByType(t childwf.WorkflowType) *ChildWorkflowConfig {
+func (c Configs) ByType(t childwf.WorkflowType) *Config {
 	for _, cfg := range c {
 		if cfg.Type == t {
 			return &cfg
@@ -80,7 +80,7 @@ func (c ChildWorkflowConfigs) ByType(t childwf.WorkflowType) *ChildWorkflowConfi
 	return nil
 }
 
-func (c ChildWorkflowConfigs) Validate() error {
+func (c Configs) Validate() error {
 	var (
 		types []childwf.WorkflowType
 		errs  error

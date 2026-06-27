@@ -129,9 +129,9 @@ gen-goa-json-pretty: $(JQ)
 gen-mock: # @HELP Generate mocks.
 gen-mock: tool-mockgen
 	mockgen -typed -destination=./internal/a3m/fake/mock_transfer_service_client.go -package=fake buf.build/gen/go/artefactual/a3m/grpc/go/a3m/api/transferservice/v1beta1/transferservicev1beta1grpc TransferServiceClient
-	mockgen -typed -destination=./internal/api/auth/fake/mock_ticket_provider.go -package=fake github.com/artefactual-sdps/enduro/internal/api/auth TicketProvider
-	mockgen -typed -destination=./internal/api/auth/fake/mock_ticket_store.go -package=fake github.com/artefactual-sdps/enduro/internal/api/auth TicketStore
-	mockgen -typed -destination=./internal/api/auth/fake/mock_token_verifier.go -package=fake github.com/artefactual-sdps/enduro/internal/api/auth TokenVerifier
+	mockgen -typed -destination=./internal/auth/fake/mock_ticket_provider.go -package=fake github.com/artefactual-sdps/enduro/internal/auth TicketProvider
+	mockgen -typed -destination=./internal/auth/fake/mock_ticket_store.go -package=fake github.com/artefactual-sdps/enduro/internal/auth TicketStore
+	mockgen -typed -destination=./internal/auth/fake/mock_token_verifier.go -package=fake github.com/artefactual-sdps/enduro/internal/auth TokenVerifier
 	mockgen -typed -destination=./internal/ingest/fake/mock_ingest.go -package=fake github.com/artefactual-sdps/enduro/internal/ingest Service
 	mockgen -typed -destination=./internal/ingest/fake/mock_storage_client.go -package=fake github.com/artefactual-sdps/enduro/internal/ingest StorageClient
 	mockgen -typed -destination=./internal/persistence/fake/mock_persistence.go -package=fake github.com/artefactual-sdps/enduro/internal/persistence Service

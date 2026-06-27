@@ -12,8 +12,10 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	"github.com/artefactual-sdps/enduro/internal/api"
+	"github.com/artefactual-sdps/enduro/internal/auth"
 	"github.com/artefactual-sdps/enduro/internal/bagit"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/pres"
@@ -67,6 +69,19 @@ retryMaxAttempts = 5
 retryInitialInterval = "600ms"
 retryMaxInterval = "5s"
 retryBackoffCoefficient = 1.5
+
+[[childWorkflows]]
+type = "preprocessing"
+namespace = "default"
+taskQueue = "preprocessing"
+workflowName = "preprocessing"
+sharedPath = "/home/enduro/shared"
+
+[[childWorkflows]]
+type = "poststorage"
+namespace = "default"
+taskQueue = "poststorage"
+workflowName = "poststorage"
 `
 
 func TestConfigRead(t *testing.T) {
@@ -92,7 +107,7 @@ func TestConfigRead(t *testing.T) {
 					Capacity:     20,
 					PollInterval: 10 * time.Second,
 				},
-				API: config.APIConfig{
+				API: api.Config{
 					Listen: "127.0.0.1:9000",
 					Auth: auth.Config{
 						Enabled: true,
@@ -125,6 +140,21 @@ func TestConfigRead(t *testing.T) {
 				BagItValidator: bagit.ValidatorConfig{
 					CacheDir: "/home/enduro/bagvalidator_cache",
 					PoolSize: 2,
+				},
+				ChildWorkflows: childwf.Configs{
+					{
+						Type:         "preprocessing",
+						Namespace:    "default",
+						TaskQueue:    "preprocessing",
+						WorkflowName: "preprocessing",
+						SharedPath:   "/home/enduro/shared",
+					},
+					{
+						Type:         "poststorage",
+						Namespace:    "default",
+						TaskQueue:    "poststorage",
+						WorkflowName: "poststorage",
+					},
 				},
 				Ingest: ingest.Config{
 					Storage: ingest.StorageConfig{
@@ -176,7 +206,7 @@ defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
 					Capacity:     20,
 					PollInterval: 10 * time.Second,
 				},
-				API: config.APIConfig{
+				API: api.Config{
 					Listen:     "127.0.0.1:9000",
 					CORSOrigin: "127.0.0.1:9000",
 				},

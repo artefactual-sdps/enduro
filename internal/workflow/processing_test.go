@@ -21,6 +21,7 @@ import (
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
+	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/enums"
@@ -30,7 +31,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/temporal"
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 	"github.com/artefactual-sdps/enduro/internal/workflow/localact"
-	"github.com/artefactual-sdps/enduro/pkg/childwf"
+	childwf_pkg "github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 func TestProcessingWorkflow(t *testing.T) {
@@ -355,14 +356,14 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 // - Watched bucket download.
 // - Watched bucket custom retention period.
 func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
-	user := &childwf.User{Email: "nobody@example.com"}
+	user := &childwf_pkg.User{Email: "nobody@example.com"}
 	s.SetupWorkflowTest(config.Configuration{
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-		ChildWorkflows: config.ChildWorkflowConfigs{
+		ChildWorkflows: childwf.Configs{
 			{
-				Type:         childwf.WorkflowTypePreprocessing,
+				Type:         childwf_pkg.WorkflowTypePreprocessing,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -370,7 +371,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				SharedPath:   prepSharedPath,
 			},
 			{
-				Type:         childwf.WorkflowTypePoststorage,
+				Type:         childwf_pkg.WorkflowTypePoststorage,
 				Namespace:    "default",
 				TaskQueue:    "poststorage",
 				WorkflowName: "poststorage",
@@ -385,11 +386,11 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	downloadExpectations(s, params)
 	calcChecksumExpectations(s, params)
 	checkDuplicateSIPExpectations(s, params)
-	preprocessingMetadata := childwf.CustomMetadata{
+	preprocessingMetadata := childwf_pkg.CustomMetadata{
 		"external_id": json.RawMessage(`"12345"`),
 		"flags":       json.RawMessage(`{"validated":true}`),
 	}
-	poststorageMetadata := childwf.CustomMetadata{
+	poststorageMetadata := childwf_pkg.CustomMetadata{
 		"package": json.RawMessage(`{"type":"aip","identifier":"AIP-67890"}`),
 		"storage": json.RawMessage(`{"notified":true,"location":"permanent"}`),
 	}
@@ -397,22 +398,22 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.env.OnWorkflow(
 		"preprocessing",
 		internalCtx,
-		&childwf.PreprocessingParams{
+		&childwf_pkg.PreprocessingParams{
 			User:         user,
 			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
 			SIPID:        sipUUID,
 			SIPName:      sipName,
 		},
 	).Return(
-		&childwf.PreprocessingResult{
-			Outcome:        childwf.OutcomeSuccess,
+		&childwf_pkg.PreprocessingResult{
+			Outcome:        childwf_pkg.OutcomeSuccess,
 			CustomMetadata: preprocessingMetadata,
 			RelativePath:   strings.TrimPrefix(prepExtractPath, prepSharedPath),
-			Tasks: []*childwf.Task{
+			Tasks: []*childwf_pkg.Task{
 				{
 					Name:        "Identify SIP structure",
 					Message:     "SIP structure identified: VecteurAIP",
-					Outcome:     childwf.TaskOutcomeSuccess,
+					Outcome:     childwf_pkg.TaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 5, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 5, 33, 0, time.UTC),
 				},
@@ -428,11 +429,11 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 			Ingestsvc:    s.workflow.ingestsvc,
 			RNG:          s.workflow.rng,
 			WorkflowUUID: workflowUUID,
-			Tasks: []*childwf.Task{
+			Tasks: []*childwf_pkg.Task{
 				{
 					Name:        "Identify SIP structure",
 					Message:     "SIP structure identified: VecteurAIP",
-					Outcome:     childwf.TaskOutcomeSuccess,
+					Outcome:     childwf_pkg.TaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 5, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 5, 33, 0, time.UTC),
 				},
@@ -454,20 +455,20 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	s.env.OnWorkflow(
 		"poststorage",
 		internalCtx,
-		&childwf.PostStorageParams{
+		&childwf_pkg.PostStorageParams{
 			User:           user,
 			AIPUUID:        aipUUID.String(),
 			CustomMetadata: preprocessingMetadata,
 		},
 	).Return(
-		&childwf.PostStorageResult{
-			Outcome:        childwf.OutcomeSuccess,
+		&childwf_pkg.PostStorageResult{
+			Outcome:        childwf_pkg.OutcomeSuccess,
 			CustomMetadata: poststorageMetadata,
-			Tasks: []*childwf.Task{
+			Tasks: []*childwf_pkg.Task{
 				{
 					Name:        "Notify external system",
 					Message:     "External system notified.",
-					Outcome:     childwf.TaskOutcomeSuccess,
+					Outcome:     childwf_pkg.TaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 6, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 6, 33, 0, time.UTC),
 				},
@@ -483,11 +484,11 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 			Ingestsvc:    s.workflow.ingestsvc,
 			RNG:          s.workflow.rng,
 			WorkflowUUID: workflowUUID,
-			Tasks: []*childwf.Task{
+			Tasks: []*childwf_pkg.Task{
 				{
 					Name:        "Notify external system",
 					Message:     "External system notified.",
-					Outcome:     childwf.TaskOutcomeSuccess,
+					Outcome:     childwf_pkg.TaskOutcomeSuccess,
 					StartedAt:   time.Date(2024, 6, 14, 10, 6, 32, 0, time.UTC),
 					CompletedAt: time.Date(2024, 6, 14, 10, 6, 33, 0, time.UTC),
 				},
@@ -508,7 +509,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
 	}, &ingest.ProcessingWorkflowResult{
-		CustomMetadata: childwf.CustomMetadata{
+		CustomMetadata: childwf_pkg.CustomMetadata{
 			"external_id": json.RawMessage(`"12345"`),
 			"flags":       json.RawMessage(`{"validated":true}`),
 			"package":     json.RawMessage(`{"type":"aip","identifier":"AIP-67890"}`),
@@ -529,9 +530,9 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-		ChildWorkflows: config.ChildWorkflowConfigs{
+		ChildWorkflows: childwf.Configs{
 			{
-				Type:         childwf.WorkflowTypePreprocessing,
+				Type:         childwf_pkg.WorkflowTypePreprocessing,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -541,15 +542,15 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 		},
 	}, func(
 		ctx temporalsdk_workflow.Context,
-		params *childwf.PreprocessingParams,
-	) (*childwf.PreprocessingResult, error) {
+		params *childwf_pkg.PreprocessingParams,
+	) (*childwf_pkg.PreprocessingResult, error) {
 		parent := temporalsdk_workflow.GetInfo(ctx).ParentWorkflowExecution
 		err := temporalsdk_workflow.SignalExternalWorkflow(
 			ctx,
 			parent.ID,
 			parent.RunID,
-			childwf.DecisionRequestSignalName,
-			childwf.DecisionRequest{
+			childwf_pkg.DecisionRequestSignalName,
+			childwf_pkg.DecisionRequest{
 				Message: "Preprocessing requires human decision.",
 				Options: []string{"Cancel", "Continue"},
 			},
@@ -558,12 +559,12 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 			return nil, err
 		}
 
-		var decision childwf.DecisionResponse
-		_ = temporalsdk_workflow.GetSignalChannel(ctx, childwf.DecisionResponseSignalName).Receive(ctx, &decision)
+		var decision childwf_pkg.DecisionResponse
+		_ = temporalsdk_workflow.GetSignalChannel(ctx, childwf_pkg.DecisionResponseSignalName).Receive(ctx, &decision)
 		s.Equal(decision.Option, "Continue")
 
-		return &childwf.PreprocessingResult{
-			Outcome:      childwf.OutcomeSuccess,
+		return &childwf_pkg.PreprocessingResult{
+			Outcome:      childwf_pkg.OutcomeSuccess,
 			RelativePath: strings.TrimPrefix(prepExtractPath, prepSharedPath),
 		}, nil
 	})
@@ -598,7 +599,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 			ingest.ChildDecisionUpdateName,
 			"preprocessing-decision",
 			s.T(),
-			childwf.DecisionResponse{Option: "Continue"},
+			childwf_pkg.DecisionResponse{Option: "Continue"},
 		)
 	}).Return(&setStatusLocalActivityResult{}, nil)
 	params.workflowStatus = enums.WorkflowStatusPending
@@ -658,9 +659,9 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 
 		Ingest: ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-		ChildWorkflows: config.ChildWorkflowConfigs{
+		ChildWorkflows: childwf.Configs{
 			{
-				Type:         childwf.WorkflowTypePreprocessing,
+				Type:         childwf_pkg.WorkflowTypePreprocessing,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -681,14 +682,14 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	s.env.OnWorkflow(
 		"preprocessing",
 		internalCtx,
-		&childwf.PreprocessingParams{
+		&childwf_pkg.PreprocessingParams{
 			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
 			SIPID:        sipUUID,
 			SIPName:      sipName,
 		},
 	).Return(
-		&childwf.PreprocessingResult{
-			Outcome:      childwf.OutcomeContentError,
+		&childwf_pkg.PreprocessingResult{
+			Outcome:      childwf_pkg.OutcomeContentError,
 			RelativePath: strings.TrimPrefix(prepExtractPath, prepSharedPath),
 		},
 		nil,
@@ -909,9 +910,9 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUploadError() {
 		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
 		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
-		ChildWorkflows: config.ChildWorkflowConfigs{
+		ChildWorkflows: childwf.Configs{
 			{
-				Type:         childwf.WorkflowTypePreprocessing,
+				Type:         childwf_pkg.WorkflowTypePreprocessing,
 				WorkflowName: "preprocessing",
 				SharedPath:   prepSharedPath,
 			},

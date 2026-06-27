@@ -37,7 +37,7 @@ import (
 	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
-	"github.com/artefactual-sdps/enduro/internal/api/auth"
+	"github.com/artefactual-sdps/enduro/internal/auth"
 	"github.com/artefactual-sdps/enduro/internal/config"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
