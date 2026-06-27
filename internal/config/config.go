@@ -19,6 +19,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
 	"github.com/artefactual-sdps/enduro/internal/auditlog"
+	"github.com/artefactual-sdps/enduro/internal/bagit"
 	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/event"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
@@ -60,6 +61,7 @@ type Configuration struct {
 	InternalAPI     APIConfig
 	API             APIConfig
 	BagIt           bagcreate.Config
+	BagItValidator  bagit.ValidatorConfig
 	ChildWorkflows  ChildWorkflowConfigs
 	Database        db.Config
 	Event           event.Config
@@ -82,6 +84,7 @@ func (c *Configuration) Validate() error {
 		c.A3m.Validate(),
 		c.API.Auth.Validate(),
 		c.BagIt.Validate(),
+		c.BagItValidator.Validate(),
 		c.ChildWorkflows.Validate(),
 		c.Ingest.Validate(),
 		c.SIPSource.Validate(),
@@ -101,6 +104,7 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.SetDefault("am.capacity", 20)
 	v.SetDefault("am.pollInterval", 10*time.Second)
 	v.SetDefault("api.listen", "127.0.0.1:9000")
+	v.SetDefault("bagitvalidator.poolSize", 1)
 	v.SetDefault("debugListen", "127.0.0.1:9001")
 	v.SetDefault("preservation.taskqueue", temporal.A3mWorkerTaskQueue)
 	v.SetDefault("storage.taskqueue", temporal.GlobalTaskQueue)

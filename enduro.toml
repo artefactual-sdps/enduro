@@ -84,7 +84,7 @@ claimPathSeparator = ""
 # to a value of ["*"] when `claimValuePrefix = "enduro:"`. The default "" will
 # not filter any value.
 claimValuePrefix = ""
-# Consider the values obtained from the claim as roles and use the 
+# Consider the values obtained from the claim as roles and use the
 # `rolesMapping` config below to map them to Enduro attributes.
 useRoles = false
 # A JSON formatted string specifying a mapping from expected roles to Enduro
@@ -119,6 +119,26 @@ maxSize = 100
 # compress determines if the rotated log files are compressed using gzip
 # (default: false).
 compress = false
+
+[bagit]
+# checksumAlgorithm sets the hashing algorithm used to generate file checksums
+# in created BagIt bag manifests. Valid values are "md5", "sha1", "sha256", and
+# "sha512" (the default).
+checksumAlgorithm = "sha512"
+
+[bagitValidator]
+# cacheDir sets the cache directory used to write runtime artifacts for the
+# BagIt validator's runtime and runners. If cacheDir is an empty string or
+# omitted, the validator will attempt to create a cache directory in the process
+# user's home directory (e.g. /home/enduro/.cache/bagit-gython).
+# See https://enduro.readthedocs.io/admin-manual/configuration/#bagit-validation
+# for more details.
+cacheDir = ""
+# poolSize sets the number of bag validation runners available to concurrently
+# validate bags. poolSize must be 1 (the default value) or greater.
+# See https://enduro.readthedocs.io/admin-manual/configuration/#bagit-validation
+# for more details.
+poolSize = 1
 
 [telemetry.traces]
 enabled = false
@@ -336,7 +356,7 @@ url = "file:///home/enduro/internal-storage/sip-source?metadata=skip"
 
 # # extract determines where SIP extraction, from a zip or other archive format,
 # # happens. When set to "true" extraction happens in the preprocessing child
-# # workflow. If extract is "false" (default), extraction happens in the parent 
+# # workflow. If extract is "false" (default), extraction happens in the parent
 # # ingest workflow.
 # extract = true
 
@@ -370,9 +390,9 @@ url = "file:///home/enduro/internal-storage/sip-source?metadata=skip"
 # previously ingested SIP. SIPs submitted as a directory are not checked for
 # duplicate contents.
 #
-# See https://enduro.readthedocs.io/admin-manual/configuration/#allowduplicates 
+# See https://enduro.readthedocs.io/admin-manual/configuration/#allowduplicates
 # for more details.
-allowDuplicates = false
+allowDuplicates = true
 
 # [ingest.storage] configures ingest as a client of the storage API.
 # Use this section for cross-domain integration values:
@@ -453,6 +473,6 @@ redisChannel = "enduro-storage-events"
 approveAMSS = true
 
 # reportTemplatePath specifies the path to the template file used to generate
-# AIP deletion reports. If reportTemplatePath is empty or omitted, AIP deletion 
+# AIP deletion reports. If reportTemplatePath is empty or omitted, AIP deletion
 # reports will not be generated.
 reportTemplatePath = "/home/enduro/Enduro_AIP_deletion_report_v3.tmpl.pdf"
