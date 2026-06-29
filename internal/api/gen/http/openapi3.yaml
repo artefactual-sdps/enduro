@@ -378,10 +378,10 @@ paths:
             tags:
                 - ingest
             summary: monitor ingest
-            description: Obtain access to the /monitor WebSocket
+            description: Obtain access to the /monitor SSE event stream
             operationId: ingest#monitor
             parameters:
-                - name: enduro-ingest-ws-ticket
+                - name: enduro-ingest-sse-ticket
                   in: cookie
                   allowEmptyValue: true
                   schema:
@@ -389,10 +389,10 @@ paths:
                     example: abc123
                   example: abc123
             responses:
-                "101":
-                    description: Switching Protocols response.
+                "200":
+                    description: OK response.
                     content:
-                        application/json:
+                        text/event-stream:
                             schema:
                                 $ref: '#/components/schemas/IngestEvent'
                             example:
@@ -439,7 +439,7 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security: []
         post:
-            description: Request access to the /monitor WebSocket
+            description: Request access to the /monitor SSE event stream
             operationId: ingest#monitor_request
             responses:
                 "200":
@@ -2885,10 +2885,10 @@ paths:
             tags:
                 - storage
             summary: monitor storage
-            description: Obtain access to the /monitor WebSocket
+            description: Obtain access to the /monitor SSE event stream
             operationId: storage#monitor
             parameters:
-                - name: enduro-storage-ws-ticket
+                - name: enduro-storage-sse-ticket
                   in: cookie
                   allowEmptyValue: true
                   schema:
@@ -2896,10 +2896,10 @@ paths:
                     example: abc123
                   example: abc123
             responses:
-                "101":
-                    description: Switching Protocols response.
+                "200":
+                    description: OK response.
                     content:
-                        application/json:
+                        text/event-stream:
                             schema:
                                 $ref: '#/components/schemas/StorageEvent'
                             example:
@@ -2945,7 +2945,7 @@ paths:
                                 $ref: '#/components/schemas/Error'
             security: []
         post:
-            description: Request access to the /monitor WebSocket
+            description: Request access to the /monitor SSE event stream
             operationId: storage#monitor_request
             responses:
                 "200":
@@ -3943,7 +3943,6 @@ components:
                 - uuid
                 - name
                 - status
-                - started_at
                 - workflow_uuid
         EnduroIngestSipWorkflow:
             type: object

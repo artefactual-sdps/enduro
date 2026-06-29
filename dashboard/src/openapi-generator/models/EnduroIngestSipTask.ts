@@ -42,7 +42,7 @@ export interface EnduroIngestSipTask {
      * @type {Date}
      * @memberof EnduroIngestSipTask
      */
-    startedAt: Date;
+    startedAt?: Date;
     /**
      * 
      * @type {EnduroIngestSipTaskStatusEnum}
@@ -84,7 +84,6 @@ export type EnduroIngestSipTaskStatusEnum = typeof EnduroIngestSipTaskStatusEnum
  */
 export function instanceOfEnduroIngestSipTask(value: object): value is EnduroIngestSipTask {
     if (!('name' in value) || value['name'] === undefined) return false;
-    if (!('startedAt' in value) || value['startedAt'] === undefined) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     if (!('uuid' in value) || value['uuid'] === undefined) return false;
     if (!('workflowUuid' in value) || value['workflowUuid'] === undefined) return false;
@@ -104,7 +103,7 @@ export function EnduroIngestSipTaskFromJSONTyped(json: any, ignoreDiscriminator:
         'completedAt': json['completed_at'] == null ? undefined : (new Date(json['completed_at'])),
         'name': json['name'],
         'note': json['note'] == null ? undefined : json['note'],
-        'startedAt': (new Date(json['started_at'])),
+        'startedAt': json['started_at'] == null ? undefined : (new Date(json['started_at'])),
         'status': json['status'],
         'uuid': json['uuid'],
         'workflowUuid': json['workflow_uuid'],
@@ -125,7 +124,7 @@ export function EnduroIngestSipTaskToJSONTyped(value?: EnduroIngestSipTask | nul
         'completed_at': value['completedAt'] == null ? value['completedAt'] : value['completedAt'].toISOString(),
         'name': value['name'],
         'note': value['note'],
-        'started_at': value['startedAt'].toISOString(),
+        'started_at': value['startedAt'] == null ? value['startedAt'] : value['startedAt'].toISOString(),
         'status': value['status'],
         'uuid': value['uuid'],
         'workflow_uuid': value['workflowUuid'],

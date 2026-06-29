@@ -41,7 +41,7 @@ watch(
     if (!sipStore.current?.uuid) return;
     if (!authStore.checkAttributes(["ingest:sips:decision"])) return;
 
-    // This is a background refresh after a websocket update. The store handles
+    // This is a background refresh after a monitor event. The store handles
     // the error state, so this catch only prevents duplicate global reporting.
     void sipStore
       .fetchCurrentDecision(sipStore.current.uuid)

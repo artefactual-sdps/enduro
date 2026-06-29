@@ -48,9 +48,6 @@ func ParseEndpoint(
 	enc func(*http.Request) goahttp.Encoder,
 	dec func(*http.Response) goahttp.Decoder,
 	restore bool,
-	dialer goahttp.Dialer,
-	ingestConfigurer *ingestc.ConnConfigurer,
-	storageConfigurer *storagec.ConnConfigurer,
 ) (goa.Endpoint, any, error) {
 	var (
 		aboutFlags = flag.NewFlagSet("about", flag.ContinueOnError)
@@ -499,7 +496,7 @@ func ParseEndpoint(
 				data, err = aboutc.BuildAboutPayload(*aboutAboutTokenFlag)
 			}
 		case "ingest":
-			c := ingestc.NewClient(scheme, host, doer, enc, dec, restore, dialer, ingestConfigurer)
+			c := ingestc.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
 			case "monitor-request":
 				endpoint = c.MonitorRequest()
@@ -563,7 +560,7 @@ func ParseEndpoint(
 				data, err = ingestc.BuildReviewBatchPayload(*ingestReviewBatchBodyFlag, *ingestReviewBatchUUIDFlag, *ingestReviewBatchTokenFlag)
 			}
 		case "storage":
-			c := storagec.NewClient(scheme, host, doer, enc, dec, restore, dialer, storageConfigurer)
+			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
 			case "monitor-request":
 				endpoint = c.MonitorRequest()
@@ -671,8 +668,8 @@ func ingestUsage() {
 	fmt.Fprintln(os.Stderr, `The ingest service manages ingested SIPs.`)
 	fmt.Fprintf(os.Stderr, "Usage:\n    %s [globalflags] ingest COMMAND [flags]\n\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "COMMAND:")
-	fmt.Fprintln(os.Stderr, `    monitor-request: Request access to the /monitor WebSocket`)
-	fmt.Fprintln(os.Stderr, `    monitor: Obtain access to the /monitor WebSocket`)
+	fmt.Fprintln(os.Stderr, `    monitor-request: Request access to the /monitor SSE event stream`)
+	fmt.Fprintln(os.Stderr, `    monitor: Obtain access to the /monitor SSE event stream`)
 	fmt.Fprintln(os.Stderr, `    list-sips: List all ingested SIPs`)
 	fmt.Fprintln(os.Stderr, `    show-sip: Show SIP by ID`)
 	fmt.Fprintln(os.Stderr, `    list-sip-workflows: List all workflows for a SIP`)
@@ -702,7 +699,7 @@ func ingestMonitorRequestUsage() {
 
 	// Description
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, `Request access to the /monitor WebSocket`)
+	fmt.Fprintln(os.Stderr, `Request access to the /monitor SSE event stream`)
 
 	// Flags list
 	fmt.Fprintln(os.Stderr, `    -token STRING: `)
@@ -720,7 +717,7 @@ func ingestMonitorUsage() {
 
 	// Description
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, `Obtain access to the /monitor WebSocket`)
+	fmt.Fprintln(os.Stderr, `Obtain access to the /monitor SSE event stream`)
 
 	// Flags list
 	fmt.Fprintln(os.Stderr, `    -ticket STRING: `)
@@ -1123,8 +1120,8 @@ func storageUsage() {
 	fmt.Fprintln(os.Stderr, `The storage service manages locations and AIPs.`)
 	fmt.Fprintf(os.Stderr, "Usage:\n    %s [globalflags] storage COMMAND [flags]\n\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "COMMAND:")
-	fmt.Fprintln(os.Stderr, `    monitor-request: Request access to the /monitor WebSocket`)
-	fmt.Fprintln(os.Stderr, `    monitor: Obtain access to the /monitor WebSocket`)
+	fmt.Fprintln(os.Stderr, `    monitor-request: Request access to the /monitor SSE event stream`)
+	fmt.Fprintln(os.Stderr, `    monitor: Obtain access to the /monitor SSE event stream`)
 	fmt.Fprintln(os.Stderr, `    list-aips: List all AIPs`)
 	fmt.Fprintln(os.Stderr, `    create-aip: Create a new AIP`)
 	fmt.Fprintln(os.Stderr, `    download-aip-request: Request access to AIP download`)
@@ -1156,7 +1153,7 @@ func storageMonitorRequestUsage() {
 
 	// Description
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, `Request access to the /monitor WebSocket`)
+	fmt.Fprintln(os.Stderr, `Request access to the /monitor SSE event stream`)
 
 	// Flags list
 	fmt.Fprintln(os.Stderr, `    -token STRING: `)
@@ -1174,7 +1171,7 @@ func storageMonitorUsage() {
 
 	// Description
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, `Obtain access to the /monitor WebSocket`)
+	fmt.Fprintln(os.Stderr, `Obtain access to the /monitor SSE event stream`)
 
 	// Flags list
 	fmt.Fprintln(os.Stderr, `    -ticket STRING: `)

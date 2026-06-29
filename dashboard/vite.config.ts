@@ -53,22 +53,6 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
-      "^/api/ingest/monitor": {
-        target: env.ENDURO_API_ADDRESS
-          ? "http://" + env.ENDURO_API_ADDRESS
-          : "http://127.0.0.1:9000",
-        changeOrigin: false,
-        rewrite: (path) => path.replace(/^\/api/, ""),
-        ws: true,
-      },
-      "^/api/storage/monitor": {
-        target: env.ENDURO_API_ADDRESS
-          ? "http://" + env.ENDURO_API_ADDRESS
-          : "http://127.0.0.1:9000",
-        changeOrigin: false,
-        rewrite: (path) => path.replace(/^\/api/, ""),
-        ws: true,
-      },
     },
   },
   resolve: {

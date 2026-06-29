@@ -59,9 +59,7 @@ server {
     }
     location /api/ingest/monitor {
         proxy_pass http://backend/ingest/monitor;
-        proxy_http_version 1.1;
-        proxy_set_header Connection "Upgrade";
-        proxy_set_header Upgrade \$http_upgrade;
+        proxy_buffering off;
         proxy_set_header Host \$http_host;
     }
     location /api/ingest/sips/upload {
@@ -71,9 +69,7 @@ server {
     }
     location /api/storage/monitor {
         proxy_pass http://backend/storage/monitor;
-        proxy_http_version 1.1;
-        proxy_set_header Connection "Upgrade";
-        proxy_set_header Upgrade \$http_upgrade;
+        proxy_buffering off;
         proxy_set_header Host \$http_host;
     }
     location /api/ {

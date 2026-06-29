@@ -3,7 +3,7 @@ import { IngestEventValueTypeEnum } from "@/openapi-generator";
 import { useBatchStore } from "@/stores/batch";
 import { useSipStore } from "@/stores/sip";
 
-// Local websocket event boundary used by the ingest monitor code.
+// Local monitor event boundary used by the ingest monitor code.
 //
 // The generated OpenAPI client gives us the outer event envelope (`type` and
 // `value`), but it does not preserve the monitor payload `anyOf` as a usable
@@ -18,7 +18,7 @@ type IngestMonitorEvent = {
 };
 
 // TODO: Replace this unknown-based event boundary with a typed monitor-event
-// decoder once the generated client preserves the websocket payload `anyOf`,
+// decoder once the generated client preserves the monitor payload `anyOf`,
 // or after adding a small local typed decoder facade.
 export function handleIngestEvent(event: IngestMonitorEvent) {
   const handler = handlers[event.type];

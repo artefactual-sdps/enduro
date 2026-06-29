@@ -72,12 +72,7 @@ func New(
 	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	errhandler func(context.Context, http.ResponseWriter, error),
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
-	upgrader goahttp.Upgrader,
-	configurer *ConnConfigurer,
 ) *Server {
-	if configurer == nil {
-		configurer = &ConnConfigurer{}
-	}
 	return &Server{
 		Mounts: []*MountPoint{
 			{"MonitorRequest", "POST", "/storage/monitor"},
@@ -118,7 +113,7 @@ func New(
 			{"CORS", "OPTIONS", "/storage/locations/{uuid}/aips"},
 		},
 		MonitorRequest:           NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
-		Monitor:                  NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
+		Monitor:                  NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter),
 		ListAips:                 NewListAipsHandler(e.ListAips, mux, decoder, encoder, errhandler, formatter),
 		CreateAip:                NewCreateAipHandler(e.CreateAip, mux, decoder, encoder, errhandler, formatter),
 		DownloadAipRequest:       NewDownloadAipRequestHandler(e.DownloadAipRequest, mux, decoder, encoder, errhandler, formatter),
@@ -279,8 +274,6 @@ func NewMonitorHandler(
 	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	errhandler func(context.Context, http.ResponseWriter, error),
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
-	upgrader goahttp.Upgrader,
-	configurer goahttp.ConnConfigureFunc,
 ) http.Handler {
 	var (
 		decodeRequest = DecodeMonitorRequest(mux, decoder)
@@ -297,33 +290,15 @@ func NewMonitorHandler(
 			}
 			return
 		}
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithCancel(ctx)
 		v := &storage.MonitorEndpointInput{
 			Stream: &MonitorServerStream{
-				upgrader:   upgrader,
-				configurer: configurer,
-				cancel:     cancel,
-				w:          w,
-				r:          r,
+				w: w,
+				r: r,
 			},
 			Payload: payload,
 		}
 		_, err = endpoint(ctx, v)
 		if err != nil {
-			var stream *MonitorServerStream
-			if wrapper, ok := v.Stream.(interface{ Unwrap() any }); ok {
-				stream = wrapper.Unwrap().(*MonitorServerStream)
-			} else {
-				stream = v.Stream.(*MonitorServerStream)
-			}
-			if stream != nil && stream.conn != nil {
-				// Response writer has been hijacked, do not encode the error
-				if errhandler != nil {
-					errhandler(ctx, w, err)
-				}
-				return
-			}
 			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
 				errhandler(ctx, w, err)
 			}

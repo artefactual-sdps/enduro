@@ -1314,7 +1314,6 @@
         "uuid",
         "name",
         "status",
-        "started_at",
         "workflow_uuid"
       ],
       "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.task; view=default",
@@ -4684,7 +4683,6 @@
         "uuid",
         "name",
         "status",
-        "started_at",
         "workflow_uuid"
       ],
       "title": "Mediatype identifier: application/vnd.enduro.ingest.sip.task; view=default",
@@ -7408,11 +7406,14 @@
     },
     "/ingest/monitor": {
       "get": {
-        "description": "Obtain access to the /monitor WebSocket",
+        "description": "Obtain access to the /monitor SSE event stream",
         "operationId": "ingest#monitor",
+        "produces": [
+          "text/event-stream"
+        ],
         "responses": {
-          "101": {
-            "description": "Switching Protocols response.",
+          "200": {
+            "description": "OK response.",
             "schema": {
               "$ref": "#/definitions/IngestEvent"
             }
@@ -7437,7 +7438,7 @@
           }
         },
         "schemes": [
-          "ws"
+          "http"
         ],
         "security": [],
         "summary": "monitor ingest",
@@ -7446,7 +7447,7 @@
         ]
       },
       "post": {
-        "description": "Request access to the /monitor WebSocket",
+        "description": "Request access to the /monitor SSE event stream",
         "operationId": "ingest#monitor_request",
         "responses": {
           "200": {
@@ -9865,11 +9866,14 @@
     },
     "/storage/monitor": {
       "get": {
-        "description": "Obtain access to the /monitor WebSocket",
+        "description": "Obtain access to the /monitor SSE event stream",
         "operationId": "storage#monitor",
+        "produces": [
+          "text/event-stream"
+        ],
         "responses": {
-          "101": {
-            "description": "Switching Protocols response.",
+          "200": {
+            "description": "OK response.",
             "schema": {
               "$ref": "#/definitions/StorageEvent"
             }
@@ -9894,7 +9898,7 @@
           }
         },
         "schemes": [
-          "ws"
+          "http"
         ],
         "security": [],
         "summary": "monitor storage",
@@ -9903,7 +9907,7 @@
         ]
       },
       "post": {
-        "description": "Request access to the /monitor WebSocket",
+        "description": "Request access to the /monitor SSE event stream",
         "operationId": "storage#monitor_request",
         "responses": {
           "200": {

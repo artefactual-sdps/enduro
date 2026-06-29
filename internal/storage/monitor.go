@@ -53,7 +53,7 @@ func (s *serviceImpl) Monitor(
 
 	// Say hello to be nice.
 	event := &goastorage.StoragePingEvent{Message: new("Hello")}
-	if err := stream.Send(&goastorage.StorageEvent{Value: NewEventValue(event)}); err != nil {
+	if err := stream.SendWithContext(ctx, &goastorage.StorageEvent{Value: NewEventValue(event)}); err != nil {
 		// Consider send errors as client disconnections.
 		s.logger.V(1).Info("Failed to send hello event.", "err", err)
 		return nil
@@ -72,7 +72,7 @@ func (s *serviceImpl) Monitor(
 
 		case <-ticker.C:
 			event := &goastorage.StoragePingEvent{Message: new("Ping")}
-			if err := stream.Send(&goastorage.StorageEvent{Value: NewEventValue(event)}); err != nil {
+			if err := stream.SendWithContext(ctx, &goastorage.StorageEvent{Value: NewEventValue(event)}); err != nil {
 				// Consider send errors as client disconnections.
 				s.logger.V(1).Info("Failed to send ping event.", "err", err)
 				return nil
@@ -114,7 +114,7 @@ func (s *serviceImpl) Monitor(
 				continue
 			}
 
-			if err := stream.Send(event); err != nil {
+			if err := stream.SendWithContext(ctx, event); err != nil {
 				// Consider send errors as client disconnections.
 				s.logger.V(1).Info("Failed to send event.", "err", err)
 				return nil

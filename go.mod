@@ -24,7 +24,6 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.17.0
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
-	github.com/gorilla/websocket v1.5.3
 	github.com/hashicorp/go-cleanhttp v0.5.2
 	github.com/jonboulle/clockwork v0.4.0
 	github.com/mattn/go-sqlite3 v1.14.28
@@ -58,7 +57,7 @@ require (
 	go.temporal.io/sdk v1.33.1
 	go.temporal.io/sdk/contrib/opentelemetry v0.6.0
 	go.uber.org/mock v0.6.0
-	goa.design/goa/v3 v3.28.0
+	goa.design/goa/v3 v3.28.1-0.20260609150533-6d3bad5b49d6
 	goa.design/plugins/v3 v3.28.0
 	gocloud.dev v0.45.0
 	golang.org/x/crypto v0.52.0
@@ -139,6 +138,7 @@ require (
 	github.com/googleapis/enterprise-certificate-proxy v0.3.7 // indirect
 	github.com/googleapis/gax-go/v2 v2.15.0 // indirect
 	github.com/gorilla/schema v1.4.1 // indirect
+	github.com/gorilla/websocket v1.5.3 // indirect
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0 // indirect
 	github.com/grpc-ecosystem/grpc-gateway/v2 v2.28.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect

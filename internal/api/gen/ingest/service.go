@@ -22,9 +22,9 @@ import (
 
 // The ingest service manages ingested SIPs.
 type Service interface {
-	// Request access to the /monitor WebSocket
+	// Request access to the /monitor SSE event stream
 	MonitorRequest(context.Context, *MonitorRequestPayload) (res *MonitorRequestResult, err error)
-	// Obtain access to the /monitor WebSocket
+	// Obtain access to the /monitor SSE event stream
 	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 	// List all ingested SIPs
 	ListSips(context.Context, *ListSipsPayload) (res *SIPs, err error)
@@ -447,7 +447,7 @@ type SIPTask struct {
 	UUID        uuid.UUID
 	Name        string
 	Status      string
-	StartedAt   string
+	StartedAt   *string
 	CompletedAt *string
 	Note        *string
 	// Identifier of related workflow
@@ -1396,6 +1396,7 @@ func newSIPTaskCollectionView(res SIPTaskCollection) ingestviews.SIPTaskCollecti
 // newSIPTask converts projected type SIPTask to service type SIPTask.
 func newSIPTask(vres *ingestviews.SIPTaskView) *SIPTask {
 	res := &SIPTask{
+		StartedAt:   vres.StartedAt,
 		CompletedAt: vres.CompletedAt,
 		Note:        vres.Note,
 	}
@@ -1407,9 +1408,6 @@ func newSIPTask(vres *ingestviews.SIPTaskView) *SIPTask {
 	}
 	if vres.Status != nil {
 		res.Status = *vres.Status
-	}
-	if vres.StartedAt != nil {
-		res.StartedAt = *vres.StartedAt
 	}
 	if vres.WorkflowUUID != nil {
 		res.WorkflowUUID = *vres.WorkflowUUID
@@ -1424,7 +1422,7 @@ func newSIPTaskView(res *SIPTask) *ingestviews.SIPTaskView {
 		UUID:         &res.UUID,
 		Name:         &res.Name,
 		Status:       &res.Status,
-		StartedAt:    &res.StartedAt,
+		StartedAt:    res.StartedAt,
 		CompletedAt:  res.CompletedAt,
 		Note:         res.Note,
 		WorkflowUUID: &res.WorkflowUUID,
