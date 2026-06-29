@@ -18,7 +18,7 @@ var _ = Service("storage", func() {
 		Response("forbidden", StatusForbidden)
 	})
 	Method("monitor_request", func() {
-		Description("Request access to the /monitor WebSocket")
+		Description("Request access to the /monitor SSE event stream")
 		// Do not require any scope, user claims will be stored internally
 		// and checked in the monitor endpoint after validating the cookie.
 		BearerAuthScopes()
@@ -33,7 +33,7 @@ var _ = Service("storage", func() {
 			POST("/monitor")
 			Response("internal_error", StatusInternalServerError)
 			Response(StatusOK, func() {
-				Cookie("ticket:enduro-storage-ws-ticket")
+				Cookie("ticket:enduro-storage-sse-ticket")
 				CookieMaxAge(5)
 				CookieSecure()
 				CookieHTTPOnly()
@@ -41,7 +41,7 @@ var _ = Service("storage", func() {
 		})
 	})
 	Method("monitor", func() {
-		Description("Obtain access to the /monitor WebSocket")
+		Description("Obtain access to the /monitor SSE event stream")
 		// Disable BearerAuth security (it validates the previous method's cookie).
 		NoSecurity()
 		Payload(func() {
@@ -51,9 +51,9 @@ var _ = Service("storage", func() {
 		Error("internal_error")
 		HTTP(func() {
 			GET("/monitor")
+			ServerSentEvents()
 			Response("internal_error", StatusInternalServerError)
-			Response(StatusOK)
-			Cookie("ticket:enduro-storage-ws-ticket")
+			Cookie("ticket:enduro-storage-sse-ticket")
 		})
 	})
 	Method("list_aips", func() {

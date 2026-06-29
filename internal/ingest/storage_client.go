@@ -89,8 +89,6 @@ func NewStorageClient(
 		goahttp.RequestEncoder,
 		goahttp.ResponseDecoder,
 		false,
-		nil,
-		nil,
 	)
 
 	return goastorage.NewClient(

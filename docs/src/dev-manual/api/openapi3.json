@@ -1254,7 +1254,6 @@
           "uuid",
           "name",
           "status",
-          "started_at",
           "workflow_uuid"
         ],
         "type": "object"
@@ -3530,14 +3529,14 @@
     },
     "/ingest/monitor": {
       "get": {
-        "description": "Obtain access to the /monitor WebSocket",
+        "description": "Obtain access to the /monitor SSE event stream",
         "operationId": "ingest#monitor",
         "parameters": [
           {
             "allowEmptyValue": true,
             "example": "abc123",
             "in": "cookie",
-            "name": "enduro-ingest-ws-ticket",
+            "name": "enduro-ingest-sse-ticket",
             "schema": {
               "example": "abc123",
               "type": "string"
@@ -3545,9 +3544,9 @@
           }
         ],
         "responses": {
-          "101": {
+          "200": {
             "content": {
-              "application/json": {
+              "text/event-stream": {
                 "example": {
                   "value": {
                     "item": {
@@ -3576,7 +3575,7 @@
                 }
               }
             },
-            "description": "Switching Protocols response."
+            "description": "OK response."
           },
           "401": {
             "content": {
@@ -3620,7 +3619,7 @@
         ]
       },
       "post": {
-        "description": "Request access to the /monitor WebSocket",
+        "description": "Request access to the /monitor SSE event stream",
         "operationId": "ingest#monitor_request",
         "responses": {
           "200": {
@@ -7301,14 +7300,14 @@
     },
     "/storage/monitor": {
       "get": {
-        "description": "Obtain access to the /monitor WebSocket",
+        "description": "Obtain access to the /monitor SSE event stream",
         "operationId": "storage#monitor",
         "parameters": [
           {
             "allowEmptyValue": true,
             "example": "abc123",
             "in": "cookie",
-            "name": "enduro-storage-ws-ticket",
+            "name": "enduro-storage-sse-ticket",
             "schema": {
               "example": "abc123",
               "type": "string"
@@ -7316,9 +7315,9 @@
           }
         ],
         "responses": {
-          "101": {
+          "200": {
             "content": {
-              "application/json": {
+              "text/event-stream": {
                 "example": {
                   "value": {
                     "item": {
@@ -7347,7 +7346,7 @@
                 }
               }
             },
-            "description": "Switching Protocols response."
+            "description": "OK response."
           },
           "401": {
             "content": {
@@ -7391,7 +7390,7 @@
         ]
       },
       "post": {
-        "description": "Request access to the /monitor WebSocket",
+        "description": "Request access to the /monitor SSE event stream",
         "operationId": "storage#monitor_request",
         "responses": {
           "200": {

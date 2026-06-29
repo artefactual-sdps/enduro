@@ -1006,7 +1006,7 @@ type SIPTaskResponseBody struct {
 	UUID        uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 	Name        string    `form:"name" json:"name" xml:"name"`
 	Status      string    `form:"status" json:"status" xml:"status"`
-	StartedAt   string    `form:"started_at" json:"started_at" xml:"started_at"`
+	StartedAt   *string   `form:"started_at,omitempty" json:"started_at,omitempty" xml:"started_at,omitempty"`
 	CompletedAt *string   `form:"completed_at,omitempty" json:"completed_at,omitempty" xml:"completed_at,omitempty"`
 	Note        *string   `form:"note,omitempty" json:"note,omitempty" xml:"note,omitempty"`
 	// Identifier of related workflow

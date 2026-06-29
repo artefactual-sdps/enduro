@@ -216,7 +216,7 @@ This service-level timeout is different from HTTP transport and proxy timeouts:
   read or write operations rather than total upload or download duration.
 
 The generic service-level timeout is not applied to streaming, upload, download,
-or WebSocket endpoints. These endpoints have different timeout requirements and
+or SSE endpoints. These endpoints have different timeout requirements and
 must be handled by transport, proxy, and endpoint-specific setup timeouts. This
 includes:
 
@@ -225,8 +225,8 @@ includes:
 * AIP download: `/api/storage/aips/{uuid}/download`
 * AIP deletion report download:
   `/api/storage/aips/{uuid}/deletion-report`
-* Ingest monitor WebSocket: `/api/ingest/monitor`
-* Storage monitor WebSocket: `/api/storage/monitor`
+* Ingest monitor SSE stream: `/api/ingest/monitor`
+* Storage monitor SSE stream: `/api/storage/monitor`
 
 #### Enable API authentication
 

@@ -3,6 +3,7 @@ package ingest_test
 import (
 	"testing"
 
+	"github.com/google/uuid"
 	"gotest.tools/v3/assert"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
@@ -47,5 +48,34 @@ func TestEventSerializer(t *testing.T) {
 	got, ok := deserializedEvent.Value.AsIngestPingEvent()
 	assert.Assert(t, ok)
 	want, _ := originalEvent.Value.AsIngestPingEvent()
+	assert.DeepEqual(t, got, want)
+}
+
+func TestEventSerializerAllowsUnstartedTask(t *testing.T) {
+	t.Parallel()
+
+	taskID := uuid.New()
+	originalEvent := &goaingest.IngestEvent{
+		Value: ingest.NewEventValue(&goaingest.SIPTaskCreatedEvent{
+			UUID: taskID,
+			Item: &goaingest.SIPTask{
+				UUID:         taskID,
+				Name:         "test",
+				Status:       "unspecified",
+				WorkflowUUID: uuid.New(),
+			},
+		}),
+	}
+
+	serializer := &ingest.EventSerializer{}
+	data, err := serializer.Marshal(originalEvent)
+	assert.NilError(t, err)
+
+	deserializedEvent, err := serializer.Unmarshal(data)
+	assert.NilError(t, err)
+	assert.Equal(t, deserializedEvent.Value.Kind(), originalEvent.Value.Kind())
+	got, ok := deserializedEvent.Value.AsSipTaskCreatedEvent()
+	assert.Assert(t, ok)
+	want, _ := originalEvent.Value.AsSipTaskCreatedEvent()
 	assert.DeepEqual(t, got, want)
 }

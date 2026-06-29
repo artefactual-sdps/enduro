@@ -71,20 +71,11 @@ func workflowToGoa(w *datatypes.Workflow) *goaingest.SIPWorkflow {
 
 // taskToGoa returns the API representation of a task.
 func taskToGoa(task *datatypes.Task) *goaingest.SIPTask {
-	var startedAt string
-	if !task.StartedAt.IsZero() {
-		startedAt = task.StartedAt.Format(time.RFC3339)
-	}
-
 	return &goaingest.SIPTask{
-		UUID:   task.UUID,
-		Name:   task.Name,
-		Status: task.Status.String(),
-
-		// TODO: Make Goa StartedAt a pointer to a string to avoid having to
-		// convert a null time to an empty (zero value) string.
-		StartedAt: startedAt,
-
+		UUID:         task.UUID,
+		Name:         task.Name,
+		Status:       task.Status.String(),
+		StartedAt:    db.FormatOptionalZeroTime(task.StartedAt),
 		CompletedAt:  db.FormatOptionalZeroTime(task.CompletedAt),
 		Note:         &task.Note,
 		WorkflowUUID: task.WorkflowUUID,

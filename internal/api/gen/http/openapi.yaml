@@ -275,11 +275,13 @@ paths:
             tags:
                 - ingest
             summary: monitor ingest
-            description: Obtain access to the /monitor WebSocket
+            description: Obtain access to the /monitor SSE event stream
             operationId: ingest#monitor
+            produces:
+                - text/event-stream
             responses:
-                "101":
-                    description: Switching Protocols response.
+                "200":
+                    description: OK response.
                     schema:
                         $ref: '#/definitions/IngestEvent'
                 "401":
@@ -295,10 +297,10 @@ paths:
                     schema:
                         $ref: '#/definitions/IngestMonitorInternalErrorResponseBody'
             schemes:
-                - ws
+                - http
             security: []
         post:
-            description: Request access to the /monitor WebSocket
+            description: Request access to the /monitor SSE event stream
             operationId: ingest#monitor_request
             responses:
                 "200":
@@ -2023,11 +2025,13 @@ paths:
             tags:
                 - storage
             summary: monitor storage
-            description: Obtain access to the /monitor WebSocket
+            description: Obtain access to the /monitor SSE event stream
             operationId: storage#monitor
+            produces:
+                - text/event-stream
             responses:
-                "101":
-                    description: Switching Protocols response.
+                "200":
+                    description: OK response.
                     schema:
                         $ref: '#/definitions/StorageEvent'
                 "401":
@@ -2043,10 +2047,10 @@ paths:
                     schema:
                         $ref: '#/definitions/StorageMonitorInternalErrorResponseBody'
             schemes:
-                - ws
+                - http
             security: []
         post:
-            description: Request access to the /monitor WebSocket
+            description: Request access to the /monitor SSE event stream
             operationId: storage#monitor_request
             responses:
                 "200":
@@ -3104,7 +3108,6 @@ definitions:
             - uuid
             - name
             - status
-            - started_at
             - workflow_uuid
     EnduroIngestSipWorkflow:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.workflow; view=default'
@@ -5778,7 +5781,6 @@ definitions:
             - uuid
             - name
             - status
-            - started_at
             - workflow_uuid
     SIPTaskResponseBodyCollection:
         title: 'Mediatype identifier: application/vnd.enduro.ingest.sip.task; type=collection; view=default'

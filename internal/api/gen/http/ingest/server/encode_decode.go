@@ -30,7 +30,7 @@ func EncodeMonitorRequestResponse(encoder func(context.Context, http.ResponseWri
 		if res.Ticket != nil {
 			ticket := *res.Ticket
 			http.SetCookie(w, &http.Cookie{
-				Name:     "enduro-ingest-ws-ticket",
+				Name:     "enduro-ingest-sse-ticket",
 				Value:    ticket,
 				MaxAge:   5,
 				Secure:   true,
@@ -112,6 +112,18 @@ func EncodeMonitorRequestError(encoder func(context.Context, http.ResponseWriter
 	}
 }
 
+// EncodeMonitorResponse returns an encoder for responses returned by the
+// ingest monitor endpoint.
+func EncodeMonitorResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res, _ := v.(*ingest.IngestEvent)
+		enc := encoder(ctx, w)
+		body := NewMonitorResponseBody(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
 // DecodeMonitorRequest returns a decoder for requests sent to the ingest
 // monitor endpoint.
 func DecodeMonitorRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*ingest.MonitorPayload, error) {
@@ -121,7 +133,7 @@ func DecodeMonitorRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp
 			ticket *string
 			c      *http.Cookie
 		)
-		c, _ = r.Cookie("enduro-ingest-ws-ticket")
+		c, _ = r.Cookie("enduro-ingest-sse-ticket")
 		var ticketRaw string
 		if c != nil {
 			ticketRaw = c.Value
@@ -2656,7 +2668,7 @@ func marshalIngestviewsSIPTaskViewToSIPTaskResponseBody(v *ingestviews.SIPTaskVi
 		UUID:         *v.UUID,
 		Name:         *v.Name,
 		Status:       *v.Status,
-		StartedAt:    *v.StartedAt,
+		StartedAt:    v.StartedAt,
 		CompletedAt:  v.CompletedAt,
 		Note:         v.Note,
 		WorkflowUUID: *v.WorkflowUUID,

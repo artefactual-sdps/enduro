@@ -1409,9 +1409,6 @@ func ValidateSIPTaskView(result *SIPTaskView) (err error) {
 	if result.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "result"))
 	}
-	if result.StartedAt == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "result"))
-	}
 	if result.WorkflowUUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_uuid", "result"))
 	}

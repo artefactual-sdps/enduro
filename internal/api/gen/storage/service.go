@@ -22,9 +22,9 @@ import (
 
 // The storage service manages locations and AIPs.
 type Service interface {
-	// Request access to the /monitor WebSocket
+	// Request access to the /monitor SSE event stream
 	MonitorRequest(context.Context, *MonitorRequestPayload) (res *MonitorRequestResult, err error)
-	// Obtain access to the /monitor WebSocket
+	// Obtain access to the /monitor SSE event stream
 	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 	// List all AIPs
 	ListAips(context.Context, *ListAipsPayload) (res *AIPs, err error)

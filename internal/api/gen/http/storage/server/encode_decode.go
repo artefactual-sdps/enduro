@@ -30,7 +30,7 @@ func EncodeMonitorRequestResponse(encoder func(context.Context, http.ResponseWri
 		if res.Ticket != nil {
 			ticket := *res.Ticket
 			http.SetCookie(w, &http.Cookie{
-				Name:     "enduro-storage-ws-ticket",
+				Name:     "enduro-storage-sse-ticket",
 				Value:    ticket,
 				MaxAge:   5,
 				Secure:   true,
@@ -112,6 +112,18 @@ func EncodeMonitorRequestError(encoder func(context.Context, http.ResponseWriter
 	}
 }
 
+// EncodeMonitorResponse returns an encoder for responses returned by the
+// storage monitor endpoint.
+func EncodeMonitorResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
+	return func(ctx context.Context, w http.ResponseWriter, v any) error {
+		res, _ := v.(*storage.StorageEvent)
+		enc := encoder(ctx, w)
+		body := NewMonitorResponseBody(res)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
 // DecodeMonitorRequest returns a decoder for requests sent to the storage
 // monitor endpoint.
 func DecodeMonitorRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*storage.MonitorPayload, error) {
@@ -121,7 +133,7 @@ func DecodeMonitorRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp
 			ticket *string
 			c      *http.Cookie
 		)
-		c, _ = r.Cookie("enduro-storage-ws-ticket")
+		c, _ = r.Cookie("enduro-storage-sse-ticket")
 		var ticketRaw string
 		if c != nil {
 			ticketRaw = c.Value

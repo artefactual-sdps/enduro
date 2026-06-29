@@ -4111,9 +4111,6 @@ func ValidateSIPTaskResponseBody(body *SIPTaskResponseBody) (err error) {
 	if body.Status == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("status", "body"))
 	}
-	if body.StartedAt == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("started_at", "body"))
-	}
 	if body.WorkflowUUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("workflow_uuid", "body"))
 	}
