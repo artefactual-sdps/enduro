@@ -22,9 +22,9 @@ import (
 
 // The ingest service manages ingested SIPs.
 type Service interface {
-	// Request access to the /monitor WebSocket
+	// Request access to the /monitor SSE event stream
 	MonitorRequest(context.Context, *MonitorRequestPayload) (res *MonitorRequestResult, err error)
-	// Obtain access to the /monitor WebSocket
+	// Obtain access to the /monitor SSE event stream
 	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 	// List all ingested SIPs
 	ListSips(context.Context, *ListSipsPayload) (res *SIPs, err error)

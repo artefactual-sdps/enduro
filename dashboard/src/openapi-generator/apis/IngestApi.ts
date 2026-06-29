@@ -130,7 +130,7 @@ export interface IngestListUsersRequest {
 }
 
 export interface IngestMonitorRequest {
-    enduroIngestWsTicket?: string;
+    enduroIngestSseTicket?: string;
 }
 
 export interface IngestRejectSipRequest {
@@ -456,16 +456,16 @@ export interface IngestApiInterface {
 
     /**
      * Creates request options for ingestMonitor without sending the request
-     * @param {string} [enduroIngestWsTicket] 
+     * @param {string} [enduroIngestSseTicket]
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
     ingestMonitorRequestOpts(requestParameters: IngestMonitorRequest): Promise<runtime.RequestOpts>;
 
     /**
-     * Obtain access to the /monitor WebSocket
+     * Obtain access to the /monitor SSE event stream
      * @summary monitor ingest
-     * @param {string} [enduroIngestWsTicket] 
+     * @param {string} [enduroIngestSseTicket]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
@@ -473,7 +473,7 @@ export interface IngestApiInterface {
     ingestMonitorRaw(requestParameters: IngestMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
-     * Obtain access to the /monitor WebSocket
+     * Obtain access to the /monitor SSE event stream
      * monitor ingest
      */
     ingestMonitor(requestParameters: IngestMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
@@ -486,7 +486,7 @@ export interface IngestApiInterface {
     ingestMonitorRequestRequestOpts(): Promise<runtime.RequestOpts>;
 
     /**
-     * Request access to the /monitor WebSocket
+     * Request access to the /monitor SSE event stream
      * @summary monitor_request ingest
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
@@ -495,7 +495,7 @@ export interface IngestApiInterface {
     ingestMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
-     * Request access to the /monitor WebSocket
+     * Request access to the /monitor SSE event stream
      * monitor_request ingest
      */
     ingestMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
@@ -1329,7 +1329,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Obtain access to the /monitor WebSocket
+     * Obtain access to the /monitor SSE event stream
      * monitor ingest
      */
     async ingestMonitorRaw(requestParameters: IngestMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
@@ -1340,7 +1340,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Obtain access to the /monitor WebSocket
+     * Obtain access to the /monitor SSE event stream
      * monitor ingest
      */
     async ingestMonitor(requestParameters: IngestMonitorRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
@@ -1375,7 +1375,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Request access to the /monitor WebSocket
+     * Request access to the /monitor SSE event stream
      * monitor_request ingest
      */
     async ingestMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
@@ -1386,7 +1386,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     }
 
     /**
-     * Request access to the /monitor WebSocket
+     * Request access to the /monitor SSE event stream
      * monitor_request ingest
      */
     async ingestMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {

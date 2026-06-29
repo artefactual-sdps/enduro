@@ -53,7 +53,7 @@ func (svc *ingestImpl) Monitor(
 
 	// Say hello to be nice.
 	event := &goaingest.IngestPingEvent{Message: new("Hello")}
-	if err := stream.Send(&goaingest.IngestEvent{Value: NewEventValue(event)}); err != nil {
+	if err := stream.SendWithContext(ctx, &goaingest.IngestEvent{Value: NewEventValue(event)}); err != nil {
 		// Consider send errors as client disconnections.
 		svc.logger.V(1).Info("Failed to send hello event.", "err", err)
 		return nil
@@ -72,7 +72,7 @@ func (svc *ingestImpl) Monitor(
 
 		case <-ticker.C:
 			event := &goaingest.IngestPingEvent{Message: new("Ping")}
-			if err := stream.Send(&goaingest.IngestEvent{Value: NewEventValue(event)}); err != nil {
+			if err := stream.SendWithContext(ctx, &goaingest.IngestEvent{Value: NewEventValue(event)}); err != nil {
 				// Consider send errors as client disconnections.
 				svc.logger.V(1).Info("Failed to send ping event.", "err", err)
 				return nil
@@ -117,7 +117,7 @@ func (svc *ingestImpl) Monitor(
 				continue
 			}
 
-			if err := stream.Send(event); err != nil {
+			if err := stream.SendWithContext(ctx, event); err != nil {
 				// Consider send errors as client disconnections.
 				svc.logger.V(1).Info("Failed to send event.", "err", err)
 				return nil

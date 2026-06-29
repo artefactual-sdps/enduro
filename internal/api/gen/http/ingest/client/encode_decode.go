@@ -92,7 +92,7 @@ func DecodeMonitorRequestResponse(decoder func(*http.Response) goahttp.Decoder, 
 			)
 			for _, c := range cookies {
 				switch c.Name {
-				case "enduro-ingest-ws-ticket":
+				case "enduro-ingest-sse-ticket":
 					ticketRaw = c.Value
 				}
 			}
@@ -145,14 +145,7 @@ func DecodeMonitorRequestResponse(decoder func(*http.Response) goahttp.Decoder, 
 // BuildMonitorRequest instantiates a HTTP request object with method and path
 // set to call the "ingest" service "monitor" endpoint
 func (c *Client) BuildMonitorRequest(ctx context.Context, v any) (*http.Request, error) {
-	scheme := c.scheme
-	switch c.scheme {
-	case "http":
-		scheme = "ws"
-	case "https":
-		scheme = "wss"
-	}
-	u := &url.URL{Scheme: scheme, Host: c.host, Path: MonitorIngestPath()}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: MonitorIngestPath()}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("ingest", "monitor", u.String(), err)
@@ -175,7 +168,7 @@ func EncodeMonitorRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 		if p.Ticket != nil {
 			v := *p.Ticket
 			req.AddCookie(&http.Cookie{
-				Name:  "enduro-ingest-ws-ticket",
+				Name:  "enduro-ingest-sse-ticket",
 				Value: v,
 			})
 		}
