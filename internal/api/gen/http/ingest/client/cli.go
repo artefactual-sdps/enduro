@@ -17,32 +17,17 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// BuildMonitorRequestPayload builds the payload for the ingest monitor_request
-// endpoint from CLI flags.
-func BuildMonitorRequestPayload(ingestMonitorRequestToken string) (*ingest.MonitorRequestPayload, error) {
-	var token *string
-	{
-		if ingestMonitorRequestToken != "" {
-			token = &ingestMonitorRequestToken
-		}
-	}
-	v := &ingest.MonitorRequestPayload{}
-	v.Token = token
-
-	return v, nil
-}
-
 // BuildMonitorPayload builds the payload for the ingest monitor endpoint from
 // CLI flags.
-func BuildMonitorPayload(ingestMonitorTicket string) (*ingest.MonitorPayload, error) {
-	var ticket *string
+func BuildMonitorPayload(ingestMonitorToken string) (*ingest.MonitorPayload, error) {
+	var token *string
 	{
-		if ingestMonitorTicket != "" {
-			ticket = &ingestMonitorTicket
+		if ingestMonitorToken != "" {
+			token = &ingestMonitorToken
 		}
 	}
 	v := &ingest.MonitorPayload{}
-	v.Ticket = ticket
+	v.Token = token
 
 	return v, nil
 }

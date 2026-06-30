@@ -129,10 +129,6 @@ export interface IngestListUsersRequest {
     offset?: number;
 }
 
-export interface IngestMonitorRequest {
-    enduroIngestSseTicket?: string;
-}
-
 export interface IngestRejectSipRequest {
     uuid: string;
 }
@@ -456,49 +452,25 @@ export interface IngestApiInterface {
 
     /**
      * Creates request options for ingestMonitor without sending the request
-     * @param {string} [enduroIngestSseTicket]
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
-    ingestMonitorRequestOpts(requestParameters: IngestMonitorRequest): Promise<runtime.RequestOpts>;
+    ingestMonitorRequestOpts(): Promise<runtime.RequestOpts>;
 
     /**
      * Obtain access to the /monitor SSE event stream
      * @summary monitor ingest
-     * @param {string} [enduroIngestSseTicket]
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
-    ingestMonitorRaw(requestParameters: IngestMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
+    ingestMonitorRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
 
     /**
      * Obtain access to the /monitor SSE event stream
      * monitor ingest
      */
-    ingestMonitor(requestParameters: IngestMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
-
-    /**
-     * Creates request options for ingestMonitorRequest without sending the request
-     * @throws {RequiredError}
-     * @memberof IngestApiInterface
-     */
-    ingestMonitorRequestRequestOpts(): Promise<runtime.RequestOpts>;
-
-    /**
-     * Request access to the /monitor SSE event stream
-     * @summary monitor_request ingest
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof IngestApiInterface
-     */
-    ingestMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
-
-    /**
-     * Request access to the /monitor SSE event stream
-     * monitor_request ingest
-     */
-    ingestMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    ingestMonitor(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
 
     /**
      * Creates request options for ingestRejectSip without sending the request
@@ -1312,45 +1284,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
     /**
      * Creates request options for ingestMonitor without sending the request
      */
-    async ingestMonitorRequestOpts(requestParameters: IngestMonitorRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/ingest/monitor`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     * Obtain access to the /monitor SSE event stream
-     * monitor ingest
-     */
-    async ingestMonitorRaw(requestParameters: IngestMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        const requestOptions = await this.ingestMonitorRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.VoidApiResponse(response);
-    }
-
-    /**
-     * Obtain access to the /monitor SSE event stream
-     * monitor ingest
-     */
-    async ingestMonitor(requestParameters: IngestMonitorRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.ingestMonitorRaw(requestParameters, initOverrides);
-    }
-
-    /**
-     * Creates request options for ingestMonitorRequest without sending the request
-     */
-    async ingestMonitorRequestRequestOpts(): Promise<runtime.RequestOpts> {
+    async ingestMonitorRequestOpts(): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -1368,29 +1302,29 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
         return {
             path: urlPath,
-            method: 'POST',
+            method: 'GET',
             headers: headerParameters,
             query: queryParameters,
         };
     }
 
     /**
-     * Request access to the /monitor SSE event stream
-     * monitor_request ingest
+     * Obtain access to the /monitor SSE event stream
+     * monitor ingest
      */
-    async ingestMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        const requestOptions = await this.ingestMonitorRequestRequestOpts();
+    async ingestMonitorRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
+        const requestOptions = await this.ingestMonitorRequestOpts();
         const response = await this.request(requestOptions, initOverrides);
 
         return new runtime.VoidApiResponse(response);
     }
 
     /**
-     * Request access to the /monitor SSE event stream
-     * monitor_request ingest
+     * Obtain access to the /monitor SSE event stream
+     * monitor ingest
      */
-    async ingestMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.ingestMonitorRequestRaw(initOverrides);
+    async ingestMonitor(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
+        await this.ingestMonitorRaw(initOverrides);
     }
 
     /**

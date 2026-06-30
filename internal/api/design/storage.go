@@ -17,35 +17,11 @@ var _ = Service("storage", func() {
 		Response("unauthorized", StatusUnauthorized)
 		Response("forbidden", StatusForbidden)
 	})
-	Method("monitor_request", func() {
-		Description("Request access to the /monitor SSE event stream")
-		// Do not require any scope, user claims will be stored internally
-		// and checked in the monitor endpoint after validating the cookie.
+	Method("monitor", func() {
+		Description("Obtain access to the /monitor SSE event stream")
 		BearerAuthScopes()
 		Payload(func() {
 			BearerToken("token", String)
-		})
-		Result(func() {
-			Attribute("ticket", String)
-		})
-		Error("internal_error")
-		HTTP(func() {
-			POST("/monitor")
-			Response("internal_error", StatusInternalServerError)
-			Response(StatusOK, func() {
-				Cookie("ticket:enduro-storage-sse-ticket")
-				CookieMaxAge(5)
-				CookieSecure()
-				CookieHTTPOnly()
-			})
-		})
-	})
-	Method("monitor", func() {
-		Description("Obtain access to the /monitor SSE event stream")
-		// Disable BearerAuth security (it validates the previous method's cookie).
-		NoSecurity()
-		Payload(func() {
-			Attribute("ticket", String)
 		})
 		StreamingResult(StorageEvent)
 		Error("internal_error")
@@ -53,7 +29,6 @@ var _ = Service("storage", func() {
 			GET("/monitor")
 			ServerSentEvents()
 			Response("internal_error", StatusInternalServerError)
-			Cookie("ticket:enduro-storage-sse-ticket")
 		})
 	})
 	Method("list_aips", func() {

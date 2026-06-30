@@ -8,27 +8,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/auth"
 )
 
-func (svc *ingestImpl) MonitorRequest(
-	ctx context.Context,
-	payload *goaingest.MonitorRequestPayload,
-) (*goaingest.MonitorRequestResult, error) {
-	res := &goaingest.MonitorRequestResult{}
-
-	ticket, err := svc.ticketProvider.Request(ctx, auth.UserClaimsFromContext(ctx))
-	if err != nil {
-		svc.logger.Error(err, "failed to request ticket")
-		return nil, ErrInternalError
-	}
-
-	// A ticket is not provided when authentication is disabled.
-	// Do not set the ticket cookie in that case.
-	if ticket != "" {
-		res.Ticket = &ticket
-	}
-
-	return res, nil
-}
-
 func (svc *ingestImpl) Monitor(
 	ctx context.Context,
 	payload *goaingest.MonitorPayload,
@@ -36,12 +15,7 @@ func (svc *ingestImpl) Monitor(
 ) error {
 	defer stream.Close()
 
-	// Verify the ticket and update the claims.
-	var claims auth.Claims
-	if err := svc.ticketProvider.Check(ctx, payload.Ticket, &claims); err != nil {
-		svc.logger.Error(err, "failed to check ticket", "ticket", payload.Ticket)
-		return ErrInternalError
-	}
+	claims := auth.UserClaimsFromContext(ctx)
 
 	// Subscribe to the event service.
 	sub, err := svc.evsvc.Subscribe(ctx)

@@ -14,20 +14,6 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// wrapOperationTimeoutMonitorRequest applies the OperationTimeout server
-// interceptor to endpoints.
-func wrapMonitorRequestOperationTimeout(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
-	return func(ctx context.Context, req any) (any, error) {
-		info := &OperationTimeoutInfo{
-			service:    "storage",
-			method:     "MonitorRequest",
-			callType:   goa.InterceptorUnary,
-			rawPayload: req,
-		}
-		return i.OperationTimeout(ctx, info, endpoint)
-	}
-}
-
 // wrapOperationTimeoutMonitor applies the OperationTimeout server interceptor
 // to endpoints.
 func wrapMonitorOperationTimeout(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {

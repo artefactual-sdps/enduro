@@ -182,24 +182,6 @@ type ShowBatchResponseBody struct {
 	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
 }
 
-// MonitorRequestInternalErrorResponseBody is the type of the "ingest" service
-// "monitor_request" endpoint HTTP response body for the "internal_error" error.
-type MonitorRequestInternalErrorResponseBody struct {
-	// Name is the name of this class of errors.
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Is the error temporary?
-	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
-	// Is the error a timeout?
-	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
-	// Is the error a server-side fault?
-	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
-}
-
 // MonitorInternalErrorResponseBody is the type of the "ingest" service
 // "monitor" endpoint HTTP response body for the "internal_error" error.
 type MonitorInternalErrorResponseBody struct {
@@ -1622,46 +1604,6 @@ func NewReviewBatchRequestBody(p *ingest.ReviewBatchPayload) *ReviewBatchRequest
 	return body
 }
 
-// NewMonitorRequestResultOK builds a "ingest" service "monitor_request"
-// endpoint result from a HTTP "OK" response.
-func NewMonitorRequestResultOK(ticket *string) *ingest.MonitorRequestResult {
-	v := &ingest.MonitorRequestResult{}
-	v.Ticket = ticket
-
-	return v
-}
-
-// NewMonitorRequestInternalError builds a ingest service monitor_request
-// endpoint internal_error error.
-func NewMonitorRequestInternalError(body *MonitorRequestInternalErrorResponseBody) *goa.ServiceError {
-	v := &goa.ServiceError{
-		Name:      *body.Name,
-		ID:        *body.ID,
-		Message:   *body.Message,
-		Temporary: *body.Temporary,
-		Timeout:   *body.Timeout,
-		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
-// NewMonitorRequestForbidden builds a ingest service monitor_request endpoint
-// forbidden error.
-func NewMonitorRequestForbidden(body string) ingest.Forbidden {
-	v := ingest.Forbidden(body)
-
-	return v
-}
-
-// NewMonitorRequestUnauthorized builds a ingest service monitor_request
-// endpoint unauthorized error.
-func NewMonitorRequestUnauthorized(body string) ingest.Unauthorized {
-	v := ingest.Unauthorized(body)
-
-	return v
-}
-
 // NewMonitorIngestEventOK builds a "ingest" service "monitor" endpoint result
 // from a HTTP "OK" response.
 func NewMonitorIngestEventOK(body *MonitorResponseBody) *ingest.IngestEvent {
@@ -2938,30 +2880,6 @@ func ValidateAddBatchResponseBody(body *AddBatchResponseBody) (err error) {
 	}
 	if body.UUID != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
-	}
-	return
-}
-
-// ValidateMonitorRequestInternalErrorResponseBody runs the validations defined
-// on monitor_request_internal_error_response_body
-func ValidateMonitorRequestInternalErrorResponseBody(body *MonitorRequestInternalErrorResponseBody) (err error) {
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.Temporary == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
-	}
-	if body.Timeout == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
-	}
-	if body.Fault == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
 	}
 	return
 }

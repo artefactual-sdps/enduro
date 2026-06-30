@@ -364,11 +364,11 @@ skipEmailVerifiedCheck = true
     Because `useRoles` is set to false by default, `rolesMapping` is empty by
     default.
 
-#### Redis event messenger authentication for the API
+#### Redis ticket storage for browser downloads
 
-Enduro uses [Redis] as a watcher and messaging queue - see the [Components]
-documentation for more information. These settings provide Redis with an
-authorization ticket so it can access the API.
+Enduro can use [Redis] to store the short-lived tickets used by browser
+download handoffs. When Redis ticket storage is not configured, Enduro uses
+in-memory tickets instead.
 
 **Example configuration**:
 

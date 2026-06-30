@@ -22,96 +22,6 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// EncodeMonitorRequestResponse returns an encoder for responses returned by
-// the ingest monitor_request endpoint.
-func EncodeMonitorRequestResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
-	return func(ctx context.Context, w http.ResponseWriter, v any) error {
-		res, _ := v.(*ingest.MonitorRequestResult)
-		if res.Ticket != nil {
-			ticket := *res.Ticket
-			http.SetCookie(w, &http.Cookie{
-				Name:     "enduro-ingest-sse-ticket",
-				Value:    ticket,
-				MaxAge:   5,
-				Secure:   true,
-				HttpOnly: true,
-			})
-		}
-		w.WriteHeader(http.StatusOK)
-		return nil
-	}
-}
-
-// DecodeMonitorRequestRequest returns a decoder for requests sent to the
-// ingest monitor_request endpoint.
-func DecodeMonitorRequestRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (*ingest.MonitorRequestPayload, error) {
-	return func(r *http.Request) (*ingest.MonitorRequestPayload, error) {
-		var payload *ingest.MonitorRequestPayload
-		var (
-			token *string
-		)
-		tokenRaw := r.Header.Get("Authorization")
-		if tokenRaw != "" {
-			token = &tokenRaw
-		}
-		payload = NewMonitorRequestPayload(token)
-		if payload.Token != nil {
-			if strings.Contains(*payload.Token, " ") {
-				// Remove authorization scheme prefix (e.g. "Bearer")
-				cred := strings.SplitN(*payload.Token, " ", 2)[1]
-				payload.Token = &cred
-			}
-		}
-
-		return payload, nil
-	}
-}
-
-// EncodeMonitorRequestError returns an encoder for errors returned by the
-// monitor_request ingest endpoint.
-func EncodeMonitorRequestError(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder, formatter func(ctx context.Context, err error) goahttp.Statuser) func(context.Context, http.ResponseWriter, error) error {
-	encodeError := goahttp.ErrorEncoder(encoder, formatter)
-	return func(ctx context.Context, w http.ResponseWriter, v error) error {
-		var en goa.GoaErrorNamer
-		if !errors.As(v, &en) {
-			return encodeError(ctx, w, v)
-		}
-		switch en.GoaErrorName() {
-		case "internal_error":
-			var res *goa.ServiceError
-			errors.As(v, &res)
-			enc := encoder(ctx, w)
-			var body any
-			if formatter != nil {
-				body = formatter(ctx, res)
-			} else {
-				body = NewMonitorRequestInternalErrorResponseBody(res)
-			}
-			w.Header().Set("goa-error", res.GoaErrorName())
-			w.WriteHeader(http.StatusInternalServerError)
-			return enc.Encode(body)
-		case "forbidden":
-			var res ingest.Forbidden
-			errors.As(v, &res)
-			enc := encoder(ctx, w)
-			body := res
-			w.Header().Set("goa-error", res.GoaErrorName())
-			w.WriteHeader(http.StatusForbidden)
-			return enc.Encode(body)
-		case "unauthorized":
-			var res ingest.Unauthorized
-			errors.As(v, &res)
-			enc := encoder(ctx, w)
-			body := res
-			w.Header().Set("goa-error", res.GoaErrorName())
-			w.WriteHeader(http.StatusUnauthorized)
-			return enc.Encode(body)
-		default:
-			return encodeError(ctx, w, v)
-		}
-	}
-}
-
 // EncodeMonitorResponse returns an encoder for responses returned by the
 // ingest monitor endpoint.
 func EncodeMonitorResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, any) error {
@@ -130,18 +40,20 @@ func DecodeMonitorRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp
 	return func(r *http.Request) (*ingest.MonitorPayload, error) {
 		var payload *ingest.MonitorPayload
 		var (
-			ticket *string
-			c      *http.Cookie
+			token *string
 		)
-		c, _ = r.Cookie("enduro-ingest-sse-ticket")
-		var ticketRaw string
-		if c != nil {
-			ticketRaw = c.Value
+		tokenRaw := r.Header.Get("Authorization")
+		if tokenRaw != "" {
+			token = &tokenRaw
 		}
-		if ticketRaw != "" {
-			ticket = &ticketRaw
+		payload = NewMonitorPayload(token)
+		if payload.Token != nil {
+			if strings.Contains(*payload.Token, " ") {
+				// Remove authorization scheme prefix (e.g. "Bearer")
+				cred := strings.SplitN(*payload.Token, " ", 2)[1]
+				payload.Token = &cred
+			}
 		}
-		payload = NewMonitorPayload(ticket)
 
 		return payload, nil
 	}

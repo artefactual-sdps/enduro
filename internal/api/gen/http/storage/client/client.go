@@ -21,10 +21,6 @@ import (
 
 // Client lists the storage service endpoint HTTP clients.
 type Client struct {
-	// MonitorRequest Doer is the HTTP client used to make requests to the
-	// monitor_request endpoint.
-	MonitorRequestDoer goahttp.Doer
-
 	// Monitor Doer is the HTTP client used to make requests to the monitor
 	// endpoint.
 	MonitorDoer goahttp.Doer
@@ -128,7 +124,6 @@ func NewClient(
 	restoreBody bool,
 ) *Client {
 	return &Client{
-		MonitorRequestDoer:           doer,
 		MonitorDoer:                  doer,
 		ListAipsDoer:                 doer,
 		CreateAipDoer:                doer,
@@ -155,30 +150,6 @@ func NewClient(
 		host:                         host,
 		decoder:                      dec,
 		encoder:                      enc,
-	}
-}
-
-// MonitorRequest returns an endpoint that makes HTTP requests to the storage
-// service monitor_request server.
-func (c *Client) MonitorRequest() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeMonitorRequestRequest(c.encoder)
-		decodeResponse = DecodeMonitorRequestResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildMonitorRequestRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.MonitorRequestDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "monitor_request", err)
-		}
-		return decodeResponse(resp)
 	}
 }
 
