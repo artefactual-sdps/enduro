@@ -182,24 +182,6 @@ type ShowBatchResponseBody struct {
 	UploaderName *string `form:"uploader_name,omitempty" json:"uploader_name,omitempty" xml:"uploader_name,omitempty"`
 }
 
-// MonitorRequestInternalErrorResponseBody is the type of the "ingest" service
-// "monitor_request" endpoint HTTP response body for the "internal_error" error.
-type MonitorRequestInternalErrorResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
 // MonitorInternalErrorResponseBody is the type of the "ingest" service
 // "monitor" endpoint HTTP response body for the "internal_error" error.
 type MonitorInternalErrorResponseBody struct {
@@ -1839,20 +1821,6 @@ func NewShowBatchResponseBody(res *ingestviews.BatchView) *ShowBatchResponseBody
 	return body
 }
 
-// NewMonitorRequestInternalErrorResponseBody builds the HTTP response body
-// from the result of the "monitor_request" endpoint of the "ingest" service.
-func NewMonitorRequestInternalErrorResponseBody(res *goa.ServiceError) *MonitorRequestInternalErrorResponseBody {
-	body := &MonitorRequestInternalErrorResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
 // NewMonitorInternalErrorResponseBody builds the HTTP response body from the
 // result of the "monitor" endpoint of the "ingest" service.
 func NewMonitorInternalErrorResponseBody(res *goa.ServiceError) *MonitorInternalErrorResponseBody {
@@ -2435,19 +2403,10 @@ func NewReviewBatchNotFoundResponseBody(res *ingest.BatchNotFound) *ReviewBatchN
 	return body
 }
 
-// NewMonitorRequestPayload builds a ingest service monitor_request endpoint
-// payload.
-func NewMonitorRequestPayload(token *string) *ingest.MonitorRequestPayload {
-	v := &ingest.MonitorRequestPayload{}
-	v.Token = token
-
-	return v
-}
-
 // NewMonitorPayload builds a ingest service monitor endpoint payload.
-func NewMonitorPayload(ticket *string) *ingest.MonitorPayload {
+func NewMonitorPayload(token *string) *ingest.MonitorPayload {
 	v := &ingest.MonitorPayload{}
-	v.Ticket = ticket
+	v.Token = token
 
 	return v
 }

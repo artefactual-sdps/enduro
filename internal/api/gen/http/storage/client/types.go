@@ -165,24 +165,6 @@ type ShowLocationResponseBody struct {
 // "list_location_aips" endpoint HTTP response body.
 type AIPResponseCollection []*AIPResponse
 
-// MonitorRequestInternalErrorResponseBody is the type of the "storage" service
-// "monitor_request" endpoint HTTP response body for the "internal_error" error.
-type MonitorRequestInternalErrorResponseBody struct {
-	// Name is the name of this class of errors.
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Is the error temporary?
-	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
-	// Is the error a timeout?
-	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
-	// Is the error a server-side fault?
-	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
-}
-
 // MonitorInternalErrorResponseBody is the type of the "storage" service
 // "monitor" endpoint HTTP response body for the "internal_error" error.
 type MonitorInternalErrorResponseBody struct {
@@ -2065,46 +2047,6 @@ func NewCreateLocationRequestBody(p *storage.CreateLocationPayload) *CreateLocat
 	return body
 }
 
-// NewMonitorRequestResultOK builds a "storage" service "monitor_request"
-// endpoint result from a HTTP "OK" response.
-func NewMonitorRequestResultOK(ticket *string) *storage.MonitorRequestResult {
-	v := &storage.MonitorRequestResult{}
-	v.Ticket = ticket
-
-	return v
-}
-
-// NewMonitorRequestInternalError builds a storage service monitor_request
-// endpoint internal_error error.
-func NewMonitorRequestInternalError(body *MonitorRequestInternalErrorResponseBody) *goa.ServiceError {
-	v := &goa.ServiceError{
-		Name:      *body.Name,
-		ID:        *body.ID,
-		Message:   *body.Message,
-		Temporary: *body.Temporary,
-		Timeout:   *body.Timeout,
-		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
-// NewMonitorRequestForbidden builds a storage service monitor_request endpoint
-// forbidden error.
-func NewMonitorRequestForbidden(body string) storage.Forbidden {
-	v := storage.Forbidden(body)
-
-	return v
-}
-
-// NewMonitorRequestUnauthorized builds a storage service monitor_request
-// endpoint unauthorized error.
-func NewMonitorRequestUnauthorized(body string) storage.Unauthorized {
-	v := storage.Unauthorized(body)
-
-	return v
-}
-
 // NewMonitorStorageEventOK builds a "storage" service "monitor" endpoint
 // result from a HTTP "OK" response.
 func NewMonitorStorageEventOK(body *MonitorResponseBody) *storage.StorageEvent {
@@ -3333,30 +3275,6 @@ func ValidateMoveAipStatusResponseBody(body *MoveAipStatusResponseBody) (err err
 func ValidateCreateLocationResponseBody(body *CreateLocationResponseBody) (err error) {
 	if body.UUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
-	}
-	return
-}
-
-// ValidateMonitorRequestInternalErrorResponseBody runs the validations defined
-// on monitor_request_internal_error_response_body
-func ValidateMonitorRequestInternalErrorResponseBody(body *MonitorRequestInternalErrorResponseBody) (err error) {
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.Temporary == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
-	}
-	if body.Timeout == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
-	}
-	if body.Fault == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
 	}
 	return
 }

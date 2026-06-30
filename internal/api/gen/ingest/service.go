@@ -22,8 +22,6 @@ import (
 
 // The ingest service manages ingested SIPs.
 type Service interface {
-	// Request access to the /monitor SSE event stream
-	MonitorRequest(context.Context, *MonitorRequestPayload) (res *MonitorRequestResult, err error)
 	// Obtain access to the /monitor SSE event stream
 	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 	// List all ingested SIPs
@@ -87,7 +85,7 @@ const ServiceName = "ingest"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [19]string{"monitor_request", "monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "show_sip_decision", "submit_sip_decision", "add_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_sip_source_objects", "add_batch", "list_batches", "show_batch", "review_batch"}
+var MethodNames = [18]string{"monitor", "list_sips", "show_sip", "list_sip_workflows", "confirm_sip", "reject_sip", "show_sip_decision", "submit_sip_decision", "add_sip", "upload_sip", "download_sip_request", "download_sip", "list_users", "list_sip_source_objects", "add_batch", "list_batches", "show_batch", "review_batch"}
 
 // MonitorServerStream allows streaming instances of *IngestEvent to the client.
 type MonitorServerStream interface {
@@ -321,19 +319,7 @@ type ListUsersPayload struct {
 
 // MonitorPayload is the payload type of the ingest service monitor method.
 type MonitorPayload struct {
-	Ticket *string
-}
-
-// MonitorRequestPayload is the payload type of the ingest service
-// monitor_request method.
-type MonitorRequestPayload struct {
 	Token *string
-}
-
-// MonitorRequestResult is the result type of the ingest service
-// monitor_request method.
-type MonitorRequestResult struct {
-	Ticket *string
 }
 
 // RejectSipPayload is the payload type of the ingest service reject_sip method.
