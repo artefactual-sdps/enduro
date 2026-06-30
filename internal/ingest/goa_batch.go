@@ -74,7 +74,7 @@ func (svc *ingestImpl) AddBatch(
 		// Delete Batch from persistence.
 		err = errors.Join(
 			err,
-			withRollbackCleanupContext(ctx, func(cleanupCtx context.Context) error {
+			withFailedIngestCleanupContext(ctx, func(cleanupCtx context.Context) error {
 				return svc.perSvc.DeleteBatch(cleanupCtx, b.UUID)
 			}),
 		)

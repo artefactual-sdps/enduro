@@ -106,7 +106,7 @@ func (svc *ingestImpl) AddSip(ctx context.Context, payload *goaingest.AddSipPayl
 		// Delete SIP from persistence.
 		err = errors.Join(
 			err,
-			withRollbackCleanupContext(ctx, func(cleanupCtx context.Context) error {
+			withFailedIngestCleanupContext(ctx, func(cleanupCtx context.Context) error {
 				return svc.perSvc.DeleteSIP(cleanupCtx, s.UUID)
 			}),
 		)

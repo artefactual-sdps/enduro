@@ -95,7 +95,7 @@ func (svc *ingestImpl) UploadSip(
 		// Delete SIP from internal bucket.
 		err := errors.Join(
 			err,
-			withRollbackCleanupContext(ctx, func(cleanupCtx context.Context) error {
+			withFailedIngestCleanupContext(ctx, func(cleanupCtx context.Context) error {
 				return svc.internalStorage.Delete(cleanupCtx, objectKey)
 			}),
 		)
@@ -149,7 +149,7 @@ func (svc *ingestImpl) initSIP(
 		// Delete SIP from persistence.
 		return errors.Join(
 			err,
-			withRollbackCleanupContext(ctx, func(cleanupCtx context.Context) error {
+			withFailedIngestCleanupContext(ctx, func(cleanupCtx context.Context) error {
 				return svc.perSvc.DeleteSIP(cleanupCtx, id)
 			}),
 		)
