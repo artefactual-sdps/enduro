@@ -18,7 +18,6 @@ import (
 
 // Endpoints wraps the "ingest" service endpoints.
 type Endpoints struct {
-	MonitorRequest       goa.Endpoint
 	Monitor              goa.Endpoint
 	ListSips             goa.Endpoint
 	ShowSip              goa.Endpoint
@@ -71,8 +70,7 @@ func NewEndpoints(s Service, si ServerInterceptors) *Endpoints {
 	// Casting service to Auther interface
 	a := s.(Auther)
 	endpoints := &Endpoints{
-		MonitorRequest:       NewMonitorRequestEndpoint(s, a.BearerAuth),
-		Monitor:              NewMonitorEndpoint(s),
+		Monitor:              NewMonitorEndpoint(s, a.BearerAuth),
 		ListSips:             NewListSipsEndpoint(s, a.BearerAuth),
 		ShowSip:              NewShowSipEndpoint(s, a.BearerAuth),
 		ListSipWorkflows:     NewListSipWorkflowsEndpoint(s, a.BearerAuth),
@@ -91,7 +89,6 @@ func NewEndpoints(s Service, si ServerInterceptors) *Endpoints {
 		ShowBatch:            NewShowBatchEndpoint(s, a.BearerAuth),
 		ReviewBatch:          NewReviewBatchEndpoint(s, a.BearerAuth),
 	}
-	endpoints.MonitorRequest = WrapMonitorRequestEndpoint(endpoints.MonitorRequest, si)
 	endpoints.Monitor = WrapMonitorEndpoint(endpoints.Monitor, si)
 	endpoints.ListSips = WrapListSipsEndpoint(endpoints.ListSips, si)
 	endpoints.ShowSip = WrapShowSipEndpoint(endpoints.ShowSip, si)
@@ -115,7 +112,6 @@ func NewEndpoints(s Service, si ServerInterceptors) *Endpoints {
 
 // Use applies the given middleware to all the "ingest" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
-	e.MonitorRequest = m(e.MonitorRequest)
 	e.Monitor = m(e.Monitor)
 	e.ListSips = m(e.ListSips)
 	e.ShowSip = m(e.ShowSip)
@@ -136,11 +132,11 @@ func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.ReviewBatch = m(e.ReviewBatch)
 }
 
-// NewMonitorRequestEndpoint returns an endpoint function that calls the method
-// "monitor_request" of service "ingest".
-func NewMonitorRequestEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
+// NewMonitorEndpoint returns an endpoint function that calls the method
+// "monitor" of service "ingest".
+func NewMonitorEndpoint(s Service, authBearerFn security.AuthBearerFunc) goa.Endpoint {
 	return func(ctx context.Context, req any) (any, error) {
-		p := req.(*MonitorRequestPayload)
+		ep := req.(*MonitorEndpointInput)
 		var err error
 		sc := security.BearerScheme{
 			Name:           "bearer",
@@ -148,22 +144,13 @@ func NewMonitorRequestEndpoint(s Service, authBearerFn security.AuthBearerFunc) 
 			RequiredScopes: []string{},
 		}
 		var token string
-		if p.Token != nil {
-			token = *p.Token
+		if ep.Payload.Token != nil {
+			token = *ep.Payload.Token
 		}
 		ctx, err = authBearerFn(ctx, token, &sc)
 		if err != nil {
 			return nil, err
 		}
-		return s.MonitorRequest(ctx, p)
-	}
-}
-
-// NewMonitorEndpoint returns an endpoint function that calls the method
-// "monitor" of service "ingest".
-func NewMonitorEndpoint(s Service) goa.Endpoint {
-	return func(ctx context.Context, req any) (any, error) {
-		ep := req.(*MonitorEndpointInput)
 		return nil, s.Monitor(ctx, ep.Payload, ep.Stream)
 	}
 }

@@ -12,8 +12,7 @@ requests.
 
 - Replace ingest and storage monitor WebSockets with SSE streams. This is a
   breaking change for monitor clients: use HTTP `GET` with
-  `Accept: text/event-stream`, and use the renamed
-  `enduro-ingest-sse-ticket` and `enduro-storage-sse-ticket` cookies.
+  `Accept: text/event-stream` and bearer authorization.
 
 ## [0.30.0] - 2026-05-29
 

@@ -128,10 +128,6 @@ export interface StorageListLocationAipsRequest {
     uuid: string;
 }
 
-export interface StorageMonitorRequest {
-    enduroStorageSseTicket?: string;
-}
-
 export interface StorageMoveAipRequest {
     uuid: string;
     confirmSipRequestBody: ConfirmSipRequestBody;
@@ -480,49 +476,25 @@ export interface StorageApiInterface {
 
     /**
      * Creates request options for storageMonitor without sending the request
-     * @param {string} [enduroStorageSseTicket] 
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageMonitorRequestOpts(requestParameters: StorageMonitorRequest): Promise<runtime.RequestOpts>;
+    storageMonitorRequestOpts(): Promise<runtime.RequestOpts>;
 
     /**
      * Obtain access to the /monitor SSE event stream
      * @summary monitor storage
-     * @param {string} [enduroStorageSseTicket] 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
-    storageMonitorRaw(requestParameters: StorageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StorageEvent>>;
+    storageMonitorRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StorageEvent>>;
 
     /**
      * Obtain access to the /monitor SSE event stream
      * monitor storage
      */
-    storageMonitor(requestParameters: StorageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StorageEvent>;
-
-    /**
-     * Creates request options for storageMonitorRequest without sending the request
-     * @throws {RequiredError}
-     * @memberof StorageApiInterface
-     */
-    storageMonitorRequestRequestOpts(): Promise<runtime.RequestOpts>;
-
-    /**
-     * Request access to the /monitor SSE event stream
-     * @summary monitor_request storage
-     * @param {*} [options] Override http request option.
-     * @throws {RequiredError}
-     * @memberof StorageApiInterface
-     */
-    storageMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>>;
-
-    /**
-     * Request access to the /monitor SSE event stream
-     * monitor_request storage
-     */
-    storageMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void>;
+    storageMonitor(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StorageEvent>;
 
     /**
      * Creates request options for storageMoveAip without sending the request
@@ -1388,46 +1360,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
     /**
      * Creates request options for storageMonitor without sending the request
      */
-    async storageMonitorRequestOpts(requestParameters: StorageMonitorRequest): Promise<runtime.RequestOpts> {
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-
-        let urlPath = `/storage/monitor`;
-
-        return {
-            path: urlPath,
-            method: 'GET',
-            headers: headerParameters,
-            query: queryParameters,
-        };
-    }
-
-    /**
-     * Obtain access to the /monitor SSE event stream
-     * monitor storage
-     */
-    async storageMonitorRaw(requestParameters: StorageMonitorRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StorageEvent>> {
-        const requestOptions = await this.storageMonitorRequestOpts(requestParameters);
-        const response = await this.request(requestOptions, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => StorageEventFromJSON(jsonValue));
-    }
-
-    /**
-     * Obtain access to the /monitor SSE event stream
-     * monitor storage
-     */
-    async storageMonitor(requestParameters: StorageMonitorRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StorageEvent> {
-        const response = await this.storageMonitorRaw(requestParameters, initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Creates request options for storageMonitorRequest without sending the request
-     */
-    async storageMonitorRequestRequestOpts(): Promise<runtime.RequestOpts> {
+    async storageMonitorRequestOpts(): Promise<runtime.RequestOpts> {
         const queryParameters: any = {};
 
         const headerParameters: runtime.HTTPHeaders = {};
@@ -1445,29 +1378,30 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
         return {
             path: urlPath,
-            method: 'POST',
+            method: 'GET',
             headers: headerParameters,
             query: queryParameters,
         };
     }
 
     /**
-     * Request access to the /monitor SSE event stream
-     * monitor_request storage
+     * Obtain access to the /monitor SSE event stream
+     * monitor storage
      */
-    async storageMonitorRequestRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        const requestOptions = await this.storageMonitorRequestRequestOpts();
+    async storageMonitorRaw(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<StorageEvent>> {
+        const requestOptions = await this.storageMonitorRequestOpts();
         const response = await this.request(requestOptions, initOverrides);
 
-        return new runtime.VoidApiResponse(response);
+        return new runtime.JSONApiResponse(response, (jsonValue) => StorageEventFromJSON(jsonValue));
     }
 
     /**
-     * Request access to the /monitor SSE event stream
-     * monitor_request storage
+     * Obtain access to the /monitor SSE event stream
+     * monitor storage
      */
-    async storageMonitorRequest(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<void> {
-        await this.storageMonitorRequestRaw(initOverrides);
+    async storageMonitor(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<StorageEvent> {
+        const response = await this.storageMonitorRaw(initOverrides);
+        return await response.value();
     }
 
     /**

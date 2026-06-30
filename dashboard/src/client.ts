@@ -22,6 +22,11 @@ function getPath(): string {
   return path.replace(/\/$/, "");
 }
 
+export async function handleUnauthorized(): Promise<void> {
+  await useAuthStore().removeUser();
+  await router.push({ name: "/user/signin" });
+}
+
 function createClient(): Client {
   const config: api.Configuration = new api.Configuration({
     basePath: getPath(),
@@ -30,10 +35,7 @@ function createClient(): Client {
       {
         post(context) {
           if (context.response.status == 401) {
-            useAuthStore()
-              .removeUser()
-              .then(() => router.push({ name: "/user/signin" }));
-            return Promise.resolve();
+            return handleUnauthorized();
           }
           return Promise.resolve(context.response);
         },

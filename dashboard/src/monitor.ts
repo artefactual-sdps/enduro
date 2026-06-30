@@ -1,6 +1,15 @@
-import { api, client } from "@/client";
+import {
+  type ErrorEvent as EventSourceErrorEvent,
+  type EventSourceFetchInit,
+  EventSource as HeaderEventSource,
+} from "eventsource";
+
+import { api, handleUnauthorized } from "@/client";
 import { handleIngestEvent } from "@/monitor-ingest";
 import { handleStorageEvent } from "@/monitor-storage";
+import { useAuthStore } from "@/stores/auth";
+
+type MonitorEventSource = InstanceType<typeof HeaderEventSource>;
 
 export type RetryOptions = {
   initialDelay: number;
@@ -28,10 +37,23 @@ function parseMonitorEvent<T extends string>(
   return { type: event.type as T, value: event.value };
 }
 
+function fetchWithAuthorization(
+  input: string | URL,
+  init: EventSourceFetchInit,
+) {
+  const headers = new Headers(init.headers);
+  const token = useAuthStore().getUserAccessToken;
+  if (token !== "") {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  return fetch(input, { ...init, headers });
+}
+
 abstract class MonitorConnection {
   type: "ingest" | "storage";
   url: string;
-  eventSource: EventSource | null = null;
+  eventSource: MonitorEventSource | null = null;
   isConnected: boolean = false;
   retry: RetryOptions;
   private closed: boolean = false;
@@ -56,7 +78,16 @@ abstract class MonitorConnection {
     };
   }
 
-  abstract dial(): Promise<void>;
+  async dial(): Promise<void> {
+    return this.retryBackoff(async () => {
+      try {
+        this.openEventSource();
+      } catch (err) {
+        console.error("Failed to create monitor event stream:", err);
+        throw err;
+      }
+    });
+  }
 
   async retryBackoff(fn: () => Promise<void>) {
     for (let attempt = 0; attempt < this.retry.maxAttempts; attempt++) {
@@ -110,8 +141,15 @@ abstract class MonitorConnection {
       this.reconnectAttempts = 0;
       console.log(`${this.type} monitor event stream connected`);
     };
-    this.eventSource.onerror = () => {
+    this.eventSource.onerror = (event: EventSourceErrorEvent) => {
       this.isConnected = false;
+      if (event.code === 401) {
+        console.error(`${this.type} monitor event stream unauthorized`);
+        this.close();
+        void handleUnauthorized();
+        return;
+      }
+
       console.error(`${this.type} monitor event stream error, reconnecting...`);
       if (this.eventSource) {
         this.eventSource.onerror = null;
@@ -126,7 +164,13 @@ abstract class MonitorConnection {
 
   protected openEventSource(): void {
     this.closed = false;
-    this.eventSource = new EventSource(this.url);
+    if (this.eventSource) {
+      this.eventSource.onerror = null;
+      this.eventSource.close();
+    }
+    this.eventSource = new HeaderEventSource(this.url, {
+      fetch: fetchWithAuthorization,
+    });
     this.setupEventHandlers();
   }
 
@@ -194,25 +238,6 @@ export class IngestMonitorConnection extends MonitorConnection {
     super("ingest", baseUrl, retry);
   }
 
-  async dial(): Promise<void> {
-    return this.retryBackoff(async () => {
-      return client.ingest
-        .ingestMonitorRequest()
-        .then(() => {
-          try {
-            this.openEventSource();
-          } catch (err) {
-            console.error("Failed to create monitor event stream:", err);
-            throw err;
-          }
-        })
-        .catch((err) => {
-          console.error("Ingest monitor request failed:", err);
-          throw err;
-        });
-    });
-  }
-
   setupEventHandlers(): void {
     if (this.eventSource === null) {
       return;
@@ -232,25 +257,6 @@ export class IngestMonitorConnection extends MonitorConnection {
 export class StorageMonitorConnection extends MonitorConnection {
   constructor(baseUrl: string, retry?: RetryOptions) {
     super("storage", baseUrl, retry);
-  }
-
-  async dial(): Promise<void> {
-    return this.retryBackoff(async () => {
-      return client.storage
-        .storageMonitorRequest()
-        .then(() => {
-          try {
-            this.openEventSource();
-          } catch (err) {
-            console.error("Failed to create monitor event stream:", err);
-            throw err;
-          }
-        })
-        .catch((err) => {
-          console.error("Storage monitor request failed:", err);
-          throw err;
-        });
-    });
   }
 
   setupEventHandlers(): void {

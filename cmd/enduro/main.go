@@ -211,7 +211,7 @@ func main() {
 		}
 	}
 
-	// Set up the monitor/downloads ticket provider.
+	// Set up the downloads ticket provider.
 	var ticketProvider auth.TicketProvider
 	{
 		var store auth.TicketStore

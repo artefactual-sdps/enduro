@@ -17,7 +17,6 @@ import (
 
 // Client is the "ingest" service client.
 type Client struct {
-	MonitorRequestEndpoint       goa.Endpoint
 	MonitorEndpoint              goa.Endpoint
 	ListSipsEndpoint             goa.Endpoint
 	ShowSipEndpoint              goa.Endpoint
@@ -39,9 +38,8 @@ type Client struct {
 }
 
 // NewClient initializes a "ingest" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, showSipDecision, submitSipDecision, addSip, uploadSip, downloadSipRequest, downloadSip, listUsers, listSipSourceObjects, addBatch, listBatches, showBatch, reviewBatch goa.Endpoint) *Client {
+func NewClient(monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectSip, showSipDecision, submitSipDecision, addSip, uploadSip, downloadSipRequest, downloadSip, listUsers, listSipSourceObjects, addBatch, listBatches, showBatch, reviewBatch goa.Endpoint) *Client {
 	return &Client{
-		MonitorRequestEndpoint:       monitorRequest,
 		MonitorEndpoint:              monitor,
 		ListSipsEndpoint:             listSips,
 		ShowSipEndpoint:              showSip,
@@ -61,21 +59,6 @@ func NewClient(monitorRequest, monitor, listSips, showSip, listSipWorkflows, con
 		ShowBatchEndpoint:            showBatch,
 		ReviewBatchEndpoint:          reviewBatch,
 	}
-}
-
-// MonitorRequest calls the "monitor_request" endpoint of the "ingest" service.
-// MonitorRequest may return the following errors:
-//   - "internal_error" (type *goa.ServiceError)
-//   - "unauthorized" (type Unauthorized)
-//   - "forbidden" (type Forbidden)
-//   - error: internal error
-func (c *Client) MonitorRequest(ctx context.Context, p *MonitorRequestPayload) (res *MonitorRequestResult, err error) {
-	var ires any
-	ires, err = c.MonitorRequestEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(*MonitorRequestResult), nil
 }
 
 // Monitor calls the "monitor" endpoint of the "ingest" service.

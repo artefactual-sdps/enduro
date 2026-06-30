@@ -5,21 +5,25 @@ import { useIngestMonitorStore } from "@/stores/ingestMonitor";
 import { FakeEventSource } from "@/test/fake-event-source";
 
 vi.mock("@/client", async () => {
+  const api = await vi.importActual("@/openapi-generator");
   return {
-    client: {
-      ingest: {
-        ingestMonitorRequest: vi.fn(() => Promise.resolve()),
-      },
-    },
+    api: { ...api },
     getPath: () => "http://localhost:1234",
   };
+});
+
+vi.mock("eventsource", async () => {
+  const fakeEventSourceModule = await vi.importActual<
+    typeof import("@/test/fake-event-source")
+  >("@/test/fake-event-source");
+
+  return { EventSource: fakeEventSourceModule.FakeEventSource };
 });
 
 describe("useIngestMonitorStore", () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     vi.useFakeTimers();
-    vi.stubGlobal("EventSource", FakeEventSource);
   });
 
   afterEach(() => {

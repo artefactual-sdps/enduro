@@ -8,14 +8,16 @@ export class FakeEventSource implements EventSource {
   readonly OPEN = 1;
   readonly CLOSED = 2;
   readonly url: string;
+  readonly eventSourceInitDict?: unknown;
   readonly withCredentials = false;
   readyState = FakeEventSource.CONNECTING;
   onopen: ((this: EventSource, ev: Event) => unknown) | null = null;
   onmessage: ((this: EventSource, ev: MessageEvent) => unknown) | null = null;
   onerror: ((this: EventSource, ev: Event) => unknown) | null = null;
 
-  constructor(url: string | URL) {
+  constructor(url: string | URL, eventSourceInitDict?: unknown) {
     this.url = String(url);
+    this.eventSourceInitDict = eventSourceInitDict;
     FakeEventSource.instances.push(this);
   }
 
@@ -54,7 +56,45 @@ export class FakeEventSource implements EventSource {
     );
   }
 
-  error(): void {
-    this.onerror?.call(this, new Event("error"));
+  error(code?: number): void {
+    this.onerror?.call(this, Object.assign(new Event("error"), { code }));
+  }
+
+  async connect(): Promise<void> {
+    const fetchOverride = (
+      this.eventSourceInitDict as
+        | {
+            fetch?: (
+              input: string | URL,
+              init: {
+                headers: Record<string, string>;
+                signal: AbortSignal;
+                mode: RequestMode;
+                cache: RequestCache;
+                redirect: RequestRedirect;
+              },
+            ) => Promise<Response>;
+          }
+        | undefined
+    )?.fetch;
+
+    const fetchImpl = fetchOverride ?? fetch;
+    const response = await fetchImpl(this.url, {
+      cache: "no-store",
+      headers: { Accept: "text/event-stream" },
+      mode: "cors",
+      redirect: "follow",
+      signal: new AbortController().signal,
+    });
+
+    if (
+      response.status === 200 &&
+      response.headers.get("content-type")?.startsWith("text/event-stream")
+    ) {
+      this.open();
+      return;
+    }
+
+    this.error(response.status);
   }
 }

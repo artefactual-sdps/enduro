@@ -1,8 +1,12 @@
 import { createPinia, setActivePinia } from "pinia";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { client } from "@/client";
-import { IngestMonitorConnection, StorageMonitorConnection } from "@/monitor";
+import { handleUnauthorized } from "@/client";
+import {
+  IngestMonitorConnection,
+  type RetryOptions,
+  StorageMonitorConnection,
+} from "@/monitor";
 import { handleIngestEvent } from "@/monitor-ingest";
 import { handleStorageEvent } from "@/monitor-storage";
 import {
@@ -17,6 +21,7 @@ import {
   StorageEventValueTypeEnum,
 } from "@/openapi-generator";
 import { useAipStore } from "@/stores/aip";
+import { useAuthStore } from "@/stores/auth";
 import { useBatchStore } from "@/stores/batch";
 import { useSipStore } from "@/stores/sip";
 import { FakeEventSource } from "@/test/fake-event-source";
@@ -24,16 +29,17 @@ import { FakeEventSource } from "@/test/fake-event-source";
 vi.mock("@/client", async () => {
   const api = await vi.importActual("@/openapi-generator");
   return {
-    client: {
-      ingest: {
-        ingestMonitorRequest: vi.fn(() => Promise.resolve()),
-      },
-      storage: {
-        storageMonitorRequest: vi.fn(() => Promise.resolve()),
-      },
-    },
     api: { ...api },
+    handleUnauthorized: vi.fn(() => Promise.resolve()),
   };
+});
+
+vi.mock("eventsource", async () => {
+  const fakeEventSourceModule = await vi.importActual<
+    typeof import("@/test/fake-event-source")
+  >("@/test/fake-event-source");
+
+  return { EventSource: fakeEventSourceModule.FakeEventSource };
 });
 
 vi.mock("@/monitor-ingest", () => ({
@@ -44,11 +50,25 @@ vi.mock("@/monitor-storage", () => ({
   handleStorageEvent: vi.fn(),
 }));
 
+type MonitorConnectionFactory = (
+  retry: RetryOptions,
+) => IngestMonitorConnection | StorageMonitorConnection;
+
+const monitorConnectionCases: Array<[string, MonitorConnectionFactory]> = [
+  [
+    "ingest",
+    (retry) => new IngestMonitorConnection("http://localhost:1234", retry),
+  ],
+  [
+    "storage",
+    (retry) => new StorageMonitorConnection("http://localhost:1234", retry),
+  ],
+];
+
 // Mock timers.
 beforeEach(() => {
   setActivePinia(createPinia());
   vi.useFakeTimers();
-  vi.stubGlobal("EventSource", FakeEventSource);
 });
 afterEach(() => {
   vi.resetAllMocks();
@@ -82,7 +102,6 @@ describe("MonitorConnection", () => {
       await vi.runAllTimersAsync();
       FakeEventSource.latest().open();
 
-      expect(client.ingest.ingestMonitorRequest).toHaveBeenCalledTimes(1);
       expect(conn.isConnected).toBe(true);
 
       conn.close();
@@ -129,9 +148,141 @@ describe("MonitorConnection", () => {
       expect(fn).toHaveBeenCalledTimes(2);
     });
   });
+
+  describe("reconnect", () => {
+    it.each(monitorConnectionCases)(
+      "reconnects %s streams after the configured delay",
+      async (_type, createConnection) => {
+        const conn = createConnection({
+          initialDelay: 100,
+          maxDelay: 500,
+          backoff: 2,
+          maxAttempts: 5,
+          jitterFn: () => 0,
+        });
+
+        await conn.dial();
+        const source = FakeEventSource.latest();
+        source.open();
+
+        expect(conn.eventSource).toBe(source);
+        expect(source.readyState).toBe(FakeEventSource.OPEN);
+
+        source.error();
+
+        expect(source.readyState).toBe(FakeEventSource.CLOSED);
+        expect(FakeEventSource.instances).toHaveLength(1);
+
+        await vi.advanceTimersByTimeAsync(99);
+        expect(FakeEventSource.instances).toHaveLength(1);
+
+        await vi.advanceTimersByTimeAsync(1);
+
+        const reconnected = FakeEventSource.latest();
+        expect(FakeEventSource.instances).toHaveLength(2);
+        expect(reconnected).not.toBe(source);
+        expect(conn.eventSource).toBe(reconnected);
+        expect(reconnected.readyState).toBe(FakeEventSource.CONNECTING);
+
+        reconnected.open();
+        expect(conn.isConnected).toBe(true);
+
+        conn.close();
+      },
+    );
+  });
 });
 
 describe("IngestMonitorConnection", () => {
+  it("sends the current bearer token in the event stream request", async () => {
+    const authStore = useAuthStore();
+    authStore.user = { access_token: "access-token" } as typeof authStore.user;
+    const fetchMock = vi.fn<
+      (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+    >(() =>
+      Promise.resolve(
+        new Response("", {
+          headers: { "content-type": "text/event-stream" },
+          status: 200,
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    const conn = new IngestMonitorConnection("http://localhost:1234");
+    await conn.dial();
+
+    const source = FakeEventSource.latest();
+    await source.connect();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    const headers = new Headers(init.headers);
+    expect(headers.get("Accept")).toBe("text/event-stream");
+    expect(headers.get("Authorization")).toBe("Bearer access-token");
+
+    conn.close();
+  });
+
+  it("retries server errors after the configured delay", async () => {
+    const fetchMock = vi.fn<
+      (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+    >(() => Promise.resolve(new Response("", { status: 503 })));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const conn = new IngestMonitorConnection("http://localhost:1234", {
+      initialDelay: 100,
+      maxDelay: 500,
+      backoff: 2,
+      maxAttempts: 5,
+      jitterFn: () => 0,
+    });
+
+    await conn.dial();
+    await FakeEventSource.latest().connect();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(FakeEventSource.instances).toHaveLength(1);
+
+    await vi.advanceTimersByTimeAsync(99);
+    expect(FakeEventSource.instances).toHaveLength(1);
+
+    await vi.advanceTimersByTimeAsync(1);
+
+    expect(FakeEventSource.instances).toHaveLength(2);
+    expect(FakeEventSource.latest().readyState).toBe(
+      FakeEventSource.CONNECTING,
+    );
+
+    conn.close();
+  });
+
+  it("stops reconnecting and signs out after an unauthorized response", async () => {
+    const fetchMock = vi.fn<
+      (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>
+    >(() => Promise.resolve(new Response("", { status: 401 })));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const conn = new IngestMonitorConnection("http://localhost:1234", {
+      initialDelay: 100,
+      maxDelay: 500,
+      backoff: 2,
+      maxAttempts: 5,
+      jitterFn: () => 0,
+    });
+
+    await conn.dial();
+    await FakeEventSource.latest().connect();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(handleUnauthorized).toHaveBeenCalledTimes(1);
+    expect(conn.eventSource).toBeNull();
+
+    await vi.runAllTimersAsync();
+
+    expect(FakeEventSource.instances).toHaveLength(1);
+  });
+
   it("connects to the event stream and receives event", async () => {
     const conn = new IngestMonitorConnection("http://localhost:1234");
 
@@ -140,9 +291,8 @@ describe("IngestMonitorConnection", () => {
     const source = FakeEventSource.latest();
     source.open();
 
-    expect(client.ingest.ingestMonitorRequest).toHaveBeenCalledTimes(1);
     expect(conn.eventSource).toBe(source);
-    expect(source.readyState).toBe(EventSource.OPEN);
+    expect(source.readyState).toBe(FakeEventSource.OPEN);
 
     source.message(
       JSON.stringify({
@@ -176,69 +326,6 @@ describe("IngestMonitorConnection", () => {
     expect(conn.eventSource).toBeNull();
   });
 
-  it("reconnects after the event stream errors", async () => {
-    const conn = new IngestMonitorConnection("http://localhost:1234", {
-      initialDelay: 100,
-      maxDelay: 500,
-      backoff: 2,
-      maxAttempts: 5,
-      jitterFn: () => 0,
-    });
-    conn.dial();
-    await vi.runAllTimersAsync();
-    const source = FakeEventSource.latest();
-    source.open();
-
-    expect(client.ingest.ingestMonitorRequest).toHaveBeenCalledTimes(1);
-    expect(conn.eventSource).toBe(source);
-    expect(source.readyState).toBe(EventSource.OPEN);
-
-    source.error();
-    await vi.runAllTimersAsync();
-
-    expect(client.ingest.ingestMonitorRequest).toHaveBeenCalledTimes(2);
-    expect(source.readyState).toBe(EventSource.CLOSED);
-
-    const reconnected = FakeEventSource.latest();
-    expect(reconnected).not.toBe(source);
-    expect(conn.eventSource).toBe(reconnected);
-    expect(reconnected.readyState).toBe(EventSource.CONNECTING);
-
-    reconnected.open();
-    expect(conn.isConnected).toBe(true);
-
-    conn.close();
-  });
-
-  it("logs an error when ingest monitor request fails", async () => {
-    client.ingest.ingestMonitorRequest = vi.fn(() =>
-      Promise.reject(new Error("401 Unauthorized")),
-    );
-    const consoleMock = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
-
-    const conn = new IngestMonitorConnection("http://localhost:1234", {
-      initialDelay: 100,
-      maxDelay: 500,
-      backoff: 2,
-      maxAttempts: 1,
-      jitterFn: () => 0,
-    });
-    const promise = expect(conn.dial()).rejects.toThrow("Max attempts reached");
-    await vi.runAllTimersAsync();
-    await promise;
-
-    expect(consoleMock).toHaveBeenCalledTimes(1);
-    expect(consoleMock).toHaveBeenCalledWith(
-      "Ingest monitor request failed:",
-      new Error("401 Unauthorized"),
-    );
-
-    // Restore the mock for other tests.
-    client.ingest.ingestMonitorRequest = vi.fn(() => Promise.resolve());
-  });
-
   it("ignores malformed SSE events", async () => {
     const conn = new IngestMonitorConnection("http://localhost:1234");
 
@@ -269,9 +356,8 @@ describe("StorageMonitorConnection", () => {
     const source = FakeEventSource.latest();
     source.open();
 
-    expect(client.storage.storageMonitorRequest).toHaveBeenCalledTimes(1);
     expect(conn.eventSource).toBe(source);
-    expect(source.readyState).toBe(EventSource.OPEN);
+    expect(source.readyState).toBe(FakeEventSource.OPEN);
 
     source.message(
       JSON.stringify({
@@ -297,68 +383,6 @@ describe("StorageMonitorConnection", () => {
     conn.close();
 
     expect(conn.eventSource).toBeNull();
-  });
-
-  it("reconnects after the event stream errors", async () => {
-    const conn = new StorageMonitorConnection("http://localhost:1234", {
-      initialDelay: 100,
-      maxDelay: 500,
-      backoff: 2,
-      maxAttempts: 5,
-      jitterFn: () => 0,
-    });
-    conn.dial();
-    await vi.runAllTimersAsync();
-    const source = FakeEventSource.latest();
-    source.open();
-
-    expect(conn.eventSource).toBe(source);
-    expect(source.readyState).toBe(EventSource.OPEN);
-
-    source.error();
-    await vi.runAllTimersAsync();
-
-    expect(client.storage.storageMonitorRequest).toHaveBeenCalledTimes(2);
-    expect(source.readyState).toBe(EventSource.CLOSED);
-
-    const reconnected = FakeEventSource.latest();
-    expect(reconnected).not.toBe(source);
-    expect(conn.eventSource).toBe(reconnected);
-    expect(reconnected.readyState).toBe(EventSource.CONNECTING);
-
-    reconnected.open();
-    expect(conn.isConnected).toBe(true);
-
-    conn.close();
-  });
-
-  it("logs an error when storage monitor request fails", async () => {
-    client.storage.storageMonitorRequest = vi.fn(() =>
-      Promise.reject(new Error("401 Unauthorized")),
-    );
-    const consoleMock = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
-
-    const conn = new StorageMonitorConnection("http://localhost:1234", {
-      initialDelay: 100,
-      maxDelay: 500,
-      backoff: 2,
-      maxAttempts: 1,
-      jitterFn: () => 0,
-    });
-    const promise = expect(conn.dial()).rejects.toThrow("Max attempts reached");
-    await vi.runAllTimersAsync();
-    await promise;
-
-    expect(consoleMock).toHaveBeenCalledTimes(1);
-    expect(consoleMock).toHaveBeenCalledWith(
-      "Storage monitor request failed:",
-      new Error("401 Unauthorized"),
-    );
-
-    // Restore the mock for other tests.
-    client.storage.storageMonitorRequest = vi.fn(() => Promise.resolve());
   });
 });
 
