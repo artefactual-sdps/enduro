@@ -212,8 +212,10 @@ This service-level timeout is different from HTTP transport and proxy timeouts:
   open while Enduro handles and writes the response. Enduro sets this to 7
   seconds so normal API handlers have time to return a timeout response after
   the 5 second service budget expires.
-* Reverse proxy timeouts, such as NGINX `proxy_read_timeout`, should be higher
-  than Enduro's API write timeout for normal API routes.
+* Reverse proxy idle timeouts, such as NGINX `proxy_read_timeout`, should be
+  higher than Enduro's API write timeout for normal API routes. The NGINX
+  defaults are sufficient for this, and these settings measure idle gaps between
+  read or write operations rather than total upload or download duration.
 
 The generic service-level timeout is not applied to streaming, upload, download,
 or WebSocket endpoints. These endpoints have different timeout requirements and

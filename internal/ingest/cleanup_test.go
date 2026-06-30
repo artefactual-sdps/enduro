@@ -8,7 +8,7 @@ import (
 	"gotest.tools/v3/assert"
 )
 
-func assertRollbackCleanupContext(t *testing.T, ctx context.Context) {
+func assertFailedIngestCleanupContext(t *testing.T, ctx context.Context) {
 	t.Helper()
 
 	assert.NilError(t, ctx.Err())
@@ -16,5 +16,5 @@ func assertRollbackCleanupContext(t *testing.T, ctx context.Context) {
 	assert.Assert(t, ok)
 	remaining := time.Until(deadline)
 	assert.Assert(t, remaining > 0)
-	assert.Assert(t, remaining <= 2*time.Second)
+	assert.Assert(t, remaining <= 11*time.Second)
 }

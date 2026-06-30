@@ -135,7 +135,7 @@ func TestAddBatch(t *testing.T) {
 				psvc.EXPECT().
 					DeleteBatch(mockutil.Context(), batchUUID).
 					DoAndReturn(func(ctx context.Context, id uuid.UUID) error {
-						assertRollbackCleanupContext(t, ctx)
+						assertFailedIngestCleanupContext(t, ctx)
 						return nil
 					})
 			},

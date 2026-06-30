@@ -144,7 +144,7 @@ func TestUpload(t *testing.T) {
 				psvc.EXPECT().
 					DeleteSIP(mockutil.Context(), uuid0).
 					DoAndReturn(func(ctx context.Context, id uuid.UUID) error {
-						assertRollbackCleanupContext(t, ctx)
+						assertFailedIngestCleanupContext(t, ctx)
 						return nil
 					})
 			},

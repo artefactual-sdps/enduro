@@ -45,25 +45,17 @@ server {
     # add_header Reporting-Endpoints 'csp="https://example.com/csp"' always;
     # (Append to CSP) ... ; report-to csp
 
-    # Keep long-lived transfer routes alive for slow clients. 24h is a
-    # generous upper bound, not an expected transfer duration.
     location ~ "^/api/ingest/sips/([0-9a-fA-F-]{36})/download" {
       proxy_pass http://backend/ingest/sips/\$1/download;
       proxy_buffering off;
-      proxy_read_timeout 24h;
-      proxy_send_timeout 24h;
     }
     location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/download" {
       proxy_pass http://backend/storage/aips/\$1/download;
       proxy_buffering off;
-      proxy_read_timeout 24h;
-      proxy_send_timeout 24h;
     }
     location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/deletion-report" {
       proxy_pass http://backend/storage/aips/\$1/deletion-report;
       proxy_buffering off;
-      proxy_read_timeout 24h;
-      proxy_send_timeout 24h;
     }
     location /api/ingest/monitor {
         proxy_pass http://backend/ingest/monitor;
@@ -76,8 +68,6 @@ server {
         client_max_body_size 4096M;
         proxy_pass http://backend/ingest/sips/upload;
         proxy_request_buffering off;
-        proxy_read_timeout 24h;
-        proxy_send_timeout 24h;
     }
     location /api/storage/monitor {
         proxy_pass http://backend/storage/monitor;
