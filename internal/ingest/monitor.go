@@ -8,27 +8,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/auth"
 )
 
-func (svc *ingestImpl) MonitorRequest(
-	ctx context.Context,
-	payload *goaingest.MonitorRequestPayload,
-) (*goaingest.MonitorRequestResult, error) {
-	res := &goaingest.MonitorRequestResult{}
-
-	ticket, err := svc.ticketProvider.Request(ctx, auth.UserClaimsFromContext(ctx))
-	if err != nil {
-		svc.logger.Error(err, "failed to request ticket")
-		return nil, ErrInternalError
-	}
-
-	// A ticket is not provided when authentication is disabled.
-	// Do not set the ticket cookie in that case.
-	if ticket != "" {
-		res.Ticket = &ticket
-	}
-
-	return res, nil
-}
-
 func (svc *ingestImpl) Monitor(
 	ctx context.Context,
 	payload *goaingest.MonitorPayload,
@@ -36,12 +15,7 @@ func (svc *ingestImpl) Monitor(
 ) error {
 	defer stream.Close()
 
-	// Verify the ticket and update the claims.
-	var claims auth.Claims
-	if err := svc.ticketProvider.Check(ctx, payload.Ticket, &claims); err != nil {
-		svc.logger.Error(err, "failed to check ticket", "ticket", payload.Ticket)
-		return ErrInternalError
-	}
+	claims := auth.UserClaimsFromContext(ctx)
 
 	// Subscribe to the event service.
 	sub, err := svc.evsvc.Subscribe(ctx)
@@ -53,7 +27,7 @@ func (svc *ingestImpl) Monitor(
 
 	// Say hello to be nice.
 	event := &goaingest.IngestPingEvent{Message: new("Hello")}
-	if err := stream.Send(&goaingest.IngestEvent{Value: NewEventValue(event)}); err != nil {
+	if err := stream.SendWithContext(ctx, &goaingest.IngestEvent{Value: NewEventValue(event)}); err != nil {
 		// Consider send errors as client disconnections.
 		svc.logger.V(1).Info("Failed to send hello event.", "err", err)
 		return nil
@@ -72,7 +46,7 @@ func (svc *ingestImpl) Monitor(
 
 		case <-ticker.C:
 			event := &goaingest.IngestPingEvent{Message: new("Ping")}
-			if err := stream.Send(&goaingest.IngestEvent{Value: NewEventValue(event)}); err != nil {
+			if err := stream.SendWithContext(ctx, &goaingest.IngestEvent{Value: NewEventValue(event)}); err != nil {
 				// Consider send errors as client disconnections.
 				svc.logger.V(1).Info("Failed to send ping event.", "err", err)
 				return nil
@@ -117,7 +91,7 @@ func (svc *ingestImpl) Monitor(
 				continue
 			}
 
-			if err := stream.Send(event); err != nil {
+			if err := stream.SendWithContext(ctx, event); err != nil {
 				// Consider send errors as client disconnections.
 				svc.logger.V(1).Info("Failed to send event.", "err", err)
 				return nil

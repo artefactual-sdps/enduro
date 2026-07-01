@@ -16,6 +16,7 @@ import (
 	intabout "github.com/artefactual-sdps/enduro/internal/about"
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	"github.com/artefactual-sdps/enduro/internal/auth"
 	intingest "github.com/artefactual-sdps/enduro/internal/ingest"
 	ingestfake "github.com/artefactual-sdps/enduro/internal/ingest/fake"
 	storagefake "github.com/artefactual-sdps/enduro/internal/storage/fake"
@@ -23,6 +24,9 @@ import (
 
 type testStorageService struct {
 	*storagefake.MockService
+	authCalls int
+	claims    *auth.Claims
+	token     string
 }
 
 func (s *testStorageService) BearerAuth(
@@ -30,11 +34,19 @@ func (s *testStorageService) BearerAuth(
 	token string,
 	_ *security.BearerScheme,
 ) (context.Context, error) {
+	s.authCalls++
+	s.token = token
+	if s.claims != nil {
+		ctx = auth.WithUserClaims(ctx, s.claims)
+	}
 	return ctx, nil
 }
 
 type testIngestService struct {
 	*ingestfake.MockService
+	authCalls int
+	claims    *auth.Claims
+	token     string
 }
 
 func (s *testIngestService) BearerAuth(
@@ -42,6 +54,11 @@ func (s *testIngestService) BearerAuth(
 	token string,
 	_ *security.BearerScheme,
 ) (context.Context, error) {
+	s.authCalls++
+	s.token = token
+	if s.claims != nil {
+		ctx = auth.WithUserClaims(ctx, s.claims)
+	}
 	return ctx, nil
 }
 
@@ -137,4 +154,75 @@ func TestHTTPServer(t *testing.T) {
 			"uuid": sipID,
 		})
 	})
+}
+
+func TestHTTPServerMonitorAuth(t *testing.T) {
+	const token = "monitor-token"
+
+	tests := []struct {
+		name      string
+		path      string
+		setup     func(*testing.T, *testAPI, *auth.Claims)
+		authCalls func(*testAPI) int
+	}{
+		{
+			name: "Ingest",
+			path: "/ingest/monitor",
+			setup: func(t *testing.T, api *testAPI, claims *auth.Claims) {
+				t.Helper()
+
+				api.ingest.claims = claims
+				api.ingest.EXPECT().
+					Monitor(gomock.Any(), gomock.Any(), gomock.Any()).
+					DoAndReturn(func(ctx context.Context, payload *goaingest.MonitorPayload, stream goaingest.MonitorServerStream) error {
+						assert.Equal(t, api.ingest.token, token)
+						assert.Assert(t, payload.Token != nil)
+						assert.Equal(t, *payload.Token, token)
+						assert.Equal(t, auth.UserClaimsFromContext(ctx), claims)
+						assert.Assert(t, stream != nil)
+						return nil
+					})
+			},
+			authCalls: func(api *testAPI) int { return api.ingest.authCalls },
+		},
+		{
+			name: "Storage",
+			path: "/storage/monitor",
+			setup: func(t *testing.T, api *testAPI, claims *auth.Claims) {
+				t.Helper()
+
+				api.storage.claims = claims
+				api.storage.EXPECT().
+					Monitor(gomock.Any(), gomock.Any(), gomock.Any()).
+					DoAndReturn(func(ctx context.Context, payload *goastorage.MonitorPayload, stream goastorage.MonitorServerStream) error {
+						assert.Equal(t, api.storage.token, token)
+						assert.Assert(t, payload.Token != nil)
+						assert.Equal(t, *payload.Token, token)
+						assert.Equal(t, auth.UserClaimsFromContext(ctx), claims)
+						assert.Assert(t, stream != nil)
+						return nil
+					})
+			},
+			authCalls: func(api *testAPI) int { return api.storage.authCalls },
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			api := newTestAPI(t)
+			claims := &auth.Claims{
+				Email:      "monitor@example.com",
+				Attributes: []string{"*"},
+			}
+			tt.setup(t, api, claims)
+
+			req := httptest.NewRequest(http.MethodGet, tt.path, nil)
+			req.Header.Set("Authorization", "Bearer "+token)
+			rec := httptest.NewRecorder()
+			api.handler.ServeHTTP(rec, req)
+
+			assert.Equal(t, rec.Code, http.StatusOK)
+			assert.Equal(t, tt.authCalls(api), 1)
+		})
+	}
 }

@@ -17,7 +17,6 @@ import (
 
 // Client is the "storage" service client.
 type Client struct {
-	MonitorRequestEndpoint           goa.Endpoint
 	MonitorEndpoint                  goa.Endpoint
 	ListAipsEndpoint                 goa.Endpoint
 	CreateAipEndpoint                goa.Endpoint
@@ -41,9 +40,8 @@ type Client struct {
 }
 
 // NewClient initializes a "storage" service client given the endpoints.
-func NewClient(monitorRequest, monitor, listAips, createAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, aipDeletionAuto, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, aipDeletionReportRequest, aipDeletionReport, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
+func NewClient(monitor, listAips, createAip, downloadAipRequest, downloadAip, moveAip, moveAipStatus, rejectAip, showAip, listAipWorkflows, aipDeletionAuto, requestAipDeletion, reviewAipDeletion, cancelAipDeletion, aipDeletionReportRequest, aipDeletionReport, listLocations, createLocation, showLocation, listLocationAips goa.Endpoint) *Client {
 	return &Client{
-		MonitorRequestEndpoint:           monitorRequest,
 		MonitorEndpoint:                  monitor,
 		ListAipsEndpoint:                 listAips,
 		CreateAipEndpoint:                createAip,
@@ -65,21 +63,6 @@ func NewClient(monitorRequest, monitor, listAips, createAip, downloadAipRequest,
 		ShowLocationEndpoint:             showLocation,
 		ListLocationAipsEndpoint:         listLocationAips,
 	}
-}
-
-// MonitorRequest calls the "monitor_request" endpoint of the "storage" service.
-// MonitorRequest may return the following errors:
-//   - "internal_error" (type *goa.ServiceError)
-//   - "unauthorized" (type Unauthorized)
-//   - "forbidden" (type Forbidden)
-//   - error: internal error
-func (c *Client) MonitorRequest(ctx context.Context, p *MonitorRequestPayload) (res *MonitorRequestResult, err error) {
-	var ires any
-	ires, err = c.MonitorRequestEndpoint(ctx, p)
-	if err != nil {
-		return
-	}
-	return ires.(*MonitorRequestResult), nil
 }
 
 // Monitor calls the "monitor" endpoint of the "storage" service.

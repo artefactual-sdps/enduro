@@ -92,7 +92,7 @@ useRoles = false
 rolesMapping = ""
 
 [api.auth.ticket.redis]
-# Redis URI to store a ticket used to set a websocket connection.
+# Redis URI to store tickets used for browser download handoffs.
 address = "redis://redis.enduro-sdps:6379"
 # Prefix used as part of the ticket keys in Redis.
 prefix = "enduro"
@@ -216,11 +216,9 @@ attributes allow a wildcard hierarchical declaration. For example,
 `ingest:sips:*` will give access to endpoints requiring `ingest:sips:list`,
 `ingest:sips:read`, etc. The `*` attribute will provide full access to the API.
 
-In order to stablish a Websocket connection from the browser, the
-`GET /ingest/monitor` and `GET /storage/monitor` endpoints require a cookie
-obtained from the `POST /ingest/monitor` and `POST /storage/monitor` endpoints.
-User claims are stored internally and the attributes are checked before sending
-events to the connection.
+The ingest and storage monitor streams are SSE endpoints authenticated with the
+same bearer token used by the rest of the API. User claims are checked before
+sending events to the stream.
 
 Similarly, to be able to stream a SIP, AIP or AIP deletion report download from
 the browser, the `GET` endpoints require a cookie obtained from the `POST`
@@ -234,7 +232,6 @@ endpoints.
 | GET    | /ingest/batches/{uuid}                | `ingest:batches:read`            |
 | POST   | /ingest/batches/{uuid}/review         | `ingest:batches:review`          |
 | GET    | /ingest/monitor                       | `-`                              |
-| POST   | /ingest/monitor                       | `-`                              |
 | GET    | /ingest/sip-sources/{uuid}/objects    | `ingest:sipsources:objects:list` |
 | GET    | /ingest/sips                          | `ingest:sips:list`               |
 | POST   | /ingest/sips                          | `ingest:sips:create`             |
@@ -268,4 +265,3 @@ endpoints.
 | GET    | /storage/locations/{uuid}             | `storage:locations:read`         |
 | GET    | /storage/locations/{uuid}/aips        | `storage:locations:aips:list`    |
 | GET    | /storage/monitor                      | `-`                              |
-| POST   | /storage/monitor                      | `-`                              |

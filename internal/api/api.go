@@ -16,7 +16,6 @@ import (
 	"time"
 
 	"github.com/go-logr/logr"
-	"github.com/gorilla/websocket"
 	"go.artefactual.dev/tools/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel/trace"
@@ -50,10 +49,6 @@ func HTTPServer(
 	mux.Use(otelhttp.NewMiddleware("api", otelhttp.WithTracerProvider(tp)))
 	mux.Use(middleware.Recover(logger))
 
-	websocketUpgrader := &websocket.Upgrader{
-		HandshakeTimeout: time.Second,
-		CheckOrigin:      sameOriginChecker(logger),
-	}
 	operationInterceptors := newOperationInterceptors(logger)
 
 	// Ingest service.
@@ -62,7 +57,8 @@ func HTTPServer(
 		&ingestServerInterceptors{operationInterceptors: operationInterceptors},
 	)
 	ingestErrorHandler := errorHandler(logger, "Ingest error.")
-	ingestServer := ingestsvr.New(ingestEndpoints, mux, dec, enc, ingestErrorHandler, nil, websocketUpgrader, nil)
+	ingestServer := ingestsvr.New(ingestEndpoints, mux, dec, enc, ingestErrorHandler, nil)
+	ingestServer.Monitor = middleware.WriteTimeout(0)(ingestServer.Monitor)
 	ingestServer.DownloadSip = middleware.WriteTimeout(0)(ingestServer.DownloadSip)
 	ingestServer.UploadSip = middleware.WriteTimeout(0)(ingestServer.UploadSip)
 	ingestServer.UploadSip = middleware.ReadTimeout(0)(ingestServer.UploadSip)
@@ -74,7 +70,8 @@ func HTTPServer(
 		&storageServerInterceptors{operationInterceptors: operationInterceptors},
 	)
 	storageErrorHandler := errorHandler(logger, "Storage error.")
-	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil, websocketUpgrader, nil)
+	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
+	storageServer.Monitor = middleware.WriteTimeout(0)(storageServer.Monitor)
 	// Streaming downloads can legitimately take longer than the API write
 	// timeout while bytes are sent to slow clients or proxies.
 	storageServer.DownloadAip = middleware.WriteTimeout(0)(storageServer.DownloadAip)
@@ -123,14 +120,8 @@ func errorHandler(logger logr.Logger, msg string) func(context.Context, http.Res
 			reqID = "unknown"
 		}
 
-		// Only write the error if the connection is not hijacked.
-		var ws bool
-		if _, err := w.Write(nil); err == http.ErrHijacked {
-			ws = true
-		} else {
-			_ = json.NewEncoder(w).Encode(&errorMessage{RequestID: reqID})
-		}
+		_ = json.NewEncoder(w).Encode(&errorMessage{RequestID: reqID})
 
-		logger.Error(err, "Service error.", "reqID", reqID, "ws", ws, "msg", msg)
+		logger.Error(err, "Service error.", "reqID", reqID, "msg", msg)
 	}
 }

@@ -53,9 +53,6 @@ type StorageClient interface {
 	ListLocationAips(context.Context, *goastorage.ListLocationAipsPayload) (goastorage.AIPCollection, error)
 
 	ListAipWorkflows(context.Context, *goastorage.ListAipWorkflowsPayload) (*goastorage.AIPWorkflows, error)
-
-	MonitorRequest(context.Context, *goastorage.MonitorRequestPayload) (*goastorage.MonitorRequestResult, error)
-	Monitor(context.Context, *goastorage.MonitorPayload) (goastorage.MonitorClientStream, error)
 }
 
 var _ StorageClient = (*goastorage.Client)(nil)
@@ -89,12 +86,9 @@ func NewStorageClient(
 		goahttp.RequestEncoder,
 		goahttp.ResponseDecoder,
 		false,
-		nil,
-		nil,
 	)
 
 	return goastorage.NewClient(
-		storageHTTPClient.MonitorRequest(),
 		storageHTTPClient.Monitor(),
 		storageHTTPClient.ListAips(),
 		storageHTTPClient.CreateAip(),

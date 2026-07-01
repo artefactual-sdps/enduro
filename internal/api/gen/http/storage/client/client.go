@@ -10,21 +10,17 @@ package client
 
 import (
 	"context"
+	"fmt"
 	"net/http"
-	"time"
+	"strings"
 
 	storage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
-	"github.com/gorilla/websocket"
 	goahttp "goa.design/goa/v3/http"
 	goa "goa.design/goa/v3/pkg"
 )
 
 // Client lists the storage service endpoint HTTP clients.
 type Client struct {
-	// MonitorRequest Doer is the HTTP client used to make requests to the
-	// monitor_request endpoint.
-	MonitorRequestDoer goahttp.Doer
-
 	// Monitor Doer is the HTTP client used to make requests to the monitor
 	// endpoint.
 	MonitorDoer goahttp.Doer
@@ -112,12 +108,10 @@ type Client struct {
 	// decoding so they can be read again.
 	RestoreResponseBody bool
 
-	scheme     string
-	host       string
-	encoder    func(*http.Request) goahttp.Encoder
-	decoder    func(*http.Response) goahttp.Decoder
-	dialer     goahttp.Dialer
-	configurer *ConnConfigurer
+	scheme  string
+	host    string
+	encoder func(*http.Request) goahttp.Encoder
+	decoder func(*http.Response) goahttp.Decoder
 }
 
 // NewClient instantiates HTTP clients for all the storage service servers.
@@ -128,14 +122,8 @@ func NewClient(
 	enc func(*http.Request) goahttp.Encoder,
 	dec func(*http.Response) goahttp.Decoder,
 	restoreBody bool,
-	dialer goahttp.Dialer,
-	cfn *ConnConfigurer,
 ) *Client {
-	if cfn == nil {
-		cfn = &ConnConfigurer{}
-	}
 	return &Client{
-		MonitorRequestDoer:           doer,
 		MonitorDoer:                  doer,
 		ListAipsDoer:                 doer,
 		CreateAipDoer:                doer,
@@ -162,32 +150,6 @@ func NewClient(
 		host:                         host,
 		decoder:                      dec,
 		encoder:                      enc,
-		dialer:                       dialer,
-		configurer:                   cfn,
-	}
-}
-
-// MonitorRequest returns an endpoint that makes HTTP requests to the storage
-// service monitor_request server.
-func (c *Client) MonitorRequest() goa.Endpoint {
-	var (
-		encodeRequest  = EncodeMonitorRequestRequest(c.encoder)
-		decodeResponse = DecodeMonitorRequestResponse(c.decoder, c.RestoreResponseBody)
-	)
-	return func(ctx context.Context, v any) (any, error) {
-		req, err := c.BuildMonitorRequestRequest(ctx, v)
-		if err != nil {
-			return nil, err
-		}
-		err = encodeRequest(req, v)
-		if err != nil {
-			return nil, err
-		}
-		resp, err := c.MonitorRequestDoer.Do(req)
-		if err != nil {
-			return nil, goahttp.ErrRequestError("storage", "monitor_request", err)
-		}
-		return decodeResponse(resp)
 	}
 }
 
@@ -195,8 +157,7 @@ func (c *Client) MonitorRequest() goa.Endpoint {
 // monitor server.
 func (c *Client) Monitor() goa.Endpoint {
 	var (
-		encodeRequest  = EncodeMonitorRequest(c.encoder)
-		decodeResponse = DecodeMonitorResponse(c.decoder, c.RestoreResponseBody)
+		encodeRequest = EncodeMonitorRequest(c.encoder)
 	)
 	return func(ctx context.Context, v any) (any, error) {
 		req, err := c.BuildMonitorRequest(ctx, v)
@@ -207,29 +168,24 @@ func (c *Client) Monitor() goa.Endpoint {
 		if err != nil {
 			return nil, err
 		}
-		conn, resp, err := c.dialer.DialContext(ctx, req.URL.String(), req.Header)
+		// For SSE endpoints, connect and return a stream
+		resp, err := c.MonitorDoer.Do(req)
 		if err != nil {
-			if resp != nil {
-				return decodeResponse(resp)
-			}
 			return nil, goahttp.ErrRequestError("storage", "monitor", err)
 		}
-		if c.configurer.MonitorFn != nil {
-			var cancel context.CancelFunc
-			ctx, cancel = context.WithCancel(ctx)
-			conn = c.configurer.MonitorFn(conn, cancel)
+
+		if resp.StatusCode != http.StatusOK {
+			resp.Body.Close()
+			return nil, fmt.Errorf("unexpected status from SSE endpoint: %d", resp.StatusCode)
 		}
-		go func() {
-			<-ctx.Done()
-			conn.WriteControl(
-				websocket.CloseMessage,
-				websocket.FormatCloseMessage(websocket.CloseNormalClosure, "client closing connection"),
-				time.Now().Add(time.Second),
-			)
-			conn.Close()
-		}()
-		stream := &MonitorClientStream{conn: conn}
-		return stream, nil
+
+		contentType := resp.Header.Get("Content-Type")
+		if contentType != "" && !strings.HasPrefix(contentType, "text/event-stream") {
+			resp.Body.Close()
+			return nil, fmt.Errorf("unexpected content type: %s (expected text/event-stream)", contentType)
+		}
+
+		return NewMonitorStream(resp, c.decoder), nil
 	}
 }
 

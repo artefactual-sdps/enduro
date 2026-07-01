@@ -22,9 +22,7 @@ import (
 
 // The storage service manages locations and AIPs.
 type Service interface {
-	// Request access to the /monitor WebSocket
-	MonitorRequest(context.Context, *MonitorRequestPayload) (res *MonitorRequestResult, err error)
-	// Obtain access to the /monitor WebSocket
+	// Obtain access to the /monitor SSE event stream
 	Monitor(context.Context, *MonitorPayload, MonitorServerStream) (err error)
 	// List all AIPs
 	ListAips(context.Context, *ListAipsPayload) (res *AIPs, err error)
@@ -94,7 +92,7 @@ const ServiceName = "storage"
 // MethodNames lists the service method names as defined in the design. These
 // are the same values that are set in the endpoint request contexts under the
 // MethodKey key.
-var MethodNames = [21]string{"monitor_request", "monitor", "list_aips", "create_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "aip_deletion_auto", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "aip_deletion_report_request", "aip_deletion_report", "list_locations", "create_location", "show_location", "list_location_aips"}
+var MethodNames = [20]string{"monitor", "list_aips", "create_aip", "download_aip_request", "download_aip", "move_aip", "move_aip_status", "reject_aip", "show_aip", "list_aip_workflows", "aip_deletion_auto", "request_aip_deletion", "review_aip_deletion", "cancel_aip_deletion", "aip_deletion_report_request", "aip_deletion_report", "list_locations", "create_location", "show_location", "list_location_aips"}
 
 // MonitorServerStream allows streaming instances of *StorageEvent to the
 // client.
@@ -438,19 +436,7 @@ type LocationNotFound struct {
 
 // MonitorPayload is the payload type of the storage service monitor method.
 type MonitorPayload struct {
-	Ticket *string
-}
-
-// MonitorRequestPayload is the payload type of the storage service
-// monitor_request method.
-type MonitorRequestPayload struct {
 	Token *string
-}
-
-// MonitorRequestResult is the result type of the storage service
-// monitor_request method.
-type MonitorRequestResult struct {
-	Ticket *string
 }
 
 // MoveAipPayload is the payload type of the storage service move_aip method.

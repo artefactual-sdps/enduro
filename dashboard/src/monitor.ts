@@ -1,6 +1,14 @@
-import { api, client } from "@/client";
+import {
+  type EventSourceFetchInit,
+  EventSource as HeaderEventSource,
+} from "eventsource";
+
+import { api } from "@/client";
 import { handleIngestEvent } from "@/monitor-ingest";
 import { handleStorageEvent } from "@/monitor-storage";
+import { useAuthStore } from "@/stores/auth";
+
+type MonitorEventSource = InstanceType<typeof HeaderEventSource>;
 
 export type RetryOptions = {
   initialDelay: number;
@@ -14,7 +22,7 @@ function isObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === "object";
 }
 
-// Extract the raw monitor event envelope from the websocket payload.
+// Extract the raw monitor event envelope from the SSE payload.
 // The generic only narrows the returned `type` for the caller; it does not
 // validate that the runtime event type belongs to a specific enum.
 function parseMonitorEvent<T extends string>(
@@ -28,12 +36,30 @@ function parseMonitorEvent<T extends string>(
   return { type: event.type as T, value: event.value };
 }
 
+function fetchWithAuthorization(
+  input: string | URL,
+  init: EventSourceFetchInit,
+) {
+  const headers = new Headers(init.headers);
+  const token = useAuthStore().getUserAccessToken;
+  if (token !== "") {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
+
+  return fetch(input, { ...init, headers });
+}
+
 abstract class MonitorConnection {
   type: "ingest" | "storage";
   url: string;
-  socket: WebSocket | null = null;
+  eventSource: MonitorEventSource | null = null;
   isConnected: boolean = false;
   retry: RetryOptions;
+  private closed: boolean = false;
+  private reconnectAttempts: number = 0;
+  private reconnecting: boolean = false;
+  private reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+  private reconnectTimerResolve: (() => void) | null = null;
 
   constructor(
     type: "ingest" | "storage",
@@ -41,7 +67,7 @@ abstract class MonitorConnection {
     retry?: RetryOptions,
   ) {
     this.type = type;
-    this.url = this.getWebSocketURL(baseUrl + "/" + this.type + "/monitor");
+    this.url = baseUrl + "/" + this.type + "/monitor";
     this.retry = retry || {
       initialDelay: 1000, // 1 second.
       maxDelay: 30000, // 30 seconds.
@@ -51,16 +77,15 @@ abstract class MonitorConnection {
     };
   }
 
-  abstract dial(): Promise<void>;
-
-  getWebSocketURL(url: string): string {
-    if (url.startsWith("https")) {
-      url = "wss" + url.slice("https".length);
-    } else if (url.startsWith("http")) {
-      url = "ws" + url.slice("http".length);
-    }
-
-    return url;
+  async dial(): Promise<void> {
+    return this.retryBackoff(async () => {
+      try {
+        this.openEventSource();
+      } catch (err) {
+        console.error("Failed to create monitor event stream:", err);
+        throw err;
+      }
+    });
   }
 
   async retryBackoff(fn: () => Promise<void>) {
@@ -74,11 +99,7 @@ abstract class MonitorConnection {
         }
 
         // Exponential backoff with jitter.
-        const delay =
-          Math.min(
-            this.retry.initialDelay * this.retry.backoff ** attempt,
-            this.retry.maxDelay,
-          ) + this.retry.jitterFn();
+        const delay = this.retryDelay(attempt);
         console.log(
           `${this.type} monitor: reconnect attempt ${attempt + 1} in ${Math.round(delay)} ms...`,
         );
@@ -90,30 +111,117 @@ abstract class MonitorConnection {
   }
 
   close(): void {
-    if (this.socket) {
-      this.socket.onclose = null; // Disable reconnect on close.
-      this.socket.close();
-      this.socket = null;
+    this.closed = true;
+    this.isConnected = false;
+    this.reconnectAttempts = 0;
+    this.reconnecting = false;
+
+    if (this.reconnectTimer !== null) {
+      clearTimeout(this.reconnectTimer);
+      this.reconnectTimer = null;
+      this.reconnectTimerResolve?.();
+      this.reconnectTimerResolve = null;
+    }
+
+    if (this.eventSource) {
+      this.eventSource.onerror = null;
+      this.eventSource.close();
+      this.eventSource = null;
     }
   }
 
   setupEventHandlers(): void {
-    if (this.socket === null) {
+    if (this.eventSource === null) {
       return;
     }
 
-    this.socket.onopen = () => {
+    this.eventSource.onopen = () => {
       this.isConnected = true;
-      console.log(`${this.type} monitor socket connected`);
+      this.reconnectAttempts = 0;
+      console.log(`${this.type} monitor event stream connected`);
     };
-    this.socket.onerror = () => {
-      console.error(`${this.type} monitor socket error`);
-    };
-    this.socket.onclose = () => {
+    this.eventSource.onerror = () => {
       this.isConnected = false;
-      console.error(`${this.type} monitor socket closed, reconnecting...`);
-      this.dial();
+      console.error(`${this.type} monitor event stream error, reconnecting...`);
+      if (this.eventSource) {
+        this.eventSource.onerror = null;
+        this.eventSource.close();
+        this.eventSource = null;
+      }
+      if (!this.closed) {
+        this.reconnect();
+      }
     };
+  }
+
+  protected openEventSource(): void {
+    this.closed = false;
+    if (this.eventSource) {
+      this.eventSource.onerror = null;
+      this.eventSource.close();
+    }
+    this.eventSource = new HeaderEventSource(this.url, {
+      fetch: fetchWithAuthorization,
+    });
+    this.setupEventHandlers();
+  }
+
+  private retryDelay(attempt: number): number {
+    return (
+      Math.min(
+        this.retry.initialDelay * this.retry.backoff ** attempt,
+        this.retry.maxDelay,
+      ) + this.retry.jitterFn()
+    );
+  }
+
+  private async waitForReconnectDelay(delay: number): Promise<void> {
+    await new Promise<void>((resolve) => {
+      this.reconnectTimerResolve = resolve;
+      this.reconnectTimer = setTimeout(() => {
+        this.reconnectTimer = null;
+        this.reconnectTimerResolve = null;
+        resolve();
+      }, delay);
+    });
+  }
+
+  private reconnect(): void {
+    if (this.reconnecting) return;
+
+    this.reconnecting = true;
+    void this.reconnectBackoff().finally(() => {
+      this.reconnecting = false;
+    });
+  }
+
+  private async reconnectBackoff(): Promise<void> {
+    while (!this.closed) {
+      if (this.reconnectAttempts >= this.retry.maxAttempts) {
+        console.error(
+          `${this.type} monitor reconnect failed:`,
+          new Error("Max attempts reached"),
+        );
+        return;
+      }
+
+      const attempt = this.reconnectAttempts;
+      const delay = this.retryDelay(attempt);
+      this.reconnectAttempts++;
+
+      console.log(
+        `${this.type} monitor: reconnect attempt ${attempt + 1} in ${Math.round(delay)} ms...`,
+      );
+      await this.waitForReconnectDelay(delay);
+      if (this.closed) return;
+
+      try {
+        await this.dial();
+        return;
+      } catch (err) {
+        console.error("Failed to create monitor event stream:", err);
+      }
+    }
   }
 }
 
@@ -122,35 +230,15 @@ export class IngestMonitorConnection extends MonitorConnection {
     super("ingest", baseUrl, retry);
   }
 
-  async dial(): Promise<void> {
-    return this.retryBackoff(async () => {
-      return client.ingest
-        .ingestMonitorRequest()
-        .then(() => {
-          try {
-            this.socket = new WebSocket(this.url);
-            this.setupEventHandlers();
-          } catch (err) {
-            console.error("Failed to create Web Socket:", err);
-            this.dial(); // Retry on failure.
-          }
-        })
-        .catch((err) => {
-          console.error("Ingest monitor request failed:", err);
-          throw err;
-        });
-    });
-  }
-
   setupEventHandlers(): void {
-    if (this.socket === null) {
+    if (this.eventSource === null) {
       return;
     }
 
     super.setupEventHandlers();
 
     // Handle incoming messages.
-    this.socket.onmessage = (ev: MessageEvent) => {
+    this.eventSource.onmessage = (ev: MessageEvent) => {
       const body = JSON.parse(ev.data);
       const data = parseMonitorEvent<api.IngestEventValueTypeEnum>(body);
       if (data) handleIngestEvent(data);
@@ -163,35 +251,15 @@ export class StorageMonitorConnection extends MonitorConnection {
     super("storage", baseUrl, retry);
   }
 
-  async dial(): Promise<void> {
-    return this.retryBackoff(async () => {
-      return client.storage
-        .storageMonitorRequest()
-        .then(() => {
-          try {
-            this.socket = new WebSocket(this.url);
-            this.setupEventHandlers();
-          } catch (err) {
-            console.error("Failed to create Web Socket:", err);
-            this.dial(); // Retry on failure.
-          }
-        })
-        .catch((err) => {
-          console.error("Storage monitor request failed:", err);
-          throw err;
-        });
-    });
-  }
-
   setupEventHandlers(): void {
-    if (this.socket === null) {
+    if (this.eventSource === null) {
       return;
     }
 
     super.setupEventHandlers();
 
     // Handle incoming messages.
-    this.socket.onmessage = (ev: MessageEvent) => {
+    this.eventSource.onmessage = (ev: MessageEvent) => {
       const body = JSON.parse(ev.data);
       const data = parseMonitorEvent<api.StorageEventValueTypeEnum>(body);
       if (data) handleStorageEvent(data);

@@ -8,27 +8,6 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/auth"
 )
 
-func (s *serviceImpl) MonitorRequest(
-	ctx context.Context,
-	payload *goastorage.MonitorRequestPayload,
-) (*goastorage.MonitorRequestResult, error) {
-	res := &goastorage.MonitorRequestResult{}
-
-	ticket, err := s.ticketProvider.Request(ctx, auth.UserClaimsFromContext(ctx))
-	if err != nil {
-		s.logger.Error(err, "failed to request ticket")
-		return nil, ErrInternalError
-	}
-
-	// A ticket is not provided when authentication is disabled.
-	// Do not set the ticket cookie in that case.
-	if ticket != "" {
-		res.Ticket = &ticket
-	}
-
-	return res, nil
-}
-
 func (s *serviceImpl) Monitor(
 	ctx context.Context,
 	payload *goastorage.MonitorPayload,
@@ -36,12 +15,7 @@ func (s *serviceImpl) Monitor(
 ) error {
 	defer stream.Close()
 
-	// Verify the ticket and update the claims.
-	var claims auth.Claims
-	if err := s.ticketProvider.Check(ctx, payload.Ticket, &claims); err != nil {
-		s.logger.Error(err, "failed to check ticket", "ticket", payload.Ticket)
-		return ErrInternalError
-	}
+	claims := auth.UserClaimsFromContext(ctx)
 
 	// Subscribe to the event service.
 	sub, err := s.evsvc.Subscribe(ctx)
@@ -53,7 +27,7 @@ func (s *serviceImpl) Monitor(
 
 	// Say hello to be nice.
 	event := &goastorage.StoragePingEvent{Message: new("Hello")}
-	if err := stream.Send(&goastorage.StorageEvent{Value: NewEventValue(event)}); err != nil {
+	if err := stream.SendWithContext(ctx, &goastorage.StorageEvent{Value: NewEventValue(event)}); err != nil {
 		// Consider send errors as client disconnections.
 		s.logger.V(1).Info("Failed to send hello event.", "err", err)
 		return nil
@@ -72,7 +46,7 @@ func (s *serviceImpl) Monitor(
 
 		case <-ticker.C:
 			event := &goastorage.StoragePingEvent{Message: new("Ping")}
-			if err := stream.Send(&goastorage.StorageEvent{Value: NewEventValue(event)}); err != nil {
+			if err := stream.SendWithContext(ctx, &goastorage.StorageEvent{Value: NewEventValue(event)}); err != nil {
 				// Consider send errors as client disconnections.
 				s.logger.V(1).Info("Failed to send ping event.", "err", err)
 				return nil
@@ -114,7 +88,7 @@ func (s *serviceImpl) Monitor(
 				continue
 			}
 
-			if err := stream.Send(event); err != nil {
+			if err := stream.SendWithContext(ctx, event); err != nil {
 				// Consider send errors as client disconnections.
 				s.logger.V(1).Info("Failed to send event.", "err", err)
 				return nil

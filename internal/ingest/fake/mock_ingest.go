@@ -742,45 +742,6 @@ func (c *MockServiceMonitorCall) DoAndReturn(f func(context.Context, *ingest.Mon
 	return c
 }
 
-// MonitorRequest mocks base method.
-func (m *MockService) MonitorRequest(arg0 context.Context, arg1 *ingest.MonitorRequestPayload) (*ingest.MonitorRequestResult, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MonitorRequest", arg0, arg1)
-	ret0, _ := ret[0].(*ingest.MonitorRequestResult)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// MonitorRequest indicates an expected call of MonitorRequest.
-func (mr *MockServiceMockRecorder) MonitorRequest(arg0, arg1 any) *MockServiceMonitorRequestCall {
-	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MonitorRequest", reflect.TypeOf((*MockService)(nil).MonitorRequest), arg0, arg1)
-	return &MockServiceMonitorRequestCall{Call: call}
-}
-
-// MockServiceMonitorRequestCall wrap *gomock.Call
-type MockServiceMonitorRequestCall struct {
-	*gomock.Call
-}
-
-// Return rewrite *gomock.Call.Return
-func (c *MockServiceMonitorRequestCall) Return(res *ingest.MonitorRequestResult, err error) *MockServiceMonitorRequestCall {
-	c.Call = c.Call.Return(res, err)
-	return c
-}
-
-// Do rewrite *gomock.Call.Do
-func (c *MockServiceMonitorRequestCall) Do(f func(context.Context, *ingest.MonitorRequestPayload) (*ingest.MonitorRequestResult, error)) *MockServiceMonitorRequestCall {
-	c.Call = c.Call.Do(f)
-	return c
-}
-
-// DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockServiceMonitorRequestCall) DoAndReturn(f func(context.Context, *ingest.MonitorRequestPayload) (*ingest.MonitorRequestResult, error)) *MockServiceMonitorRequestCall {
-	c.Call = c.Call.DoAndReturn(f)
-	return c
-}
-
 // RejectSip mocks base method.
 func (m *MockService) RejectSip(arg0 context.Context, arg1 *ingest.RejectSipPayload) error {
 	m.ctrl.T.Helper()

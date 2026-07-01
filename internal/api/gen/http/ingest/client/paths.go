@@ -12,11 +12,6 @@ import (
 	"fmt"
 )
 
-// MonitorRequestIngestPath returns the URL path to the ingest service monitor_request HTTP endpoint.
-func MonitorRequestIngestPath() string {
-	return "/ingest/monitor"
-}
-
 // MonitorIngestPath returns the URL path to the ingest service monitor HTTP endpoint.
 func MonitorIngestPath() string {
 	return "/ingest/monitor"

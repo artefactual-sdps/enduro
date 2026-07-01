@@ -34,15 +34,6 @@ type (
 	}
 )
 
-// WrapMonitorRequestEndpoint wraps the monitor_request endpoint with the
-// server-side interceptors defined in the design.
-func WrapMonitorRequestEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
-	if i != nil {
-		endpoint = wrapMonitorRequestOperationTimeout(endpoint, i)
-	}
-	return endpoint
-}
-
 // WrapMonitorEndpoint wraps the monitor endpoint with the server-side
 // interceptors defined in the design.
 func WrapMonitorEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {

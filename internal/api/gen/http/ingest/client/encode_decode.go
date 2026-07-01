@@ -25,134 +25,10 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
-// BuildMonitorRequestRequest instantiates a HTTP request object with method
-// and path set to call the "ingest" service "monitor_request" endpoint
-func (c *Client) BuildMonitorRequestRequest(ctx context.Context, v any) (*http.Request, error) {
-	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: MonitorRequestIngestPath()}
-	req, err := http.NewRequest("POST", u.String(), nil)
-	if err != nil {
-		return nil, goahttp.ErrInvalidURL("ingest", "monitor_request", u.String(), err)
-	}
-	if ctx != nil {
-		req = req.WithContext(ctx)
-	}
-
-	return req, nil
-}
-
-// EncodeMonitorRequestRequest returns an encoder for requests sent to the
-// ingest monitor_request server.
-func EncodeMonitorRequestRequest(encoder func(*http.Request) goahttp.Encoder) func(*http.Request, any) error {
-	return func(req *http.Request, v any) error {
-		p, ok := v.(*ingest.MonitorRequestPayload)
-		if !ok {
-			return goahttp.ErrInvalidType("ingest", "monitor_request", "*ingest.MonitorRequestPayload", v)
-		}
-		if p.Token != nil {
-			head := *p.Token
-			if !strings.Contains(head, " ") {
-				req.Header.Set("Authorization", "Bearer "+head)
-			} else {
-				req.Header.Set("Authorization", head)
-			}
-		}
-		return nil
-	}
-}
-
-// DecodeMonitorRequestResponse returns a decoder for responses returned by the
-// ingest monitor_request endpoint. restoreBody controls whether the response
-// body should be restored after having been read.
-// DecodeMonitorRequestResponse may return the following errors:
-//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
-//   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
-//   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
-//   - error: internal error
-func DecodeMonitorRequestResponse(decoder func(*http.Response) goahttp.Decoder, restoreBody bool) func(*http.Response) (any, error) {
-	return func(resp *http.Response) (any, error) {
-		if restoreBody {
-			b, err := io.ReadAll(resp.Body)
-			if err != nil {
-				return nil, err
-			}
-			resp.Body = io.NopCloser(bytes.NewBuffer(b))
-			defer func() {
-				resp.Body = io.NopCloser(bytes.NewBuffer(b))
-			}()
-		} else {
-			defer resp.Body.Close()
-		}
-		switch resp.StatusCode {
-		case http.StatusOK:
-			var (
-				ticket    *string
-				ticketRaw string
-
-				cookies = resp.Cookies()
-			)
-			for _, c := range cookies {
-				switch c.Name {
-				case "enduro-ingest-ws-ticket":
-					ticketRaw = c.Value
-				}
-			}
-			if ticketRaw != "" {
-				ticket = &ticketRaw
-			}
-			res := NewMonitorRequestResultOK(ticket)
-			return res, nil
-		case http.StatusInternalServerError:
-			var (
-				body MonitorRequestInternalErrorResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("ingest", "monitor_request", err)
-			}
-			err = ValidateMonitorRequestInternalErrorResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("ingest", "monitor_request", err)
-			}
-			return nil, NewMonitorRequestInternalError(&body)
-		case http.StatusForbidden:
-			var (
-				body string
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("ingest", "monitor_request", err)
-			}
-			return nil, NewMonitorRequestForbidden(body)
-		case http.StatusUnauthorized:
-			var (
-				body string
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("ingest", "monitor_request", err)
-			}
-			return nil, NewMonitorRequestUnauthorized(body)
-		default:
-			body, _ := io.ReadAll(resp.Body)
-			return nil, goahttp.ErrInvalidResponse("ingest", "monitor_request", resp.StatusCode, string(body))
-		}
-	}
-}
-
 // BuildMonitorRequest instantiates a HTTP request object with method and path
 // set to call the "ingest" service "monitor" endpoint
 func (c *Client) BuildMonitorRequest(ctx context.Context, v any) (*http.Request, error) {
-	scheme := c.scheme
-	switch c.scheme {
-	case "http":
-		scheme = "ws"
-	case "https":
-		scheme = "wss"
-	}
-	u := &url.URL{Scheme: scheme, Host: c.host, Path: MonitorIngestPath()}
+	u := &url.URL{Scheme: c.scheme, Host: c.host, Path: MonitorIngestPath()}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("ingest", "monitor", u.String(), err)
@@ -172,12 +48,13 @@ func EncodeMonitorRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 		if !ok {
 			return goahttp.ErrInvalidType("ingest", "monitor", "*ingest.MonitorPayload", v)
 		}
-		if p.Ticket != nil {
-			v := *p.Ticket
-			req.AddCookie(&http.Cookie{
-				Name:  "enduro-ingest-ws-ticket",
-				Value: v,
-			})
+		if p.Token != nil {
+			head := *p.Token
+			if !strings.Contains(head, " ") {
+				req.Header.Set("Authorization", "Bearer "+head)
+			} else {
+				req.Header.Set("Authorization", head)
+			}
 		}
 		return nil
 	}

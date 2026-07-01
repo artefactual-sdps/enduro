@@ -206,12 +206,10 @@ server {
       proxy_buffering off;
     }
 
-    # WebSocket support for ingest monitoring
+    # SSE support for ingest monitoring
     location /api/ingest/monitor {
         proxy_pass http://backend/ingest/monitor;
-        proxy_http_version 1.1;
-        proxy_set_header Connection "Upgrade";
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_buffering off;
         proxy_set_header Host $http_host;
     }
 
@@ -222,12 +220,10 @@ server {
         proxy_request_buffering off;
     }
 
-    # WebSocket support for storage monitoring
+    # SSE support for storage monitoring
     location /api/storage/monitor {
         proxy_pass http://backend/storage/monitor;
-        proxy_http_version 1.1;
-        proxy_set_header Connection "Upgrade";
-        proxy_set_header Upgrade $http_upgrade;
+        proxy_buffering off;
         proxy_set_header Host $http_host;
     }
 

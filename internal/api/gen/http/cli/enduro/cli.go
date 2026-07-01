@@ -27,16 +27,16 @@ import (
 func UsageCommands() []string {
 	return []string{
 		"about about",
-		"ingest (monitor-request|monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|show-sip-decision|submit-sip-decision|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects|add-batch|list-batches|show-batch|review-batch)",
-		"storage (monitor-request|monitor|list-aips|create-aip|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|aip-deletion-auto|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|aip-deletion-report-request|aip-deletion-report|list-locations|create-location|show-location|list-location-aips)",
+		"ingest (monitor|list-sips|show-sip|list-sip-workflows|confirm-sip|reject-sip|show-sip-decision|submit-sip-decision|add-sip|upload-sip|download-sip-request|download-sip|list-users|list-sip-source-objects|add-batch|list-batches|show-batch|review-batch)",
+		"storage (monitor|list-aips|create-aip|download-aip-request|download-aip|move-aip|move-aip-status|reject-aip|show-aip|list-aip-workflows|aip-deletion-auto|request-aip-deletion|review-aip-deletion|cancel-aip-deletion|aip-deletion-report-request|aip-deletion-report|list-locations|create-location|show-location|list-location-aips)",
 	}
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
 	return os.Args[0] + " " + "about about --token \"abc123\"" + "\n" +
-		os.Args[0] + " " + "ingest monitor-request --token \"abc123\"" + "\n" +
-		os.Args[0] + " " + "storage monitor-request --token \"abc123\"" + "\n" +
+		os.Args[0] + " " + "ingest monitor --token \"abc123\"" + "\n" +
+		os.Args[0] + " " + "storage monitor --token \"abc123\"" + "\n" +
 		""
 }
 
@@ -48,9 +48,6 @@ func ParseEndpoint(
 	enc func(*http.Request) goahttp.Encoder,
 	dec func(*http.Response) goahttp.Decoder,
 	restore bool,
-	dialer goahttp.Dialer,
-	ingestConfigurer *ingestc.ConnConfigurer,
-	storageConfigurer *storagec.ConnConfigurer,
 ) (goa.Endpoint, any, error) {
 	var (
 		aboutFlags = flag.NewFlagSet("about", flag.ContinueOnError)
@@ -60,11 +57,8 @@ func ParseEndpoint(
 
 		ingestFlags = flag.NewFlagSet("ingest", flag.ContinueOnError)
 
-		ingestMonitorRequestFlags     = flag.NewFlagSet("monitor-request", flag.ExitOnError)
-		ingestMonitorRequestTokenFlag = ingestMonitorRequestFlags.String("token", "", "")
-
-		ingestMonitorFlags      = flag.NewFlagSet("monitor", flag.ExitOnError)
-		ingestMonitorTicketFlag = ingestMonitorFlags.String("ticket", "", "")
+		ingestMonitorFlags     = flag.NewFlagSet("monitor", flag.ExitOnError)
+		ingestMonitorTokenFlag = ingestMonitorFlags.String("token", "", "")
 
 		ingestListSipsFlags                   = flag.NewFlagSet("list-sips", flag.ExitOnError)
 		ingestListSipsNameFlag                = ingestListSipsFlags.String("name", "", "")
@@ -160,11 +154,8 @@ func ParseEndpoint(
 
 		storageFlags = flag.NewFlagSet("storage", flag.ContinueOnError)
 
-		storageMonitorRequestFlags     = flag.NewFlagSet("monitor-request", flag.ExitOnError)
-		storageMonitorRequestTokenFlag = storageMonitorRequestFlags.String("token", "", "")
-
-		storageMonitorFlags      = flag.NewFlagSet("monitor", flag.ExitOnError)
-		storageMonitorTicketFlag = storageMonitorFlags.String("ticket", "", "")
+		storageMonitorFlags     = flag.NewFlagSet("monitor", flag.ExitOnError)
+		storageMonitorTokenFlag = storageMonitorFlags.String("token", "", "")
 
 		storageListAipsFlags                   = flag.NewFlagSet("list-aips", flag.ExitOnError)
 		storageListAipsQueryFlag               = storageListAipsFlags.String("query", "", "")
@@ -257,7 +248,6 @@ func ParseEndpoint(
 	aboutAboutFlags.Usage = aboutAboutUsage
 
 	ingestFlags.Usage = ingestUsage
-	ingestMonitorRequestFlags.Usage = ingestMonitorRequestUsage
 	ingestMonitorFlags.Usage = ingestMonitorUsage
 	ingestListSipsFlags.Usage = ingestListSipsUsage
 	ingestShowSipFlags.Usage = ingestShowSipUsage
@@ -278,7 +268,6 @@ func ParseEndpoint(
 	ingestReviewBatchFlags.Usage = ingestReviewBatchUsage
 
 	storageFlags.Usage = storageUsage
-	storageMonitorRequestFlags.Usage = storageMonitorRequestUsage
 	storageMonitorFlags.Usage = storageMonitorUsage
 	storageListAipsFlags.Usage = storageListAipsUsage
 	storageCreateAipFlags.Usage = storageCreateAipUsage
@@ -345,9 +334,6 @@ func ParseEndpoint(
 
 		case "ingest":
 			switch epn {
-			case "monitor-request":
-				epf = ingestMonitorRequestFlags
-
 			case "monitor":
 				epf = ingestMonitorFlags
 
@@ -406,9 +392,6 @@ func ParseEndpoint(
 
 		case "storage":
 			switch epn {
-			case "monitor-request":
-				epf = storageMonitorRequestFlags
-
 			case "monitor":
 				epf = storageMonitorFlags
 
@@ -499,14 +482,11 @@ func ParseEndpoint(
 				data, err = aboutc.BuildAboutPayload(*aboutAboutTokenFlag)
 			}
 		case "ingest":
-			c := ingestc.NewClient(scheme, host, doer, enc, dec, restore, dialer, ingestConfigurer)
+			c := ingestc.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
-			case "monitor-request":
-				endpoint = c.MonitorRequest()
-				data, err = ingestc.BuildMonitorRequestPayload(*ingestMonitorRequestTokenFlag)
 			case "monitor":
 				endpoint = c.Monitor()
-				data, err = ingestc.BuildMonitorPayload(*ingestMonitorTicketFlag)
+				data, err = ingestc.BuildMonitorPayload(*ingestMonitorTokenFlag)
 			case "list-sips":
 				endpoint = c.ListSips()
 				data, err = ingestc.BuildListSipsPayload(*ingestListSipsNameFlag, *ingestListSipsAipUUIDFlag, *ingestListSipsEarliestCreatedTimeFlag, *ingestListSipsLatestCreatedTimeFlag, *ingestListSipsStatusFlag, *ingestListSipsUploaderUUIDFlag, *ingestListSipsBatchUUIDFlag, *ingestListSipsLimitFlag, *ingestListSipsOffsetFlag, *ingestListSipsTokenFlag)
@@ -563,14 +543,11 @@ func ParseEndpoint(
 				data, err = ingestc.BuildReviewBatchPayload(*ingestReviewBatchBodyFlag, *ingestReviewBatchUUIDFlag, *ingestReviewBatchTokenFlag)
 			}
 		case "storage":
-			c := storagec.NewClient(scheme, host, doer, enc, dec, restore, dialer, storageConfigurer)
+			c := storagec.NewClient(scheme, host, doer, enc, dec, restore)
 			switch epn {
-			case "monitor-request":
-				endpoint = c.MonitorRequest()
-				data, err = storagec.BuildMonitorRequestPayload(*storageMonitorRequestTokenFlag)
 			case "monitor":
 				endpoint = c.Monitor()
-				data, err = storagec.BuildMonitorPayload(*storageMonitorTicketFlag)
+				data, err = storagec.BuildMonitorPayload(*storageMonitorTokenFlag)
 			case "list-aips":
 				endpoint = c.ListAips()
 				data, err = storagec.BuildListAipsPayload(*storageListAipsQueryFlag, *storageListAipsEarliestCreatedTimeFlag, *storageListAipsLatestCreatedTimeFlag, *storageListAipsStatusFlag, *storageListAipsLimitFlag, *storageListAipsOffsetFlag, *storageListAipsTokenFlag)
@@ -671,8 +648,7 @@ func ingestUsage() {
 	fmt.Fprintln(os.Stderr, `The ingest service manages ingested SIPs.`)
 	fmt.Fprintf(os.Stderr, "Usage:\n    %s [globalflags] ingest COMMAND [flags]\n\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "COMMAND:")
-	fmt.Fprintln(os.Stderr, `    monitor-request: Request access to the /monitor WebSocket`)
-	fmt.Fprintln(os.Stderr, `    monitor: Obtain access to the /monitor WebSocket`)
+	fmt.Fprintln(os.Stderr, `    monitor: Obtain access to the /monitor SSE event stream`)
 	fmt.Fprintln(os.Stderr, `    list-sips: List all ingested SIPs`)
 	fmt.Fprintln(os.Stderr, `    show-sip: Show SIP by ID`)
 	fmt.Fprintln(os.Stderr, `    list-sip-workflows: List all workflows for a SIP`)
@@ -694,40 +670,22 @@ func ingestUsage() {
 	fmt.Fprintln(os.Stderr, "Additional help:")
 	fmt.Fprintf(os.Stderr, "    %s ingest COMMAND --help\n", os.Args[0])
 }
-func ingestMonitorRequestUsage() {
+func ingestMonitorUsage() {
 	// Header with flags
-	fmt.Fprintf(os.Stderr, "%s [flags] ingest monitor-request", os.Args[0])
+	fmt.Fprintf(os.Stderr, "%s [flags] ingest monitor", os.Args[0])
 	fmt.Fprint(os.Stderr, " -token STRING")
 	fmt.Fprintln(os.Stderr)
 
 	// Description
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, `Request access to the /monitor WebSocket`)
+	fmt.Fprintln(os.Stderr, `Obtain access to the /monitor SSE event stream`)
 
 	// Flags list
 	fmt.Fprintln(os.Stderr, `    -token STRING: `)
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "ingest monitor-request --token \"abc123\"")
-}
-
-func ingestMonitorUsage() {
-	// Header with flags
-	fmt.Fprintf(os.Stderr, "%s [flags] ingest monitor", os.Args[0])
-	fmt.Fprint(os.Stderr, " -ticket STRING")
-	fmt.Fprintln(os.Stderr)
-
-	// Description
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, `Obtain access to the /monitor WebSocket`)
-
-	// Flags list
-	fmt.Fprintln(os.Stderr, `    -ticket STRING: `)
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "ingest monitor --ticket \"abc123\"")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "ingest monitor --token \"abc123\"")
 }
 
 func ingestListSipsUsage() {
@@ -1123,8 +1081,7 @@ func storageUsage() {
 	fmt.Fprintln(os.Stderr, `The storage service manages locations and AIPs.`)
 	fmt.Fprintf(os.Stderr, "Usage:\n    %s [globalflags] storage COMMAND [flags]\n\n", os.Args[0])
 	fmt.Fprintln(os.Stderr, "COMMAND:")
-	fmt.Fprintln(os.Stderr, `    monitor-request: Request access to the /monitor WebSocket`)
-	fmt.Fprintln(os.Stderr, `    monitor: Obtain access to the /monitor WebSocket`)
+	fmt.Fprintln(os.Stderr, `    monitor: Obtain access to the /monitor SSE event stream`)
 	fmt.Fprintln(os.Stderr, `    list-aips: List all AIPs`)
 	fmt.Fprintln(os.Stderr, `    create-aip: Create a new AIP`)
 	fmt.Fprintln(os.Stderr, `    download-aip-request: Request access to AIP download`)
@@ -1148,40 +1105,22 @@ func storageUsage() {
 	fmt.Fprintln(os.Stderr, "Additional help:")
 	fmt.Fprintf(os.Stderr, "    %s storage COMMAND --help\n", os.Args[0])
 }
-func storageMonitorRequestUsage() {
+func storageMonitorUsage() {
 	// Header with flags
-	fmt.Fprintf(os.Stderr, "%s [flags] storage monitor-request", os.Args[0])
+	fmt.Fprintf(os.Stderr, "%s [flags] storage monitor", os.Args[0])
 	fmt.Fprint(os.Stderr, " -token STRING")
 	fmt.Fprintln(os.Stderr)
 
 	// Description
 	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, `Request access to the /monitor WebSocket`)
+	fmt.Fprintln(os.Stderr, `Obtain access to the /monitor SSE event stream`)
 
 	// Flags list
 	fmt.Fprintln(os.Stderr, `    -token STRING: `)
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "storage monitor-request --token \"abc123\"")
-}
-
-func storageMonitorUsage() {
-	// Header with flags
-	fmt.Fprintf(os.Stderr, "%s [flags] storage monitor", os.Args[0])
-	fmt.Fprint(os.Stderr, " -ticket STRING")
-	fmt.Fprintln(os.Stderr)
-
-	// Description
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, `Obtain access to the /monitor WebSocket`)
-
-	// Flags list
-	fmt.Fprintln(os.Stderr, `    -ticket STRING: `)
-
-	fmt.Fprintln(os.Stderr)
-	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "storage monitor --ticket \"abc123\"")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "storage monitor --token \"abc123\"")
 }
 
 func storageListAipsUsage() {

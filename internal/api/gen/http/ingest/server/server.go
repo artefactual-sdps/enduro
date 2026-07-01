@@ -24,7 +24,6 @@ import (
 // Server lists the ingest service endpoint HTTP handlers.
 type Server struct {
 	Mounts               []*MountPoint
-	MonitorRequest       http.Handler
 	Monitor              http.Handler
 	ListSips             http.Handler
 	ShowSip              http.Handler
@@ -70,15 +69,9 @@ func New(
 	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	errhandler func(context.Context, http.ResponseWriter, error),
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
-	upgrader goahttp.Upgrader,
-	configurer *ConnConfigurer,
 ) *Server {
-	if configurer == nil {
-		configurer = &ConnConfigurer{}
-	}
 	return &Server{
 		Mounts: []*MountPoint{
-			{"MonitorRequest", "POST", "/ingest/monitor"},
 			{"Monitor", "GET", "/ingest/monitor"},
 			{"ListSips", "GET", "/ingest/sips"},
 			{"ShowSip", "GET", "/ingest/sips/{uuid}"},
@@ -112,8 +105,7 @@ func New(
 			{"CORS", "OPTIONS", "/ingest/batches/{uuid}"},
 			{"CORS", "OPTIONS", "/ingest/batches/{uuid}/review"},
 		},
-		MonitorRequest:       NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
-		Monitor:              NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
+		Monitor:              NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter),
 		ListSips:             NewListSipsHandler(e.ListSips, mux, decoder, encoder, errhandler, formatter),
 		ShowSip:              NewShowSipHandler(e.ShowSip, mux, decoder, encoder, errhandler, formatter),
 		ListSipWorkflows:     NewListSipWorkflowsHandler(e.ListSipWorkflows, mux, decoder, encoder, errhandler, formatter),
@@ -140,7 +132,6 @@ func (s *Server) Service() string { return "ingest" }
 
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
-	s.MonitorRequest = m(s.MonitorRequest)
 	s.Monitor = m(s.Monitor)
 	s.ListSips = m(s.ListSips)
 	s.ShowSip = m(s.ShowSip)
@@ -167,7 +158,6 @@ func (s *Server) MethodNames() []string { return ingest.MethodNames[:] }
 
 // Mount configures the mux to serve the ingest endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
-	MountMonitorRequestHandler(mux, h.MonitorRequest)
 	MountMonitorHandler(mux, h.Monitor)
 	MountListSipsHandler(mux, h.ListSips)
 	MountShowSipHandler(mux, h.ShowSip)
@@ -194,59 +184,6 @@ func (s *Server) Mount(mux goahttp.Muxer) {
 	Mount(mux, s)
 }
 
-// MountMonitorRequestHandler configures the mux to serve the "ingest" service
-// "monitor_request" endpoint.
-func MountMonitorRequestHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandleIngestOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("POST", "/ingest/monitor", f)
-}
-
-// NewMonitorRequestHandler creates a HTTP handler which loads the HTTP request
-// and calls the "ingest" service "monitor_request" endpoint.
-func NewMonitorRequestHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(ctx context.Context, err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		decodeRequest  = DecodeMonitorRequestRequest(mux, decoder)
-		encodeResponse = EncodeMonitorRequestResponse(encoder)
-		encodeError    = EncodeMonitorRequestError(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "monitor_request")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "ingest")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			if errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-		}
-	})
-}
-
 // MountMonitorHandler configures the mux to serve the "ingest" service
 // "monitor" endpoint.
 func MountMonitorHandler(mux goahttp.Muxer, h http.Handler) {
@@ -268,8 +205,6 @@ func NewMonitorHandler(
 	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	errhandler func(context.Context, http.ResponseWriter, error),
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
-	upgrader goahttp.Upgrader,
-	configurer goahttp.ConnConfigureFunc,
 ) http.Handler {
 	var (
 		decodeRequest = DecodeMonitorRequest(mux, decoder)
@@ -286,33 +221,15 @@ func NewMonitorHandler(
 			}
 			return
 		}
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithCancel(ctx)
 		v := &ingest.MonitorEndpointInput{
 			Stream: &MonitorServerStream{
-				upgrader:   upgrader,
-				configurer: configurer,
-				cancel:     cancel,
-				w:          w,
-				r:          r,
+				w: w,
+				r: r,
 			},
 			Payload: payload,
 		}
 		_, err = endpoint(ctx, v)
 		if err != nil {
-			var stream *MonitorServerStream
-			if wrapper, ok := v.Stream.(interface{ Unwrap() any }); ok {
-				stream = wrapper.Unwrap().(*MonitorServerStream)
-			} else {
-				stream = v.Stream.(*MonitorServerStream)
-			}
-			if stream != nil && stream.conn != nil {
-				// Response writer has been hijacked, do not encode the error
-				if errhandler != nil {
-					errhandler(ctx, w, err)
-				}
-				return
-			}
 			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
 				errhandler(ctx, w, err)
 			}

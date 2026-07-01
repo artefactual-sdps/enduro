@@ -24,7 +24,6 @@ import (
 // Server lists the storage service endpoint HTTP handlers.
 type Server struct {
 	Mounts                   []*MountPoint
-	MonitorRequest           http.Handler
 	Monitor                  http.Handler
 	ListAips                 http.Handler
 	CreateAip                http.Handler
@@ -72,15 +71,9 @@ func New(
 	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	errhandler func(context.Context, http.ResponseWriter, error),
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
-	upgrader goahttp.Upgrader,
-	configurer *ConnConfigurer,
 ) *Server {
-	if configurer == nil {
-		configurer = &ConnConfigurer{}
-	}
 	return &Server{
 		Mounts: []*MountPoint{
-			{"MonitorRequest", "POST", "/storage/monitor"},
 			{"Monitor", "GET", "/storage/monitor"},
 			{"ListAips", "GET", "/storage/aips"},
 			{"CreateAip", "POST", "/storage/aips"},
@@ -117,8 +110,7 @@ func New(
 			{"CORS", "OPTIONS", "/storage/locations/{uuid}"},
 			{"CORS", "OPTIONS", "/storage/locations/{uuid}/aips"},
 		},
-		MonitorRequest:           NewMonitorRequestHandler(e.MonitorRequest, mux, decoder, encoder, errhandler, formatter),
-		Monitor:                  NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.MonitorFn),
+		Monitor:                  NewMonitorHandler(e.Monitor, mux, decoder, encoder, errhandler, formatter),
 		ListAips:                 NewListAipsHandler(e.ListAips, mux, decoder, encoder, errhandler, formatter),
 		CreateAip:                NewCreateAipHandler(e.CreateAip, mux, decoder, encoder, errhandler, formatter),
 		DownloadAipRequest:       NewDownloadAipRequestHandler(e.DownloadAipRequest, mux, decoder, encoder, errhandler, formatter),
@@ -147,7 +139,6 @@ func (s *Server) Service() string { return "storage" }
 
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
-	s.MonitorRequest = m(s.MonitorRequest)
 	s.Monitor = m(s.Monitor)
 	s.ListAips = m(s.ListAips)
 	s.CreateAip = m(s.CreateAip)
@@ -176,7 +167,6 @@ func (s *Server) MethodNames() []string { return storage.MethodNames[:] }
 
 // Mount configures the mux to serve the storage endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
-	MountMonitorRequestHandler(mux, h.MonitorRequest)
 	MountMonitorHandler(mux, h.Monitor)
 	MountListAipsHandler(mux, h.ListAips)
 	MountCreateAipHandler(mux, h.CreateAip)
@@ -205,59 +195,6 @@ func (s *Server) Mount(mux goahttp.Muxer) {
 	Mount(mux, s)
 }
 
-// MountMonitorRequestHandler configures the mux to serve the "storage" service
-// "monitor_request" endpoint.
-func MountMonitorRequestHandler(mux goahttp.Muxer, h http.Handler) {
-	f, ok := HandleStorageOrigin(h).(http.HandlerFunc)
-	if !ok {
-		f = func(w http.ResponseWriter, r *http.Request) {
-			h.ServeHTTP(w, r)
-		}
-	}
-	mux.Handle("POST", "/storage/monitor", f)
-}
-
-// NewMonitorRequestHandler creates a HTTP handler which loads the HTTP request
-// and calls the "storage" service "monitor_request" endpoint.
-func NewMonitorRequestHandler(
-	endpoint goa.Endpoint,
-	mux goahttp.Muxer,
-	decoder func(*http.Request) goahttp.Decoder,
-	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
-	errhandler func(context.Context, http.ResponseWriter, error),
-	formatter func(ctx context.Context, err error) goahttp.Statuser,
-) http.Handler {
-	var (
-		decodeRequest  = DecodeMonitorRequestRequest(mux, decoder)
-		encodeResponse = EncodeMonitorRequestResponse(encoder)
-		encodeError    = EncodeMonitorRequestError(encoder, formatter)
-	)
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
-		ctx = context.WithValue(ctx, goa.MethodKey, "monitor_request")
-		ctx = context.WithValue(ctx, goa.ServiceKey, "storage")
-		payload, err := decodeRequest(r)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		res, err := endpoint(ctx, payload)
-		if err != nil {
-			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-			return
-		}
-		if err := encodeResponse(ctx, w, res); err != nil {
-			if errhandler != nil {
-				errhandler(ctx, w, err)
-			}
-		}
-	})
-}
-
 // MountMonitorHandler configures the mux to serve the "storage" service
 // "monitor" endpoint.
 func MountMonitorHandler(mux goahttp.Muxer, h http.Handler) {
@@ -279,8 +216,6 @@ func NewMonitorHandler(
 	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
 	errhandler func(context.Context, http.ResponseWriter, error),
 	formatter func(ctx context.Context, err error) goahttp.Statuser,
-	upgrader goahttp.Upgrader,
-	configurer goahttp.ConnConfigureFunc,
 ) http.Handler {
 	var (
 		decodeRequest = DecodeMonitorRequest(mux, decoder)
@@ -297,33 +232,15 @@ func NewMonitorHandler(
 			}
 			return
 		}
-		var cancel context.CancelFunc
-		ctx, cancel = context.WithCancel(ctx)
 		v := &storage.MonitorEndpointInput{
 			Stream: &MonitorServerStream{
-				upgrader:   upgrader,
-				configurer: configurer,
-				cancel:     cancel,
-				w:          w,
-				r:          r,
+				w: w,
+				r: r,
 			},
 			Payload: payload,
 		}
 		_, err = endpoint(ctx, v)
 		if err != nil {
-			var stream *MonitorServerStream
-			if wrapper, ok := v.Stream.(interface{ Unwrap() any }); ok {
-				stream = wrapper.Unwrap().(*MonitorServerStream)
-			} else {
-				stream = v.Stream.(*MonitorServerStream)
-			}
-			if stream != nil && stream.conn != nil {
-				// Response writer has been hijacked, do not encode the error
-				if errhandler != nil {
-					errhandler(ctx, w, err)
-				}
-				return
-			}
 			if err := encodeError(ctx, w, err); err != nil && errhandler != nil {
 				errhandler(ctx, w, err)
 			}
