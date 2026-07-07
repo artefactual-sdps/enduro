@@ -1,0 +1,25 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enduro
+spec:
+  template:
+    spec:
+      containers:
+        - name: enduro
+          envFrom:
+            - configMapRef:
+                name: seaweedfs-enduro-env
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-secret
+                  key: access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-secret
+                  key: secret_access_key
+            - name: ENDURO_INGEST_STORAGE_DEFAULTPERMANENTLOCATIONID
+              value: "0cb26a7e-593a-4725-a97e-0b0780783692"

@@ -1,0 +1,44 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-create-a3m-location
+spec:
+  backoffLimit: 100
+  template:
+    spec:
+      serviceAccountName: sdps
+      restartPolicy: OnFailure
+      containers:
+        - name: create-a3m-location
+          image: mysql:8.4.8
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: MYSQL_USER
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: user
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: mysql-secret
+                  key: password
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-secret
+                  key: access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-secret
+                  key: secret_access_key
+          command:
+            - sh
+            - -c
+            - >
+              LOC='{"s3":{"bucket":"perma-aips","region":"us-east-1","endpoint":"http://seaweedfs.enduro-sdps:8333","path_style":true,"key":"'$AWS_ACCESS_KEY_ID'","secret":"'$AWS_SECRET_ACCESS_KEY'"}}' &&
+              mysql -h mysql.enduro-sdps -u $MYSQL_USER -p$MYSQL_PASSWORD --execute "
+                INSERT IGNORE INTO enduro_storage.location (name, description, source, purpose, uuid, created_at, config)
+                VALUES ('perma-aips-seaweedfs', '', 's3', 'aip_store', '0cb26a7e-593a-4725-a97e-0b0780783692', NOW(), '$LOC');
+              " && echo "Location created"

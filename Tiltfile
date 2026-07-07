@@ -14,13 +14,23 @@ if os.path.exists(dotenv_path):
   dotenv(fn=dotenv_path)
 
 # Get preservation system (default: 'am')
-PRES_SYS = os.environ.get('ENDURO_PRES_SYSTEM', 'am')
+PRES_SYS = os.environ.get("ENDURO_PRES_SYSTEM", "am")
 if PRES_SYS not in ("a3m", "am"):
   fail("Invalid ENDURO_PRES_SYSTEM: {pres_sys}.".format(pres_sys=PRES_SYS))
+
+OBJECT_STORE = os.environ.get("OBJECT_STORE", "filesystem")
+if OBJECT_STORE not in ("filesystem", "seaweedfs"):
+  fail("Invalid OBJECT_STORE: {object_store}.".format(object_store=OBJECT_STORE))
 
 true = ("true", "1", "yes", "t", "y")
 LOCAL_A3M = os.environ.get("LOCAL_A3M", "").lower() in true
 DASHBOARD_DEV = os.environ.get("DASHBOARD_DEV", "").lower() in true
+
+LOCATION_JOB_PATH = "hack/kube/overlays/dev-{pres_sys}/mysql-create-{pres_sys}-location-job.yaml".format(
+  pres_sys=PRES_SYS,
+)
+if PRES_SYS == "a3m" and OBJECT_STORE == "seaweedfs":
+  LOCATION_JOB_PATH = "hack/kube/overlays/dev-a3m-seaweedfs/mysql-create-a3m-location-job.yaml"
 
 def add_enduro_config_secret(yaml):
   config_path = "enduro.toml"
@@ -82,6 +92,8 @@ docker_build(
 KUBE_OVERLAY = 'hack/kube/overlays/dev-a3m'
 if PRES_SYS == 'am':
   KUBE_OVERLAY = 'hack/kube/overlays/dev-am'
+if OBJECT_STORE == "seaweedfs":
+  KUBE_OVERLAY = "{overlay}-seaweedfs".format(overlay=KUBE_OVERLAY)
 
 # Load Kustomize YAML
 yaml = kustomize(KUBE_OVERLAY)
@@ -127,12 +139,16 @@ if os.environ.get('TRIGGER_MODE_AUTO', '').lower() in true:
   trigger_mode = TRIGGER_MODE_AUTO
 
 # Enduro resources
+enduro_resource_deps = ["temporal-schema-1-2-0-1"]
+if OBJECT_STORE == "seaweedfs":
+  enduro_resource_deps.append("seaweedfs")
+
 k8s_resource(
   "enduro",
   labels=["Enduro"],
   port_forwards=["9000:9000", "9002:9002"],
   trigger_mode=trigger_mode,
-  resource_deps=["temporal-schema-1-2-0-1"],
+  resource_deps=enduro_resource_deps,
 )
 k8s_resource(
   "enduro-dashboard",
@@ -152,14 +168,14 @@ if PRES_SYS == 'am':
     "enduro-am",
     labels=["Enduro"],
     trigger_mode=trigger_mode,
-    resource_deps=["temporal-schema-1-2-0-1", "ambox"],
+    resource_deps=enduro_resource_deps + ["ambox"],
   )
 else:
   k8s_resource(
     "enduro-a3m",
     labels=["Enduro"],
     trigger_mode=trigger_mode,
-    resource_deps=["temporal-schema-1-2-0-1"],
+    resource_deps=enduro_resource_deps,
   )
 
 # Temporal resources
@@ -208,6 +224,12 @@ k8s_resource(
 k8s_resource("keycloak", labels=["Others"], port_forwards="7470")
 k8s_resource("mysql", labels=["Others"], port_forwards="3306")
 k8s_resource("redis", labels=["Others"])
+if OBJECT_STORE == "seaweedfs":
+  k8s_resource(
+    "seaweedfs",
+    labels=["Others"],
+    port_forwards=["23646:23646"],
+  )
 
 # Tools
 if PRES_SYS == 'am':
@@ -255,9 +277,10 @@ cmd_button(
     kubectl wait --for=condition=complete --timeout=120s job --all; \
     kubectl rollout restart deployment enduro; \
     kubectl rollout restart {kind} enduro-{pres_sys}; \
-    kubectl create -f hack/kube/overlays/dev-{pres_sys}/mysql-create-{pres_sys}-location-job.yaml;".format(
+    kubectl create -f {location_job_path};".format(
       pres_sys=PRES_SYS,
       kind="statefulset" if PRES_SYS == "a3m" else "deployment",
+      location_job_path=LOCATION_JOB_PATH,
     ),
   ],
   location="nav",

@@ -122,12 +122,16 @@ documentation to know more about it.
 
 The main local services are available from the host:
 
-| Service       | URL                     | Username    | Password       |
-| ------------- | ----------------------- | ----------- | -------------- |
-| Dashboard     | <http://localhost:8080> | `admin`     | `admin123`     |
-| Temporal UI   | <http://localhost:7440> | `admin`     | `admin123`     |
-| Grafana       | <http://localhost:7490> | `admin`     | `admin123`     |
-| Keycloak      | <http://localhost:7470> | `keycloak`  | `keycloak123`  |
+| Service       | URL                      | Username    | Password       |
+| ------------- | ------------------------ | ----------- | -------------- |
+| Dashboard     | <http://localhost:8080>  | `admin`     | `admin123`     |
+| Temporal UI   | <http://localhost:7440>  | `admin`     | `admin123`     |
+| Grafana       | <http://localhost:7490>  | `admin`     | `admin123`     |
+| Keycloak      | <http://localhost:7470>  | `keycloak`  | `keycloak123`  |
+| SeaweedFS     | <http://localhost:23646> | `admin`     | `admin123`     |
+
+The SeaweedFS Admin UI is available only with
+[`OBJECT_STORE=seaweedfs`](#object_store).
 
 ## Submit your first SIP
 
@@ -195,6 +199,7 @@ located in the root of the project. Example:
 TRIGGER_MODE_AUTO=true
 ENDURO_PRES_SYSTEM=a3m
 LOCAL_A3M=true
+OBJECT_STORE=seaweedfs
 DASHBOARD_DEV=true
 CHILD_WORKFLOW_PATHS='../preprocessing-acme:../acme-enduro-workflows'
 MOUNT_PREPROCESSING_VOLUME=true
@@ -221,6 +226,44 @@ but it has seen little adoption and is largely unmaintained. Check the
 
 Build and use a local version of a3m. Requires to have the `a3m` repository
 cloned as a sibling of this repository folder.
+
+### OBJECT_STORE
+
+Determines the object store used by the local development environment. Allowed
+values are `filesystem` and `seaweedfs`; it defaults to `filesystem`.
+
+With the default `filesystem` mode, Tilt uses the shared `internal-storage` PVC
+for Enduro's internal ingest bucket, storage bucket, SIP source bucket, and a3m
+permanent AIP location.
+
+With `OBJECT_STORE=seaweedfs`, Tilt deploys SeaweedFS and overrides Enduro's
+configured internal buckets to use its S3-compatible endpoint:
+`http://seaweedfs.enduro-sdps:8333`. This endpoint is exposed only inside the
+Kubernetes cluster. Tilt port-forwards the SeaweedFS Admin UI locally for bucket
+management:
+
+- Admin UI: `http://localhost:23646`
+
+The Admin UI uses SeaweedFS' built-in local authentication:
+
+- Username: `admin`
+- Password: `admin123`
+
+The S3 development credentials are:
+
+- Access key: `enduro`
+- Secret key: `enduro123`
+
+SeaweedFS starts with these buckets:
+
+- `ingest`: internal storage for the ingest domain.
+- `storage`: internal storage for the storage domain and a3m AIP staging.
+- `sip-source`: SIP source bucket.
+- `perma-aips`: a3m permanent AIP storage.
+
+The `internal-storage` PVC is still created in SeaweedFS mode because the
+filesystem watched location continues to use it. Only the configured bucket
+locations listed above move to SeaweedFS.
 
 ### DASHBOARD_DEV
 
@@ -271,13 +314,14 @@ make upload-sip LOCAL_PATH=/path/to/sip.zip
 Also in the Tilt UI header, click the trash button to flush the existing data.
 This will recreate the Enduro MySQL databases, and restart the required
 resources. It does not recreate the Temporal databases or clean the
-internal-storage volume; data in those locations remains after the flush.
+internal-storage volume or SeaweedFS PVC; data in those locations remains after
+the flush.
 
 ## Interact with the internal-storage volume
 
 The local development environment mounts the shared internal-storage PVC in the
-`enduro` pod at `/home/enduro/internal-storage`. The volume contains internal
-folders used by different local workflows:
+`enduro` pod at `/home/enduro/internal-storage`. In `OBJECT_STORE=filesystem`
+mode, the volume contains internal folders used by different local workflows:
 
 - `ingest`: internal storage for the ingest domain.
 - `storage`: internal storage for the storage domain.
@@ -286,9 +330,15 @@ folders used by different local workflows:
 - `watched-complete`: successfully ingested watched-location SIPs.
 - `perma-aips`: local permanent AIP storage.
 
-Use the `enduro` pod as an access point for copying, listing, and removing files
-in any of those folders. Declare the following variables related to the Enduro
-Kubernetes pod in the same BASH script as the subsequent `kubectl` commands:
+In `OBJECT_STORE=seaweedfs` mode, the `ingest`, `storage`, `sip-source`, and
+`perma-aips` locations are configured as SeaweedFS S3 buckets instead. Use the
+SeaweedFS S3 endpoint for those buckets. The `watched` and `watched-complete`
+folders continue to use the internal-storage PVC.
+
+For filesystem-backed locations, use the `enduro` pod as an access point for
+copying, listing, and removing files in those folders. Declare the following
+variables related to the Enduro Kubernetes pod in the same BASH script as the
+subsequent `kubectl` commands:
 
 ```bash
 NAMESPACE=enduro-sdps

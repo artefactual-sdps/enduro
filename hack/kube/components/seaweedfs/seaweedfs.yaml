@@ -1,0 +1,108 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: seaweedfs-secret
+type: Opaque
+stringData:
+  access_key_id: enduro
+  secret_access_key: enduro123
+  admin_user: admin
+  admin_password: admin123
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: seaweedfs-enduro-env
+data:
+  ENDURO_INTERNALSTORAGE_URL: s3://ingest?region=us-east-1&endpoint=http://seaweedfs.enduro-sdps:8333&use_path_style=true&disable_https=true&awssdk=v2
+  ENDURO_STORAGE_INTERNAL_URL: s3://storage?region=us-east-1&endpoint=http://seaweedfs.enduro-sdps:8333&use_path_style=true&disable_https=true&awssdk=v2
+  ENDURO_A3M_AIPSTAGING_URL: s3://storage?region=us-east-1&endpoint=http://seaweedfs.enduro-sdps:8333&use_path_style=true&disable_https=true&awssdk=v2
+  ENDURO_SIPSOURCE_BUCKET_URL: s3://sip-source?region=us-east-1&endpoint=http://seaweedfs.enduro-sdps:8333&use_path_style=true&disable_https=true&awssdk=v2
+  ENDURO_SIPSOURCE_NAME: SeaweedFS SIP Source
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: seaweedfs-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seaweedfs
+  labels:
+    app: seaweedfs
+spec:
+  selector:
+    matchLabels:
+      app: seaweedfs
+  template:
+    metadata:
+      labels:
+        app: seaweedfs
+    spec:
+      containers:
+        - name: seaweedfs
+          image: chrislusf/seaweedfs:4.38
+          imagePullPolicy: IfNotPresent
+          command:
+            - weed
+          args:
+            - mini
+            - -dir=/data
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-secret
+                  key: access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-secret
+                  key: secret_access_key
+            - name: WEED_ADMIN_USER
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-secret
+                  key: admin_user
+            - name: WEED_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-secret
+                  key: admin_password
+            - name: S3_BUCKET
+              value: ingest,storage,sip-source,perma-aips
+          ports:
+            - name: admin-ui
+              containerPort: 23646
+            - name: s3
+              containerPort: 8333
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          resources: {}
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: seaweedfs-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: seaweedfs
+  labels:
+    app: seaweedfs
+spec:
+  selector:
+    app: seaweedfs
+  ports:
+    - name: admin-ui
+      port: 23646
+    - name: s3
+      port: 8333

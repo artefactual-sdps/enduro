@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: enduro-sdps
+resources:
+  - ../dev-a3m
+  - ../../components/seaweedfs
+patches:
+  - path: enduro-seaweedfs-patch.yaml
+    target:
+      kind: Deployment
+      name: enduro
+  - path: enduro-a3m-seaweedfs-patch.yaml
+    target:
+      kind: StatefulSet
+      name: enduro-a3m
+  - path: mysql-create-a3m-location-job.yaml
+    target:
+      kind: Job
+      name: mysql-create-a3m-location

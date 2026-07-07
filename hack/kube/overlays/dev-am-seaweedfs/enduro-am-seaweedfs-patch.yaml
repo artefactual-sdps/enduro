@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: enduro-am
+spec:
+  template:
+    spec:
+      containers:
+        - name: enduro-am-worker
+          envFrom:
+            - configMapRef:
+                name: seaweedfs-enduro-env
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-secret
+                  key: access_key_id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: seaweedfs-secret
+                  key: secret_access_key
