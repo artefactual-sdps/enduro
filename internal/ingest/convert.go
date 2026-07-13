@@ -228,9 +228,7 @@ func sipSourceObjectsToGoa(objects []*sipsource.Object) goaingest.SIPSourceObjec
 		if object.Size != 0 {
 			r[i].Size = new(object.Size)
 		}
-		if !object.ModTime.IsZero() {
-			r[i].ModTime = new(object.ModTime.Format(time.RFC3339))
-		}
+		r[i].ModTime = db.FormatOptionalZeroTime(object.ModTime)
 	}
 
 	return r

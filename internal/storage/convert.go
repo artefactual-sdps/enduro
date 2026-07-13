@@ -1,49 +1,30 @@
 package storage
 
 import (
-	"time"
-
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 	"github.com/artefactual-sdps/enduro/internal/auditlog"
+	"github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
 
 // workflowToGoa converts a storage Workflow to a Goa AIPWorkflow.
 func (svc *serviceImpl) workflowToGoa(w *types.Workflow) *goastorage.AIPWorkflow {
-	var startedAt, completedAt *string
-
-	if !w.StartedAt.IsZero() {
-		startedAt = new(w.StartedAt.Format(time.RFC3339))
-	}
-
-	if !w.CompletedAt.IsZero() {
-		completedAt = new(w.CompletedAt.Format(time.RFC3339))
-	}
-
 	// Tasks are loaded separately when needed.
 	return &goastorage.AIPWorkflow{
 		UUID:        w.UUID,
 		TemporalID:  w.TemporalID,
 		Type:        w.Type.String(),
 		Status:      w.Status.String(),
-		StartedAt:   startedAt,
-		CompletedAt: completedAt,
+		StartedAt:   db.FormatOptionalZeroTime(w.StartedAt),
+		CompletedAt: db.FormatOptionalZeroTime(w.CompletedAt),
 		AipUUID:     w.AIPUUID,
 	}
 }
 
 // taskToGoa converts a storage Task to a Goa AIPTask.
 func (svc *serviceImpl) taskToGoa(t *types.Task) *goastorage.AIPTask {
-	var startedAt, completedAt, note *string
-
-	if !t.StartedAt.IsZero() {
-		startedAt = new(t.StartedAt.Format(time.RFC3339))
-	}
-
-	if !t.CompletedAt.IsZero() {
-		completedAt = new(t.CompletedAt.Format(time.RFC3339))
-	}
+	var note *string
 
 	if t.Note != "" {
 		note = new(t.Note)
@@ -53,8 +34,8 @@ func (svc *serviceImpl) taskToGoa(t *types.Task) *goastorage.AIPTask {
 		UUID:         t.UUID,
 		Name:         t.Name,
 		Status:       t.Status.String(),
-		StartedAt:    startedAt,
-		CompletedAt:  completedAt,
+		StartedAt:    db.FormatOptionalZeroTime(t.StartedAt),
+		CompletedAt:  db.FormatOptionalZeroTime(t.CompletedAt),
 		Note:         note,
 		WorkflowUUID: t.WorkflowUUID,
 	}
