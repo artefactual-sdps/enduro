@@ -32,17 +32,13 @@ func (b *Batch) Goa() *goaingest.Batch {
 	}
 
 	col := goaingest.Batch{
-		UUID:       b.UUID,
-		Identifier: b.Identifier,
-		Status:     b.Status.String(),
-		SipsCount:  b.SIPSCount,
-		CreatedAt:  db.FormatTime(b.CreatedAt),
-	}
-	if !b.StartedAt.IsZero() {
-		col.StartedAt = new(b.StartedAt.Format(time.RFC3339))
-	}
-	if !b.CompletedAt.IsZero() {
-		col.CompletedAt = new(b.CompletedAt.Format(time.RFC3339))
+		UUID:        b.UUID,
+		Identifier:  b.Identifier,
+		Status:      b.Status.String(),
+		SipsCount:   b.SIPSCount,
+		CreatedAt:   db.FormatTime(b.CreatedAt),
+		StartedAt:   db.FormatOptionalZeroTime(b.StartedAt),
+		CompletedAt: db.FormatOptionalZeroTime(b.CompletedAt),
 	}
 	if b.Uploader != nil {
 		col.UploaderUUID = new(b.Uploader.UUID)

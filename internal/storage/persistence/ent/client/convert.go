@@ -5,6 +5,7 @@ import (
 	"time"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
+	endurodb "github.com/artefactual-sdps/enduro/internal/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 )
@@ -85,17 +86,12 @@ func aipAsGoa(ctx context.Context, a *db.AIP) *goastorage.AIP {
 
 func workflowAsGoa(dbw *db.Workflow) *goastorage.AIPWorkflow {
 	w := &goastorage.AIPWorkflow{
-		UUID:       dbw.UUID,
-		TemporalID: dbw.TemporalID,
-		Type:       dbw.Type.String(),
-		Status:     dbw.Status.String(),
-	}
-
-	if !dbw.StartedAt.IsZero() {
-		w.StartedAt = new(dbw.StartedAt.Format(time.RFC3339))
-	}
-	if !dbw.CompletedAt.IsZero() {
-		w.CompletedAt = new(dbw.CompletedAt.Format(time.RFC3339))
+		UUID:        dbw.UUID,
+		TemporalID:  dbw.TemporalID,
+		Type:        dbw.Type.String(),
+		Status:      dbw.Status.String(),
+		StartedAt:   endurodb.FormatOptionalZeroTime(dbw.StartedAt),
+		CompletedAt: endurodb.FormatOptionalZeroTime(dbw.CompletedAt),
 	}
 
 	if dbw.Edges.Aip != nil {
@@ -116,16 +112,11 @@ func workflowAsGoa(dbw *db.Workflow) *goastorage.AIPWorkflow {
 
 func taskAsGoa(dbt *db.Task) *goastorage.AIPTask {
 	t := &goastorage.AIPTask{
-		UUID:   dbt.UUID,
-		Name:   dbt.Name,
-		Status: dbt.Status.String(),
-	}
-
-	if !dbt.StartedAt.IsZero() {
-		t.StartedAt = new(dbt.StartedAt.Format(time.RFC3339))
-	}
-	if !dbt.CompletedAt.IsZero() {
-		t.CompletedAt = new(dbt.CompletedAt.Format(time.RFC3339))
+		UUID:        dbt.UUID,
+		Name:        dbt.Name,
+		Status:      dbt.Status.String(),
+		StartedAt:   endurodb.FormatOptionalZeroTime(dbt.StartedAt),
+		CompletedAt: endurodb.FormatOptionalZeroTime(dbt.CompletedAt),
 	}
 	if dbt.Note != "" {
 		t.Note = &dbt.Note
