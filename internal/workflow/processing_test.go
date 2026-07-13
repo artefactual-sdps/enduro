@@ -364,7 +364,6 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		ChildWorkflows: childwf.Configs{
 			{
 				Type:         enums.ChildWorkflowTypePreprocessing,
-				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
 				Extract:      true,
@@ -372,7 +371,6 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 			},
 			{
 				Type:         enums.ChildWorkflowTypePoststorage,
-				Namespace:    "default",
 				TaskQueue:    "poststorage",
 				WorkflowName: "poststorage",
 			},
@@ -533,7 +531,6 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 		ChildWorkflows: childwf.Configs{
 			{
 				Type:         enums.ChildWorkflowTypePreprocessing,
-				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
 				Extract:      true,
@@ -662,7 +659,6 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		ChildWorkflows: childwf.Configs{
 			{
 				Type:         enums.ChildWorkflowTypePreprocessing,
-				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
 				Extract:      true,

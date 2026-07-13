@@ -13,9 +13,6 @@ type Config struct {
 	// Type of the child workflow.
 	Type enums.ChildWorkflowType
 
-	// Namespace is the Temporal namespace of the child workflow.
-	Namespace string
-
 	// TaskQueue is the Temporal task queue to use for child workflow tasks.
 	TaskQueue string
 
@@ -45,9 +42,6 @@ func (c Config) missingFields() error {
 
 	if c.Type == "" {
 		missing = append(missing, "type")
-	}
-	if c.Namespace == "" {
-		missing = append(missing, "namespace")
 	}
 	if c.TaskQueue == "" {
 		missing = append(missing, "taskQueue")

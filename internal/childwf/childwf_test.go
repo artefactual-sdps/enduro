@@ -19,7 +19,6 @@ func TestConfig_Validate(t *testing.T) {
 			name: "Valid config",
 			config: childwf.Config{
 				Type:         enums.ChildWorkflowTypePreprocessing,
-				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
 				SharedPath:   "/home/enduro/shared",
@@ -30,13 +29,12 @@ func TestConfig_Validate(t *testing.T) {
 			config: childwf.Config{
 				Type: enums.ChildWorkflowTypePreprocessing,
 			},
-			wantErr: `missing required value(s): namespace, taskQueue, workflowName, sharedPath`,
+			wantErr: `missing required value(s): taskQueue, workflowName, sharedPath`,
 		},
 		{
 			name: "Errors on invalid type",
 			config: childwf.Config{
 				Type:         "invalid_type",
-				Namespace:    "default",
 				TaskQueue:    "taskqueue",
 				WorkflowName: "workflowname",
 			},
@@ -60,14 +58,12 @@ func TestConfigs_ByType(t *testing.T) {
 	configs := childwf.Configs{
 		{
 			Type:         enums.ChildWorkflowTypePreprocessing,
-			Namespace:    "default",
 			TaskQueue:    "preprocessing",
 			WorkflowName: "preprocessing",
 			SharedPath:   "/home/enduro/shared",
 		},
 		{
 			Type:         enums.ChildWorkflowTypePoststorage,
-			Namespace:    "default",
 			TaskQueue:    "poststorage",
 			WorkflowName: "poststorage",
 		},
@@ -76,7 +72,6 @@ func TestConfigs_ByType(t *testing.T) {
 	cfg := configs.ByType(enums.ChildWorkflowTypePreprocessing)
 	assert.DeepEqual(t, cfg, &childwf.Config{
 		Type:         enums.ChildWorkflowTypePreprocessing,
-		Namespace:    "default",
 		TaskQueue:    "preprocessing",
 		WorkflowName: "preprocessing",
 		SharedPath:   "/home/enduro/shared",
@@ -100,14 +95,12 @@ func TestConfigs_Validate(t *testing.T) {
 			configs: childwf.Configs{
 				{
 					Type:         enums.ChildWorkflowTypePreprocessing,
-					Namespace:    "default",
 					TaskQueue:    "preprocessing",
 					WorkflowName: "preprocessing",
 					SharedPath:   "/home/enduro/shared",
 				},
 				{
 					Type:         enums.ChildWorkflowTypePoststorage,
-					Namespace:    "default",
 					TaskQueue:    "poststorage",
 					WorkflowName: "poststorage",
 					SharedPath:   "/home/enduro/shared",
@@ -119,14 +112,12 @@ func TestConfigs_Validate(t *testing.T) {
 			configs: childwf.Configs{
 				{
 					Type:         enums.ChildWorkflowTypePreprocessing,
-					Namespace:    "default",
 					TaskQueue:    "preprocessing",
 					WorkflowName: "preprocessing",
 					SharedPath:   "/home/enduro/shared",
 				},
 				{
 					Type:         enums.ChildWorkflowTypePreprocessing,
-					Namespace:    "default",
 					TaskQueue:    "preprocessing-2",
 					WorkflowName: "preprocessing-2",
 					SharedPath:   "/home/enduro/shared-2",
@@ -139,12 +130,10 @@ func TestConfigs_Validate(t *testing.T) {
 			configs: childwf.Configs{
 				{
 					Type:         enums.ChildWorkflowTypePreprocessing,
-					Namespace:    "default",
 					TaskQueue:    "preprocessing",
 					WorkflowName: "preprocessing",
 				},
 				{
-					Namespace:    "default",
 					TaskQueue:    "poststorage",
 					WorkflowName: "poststorage",
 				},

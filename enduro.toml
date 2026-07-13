@@ -18,8 +18,8 @@ debugListen = "127.0.0.1:9001"
 verbosity = 2
 
 [temporal]
-namespace = "default"
 address = "temporal-frontend.enduro-sdps:7233"
+namespace = "default"
 taskQueue = "global"
 
 [internalapi]
@@ -350,7 +350,6 @@ url = "file:///home/enduro/internal-storage/sip-source?metadata=skip"
 # Uncomment to activate. All fields except "extract" are required.
 # [[childWorkflows]]
 # type = "preprocessing"
-# namespace = "default"
 # taskQueue = "preprocessing"
 # workflowName = "preprocessing"
 
@@ -369,7 +368,6 @@ url = "file:///home/enduro/internal-storage/sip-source?metadata=skip"
 # Uncomment to activate. All fields are required.
 # [[childWorkflows]]
 # type = "poststorage"
-# namespace = "default"
 # taskQueue = "poststorage"
 # workflowName = "poststorage"
 
@@ -377,7 +375,6 @@ url = "file:///home/enduro/internal-storage/sip-source?metadata=skip"
 # AIPs. Uncomment to activate. All fields are required.
 # [[childWorkflows]]
 # type = "postbatch"
-# namespace = "default"
 # taskQueue = "postbatch"
 # workflowName = "postbatch"
 

@@ -237,7 +237,6 @@ func (w *BatchWorkflow) startSIPWorkflow(
 	// Start processing workflow for the SIP, keeping track of the workflow future and execution.
 	var we temporalsdk_workflow.Execution
 	processingCtx := temporalsdk_workflow.WithChildOptions(ctx, temporalsdk_workflow.ChildWorkflowOptions{
-		Namespace:         w.cfg.Temporal.Namespace,
 		TaskQueue:         w.cfg.Temporal.TaskQueue,
 		WorkflowID:        fmt.Sprintf("%s-%s", ingest.ProcessingWorkflowName, sipUUID.String()),
 		ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,
@@ -361,7 +360,6 @@ func (w *BatchWorkflow) postbatchWorkflow(
 	childCtx := temporalsdk_workflow.WithChildOptions(
 		ctx,
 		temporalsdk_workflow.ChildWorkflowOptions{
-			Namespace:         cfg.Namespace,
 			TaskQueue:         cfg.TaskQueue,
 			WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, state.batch.UUID.String()),
 			ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,

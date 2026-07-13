@@ -123,22 +123,20 @@ and communicate with Temporal.
 
 ```toml
 [temporal]
-namespace = "default"
 address = "temporal.enduro-sdps:7233"
+namespace = "default"
 taskQueue = "global"
 ```
 
-* `namespace`: An internal namespace label for the Temporal workflows. This only
-  needs to be changed if you expect to be running multiple different workflows
-  running at once, so they don't clash.
 * `address`: Tells Enduro where to find Temporal - address and port connection
   information.
+* `namespace`: The Temporal namespace in which Enduro workflows run. Custom
+  child workflows inherit this namespace. Workers that execute custom child
+  workflows must connect to the same namespace.
 * `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
   allocated queue that one or more workers can poll for tasks. Temporal supports
   many kinds of parallelization for a distributed application architecture, and
-  and task queues can be namespaced to support such a set-up. At present
-  however, Enduro will only support the default `global` value for the general
-  ingest workflow queue.
+  and task queues can be namespaced to support such a set-up.
 
 ### Internal API
 
@@ -1440,9 +1438,13 @@ A child workflow is a concept borrowed from Enduro's [workflow engine],
 Enduro to keep custom activities with organization specific business rules or
 policy requirements separated from the underlying general Enduro code.
 
-All child workflow configurations share four common settings: `type`,
-`namespace`, `taskQueue`, and `workflowName`.  An example configuration for the
-poststorage child workflow is shown below.
+Enduro schedules custom child workflows in the same Temporal namespace as their
+parent workflows, as configured by `[temporal].namespace`. Workers that execute
+these child workflows must connect to the same namespace.
+
+All child workflow configurations share three common settings: `type`,
+`taskQueue`, and `workflowName`.  An example configuration for the poststorage
+child workflow is shown below.
 
 !!! note
 
@@ -1455,26 +1457,20 @@ poststorage child workflow is shown below.
 ```toml
 [[childWorkflows]]
 type = "poststorage"
-namespace = "default"
-taskQueue = "poststorage"
-workflowName = "poststrage"
+taskQueue = "custom-queue"
+workflowName = "custom-poststorage-workflow"
 ```
 
 * `type`: The type of child workflow. Type is used to load the correct child
   workflow configuration in Enduro so only one child workflow of each type may
   be configured for any instance of Enduro. If multiple child workflows have
   the same type, an error will be thrown when the configuration is validated.
-* `namespace`: An internal namespace label for the Temporal workflows. This only
-  needs to be changed if you expect to be running multiple different workflows
-  at once, so they don't clash.
 * `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
-  allocated queue that one or more workers can poll for tasks. Temporal supports
-  many kinds of parallelization for a distributed application architecture, and
-  and task queues can be namespaced to support such a set-up. The value of
-  `poststorage` here differentiates it from the general `global` task queue
-  used by Enduro, and ensures that Enduro looks for child workflow tasks in a
-  dedicated queue.
-* `workflowName`: The name of the configured [child workflow] in Temporal.
+  allocated queue that one or more workers can poll for tasks. The example
+  value `custom-queue` differentiates this queue from Enduro's general `global`
+  queue. The custom workers must poll the configured queue.
+* `workflowName`: The name of the configured [child workflow] in Temporal. It
+  must exactly match the custom workers registration.
 
 All `[[childWorkflows]]` configuration sections are commented out at Enduro
 installation, disabling the child workflows. Uncomment the relevant
@@ -1500,9 +1496,8 @@ to the common child workflow settings: `extract` and `sharedPath`.
 ```toml
 [[childWorkflows]]
 type = "preprocessing"
-namespace = "default"
-taskQueue = "preprocessing"
-workflowName = "preprocessing"
+taskQueue = "custom-queue"
+workflowName = "custom-preprocessing-workflow"
 extract = true
 sharedPath = "/home/enduro/preprocessing"
 ```
@@ -1540,9 +1535,8 @@ archival management system), AIP encryption or replication, and more.
 ```toml
 [[childWorkflows]]
 type = "poststorage"
-namespace = "default"
-taskQueue = "poststorage"
-workflowName = "poststorage"
+taskQueue = "custom-queue"
+workflowName = "custom-poststorage-workflow"
 ```
 
 #### Postbatch child workflow
@@ -1557,9 +1551,8 @@ that collates SIP and AIP data for all of the SIPs in a batch.
 ```toml
 [[childWorkflows]]
 type = "postbatch"
-namespace = "default"
-taskQueue = "postbatch"
-workflowName = "postbatch"
+taskQueue = "custom-queue"
+workflowName = "custom-postbatch-workflow"
 ```
 
 [a3m]: https://github.com/artefactual-labs/a3m

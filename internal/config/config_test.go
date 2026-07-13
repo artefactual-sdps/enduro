@@ -72,14 +72,12 @@ retryBackoffCoefficient = 1.5
 
 [[childWorkflows]]
 type = "preprocessing"
-namespace = "default"
 taskQueue = "preprocessing"
 workflowName = "preprocessing"
 sharedPath = "/home/enduro/shared"
 
 [[childWorkflows]]
 type = "poststorage"
-namespace = "default"
 taskQueue = "poststorage"
 workflowName = "poststorage"
 `
@@ -144,14 +142,12 @@ func TestConfigRead(t *testing.T) {
 				ChildWorkflows: childwf.Configs{
 					{
 						Type:         "preprocessing",
-						Namespace:    "default",
 						TaskQueue:    "preprocessing",
 						WorkflowName: "preprocessing",
 						SharedPath:   "/home/enduro/shared",
 					},
 					{
 						Type:         "poststorage",
-						Namespace:    "default",
 						TaskQueue:    "poststorage",
 						WorkflowName: "poststorage",
 					},

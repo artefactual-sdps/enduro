@@ -163,7 +163,6 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 		ChildWorkflows: childwf.Configs{
 			{
 				Type:         enums.ChildWorkflowTypePostbatch,
-				Namespace:    "default",
 				TaskQueue:    "postbatch",
 				WorkflowName: "postbatch",
 			},

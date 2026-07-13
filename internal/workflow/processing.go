@@ -1112,7 +1112,6 @@ func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, sta
 	}
 
 	preCtx := temporalsdk_workflow.WithChildOptions(ctx, temporalsdk_workflow.ChildWorkflowOptions{
-		Namespace:         cfg.Namespace,
 		TaskQueue:         cfg.TaskQueue,
 		WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, state.sip.uuid.String()),
 		ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,
@@ -1377,7 +1376,6 @@ func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, state
 	ctx = temporalsdk_workflow.WithChildOptions(
 		ctx,
 		temporalsdk_workflow.ChildWorkflowOptions{
-			Namespace:         cfg.Namespace,
 			TaskQueue:         cfg.TaskQueue,
 			WorkflowID:        fmt.Sprintf("%s-%s", cfg.WorkflowName, state.aip.id),
 			ParentClosePolicy: temporalapi_enums.PARENT_CLOSE_POLICY_TERMINATE,

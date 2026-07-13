@@ -139,7 +139,6 @@ func TestAbout(t *testing.T) {
 				ChildWorkflows: childwf.Configs{
 					{
 						Type:         enums.ChildWorkflowTypePreprocessing,
-						Namespace:    "default",
 						TaskQueue:    "preprocessing",
 						WorkflowName: "preprocessing",
 						Extract:      true,
@@ -147,7 +146,6 @@ func TestAbout(t *testing.T) {
 					},
 					{
 						Type:         enums.ChildWorkflowTypePoststorage,
-						Namespace:    "default",
 						TaskQueue:    "poststorage",
 						WorkflowName: "poststorage",
 					},
