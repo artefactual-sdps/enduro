@@ -363,7 +363,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 		ChildWorkflows: childwf.Configs{
 			{
-				Type:         childwf_pkg.WorkflowTypePreprocessing,
+				Type:         enums.ChildWorkflowTypePreprocessing,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -371,7 +371,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 				SharedPath:   prepSharedPath,
 			},
 			{
-				Type:         childwf_pkg.WorkflowTypePoststorage,
+				Type:         enums.ChildWorkflowTypePoststorage,
 				Namespace:    "default",
 				TaskQueue:    "poststorage",
 				WorkflowName: "poststorage",
@@ -532,7 +532,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 		ChildWorkflows: childwf.Configs{
 			{
-				Type:         childwf_pkg.WorkflowTypePreprocessing,
+				Type:         enums.ChildWorkflowTypePreprocessing,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -661,7 +661,7 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		Ingest: ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 		ChildWorkflows: childwf.Configs{
 			{
-				Type:         childwf_pkg.WorkflowTypePreprocessing,
+				Type:         enums.ChildWorkflowTypePreprocessing,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -912,7 +912,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUploadError() {
 		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
 		ChildWorkflows: childwf.Configs{
 			{
-				Type:         childwf_pkg.WorkflowTypePreprocessing,
+				Type:         enums.ChildWorkflowTypePreprocessing,
 				WorkflowName: "preprocessing",
 				SharedPath:   prepSharedPath,
 			},

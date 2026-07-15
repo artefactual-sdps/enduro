@@ -409,7 +409,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Extract the transfer if it's not a directory and a preprocessing child
 	// workflow is not doing the extraction.
-	cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePreprocessing)
+	cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePreprocessing)
 	if !state.sip.isDir && (cfg == nil || !cfg.Extract) {
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
 		var result archiveextract.Result
@@ -454,7 +454,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 
 	// Stop the workflow if preprocessing returned a SIP path that is not a BagIt Bag.
 	if state.sip.sipType != enums.SIPTypeBagIt &&
-		w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePreprocessing) != nil {
+		w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePreprocessing) != nil {
 		return errors.New("preprocessing returned a path that is not a BagIt Bag")
 	}
 
@@ -1100,7 +1100,7 @@ func (w *ProcessingWorkflow) transferAM(
 }
 
 func (w *ProcessingWorkflow) preprocessing(ctx temporalsdk_workflow.Context, state *workflowState) error {
-	cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePreprocessing)
+	cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePreprocessing)
 	if cfg == nil {
 		return nil
 	}
@@ -1369,7 +1369,7 @@ func mergeCustomMetadata(
 // poststorage executes the configured poststorage child workflow and waits for
 // its result.
 func (w *ProcessingWorkflow) poststorage(ctx temporalsdk_workflow.Context, state *workflowState) error {
-	cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePoststorage)
+	cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePoststorage)
 	if cfg == nil {
 		return nil
 	}

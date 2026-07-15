@@ -3,7 +3,7 @@ package design
 import (
 	. "goa.design/goa/v3/dsl" //nolint:staticcheck
 
-	"github.com/artefactual-sdps/enduro/pkg/childwf"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 var _ = Service("about", func() {
@@ -37,7 +37,7 @@ var ChildWorkflow = ResultType("application/vnd.enduro.childworkflow", func() {
 })
 
 var EnumChildWorkflowType = func() {
-	Enum(childwf.WorkflowTypeInterfaces()...)
+	Enum(enums.ChildWorkflowTypeInterfaces()...)
 }
 
 var About = ResultType("application/vnd.enduro.about", func() {

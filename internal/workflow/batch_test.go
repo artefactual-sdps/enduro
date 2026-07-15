@@ -162,7 +162,7 @@ func (s *BatchWorkflowTestSuite) TestBatch() {
 	cfg := config.Configuration{
 		ChildWorkflows: childwf.Configs{
 			{
-				Type:         childwf_pkg.WorkflowTypePostbatch,
+				Type:         enums.ChildWorkflowTypePostbatch,
 				Namespace:    "default",
 				TaskQueue:    "postbatch",
 				WorkflowName: "postbatch",

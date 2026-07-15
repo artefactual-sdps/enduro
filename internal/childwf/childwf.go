@@ -6,12 +6,12 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/artefactual-sdps/enduro/pkg/childwf"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 type Config struct {
 	// Type of the child workflow.
-	Type childwf.WorkflowType
+	Type enums.ChildWorkflowType
 
 	// Namespace is the Temporal namespace of the child workflow.
 	Namespace string
@@ -57,7 +57,7 @@ func (c Config) missingFields() error {
 	}
 
 	// The preprocessing workflow requires SharedPath to be set.
-	if c.Type == childwf.WorkflowTypePreprocessing && c.SharedPath == "" {
+	if c.Type == enums.ChildWorkflowTypePreprocessing && c.SharedPath == "" {
 		missing = append(missing, "sharedPath")
 	}
 
@@ -70,7 +70,7 @@ func (c Config) missingFields() error {
 
 type Configs []Config
 
-func (c Configs) ByType(t childwf.WorkflowType) *Config {
+func (c Configs) ByType(t enums.ChildWorkflowType) *Config {
 	for _, cfg := range c {
 		if cfg.Type == t {
 			return &cfg
@@ -82,7 +82,7 @@ func (c Configs) ByType(t childwf.WorkflowType) *Config {
 
 func (c Configs) Validate() error {
 	var (
-		types []childwf.WorkflowType
+		types []enums.ChildWorkflowType
 		errs  error
 	)
 

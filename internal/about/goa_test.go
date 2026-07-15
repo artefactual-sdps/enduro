@@ -18,9 +18,9 @@ import (
 	authfake "github.com/artefactual-sdps/enduro/internal/auth/fake"
 	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/pres"
-	childwf_pkg "github.com/artefactual-sdps/enduro/pkg/childwf"
 )
 
 func TestBearerAuth(t *testing.T) {
@@ -138,7 +138,7 @@ func TestAbout(t *testing.T) {
 			config: config.Configuration{
 				ChildWorkflows: childwf.Configs{
 					{
-						Type:         childwf_pkg.WorkflowTypePreprocessing,
+						Type:         enums.ChildWorkflowTypePreprocessing,
 						Namespace:    "default",
 						TaskQueue:    "preprocessing",
 						WorkflowName: "preprocessing",
@@ -146,7 +146,7 @@ func TestAbout(t *testing.T) {
 						SharedPath:   "/tmp",
 					},
 					{
-						Type:         childwf_pkg.WorkflowTypePoststorage,
+						Type:         enums.ChildWorkflowTypePoststorage,
 						Namespace:    "default",
 						TaskQueue:    "poststorage",
 						WorkflowName: "poststorage",
@@ -162,12 +162,12 @@ func TestAbout(t *testing.T) {
 				PreservationSystem: "a3m",
 				ChildWorkflows: goaabout.EnduroChildworkflowCollection{
 					{
-						Type:         childwf_pkg.WorkflowTypePreprocessing.String(),
+						Type:         enums.ChildWorkflowTypePreprocessing.String(),
 						TaskQueue:    "preprocessing",
 						WorkflowName: "preprocessing",
 					},
 					{
-						Type:         childwf_pkg.WorkflowTypePoststorage.String(),
+						Type:         enums.ChildWorkflowTypePoststorage.String(),
 						TaskQueue:    "poststorage",
 						WorkflowName: "poststorage",
 					},

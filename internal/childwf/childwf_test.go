@@ -6,7 +6,7 @@ import (
 	"gotest.tools/v3/assert"
 
 	"github.com/artefactual-sdps/enduro/internal/childwf"
-	childwf_pkg "github.com/artefactual-sdps/enduro/pkg/childwf"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 )
 
 func TestConfig_Validate(t *testing.T) {
@@ -18,7 +18,7 @@ func TestConfig_Validate(t *testing.T) {
 		{
 			name: "Valid config",
 			config: childwf.Config{
-				Type:         childwf_pkg.WorkflowTypePreprocessing,
+				Type:         enums.ChildWorkflowTypePreprocessing,
 				Namespace:    "default",
 				TaskQueue:    "preprocessing",
 				WorkflowName: "preprocessing",
@@ -28,7 +28,7 @@ func TestConfig_Validate(t *testing.T) {
 		{
 			name: "Errors on missing fields",
 			config: childwf.Config{
-				Type: childwf_pkg.WorkflowTypePreprocessing,
+				Type: enums.ChildWorkflowTypePreprocessing,
 			},
 			wantErr: `missing required value(s): namespace, taskQueue, workflowName, sharedPath`,
 		},
@@ -59,23 +59,23 @@ func TestConfig_Validate(t *testing.T) {
 func TestConfigs_ByType(t *testing.T) {
 	configs := childwf.Configs{
 		{
-			Type:         childwf_pkg.WorkflowTypePreprocessing,
+			Type:         enums.ChildWorkflowTypePreprocessing,
 			Namespace:    "default",
 			TaskQueue:    "preprocessing",
 			WorkflowName: "preprocessing",
 			SharedPath:   "/home/enduro/shared",
 		},
 		{
-			Type:         childwf_pkg.WorkflowTypePoststorage,
+			Type:         enums.ChildWorkflowTypePoststorage,
 			Namespace:    "default",
 			TaskQueue:    "poststorage",
 			WorkflowName: "poststorage",
 		},
 	}
 
-	cfg := configs.ByType(childwf_pkg.WorkflowTypePreprocessing)
+	cfg := configs.ByType(enums.ChildWorkflowTypePreprocessing)
 	assert.DeepEqual(t, cfg, &childwf.Config{
-		Type:         childwf_pkg.WorkflowTypePreprocessing,
+		Type:         enums.ChildWorkflowTypePreprocessing,
 		Namespace:    "default",
 		TaskQueue:    "preprocessing",
 		WorkflowName: "preprocessing",
@@ -99,14 +99,14 @@ func TestConfigs_Validate(t *testing.T) {
 			name: "Valid configs",
 			configs: childwf.Configs{
 				{
-					Type:         childwf_pkg.WorkflowTypePreprocessing,
+					Type:         enums.ChildWorkflowTypePreprocessing,
 					Namespace:    "default",
 					TaskQueue:    "preprocessing",
 					WorkflowName: "preprocessing",
 					SharedPath:   "/home/enduro/shared",
 				},
 				{
-					Type:         childwf_pkg.WorkflowTypePoststorage,
+					Type:         enums.ChildWorkflowTypePoststorage,
 					Namespace:    "default",
 					TaskQueue:    "poststorage",
 					WorkflowName: "poststorage",
@@ -118,14 +118,14 @@ func TestConfigs_Validate(t *testing.T) {
 			name: "Errors on duplicate type",
 			configs: childwf.Configs{
 				{
-					Type:         childwf_pkg.WorkflowTypePreprocessing,
+					Type:         enums.ChildWorkflowTypePreprocessing,
 					Namespace:    "default",
 					TaskQueue:    "preprocessing",
 					WorkflowName: "preprocessing",
 					SharedPath:   "/home/enduro/shared",
 				},
 				{
-					Type:         childwf_pkg.WorkflowTypePreprocessing,
+					Type:         enums.ChildWorkflowTypePreprocessing,
 					Namespace:    "default",
 					TaskQueue:    "preprocessing-2",
 					WorkflowName: "preprocessing-2",
@@ -138,7 +138,7 @@ func TestConfigs_Validate(t *testing.T) {
 			name: "Errors on missing config values",
 			configs: childwf.Configs{
 				{
-					Type:         childwf_pkg.WorkflowTypePreprocessing,
+					Type:         enums.ChildWorkflowTypePreprocessing,
 					Namespace:    "default",
 					TaskQueue:    "preprocessing",
 					WorkflowName: "preprocessing",

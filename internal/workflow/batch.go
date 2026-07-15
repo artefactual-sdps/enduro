@@ -168,7 +168,7 @@ func (w *BatchWorkflow) Execute(ctx temporalsdk_workflow.Context, req *ingest.Ba
 	}
 
 	// Run postbatch child workflow, if one is configured.
-	if w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePostbatch) != nil {
+	if w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePostbatch) != nil {
 		if err := w.postbatchWorkflow(ctx, state); err != nil {
 			return err
 		}
@@ -347,7 +347,7 @@ func (w *BatchWorkflow) postbatchWorkflow(
 	ctx temporalsdk_workflow.Context,
 	state *batchWorkflowState,
 ) error {
-	cfg := w.cfg.ChildWorkflows.ByType(childwf.WorkflowTypePostbatch)
+	cfg := w.cfg.ChildWorkflows.ByType(enums.ChildWorkflowTypePostbatch)
 	if cfg == nil {
 		return nil
 	}
