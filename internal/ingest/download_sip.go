@@ -10,6 +10,7 @@ import (
 	"gocloud.dev/gcerrors"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
+	"github.com/artefactual-sdps/enduro/internal/auth"
 	"github.com/artefactual-sdps/enduro/internal/datatypes"
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 )
@@ -62,7 +63,10 @@ func (svc *ingestImpl) DownloadSipRequest(
 	}
 
 	// Request a ticket.
-	ticket, err := svc.ticketProvider.Request(ctx, nil)
+	ticket, err := svc.ticketProvider.Request(ctx, auth.NewTicketGrant(
+		auth.TicketPurposeIngestSIPDownload,
+		payload.UUID,
+	))
 	if err != nil {
 		return nil, goaingest.MakeInternalError(errors.New("ticket request failed"))
 	}
@@ -82,7 +86,12 @@ func (svc *ingestImpl) DownloadSip(
 	payload *goaingest.DownloadSipPayload,
 ) (*goaingest.DownloadSipResult, io.ReadCloser, error) {
 	// Verify the ticket.
-	if err := svc.ticketProvider.Check(ctx, payload.Ticket, nil); err != nil {
+	if err := svc.ticketProvider.Check(
+		ctx,
+		payload.Ticket,
+		auth.TicketPurposeIngestSIPDownload,
+		payload.UUID,
+	); err != nil {
 		return nil, nil, ErrUnauthorized
 	}
 

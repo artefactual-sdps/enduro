@@ -122,6 +122,27 @@ func TestRedisStore(t *testing.T) {
 		assert.ErrorIs(t, store.GetDel(ctx, storeKey, nil), auth.ErrKeyNotFound)
 	})
 
+	t.Run("Checks a ticket grant", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		redisServer := miniredis.RunT(t)
+
+		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
+			Address: "redis://" + redisServer.Addr(),
+			Prefix:  "prefix",
+		})
+		assert.NilError(t, err)
+
+		grant := auth.NewTicketGrant(auth.TicketPurposeIngestSIPDownload, "resource")
+		err = store.SetEx(ctx, storeKey, grant, time.Minute)
+		assert.NilError(t, err)
+
+		var scannedGrant auth.TicketGrant
+		assert.NilError(t, store.GetDel(ctx, storeKey, &scannedGrant))
+		assert.DeepEqual(t, scannedGrant, grant)
+	})
+
 	t.Run("Fails checking an expired ticket", func(t *testing.T) {
 		t.Parallel()
 
@@ -297,5 +318,20 @@ func TestInMemStore(t *testing.T) {
 
 		err = store.GetDel(ctx, "ticket", nil)
 		assert.NilError(t, err)
+	})
+
+	t.Run("Fails if scanning a nil value", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		store := auth.NewInMemStore()
+		defer store.Close()
+
+		err := store.SetEx(ctx, "ticket", nil, time.Second)
+		assert.NilError(t, err)
+
+		var scannedValue string
+		err = store.GetDel(ctx, "ticket", &scannedValue)
+		assert.ErrorContains(t, err, "store value is <nil>")
 	})
 }

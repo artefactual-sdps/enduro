@@ -1,6 +1,7 @@
 package auth_test
 
 import (
+	"bytes"
 	"context"
 	"errors"
 	"math/rand"
@@ -19,12 +20,13 @@ func TestTicketProviderNop(t *testing.T) {
 
 	ctx := context.Background()
 	provider := auth.NewTicketProvider(ctx, nil, nil)
+	grant := auth.NewTicketGrant(auth.TicketPurposeIngestSIPDownload, "resource")
 
-	ticket, err := provider.Request(ctx, nil)
+	ticket, err := provider.Request(ctx, grant)
 	assert.NilError(t, err)
 	assert.Equal(t, ticket, "")
 
-	err = provider.Check(ctx, &ticket, nil)
+	err = provider.Check(ctx, &ticket, grant.Purpose, grant.ResourceID)
 	assert.NilError(t, err)
 
 	err = provider.Close()
@@ -36,6 +38,7 @@ func TestTicketProviderRequest(t *testing.T) {
 
 	rander := rand.New(rand.NewSource(1)) //#nosec
 	ticket := "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"
+	grant := auth.NewTicketGrant(auth.TicketPurposeIngestSIPDownload, "resource")
 
 	t.Run("Generates a ticket on request", func(t *testing.T) {
 		t.Parallel()
@@ -44,15 +47,13 @@ func TestTicketProviderRequest(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 		store := fake.NewMockTicketStore(ctrl)
-		value := "value"
-
 		store.EXPECT().
-			SetEx(gomock.Any(), ticket, value, auth.TicketTTL).
+			SetEx(gomock.Any(), ticket, grant, auth.TicketTTL).
 			Return(nil)
 
 		provider := auth.NewTicketProvider(ctx, store, rander)
 
-		re, err := provider.Request(ctx, value)
+		re, err := provider.Request(ctx, grant)
 		assert.NilError(t, err)
 		assert.Equal(t, re, ticket)
 	})
@@ -68,8 +69,21 @@ func TestTicketProviderRequest(t *testing.T) {
 		rander := iotest.ErrReader(errors.New("rand source error"))
 		provider := auth.NewTicketProvider(ctx, store, rander)
 
-		re, err := provider.Request(ctx, nil)
+		re, err := provider.Request(ctx, grant)
 		assert.Error(t, err, "error creating ticket: rand source error")
+		assert.Equal(t, re, "")
+	})
+
+	t.Run("Fails when the source of randomness is too short", func(t *testing.T) {
+		t.Parallel()
+
+		ctx := context.Background()
+		store := fake.NewMockTicketStore(gomock.NewController(t))
+		rander := bytes.NewReader(make([]byte, 16))
+		provider := auth.NewTicketProvider(ctx, store, rander)
+
+		re, err := provider.Request(ctx, grant)
+		assert.Error(t, err, "error creating ticket: unexpected EOF")
 		assert.Equal(t, re, "")
 	})
 
@@ -82,13 +96,13 @@ func TestTicketProviderRequest(t *testing.T) {
 		store := fake.NewMockTicketStore(ctrl)
 
 		store.EXPECT().
-			SetEx(gomock.Any(), ticket, nil, auth.TicketTTL).
+			SetEx(gomock.Any(), ticket, grant, auth.TicketTTL).
 			Return(errors.New("fake error"))
 
 		rander := rand.New(rand.NewSource(1)) //#nosec
 		provider := auth.NewTicketProvider(ctx, store, rander)
 
-		re, err := provider.Request(ctx, nil)
+		re, err := provider.Request(ctx, grant)
 		assert.Error(t, err, "error storing ticket: fake error")
 		assert.Equal(t, re, "")
 	})
@@ -98,6 +112,7 @@ func TestTicketProviderCheck(t *testing.T) {
 	t.Parallel()
 
 	ticket := "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"
+	grant := auth.NewTicketGrant(auth.TicketPurposeIngestSIPDownload, "resource")
 
 	t.Run("Checks the existence of a ticket", func(t *testing.T) {
 		t.Parallel()
@@ -107,21 +122,18 @@ func TestTicketProviderCheck(t *testing.T) {
 		defer ctrl.Finish()
 		store := fake.NewMockTicketStore(ctrl)
 
-		value := "value"
-		var scannedValue string
 		store.EXPECT().
-			GetDel(gomock.Any(), ticket, &scannedValue).
+			GetDel(gomock.Any(), ticket, gomock.AssignableToTypeOf(&auth.TicketGrant{})).
 			DoAndReturn(func(ctx context.Context, key string, val any) error {
-				*(val.(*string)) = value
+				*(val.(*auth.TicketGrant)) = grant
 				return nil
 			})
 
 		rander := rand.New(rand.NewSource(1)) //#nosec
 		provider := auth.NewTicketProvider(ctx, store, rander)
 
-		err := provider.Check(ctx, &ticket, &scannedValue)
+		err := provider.Check(ctx, &ticket, grant.Purpose, grant.ResourceID)
 		assert.NilError(t, err)
-		assert.Equal(t, scannedValue, value)
 	})
 
 	t.Run("Fails when the ticket does not exist", func(t *testing.T) {
@@ -133,13 +145,13 @@ func TestTicketProviderCheck(t *testing.T) {
 		store := fake.NewMockTicketStore(ctrl)
 
 		store.EXPECT().
-			GetDel(gomock.Any(), ticket, nil).
+			GetDel(gomock.Any(), ticket, gomock.AssignableToTypeOf(&auth.TicketGrant{})).
 			Return(errors.New("fake error"))
 
 		rander := rand.New(rand.NewSource(1)) //#nosec
 		provider := auth.NewTicketProvider(ctx, store, rander)
 
-		err := provider.Check(ctx, &ticket, nil)
+		err := provider.Check(ctx, &ticket, grant.Purpose, grant.ResourceID)
 		assert.Error(t, err, "error retrieving ticket: fake error")
 	})
 
@@ -150,7 +162,7 @@ func TestTicketProviderCheck(t *testing.T) {
 		rander := rand.New(rand.NewSource(1)) //#nosec
 		provider := auth.NewTicketProvider(ctx, &auth.InMemStore{}, rander)
 
-		err := provider.Check(ctx, nil, nil)
+		err := provider.Check(ctx, nil, grant.Purpose, grant.ResourceID)
 		assert.Error(t, err, "missing ticket to retrieve")
 	})
 
@@ -161,9 +173,41 @@ func TestTicketProviderCheck(t *testing.T) {
 		rander := rand.New(rand.NewSource(1)) //#nosec
 		provider := auth.NewTicketProvider(ctx, nil, rander)
 
-		err := provider.Check(ctx, nil, nil)
+		err := provider.Check(ctx, nil, grant.Purpose, grant.ResourceID)
 		assert.NilError(t, err)
 	})
+
+	for _, tt := range []struct {
+		name       string
+		purpose    auth.TicketPurpose
+		resourceID string
+		wantErr    string
+	}{
+		{
+			name:       "Rejects the wrong purpose",
+			purpose:    auth.TicketPurposeStorageAIPDownload,
+			resourceID: grant.ResourceID,
+			wantErr:    "ticket purpose mismatch",
+		},
+		{
+			name:       "Rejects the wrong resource",
+			purpose:    grant.Purpose,
+			resourceID: "other-resource",
+			wantErr:    "ticket resource mismatch",
+		},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			ctx := t.Context()
+			provider := auth.NewTicketProvider(ctx, auth.NewInMemStore(), nil)
+			ticket, err := provider.Request(ctx, grant)
+			assert.NilError(t, err)
+
+			err = provider.Check(ctx, &ticket, tt.purpose, tt.resourceID)
+			assert.ErrorContains(t, err, tt.wantErr)
+		})
+	}
 }
 
 func TestTicketProviderClose(t *testing.T) {

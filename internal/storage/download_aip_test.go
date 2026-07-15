@@ -21,6 +21,23 @@ import (
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/storage/persistence/fake"
 )
 
+func aipDownloadGrant(id string) auth.TicketGrant {
+	return auth.NewTicketGrant(auth.TicketPurposeStorageAIPDownload, id)
+}
+
+func expectStorageTicketGrant(
+	ctx context.Context,
+	ts *auth_fake.MockTicketStore,
+	grant auth.TicketGrant,
+) {
+	ts.EXPECT().
+		GetDel(ctx, "valid-ticket", gomock.AssignableToTypeOf(&auth.TicketGrant{})).
+		DoAndReturn(func(ctx context.Context, key string, dst any) error {
+			*(dst.(*auth.TicketGrant)) = grant
+			return nil
+		})
+}
+
 func TestDownloadAipRequest(t *testing.T) {
 	t.Parallel()
 
@@ -131,7 +148,12 @@ func TestDownloadAipRequest(t *testing.T) {
 						nil,
 					)
 				ts.EXPECT().
-					SetEx(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", nil, time.Second*5).
+					SetEx(
+						ctx,
+						"Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk",
+						aipDownloadGrant(aipID.String()),
+						time.Second*5,
+					).
 					Return(errors.New("ticket error"))
 			},
 			wantErr: "ticket request failed",
@@ -163,7 +185,14 @@ func TestDownloadAipRequest(t *testing.T) {
 						},
 						nil,
 					)
-				ts.EXPECT().SetEx(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", nil, time.Second*5).Return(nil)
+				ts.EXPECT().
+					SetEx(
+						ctx,
+						"Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk",
+						aipDownloadGrant(aipID.String()),
+						time.Second*5,
+					).
+					Return(nil)
 			},
 			wantRes: &goastorage.DownloadAipRequestResult{
 				Ticket: new("Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk"),
@@ -225,7 +254,35 @@ func TestDownloadAip(t *testing.T) {
 			name:    "Fails to download a AIP (invalid ticket)",
 			payload: &goastorage.DownloadAipPayload{Ticket: new("invalid-ticket")},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
-				ts.EXPECT().GetDel(ctx, "invalid-ticket", nil).Return(auth.ErrKeyNotFound)
+				ts.EXPECT().
+					GetDel(ctx, "invalid-ticket", gomock.AssignableToTypeOf(&auth.TicketGrant{})).
+					Return(auth.ErrKeyNotFound)
+			},
+			wantErr: "Unauthorized",
+		},
+		{
+			name: "Fails to download a AIP (wrong ticket purpose)",
+			payload: &goastorage.DownloadAipPayload{
+				Ticket: new("valid-ticket"),
+				UUID:   aipID.String(),
+			},
+			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
+				expectStorageTicketGrant(
+					ctx,
+					ts,
+					auth.NewTicketGrant(auth.TicketPurposeIngestSIPDownload, aipID.String()),
+				)
+			},
+			wantErr: "Unauthorized",
+		},
+		{
+			name: "Fails to download a AIP (wrong ticket resource)",
+			payload: &goastorage.DownloadAipPayload{
+				Ticket: new("valid-ticket"),
+				UUID:   aipID.String(),
+			},
+			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
+				expectStorageTicketGrant(ctx, ts, aipDownloadGrant(uuid.NewString()))
 			},
 			wantErr: "Unauthorized",
 		},
@@ -236,7 +293,7 @@ func TestDownloadAip(t *testing.T) {
 				UUID:   "invalid-uuid",
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
+				expectStorageTicketGrant(ctx, ts, aipDownloadGrant("invalid-uuid"))
 			},
 			wantErr: "cannot perform operation",
 		},
@@ -247,7 +304,7 @@ func TestDownloadAip(t *testing.T) {
 				UUID:   aipID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
+				expectStorageTicketGrant(ctx, ts, aipDownloadGrant(aipID.String()))
 				psvc.EXPECT().
 					ReadAIP(ctx, aipID).
 					Return(nil, &goastorage.AIPNotFound{UUID: aipID, Message: "AIP not found"})
@@ -261,7 +318,7 @@ func TestDownloadAip(t *testing.T) {
 				UUID:   aipID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
+				expectStorageTicketGrant(ctx, ts, aipDownloadGrant(aipID.String()))
 				psvc.EXPECT().
 					ReadAIP(ctx, aipID).
 					Return(nil, goastorage.MakeNotAvailable(errors.New("persistence error")))
@@ -275,7 +332,7 @@ func TestDownloadAip(t *testing.T) {
 				UUID:   aipID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
+				expectStorageTicketGrant(ctx, ts, aipDownloadGrant(aipID.String()))
 				psvc.EXPECT().
 					ReadAIP(ctx, aipID).
 					Return(&goastorage.AIP{UUID: aipID, Status: enums.AIPStatusDeleted.String()}, nil)
@@ -289,7 +346,7 @@ func TestDownloadAip(t *testing.T) {
 				UUID:   missingAIPUUID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
+				expectStorageTicketGrant(ctx, ts, aipDownloadGrant(missingAIPUUID.String()))
 				psvc.EXPECT().
 					ReadAIP(ctx, missingAIPUUID).
 					Return(
@@ -323,7 +380,7 @@ func TestDownloadAip(t *testing.T) {
 				UUID:   aipID.String(),
 			},
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
-				ts.EXPECT().GetDel(ctx, "valid-ticket", nil).Return(nil)
+				expectStorageTicketGrant(ctx, ts, aipDownloadGrant(aipID.String()))
 				psvc.EXPECT().
 					ReadAIP(ctx, aipID).
 					Return(

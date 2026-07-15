@@ -22,6 +22,10 @@ import (
 	persistence_fake "github.com/artefactual-sdps/enduro/internal/storage/persistence/fake"
 )
 
+func deletionReportGrant(id string) auth.TicketGrant {
+	return auth.NewTicketGrant(auth.TicketPurposeStorageAIPDeletionReport, id)
+}
+
 func TestAipDeletionReportRequest(t *testing.T) {
 	t.Parallel()
 
@@ -122,7 +126,12 @@ func TestAipDeletionReportRequest(t *testing.T) {
 						nil,
 					)
 				ts.EXPECT().
-					SetEx(ctx, "Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk", nil, time.Second*5).
+					SetEx(
+						ctx,
+						"Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk",
+						deletionReportGrant(aipID.String()),
+						time.Second*5,
+					).
 					Return(errors.New("ticket error"))
 			},
 			wantErr: "ticket request failed",
@@ -144,7 +153,7 @@ func TestAipDeletionReportRequest(t *testing.T) {
 				ts.EXPECT().SetEx(
 					ctx,
 					"Uv38ByGCZU8WP18PmmIdcpVmx00QA3xNe7sEB9Hixkk",
-					nil,
+					deletionReportGrant(aipID.String()),
 					time.Second*5,
 				).Return(nil)
 			},
@@ -214,8 +223,49 @@ func TestAipDeletionReport(t *testing.T) {
 			},
 			mockTicketProvider: func(ctx context.Context, tp *auth_fake.MockTicketProvider) {
 				tp.EXPECT().
-					Check(ctx, &ticket, nil).
+					Check(
+						ctx,
+						&ticket,
+						auth.TicketPurposeStorageAIPDeletionReport,
+						aipID.String(),
+					).
 					Return(fmt.Errorf("error retrieving ticket: invalid ticket"))
+			},
+			wantErr: "Unauthorized",
+		},
+		{
+			name: "Errors if ticket purpose is invalid",
+			payload: &goastorage.AipDeletionReportPayload{
+				UUID:   aipID.String(),
+				Ticket: &ticket,
+			},
+			mockTicketProvider: func(ctx context.Context, tp *auth_fake.MockTicketProvider) {
+				tp.EXPECT().
+					Check(
+						ctx,
+						&ticket,
+						auth.TicketPurposeStorageAIPDeletionReport,
+						aipID.String(),
+					).
+					Return(fmt.Errorf("ticket purpose mismatch"))
+			},
+			wantErr: "Unauthorized",
+		},
+		{
+			name: "Errors if ticket resource is invalid",
+			payload: &goastorage.AipDeletionReportPayload{
+				UUID:   aipID.String(),
+				Ticket: &ticket,
+			},
+			mockTicketProvider: func(ctx context.Context, tp *auth_fake.MockTicketProvider) {
+				tp.EXPECT().
+					Check(
+						ctx,
+						&ticket,
+						auth.TicketPurposeStorageAIPDeletionReport,
+						aipID.String(),
+					).
+					Return(fmt.Errorf("ticket resource mismatch"))
 			},
 			wantErr: "Unauthorized",
 		},
@@ -227,7 +277,12 @@ func TestAipDeletionReport(t *testing.T) {
 			},
 			mockTicketProvider: func(ctx context.Context, tp *auth_fake.MockTicketProvider) {
 				tp.EXPECT().
-					Check(ctx, &ticket, nil).
+					Check(
+						ctx,
+						&ticket,
+						auth.TicketPurposeStorageAIPDeletionReport,
+						"invalid-uuid",
+					).
 					Return(nil)
 			},
 			wantErr: "invalid UUID",
@@ -245,7 +300,12 @@ func TestAipDeletionReport(t *testing.T) {
 			},
 			mockTicketProvider: func(ctx context.Context, tp *auth_fake.MockTicketProvider) {
 				tp.EXPECT().
-					Check(ctx, &ticket, nil).
+					Check(
+						ctx,
+						&ticket,
+						auth.TicketPurposeStorageAIPDeletionReport,
+						aipID.String(),
+					).
 					Return(nil)
 			},
 			wantErr: "AIP not found",
@@ -269,7 +329,12 @@ func TestAipDeletionReport(t *testing.T) {
 			},
 			mockTicketProvider: func(ctx context.Context, tp *auth_fake.MockTicketProvider) {
 				tp.EXPECT().
-					Check(ctx, &ticket, nil).
+					Check(
+						ctx,
+						&ticket,
+						auth.TicketPurposeStorageAIPDeletionReport,
+						aipID.String(),
+					).
 					Return(nil)
 			},
 			wantErr: "deletion report is not available for download",
@@ -294,7 +359,12 @@ func TestAipDeletionReport(t *testing.T) {
 			},
 			mockTicketProvider: func(ctx context.Context, tp *auth_fake.MockTicketProvider) {
 				tp.EXPECT().
-					Check(ctx, &ticket, nil).
+					Check(
+						ctx,
+						&ticket,
+						auth.TicketPurposeStorageAIPDeletionReport,
+						aipID.String(),
+					).
 					Return(nil)
 			},
 			wantErr: "deletion report not found",
@@ -319,7 +389,12 @@ func TestAipDeletionReport(t *testing.T) {
 			},
 			mockTicketProvider: func(ctx context.Context, tp *auth_fake.MockTicketProvider) {
 				tp.EXPECT().
-					Check(ctx, &ticket, nil).
+					Check(
+						ctx,
+						&ticket,
+						auth.TicketPurposeStorageAIPDeletionReport,
+						aipID.String(),
+					).
 					Return(nil)
 			},
 			want: &goastorage.AipDeletionReportResult{

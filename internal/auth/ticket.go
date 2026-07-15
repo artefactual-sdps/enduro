@@ -13,11 +13,11 @@ const TicketTTL = time.Second * 5
 
 // TicketProvider issues tickets used for authentication cookies.
 type TicketProvider interface {
-	// Request requests a new ticket saving the key/value pair in the store.
-	Request(ctx context.Context, value any) (string, error)
-	// Check checks that a ticket is known to the provider and scan its value,
-	// not including tickets that exceeded the time-to-live attribute.
-	Check(ctx context.Context, ticket *string, value any) error
+	// Request requests a new ticket for the given grant.
+	Request(ctx context.Context, grant TicketGrant) (string, error)
+	// Check consumes a ticket and verifies that its grant matches the expected
+	// purpose and resource.
+	Check(ctx context.Context, ticket *string, purpose TicketPurpose, resourceID string) error
 	// Close closes the provider, releasing resources associated to the store.
 	Close() error
 }
@@ -53,7 +53,7 @@ func NewTicketProvider(ctx context.Context, store TicketStore, rander io.Reader)
 	}
 }
 
-func (t *ticketProviderImpl) Request(ctx context.Context, value any) (string, error) {
+func (t *ticketProviderImpl) Request(ctx context.Context, grant TicketGrant) (string, error) {
 	if t.store == nil {
 		return "", nil
 	}
@@ -63,7 +63,7 @@ func (t *ticketProviderImpl) Request(ctx context.Context, value any) (string, er
 		return "", fmt.Errorf("error creating ticket: %v", err)
 	}
 
-	err = t.store.SetEx(ctx, ticket, value, t.ttl)
+	err = t.store.SetEx(ctx, ticket, grant, t.ttl)
 	if err != nil {
 		return "", fmt.Errorf("error storing ticket: %v", err)
 	}
@@ -71,7 +71,12 @@ func (t *ticketProviderImpl) Request(ctx context.Context, value any) (string, er
 	return ticket, nil
 }
 
-func (t *ticketProviderImpl) Check(ctx context.Context, ticket *string, value any) error {
+func (t *ticketProviderImpl) Check(
+	ctx context.Context,
+	ticket *string,
+	purpose TicketPurpose,
+	resourceID string,
+) error {
 	if t.store == nil {
 		return nil
 	}
@@ -80,9 +85,13 @@ func (t *ticketProviderImpl) Check(ctx context.Context, ticket *string, value an
 		return fmt.Errorf("missing ticket to retrieve")
 	}
 
-	err := t.store.GetDel(ctx, *ticket, value)
+	var grant TicketGrant
+	err := t.store.GetDel(ctx, *ticket, &grant)
 	if err != nil {
 		return fmt.Errorf("error retrieving ticket: %v", err)
+	}
+	if err := grant.Validate(purpose, resourceID); err != nil {
+		return fmt.Errorf("error validating ticket: %v", err)
 	}
 
 	return nil
@@ -90,7 +99,8 @@ func (t *ticketProviderImpl) Check(ctx context.Context, ticket *string, value an
 
 func (t ticketProviderImpl) ticket() (string, error) {
 	b := make([]byte, 32)
-	_, err := t.rander.Read(b)
+	// A short read would leave zero bytes in the ticket and reduce its entropy.
+	_, err := io.ReadFull(t.rander, b)
 	if err != nil {
 		return "", err
 	}

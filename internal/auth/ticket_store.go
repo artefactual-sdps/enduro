@@ -146,6 +146,9 @@ func (s *InMemStore) GetDel(ctx context.Context, key string, value any) error {
 		}
 		val := valPtr.Elem()
 		memVal := reflect.ValueOf(match.value)
+		if !memVal.IsValid() {
+			return fmt.Errorf("type mismatch: store value is <nil>, argument is %s", val.Type())
+		}
 		// If stored value is a pointer, dereference it.
 		if memVal.Kind() == reflect.Pointer {
 			memVal = memVal.Elem()

@@ -13,6 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
+	auth "github.com/artefactual-sdps/enduro/internal/auth"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -41,17 +42,17 @@ func (m *MockTicketProvider) EXPECT() *MockTicketProviderMockRecorder {
 }
 
 // Check mocks base method.
-func (m *MockTicketProvider) Check(ctx context.Context, ticket *string, value any) error {
+func (m *MockTicketProvider) Check(ctx context.Context, ticket *string, purpose auth.TicketPurpose, resourceID string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Check", ctx, ticket, value)
+	ret := m.ctrl.Call(m, "Check", ctx, ticket, purpose, resourceID)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Check indicates an expected call of Check.
-func (mr *MockTicketProviderMockRecorder) Check(ctx, ticket, value any) *MockTicketProviderCheckCall {
+func (mr *MockTicketProviderMockRecorder) Check(ctx, ticket, purpose, resourceID any) *MockTicketProviderCheckCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockTicketProvider)(nil).Check), ctx, ticket, value)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Check", reflect.TypeOf((*MockTicketProvider)(nil).Check), ctx, ticket, purpose, resourceID)
 	return &MockTicketProviderCheckCall{Call: call}
 }
 
@@ -67,13 +68,13 @@ func (c *MockTicketProviderCheckCall) Return(arg0 error) *MockTicketProviderChec
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTicketProviderCheckCall) Do(f func(context.Context, *string, any) error) *MockTicketProviderCheckCall {
+func (c *MockTicketProviderCheckCall) Do(f func(context.Context, *string, auth.TicketPurpose, string) error) *MockTicketProviderCheckCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTicketProviderCheckCall) DoAndReturn(f func(context.Context, *string, any) error) *MockTicketProviderCheckCall {
+func (c *MockTicketProviderCheckCall) DoAndReturn(f func(context.Context, *string, auth.TicketPurpose, string) error) *MockTicketProviderCheckCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }
@@ -117,18 +118,18 @@ func (c *MockTicketProviderCloseCall) DoAndReturn(f func() error) *MockTicketPro
 }
 
 // Request mocks base method.
-func (m *MockTicketProvider) Request(ctx context.Context, value any) (string, error) {
+func (m *MockTicketProvider) Request(ctx context.Context, grant auth.TicketGrant) (string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Request", ctx, value)
+	ret := m.ctrl.Call(m, "Request", ctx, grant)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // Request indicates an expected call of Request.
-func (mr *MockTicketProviderMockRecorder) Request(ctx, value any) *MockTicketProviderRequestCall {
+func (mr *MockTicketProviderMockRecorder) Request(ctx, grant any) *MockTicketProviderRequestCall {
 	mr.mock.ctrl.T.Helper()
-	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Request", reflect.TypeOf((*MockTicketProvider)(nil).Request), ctx, value)
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Request", reflect.TypeOf((*MockTicketProvider)(nil).Request), ctx, grant)
 	return &MockTicketProviderRequestCall{Call: call}
 }
 
@@ -144,13 +145,13 @@ func (c *MockTicketProviderRequestCall) Return(arg0 string, arg1 error) *MockTic
 }
 
 // Do rewrite *gomock.Call.Do
-func (c *MockTicketProviderRequestCall) Do(f func(context.Context, any) (string, error)) *MockTicketProviderRequestCall {
+func (c *MockTicketProviderRequestCall) Do(f func(context.Context, auth.TicketGrant) (string, error)) *MockTicketProviderRequestCall {
 	c.Call = c.Call.Do(f)
 	return c
 }
 
 // DoAndReturn rewrite *gomock.Call.DoAndReturn
-func (c *MockTicketProviderRequestCall) DoAndReturn(f func(context.Context, any) (string, error)) *MockTicketProviderRequestCall {
+func (c *MockTicketProviderRequestCall) DoAndReturn(f func(context.Context, auth.TicketGrant) (string, error)) *MockTicketProviderRequestCall {
 	c.Call = c.Call.DoAndReturn(f)
 	return c
 }

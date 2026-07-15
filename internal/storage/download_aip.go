@@ -48,7 +48,10 @@ func (s *serviceImpl) DownloadAipRequest(
 	}
 
 	// Request a ticket.
-	ticket, err := s.ticketProvider.Request(ctx, nil)
+	ticket, err := s.ticketProvider.Request(ctx, auth.NewTicketGrant(
+		auth.TicketPurposeStorageAIPDownload,
+		payload.UUID,
+	))
 	if err != nil {
 		return nil, goastorage.MakeInternalError(errors.New("ticket request failed"))
 	}
@@ -83,7 +86,12 @@ func (s *serviceImpl) DownloadAip(
 	payload *goastorage.DownloadAipPayload,
 ) (*goastorage.DownloadAipResult, io.ReadCloser, error) {
 	// Verify the ticket.
-	if err := s.ticketProvider.Check(ctx, payload.Ticket, nil); err != nil {
+	if err := s.ticketProvider.Check(
+		ctx,
+		payload.Ticket,
+		auth.TicketPurposeStorageAIPDownload,
+		payload.UUID,
+	); err != nil {
 		return nil, nil, ErrUnauthorized
 	}
 
