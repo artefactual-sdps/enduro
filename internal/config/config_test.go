@@ -8,6 +8,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/clientauth"
+	"go.artefactual.dev/tools/log"
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
 
@@ -25,7 +26,7 @@ import (
 )
 
 const testConfig = `# Config
-debug = true
+logFormat = "text"
 debugListen = "127.0.0.1:9001"
 
 [temporal]
@@ -93,6 +94,13 @@ taskQueue = "poststorage"
 workflowName = "poststorage"
 `
 
+func TestLogFormatLoggerFormat(t *testing.T) {
+	t.Parallel()
+
+	assert.Equal(t, config.LogFormatJSON.LoggerFormat(), log.FormatJSON)
+	assert.Equal(t, config.LogFormatText.LoggerFormat(), log.FormatText)
+}
+
 func TestConfigRead(t *testing.T) {
 	t.Parallel()
 
@@ -107,7 +115,7 @@ func TestConfigRead(t *testing.T) {
 			name:   "Loads TOML configs",
 			config: testConfig,
 			want: config.Configuration{
-				Debug:       true,
+				LogFormat:   config.LogFormatText,
 				DebugListen: "127.0.0.1:9001",
 				A3m: a3m.Config{
 					Processing: a3m.ProcessingDefault,
@@ -216,6 +224,7 @@ func TestConfigRead(t *testing.T) {
 address = "storage-api:9000"
 defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
 			want: config.Configuration{
+				LogFormat:   config.LogFormatJSON,
 				DebugListen: "127.0.0.1:9001",
 				A3m: a3m.Config{
 					Processing: a3m.ProcessingDefault,
@@ -265,9 +274,13 @@ defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
 			},
 		},
 		{
-			name:    "Returns error if config is invalid",
-			config:  "debug = not-a-boolean",
-			wantErr: "failed to read configuration file: While parsing config: toml: expected 'nan'",
+			name: "Returns error if log format is invalid",
+			config: `logFormat = "invalid"
+
+[ingest.storage]
+address = "storage-api:9000"
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
+			wantErr: `failed to validate the provided config: LogFormat: unsupported value "invalid" (use "json" or "text")`,
 		},
 		{
 			name: "Returns error if string to UUID hook fails",

@@ -70,7 +70,7 @@ packages in the `internal` directory have configurable settings found here.
     CSV configuration file listing an allowed list of file-formats in a SIP when
     used for ingest validation.
 
-### Debug mode for development
+### Application logging
 
 The application log captures a record of discrete Enduro events to aid in
 diagnosing system errors and bugs. These settings control the format and
@@ -88,16 +88,14 @@ increase during development.
 **Example configuration**:
 
 ```toml
-debug = true
+logFormat = "text"
 debugListen = "127.0.0.1:9001"
 verbosity = 2
 ```
 
-* `debug`: Enables or disables debug mode. Accepted values are `true` or
-  `false`. When set to true, Enduro will log to the console using a
-  human-readable text output, and key elements are colorized (e.g. using red to
-  make ERROR more visible, etc). When set to false, logs are captured in JSON
-  format to support machine parsing and analysis.
+* `logFormat`: Controls the application log format. Accepted values are `text`
+  and `json`. The `text` format is human-readable and colorizes key elements,
+  while `json` supports machine parsing and analysis. The default is `json`.
 * `debugListen`: the IP and port to use if configuring an observability server.
 * `verbosity`: Sets the verbosity of the log output. Note that errors are
   **always** logged - this setting will control the verbosity of other log
