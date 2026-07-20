@@ -82,7 +82,7 @@ func main() {
 
 	logger := log.New(os.Stderr,
 		log.WithName(appName),
-		log.WithDebug(cfg.Debug),
+		log.WithFormat(cfg.LogFormat.LoggerFormat()),
 		log.WithLevel(cfg.Verbosity),
 	)
 	defer log.Sync(logger)

@@ -46,7 +46,7 @@ require (
 	github.com/stretchr/testify v1.11.1
 	go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c
 	go.artefactual.dev/ssclient v0.11.0
-	go.artefactual.dev/tools v0.25.1
+	go.artefactual.dev/tools v0.26.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/httptrace/otelhttptrace v0.63.0
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.63.0
@@ -212,6 +212,7 @@ require (
 	golang.org/x/oauth2 v0.36.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
 	golang.org/x/sys v0.46.0 // indirect
+	golang.org/x/term v0.44.0 // indirect
 	golang.org/x/text v0.39.0 // indirect
 	golang.org/x/time v0.14.0 // indirect
 	golang.org/x/tools v0.47.0 // indirect

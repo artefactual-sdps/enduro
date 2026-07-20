@@ -14,14 +14,12 @@ design.
 There are two configuration attributes that affect the application logger:
 
 ```toml
-# When enabled, logs with V-levels greater than zero are shown (debug-y logs).
-# When disabled, only logs with V-level 0 are shown.
-# Note: v-level verbosity cannot be arbitrarily chosen, but can supported later.
-verbose = true
+# Use human-readable, colorized text logs. Use "json" for machine-readable
+# structured logs.
+logFormat = "text"
 
-# Use the color-enabled logging encoder.
-# Do not use in production, it disables JSON-encoded structured logging.
-debug = true
+# Show log messages up to V-level 2.
+verbosity = 2
 ```
 
 ## Usage

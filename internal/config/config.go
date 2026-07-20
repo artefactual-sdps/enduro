@@ -17,6 +17,7 @@ import (
 	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"go.artefactual.dev/tools/bucket"
+	"go.artefactual.dev/tools/log"
 
 	"github.com/artefactual-sdps/enduro/internal/a3m"
 	"github.com/artefactual-sdps/enduro/internal/am"
@@ -47,16 +48,39 @@ type ConfigurationValidator interface {
 	Validate() error
 }
 
+type LogFormat string
+
+const (
+	LogFormatJSON LogFormat = "json"
+	LogFormatText LogFormat = "text"
+)
+
+func (f LogFormat) Validate() error {
+	switch f {
+	case LogFormatJSON, LogFormatText:
+		return nil
+	default:
+		return fmt.Errorf("LogFormat: unsupported value %q (use %q or %q)", f, LogFormatJSON, LogFormatText)
+	}
+}
+
+// LoggerFormat returns the corresponding application logger format.
+func (f LogFormat) LoggerFormat() log.Format {
+	switch f {
+	case LogFormatJSON:
+		return log.FormatJSON
+	case LogFormatText:
+		return log.FormatText
+	default:
+		panic(fmt.Sprintf("config: invalid log format %q", f))
+	}
+}
+
 type Configuration struct {
-	// Debug toggles the encoding of log messages to support different reader
-	// contexts.
-	//
-	// If Debug is true, the logger will output human readable logs with ANSI
-	// color codes. This is useful for debugging and development.
-	//
-	// If Debug is false the logger will output JSON formatted messages with no
-	// color codes. This is useful for data analysis and log aggregation.
-	Debug bool
+	// LogFormat controls the encoding of application log messages. Supported
+	// values are "json" for structured output and "text" for human-readable,
+	// colorized output.
+	LogFormat LogFormat
 
 	// DebugListen is the HTTP address of the observability server.
 	DebugListen string
@@ -92,6 +116,7 @@ type Configuration struct {
 
 func (c *Configuration) Validate() error {
 	return errors.Join(
+		c.LogFormat.Validate(),
 		c.A3m.Validate(),
 		c.API.Validate(),
 		c.InternalAPI.Validate(),
@@ -118,6 +143,7 @@ func Read(config *Configuration, configFile string) (found bool, configFileUsed 
 	v.SetDefault("api.listen", "127.0.0.1:9000")
 	v.SetDefault("bagitvalidator.poolSize", 1)
 	v.SetDefault("debugListen", "127.0.0.1:9001")
+	v.SetDefault("logFormat", LogFormatJSON)
 	v.SetDefault("preservation.taskqueue", temporal.A3mWorkerTaskQueue)
 	v.SetDefault("storage.taskqueue", temporal.GlobalTaskQueue)
 	v.SetDefault("temporal.taskqueue", temporal.GlobalTaskQueue)
