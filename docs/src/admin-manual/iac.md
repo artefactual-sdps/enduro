@@ -22,8 +22,6 @@ TOML format:
 [api]
 # TCP address for the server to listen on, in the form "host:port".
 listen = "0.0.0.0:9000"
-# Enable debug mode.
-debug = false
 # Allowed CORS origin URL.
 corsOrigin = "http://localhost"
 
