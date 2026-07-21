@@ -35,7 +35,6 @@ address = "host:port"
 [api]
 listen = "https://example.com:9000"
 CORSOrigin = "https://*.example.com"
-debug = true
 
 [api.log]
 path = "stdout"

@@ -18,7 +18,8 @@ There are two configuration attributes that affect the application logger:
 # structured logs.
 logFormat = "text"
 
-# Show log messages up to V-level 2.
+# Show log messages up to verbosity level 2, where level 0 is the most
+# important and higher levels are less important.
 verbosity = 2
 ```
 
