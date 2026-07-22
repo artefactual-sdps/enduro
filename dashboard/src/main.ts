@@ -2,7 +2,6 @@ import { PiniaDebounce } from "@pinia/plugin-debounce";
 import { createPinia } from "pinia";
 import { debounce } from "ts-debounce";
 import { createApp } from "vue";
-import { PromiseDialog } from "vue3-promise-dialog";
 
 import App from "./App.vue";
 import { api } from "./client";
@@ -20,7 +19,6 @@ pinia.use(PiniaDebounce(debounce));
 const app = createApp(App);
 app.use(router);
 app.use(pinia);
-app.use(PromiseDialog);
 app.mount("#app");
 
 interface Filters {

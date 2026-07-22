@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { watch } from "vue";
-import { DialogWrapper } from "vue3-promise-dialog";
 
+import DialogHost from "@/components/DialogHost.vue";
 import Header from "@/components/Header.vue";
 import Sidebar from "@/components/Sidebar.vue";
 import { useAuthStore } from "@/stores/auth";
@@ -45,6 +45,8 @@ watch(
         <RouterView />
       </main>
     </div>
-    <DialogWrapper v-if="authStore.isUserValid" />
+    <!-- Scope dialogs to valid sessions. Unmounting the host resolves an active
+         dialog with its configured cancellation value. -->
+    <DialogHost v-if="authStore.isUserValid" />
   </div>
 </template>

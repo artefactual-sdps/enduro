@@ -1,31 +1,29 @@
 <script setup lang="ts">
-import Modal from "bootstrap/js/dist/modal";
-import { onMounted, ref } from "vue";
-import { closeDialog } from "vue3-promise-dialog";
+import { onMounted } from "vue";
 
 import IconDocumentation from "~icons/lucide/book-text";
 import IconLicense from "~icons/lucide/file-text";
 import IconContributing from "~icons/lucide/git-merge";
 
-import useEventListener from "@/composables/useEventListener";
+import useBootstrapModal from "@/composables/useBootstrapModal";
 import { useAboutStore } from "@/stores/about";
+
+const emit = defineEmits<{
+  resolve: [value: undefined];
+}>();
 
 const aboutStore = useAboutStore();
 
-const el = ref<HTMLElement | null>(null);
-const modal = ref<Modal | null>(null);
 const titleId = "about-dialog-title";
 const bodyId = "about-dialog-body";
 
-onMounted(() => {
-  if (!el.value) return;
-  modal.value = new Modal(el.value);
-  modal.value.show();
-
-  aboutStore.load();
+const { element: el } = useBootstrapModal(() => {
+  emit("resolve", undefined);
 });
 
-useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
+onMounted(() => {
+  aboutStore.load();
+});
 </script>
 
 <template>

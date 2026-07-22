@@ -1,10 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { openDialog } from "vue3-promise-dialog";
 
-import AipDeletionRequestDialog from "@/components/AipDeletionRequestDialog.vue";
-import LocationDialog from "@/components/LocationDialog.vue";
 import UUID from "@/components/UUID.vue";
+import { openAipDeletionRequestDialog } from "@/dialogs/aipDeletionRequest";
+import { openLocationDialog } from "@/dialogs/location";
 import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
 
@@ -14,7 +13,7 @@ const failed = ref(false);
 
 const choose = async () => {
   failed.value = false;
-  const locationId = await openDialog(LocationDialog, {
+  const locationId = await openLocationDialog({
     currentLocationId: aipStore.current?.locationUuid,
   });
   if (!locationId) return;
@@ -26,7 +25,7 @@ const choose = async () => {
 
 const requestDeletion = async () => {
   if (!aipStore.current) return;
-  const reason = await openDialog(AipDeletionRequestDialog);
+  const reason = await openAipDeletionRequestDialog();
   if (!reason) return;
   // TODO: Handle error.
   await aipStore.requestDeletion(reason);

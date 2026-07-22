@@ -1,39 +1,32 @@
 <script setup lang="ts">
-import Modal from "bootstrap/js/dist/modal";
-import { onMounted, onUnmounted, ref } from "vue";
-import { closeDialog } from "vue3-promise-dialog";
+import { onUnmounted } from "vue";
 
-import useEventListener from "@/composables/useEventListener";
+import useBootstrapModal from "@/composables/useBootstrapModal";
+import type { LocationDialogProps } from "@/dialogs/location";
 import { useLocationStore } from "@/stores/location";
 
-const props = defineProps({
-  currentLocationId: { type: String, required: false, default: undefined },
-});
+const props = defineProps<LocationDialogProps>();
+
+const emit = defineEmits<{
+  resolve: [locationId: string | null];
+}>();
 
 const locationStore = useLocationStore();
 locationStore.fetchLocations();
 
-const el = ref<HTMLElement | null>(null);
-const modal = ref<Modal | null>(null);
 const titleId = "location-dialog-title";
 const bodyId = "location-dialog-body";
 
-onMounted(() => {
-  if (!el.value) return;
-  modal.value = new Modal(el.value);
-  modal.value.show();
-});
-
 let data: string | null = null;
 
-useEventListener(el, "hidden.bs.modal", () => {
-  closeDialog(data);
+const { element: el, hide } = useBootstrapModal(() => {
+  emit("resolve", data);
 });
 
 const onChoose = (locationId: string) => {
   if (locationId === props.currentLocationId) return;
   data = locationId;
-  modal.value?.hide();
+  hide();
 };
 
 onUnmounted(() => {

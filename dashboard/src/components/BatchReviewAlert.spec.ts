@@ -6,8 +6,10 @@ import { api } from "@/client";
 import BatchReviewAlert from "@/components/BatchReviewAlert.vue";
 import { useBatchStore } from "@/stores/batch";
 
-const openDialogMock = vi.hoisted(() => vi.fn());
-vi.mock("vue3-promise-dialog", () => ({ openDialog: openDialogMock }));
+const openBatchReviewConfirmDialogMock = vi.hoisted(() => vi.fn());
+vi.mock("@/dialogs/batchReviewConfirm", () => ({
+  openBatchReviewConfirmDialog: openBatchReviewConfirmDialogMock,
+}));
 
 describe("BatchReviewAlert.vue", () => {
   afterEach(() => {
@@ -33,7 +35,7 @@ describe("BatchReviewAlert.vue", () => {
   });
 
   it("shows buttons and submits the review", async () => {
-    openDialogMock.mockResolvedValue(true);
+    openBatchReviewConfirmDialogMock.mockResolvedValue(true);
     const { getByRole, getByText } = render(BatchReviewAlert, {
       global: {
         plugins: [
@@ -70,7 +72,7 @@ describe("BatchReviewAlert.vue", () => {
   });
 
   it("does not submit the review when confirmation is cancelled", async () => {
-    openDialogMock.mockResolvedValue(false);
+    openBatchReviewConfirmDialogMock.mockResolvedValue(false);
     const { getByRole } = render(BatchReviewAlert, {
       global: {
         plugins: [
