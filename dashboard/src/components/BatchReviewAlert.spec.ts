@@ -4,10 +4,13 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { api } from "@/client";
 import BatchReviewAlert from "@/components/BatchReviewAlert.vue";
+import BatchReviewConfirmDialog from "@/components/BatchReviewConfirmDialog.vue";
 import { useBatchStore } from "@/stores/batch";
 
 const openDialogMock = vi.hoisted(() => vi.fn());
-vi.mock("vue3-promise-dialog", () => ({ openDialog: openDialogMock }));
+vi.mock("@/dialogs/dialog", () => ({
+  openDialog: openDialogMock,
+}));
 
 describe("BatchReviewAlert.vue", () => {
   afterEach(() => {
@@ -63,9 +66,17 @@ describe("BatchReviewAlert.vue", () => {
     await fireEvent.click(
       getByRole("button", { name: "Continue partial ingest" }),
     );
+    expect(openDialogMock).toHaveBeenLastCalledWith(
+      BatchReviewConfirmDialog,
+      expect.objectContaining({ heading: "Continue partial ingest" }),
+    );
     expect(batchStore.reviewBatch).toHaveBeenCalledWith(true);
 
     await fireEvent.click(getByRole("button", { name: "Cancel batch" }));
+    expect(openDialogMock).toHaveBeenLastCalledWith(
+      BatchReviewConfirmDialog,
+      expect.objectContaining({ heading: "Cancel batch" }),
+    );
     expect(batchStore.reviewBatch).toHaveBeenCalledWith(false);
   });
 

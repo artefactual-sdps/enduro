@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import Modal from "bootstrap/js/dist/modal";
-import { onMounted, ref } from "vue";
-import { closeDialog } from "vue3-promise-dialog";
-
 import SafeHtml from "@/components/SafeHtml.vue";
-import useEventListener from "@/composables/useEventListener";
+import useDialog from "@/dialogs/useDialog";
 
 defineProps<{
   heading: string;
@@ -12,32 +8,19 @@ defineProps<{
   confirmClass: "btn-primary" | "btn-danger";
 }>();
 
-const el = ref<HTMLElement | null>(null);
-const modal = ref<Modal | null>(null);
-const confirmed = ref(false);
+const emit = defineEmits<{
+  resolve: [confirmed: boolean];
+}>();
+
 const titleId = "batch-review-confirm-dialog-title";
 const bodyId = "batch-review-confirm-dialog-body";
 
-onMounted(() => {
-  if (!el.value) return;
-  modal.value = new Modal(el.value);
-  modal.value.show();
-});
-
-useEventListener(el, "hidden.bs.modal", () => {
-  closeDialog(confirmed.value);
-  confirmed.value = false;
-});
-
-const confirm = (value: boolean) => {
-  confirmed.value = value;
-  modal.value?.hide();
-};
+const { element, close } = useDialog(emit, false);
 </script>
 
 <template>
   <div
-    ref="el"
+    ref="element"
     class="modal"
     tabindex="-1"
     role="dialog"
@@ -53,7 +36,7 @@ const confirm = (value: boolean) => {
             type="button"
             class="btn-close"
             aria-label="Close"
-            @click="confirm(false)"
+            @click="close(false)"
           ></button>
         </div>
         <div :id="bodyId" class="modal-body">
@@ -63,15 +46,11 @@ const confirm = (value: boolean) => {
           <button
             type="button"
             :class="['btn', confirmClass]"
-            @click="confirm(true)"
+            @click="close(true)"
           >
             Yes
           </button>
-          <button
-            type="button"
-            class="btn btn-secondary"
-            @click="confirm(false)"
-          >
+          <button type="button" class="btn btn-secondary" @click="close(false)">
             No
           </button>
         </div>

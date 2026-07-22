@@ -1,47 +1,32 @@
 <script setup lang="ts">
-import Modal from "bootstrap/js/dist/modal";
-import { onMounted, ref, watch } from "vue";
-import { closeDialog } from "vue3-promise-dialog";
+import { onMounted } from "vue";
 
 import IconDocumentation from "~icons/lucide/book-text";
 import IconLicense from "~icons/lucide/file-text";
 import IconContributing from "~icons/lucide/git-merge";
 
-import useEventListener from "@/composables/useEventListener";
+import useDialog from "@/dialogs/useDialog";
 import { useAboutStore } from "@/stores/about";
-import { useAuthStore } from "@/stores/auth";
+
+const emit = defineEmits<{
+  resolve: [];
+}>();
 
 const aboutStore = useAboutStore();
-const authStore = useAuthStore();
 
-const el = ref<HTMLElement | null>(null);
-const modal = ref<Modal | null>(null);
 const titleId = "about-dialog-title";
 const bodyId = "about-dialog-body";
 
-onMounted(() => {
-  if (!el.value) return;
-  modal.value = new Modal(el.value);
-  modal.value.show();
+const { element } = useDialog(emit);
 
+onMounted(() => {
   aboutStore.load();
 });
-
-useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
-
-watch(
-  () => authStore.isUserValid,
-  (valid) => {
-    if (!valid) {
-      closeDialog(null);
-    }
-  },
-);
 </script>
 
 <template>
   <div
-    ref="el"
+    ref="element"
     class="modal"
     tabindex="-1"
     role="dialog"

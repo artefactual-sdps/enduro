@@ -4,19 +4,19 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import AboutDialog from "@/components/AboutDialog.vue";
 import { EnduroChildworkflowTypeEnum } from "@/openapi-generator";
-import { useAuthStore } from "@/stores/auth";
+import { useAboutStore } from "@/stores/about";
 
-const closeDialogMock = vi.hoisted(() => vi.fn());
 const showMock = vi.hoisted(() => vi.fn());
+const hideMock = vi.hoisted(() => vi.fn());
+const disposeMock = vi.hoisted(() => vi.fn());
 
-vi.mock("vue3-promise-dialog", () => ({ closeDialog: closeDialogMock }));
-vi.mock("bootstrap/js/dist/modal", () => {
-  return {
-    default: class ModalMock {
-      show = showMock;
-    },
-  };
-});
+vi.mock("bootstrap/js/dist/modal", () => ({
+  default: class {
+    show = showMock;
+    hide = hideMock;
+    dispose = disposeMock;
+  },
+}));
 
 function renderDialog(initialState: Record<string, unknown> = {}) {
   return render(AboutDialog, {
@@ -24,13 +24,7 @@ function renderDialog(initialState: Record<string, unknown> = {}) {
       plugins: [
         createTestingPinia({
           createSpy: vi.fn,
-          initialState: {
-            auth: {
-              config: { enabled: true },
-              user: { expired: false },
-            },
-            ...initialState,
-          },
+          initialState,
         }),
       ],
     },
@@ -43,30 +37,18 @@ describe("AboutDialog.vue", () => {
     vi.resetAllMocks();
   });
 
-  it("shows the modal on mount", () => {
-    renderDialog();
+  it("loads application information and resolves when hidden", async () => {
+    const { emitted, getByRole } = renderDialog();
 
     expect(showMock).toHaveBeenCalledOnce();
-  });
+    expect(useAboutStore().load).toHaveBeenCalledOnce();
 
-  it("closes the dialog when the Bootstrap modal is hidden", async () => {
-    const { getByRole } = renderDialog();
+    await fireEvent(
+      getByRole("dialog", { name: "Enduro" }),
+      new Event("hidden.bs.modal"),
+    );
 
-    const modalEl = getByRole("dialog", { name: "Enduro" });
-    await fireEvent(modalEl, new Event("hidden.bs.modal"));
-
-    expect(closeDialogMock).toHaveBeenCalledWith(null);
-  });
-
-  it("closes the dialog immediately when the user session expires", async () => {
-    renderDialog();
-
-    const authStore = useAuthStore();
-    authStore.$patch({ user: null });
-
-    await vi.waitFor(() => {
-      expect(closeDialogMock).toHaveBeenCalledWith(null);
-    });
+    expect(emitted().resolve).toEqual([[]]);
   });
 
   it("does not show child workflows when none are configured", () => {

@@ -1,13 +1,43 @@
 import { createTestingPinia } from "@pinia/testing";
-import { cleanup, render } from "@testing-library/vue";
+import { cleanup, fireEvent, render } from "@testing-library/vue";
+import { flushPromises } from "@vue/test-utils";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { api } from "@/client";
+import AipDeletionRequestDialog from "@/components/AipDeletionRequestDialog.vue";
 import AipLocationCard from "@/components/AipLocationCard.vue";
 import { useAipStore } from "@/stores/aip";
 
+const openDialogMock = vi.hoisted(() => vi.fn());
+
+vi.mock("@/dialogs/dialog", () => ({
+  openDialog: openDialogMock,
+}));
+
+const renderStoredAip = () =>
+  render(AipLocationCard, {
+    global: {
+      plugins: [
+        createTestingPinia({
+          createSpy: vi.fn,
+          initialState: {
+            aip: {
+              current: {
+                status: api.EnduroStorageAipStatusEnum.Stored,
+                locationUuid: "f8635e46-a320-4152-9a2c-98a28eeb50d1",
+              } as api.EnduroStorageAip,
+            },
+          },
+        }),
+      ],
+    },
+  });
+
 describe("AipLocationCard.vue", () => {
-  afterEach(() => cleanup());
+  afterEach(() => {
+    cleanup();
+    vi.clearAllMocks();
+  });
 
   it("renders when the AIP is stored", async () => {
     const { html } = render(AipLocationCard, {
@@ -97,6 +127,30 @@ describe("AipLocationCard.vue", () => {
       </div>
       </div>"
     `);
+  });
+
+  it("requests deletion with the reason from the dialog", async () => {
+    openDialogMock.mockResolvedValue("No longer required");
+    const { getByRole } = renderStoredAip();
+    const aipStore = useAipStore();
+
+    await fireEvent.click(getByRole("button", { name: "Delete" }));
+    await flushPromises();
+
+    expect(openDialogMock).toHaveBeenCalledWith(AipDeletionRequestDialog);
+    expect(aipStore.requestDeletion).toHaveBeenCalledWith("No longer required");
+  });
+
+  it("does not request deletion when the dialog is cancelled", async () => {
+    openDialogMock.mockResolvedValue(null);
+    const { getByRole } = renderStoredAip();
+    const aipStore = useAipStore();
+
+    await fireEvent.click(getByRole("button", { name: "Delete" }));
+    await flushPromises();
+
+    expect(openDialogMock).toHaveBeenCalledWith(AipDeletionRequestDialog);
+    expect(aipStore.requestDeletion).not.toHaveBeenCalled();
   });
 
   it("renders when the AIP location is moved", async () => {

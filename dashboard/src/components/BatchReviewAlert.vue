@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { openDialog } from "vue3-promise-dialog";
-
 import IconContinue from "~icons/clarity/thumbs-up-line";
 import IconCancel from "~icons/clarity/trash-line";
 
 import BatchReviewConfirmDialog from "@/components/BatchReviewConfirmDialog.vue";
+import { openDialog } from "@/dialogs/dialog";
 import { useAuthStore } from "@/stores/auth";
 import { useBatchStore } from "@/stores/batch";
 
