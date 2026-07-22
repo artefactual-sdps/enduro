@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { onUnmounted } from "vue";
-import { openDialog } from "vue3-promise-dialog";
 
 import LocationDialog from "@/components/LocationDialog.vue";
+import { openDialog } from "@/dialogs/dialog";
 import { useAipStore } from "@/stores/aip";
 import { useSipStore } from "@/stores/sip";
 

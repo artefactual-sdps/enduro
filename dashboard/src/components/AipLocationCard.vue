@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { openDialog } from "vue3-promise-dialog";
 
 import AipDeletionRequestDialog from "@/components/AipDeletionRequestDialog.vue";
 import LocationDialog from "@/components/LocationDialog.vue";
 import UUID from "@/components/UUID.vue";
+import { openDialog } from "@/dialogs/dialog";
 import { useAipStore } from "@/stores/aip";
 import { useAuthStore } from "@/stores/auth";
 

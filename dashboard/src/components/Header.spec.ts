@@ -3,8 +3,14 @@ import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createRouter, createWebHistory } from "vue-router";
 
+import AboutDialog from "@/components/AboutDialog.vue";
 import Header from "@/components/Header.vue";
 import { useLayoutStore } from "@/stores/layout";
+
+const openDialogMock = vi.hoisted(() => vi.fn());
+vi.mock("@/dialogs/dialog", () => ({
+  openDialog: openDialogMock,
+}));
 
 const router = createRouter({
   history: createWebHistory(),
@@ -12,7 +18,10 @@ const router = createRouter({
 });
 
 describe("Header.vue", () => {
-  afterEach(() => cleanup());
+  afterEach(() => {
+    cleanup();
+    vi.resetAllMocks();
+  });
 
   it("collapses and expands the sidebar", async () => {
     const { getByRole } = render(Header, {
@@ -65,5 +74,18 @@ describe("Header.vue", () => {
     });
 
     getByRole("navigation", { name: "Breadcrumb" });
+  });
+
+  it("opens the About dialog from its button", async () => {
+    openDialogMock.mockResolvedValue(undefined);
+    const { getByRole } = render(Header, {
+      global: {
+        plugins: [createTestingPinia({ createSpy: vi.fn }), router],
+      },
+    });
+
+    await fireEvent.click(getByRole("button", { name: "About Enduro" }));
+
+    expect(openDialogMock).toHaveBeenCalledWith(AboutDialog);
   });
 });

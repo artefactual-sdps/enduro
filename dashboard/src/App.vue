@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import Modal from "bootstrap/js/dist/modal";
 import { watch } from "vue";
-import { DialogWrapper } from "vue3-promise-dialog";
 
 import Header from "@/components/Header.vue";
 import Sidebar from "@/components/Sidebar.vue";
+import DialogHost from "@/dialogs/DialogHost.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useIngestMonitorStore } from "@/stores/ingestMonitor";
 import { useStorageMonitorStore } from "@/stores/storageMonitor";
@@ -56,6 +56,8 @@ watch(
         <RouterView />
       </main>
     </div>
-    <DialogWrapper v-if="authStore.isUserValid" />
+    <!-- Scope dialogs to valid sessions. Unmounting the host resolves an active
+         dialog with undefined. -->
+    <DialogHost v-if="authStore.isUserValid" />
   </div>
 </template>

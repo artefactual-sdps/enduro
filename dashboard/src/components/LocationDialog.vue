@@ -1,39 +1,28 @@
 <script setup lang="ts">
-import Modal from "bootstrap/js/dist/modal";
-import { onMounted, onUnmounted, ref } from "vue";
-import { closeDialog } from "vue3-promise-dialog";
+import { onUnmounted } from "vue";
 
-import useEventListener from "@/composables/useEventListener";
+import useDialog from "@/dialogs/useDialog";
 import { useLocationStore } from "@/stores/location";
 
-const props = defineProps({
-  currentLocationId: { type: String, required: false, default: undefined },
-});
+const props = defineProps<{
+  currentLocationId?: string;
+}>();
+
+const emit = defineEmits<{
+  resolve: [locationId: string | null];
+}>();
 
 const locationStore = useLocationStore();
 locationStore.fetchLocations();
 
-const el = ref<HTMLElement | null>(null);
-const modal = ref<Modal | null>(null);
 const titleId = "location-dialog-title";
 const bodyId = "location-dialog-body";
 
-onMounted(() => {
-  if (!el.value) return;
-  modal.value = new Modal(el.value);
-  modal.value.show();
-});
-
-let data: string | null = null;
-
-useEventListener(el, "hidden.bs.modal", () => {
-  closeDialog(data);
-});
+const { element, close } = useDialog(emit, null);
 
 const onChoose = (locationId: string) => {
   if (locationId === props.currentLocationId) return;
-  data = locationId;
-  modal.value?.hide();
+  close(locationId);
 };
 
 onUnmounted(() => {
@@ -43,7 +32,7 @@ onUnmounted(() => {
 
 <template>
   <div
-    ref="el"
+    ref="element"
     class="modal"
     tabindex="-1"
     role="dialog"

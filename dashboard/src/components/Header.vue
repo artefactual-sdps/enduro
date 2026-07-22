@@ -1,17 +1,16 @@
 <script setup lang="ts">
-import { openDialog } from "vue3-promise-dialog";
-
 import IconInfo from "~icons/clarity/info-standard-solid";
 import IconMenu from "~icons/clarity/menu-line";
 
-import AboutDialogVue from "@/components/AboutDialog.vue";
+import AboutDialog from "@/components/AboutDialog.vue";
 import Breadcrumb from "@/components/Breadcrumb.vue";
 import InstitutionLogo from "@/components/InstitutionLogo.vue";
+import { openDialog } from "@/dialogs/dialog";
 import { useLayoutStore } from "@/stores/layout";
 
 const layoutStore = useLayoutStore();
 
-const showAbout = async () => await openDialog(AboutDialogVue);
+const showAbout = () => openDialog(AboutDialog);
 
 const institution: { logo: string; name: string; url: string } = {
   logo: import.meta.env.VITE_INSTITUTION_LOGO,
@@ -71,12 +70,9 @@ const institution: { logo: string; name: string; url: string } = {
         type="button"
         class="btn btn-link text-decoration-none p-3"
         aria-label="About Enduro"
+        @click="showAbout"
       >
-        <IconInfo
-          class="text-primary fs-4 mx-1"
-          aria-hidden="true"
-          @click="showAbout"
-        />
+        <IconInfo class="text-primary fs-4 mx-1" aria-hidden="true" />
       </button>
     </nav>
   </header>
