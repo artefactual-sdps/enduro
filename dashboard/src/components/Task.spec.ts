@@ -32,7 +32,7 @@ describe("Task.vue", () => {
     expect(wrapper.get(".card-body > .d-flex").classes()).toContain(
       "align-items-start",
     );
-    expect(wrapper.get(".card-body > .d-flex > .d-flex").exists()).toBe(true);
+    expect(wrapper.find(".card-body > .d-flex > .d-flex").exists()).toBe(true);
   });
 
   it("shows the time completed if the task is done", async () => {
