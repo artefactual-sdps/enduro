@@ -48,8 +48,8 @@ const toggle = () => {
 
 <template>
   <div :id="`${idPrefix}-body`" class="card-body">
-    <div class="d-flex flex-row align-start gap-3">
-      <div class="fd-flex">
+    <div class="d-flex flex-row align-items-start gap-3">
+      <div class="d-flex">
         <span
           class="fs-6 badge rounded-pill border border-primary text-primary"
         >
