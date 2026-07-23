@@ -6,14 +6,6 @@ import LocationDialog from "@/components/LocationDialog.vue";
 import { useAipStore } from "@/stores/aip";
 import { useSipStore } from "@/stores/sip";
 
-let { expandCounter } = defineProps<{
-  expandCounter: number;
-}>();
-
-const emit = defineEmits<{
-  (e: "update:expandCounter", value: number): void;
-}>();
-
 const aipStore = useAipStore();
 const sipStore = useSipStore();
 
@@ -41,14 +33,6 @@ onUnmounted(() => {
     </p>
     <p class="mb-1">Links:</p>
     <ul>
-      <li>
-        <a
-          href="#"
-          @click.prevent="emit('update:expandCounter', expandCounter + 1)"
-          >Expand</a
-        >
-        the task details below
-      </li>
       <li>View a summary of the preservation metadata created</li>
       <li>
         <a href="#" @click.prevent="aipStore.download">Download</a>

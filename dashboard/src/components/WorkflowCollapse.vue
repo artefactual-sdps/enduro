@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, toRefs, watch } from "vue";
+import { computed, toRefs, watch } from "vue";
 
 import { api } from "@/client";
 import AipDeletionReviewAlert from "@/components/AipDeletionReviewAlert.vue";
@@ -30,8 +30,6 @@ const props = defineProps<{
 }>();
 
 const { workflow, index } = toRefs(props);
-
-let expandCounter = ref<number>(0);
 
 watch(
   () => workflow.value.status,
@@ -179,7 +177,6 @@ const showTasks = computed(() => {
           showSipReviewAlert &&
           authStore.checkAttributes(['ingest:sips:review'])
         "
-        v-model:expand-counter="expandCounter"
       />
       <AipDeletionReviewAlert
         v-if="

@@ -12,12 +12,27 @@ describe("SipReviewAlert.vue", () => {
 
   it("resets the AIP store on unmount", () => {
     const wrapper = mount(SipReviewAlert, {
-      props: { expandCounter: 0 },
       global: { plugins: [createTestingPinia({ createSpy: vi.fn })] },
     });
 
     const reset = vi.spyOn(useAipStore(), "$reset");
     wrapper.unmount();
     expect(reset).toHaveBeenCalledOnce();
+  });
+
+  it("does not offer the obsolete task expansion action", () => {
+    const wrapper = mount(SipReviewAlert, {
+      global: {
+        plugins: [
+          createTestingPinia({
+            createSpy: vi.fn,
+            initialState: { sip: { current: { status: "pending" } } },
+          }),
+        ],
+      },
+    });
+
+    expect(wrapper.text()).toContain("Task: Review AIP");
+    expect(wrapper.text()).not.toContain("Expand");
   });
 });
