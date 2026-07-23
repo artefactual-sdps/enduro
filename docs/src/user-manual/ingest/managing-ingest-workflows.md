@@ -109,6 +109,8 @@ meaning:
 * **IN PROGRESS**: The task is still processing
 * **PENDING**: The task is awaiting a user decision
 * **ERROR**: The task has encountered a system error it could not resolve
+* **QUEUED**: The task is waiting to start
+* **UNSPECIFIED**: The task has not yet reported a status
 
 **Workflows** have their own status as well. Most of these are similar to the
 task statuses, with a few additional statuses:
@@ -174,22 +176,22 @@ Tasks shown in this area will include both those ingest tasks performed by
 Enduro, as well as tasks run by the configured [preservation engine] if the SIP
 passes initial validation and transformation.
 
-Task cards will include:
+Task rows include:
 
 * A **task number** assigned by Enduro, indicating the order the task was run in
   the workflow
 * The **task name** in bold, helping to explain what activity is being performed
 * A **status** - see [above](#workflow-task-status-legend) for details on each
   task status meaning
-* A **timestamp** - if the task has completed, this will list the completed
-  timestamp. If the task is still running or if it does not complete
-  successfully (i.e. a failure or error), it will show a timestamp of when the
-  task started running
+* A **time** - "**Ended**" shows when the task ended whenever a completion
+  timestamp is available, regardless of whether its status is done, failed, or
+  error. Otherwise, "**Started**" shows when the task began. A dash is shown if
+  neither timestamp is available
 
 Additionally, those ingest tasks run by Enduro will include an additional
 description of the **task outcome**:
 
-![Task detail cards with a successful outcome](../screenshots/task-details-success.png)
+![Task rows with a successful outcome](../screenshots/task-details-success.png)
 
 ### Errors and failed package downloads
 
@@ -201,7 +203,7 @@ the package and delivering it to the [preservation engine].
 The **task details** will then provide operators with additional context on the
 problem encountered.
 
-![Task details card with a failed outcome](../screenshots/task-details-failure.png)
+![Task row with a failed outcome](../screenshots/task-details-failure.png)
 
 If desired, you can then download the SIP from the [Related packages
 widget](#related-packages) to inspect it.

@@ -1,9 +1,12 @@
 @import "bootstrap-base.scss";
 @import "bootstrap.scss";
 
-html,
-main {
+html {
   overflow-x: hidden;
+}
+
+main {
+  overflow-x: clip;
 }
 
 button:focus:not(:focus-visible),
@@ -43,7 +46,6 @@ a:not(.btn),
 .accordion-button:focus {
   background-color: $primary-bg-subtle;
   border-color: $primary;
-  border-width: 2px;
 }
 
 .accordion-button.collapsed .h4 {

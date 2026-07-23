@@ -105,18 +105,20 @@ onMounted(() => {
     >
       <h2 class="mb-3">
         Ingest workflow details
-        <a
+        <button
           id="workflowHelpToggle"
           ref="el"
-          href="#workflowHelp"
-          role="button"
-          aria-expanded="false"
-          aria-controls="workflowHelp"
+          class="btn btn-link p-0 align-baseline fs-2 lh-1"
+          type="button"
+          :aria-expanded="showHelp ? 'true' : 'false'"
+          aria-controls="workflow-help"
+          aria-label="Toggle workflow help"
           data-bs-toggle="tooltip"
           data-bs-title="Toggle help"
           @click="toggleHelp"
-          ><IconHelp alt="help"
-        /></a>
+        >
+          <IconHelp aria-hidden="true" />
+        </button>
       </h2>
       <WorkflowHelp
         :show="showHelp"

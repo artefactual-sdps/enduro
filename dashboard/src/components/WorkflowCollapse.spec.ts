@@ -1,6 +1,7 @@
 import { createTestingPinia } from "@pinia/testing";
-import { cleanup, render } from "@testing-library/vue";
+import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { nextTick } from "vue";
 
 import { api } from "@/client";
 import WorkflowCollapse from "@/components/WorkflowCollapse.vue";
@@ -47,6 +48,7 @@ const useSipState = (
 const renderWorkflow = (
   workflow: api.EnduroIngestSipWorkflow,
   sip: Record<string, unknown> = {},
+  attributes = ["ingest:sips:decision", "ingest:sips:review"],
 ) => {
   return render(WorkflowCollapse, {
     props: {
@@ -63,7 +65,7 @@ const renderWorkflow = (
           createSpy: vi.fn,
           initialState: {
             auth: {
-              attributes: ["ingest:sips:decision", "ingest:sips:review"],
+              attributes,
               config: { enabled: true, abac: { enabled: true } },
             },
             sip: useSipState(sip),
@@ -75,7 +77,70 @@ const renderWorkflow = (
 };
 
 describe("WorkflowCollapse.vue", () => {
-  afterEach(() => cleanup());
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+  });
+
+  it("shows a workflow before its first task arrives", () => {
+    const { container, getByRole } = renderWorkflow(
+      ingestWorkflow({ tasks: undefined }),
+    );
+
+    expect(getByRole("button").textContent).toContain("create aip");
+    expect(container.querySelector("#wf0-tasks")).toBeNull();
+  });
+
+  it("summarizes the number of tasks in the workflow header", () => {
+    const { getByText } = renderWorkflow(ingestWorkflow());
+
+    getByText("1 task");
+  });
+
+  it("labels the task time column neutrally", () => {
+    const { getByText, queryByText } = renderWorkflow(ingestWorkflow());
+
+    getByText("Time");
+    expect(queryByText("Completed")).toBeNull();
+  });
+
+  it("offsets sticky task labels by the rendered header height", async () => {
+    const observe = vi.fn();
+    const disconnect = vi.fn();
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        observe = observe;
+        disconnect = disconnect;
+      },
+    );
+    vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockReturnValue(
+      new DOMRect(0, 0, 0, 72),
+    );
+
+    const { container, unmount } = renderWorkflow(ingestWorkflow());
+    await nextTick();
+    const item = container.querySelector(".workflow-accordion-item");
+    const header = container.querySelector(".workflow-sticky-header");
+
+    expect(
+      (item as HTMLElement).style.getPropertyValue("--workflow-header-height"),
+    ).toBe("72px");
+    expect(observe).toHaveBeenCalledWith(header);
+
+    unmount();
+    expect(disconnect).toHaveBeenCalled();
+  });
+
+  it("expands a pending workflow for users without decision access", () => {
+    const { container, queryByRole } = renderWorkflow(ingestWorkflow(), {}, [
+      "ingest:sips:workflows:list",
+    ]);
+
+    expect(queryByRole("alert")).toBeNull();
+    expect(container.querySelector("#wf0-tasks")?.classList).toContain("show");
+  });
 
   it("shows the SIP review alert for pending review workflows", () => {
     const { container, getByRole, queryByText } = renderWorkflow(
@@ -145,5 +210,47 @@ describe("WorkflowCollapse.vue", () => {
     });
 
     expect(sipStore.fetchCurrentDecision).toHaveBeenCalledWith("sip-uuid");
+  });
+
+  it("keeps expanded note state with its task after a live update", async () => {
+    const firstTask = {
+      ...ingestWorkflow().tasks?.[0],
+      note: "First line\nFirst task details",
+    } as api.EnduroIngestSipTask;
+    const workflow = ingestWorkflow({
+      status: api.EnduroIngestSipWorkflowStatusEnum.InProgress,
+      tasks: [firstTask],
+    });
+    const { container, rerender } = renderWorkflow(workflow);
+
+    await fireEvent.click(
+      container.querySelector("#pt-task-uuid-note-toggle") as HTMLElement,
+    );
+
+    await rerender({
+      workflow: {
+        ...workflow,
+        tasks: [
+          firstTask,
+          {
+            ...firstTask,
+            name: "Task 2",
+            note: "Second line\nSecond task details",
+            uuid: "second-task-uuid",
+          },
+        ],
+      },
+      index: 0,
+      of: 2,
+    });
+
+    expect(
+      (container.querySelector("#pt-task-uuid-note-more") as HTMLElement).style
+        .display,
+    ).not.toBe("none");
+    expect(
+      (container.querySelector("#pt-second-task-uuid-note-more") as HTMLElement)
+        .style.display,
+    ).toBe("none");
   });
 });

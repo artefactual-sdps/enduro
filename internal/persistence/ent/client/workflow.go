@@ -11,6 +11,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/persistence"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/sip"
+	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/persistence/ent/db/workflow"
 )
 
@@ -134,7 +135,9 @@ func (c *client) ReadWorkflow(ctx context.Context, id int) (*datatypes.Workflow,
 	dbw, err := c.ent.Workflow.Query().
 		Where(workflow.ID(id)).
 		WithSip().
-		WithTasks().
+		WithTasks(func(q *db.TaskQuery) {
+			q.Order(task.ByID())
+		}).
 		Only(ctx)
 	if err != nil {
 		return nil, newDBError(err)
@@ -148,9 +151,14 @@ func (c *client) ListWorkflowsBySIP(ctx context.Context, sipUUID uuid.UUID) ([]*
 		WithSip(func(q *db.SIPQuery) {
 			q.Select(sip.FieldUUID)
 		}).
-		WithTasks().
+		WithTasks(func(q *db.TaskQuery) {
+			q.Order(task.ByID())
+		}).
 		Where(workflow.HasSipWith(sip.UUID(sipUUID))).
-		Order(workflow.ByStartedAt(entsql.OrderDesc())).
+		Order(
+			workflow.ByStartedAt(entsql.OrderDesc()),
+			workflow.ByID(entsql.OrderDesc()),
+		).
 		All(ctx)
 	if err != nil {
 		return nil, newDBError(err)

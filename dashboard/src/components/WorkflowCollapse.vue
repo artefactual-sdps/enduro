@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, toRefs, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from "vue";
 
 import { api } from "@/client";
 import AipDeletionReviewAlert from "@/components/AipDeletionReviewAlert.vue";
@@ -30,8 +30,29 @@ const props = defineProps<{
 }>();
 
 const { workflow, index } = toRefs(props);
+const workflowHeader = ref<HTMLElement | null>(null);
+const workflowHeaderHeight = ref("4.25rem");
+const workflowItemStyle = computed(() => ({
+  "--workflow-header-height": workflowHeaderHeight.value,
+}));
+let workflowHeaderObserver: ResizeObserver | undefined;
 
-let expandCounter = ref<number>(0);
+const updateWorkflowHeaderHeight = () => {
+  if (!workflowHeader.value) return;
+  workflowHeaderHeight.value = `${workflowHeader.value.getBoundingClientRect().height}px`;
+};
+
+onMounted(() => {
+  if (!workflowHeader.value || typeof ResizeObserver === "undefined") {
+    return;
+  }
+
+  updateWorkflowHeaderHeight();
+  workflowHeaderObserver = new ResizeObserver(updateWorkflowHeaderHeight);
+  workflowHeaderObserver.observe(workflowHeader.value);
+});
+
+onBeforeUnmount(() => workflowHeaderObserver?.disconnect());
 
 watch(
   () => workflow.value.status,
@@ -83,16 +104,20 @@ const showTasks = computed(() => {
     return true;
   }
 
-  // Show tasks if the workflow is "in progress".
+  // Show tasks if the workflow is active or requires attention.
   if (
     api.instanceOfEnduroIngestSipWorkflow(workflow.value) &&
-    workflow.value.status === api.EnduroIngestSipWorkflowStatusEnum.InProgress
+    (workflow.value.status ===
+      api.EnduroIngestSipWorkflowStatusEnum.InProgress ||
+      workflow.value.status === api.EnduroIngestSipWorkflowStatusEnum.Pending)
   ) {
     return true;
   }
   if (
     api.instanceOfEnduroStorageAipWorkflow(workflow.value) &&
-    workflow.value.status === api.EnduroStorageAipWorkflowStatusEnum.InProgress
+    (workflow.value.status ===
+      api.EnduroStorageAipWorkflowStatusEnum.InProgress ||
+      workflow.value.status === api.EnduroStorageAipWorkflowStatusEnum.Pending)
   ) {
     return true;
   }
@@ -111,13 +136,20 @@ const showTasks = computed(() => {
 </script>
 
 <template>
-  <div class="accordion-item border-0 mb-2">
-    <h4 :id="'wf' + index + '-heading'" class="accordion-header">
+  <div
+    class="accordion-item workflow-accordion-item mb-2"
+    :style="workflowItemStyle"
+  >
+    <h4
+      :id="'wf' + index + '-heading'"
+      ref="workflowHeader"
+      class="accordion-header workflow-sticky-header"
+    >
       <button
-        v-if="workflow.tasks"
         ref="wfBtn"
         :class="[
           'accordion-button',
+          'workflow-accordion-button',
           {
             collapsed: !showTasks,
           },
@@ -128,12 +160,12 @@ const showTasks = computed(() => {
         :aria-expanded="showTasks ? 'true' : 'false'"
         :aria-controls="'wf' + index + '-tasks'"
       >
-        <div class="d-flex flex-column">
-          <div class="h4">
-            {{ $filters.getWorkflowLabel(workflow.type) }}
+        <div class="workflow-summary">
+          <div class="workflow-summary-title">
+            <span>{{ $filters.getWorkflowLabel(workflow.type) }}</span>
             <StatusBadge :status="workflow.status" type="workflow" />
           </div>
-          <div>
+          <div class="workflow-summary-meta">
             <span v-if="workflow.completedAt">
               Completed
               {{ $filters.formatDateTime(workflow.completedAt) }}
@@ -148,6 +180,9 @@ const showTasks = computed(() => {
             <span v-else>
               Started {{ $filters.formatDateTime(workflow.startedAt) }}
             </span>
+          </div>
+          <div v-if="workflow.tasks" class="workflow-summary-count">
+            {{ tasks.length }} {{ tasks.length === 1 ? "task" : "tasks" }}
           </div>
         </div>
       </button>
@@ -176,7 +211,6 @@ const showTasks = computed(() => {
           showSipReviewAlert &&
           authStore.checkAttributes(['ingest:sips:review'])
         "
-        v-model:expand-counter="expandCounter"
       />
       <AipDeletionReviewAlert
         v-if="
@@ -186,16 +220,167 @@ const showTasks = computed(() => {
         "
         :note="workflow.tasks?.[0]?.note || ''"
       />
-      <ul class="accordion-body d-flex flex-column gap-1">
-        <li
-          v-for="(task, idx) of tasks"
-          :id="'wf' + index + '-task' + (tasks.length - idx)"
-          :key="idx"
-          class="mb-2 card bg-light"
-        >
-          <Task :index="tasks.length - idx" :task="task" />
-        </li>
-      </ul>
+      <div class="accordion-body workflow-task-table">
+        <div class="workflow-task-list-header" aria-hidden="true">
+          <span class="text-center">#</span>
+          <span>Task</span>
+          <span>Time</span>
+          <span class="text-end">Status</span>
+        </div>
+        <ul class="workflow-task-list">
+          <li
+            v-for="(task, idx) of tasks"
+            :id="'wf' + index + '-task' + (tasks.length - idx)"
+            :key="task.uuid"
+            class="workflow-task-list-item"
+          >
+            <Task :index="tasks.length - idx" :task="task" />
+          </li>
+        </ul>
+      </div>
     </div>
   </div>
 </template>
+
+<style lang="scss" scoped>
+.accordion-item.workflow-accordion-item {
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-accordion-border-radius);
+}
+
+.workflow-sticky-header {
+  position: sticky;
+  top: $header-height;
+  z-index: $zindex-sticky - 1;
+  background: var(--bs-body-bg);
+}
+
+.workflow-accordion-item .collapsing {
+  transition: none;
+}
+
+.workflow-accordion-button {
+  padding-block: 0.75rem;
+  border: 0;
+}
+
+.workflow-accordion-button:hover,
+.workflow-accordion-button:focus {
+  background-color: var(--bs-body-bg);
+}
+
+.workflow-accordion-button:focus {
+  box-shadow: none;
+}
+
+.workflow-accordion-button:focus-visible {
+  outline: 2px solid var(--bs-primary);
+  outline-offset: -2px;
+}
+
+.workflow-accordion-button:not(.collapsed) {
+  box-shadow: none;
+}
+
+.workflow-summary {
+  display: grid;
+  flex: 1;
+  grid-template-areas:
+    "title count"
+    "meta count";
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 0.125rem 1rem;
+  min-width: 0;
+  margin-right: 0.75rem;
+  text-align: left;
+}
+
+.workflow-summary-title {
+  display: flex;
+  grid-area: title;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.workflow-summary-meta,
+.workflow-summary-count {
+  color: var(--bs-secondary-color);
+  font-size: 0.875rem;
+  font-weight: 400;
+}
+
+.workflow-summary-meta {
+  grid-area: meta;
+}
+
+.workflow-summary-count {
+  grid-area: count;
+  align-self: center;
+  white-space: nowrap;
+}
+
+.workflow-task-table {
+  --workflow-task-columns: 2.5rem minmax(0, 1fr) 12rem 7.25rem;
+
+  padding: 0;
+}
+
+.workflow-task-list-header {
+  position: sticky;
+  top: calc(#{$header-height} + var(--workflow-header-height));
+  z-index: $zindex-sticky - 2;
+  display: grid;
+  grid-template-columns: var(--workflow-task-columns);
+  gap: 0.75rem;
+  padding: 0.375rem 0.75rem;
+  color: var(--bs-secondary-color);
+  background: var(--bs-tertiary-bg);
+  border-top: 1px solid var(--bs-border-color);
+  border-bottom: 1px solid var(--bs-border-color);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  text-transform: uppercase;
+}
+
+.workflow-task-list {
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  list-style: none;
+}
+
+.workflow-task-list-item {
+  background: var(--bs-tertiary-bg);
+}
+
+.workflow-task-list-item:nth-child(even) {
+  background: var(--bs-body-bg);
+}
+
+.workflow-task-list-item + .workflow-task-list-item {
+  border-top: 1px solid var(--bs-border-color);
+}
+
+@media (max-width: 991.98px) {
+  .workflow-task-list-header {
+    display: none;
+  }
+
+  .workflow-task-list {
+    border-top: 1px solid var(--bs-border-color);
+  }
+}
+
+@media (max-width: 575.98px) {
+  .workflow-summary {
+    grid-template-areas:
+      "title title"
+      "meta count";
+  }
+}
+</style>
