@@ -114,7 +114,6 @@ const showTasks = computed(() => {
   <div class="accordion-item border-0 mb-2">
     <h4 :id="'wf' + index + '-heading'" class="accordion-header">
       <button
-        v-if="workflow.tasks"
         ref="wfBtn"
         :class="[
           'accordion-button',

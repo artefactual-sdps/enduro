@@ -77,6 +77,15 @@ const renderWorkflow = (
 describe("WorkflowCollapse.vue", () => {
   afterEach(() => cleanup());
 
+  it("shows a workflow before its first task arrives", () => {
+    const { container, getByRole } = renderWorkflow(
+      ingestWorkflow({ tasks: undefined }),
+    );
+
+    expect(getByRole("button").textContent).toContain("create aip");
+    expect(container.querySelector("#wf0-tasks")).toBeNull();
+  });
+
   it("shows the SIP review alert for pending review workflows", () => {
     const { container, getByRole, queryByText } = renderWorkflow(
       ingestWorkflow({
