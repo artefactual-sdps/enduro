@@ -48,6 +48,14 @@ description of the AIP and its components is available in the Archivematica
 documentation - see: [AIP
 structure](https://www.archivematica.org/docs/latest/user-manual/archival-storage/aip-structure/#aip-structure).
 
+## Batch
+
+A group of SIPs that are related in some way. By identifying a group
+of SIPs as a batch during upload, a user can then use the Batch pages in Enduro
+to track all of the SIPs in the batch and take actions based on the status of
+the batch and/or individual SIPs. Child workflows can be triggered based on the
+status of a batch.
+
 ## Child workflow
 
 An ancillary **workflow** that is spawned by another workflow. This capability
