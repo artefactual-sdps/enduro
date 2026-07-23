@@ -1,38 +1,28 @@
 <script setup lang="ts">
-import Modal from "bootstrap/js/dist/modal";
-import { onMounted, ref } from "vue";
-import { closeDialog } from "vue3-promise-dialog";
+import { ref } from "vue";
 
-import useEventListener from "@/composables/useEventListener";
+import useBootstrapModal from "@/composables/useBootstrapModal";
 import { useAipStore } from "@/stores/aip";
+
+const emit = defineEmits<{
+  resolve: [reason: string | null];
+}>();
 
 const aipStore = useAipStore();
 
-const el = ref<HTMLElement | null>(null);
-const modal = ref<Modal | null>(null);
 const reason = ref<string>("");
 const submit = ref<boolean>(false);
 const titleId = "aip-deletion-request-dialog-title";
 const bodyId = "aip-deletion-request-dialog-body";
 
-onMounted(() => {
-  if (!el.value) return;
-  modal.value = new Modal(el.value);
-  modal.value.show();
-});
-
-useEventListener(el, "hidden.bs.modal", () => {
-  if (submit.value) {
-    closeDialog(reason.value);
-  } else {
-    closeDialog(null);
-  }
+const { element: el, hide } = useBootstrapModal(() => {
+  emit("resolve", submit.value ? reason.value : null);
   submit.value = false;
 });
 
 const request = () => {
   submit.value = true;
-  modal.value?.hide();
+  hide();
 };
 </script>
 

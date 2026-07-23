@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { openDialog } from "vue3-promise-dialog";
-
 import IconContinue from "~icons/clarity/thumbs-up-line";
 import IconCancel from "~icons/clarity/trash-line";
 
-import BatchReviewConfirmDialog from "@/components/BatchReviewConfirmDialog.vue";
+import { openBatchReviewConfirmDialog } from "@/dialogs/batchReviewConfirm";
 import { useAuthStore } from "@/stores/auth";
 import { useBatchStore } from "@/stores/batch";
 
@@ -12,7 +10,7 @@ const authStore = useAuthStore();
 const batchStore = useBatchStore();
 
 const confirmCancel = async () => {
-  const confirmed = await openDialog(BatchReviewConfirmDialog, {
+  const confirmed = await openBatchReviewConfirmDialog({
     heading: "Cancel batch",
     bodyHtml:
       `<p>Are you sure you want to cancel batch <strong>${batchStore.current?.identifier}</strong>?</p>` +
@@ -24,7 +22,7 @@ const confirmCancel = async () => {
 };
 
 const confirmContinue = async () => {
-  const confirmed = await openDialog(BatchReviewConfirmDialog, {
+  const confirmed = await openBatchReviewConfirmDialog({
     heading: "Continue partial ingest",
     bodyHtml:
       `<p>Are you sure you want to continue processing batch <strong>${batchStore.current?.identifier}</strong>?</p>` +

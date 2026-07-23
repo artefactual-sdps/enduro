@@ -1,37 +1,28 @@
 <script setup lang="ts">
-import Modal from "bootstrap/js/dist/modal";
-import { onMounted, ref } from "vue";
-import { closeDialog } from "vue3-promise-dialog";
+import { ref } from "vue";
 
 import SafeHtml from "@/components/SafeHtml.vue";
-import useEventListener from "@/composables/useEventListener";
+import useBootstrapModal from "@/composables/useBootstrapModal";
+import type { BatchReviewConfirmDialogProps } from "@/dialogs/batchReviewConfirm";
 
-defineProps<{
-  heading: string;
-  bodyHtml: string;
-  confirmClass: "btn-primary" | "btn-danger";
+defineProps<BatchReviewConfirmDialogProps>();
+
+const emit = defineEmits<{
+  resolve: [confirmed: boolean];
 }>();
 
-const el = ref<HTMLElement | null>(null);
-const modal = ref<Modal | null>(null);
 const confirmed = ref(false);
 const titleId = "batch-review-confirm-dialog-title";
 const bodyId = "batch-review-confirm-dialog-body";
 
-onMounted(() => {
-  if (!el.value) return;
-  modal.value = new Modal(el.value);
-  modal.value.show();
-});
-
-useEventListener(el, "hidden.bs.modal", () => {
-  closeDialog(confirmed.value);
+const { element: el, hide } = useBootstrapModal(() => {
+  emit("resolve", confirmed.value);
   confirmed.value = false;
 });
 
 const confirm = (value: boolean) => {
   confirmed.value = value;
-  modal.value?.hide();
+  hide();
 };
 </script>
 

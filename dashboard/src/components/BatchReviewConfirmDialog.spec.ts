@@ -3,16 +3,16 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import BatchReviewConfirmDialog from "@/components/BatchReviewConfirmDialog.vue";
 
-const closeDialogMock = vi.hoisted(() => vi.fn());
 const showMock = vi.hoisted(() => vi.fn());
 const hideMock = vi.hoisted(() => vi.fn());
+const disposeMock = vi.hoisted(() => vi.fn());
 
-vi.mock("vue3-promise-dialog", () => ({ closeDialog: closeDialogMock }));
 vi.mock("bootstrap/js/dist/modal", () => {
   return {
     default: class ModalMock {
       show = showMock;
       hide = hideMock;
+      dispose = disposeMock;
     },
   };
 });
@@ -24,7 +24,7 @@ describe("BatchReviewConfirmDialog.vue", () => {
   });
 
   it("renders the dialog and confirms", async () => {
-    const { getByRole, getByText } = render(BatchReviewConfirmDialog, {
+    const { emitted, getByRole, getByText } = render(BatchReviewConfirmDialog, {
       props: {
         heading: "Cancel batch",
         bodyHtml: "<p>Are you sure you want to cancel?</p>",
@@ -47,11 +47,11 @@ describe("BatchReviewConfirmDialog.vue", () => {
     const modalEl = getByRole("dialog", { name: "Cancel batch" });
     await fireEvent(modalEl, new Event("hidden.bs.modal"));
 
-    expect(closeDialogMock).toHaveBeenCalledWith(true);
+    expect(emitted().resolve).toEqual([[true]]);
   });
 
   it("closes without confirmation", async () => {
-    const { getByRole, getByText } = render(BatchReviewConfirmDialog, {
+    const { emitted, getByRole, getByText } = render(BatchReviewConfirmDialog, {
       props: {
         heading: "Continue partial ingest",
         bodyHtml: "<p>Are you sure you want to continue processing?</p>",
@@ -74,6 +74,6 @@ describe("BatchReviewConfirmDialog.vue", () => {
     const modalEl = getByRole("dialog", { name: "Continue partial ingest" });
     await fireEvent(modalEl, new Event("hidden.bs.modal"));
 
-    expect(closeDialogMock).toHaveBeenCalledWith(false);
+    expect(emitted().resolve).toEqual([[false]]);
   });
 });
