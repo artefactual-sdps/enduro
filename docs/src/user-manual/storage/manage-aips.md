@@ -151,7 +151,7 @@ with the most recent tasks at the top of the list.
 
 ![A workflow header card expanded to show the task list below](../screenshots/aip-workflow-details.png)
 
-Task cards will include:
+Task rows include:
 
 * A **task number** assigned by Enduro, indicating the order the task was run in
   the workflow.
@@ -159,10 +159,10 @@ Task cards will include:
   performed.
 * A **status** - see [above](#workflow-task-status-legend) for details on each
   task status meaning.
-* A **timestamp** - if the task has completed, this will list the completed
-  timestamp. If the task is still running or if it does not complete
-  successfully (i.e. a failure or error), it will show a timestamp of when the
-  task started running
+* A **time** - "**Ended**" shows when the task ended whenever a completion
+  timestamp is available, regardless of whether its status is done or error.
+  Otherwise, "**Started**" shows when the task began. A dash is shown if neither
+  timestamp is available
 * A **task outcome** - a textual description of the activity details in the
   task. This might include a brief summary of the activity, or in some cases
   (such as an [AIP deletion workflow](#delete-an-aip)) it may include a
@@ -170,9 +170,9 @@ Task cards will include:
   might include information to assist operators in troubleshooting.
 
     If a task outcome description is more than one line of text, the text will
-    be truncated and a "**Show more**" link will be shown at the end of the
-    first line. You can click the link to fully expand the task card and read
-    the full description.
+    be truncated and a "**Show more**" control will be shown at the end of the
+    first line. You can use the control to expand the task outcome and read the
+    full description.
 
 #### Pending workflows and tasks
 

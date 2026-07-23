@@ -1,9 +1,12 @@
 @import "bootstrap-base.scss";
 @import "bootstrap.scss";
 
-html,
-main {
+html {
   overflow-x: hidden;
+}
+
+main {
+  overflow-x: clip;
 }
 
 button:focus:not(:focus-visible),

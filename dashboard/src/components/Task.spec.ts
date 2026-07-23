@@ -28,18 +28,21 @@ describe("Task.vue", () => {
     expect(wrapper.exists()).toBe(true);
   });
 
-  it("applies the intended task alignment utilities", () => {
-    expect(wrapper.get(".card-body > .d-flex").classes()).toContain(
-      "align-items-start",
-    );
-    expect(wrapper.find(".card-body > .d-flex > .d-flex").exists()).toBe(true);
+  it("renders the compact task row regions", () => {
+    expect(wrapper.get(".workflow-task-name").text()).toBe("Task 1");
+    expect(wrapper.find(".workflow-task-time").exists()).toBe(true);
+    expect(wrapper.find(".workflow-task-note").exists()).toBe(true);
+    expect(wrapper.find(".workflow-task-status").exists()).toBe(true);
   });
 
-  it("shows the time completed if the task is done", async () => {
-    const time = wrapper.find("#pt-task-uuid-time span");
+  it("shows when a done task ended", async () => {
+    const time = wrapper.get("#pt-task-uuid-time");
 
     expect(process.env.TZ).toEqual("America/Regina");
-    expect(time.text()).toEqual("Completed: 2020-02-25 11:22:38");
+    expect(time.get(".workflow-task-time-label").text()).toEqual("Ended");
+    expect(time.get(".workflow-task-time-value").text()).toEqual(
+      "2020-02-25 11:22:38",
+    );
   });
 
   it("shows the time started if the task is in progress", async () => {
@@ -56,10 +59,13 @@ describe("Task.vue", () => {
       },
     });
 
-    const time = wrapper.find("#pt-task-uuid-time span");
+    const time = wrapper.get("#pt-task-uuid-time");
 
     expect(process.env.TZ).toEqual("America/Regina");
-    expect(time.text()).toEqual("Started: 2020-02-25 11:21:03");
+    expect(time.get(".workflow-task-time-label").text()).toEqual("Started");
+    expect(time.get(".workflow-task-time-value").text()).toEqual(
+      "2020-02-25 11:21:03",
+    );
   });
 
   it("uses the completion time reported by a failed task", async () => {
@@ -77,10 +83,33 @@ describe("Task.vue", () => {
       },
     });
 
-    const time = wrapper.find("#pt-task-uuid-time span");
+    const time = wrapper.get("#pt-task-uuid-time");
 
-    expect(process.env.TZ).toEqual("America/Regina");
-    expect(time.text()).toEqual("Completed: 2020-02-25 11:22:38");
+    expect(time.get(".workflow-task-time-label").text()).toEqual("Ended");
+    expect(time.get(".workflow-task-time-value").text()).toEqual(
+      "2020-02-25 11:22:38",
+    );
+  });
+
+  it("shows when no task timestamp is available", () => {
+    wrapper = mount(Task, {
+      props: {
+        index: 1,
+        task: {
+          uuid: "task-uuid",
+          name: "Task 1",
+          status: "queued",
+          workflowUuid: "workflow-uuid",
+        },
+      },
+    });
+
+    const time = wrapper.get("#pt-task-uuid-time");
+
+    expect(time.get(".workflow-task-time-empty").text()).toEqual("—");
+    expect(time.get(".workflow-task-time-empty").attributes("aria-label")).toBe(
+      "No timestamp",
+    );
   });
 
   it("shows the first line of the note by default", async () => {
