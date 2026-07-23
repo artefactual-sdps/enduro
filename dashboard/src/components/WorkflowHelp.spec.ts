@@ -22,6 +22,8 @@ describe("WorkflowHelp.vue", () => {
     expect(wrapper.get("#workflow-task-definition").text()).toContain(
       "workflow",
     );
+    expect(wrapper.get("#task-status-legend").text()).toContain("QUEUED");
+    expect(wrapper.get("#task-status-legend").text()).toContain("UNSPECIFIED");
   });
 
   it("hides help text when show is false", () => {

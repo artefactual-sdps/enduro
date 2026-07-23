@@ -27,6 +27,14 @@ const statuses = [
     description:
       "The task has encountered a system error it could not resolve.",
   },
+  {
+    status: api.EnduroIngestSipTaskStatusEnum.Queued,
+    description: "The task is waiting to start.",
+  },
+  {
+    status: api.EnduroIngestSipTaskStatusEnum.Unspecified,
+    description: "The task has not reported a status.",
+  },
 ];
 
 const { show = false } = defineProps<{
