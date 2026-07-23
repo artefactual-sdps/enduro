@@ -9,7 +9,7 @@ jobs:
     name: Threat Model Analysis
     steps:
       - name: Checkout code
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Run Threagile
         id: threagile
         uses: threagile/run-threagile-action@ad13d6b6b446457db42253272c3e41334d649225 # v1
