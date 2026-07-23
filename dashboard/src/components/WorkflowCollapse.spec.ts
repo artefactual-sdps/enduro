@@ -1,5 +1,5 @@
 import { createTestingPinia } from "@pinia/testing";
-import { cleanup, render } from "@testing-library/vue";
+import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { api } from "@/client";
@@ -145,5 +145,45 @@ describe("WorkflowCollapse.vue", () => {
     });
 
     expect(sipStore.fetchCurrentDecision).toHaveBeenCalledWith("sip-uuid");
+  });
+
+  it("keeps expanded note state with its task after a live update", async () => {
+    const firstTask = {
+      ...ingestWorkflow().tasks?.[0],
+      note: "First line\nFirst task details",
+    } as api.EnduroIngestSipTask;
+    const workflow = ingestWorkflow({
+      status: api.EnduroIngestSipWorkflowStatusEnum.InProgress,
+      tasks: [firstTask],
+    });
+    const { container, rerender } = renderWorkflow(workflow);
+
+    await fireEvent.click(
+      container.querySelector("#pt-1-note-toggle") as HTMLElement,
+    );
+
+    await rerender({
+      workflow: {
+        ...workflow,
+        tasks: [
+          firstTask,
+          {
+            ...firstTask,
+            name: "Task 2",
+            note: "Second line\nSecond task details",
+            uuid: "second-task-uuid",
+          },
+        ],
+      },
+      index: 0,
+      of: 2,
+    });
+
+    expect(
+      (container.querySelector("#pt-1-note-more") as HTMLElement).style.display,
+    ).not.toBe("none");
+    expect(
+      (container.querySelector("#pt-2-note-more") as HTMLElement).style.display,
+    ).toBe("none");
   });
 });
