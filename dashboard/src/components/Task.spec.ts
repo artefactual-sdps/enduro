@@ -62,6 +62,27 @@ describe("Task.vue", () => {
     expect(time.text()).toEqual("Started: 2020-02-25 11:21:03");
   });
 
+  it("uses the completion time reported by a failed task", async () => {
+    wrapper = mount(Task, {
+      props: {
+        index: 1,
+        task: {
+          uuid: "task-uuid",
+          name: "Task 1",
+          startedAt: new Date("2020-02-25T17:21:03Z"),
+          completedAt: new Date("2020-02-25T17:22:38Z"),
+          status: "failed",
+          workflowUuid: "workflow-uuid",
+        },
+      },
+    });
+
+    const time = wrapper.find("#pt-task-uuid-time span");
+
+    expect(process.env.TZ).toEqual("America/Regina");
+    expect(time.text()).toEqual("Completed: 2020-02-25 11:22:38");
+  });
+
   it("shows the first line of the note by default", async () => {
     const note = wrapper.find("#pt-task-uuid-note");
     const more = wrapper.find("#pt-task-uuid-note-more");
