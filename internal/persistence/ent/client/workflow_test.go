@@ -285,11 +285,49 @@ func TestReadWorkflow(t *testing.T) {
 	}
 }
 
+func TestReadWorkflowOrdersTasks(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	entc, svc := setUpClient(t, logr.Discard())
+	createSIP(t, entc, "Test SIP", enums.SIPStatusProcessing)
+
+	wf := &datatypes.Workflow{
+		UUID:       uuid.New(),
+		TemporalID: "processing-workflow-1",
+		Type:       enums.WorkflowTypeCreateAip,
+		Status:     enums.WorkflowStatusInProgress,
+		SIPUUID:    sipUUID,
+	}
+	assert.NilError(t, svc.CreateWorkflow(ctx, wf))
+
+	want := []*datatypes.Task{
+		{
+			UUID:         uuid.New(),
+			Name:         "First task",
+			Status:       enums.TaskStatusDone,
+			WorkflowUUID: wf.UUID,
+		},
+		{
+			UUID:         uuid.New(),
+			Name:         "Second task",
+			Status:       enums.TaskStatusInProgress,
+			WorkflowUUID: wf.UUID,
+		},
+	}
+	assert.NilError(t, svc.CreateTasks(ctx, want))
+
+	got, err := svc.ReadWorkflow(ctx, wf.ID)
+	assert.NilError(t, err)
+	assert.DeepEqual(t, got.Tasks, want, cmpopts.EquateEmpty())
+}
+
 func TestListWorkflowsBySIP(t *testing.T) {
 	t.Parallel()
 
 	workflowUUID1 := uuid.New()
 	workflowUUID2 := uuid.New()
+	workflowUUID3 := uuid.New()
 	started := time.Date(2024, 9, 25, 9, 31, 11, 0, time.UTC)
 	started2 := time.Date(2024, 9, 25, 10, 3, 42, 0, time.UTC)
 
@@ -318,8 +356,25 @@ func TestListWorkflowsBySIP(t *testing.T) {
 					StartedAt:  started2,
 					SIPUUID:    sipUUID,
 				},
+				{
+					UUID:       workflowUUID3,
+					TemporalID: "processing-workflow-3",
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusDone,
+					StartedAt:  started2,
+					SIPUUID:    sipUUID,
+				},
 			},
 			want: []*datatypes.Workflow{
+				{
+					ID:         3, // Most recently created tie first.
+					UUID:       workflowUUID3,
+					TemporalID: "processing-workflow-3",
+					Type:       enums.WorkflowTypeCreateAip,
+					Status:     enums.WorkflowStatusDone,
+					StartedAt:  started2,
+					SIPUUID:    sipUUID,
+				},
 				{
 					ID:         2, // Newer first.
 					UUID:       workflowUUID2,
