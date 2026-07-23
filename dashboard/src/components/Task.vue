@@ -9,16 +9,14 @@ import type {
   EnduroStorageAipTask,
 } from "@/openapi-generator";
 
-const isComplete = (task: EnduroIngestSipTask | EnduroStorageAipTask) => {
-  return task.status == "done" || task.status == "error";
-};
-
 const props = defineProps<{
   index: number;
   task: EnduroIngestSipTask | EnduroStorageAipTask;
 }>();
 
 const idPrefix = computed(() => `pt-${props.task.uuid}`);
+const startedAt = computed(() => formatDateTime(props.task.startedAt));
+const completedAt = computed(() => formatDateTime(props.task.completedAt));
 const isOpen = ref(false);
 
 const noteData = computed(() => {
@@ -64,13 +62,13 @@ const toggle = () => {
             {{ task.name }}
           </div>
           <div :id="`${idPrefix}-time`" class="me-3">
-            <span v-if="!isComplete(task) && formatDateTime(task.startedAt)">
-              Started:
-              {{ formatDateTime(task.startedAt) }}
-            </span>
-            <span v-if="isComplete(task) && formatDateTime(task.completedAt)">
+            <span v-if="completedAt">
               Completed:
-              {{ formatDateTime(task.completedAt) }}
+              {{ completedAt }}
+            </span>
+            <span v-else-if="startedAt">
+              Started:
+              {{ startedAt }}
             </span>
           </div>
         </div>
