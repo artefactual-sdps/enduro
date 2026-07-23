@@ -83,16 +83,20 @@ const showTasks = computed(() => {
     return true;
   }
 
-  // Show tasks if the workflow is "in progress".
+  // Show tasks if the workflow is active or requires attention.
   if (
     api.instanceOfEnduroIngestSipWorkflow(workflow.value) &&
-    workflow.value.status === api.EnduroIngestSipWorkflowStatusEnum.InProgress
+    (workflow.value.status ===
+      api.EnduroIngestSipWorkflowStatusEnum.InProgress ||
+      workflow.value.status === api.EnduroIngestSipWorkflowStatusEnum.Pending)
   ) {
     return true;
   }
   if (
     api.instanceOfEnduroStorageAipWorkflow(workflow.value) &&
-    workflow.value.status === api.EnduroStorageAipWorkflowStatusEnum.InProgress
+    (workflow.value.status ===
+      api.EnduroStorageAipWorkflowStatusEnum.InProgress ||
+      workflow.value.status === api.EnduroStorageAipWorkflowStatusEnum.Pending)
   ) {
     return true;
   }
