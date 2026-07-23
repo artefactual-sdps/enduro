@@ -1007,6 +1007,68 @@ func TestListWorkflows(t *testing.T) {
 	}
 }
 
+func TestListWorkflowsOrdersHistory(t *testing.T) {
+	t.Parallel()
+
+	ctx := t.Context()
+	entc, c := setUpClient(t)
+
+	entc.AIP.Create().
+		SetName("AIP").
+		SetAipID(aipID).
+		SetObjectKey(objectKey).
+		SetStatus(enums.AIPStatusStored).
+		ExecX(ctx)
+
+	startedAt := time.Date(2023, 10, 1, 12, 0, 0, 0, time.UTC)
+	newerUUID := uuid.New()
+	entc.Workflow.Create().
+		SetUUID(newerUUID).
+		SetTemporalID("newer-workflow").
+		SetType(enums.WorkflowTypeMoveAip).
+		SetStatus(enums.WorkflowStatusDone).
+		SetStartedAt(startedAt.Add(time.Minute)).
+		SetAipID(1).
+		ExecX(ctx)
+
+	olderUUID := uuid.New()
+	older := entc.Workflow.Create().
+		SetUUID(olderUUID).
+		SetTemporalID("older-workflow").
+		SetType(enums.WorkflowTypeMoveAip).
+		SetStatus(enums.WorkflowStatusDone).
+		SetStartedAt(startedAt).
+		SetAipID(1).
+		SaveX(ctx)
+
+	firstTaskUUID := uuid.New()
+	entc.Task.Create().
+		SetUUID(firstTaskUUID).
+		SetName("First task").
+		SetStatus(enums.TaskStatusDone).
+		SetNote("").
+		SetWorkflowID(older.ID).
+		ExecX(ctx)
+
+	secondTaskUUID := uuid.New()
+	entc.Task.Create().
+		SetUUID(secondTaskUUID).
+		SetName("Second task").
+		SetStatus(enums.TaskStatusDone).
+		SetNote("").
+		SetWorkflowID(older.ID).
+		ExecX(ctx)
+
+	got, err := c.ListWorkflows(ctx, &persistence.WorkflowFilter{})
+	assert.NilError(t, err)
+	assert.Equal(t, len(got), 2)
+	assert.Equal(t, got[0].UUID, olderUUID)
+	assert.Equal(t, got[1].UUID, newerUUID)
+	assert.Equal(t, len(got[0].Tasks), 2)
+	assert.Equal(t, got[0].Tasks[0].UUID, firstTaskUUID)
+	assert.Equal(t, got[0].Tasks[1].UUID, secondTaskUUID)
+}
+
 func TestCreateLocation(t *testing.T) {
 	t.Parallel()
 
