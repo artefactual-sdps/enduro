@@ -159,7 +159,7 @@ describe("WorkflowCollapse.vue", () => {
     const { container, rerender } = renderWorkflow(workflow);
 
     await fireEvent.click(
-      container.querySelector("#pt-1-note-toggle") as HTMLElement,
+      container.querySelector("#pt-task-uuid-note-toggle") as HTMLElement,
     );
 
     await rerender({
@@ -180,10 +180,12 @@ describe("WorkflowCollapse.vue", () => {
     });
 
     expect(
-      (container.querySelector("#pt-1-note-more") as HTMLElement).style.display,
+      (container.querySelector("#pt-task-uuid-note-more") as HTMLElement).style
+        .display,
     ).not.toBe("none");
     expect(
-      (container.querySelector("#pt-2-note-more") as HTMLElement).style.display,
+      (container.querySelector("#pt-second-task-uuid-note-more") as HTMLElement)
+        .style.display,
     ).toBe("none");
   });
 });

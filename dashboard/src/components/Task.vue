@@ -18,6 +18,7 @@ const props = defineProps<{
   task: EnduroIngestSipTask | EnduroStorageAipTask;
 }>();
 
+const idPrefix = computed(() => `pt-${props.task.uuid}`);
 const isOpen = ref(false);
 
 const noteData = computed(() => {
@@ -46,7 +47,7 @@ const toggle = () => {
 </script>
 
 <template>
-  <div :id="'pt-' + props.index + '-body'" class="card-body">
+  <div :id="`${idPrefix}-body`" class="card-body">
     <div class="d-flex flex-row align-start gap-3">
       <div class="fd-flex">
         <span
@@ -62,7 +63,7 @@ const toggle = () => {
           <div class="me-auto text-truncate fw-bold">
             {{ task.name }}
           </div>
-          <div :id="'pt-' + index + '-time'" class="me-3">
+          <div :id="`${idPrefix}-time`" class="me-3">
             <span v-if="!isComplete(task) && formatDateTime(task.startedAt)">
               Started:
               {{ formatDateTime(task.startedAt) }}
@@ -74,7 +75,7 @@ const toggle = () => {
           </div>
         </div>
         <div class="flex-grow-1">
-          <span :id="'pt-' + index + '-note'">
+          <span :id="`${idPrefix}-note`">
             <EmailLinkedText :text="noteData.note" />
           </span>
           <span v-if="noteData.more">
@@ -82,15 +83,15 @@ const toggle = () => {
             <Transition name="fade">
               <p
                 v-show="isOpen"
-                :id="'pt-' + index + '-note-more'"
+                :id="`${idPrefix}-note-more`"
                 class="line-break"
               >
                 <EmailLinkedText :text="noteData.more" />
               </p>
             </Transition>
             <a
-              :id="'pt-' + index + '-note-toggle'"
-              :aria-controls="'pt-' + index + '-note-more'"
+              :id="`${idPrefix}-note-toggle`"
+              :aria-controls="`${idPrefix}-note-more`"
               aria-label="Toggle display of additional notes"
               href="#"
               @click.prevent="toggle"

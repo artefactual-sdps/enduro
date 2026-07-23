@@ -29,7 +29,7 @@ describe("Task.vue", () => {
   });
 
   it("shows the time completed if the task is done", async () => {
-    const time = wrapper.find("#pt-1-time span");
+    const time = wrapper.find("#pt-task-uuid-time span");
 
     expect(process.env.TZ).toEqual("America/Regina");
     expect(time.text()).toEqual("Completed: 2020-02-25 11:22:38");
@@ -49,24 +49,24 @@ describe("Task.vue", () => {
       },
     });
 
-    const time = wrapper.find("#pt-1-time span");
+    const time = wrapper.find("#pt-task-uuid-time span");
 
     expect(process.env.TZ).toEqual("America/Regina");
     expect(time.text()).toEqual("Started: 2020-02-25 11:21:03");
   });
 
   it("shows the first line of the note by default", async () => {
-    const note = wrapper.find("#pt-1-note");
-    const more = wrapper.find("#pt-1-note-more");
+    const note = wrapper.find("#pt-task-uuid-note");
+    const more = wrapper.find("#pt-task-uuid-note-more");
 
     expect(note.text()).toEqual("This is a note");
     expect(more.isVisible()).toBe(false);
   });
 
   it("shows all lines of the note after expanding the card", async () => {
-    const note = wrapper.find("#pt-1-note");
-    const more = wrapper.find("#pt-1-note-more");
-    const toggle = wrapper.find("#pt-1-note-toggle");
+    const note = wrapper.find("#pt-task-uuid-note");
+    const more = wrapper.find("#pt-task-uuid-note-more");
+    const toggle = wrapper.find("#pt-task-uuid-note-toggle");
 
     await toggle.trigger("click");
 
@@ -91,9 +91,9 @@ describe("Task.vue", () => {
       },
     });
 
-    const note = wrapper.find("#pt-1-note");
-    const more = wrapper.find("#pt-1-note-more");
-    const toggle = wrapper.find("#pt-1-note-toggle");
+    const note = wrapper.find("#pt-task-uuid-note");
+    const more = wrapper.find("#pt-task-uuid-note-more");
+    const toggle = wrapper.find("#pt-task-uuid-note-toggle");
 
     expect(note.text()).toEqual("This note is only one line");
     expect(more.exists()).toBe(false);
