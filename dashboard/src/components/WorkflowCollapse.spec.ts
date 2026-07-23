@@ -47,6 +47,7 @@ const useSipState = (
 const renderWorkflow = (
   workflow: api.EnduroIngestSipWorkflow,
   sip: Record<string, unknown> = {},
+  attributes = ["ingest:sips:decision", "ingest:sips:review"],
 ) => {
   return render(WorkflowCollapse, {
     props: {
@@ -63,7 +64,7 @@ const renderWorkflow = (
           createSpy: vi.fn,
           initialState: {
             auth: {
-              attributes: ["ingest:sips:decision", "ingest:sips:review"],
+              attributes,
               config: { enabled: true, abac: { enabled: true } },
             },
             sip: useSipState(sip),
@@ -84,6 +85,15 @@ describe("WorkflowCollapse.vue", () => {
 
     expect(getByRole("button").textContent).toContain("create aip");
     expect(container.querySelector("#wf0-tasks")).toBeNull();
+  });
+
+  it("expands a pending workflow for users without decision access", () => {
+    const { container, queryByRole } = renderWorkflow(ingestWorkflow(), {}, [
+      "ingest:sips:workflows:list",
+    ]);
+
+    expect(queryByRole("alert")).toBeNull();
+    expect(container.querySelector("#wf0-tasks")?.classList).toContain("show");
   });
 
   it("shows the SIP review alert for pending review workflows", () => {
