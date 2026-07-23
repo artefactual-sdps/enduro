@@ -190,7 +190,7 @@ const showTasks = computed(() => {
         <li
           v-for="(task, idx) of tasks"
           :id="'wf' + index + '-task' + (tasks.length - idx)"
-          :key="idx"
+          :key="task.uuid"
           class="mb-2 card bg-light"
         >
           <Task :index="tasks.length - idx" :task="task" />
