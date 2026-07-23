@@ -109,6 +109,8 @@ meaning:
 * **IN PROGRESS**: The task is still processing
 * **PENDING**: The task is awaiting a user decision
 * **ERROR**: The task has encountered a system error it could not resolve
+* **QUEUED**: The task is waiting to start
+* **UNSPECIFIED**: The task has not yet reported a status
 
 **Workflows** have their own status as well. Most of these are similar to the
 task statuses, with a few additional statuses:
