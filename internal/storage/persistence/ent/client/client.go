@@ -15,6 +15,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/aip"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/location"
+	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/task"
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence/ent/db/workflow"
 	"github.com/artefactual-sdps/enduro/internal/storage/types"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
@@ -306,7 +307,12 @@ func (c *Client) ListWorkflows(
 
 	res, err := q.WithAip(func(a *db.AIPQuery) {
 		a.Select(aip.FieldAipID)
-	}).WithTasks().All(ctx)
+	}).WithTasks(func(q *db.TaskQuery) {
+		q.Order(task.ByID())
+	}).Order(
+		workflow.ByStartedAt(),
+		workflow.ByID(),
+	).All(ctx)
 	if err != nil {
 		return nil, err
 	}
