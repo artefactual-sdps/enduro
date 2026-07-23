@@ -89,15 +89,17 @@ const toggle = () => {
                 <EmailLinkedText :text="noteData.more" />
               </p>
             </Transition>
-            <a
+            <button
               :id="`${idPrefix}-note-toggle`"
+              class="btn btn-link p-0 align-baseline"
+              type="button"
               :aria-controls="`${idPrefix}-note-more`"
+              :aria-expanded="isOpen ? 'true' : 'false'"
               aria-label="Toggle display of additional notes"
-              href="#"
-              @click.prevent="toggle"
+              @click="toggle"
             >
               {{ isOpen ? "Show less" : "Show more" }}
-            </a>
+            </button>
           </span>
         </div>
       </div>

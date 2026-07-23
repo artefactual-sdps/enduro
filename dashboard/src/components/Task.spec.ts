@@ -68,14 +68,17 @@ describe("Task.vue", () => {
     const more = wrapper.find("#pt-task-uuid-note-more");
     const toggle = wrapper.find("#pt-task-uuid-note-toggle");
 
+    expect(toggle.element.tagName).toBe("BUTTON");
+    expect(toggle.attributes("aria-expanded")).toBe("false");
     await toggle.trigger("click");
 
     expect(note.text()).toEqual("This is a note");
     expect(more.isVisible()).toBe(true);
     expect(more.text()).toEqual("with multiple lines");
+    expect(toggle.attributes("aria-expanded")).toBe("true");
   });
 
-  it("doesn't have an expand link when the note is only one line", async () => {
+  it("doesn't have an expand control when the note is only one line", async () => {
     wrapper = mount(Task, {
       props: {
         index: 1,
