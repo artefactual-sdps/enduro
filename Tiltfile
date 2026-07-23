@@ -70,12 +70,10 @@ else:
   if LOCAL_A3M:
     docker_build("ghcr.io/artefactual-labs/a3m", context="../a3m")
 
-docker_build(
-  "enduro-dashboard:dev",
-  context="dashboard",
-  target="builder" if DASHBOARD_DEV else "",
-  live_update=[
-    fall_back_on("dashboard/vite.config.js"),
+dashboard_live_update = []
+if DASHBOARD_DEV:
+  dashboard_live_update = [
+    fall_back_on("dashboard/vite.config.ts"),
     sync("dashboard/", "/app/"),
     run(
       "npm set cache /app/.npm && npm install-clean",
@@ -86,6 +84,12 @@ docker_build(
       ]
     ),
   ]
+
+docker_build(
+  "enduro-dashboard:dev",
+  context="dashboard",
+  target="builder" if DASHBOARD_DEV else "",
+  live_update=dashboard_live_update,
 )
 
 # Get kube overlay path
