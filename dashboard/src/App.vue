@@ -41,7 +41,12 @@ watch(
     <Header v-if="authStore.isUserValid" />
     <div class="flex-grow-1 d-flex">
       <Sidebar v-if="authStore.isUserValid" />
-      <main id="main" class="flex-grow-1 d-flex px-2 pt-3">
+      <main
+        id="main"
+        class="flex-grow-1 d-flex"
+        :class="{ 'px-2 pt-3': authStore.isUserValid }"
+        tabindex="-1"
+      >
         <RouterView />
       </main>
     </div>
