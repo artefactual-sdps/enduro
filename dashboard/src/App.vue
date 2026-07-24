@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Modal from "bootstrap/js/dist/modal";
 import { watch } from "vue";
 import { DialogWrapper } from "vue3-promise-dialog";
 
@@ -22,6 +23,11 @@ watch(
     if (valid) {
       ingestMonitor.connect();
       storageMonitor.connect();
+    } else {
+      // Hide any open modals when the user is logged out or invalidated.
+      document
+        .querySelectorAll<HTMLElement>(".modal.show")
+        .forEach((el) => Modal.getInstance(el)?.hide());
     }
   },
   { immediate: true },

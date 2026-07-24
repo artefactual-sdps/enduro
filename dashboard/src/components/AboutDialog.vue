@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Modal from "bootstrap/js/dist/modal";
-import { onMounted, ref } from "vue";
+import { onMounted, ref, watch } from "vue";
 import { closeDialog } from "vue3-promise-dialog";
 
 import IconDocumentation from "~icons/lucide/book-text";
@@ -9,8 +9,10 @@ import IconContributing from "~icons/lucide/git-merge";
 
 import useEventListener from "@/composables/useEventListener";
 import { useAboutStore } from "@/stores/about";
+import { useAuthStore } from "@/stores/auth";
 
 const aboutStore = useAboutStore();
+const authStore = useAuthStore();
 
 const el = ref<HTMLElement | null>(null);
 const modal = ref<Modal | null>(null);
@@ -26,6 +28,15 @@ onMounted(() => {
 });
 
 useEventListener(el, "hidden.bs.modal", () => closeDialog(null));
+
+watch(
+  () => authStore.isUserValid,
+  (valid) => {
+    if (!valid) {
+      closeDialog(null);
+    }
+  },
+);
 </script>
 
 <template>
