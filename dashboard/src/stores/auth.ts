@@ -198,7 +198,7 @@ export const useAuthStore = defineStore("auth", {
     },
     signinRedirect() {
       this.loadManager();
-      this.manager?.signinRedirect();
+      return this.manager?.signinRedirect();
     },
     async signinCallback() {
       this.loadManager();
