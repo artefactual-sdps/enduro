@@ -10,7 +10,6 @@ import (
 
 	"gotest.tools/v3/assert"
 	"gotest.tools/v3/fs"
-	"gotest.tools/v3/poll"
 
 	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
@@ -23,7 +22,6 @@ type file struct {
 func TestFileSystemWatcher(t *testing.T) {
 	t.Parallel()
 
-	td := fs.NewDir(t, "enduro-test-fs-watcher")
 	type test struct {
 		name   string
 		config *watcher.FilesystemConfig
@@ -36,7 +34,7 @@ func TestFileSystemWatcher(t *testing.T) {
 			config: &watcher.FilesystemConfig{
 				Name:         "filesystem",
 				Path:         t.TempDir(),
-				PollInterval: time.Millisecond * 5,
+				PollInterval: time.Millisecond * 100,
 			},
 			file: file{name: "test.txt"},
 			want: &watcher.BlobEvent{Key: "test.txt"},
@@ -55,35 +53,24 @@ func TestFileSystemWatcher(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			ctx := t.Context()
+			ctx, cancel := context.WithTimeout(t.Context(), time.Millisecond*300)
+			defer cancel()
 
 			w, err := watcher.NewFilesystemWatcher(ctx, tt.config)
 			assert.NilError(t, err)
-
-			check := func(t poll.LogT) poll.Result {
-				got, _, err := w.Watch(ctx)
-				if err != nil {
-					return poll.Error(fmt.Errorf("watcher error: %w", err))
-				}
-				if got.Key != tt.want.Key || got.IsDir != tt.want.IsDir {
-					return poll.Error(fmt.Errorf(
-						"expected: *watcher.BlobEvent(Key: %q, IsDir: %t); got: *watcher.BlobEvent(Key: %q, IsDir: %t)",
-						tt.want.Key, tt.want.IsDir, got.Key, got.IsDir,
-					))
-				}
-
-				return poll.Success()
-			}
 
 			if err = os.WriteFile(
 				filepath.Join(tt.config.Path, tt.file.name),
 				tt.file.contents,
 				0o600,
 			); err != nil {
-				t.Fatalf("Couldn't create text.txt in %q", td.Path())
+				t.Fatalf("Couldn't create %q in %q", tt.file.name, tt.config.Path)
 			}
 
-			poll.WaitOn(t, check, poll.WithTimeout(time.Millisecond*15))
+			got, _, err := w.Watch(ctx)
+			assert.NilError(t, err, "watcher error: %v", err)
+			assert.Equal(t, got.Key, tt.want.Key)
+			assert.Equal(t, got.IsDir, tt.want.IsDir)
 		})
 	}
 
