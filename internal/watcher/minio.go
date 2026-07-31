@@ -24,7 +24,7 @@ type minioWatcher struct {
 	logger       logr.Logger
 	listName     string
 	failedList   string
-	pollInterval time.Duration
+	watchTimeout time.Duration
 	bucketConfig *bucket.Config
 	*commonWatcherImpl
 }
@@ -72,18 +72,21 @@ func NewMinioWatcher(
 		config.RedisFailedList = config.RedisList + "-failed"
 	}
 
-	pollInterval := config.PollInterval
-	if pollInterval == 0 {
-		pollInterval = time.Minute // Sane default
-	} else if pollInterval < time.Second {
-		pollInterval = time.Second // Must be at least 1s.
+	// Set the maximum time the Watch() method will wait for an redis event
+	// message before returning an error. The redis client's BLMove command has
+	// a minimum timeout value of 1 second, so we enforce that here.
+	timeout := config.WatchTimeout
+	if timeout == 0 {
+		timeout = time.Minute // Sane default, 0 would wait indefinitely.
+	} else if timeout < time.Second {
+		timeout = time.Second
 	}
 
 	return &minioWatcher{
 		client:       client,
 		listName:     config.RedisList,
 		failedList:   config.RedisFailedList,
-		pollInterval: pollInterval,
+		watchTimeout: timeout,
 		logger:       logger,
 		bucketConfig: bucketConfig,
 		commonWatcherImpl: &commonWatcherImpl{
@@ -94,6 +97,16 @@ func NewMinioWatcher(
 	}, nil
 }
 
+// Watch blocks until a new blob event is available in the Redis list. It
+// returns an ErrWatchTimeout error if no event is received before the
+// watchTimeout is exceeded. The returned Cleanup function should be called
+// after processing the event to remove it from the failed event list (see
+// https://redis.io/docs/latest/commands/lmove/#pattern-reliable-queue).
+//
+// TODO: Implement this watcher in a way that cancels the blocking `pop()` call
+// when context is cancelled. The current implementation does not support this
+// because the redis client does not support context cancellation for the BLMove
+// command.
 func (w *minioWatcher) Watch(ctx context.Context) (*BlobEvent, Cleanup, error) {
 	event, val, err := w.pop(ctx)
 	if err != nil {
@@ -130,7 +143,7 @@ func (w *minioWatcher) rem(val string) func(ctx context.Context) error {
 }
 
 func (w *minioWatcher) pop(ctx context.Context) (*BlobEvent, string, error) {
-	val, err := w.client.BLMove(ctx, w.listName, w.failedList, "RIGHT", "LEFT", w.pollInterval).Result()
+	val, err := w.client.BLMove(ctx, w.listName, w.failedList, "RIGHT", "LEFT", w.watchTimeout).Result()
 	if err != nil {
 		return nil, "", fmt.Errorf("error retrieving from Redis list: %w", err)
 	}

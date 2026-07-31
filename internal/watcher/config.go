@@ -124,8 +124,10 @@ type MinioConfig struct {
 	// a successful ingest. If negative, SIPs will be retained indefinitely.
 	RetentionPeriod time.Duration
 
-	// PollInterval sets the length of time between Redis polls (default: 1s).
-	PollInterval time.Duration
+	// WatchTimeout sets the maximum time the Watch() method will wait for a
+	// Redis event when the queue is empty before returning a timeout error
+	// (default: 1 minute).
+	WatchTimeout time.Duration
 
 	// WorkflowType specifies which workflow this watcher should execute
 	// (default: "create aip").

@@ -65,25 +65,16 @@ func cleanup(t *testing.T, m *miniredis.Miniredis) {
 
 func TestWatcherReturnsErrWhenNoMessages(t *testing.T) {
 	m, w := newWatcher(t, func(c *watcher.MinioConfig) {
-		c.PollInterval = time.Second
+		c.WatchTimeout = time.Second // One second is the minimum timeout.
 	})
 	defer cleanup(t, m)
 
-	check := func(t poll.LogT) poll.Result {
-		_, _, err := w.Watch(context.Background())
-
-		if err == nil {
-			return poll.Error(errors.New("watched did not return an error"))
-		}
-
-		if !errors.Is(err, watcher.ErrWatchTimeout) {
-			return poll.Error(fmt.Errorf("error not expected: %w", err))
-		}
-
-		return poll.Success()
-	}
-
-	poll.WaitOn(t, check, poll.WithTimeout(time.Second*2))
+	// Watch() blocks for a full second because that is the minimum timeout
+	// supported by the redis client BLMove() function, and it doesn't support
+	// context cancellation.
+	_, _, err := w.Watch(t.Context())
+	assert.Assert(t, err != nil, "watched did not return an error")
+	assert.ErrorIs(t, err, watcher.ErrWatchTimeout)
 }
 
 func TestWatcherReturnsErrOnInvalidMessages(t *testing.T) {
