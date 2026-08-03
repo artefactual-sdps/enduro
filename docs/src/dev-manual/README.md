@@ -3,6 +3,11 @@
 This is the developer manual for Enduro SDPS.
 
 - [API](api.md)
+- Child workflows
+    - [Concepts and shared contracts](child-workflows/index.md)
+    - [Preprocessing workflows](child-workflows/preprocessing.md)
+    - [Poststorage workflows](child-workflows/poststorage.md)
+    - [Postbatch workflows](child-workflows/postbatch.md)
 - [Database migrations](db-migrations.md)
 - [Documentation](docs.md)
 - [Code documentation](code-documentation.md)

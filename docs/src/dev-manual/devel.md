@@ -201,7 +201,7 @@ ENDURO_PRES_SYSTEM=a3m
 LOCAL_A3M=true
 OBJECT_STORE=seaweedfs
 DASHBOARD_DEV=true
-CHILD_WORKFLOW_PATHS='../preprocessing-acme:../acme-enduro-workflows'
+CHILD_WORKFLOW_PATHS='../custom-enduro-workflows:../sfa-enduro-workflows'
 MOUNT_PREPROCESSING_VOLUME=true
 ```
 
@@ -275,10 +275,9 @@ image target and serves the dashboard with Nginx.
 ### CHILD_WORKFLOW_PATHS
 
 A colon (:) separated list of relative paths to child workflow repositories. At
-startup Tilt will attempt to load a `Tiltfile` file from each path which will
-add any workflow specific resources to the Tilt environment (e.g. a child
-worker). See the [Administrator configuration] docs for instructions on
-configuring the child workflows.
+startup, Tilt loads a `Tiltfile` from each path to add a child worker and other
+resources. See the [custom workflow template] for worker setup and [child
+workflow configuration] for the Enduro settings.
 
 ### MOUNT_PREPROCESSING_VOLUME
 
@@ -446,7 +445,8 @@ kubectl -n "$NAMESPACE" exec "$POD" -c "$CONTAINER" -- \
     -exec rm -rf {} +
 ```
 
-[administrator configuration]: ../admin-manual/configuration.md
+[child workflow configuration]: ../admin-manual/configuration.md#child-workflows
+[custom workflow template]: https://github.com/artefactual-sdps/custom-enduro-workflows/blob/main/README.md#develop-with-enduro
 [docker]: https://docs.docker.com/get-docker/
 [kubectl]: https://kubernetes.io/docs/tasks/tools/#kubectl
 [tilt]: https://docs.tilt.dev/tutorial/1-prerequisites.html#install-tilt

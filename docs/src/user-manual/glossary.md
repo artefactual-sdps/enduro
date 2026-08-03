@@ -1,10 +1,10 @@
 # Glossary
 
-This glossary of terms outlines the domain-specific language used when
-discussing the Enduro functionality described throughout the User Manual, as it
-relates to ingest and digital preservation. While some technical terms are
-included, the definitions provided here may not always match exactly how
-these terms are used in the related technologies used by Enduro.
+This glossary of terms outlines the domain-specific language used throughout
+the Enduro documentation for ingest and digital preservation. While some
+technical terms are included, the definitions provided here may not always
+match exactly how these terms are used in the related technologies used by
+Enduro.
 
 If other glossary terms appear in the definition of a term, they will be
 **bolded** the first time they are used, so readers are aware that a related
@@ -14,7 +14,10 @@ definition is available.
 
 ## Activity
 
-See [Task](#task).
+In Temporal, an Activity is a function or method scheduled by a Workflow,
+usually to perform filesystem or network input and output. It is distinct from
+an Enduro task record. In general preservation language, activity can also mean
+an operation; see [Task](#task).
 
 ## Agent
 
@@ -50,22 +53,20 @@ structure](https://www.archivematica.org/docs/latest/user-manual/archival-storag
 
 ## Child workflow
 
-An ancillary **workflow** that is spawned by another workflow. This capability
-allows breaking down complex **tasks** into manageable units, improving
-maintainability, extensibility and scaling operations.
+A **workflow** started by another workflow, known as its parent. The parent and
+child run as separate Temporal executions.
 
-In Enduro, we recommend using child workflows to manage user-specific tasks and
-**preservation actions** in a workflow, such as **SIP** validation against a set
-of institution-specific requirements. This keeps locally specific
-implementations nicely separated from more general, reusable workflow activities
-available in Enduro Ingest.
+Enduro uses custom child workflows to add processing needed by an organization
+at three extension points: preprocessing, poststorage, and postbatch. This keeps
+custom code separate from Enduro. See [Custom child workflows] for the
+contracts, behavior, and guidance on building and running a worker.
 
 ## Content failure
 
-An failure in an **ingest** **workflow** that occurs during **SIP** validation,
-related to the submitted package's structure, files, or metadata, that must be
-resolved by the original package submitter or another operator. See also:
-[System error](#system-error).
+A failure in an **ingest** **workflow** caused by the submitted package or its
+metadata not meeting a policy requirement, rather than by a technical problem.
+It generally must be resolved by the producer or an operator. See also: [System
+error](#system-error).
 
 ## Derivative
 
@@ -225,6 +226,16 @@ A package will contain one or more **objects**, zero or more **files**, and
 An instance of a **preservation engine** configured with specific **preservation
 policies**, through which **packages** pass as part of a **workflow**.
 
+## Post-batch
+
+Post-batch is a phase in a batch ingest **workflow** for tasks performed after a
+group of **SIPs** has been processed. Examples include preparing reports or
+sending batch data to an external system.
+
+Enduro implements this extension point as the `postbatch` custom child
+workflow, which runs after the SIP workflows in a batch have ended. See
+[Postbatch child workflows].
+
 ## Post-storage
 
 Post-storage is a phase in a **preservation workflow** describing all the
@@ -234,11 +245,18 @@ additional compression and/or encryption of AIPs, sending any **metadata** to an
 external system (such as an archival management system), **DIP** generation and
 delivery, geo-redundant **replication**, etc.
 
+Enduro implements this extension point as the `poststorage` custom child
+workflow, which runs after an AIP is stored. See [Poststorage child workflows].
+
 ## Pre-ingest
 
 Any manual examination, review, and/or additional preparation steps performed on
 **SIPs** received from **producers** prior to **ingest**. Can include activities
-such as appraisal, selection,and SIP arrangement.
+such as appraisal, selection, and SIP arrangement.
+
+Enduro provides a related extension point as the `preprocessing` custom child
+workflow, which runs after a SIP is received and before preservation
+processing. See [Preprocessing child workflows].
 
 ## Preservation action
 
@@ -339,8 +357,9 @@ system administrator or developer to resolve. See also:
 
 ## Task
 
-An operation performed on a **file** or **package** in the context of a
-**workflow**. Also called an **activity**.
+A record of an operation performed on a **file** or **package** in a
+**workflow**. Enduro displays each task with its status and outcome. In general
+preservation language, task and activity may be used interchangeably.
 
 ## Transfer
 
@@ -384,6 +403,10 @@ PREMIS Editorial Committee - "PREMIS Data Dictionary for Preservation Metadata,"
 Version 3.0. June 2015. Glossary, p. 270.
 
 [Add SIPs via a source location]: ../user-manual/ingest/submitting-content.md#initiate-ingest-using-sips-uploaded-to-a-source-location
+[Custom child workflows]: ../dev-manual/child-workflows/index.md
 [Initiate ingest via a watched location upload]: ../user-manual/ingest/submitting-content.md#initiate-ingest-via-a-watched-location-upload
 [object storage]: https://en.wikipedia.org/wiki/Object_storage
+[Postbatch child workflows]: ../dev-manual/child-workflows/postbatch.md
+[Poststorage child workflows]: ../dev-manual/child-workflows/poststorage.md
+[Preprocessing child workflows]: ../dev-manual/child-workflows/preprocessing.md
 [Watched location configuration]: ../admin-manual/configuration.md#watched-location-configuration

@@ -61,14 +61,13 @@ packages in the `internal` directory have configurable settings found here.
 
 !!! tip
 
-    Note that some [child workflow] activities may have their own configuration
-    files.
+    A custom worker and its registered activities may require configuration in
+    addition to `enduro.toml`. Consult the custom worker and activity
+    documentation for those settings.
 
-    For example, see the
+    For example,
     [ffvalidate](https://github.com/artefactual-sdps/temporal-activities/tree/main/ffvalidate)
-    activity in the temporal-activities repository, which requires an additional
-    CSV configuration file listing an allowed list of file-formats in a SIP when
-    used for ingest validation.
+    can read a CSV file that lists allowed or disallowed formats.
 
 ### Application logging
 
@@ -455,10 +454,10 @@ chechecksumAlgorithm = "sha512"
 ### BagIt validation
 
 Enduro validates any [BagIt] bags submitted for ingest to ensure the contents
-have not been altered or corrupted. In addition Enduro requires a
-[Preprocessing child workflow](#preprocessing-child-workflow) to deliver a
-[BagIt] bag to Enduro, and these bags are also validated by Enduro to ensure
-file integrity.
+have not been altered or corrupted. When a
+[preprocessing child workflow](#preprocessing-child-workflow) is configured,
+its successful result must point to a BagIt bag. Enduro then validates that bag
+to ensure file integrity.
 
 **Example configuration**:
 
@@ -1482,63 +1481,53 @@ samplingRatio = 1.0
 
 ### Child workflows
 
-A child workflow is a concept borrowed from Enduro's [workflow engine],
-[Temporal] where one workflow spawns an ancillary workflow. We use this model in
-Enduro to keep custom activities with organization specific business rules or
-policy requirements separated from the underlying general Enduro code.
+In [Temporal], a [child workflow] is a workflow started by another workflow and
+run as a separate execution. Enduro uses custom child workflows to keep the
+rules and policy of an organization, and any activities they schedule, outside
+the general Enduro code.
 
 Enduro schedules custom child workflows in the same Temporal namespace as their
 parent workflows, as configured by `[temporal].namespace`. Workers that execute
 these child workflows must connect to the same namespace.
 
-All child workflow configurations share three common settings: `type`,
-`taskQueue`, and `workflowName`.  An example configuration for the poststorage
-child workflow is shown below.
+For workflow contracts and behavior, see the [guide to custom child workflows].
+To create and run a Go worker, use the [custom workflow template].
+
+All child workflow configurations share three settings: `type`, `taskQueue`,
+and `workflowName`.
 
 !!! note
 
-    The `childWorkflows` configuration block can be repeated more than once to
-    add multiple child workflows. This is why the `childWorkflows` header is in
-    double brackets rather than single brackets like other configuration blocks.
+    The `childWorkflows` block is a TOML array of tables, so its header uses
+    double brackets and the block can be repeated. Enduro accepts at most one
+    entry for each child workflow type.
 
-**Example configuration**:
-
-```toml
-[[childWorkflows]]
-type = "poststorage"
-taskQueue = "custom-queue"
-workflowName = "custom-poststorage-workflow"
-```
-
-* `type`: The type of child workflow. Type is used to load the correct child
-  workflow configuration in Enduro so only one child workflow of each type may
-  be configured for any instance of Enduro. If multiple child workflows have
-  the same type, an error will be thrown when the configuration is validated.
+* `type`: One of `preprocessing`, `poststorage`, or `postbatch`. Enduro rejects
+  the configuration if more than one child workflow has the same type.
 * `taskQueue`: In Temporal, a [Task Queue] is a lightweight, dynamically
-  allocated queue that one or more workers can poll for tasks. The example
-  value `custom-queue` differentiates this queue from Enduro's general `global`
-  queue. The custom workers must poll the configured queue.
-* `workflowName`: The name of the configured [child workflow] in Temporal. It
-  must exactly match the custom workers registration.
+  allocated queue that one or more workers can poll for tasks. The examples
+  below use `custom-queue` to distinguish it from Enduro's general `global`
+  queue. A worker for the child must poll the configured queue.
+* `workflowName`: The Temporal Workflow Type name. It must exactly match the
+  name registered by the custom worker.
 
-All `[[childWorkflows]]` configuration sections are commented out at Enduro
-installation, disabling the child workflows. Uncomment the relevant
-configuration section to enable a child workflow, adjusting the settings as
-necessary for your environment.
+Enduro runs a custom child workflow only when its corresponding
+`[[childWorkflows]]` entry is present. Add or uncomment the entry for each
+workflow type required by the deployment.
 
-If you are running child workflows in development see the [Tilt environment
+If you are running child workflows in development, see the [Tilt environment
 configuration] documentation for instructions on configuring Tilt to run the
 child workflow workers and load any other required resources.
 
 #### Preprocessing child workflow
 
-The preprocessing child workflow is run before preservation processing by a
-preservation engine (Archivematica or a3m). A preprocessing workflow can support
-automated tasks such as validation and transformation of the SIP to meet
-organization specific expectations and standards before preservation.
+The preprocessing child workflow provides an extension point before
+preservation. It runs before Enduro sends the package to a preservation engine
+such as Archivematica or a3m. It can validate or change the SIP to meet the
+organization's requirements.
 
-The preprocessing configuration supports two parameters in addition
-to the common child workflow settings: `extract` and `sharedPath`.
+The preprocessing configuration supports two settings in addition to the common
+child workflow settings: `extract` and `sharedPath`.
 
 **Example configuration**:
 
@@ -1547,37 +1536,43 @@ to the common child workflow settings: `extract` and `sharedPath`.
 type = "preprocessing"
 taskQueue = "custom-queue"
 workflowName = "custom-preprocessing-workflow"
-extract = true
+extract = false
 sharedPath = "/home/enduro/preprocessing"
 ```
 
-* `extract`: Boolean value, set to `false` by default. This setting determines
-  whether SIP extraction happens as part of the preprocessing child workflow or
-  not. When set to false, SIP extraction will occur in the parent Enduro
-  workflow before the child workflow is run. In some cases, you may wish to
-  design custom child workflow activities that perform operations on the SIP
-  before it is extracted: for example, calculating a checksum of the zipped
-  package to check for prior duplicate ingests before proceeding. When this
-  value is set to `true` Enduro will skip the extraction task at the beginning
-  of the ingest workflow, allowing you to define when and how extraction occurs
-  in the child workflow.
-* `sharedPath`: The absolute path to the directory that Enduro should use to
-  share the SIP between the primary ingest workflow and the configured
-  preprocessing child workflow. A `sharedPath` is required for the preprocessing
-  workflow because it requires access to the SIP for validation and
-  transformation activities.
+* `extract`: Boolean value, set to `false` by default. This setting controls
+  whether Enduro extracts the SIP before running the child workflow, its value
+  is not passed to the child. Set the value based on whether the child workflow
+  expects an archived SIP as-is, or the extracted contents. With `false`, Enduro
+  attempts to extract a downloaded file. After a successful extraction, the
+  child receives the path to the extracted directory. If Enduro does not
+  recognize the file as an archive, the child receives the original file. Enduro
+  leaves directories unchanged. With `true`, Enduro skips this step. The child
+  receives the original downloaded file or directory and decides whether
+  extraction is needed. Enduro calculates the checksum and performs any
+  duplicate check first. With either value, a successful child must return the
+  relative path to a BagIt bag.
+* `sharedPath`: The absolute root for shared SIP files as seen by the Enduro
+  worker. When preprocessing is enabled, Enduro downloads the SIP below this
+  root and sends the child only the relative path. This setting does not create
+  or mount the shared storage. The deployment must make the same files
+  available to the custom worker. That worker may mount the storage at a
+  different absolute path and configure its own local root.
 
 See the [Tilt environment configuration] documentation for instructions on
 configuring Tilt to run the preprocessing worker and provision the shared path
 volume in the Enduro development environment.
 
+See [the preprocessing guide] for the exact input, result, task, metadata,
+decision, and failure behavior.
+
 #### Poststorage child workflow
 
-[Post-storage] is a phase in an ingest or preservation workflow describing all
-the preservation policy-defined tasks performed on an [AIP] following
-preservation processing and AIP storage. Post-storage task examples might
-include metadata extraction and delivery to an external system (such as an
-archival management system), AIP encryption or replication, and more.
+A poststorage child workflow provides the [post-storage] extension point. It
+runs after an [AIP] is stored and can deliver metadata or perform other
+integrations. Enduro passes the initiating user's email when available, the AIP
+UUID, and successful preprocessing metadata. It does not pass a filesystem path
+or full AIP record.
 
 **Example configuration**:
 
@@ -1588,12 +1583,14 @@ taskQueue = "custom-queue"
 workflowName = "custom-poststorage-workflow"
 ```
 
+See [the poststorage guide] for result, task, metadata, and failure behavior.
+
 #### Postbatch child workflow
 
-A postbatch child workflow runs after multiple SIPs are ingested and stored
-using the batch ingest functionality of Enduro. The postbatch workflow can be
-used to report the results of a batch ingest, for instance creating a report
-that collates SIP and AIP data for all of the SIPs in a batch.
+A postbatch child workflow provides the [post-batch] extension point. It runs
+after the SIP workflows in a batch have ended and, for a partial batch, after
+the user chooses to continue. It receives an entry for every SIP originally in
+the batch and can create or send a batch report.
 
 **Example configuration**:
 
@@ -1603,6 +1600,8 @@ type = "postbatch"
 taskQueue = "custom-queue"
 workflowName = "custom-postbatch-workflow"
 ```
+
+See [the postbatch guide] for input, result, and failure behavior.
 
 [a3m]: https://github.com/artefactual-labs/a3m
 [ABAC]: https://en.wikipedia.org/wiki/Attribute-based_access_control
@@ -1618,6 +1617,8 @@ workflowName = "custom-postbatch-workflow"
 [bagit-gython README]: https://github.com/artefactual-labs/bagit-gython/blob/main/README.md
 [child workflow]: ../user-manual/glossary.md#child-workflow
 [components]: ../user-manual/components.md
+[guide to custom child workflows]: ../dev-manual/child-workflows/index.md
+[custom workflow template]: https://github.com/artefactual-sdps/custom-enduro-workflows/blob/main/README.md
 [CORS]: https://en.wikipedia.org/wiki/Cross-origin_resource_sharing
 [Dashboard configuration]: ../admin-manual/dashboard-config.md
 [fileblob URL opener]: https://pkg.go.dev/gocloud.dev/blob/fileblob#URLOpener
@@ -1630,6 +1631,7 @@ workflowName = "custom-postbatch-workflow"
 [OpenTelemetry docs]: https://opentelemetry.io/ecosystem/vendors/
 [ParseDuration]: https://pkg.go.dev/time#ParseDuration
 [PIP]: ../user-manual/glossary.md#processing-information-package-pip
+[post-batch]: ../user-manual/glossary.md#post-batch
 [post-storage]: ../user-manual/glossary.md#post-storage
 [PREMIS]: https://www.loc.gov/standards/premis/
 [preservation engine]: ../user-manual/glossary.md#preservation-engine
@@ -1641,8 +1643,12 @@ workflowName = "custom-postbatch-workflow"
 [system errors]: ../user-manual/glossary.md#system-error
 [Task Queue]: https://docs.temporal.io/task-queue
 [Temporal]: https://temporal.io
+[the postbatch guide]: ../dev-manual/child-workflows/postbatch.md
+[the poststorage guide]: ../dev-manual/child-workflows/poststorage.md
+[the preprocessing guide]: ../dev-manual/child-workflows/preprocessing.md
 [tilt environment configuration]: ../dev-manual/devel.md#tilt-environment-configuration
 [upload-ui]: ../user-manual/ingest/submitting-content.md#upload-sips-via-the-user-interface
 [version 4 UUID]: https://www.rfc-editor.org/rfc/rfc9562.html#name-uuid-version-4
 [watched-location]: ../user-manual/ingest/submitting-content.md#initiate-ingest-via-a-watched-location-upload
 [workflow engine]: ../user-manual/glossary.md#workflow-engine
+[xmlvalidate]: https://github.com/artefactual-sdps/temporal-activities/blob/main/xmlvalidate/README.md

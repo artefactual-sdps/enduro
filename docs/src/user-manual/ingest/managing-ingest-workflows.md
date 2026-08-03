@@ -125,12 +125,12 @@ task statuses, with a few additional statuses:
 #### Errors vs failures
 
 To help operators better understand the cause of an unsuccessful workflow,
-Enduro uses different statuses for  a [content failure] and a [system error].
+Enduro uses different statuses for a [content failure] and a [system error].
 
-When a task in an ingest workflow fails validation due to some element of the
-submitted content (e.g. SIP structure, metadata, files, etc) not matching the
-criteria defined in the workflow task, this is a **content failure**, and the
-related task will be given a status of: **FAILED**. When the workflow finishes
+When an ingest task provided by Enduro fails validation because some element of
+the submitted content (e.g. SIP structure, metadata, files, etc) does not match
+the criteria defined in the workflow task, this is a **content failure**, and
+the related task will have a **FAILED** status. When the workflow finishes
 running as far as it can, it will then be given the same failed status.
 
 These issues are generally ones that can be fixed by the original producer or by
@@ -145,10 +145,14 @@ not the system itself. Producers and/or operators can then choose to:
 * Resubmit the SIP for ingest
 
 Conversely, Enduro will use an **ERROR** status when a **system error**
-interrupts one or more ingest tasks, causing the workflow to halt. This might be
-due to network interruptions, disk space issues, hardware malfunctions, or
-software bugs - generally, a system administrator will be needed to resolve the
-issue upstream before ingest can be tried again.
+interrupts one or more ingest tasks provided by Enduro, causing the workflow to
+halt. This might be due to network interruptions, disk space issues, hardware
+malfunctions, or software bugs - generally, a system administrator will be
+needed to resolve the issue upstream before ingest can be tried again.
+
+Enduro uses the structured result returned by the preprocessing and poststorage
+[child workflows] to decide whether ingest continues, fails, or enters an error
+state.
 
 #### Pending tasks and workflows
 
@@ -160,21 +164,29 @@ provided and the workflow remains paused until input is received. For example, a
 package deletion request initiated by an operator might then show "Approve" and
 "Deny" buttons in the workflow details header.
 
+A preprocessing child workflow can also request a human decision.
+
 ### Workflow tasks
 
 A workflow is a sequence of tasks managed by Enduro. The **Ingest workflow
-details** area will list all workflows that have been run against a given
-package in ascending order, with the most recent on the top.
+details** area lists all workflows run against a package in reverse
+chronological order, with the most recent first.
 
 Click anywhere on the **workflow header card** to expand it and see a list of
-all tasks run as part of that workflow. Tasks are also shown in ascending order,
-with the most recent tasks at the top of the list.
+all tasks run as part of that workflow. Tasks are also listed with the most
+recent first.
 
 ![A workflow header card expanded to show the task list below](../screenshots/workflow-details-expanded.png)
 
-Tasks shown in this area will include both those ingest tasks performed by
-Enduro, as well as tasks run by the configured [preservation engine] if the SIP
-passes initial validation and transformation.
+Tasks shown in this area include ingest tasks performed by Enduro, tasks run by
+the configured [preservation engine] if the SIP passes initial validation and
+transformation, and task records returned by configured preprocessing and
+poststorage child workflows.
+
+Returned child workflow tasks appear only after the child finishes. A pending
+decision task created by Enduro is the exception: it is visible while a
+preprocessing child waits for an operator's response. Postbatch child workflows
+do not add tasks to the Enduro interface.
 
 Task rows include:
 
@@ -188,17 +200,17 @@ Task rows include:
   error. Otherwise, "**Started**" shows when the task began. A dash is shown if
   neither timestamp is available
 
-Additionally, those ingest tasks run by Enduro will include an additional
-description of the **task outcome**:
+Enduro ingest tasks also include a description of the **task outcome**:
 
 ![Task rows with a successful outcome](../screenshots/task-details-success.png)
 
 ### Errors and failed package downloads
 
-If an ingest task **fails** or encounters an **error**, Enduro will attempt to
-continue running any remaining validation tasks to gather as much information
-about the SIP as possible, but will terminate the workflow before transforming
-the package and delivering it to the [preservation engine].
+If one of the validation tasks provided by Enduro **fails** or encounters an
+**error**, Enduro will attempt to continue running any remaining validation
+tasks to gather as much information about the SIP as possible, but will
+terminate the workflow before transforming the package and delivering it to the
+[preservation engine].
 
 The **task details** will then provide operators with additional context on the
 problem encountered.
@@ -210,39 +222,17 @@ widget](#related-packages) to inspect it.
 
 ## Default ingest workflow
 
-At installation, Enduro's default ingest functionality is minimal - the
-application can receive and unpack SIPs, validate any included
+Enduro's default ingest workflow can receive and unpack SIPs, validate included
 [BagIt bags][bag], and then restructure and deliver the package for
-preservation with either [Archivematica][Archivematica] or [a3m][a3m]. However,
-Enduro's workflows are intended to be customized via the addition of
-**[child workflows]**, which can be designed to implement the specific ingest
-needs of a given organization.
+preservation with either [Archivematica][Archivematica] or [a3m][a3m]. An
+organization can add **[child workflows]** to meet its own ingest needs.
 
-The Enduro project maintains general default workflow activities in a separate
-code repository, called [temporal-activities]. An example set of child workflow
-activities for a specific organization can be seen in the
-[preprocessing-sfa][preprocessing-sfa] repository. Artefactual also maintains a
-template that organizations can use to create their own child workflow
-activities repository, called [preprocessing-base][preprocessing-base].
+Developers can start with the [custom-enduro-workflows] template and use the
+[SFA workflows] or [CVA workflows] as examples used in production. Reusable Go
+activities are available from [temporal-activities].
 
-Below is a description of what Enduro's default "Create AIP" workflow would do
-at installation time with no added child workflow activities configured.
-
-!!! tip
-
-    Some of the activities listed in the temporal-activities repository are
-    not used in the default ingest workflow described below. These activities
-    can be customized and implemented as custom child workflow activities by
-    organizations if desired - examples include:
-
-    * `ffvalidate`, which can check the files in SIP against a configured list
-      of allowed or disallowed file formats
-    * `removefiles`, which can be configured to automatically delete specified
-      file types based format (useful for removing hidden files, etc)
-
-    See the
-    [temporal-activities](https://github.com/artefactual-sdps/temporal-activities/tree/main)
-    repository for more information and examples.
+The following sections describe the default "Create AIP" workflow and its
+optional child workflow extension points.
 
 ### Receive SIP
 
@@ -255,40 +245,34 @@ use the [bucketdownload] Temporal activity to retrieve the SIP. Otherwise, if
 the SIP is ingested via [watched location], Enduro instead uses an internal
 download activity to fetch the SIP for internal processing.
 
-### Check for child workflow
+### Run a preprocessing child workflow
 
-Immediately after initial receipt, Enduro next checks to see if a
-[preprocessing child workflow] has been configured. This happens before
-attempting to [determine the SIP type](#classify-sip-type) because Enduro's SIP
-types are very high-level and generic, and therefore not suitable for the level
-of validation that most organizations using Enduro would want. Instead, we
-recommend that organizations using Enduro define one or more specific SIP
-profiles that SIP-submitting producers can use, and then implement custom child
-workflow activities to validate SIPs based on these defined SIP profile
-criteria.
+After downloading the SIP, Enduro performs its initial checks. For a SIP that
+is not a directory, Enduro determines its file extension, calculates its
+checksum, and checks for duplicates if duplicates are not allowed. The
+preprocessing `extract` setting then controls Enduro's archive extraction step.
+With the default value, `false`, Enduro attempts extraction before it starts the
+child. With `true`, Enduro skips the step and the child receives the original
+download.
 
-If a preprocessing child workflow *is* registered, its activities will be run
-next in their configured order. Enduro is not aware of what activities are
-included in a child workflow - it merely waits for the child workflow outcome
-before proceeding.
+Enduro next checks whether a preprocessing child workflow is configured. It
+starts the child before [determining the SIP type](#classify-sip-type). A custom
+workflow can validate the SIP against profiles defined by the organization and
+perform other preparation before preservation processing.
+
+The custom workflow, rather than Enduro configuration, determines which
+Temporal Activities it schedules and in what order. Enduro waits for the child
+result and saves its returned task records. The result outcome determines what
+happens next; only a successful result supplies the path and metadata used by
+later processing.
 
 !!! important
 
-    Currently, to ensure integrity through all transfers, Enduro requires that
-    the [PIP](../glossary.md#processing-information-package-pip) passed to the
-    [preservation engine](../glossary.md#preservation-engine) be a valid BagIt
-    bag. This means that if a preprocessing child workflow is configured, then
-    Enduro will expect the [Classify SIP type](#classify-sip-type) activity to
-    return "Bag" as the SIP type.
-
-    If you are adding a custom ingest child workflow to Enduro, please **ensure
-    that the PIP is a valid Bag before it ends** - the
-    [Temporal activities](https://github.com/artefactual-sdps/temporal-activities)
-    repo has a `bagcreate` activity you can repurpose in your custom child
-    activities workflow.
-
-    If you don't do this, the ingest workflow will fail after the "Classify SIP
-    type" activity!
+    A successful preprocessing child workflow must return a path to a valid
+    BagIt bag for Enduro to use as the [PIP]. See the
+    [preprocessing package requirements](../../dev-manual/child-workflows/preprocessing.md#shared-path)
+    for the shared path and extraction contract. A custom worker can reuse the
+    [bagcreate] activity to create the bag.
 
 ### Classify SIP type
 
@@ -298,9 +282,9 @@ This is a high-level identification of the SIP type into 3 possible types:
 * Standard Archivematica transfer
 * BagIt bag
 
-If any child worklow is configured and the SIP type is **not** "BagIt
-bag," Enduro will also fail the workflow (see [above](#check-for-child-workflow)
-for an explanation why).
+If a preprocessing child workflow is configured and the SIP type is **not**
+"BagIt bag," Enduro will also fail the workflow (see
+[above](#run-a-preprocessing-child-workflow) for an explanation why).
 
 If the type found *is* a bag, Enduro will then validate the bag against the
 [BagIt specification][bag], using the [bagvalidate] Temporal activity. If the
@@ -368,22 +352,16 @@ Once Enduro receives a "completed" status update from the [preservation engine],
 the application will then register the AIP in Enduro's storage component. The
 process is a bit different depending on the preservation engine used.
 
-If [Archivematica] is being used, then Enduro simply records the storage details
-locally for display in the Enduro interface. Alternatively, if [a3m] is being
-used, then Enduro will first upload the AIP to the configured storage location
-and then records the AIP storage details.
+With [Archivematica], Enduro records the storage details for display in its
+interface. With [a3m], Enduro first uploads the AIP to the configured storage
+location and then records its storage details.
 
-### Check for post-storage tasks
+### Run a poststorage child workflow
 
-Enduro's primary configuration file also includes an optional section to
-configure one or more [post-storage] child workflows. Example activities in this
-phase might include sending ingest or package metadata to an external system
-(such as an archival information system or similar), delivering email
-notifications, etc. When configured, the activities are triggered but Enduro
-does not currently wait to determine the final outcome of the post-storage
-worfklow.
-
-This step is bypassed if nothing has been configured.
+When configured, Enduro starts a poststorage child workflow after the AIP is
+stored and waits for its result. The workflow can send metadata or
+notifications, or perform other integrations. A content or system failure can
+mark the SIP ingest as failed or in error, but does not remove the stored AIP.
 
 ### Perform final cleanup
 
@@ -412,14 +390,13 @@ the workflow.
 [bagcreate]: https://github.com/artefactual-sdps/temporal-activities/blob/main/bagcreate/README.md
 [bagvalidate]: https://github.com/artefactual-sdps/temporal-activities/blob/main/bagvalidate/README.md
 [bucketdownload]: https://github.com/artefactual-sdps/temporal-activities/tree/main/bucketdownload
-[child workflows]: ../../admin-manual/configuration.md#child-workflows
+[child workflows]: ../glossary.md#child-workflow
 [content failure]: ../glossary.md#content-failure
+[custom-enduro-workflows]: https://github.com/artefactual-sdps/custom-enduro-workflows
+[CVA workflows]: https://github.com/artefactual-sdps/cva-enduro-workflows
 [PIP]: ../glossary.md#processing-information-package-pip
-[post-storage]: ../glossary.md#post-storage
-[preprocessing child workflow]: ../../admin-manual/configuration.md#preprocessing-child-workflow
-[preprocessing-base]: https://github.com/artefactual-sdps/preprocessing-base
-[preprocessing-sfa]: https://github.com/artefactual-sdps/preprocessing-sfa
 [preservation engine]: ../glossary.md#preservation-engine
+[SFA workflows]: https://github.com/artefactual-sdps/sfa-enduro-workflows
 [SIP source location]: submitting-content.md#initiate-ingest-using-sips-uploaded-to-a-source-location
 [Submitting content for ingest]: submitting-content.md
 [system error]: ../glossary.md#system-error
