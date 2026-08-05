@@ -461,17 +461,14 @@ paths:
                   * `ingest:sips:create`
             operationId: ingest#add_sip
             parameters:
-                - description: Identifier of SIP source -- CURRENTLY NOT USED
-                  format: uuid
-                  in: query
-                  name: source_id
+                - in: body
+                  name: add_sip_request_body
                   required: true
-                  type: string
-                - description: Key of the item to ingest
-                  in: query
-                  name: key
-                  required: true
-                  type: string
+                  schema:
+                    $ref: '#/definitions/IngestAddSipRequestBody'
+                    required:
+                        - source_id
+                        - key
             responses:
                 "201":
                     description: Created response.
@@ -3747,6 +3744,25 @@ definitions:
             - temporary
             - timeout
             - fault
+    IngestAddSipRequestBody:
+        title: IngestAddSipRequestBody
+        type: object
+        properties:
+            key:
+                type: string
+                description: Key of the item to ingest
+                example: abc123
+            source_id:
+                type: string
+                description: Identifier of SIP source
+                example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                format: uuid
+        example:
+            key: abc123
+            source_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+        required:
+            - source_id
+            - key
     IngestAddSipResponseBody:
         title: IngestAddSipResponseBody
         type: object

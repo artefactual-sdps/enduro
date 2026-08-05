@@ -98,10 +98,9 @@ func ParseEndpoint(
 		ingestSubmitSipDecisionUUIDFlag  = ingestSubmitSipDecisionFlags.String("uuid", "REQUIRED", "Identifier of SIP to look up")
 		ingestSubmitSipDecisionTokenFlag = ingestSubmitSipDecisionFlags.String("token", "", "")
 
-		ingestAddSipFlags        = flag.NewFlagSet("add-sip", flag.ExitOnError)
-		ingestAddSipSourceIDFlag = ingestAddSipFlags.String("source-id", "REQUIRED", "")
-		ingestAddSipKeyFlag      = ingestAddSipFlags.String("key", "REQUIRED", "")
-		ingestAddSipTokenFlag    = ingestAddSipFlags.String("token", "", "")
+		ingestAddSipFlags     = flag.NewFlagSet("add-sip", flag.ExitOnError)
+		ingestAddSipBodyFlag  = ingestAddSipFlags.String("body", "REQUIRED", "")
+		ingestAddSipTokenFlag = ingestAddSipFlags.String("token", "", "")
 
 		ingestUploadSipFlags           = flag.NewFlagSet("upload-sip", flag.ExitOnError)
 		ingestUploadSipContentTypeFlag = ingestUploadSipFlags.String("content-type", "multipart/form-data; boundary=goa", "")
@@ -510,7 +509,7 @@ func ParseEndpoint(
 				data, err = ingestc.BuildSubmitSipDecisionPayload(*ingestSubmitSipDecisionBodyFlag, *ingestSubmitSipDecisionUUIDFlag, *ingestSubmitSipDecisionTokenFlag)
 			case "add-sip":
 				endpoint = c.AddSip()
-				data, err = ingestc.BuildAddSipPayload(*ingestAddSipSourceIDFlag, *ingestAddSipKeyFlag, *ingestAddSipTokenFlag)
+				data, err = ingestc.BuildAddSipPayload(*ingestAddSipBodyFlag, *ingestAddSipTokenFlag)
 			case "upload-sip":
 				endpoint = c.UploadSip()
 				data, err = ingestc.BuildUploadSipPayload(*ingestUploadSipContentTypeFlag, *ingestUploadSipTokenFlag)
@@ -851,8 +850,7 @@ func ingestSubmitSipDecisionUsage() {
 func ingestAddSipUsage() {
 	// Header with flags
 	fmt.Fprintf(os.Stderr, "%s [flags] ingest add-sip", os.Args[0])
-	fmt.Fprint(os.Stderr, " -source-id STRING")
-	fmt.Fprint(os.Stderr, " -key STRING")
+	fmt.Fprint(os.Stderr, " -body JSON")
 	fmt.Fprint(os.Stderr, " -token STRING")
 	fmt.Fprintln(os.Stderr)
 
@@ -861,13 +859,12 @@ func ingestAddSipUsage() {
 	fmt.Fprintln(os.Stderr, `Ingest a SIP from a SIP Source`)
 
 	// Flags list
-	fmt.Fprintln(os.Stderr, `    -source-id STRING: `)
-	fmt.Fprintln(os.Stderr, `    -key STRING: `)
+	fmt.Fprintln(os.Stderr, `    -body JSON: `)
 	fmt.Fprintln(os.Stderr, `    -token STRING: `)
 
 	fmt.Fprintln(os.Stderr)
 	fmt.Fprintln(os.Stderr, "Example:")
-	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "ingest add-sip --source-id \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\" --key \"abc123\" --token \"abc123\"")
+	fmt.Fprintf(os.Stderr, "    %s %s\n", os.Args[0], "ingest add-sip --body '{\n      \"key\": \"abc123\",\n      \"source_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }' --token \"abc123\"")
 }
 
 func ingestUploadSipUsage() {

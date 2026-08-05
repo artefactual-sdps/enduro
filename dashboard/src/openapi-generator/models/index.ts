@@ -12,6 +12,7 @@ export * from './AIPWorkflowCreatedEvent';
 export * from './AIPWorkflowUpdatedEvent';
 export * from './AMSSConfig';
 export * from './AddBatchRequestBody';
+export * from './AddSipRequestBody';
 export * from './AddSipResponseBody';
 export * from './AipDeletionAutoRequestBody';
 export * from './BatchCreatedEvent';

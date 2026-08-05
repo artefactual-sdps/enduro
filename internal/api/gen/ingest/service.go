@@ -125,7 +125,7 @@ type AddBatchResult struct {
 
 // AddSipPayload is the payload type of the ingest service add_sip method.
 type AddSipPayload struct {
-	// Identifier of SIP source -- CURRENTLY NOT USED
+	// Identifier of SIP source
 	SourceID string
 	// Key of the item to ingest
 	Key   string

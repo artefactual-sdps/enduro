@@ -109,12 +109,16 @@ describe("SIPUploadSource.vue", () => {
     await wrapper.get("button.btn-primary").trigger("click");
 
     expect(ingestAddSip).toHaveBeenCalledWith({
-      key: "sip-1",
-      sourceId: "e6ddb29a-66d1-480e-82eb-fcfef1c825c5",
+      addSipRequestBody: {
+        key: "sip-1",
+        sourceId: "e6ddb29a-66d1-480e-82eb-fcfef1c825c5",
+      },
     });
     expect(ingestAddSip).toHaveBeenCalledWith({
-      key: "sip-2",
-      sourceId: "e6ddb29a-66d1-480e-82eb-fcfef1c825c5",
+      addSipRequestBody: {
+        key: "sip-2",
+        sourceId: "e6ddb29a-66d1-480e-82eb-fcfef1c825c5",
+      },
     });
     expect(ingestAddBatch).not.toHaveBeenCalled();
     expect(push).toHaveBeenCalledWith({ path: "/ingest/sips" });

@@ -16,6 +16,7 @@ models/AIPWorkflowCreatedEvent.ts
 models/AIPWorkflowUpdatedEvent.ts
 models/AMSSConfig.ts
 models/AddBatchRequestBody.ts
+models/AddSipRequestBody.ts
 models/AddSipResponseBody.ts
 models/AipDeletionAutoRequestBody.ts
 models/BatchCreatedEvent.ts

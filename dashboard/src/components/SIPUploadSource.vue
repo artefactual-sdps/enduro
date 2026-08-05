@@ -79,7 +79,9 @@ const startIngest = async () => {
     } else {
       // Group request promises.
       const ingestPromises = selectedSips.value.map((key) => {
-        return client.ingest.ingestAddSip({ key, sourceId });
+        return client.ingest.ingestAddSip({
+          addSipRequestBody: { key: key, sourceId: sourceId },
+        });
       });
       await Promise.all(ingestPromises);
       router.push({ path: "/ingest/sips" });

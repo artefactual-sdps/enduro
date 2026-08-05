@@ -32,6 +32,15 @@ type SubmitSipDecisionRequestBody struct {
 	Option *string `form:"option,omitempty" json:"option,omitempty" xml:"option,omitempty"`
 }
 
+// AddSipRequestBody is the type of the "ingest" service "add_sip" endpoint
+// HTTP request body.
+type AddSipRequestBody struct {
+	// Identifier of SIP source
+	SourceID *string `form:"source_id,omitempty" json:"source_id,omitempty" xml:"source_id,omitempty"`
+	// Key of the item to ingest
+	Key *string `form:"key,omitempty" json:"key,omitempty" xml:"key,omitempty"`
+}
+
 // AddBatchRequestBody is the type of the "ingest" service "add_batch" endpoint
 // HTTP request body.
 type AddBatchRequestBody struct {
@@ -2490,10 +2499,11 @@ func NewSubmitSipDecisionPayload(body *SubmitSipDecisionRequestBody, uuid string
 }
 
 // NewAddSipPayload builds a ingest service add_sip endpoint payload.
-func NewAddSipPayload(sourceID string, key string, token *string) *ingest.AddSipPayload {
-	v := &ingest.AddSipPayload{}
-	v.SourceID = sourceID
-	v.Key = key
+func NewAddSipPayload(body *AddSipRequestBody, token *string) *ingest.AddSipPayload {
+	v := &ingest.AddSipPayload{
+		SourceID: *body.SourceID,
+		Key:      *body.Key,
+	}
 	v.Token = token
 
 	return v
@@ -2615,6 +2625,21 @@ func ValidateConfirmSipRequestBody(body *ConfirmSipRequestBody) (err error) {
 func ValidateSubmitSipDecisionRequestBody(body *SubmitSipDecisionRequestBody) (err error) {
 	if body.Option == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("option", "body"))
+	}
+	return
+}
+
+// ValidateAddSipRequestBody runs the validations defined on
+// add_sip_request_body
+func ValidateAddSipRequestBody(body *AddSipRequestBody) (err error) {
+	if body.SourceID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("source_id", "body"))
+	}
+	if body.Key == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("key", "body"))
+	}
+	if body.SourceID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.source_id", *body.SourceID, goa.FormatUUID))
 	}
 	return
 }

@@ -32,6 +32,15 @@ type SubmitSipDecisionRequestBody struct {
 	Option string `form:"option" json:"option" xml:"option"`
 }
 
+// AddSipRequestBody is the type of the "ingest" service "add_sip" endpoint
+// HTTP request body.
+type AddSipRequestBody struct {
+	// Identifier of SIP source
+	SourceID string `form:"source_id" json:"source_id" xml:"source_id"`
+	// Key of the item to ingest
+	Key string `form:"key" json:"key" xml:"key"`
+}
+
 // AddBatchRequestBody is the type of the "ingest" service "add_batch" endpoint
 // HTTP request body.
 type AddBatchRequestBody struct {
@@ -1573,6 +1582,16 @@ func NewConfirmSipRequestBody(p *ingest.ConfirmSipPayload) *ConfirmSipRequestBod
 func NewSubmitSipDecisionRequestBody(p *ingest.SubmitSipDecisionPayload) *SubmitSipDecisionRequestBody {
 	body := &SubmitSipDecisionRequestBody{
 		Option: p.Option,
+	}
+	return body
+}
+
+// NewAddSipRequestBody builds the HTTP request body from the payload of the
+// "add_sip" endpoint of the "ingest" service.
+func NewAddSipRequestBody(p *ingest.AddSipPayload) *AddSipRequestBody {
+	body := &AddSipRequestBody{
+		SourceID: p.SourceID,
+		Key:      p.Key,
 	}
 	return body
 }

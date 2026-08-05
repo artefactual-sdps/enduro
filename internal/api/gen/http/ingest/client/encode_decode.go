@@ -1199,10 +1199,10 @@ func EncodeAddSipRequest(encoder func(*http.Request) goahttp.Encoder) func(*http
 				req.Header.Set("Authorization", head)
 			}
 		}
-		values := req.URL.Query()
-		values.Add("source_id", p.SourceID)
-		values.Add("key", p.Key)
-		req.URL.RawQuery = values.Encode()
+		body := NewAddSipRequestBody(p)
+		if err := encoder(req).Encode(&body); err != nil {
+			return goahttp.ErrEncodingError("ingest", "add_sip", err)
+		}
 		return nil
 	}
 }

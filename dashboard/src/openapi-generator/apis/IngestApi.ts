@@ -16,6 +16,7 @@
 import * as runtime from '../runtime';
 import type {
   AddBatchRequestBody,
+  AddSipRequestBody,
   AddSipResponseBody,
   BatchNotFound,
   ConfirmSipRequestBody,
@@ -35,6 +36,8 @@ import type {
 import {
     AddBatchRequestBodyFromJSON,
     AddBatchRequestBodyToJSON,
+    AddSipRequestBodyFromJSON,
+    AddSipRequestBodyToJSON,
     AddSipResponseBodyFromJSON,
     AddSipResponseBodyToJSON,
     BatchNotFoundFromJSON,
@@ -72,8 +75,7 @@ export interface IngestAddBatchRequest {
 }
 
 export interface IngestAddSipRequest {
-    sourceId: string;
-    key: string;
+    addSipRequestBody: AddSipRequestBody;
 }
 
 export interface IngestConfirmSipRequest {
@@ -192,8 +194,7 @@ export interface IngestApiInterface {
 
     /**
      * Creates request options for ingestAddSip without sending the request
-     * @param {string} sourceId Identifier of SIP source -- CURRENTLY NOT USED
-     * @param {string} key Key of the item to ingest
+     * @param {AddSipRequestBody} addSipRequestBody 
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
@@ -202,8 +203,7 @@ export interface IngestApiInterface {
     /**
      * Ingest a SIP from a SIP Source
      * @summary add_sip ingest
-     * @param {string} sourceId Identifier of SIP source -- CURRENTLY NOT USED
-     * @param {string} key Key of the item to ingest
+     * @param {AddSipRequestBody} addSipRequestBody 
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
@@ -712,31 +712,18 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
      * Creates request options for ingestAddSip without sending the request
      */
     async ingestAddSipRequestOpts(requestParameters: IngestAddSipRequest): Promise<runtime.RequestOpts> {
-        if (requestParameters['sourceId'] == null) {
+        if (requestParameters['addSipRequestBody'] == null) {
             throw new runtime.RequiredError(
-                'sourceId',
-                'Required parameter "sourceId" was null or undefined when calling ingestAddSip().'
-            );
-        }
-
-        if (requestParameters['key'] == null) {
-            throw new runtime.RequiredError(
-                'key',
-                'Required parameter "key" was null or undefined when calling ingestAddSip().'
+                'addSipRequestBody',
+                'Required parameter "addSipRequestBody" was null or undefined when calling ingestAddSip().'
             );
         }
 
         const queryParameters: any = {};
 
-        if (requestParameters['sourceId'] != null) {
-            queryParameters['source_id'] = requestParameters['sourceId'];
-        }
-
-        if (requestParameters['key'] != null) {
-            queryParameters['key'] = requestParameters['key'];
-        }
-
         const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
 
         if (this.configuration && this.configuration.accessToken) {
             const token = this.configuration.accessToken;
@@ -754,6 +741,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
             method: 'POST',
             headers: headerParameters,
             query: queryParameters,
+            body: AddSipRequestBodyToJSON(requestParameters['addSipRequestBody']),
         };
     }
 
