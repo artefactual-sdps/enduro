@@ -192,7 +192,7 @@ var _ = Service("ingest", func() {
 		Description("Ingest a SIP from a SIP Source")
 		BearerAuthScopes(auth.IngestSIPSCreateAttr)
 		Payload(func() {
-			AttributeUUID("source_id", "Identifier of SIP source -- CURRENTLY NOT USED")
+			AttributeUUID("source_id", "Identifier of SIP source")
 			Attribute("key", String, "Key of the item to ingest")
 			BearerToken("token", String)
 			Required("source_id", "key")
@@ -208,10 +208,6 @@ var _ = Service("ingest", func() {
 			Response(StatusCreated)
 			Response("not_valid", StatusBadRequest)
 			Response("internal_error", StatusInternalServerError)
-			Params(func() {
-				Param("source_id")
-				Param("key")
-			})
 		})
 	})
 	Method("upload_sip", func() {

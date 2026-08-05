@@ -1006,29 +1006,33 @@ func DecodeAddSipRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	return func(r *http.Request) (*ingest.AddSipPayload, error) {
 		var payload *ingest.AddSipPayload
 		var (
-			sourceID string
-			key      string
-			token    *string
-			err      error
+			body AddSipRequestBody
+			err  error
 		)
-		qp := r.URL.Query()
-		sourceID = qp.Get("source_id")
-		if sourceID == "" {
-			err = goa.MergeErrors(err, goa.MissingFieldError("source_id", "query string"))
+		err = decoder(r).Decode(&body)
+		if err != nil {
+			if errors.Is(err, io.EOF) {
+				return payload, goa.MissingPayloadError()
+			}
+			var gerr *goa.ServiceError
+			if errors.As(err, &gerr) {
+				return payload, gerr
+			}
+			return payload, goa.DecodePayloadError(err.Error())
 		}
-		err = goa.MergeErrors(err, goa.ValidateFormat("source_id", sourceID, goa.FormatUUID))
-		key = qp.Get("key")
-		if key == "" {
-			err = goa.MergeErrors(err, goa.MissingFieldError("key", "query string"))
+		err = ValidateAddSipRequestBody(&body)
+		if err != nil {
+			return payload, err
 		}
+
+		var (
+			token *string
+		)
 		tokenRaw := r.Header.Get("Authorization")
 		if tokenRaw != "" {
 			token = &tokenRaw
 		}
-		if err != nil {
-			return payload, err
-		}
-		payload = NewAddSipPayload(sourceID, key, token)
+		payload = NewAddSipPayload(&body, token)
 		if payload.Token != nil {
 			if strings.Contains(*payload.Token, " ") {
 				// Remove authorization scheme prefix (e.g. "Bearer")

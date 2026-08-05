@@ -319,19 +319,18 @@ func BuildSubmitSipDecisionPayload(ingestSubmitSipDecisionBody string, ingestSub
 
 // BuildAddSipPayload builds the payload for the ingest add_sip endpoint from
 // CLI flags.
-func BuildAddSipPayload(ingestAddSipSourceID string, ingestAddSipKey string, ingestAddSipToken string) (*ingest.AddSipPayload, error) {
+func BuildAddSipPayload(ingestAddSipBody string, ingestAddSipToken string) (*ingest.AddSipPayload, error) {
 	var err error
-	var sourceID string
+	var body AddSipRequestBody
 	{
-		sourceID = ingestAddSipSourceID
-		err = goa.MergeErrors(err, goa.ValidateFormat("source_id", sourceID, goa.FormatUUID))
+		err = json.Unmarshal([]byte(ingestAddSipBody), &body)
+		if err != nil {
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"key\": \"abc123\",\n      \"source_id\": \"d1845cb6-a5ea-474a-9ab8-26f9bcd919f5\"\n   }'")
+		}
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.source_id", body.SourceID, goa.FormatUUID))
 		if err != nil {
 			return nil, err
 		}
-	}
-	var key string
-	{
-		key = ingestAddSipKey
 	}
 	var token *string
 	{
@@ -339,9 +338,10 @@ func BuildAddSipPayload(ingestAddSipSourceID string, ingestAddSipKey string, ing
 			token = &ingestAddSipToken
 		}
 	}
-	v := &ingest.AddSipPayload{}
-	v.SourceID = sourceID
-	v.Key = key
+	v := &ingest.AddSipPayload{
+		SourceID: body.SourceID,
+		Key:      body.Key,
+	}
 	v.Token = token
 
 	return v, nil
