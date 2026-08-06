@@ -44,7 +44,7 @@ require (
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.11.1
-	go.artefactual.dev/amclient v0.4.1-0.20240705155055-0c5abef5207c
+	go.artefactual.dev/amclient v0.5.0
 	go.artefactual.dev/ssclient v0.11.0
 	go.artefactual.dev/tools v0.26.0
 	go.opentelemetry.io/contrib/instrumentation/google.golang.org/grpc/otelgrpc v0.63.0

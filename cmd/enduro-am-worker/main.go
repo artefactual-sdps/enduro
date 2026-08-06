@@ -341,7 +341,7 @@ func main() {
 			temporalsdk_activity.RegisterOptions{Name: am.DeleteTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(
-			am.NewStartTransferActivity(&cfg.AM, amc.Package).Execute,
+			am.NewStartTransferActivity(&cfg.AM, amc).Execute,
 			temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
 		)
 		w.RegisterActivityWithOptions(

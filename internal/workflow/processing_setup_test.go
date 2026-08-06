@@ -16,6 +16,7 @@ import (
 	"github.com/artefactual-sdps/temporal-activities/xmlvalidate"
 	"github.com/jonboulle/clockwork"
 	"github.com/stretchr/testify/suite"
+	"go.artefactual.dev/amclient"
 	"go.artefactual.dev/amclient/amclienttest"
 	"go.opentelemetry.io/otel/trace/noop"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -199,6 +200,7 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 ) {
 	clock := clockwork.NewFakeClock()
 	sftpc := sftp_fake.NewMockClient(ctrl)
+	amc := amclient.NewClient(nil, "http://127.0.0.1:0", "", "")
 
 	s.env.RegisterActivityWithOptions(
 		bagcreate.New(bagcreate.Config{}).Execute,
@@ -209,7 +211,7 @@ func (s *ProcessingWorkflowTestSuite) setupAMWorkflowTest(
 		temporalsdk_activity.RegisterOptions{Name: am.UploadTransferActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
-		am.NewStartTransferActivity(&am.Config{}, amclienttest.NewMockPackageService(ctrl)).Execute,
+		am.NewStartTransferActivity(&am.Config{}, amc).Execute,
 		temporalsdk_activity.RegisterOptions{Name: am.StartTransferActivityName},
 	)
 	s.env.RegisterActivityWithOptions(
