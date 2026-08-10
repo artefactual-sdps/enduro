@@ -12,7 +12,7 @@ requests.
 
 ### Security
 
-- Bind ticket cookies to authorized operations
+- Bind ticket cookies to authorized operations ([#1735])
 
 ### Added
 
@@ -450,6 +450,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1735]: https://github.com/artefactual-sdps/enduro/issues/1735
 [#1727]: https://github.com/artefactual-sdps/enduro/pull/1727
 [#1726]: https://github.com/artefactual-sdps/enduro/pull/1726
 [#1725]: https://github.com/artefactual-sdps/enduro/pull/1725
