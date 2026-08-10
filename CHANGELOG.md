@@ -8,6 +8,29 @@ requests.
 
 ## [Unreleased]
 
+## [0.32.0] - 2026-08-10
+
+### Security
+
+- Bind ticket cookies to authorized operations
+
+### Added
+
+- Allow independent API request logging ([#1682])
+
+### Changed
+
+- Replace debug configuration with log format ([#1703])
+- Redesign dashboard sign-in experience ([#1714])
+- Improve workflow task history ([#1708])
+- Send `/sips POST` data in request body ([#1725])
+- Rename MinIO watcher `PollInterval` setting to `WatchTimeout` ([#1726])
+
+### Fixed
+
+- Close dialogs when OIDC session expires ([#1715])
+- Prevent duplicate Archivematica transfers ([#1727])
+
 ## [0.31.0] - 2026-07-15
 
 ### Added
@@ -394,7 +417,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.31.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.32.0...HEAD
+[0.32.0]: https://github.com/artefactual-sdps/enduro/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/artefactual-sdps/enduro/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/artefactual-sdps/enduro/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/artefactual-sdps/enduro/compare/v0.28.0...v0.29.0
@@ -426,10 +450,18 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1727]: https://github.com/artefactual-sdps/enduro/pull/1727
+[#1726]: https://github.com/artefactual-sdps/enduro/pull/1726
+[#1725]: https://github.com/artefactual-sdps/enduro/pull/1725
+[#1715]: https://github.com/artefactual-sdps/enduro/issues/1715
+[#1714]: https://github.com/artefactual-sdps/enduro/pull/1714
+[#1708]: https://github.com/artefactual-sdps/enduro/pull/1708
+[#1703]: https://github.com/artefactual-sdps/enduro/pull/1703
 [#1699]: https://github.com/artefactual-sdps/enduro/pull/1699
 [#1689]: https://github.com/artefactual-sdps/enduro/pull/1689
 [#1687]: https://github.com/artefactual-sdps/enduro/pull/1687
 [#1683]: https://github.com/artefactual-sdps/enduro/pull/1683
+[#1682]: https://github.com/artefactual-sdps/enduro/pull/1682
 [#1677]: https://github.com/artefactual-sdps/enduro/pull/1677
 [#1666]: https://github.com/artefactual-sdps/enduro/issues/1666
 [#1660]: https://github.com/artefactual-sdps/enduro/issues/1660
