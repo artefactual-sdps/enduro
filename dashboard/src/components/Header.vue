@@ -1,14 +1,26 @@
 <script setup lang="ts">
+import Dropdown from "bootstrap/js/dist/dropdown";
+import { onMounted, ref } from "vue";
+
 import IconInfo from "~icons/clarity/info-standard-solid";
+import IconLogout from "~icons/clarity/logout-line";
 import IconMenu from "~icons/clarity/menu-line";
+import IconUser from "~icons/clarity/user-solid";
 
 import AboutDialog from "@/components/AboutDialog.vue";
 import Breadcrumb from "@/components/Breadcrumb.vue";
 import InstitutionLogo from "@/components/InstitutionLogo.vue";
 import { openDialog } from "@/dialogs/dialog";
+import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
 
+const authStore = useAuthStore();
 const layoutStore = useLayoutStore();
+const userMenuToggle = ref<HTMLElement | null>(null);
+
+onMounted(() => {
+  if (userMenuToggle.value) new Dropdown(userMenuToggle.value);
+});
 
 const showAbout = () => openDialog(AboutDialog);
 
@@ -74,6 +86,40 @@ const institution: { logo: string; name: string; url: string } = {
       >
         <IconInfo class="text-primary fs-4 mx-1" aria-hidden="true" />
       </button>
+
+      <div class="dropdown">
+        <button
+          ref="userMenuToggle"
+          type="button"
+          class="btn btn-link p-3"
+          data-bs-toggle="dropdown"
+          aria-expanded="false"
+          aria-label="Open user menu"
+        >
+          <IconUser class="text-primary fs-4 mx-1" aria-hidden="true" />
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end mt-0">
+          <li>
+            <h6 class="dropdown-header">
+              {{
+                authStore.isEnabled
+                  ? authStore.user?.profile.email
+                  : "Unauthenticated"
+              }}
+            </h6>
+          </li>
+          <li v-if="authStore.isEnabled">
+            <a
+              class="dropdown-item d-flex align-items-center gap-3 text-decoration-none"
+              href="#"
+              @click.prevent="authStore.signoutRedirect()"
+            >
+              <IconLogout aria-hidden="true" />
+              <span>Sign out</span>
+            </a>
+          </li>
+        </ul>
+      </div>
     </nav>
   </header>
 </template>
