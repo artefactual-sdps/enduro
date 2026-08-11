@@ -48,54 +48,46 @@ const emit = defineEmits<{
 
 <template>
   <Transition>
-    <div v-show="show" id="workflow-help">
-      <div class="card bg-light">
-        <div class="card-body">
-          <div class="d-flex mb-3">
-            <div class="flex-grow-1">
-              <p id="workflow-task-definition">
-                A <b>task</b> is an operation performed on a file, directory, or
-                package in the context of a workflow. In Enduro, a
-                <b>workflow</b> is a series of tasks performed on a package to
-                support the ingest and long-term preservation.
-              </p>
-              <p>
-                Click on a workflow listed below to expand it and see more
-                information on individual tasks run as part of the workflow.
-              </p>
-            </div>
-            <div class="justify-content-end">
-              <button
-                id="workflow-help-close"
-                type="button"
-                class="btn-close align-middle"
-                aria-label="Close"
-                @click="() => emit('update:show', false)"
-              />
-            </div>
+    <div v-show="show" id="workflow-help" class="card bg-light mb-3">
+      <div class="card-body">
+        <div class="d-flex align-items-start mb-3">
+          <div class="flex-grow-1">
+            <p id="workflow-task-definition">
+              A <b>task</b> is an operation performed on a file, directory, or
+              package in the context of a workflow. In Enduro, a
+              <b>workflow</b> is a series of tasks performed on a package to
+              support the ingest and long-term preservation.
+            </p>
+            <p>
+              Click on a workflow listed below to expand it and see more
+              information on individual tasks run as part of the workflow.
+            </p>
           </div>
-          <span class="h5">Task status legend</span>
-          <div id="task-status-legend" class="container-fluid border p-2 mb-3">
-            <div
-              v-for="(item, index) in statuses"
-              :key="item.status"
-              class="row"
-            >
-              <div class="col col-md-2 py-2 text-end">
-                <StatusBadge :status="item.status" type="workflow" />
-              </div>
-              <div :id="`badge-${index}-desc`" class="col col-md-10 py-2">
-                {{ item.description }}
-              </div>
+          <button
+            id="workflow-help-close"
+            type="button"
+            class="btn-close flex-shrink-0 ms-3"
+            aria-label="Close"
+            @click="() => emit('update:show', false)"
+          />
+        </div>
+        <span class="h5">Task status legend</span>
+        <div id="task-status-legend" class="container-fluid border p-2 mb-3">
+          <div v-for="(item, index) in statuses" :key="item.status" class="row">
+            <div class="col col-md-2 py-2 text-end">
+              <StatusBadge :status="item.status" type="workflow" />
+            </div>
+            <div :id="`badge-${index}-desc`" class="col col-md-10 py-2">
+              {{ item.description }}
             </div>
           </div>
-          <div class="text-end">
-            <a
-              href="https://enduro.readthedocs.io/user-manual/usage/#view-tasks-in-enduro"
-              target="_new"
-              >Learn more <IconLink alt="" aria-hidden="true"
-            /></a>
-          </div>
+        </div>
+        <div class="text-end">
+          <a
+            href="https://enduro.readthedocs.io/user-manual/usage/#view-tasks-in-enduro"
+            target="_new"
+            >Learn more <IconLink alt="" aria-hidden="true"
+          /></a>
         </div>
       </div>
     </div>
