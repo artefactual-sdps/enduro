@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import "bootstrap/js/dist/collapse";
 import { computed, onBeforeUnmount, onMounted, ref, toRefs, watch } from "vue";
 
 import { api } from "@/client";

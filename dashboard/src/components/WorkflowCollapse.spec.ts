@@ -1,5 +1,5 @@
 import { createTestingPinia } from "@pinia/testing";
-import { cleanup, fireEvent, render } from "@testing-library/vue";
+import { cleanup, fireEvent, render, waitFor } from "@testing-library/vue";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
@@ -96,6 +96,31 @@ describe("WorkflowCollapse.vue", () => {
     const { getByText } = renderWorkflow(ingestWorkflow());
 
     getByText("1 task");
+  });
+
+  it("toggles the task list when the workflow header is clicked", async () => {
+    const { container, getByRole } = renderWorkflow(
+      ingestWorkflow({
+        status: api.EnduroIngestSipWorkflowStatusEnum.Done,
+      }),
+    );
+    const button = getByRole("button");
+    const taskList = container.querySelector("#wf0-tasks") as HTMLElement;
+
+    expect(button.getAttribute("aria-expanded")).toBe("false");
+    expect(taskList.classList).not.toContain("show");
+
+    await fireEvent.click(button);
+    await waitFor(() => {
+      expect(button.getAttribute("aria-expanded")).toBe("true");
+      expect(taskList.classList).toContain("show");
+    });
+
+    await fireEvent.click(button);
+    await waitFor(() => {
+      expect(button.getAttribute("aria-expanded")).toBe("false");
+      expect(taskList.classList).not.toContain("show");
+    });
   });
 
   it("labels the task time column neutrally", () => {
