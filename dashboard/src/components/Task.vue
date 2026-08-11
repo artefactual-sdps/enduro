@@ -54,7 +54,7 @@ const toggle = () => {
     <div class="workflow-task-name">
       {{ task.name }}
     </div>
-    <div :id="`${idPrefix}-time`" class="workflow-task-time">
+    <div :id="`${idPrefix}-time`" class="workflow-task-time small">
       <span v-if="completedAt">
         <span class="workflow-task-time-label">Ended </span>
         <span class="workflow-task-time-value">
@@ -71,7 +71,7 @@ const toggle = () => {
         &mdash;
       </span>
     </div>
-    <div v-if="noteData.note || noteData.more" class="workflow-task-note">
+    <div v-if="noteData.note || noteData.more" class="workflow-task-note small">
       <span :id="`${idPrefix}-note`">
         <EmailLinkedText :text="noteData.note" />
       </span>
@@ -88,7 +88,7 @@ const toggle = () => {
         </Transition>
         <button
           :id="`${idPrefix}-note-toggle`"
-          class="btn btn-link p-0 align-baseline"
+          class="btn btn-sm btn-link p-0 align-baseline"
           type="button"
           :aria-controls="`${idPrefix}-note-more`"
           :aria-expanded="isOpen ? 'true' : 'false'"
@@ -141,7 +141,6 @@ const toggle = () => {
 .workflow-task-time {
   grid-area: time;
   color: var(--bs-secondary-color);
-  font-size: 0.875rem;
   white-space: nowrap;
 }
 
@@ -149,7 +148,6 @@ const toggle = () => {
   grid-area: note;
   min-width: 0;
   color: var(--bs-secondary-color);
-  font-size: 0.875rem;
   overflow-wrap: anywhere;
 }
 
