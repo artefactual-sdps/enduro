@@ -326,7 +326,6 @@ const showTasks = computed(() => {
 
 .workflow-task-table {
   --workflow-task-columns: 2.5rem minmax(0, 1fr) 12rem 7.25rem;
-
   padding: 0;
 }
 
@@ -356,11 +355,11 @@ const showTasks = computed(() => {
 }
 
 .workflow-task-list-item {
-  background: var(--bs-tertiary-bg);
+  background: var(--bs-body-bg);
 }
 
 .workflow-task-list-item:nth-child(even) {
-  background: var(--bs-body-bg);
+  background: var(--bs-tertiary-bg);
 }
 
 .workflow-task-list-item + .workflow-task-list-item {
