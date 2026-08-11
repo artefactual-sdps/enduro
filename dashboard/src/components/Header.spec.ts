@@ -78,7 +78,7 @@ describe("Header.vue", () => {
     getByRole("navigation", { name: "Breadcrumb" });
   });
 
-  it("opens the About dialog from its button", async () => {
+  it("opens the About dialog from the user menu", async () => {
     openDialogMock.mockResolvedValue(undefined);
     const { getByRole } = render(Header, {
       global: {
@@ -86,7 +86,8 @@ describe("Header.vue", () => {
       },
     });
 
-    await fireEvent.click(getByRole("button", { name: "About Enduro" }));
+    await fireEvent.click(getByRole("button", { name: "Open user menu" }));
+    await fireEvent.click(getByRole("button", { name: "About" }));
 
     expect(openDialogMock).toHaveBeenCalledWith(AboutDialog);
   });

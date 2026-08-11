@@ -2,7 +2,7 @@
 import Dropdown from "bootstrap/js/dist/dropdown";
 import { onMounted, ref } from "vue";
 
-import IconInfo from "~icons/clarity/info-standard-solid";
+import IconInfo from "~icons/clarity/info-standard-line";
 import IconLogout from "~icons/clarity/logout-line";
 import IconMenu from "~icons/clarity/menu-line";
 import IconUser from "~icons/clarity/user-solid";
@@ -78,15 +78,6 @@ const institution: { logo: string; name: string; url: string } = {
         :url="institution.url"
       />
 
-      <button
-        type="button"
-        class="btn btn-link text-decoration-none p-3"
-        aria-label="About Enduro"
-        @click="showAbout"
-      >
-        <IconInfo class="text-primary fs-4 mx-1" aria-hidden="true" />
-      </button>
-
       <div class="dropdown">
         <button
           ref="userMenuToggle"
@@ -107,6 +98,16 @@ const institution: { logo: string; name: string; url: string } = {
                   : "Unauthenticated"
               }}
             </h6>
+          </li>
+          <li>
+            <button
+              type="button"
+              class="dropdown-item d-flex align-items-center gap-3"
+              @click="showAbout"
+            >
+              <IconInfo aria-hidden="true" />
+              <span>About</span>
+            </button>
           </li>
           <li v-if="authStore.isEnabled">
             <a
