@@ -27,28 +27,32 @@ const visible = computed(() => show);
 
 <template>
   <Transition>
-    <div v-if="visible" class="alert alert-secondary alert-dismissible">
-      <div class="container-fluid">
-        <div v-for="(item, index) in items" :key="item.status" class="row">
-          <div class="col-12 col-md-2 py-2 text-end">
-            <StatusBadge
-              :status="item.status"
-              type="package"
-              :aria-describedby="`badge-${index}-desc`"
-            />
+    <div v-if="visible" class="card bg-light mb-3">
+      <div class="card-body">
+        <div class="d-flex align-items-start">
+          <div class="container-fluid flex-grow-1">
+            <div v-for="(item, index) in items" :key="item.status" class="row">
+              <div class="col-12 col-md-2 py-2 text-end">
+                <StatusBadge
+                  :status="item.status"
+                  type="package"
+                  :aria-describedby="`badge-${index}-desc`"
+                />
+              </div>
+              <div :id="`badge-${index}-desc`" class="col-12 col-md-10 py-2">
+                {{ item.description }}
+              </div>
+            </div>
           </div>
-          <div :id="`badge-${index}-desc`" class="col-12 col-md-10 py-2">
-            {{ item.description }}
-          </div>
+
+          <button
+            type="button"
+            class="btn-close flex-shrink-0 ms-3"
+            aria-label="Close"
+            @click="dismiss"
+          />
         </div>
       </div>
-
-      <button
-        type="button"
-        class="btn-close"
-        aria-label="Close"
-        @click="dismiss"
-      />
     </div>
   </Transition>
 </template>
