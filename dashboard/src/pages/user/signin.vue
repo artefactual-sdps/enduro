@@ -488,7 +488,6 @@ async function signin() {
   font-size: 1rem;
   font-weight: 650;
   border-color: var(--signin-purple);
-  border-radius: 0.85rem;
   background: var(--signin-purple);
   box-shadow: 0 0.9rem 2rem rgb(94 39 80 / 20%);
   transition:
