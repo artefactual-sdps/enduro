@@ -50,7 +50,7 @@ const emit = defineEmits<{
   <Transition>
     <div v-show="show" id="workflow-help" class="card bg-light mb-3">
       <div class="card-body">
-        <div class="d-flex align-items-start mb-3">
+        <div class="d-flex align-items-start">
           <div class="flex-grow-1">
             <p id="workflow-task-definition">
               A <b>task</b> is an operation performed on a file, directory, or
