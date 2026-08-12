@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 
 import EmailLinkedText from "@/components/EmailLinkedText.vue";
 import { useAipStore } from "@/stores/aip";
@@ -13,6 +13,9 @@ const { note } = defineProps<{
 }>();
 
 const canCancel = ref(false);
+const canReview = computed(() =>
+  authStore.checkAttributes(["storage:aips:deletion:review"]),
+);
 
 const cancel = async () => {
   aipStore.cancelDeletionRequest();
@@ -33,20 +36,16 @@ onMounted(() => {
 <template>
   <div v-if="aipStore.isPending" class="alert alert-info mb-0" role="alert">
     <h4 class="alert-heading">Task: Review AIP deletion request</h4>
-    <p class="line-break">
+    <p :class="['line-break', { 'mb-0': !canCancel && !canReview }]">
       <EmailLinkedText :text="note" />
     </p>
-    <div class="d-flex flex-wrap gap-2">
+    <div v-if="canCancel || canReview" class="d-flex flex-wrap gap-2">
       <template v-if="canCancel">
-        <hr />
         <button class="btn btn-info" type="button" @click="cancel()">
           Cancel
         </button>
       </template>
-      <template
-        v-else-if="authStore.checkAttributes(['storage:aips:deletion:review'])"
-      >
-        <hr />
+      <template v-else-if="canReview">
         <button class="btn btn-success" type="button" @click="review(true)">
           Approve
         </button>
