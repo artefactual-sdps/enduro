@@ -164,7 +164,6 @@ const showTasks = computed(() => {
         <div class="workflow-summary">
           <div class="workflow-summary-title">
             <span>{{ $filters.getWorkflowLabel(workflow.type) }}</span>
-            <StatusBadge :status="workflow.status" type="workflow" />
           </div>
           <div class="workflow-summary-meta">
             <span v-if="workflow.completedAt">
@@ -182,8 +181,11 @@ const showTasks = computed(() => {
               Started {{ $filters.formatDateTime(workflow.startedAt) }}
             </span>
           </div>
-          <div v-if="workflow.tasks" class="workflow-summary-count">
-            {{ tasks.length }} {{ tasks.length === 1 ? "task" : "tasks" }}
+          <div class="workflow-summary-details">
+            <StatusBadge :status="workflow.status" type="workflow" />
+            <span v-if="workflow.tasks" class="workflow-summary-count">
+              {{ tasks.length }} {{ tasks.length === 1 ? "task" : "tasks" }}
+            </span>
           </div>
         </div>
       </button>
@@ -295,10 +297,10 @@ const showTasks = computed(() => {
   display: grid;
   flex: 1;
   grid-template-areas:
-    "title count"
-    "meta count";
+    "title details"
+    "meta details";
   grid-template-columns: minmax(0, 1fr) max-content;
-  gap: 0.125rem 1rem;
+  gap: 0.25rem 1rem;
   min-width: 0;
   margin-right: 0.75rem;
   text-align: left;
@@ -326,9 +328,16 @@ const showTasks = computed(() => {
   grid-area: meta;
 }
 
-.workflow-summary-count {
-  grid-area: count;
+.workflow-summary-details {
+  display: flex;
+  grid-area: details;
   align-self: center;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+.workflow-summary-count {
   white-space: nowrap;
 }
 
@@ -381,14 +390,6 @@ const showTasks = computed(() => {
 
   .workflow-task-list {
     border-top: 1px solid var(--bs-border-color);
-  }
-}
-
-@media (max-width: 575.98px) {
-  .workflow-summary {
-    grid-template-areas:
-      "title title"
-      "meta count";
   }
 }
 </style>
