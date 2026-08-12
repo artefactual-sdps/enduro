@@ -74,5 +74,31 @@ onBeforeUnmount(() => {
     SIPs <strong>must</strong> be zipped. No SIPs larger than
     {{ aboutStore.formattedUploadMaxSize }}. Ingest will start automatically.
   </div>
-  <Dashboard :uppy="uppy" />
+  <Dashboard :uppy="uppy" :props="{ width: '100%' }" />
 </template>
+
+<style scoped>
+/* Uppy renders its internals inside a child component, so :deep() is required
+ * to reach them from this scoped style block. */
+:deep(.uppy-Root),
+:deep(.uppy-u-reset) {
+  font-family: var(--bs-body-font-family);
+}
+
+:deep(.uppy-Dashboard-inner),
+:deep(.uppy-Dashboard-innerWrap),
+:deep(.uppy-Dashboard-AddFiles) {
+  border-radius: var(--bs-border-radius);
+}
+
+:deep(.uppy-Dashboard-inner),
+:deep(.uppy-DashboardContent-bar),
+:deep(.uppy-StatusBar) {
+  background-color: var(--bs-light);
+}
+
+:deep(.uppy-StatusBar.is-waiting .uppy-StatusBar-actionBtn--upload) {
+  background-color: var(--bs-primary);
+  border-radius: var(--bs-border-radius);
+}
+</style>
