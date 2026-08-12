@@ -42,7 +42,7 @@ const requestDeletion = async () => {
       <div v-if="aipStore.isMoving" class="alert alert-info" role="alert">
         The AIP is being moved into a new location.
       </div>
-      <h4 class="card-title">Location</h4>
+      <h4 class="card-title text-primary">Location</h4>
       <p class="card-text">
         <span v-if="aipStore.isDeleted">AIP deleted.</span>
         <span v-else-if="!aipStore.current?.locationUuid"

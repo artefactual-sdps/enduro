@@ -33,7 +33,7 @@ describe("SipRelatedPackages.vue", () => {
       },
     });
 
-    expect(queryByText("Related Packages")).toBeNull();
+    expect(queryByText("Related packages")).toBeNull();
   });
 
   it("shows AIP and view button", () => {
@@ -55,7 +55,7 @@ describe("SipRelatedPackages.vue", () => {
       },
     });
 
-    getByText("Related Packages");
+    getByText("Related packages");
     getByText("AIP");
     getByText("aip-uuid");
     getByRole("link", { name: "View" });
@@ -80,7 +80,7 @@ describe("SipRelatedPackages.vue", () => {
       },
     });
 
-    getByText("Related Packages");
+    getByText("Related packages");
     getByText("AIP");
     getByText("aip-uuid");
     expect(queryByRole("link", { name: "View" })).toBeNull();
@@ -112,7 +112,7 @@ describe("SipRelatedPackages.vue", () => {
 
     const sipStore = useSipStore();
 
-    getByText("Related Packages");
+    getByText("Related packages");
     getByText("Failed SIP");
     getByText("failed-sip.zip");
     const btn = getByRole("button", { name: "Download" });
@@ -146,7 +146,7 @@ describe("SipRelatedPackages.vue", () => {
 
     const sipStore = useSipStore();
 
-    getByText("Related Packages");
+    getByText("Related packages");
     getByText("Failed PIP");
     getByText("failed-pip.zip");
     const btn = getByRole("button", { name: "Download" });
@@ -178,7 +178,7 @@ describe("SipRelatedPackages.vue", () => {
       },
     });
 
-    getByText("Related Packages");
+    getByText("Related packages");
     getByText("Failed PIP");
     getByText("failed-pip.zip");
     expect(queryByRole("button", { name: "Download" })).toBeNull();
@@ -209,7 +209,7 @@ describe("SipRelatedPackages.vue", () => {
       },
     });
 
-    getByText("Related Packages");
+    getByText("Related packages");
     getByText("Failed PIP");
     getByText("failed-pip.zip");
     getByRole("alert");
@@ -245,7 +245,7 @@ describe("SipRelatedPackages.vue", () => {
       },
     );
 
-    getByText("Related Packages");
+    getByText("Related packages");
     getByText("AIP");
     getByText("aip-uuid");
     getByRole("link", { name: "View" });

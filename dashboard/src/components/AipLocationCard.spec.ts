@@ -63,7 +63,7 @@ describe("AipLocationCard.vue", () => {
         <div data-v-09f60ec4="" class="card-body">
           <!--v-if-->
           <!--v-if-->
-          <h4 data-v-09f60ec4="" class="card-title">Location</h4>
+          <h4 data-v-09f60ec4="" class="card-title text-primary">Location</h4>
           <p data-v-09f60ec4="" class="card-text"><span data-v-09f60ec4=""><div data-v-09f60ec4="" class="d-flex align-items-start gap-2"><span class="font-monospace">f8635e46-a320-4152-9a2c-98a28eeb50d1</span><button class="btn btn-sm btn-link link-secondary p-0" data-bs-toggle="tooltip" data-bs-title="Copy to clipboard">
               <!-- Copied visual hint. -->
               <!-- Copy icon. --><span><svg viewBox="0 0 24 24" width="1.2em" height="1.2em" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M8 4v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7.242a2 2 0 0 0-.602-1.43L16.083 2.57A2 2 0 0 0 14.685 2H10a2 2 0 0 0-2 2"></path><path d="M16 18v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"></path></g></svg><span class="visually-hidden">Copy to clipboard</span></span>
@@ -109,7 +109,7 @@ describe("AipLocationCard.vue", () => {
         <div data-v-09f60ec4="" class="card-body">
           <!--v-if-->
           <!--v-if-->
-          <h4 data-v-09f60ec4="" class="card-title">Location</h4>
+          <h4 data-v-09f60ec4="" class="card-title text-primary">Location</h4>
           <p data-v-09f60ec4="" class="card-text"><span data-v-09f60ec4=""><div data-v-09f60ec4="" class="d-flex align-items-start gap-2"><span class="font-monospace">f8635e46-a320-4152-9a2c-98a28eeb50d1</span><button class="btn btn-sm btn-link link-secondary p-0" data-bs-toggle="tooltip" data-bs-title="Copy to clipboard">
               <!-- Copied visual hint. -->
               <!-- Copy icon. --><span><svg viewBox="0 0 24 24" width="1.2em" height="1.2em" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M8 4v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7.242a2 2 0 0 0-.602-1.43L16.083 2.57A2 2 0 0 0 14.685 2H10a2 2 0 0 0-2 2"></path><path d="M16 18v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"></path></g></svg><span class="visually-hidden">Copy to clipboard</span></span>
@@ -216,7 +216,7 @@ describe("AipLocationCard.vue", () => {
         <div data-v-09f60ec4="" class="card-body">
           <!--v-if-->
           <!--v-if-->
-          <h4 data-v-09f60ec4="" class="card-title">Location</h4>
+          <h4 data-v-09f60ec4="" class="card-title text-primary">Location</h4>
           <p data-v-09f60ec4="" class="card-text"><span data-v-09f60ec4="">Not available yet.</span></p>
           <div data-v-09f60ec4="">
             <transition-stub data-v-09f60ec4="" mode="out-in" appear="false" persisted="false" css="true">
@@ -256,7 +256,7 @@ describe("AipLocationCard.vue", () => {
         <div data-v-09f60ec4="" class="card-body">
           <!--v-if-->
           <!--v-if-->
-          <h4 data-v-09f60ec4="" class="card-title">Location</h4>
+          <h4 data-v-09f60ec4="" class="card-title text-primary">Location</h4>
           <p data-v-09f60ec4="" class="card-text"><span data-v-09f60ec4="">AIP deleted.</span></p>
           <!--v-if-->
         </div>
@@ -288,7 +288,7 @@ describe("AipLocationCard.vue", () => {
         <div data-v-09f60ec4="" class="card-body">
           <!--v-if-->
           <!--v-if-->
-          <h4 data-v-09f60ec4="" class="card-title">Location</h4>
+          <h4 data-v-09f60ec4="" class="card-title text-primary">Location</h4>
           <p data-v-09f60ec4="" class="card-text"><span data-v-09f60ec4=""><div data-v-09f60ec4="" class="d-flex align-items-start gap-2"><span class="font-monospace">f8635e46-a320-4152-9a2c-98a28eeb50d1</span><button class="btn btn-sm btn-link link-secondary p-0" data-bs-toggle="tooltip" data-bs-title="Copy to clipboard">
               <!-- Copied visual hint. -->
               <!-- Copy icon. --><span><svg viewBox="0 0 24 24" width="1.2em" height="1.2em" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path d="M8 4v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7.242a2 2 0 0 0-.602-1.43L16.083 2.57A2 2 0 0 0 14.685 2H10a2 2 0 0 0-2 2"></path><path d="M16 18v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2"></path></g></svg><span class="visually-hidden">Copy to clipboard</span></span>
