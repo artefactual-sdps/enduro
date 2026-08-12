@@ -49,7 +49,7 @@ watch(
       <Sidebar v-if="authStore.isUserValid" />
       <main
         id="main"
-        class="flex-grow-1 d-flex"
+        class="flex-grow-1 d-flex min-w-0"
         :class="{ 'px-2 pt-3': authStore.isUserValid }"
         tabindex="-1"
       >
