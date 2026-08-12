@@ -265,18 +265,26 @@ const showTasks = computed(() => {
   border: 0;
 }
 
-.workflow-accordion-button:hover,
 .workflow-accordion-button:focus {
+  background-color: var(--bs-tertiary-bg);
+}
+
+.workflow-accordion-button:not(.collapsed):focus {
   background-color: var(--bs-body-bg);
 }
 
-.workflow-accordion-button:focus {
-  box-shadow: none;
+.workflow-accordion-button:hover {
+  background-color: var(--bs-body-bg);
+}
+
+.workflow-accordion-button:not(.collapsed):hover {
+  background-color: var(--bs-tertiary-bg);
 }
 
 .workflow-accordion-button:focus-visible {
   outline: 2px solid var(--bs-primary);
   outline-offset: -2px;
+  box-shadow: none;
 }
 
 .workflow-accordion-button:not(.collapsed) {
