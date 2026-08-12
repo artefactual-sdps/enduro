@@ -32,14 +32,14 @@ const visible = computed(() => show);
         <div class="d-flex align-items-start">
           <div class="container-fluid flex-grow-1">
             <div v-for="(item, index) in items" :key="item.status" class="row">
-              <div class="col-12 col-md-2 py-2 text-end">
+              <div class="col-12 col-lg-3 py-2 text-lg-end">
                 <StatusBadge
                   :status="item.status"
                   type="package"
                   :aria-describedby="`badge-${index}-desc`"
                 />
               </div>
-              <div :id="`badge-${index}-desc`" class="col-12 col-md-10 py-2">
+              <div :id="`badge-${index}-desc`" class="col-12 col-lg-9 py-2">
                 {{ item.description }}
               </div>
             </div>

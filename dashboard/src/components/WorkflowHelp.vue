@@ -74,10 +74,10 @@ const emit = defineEmits<{
         <span class="h5">Task status legend</span>
         <div id="task-status-legend" class="container-fluid border p-2 mb-3">
           <div v-for="(item, index) in statuses" :key="item.status" class="row">
-            <div class="col col-md-2 py-2 text-end">
+            <div class="col-12 col-lg-3 py-2 text-lg-end">
               <StatusBadge :status="item.status" type="workflow" />
             </div>
-            <div :id="`badge-${index}-desc`" class="col col-md-10 py-2">
+            <div :id="`badge-${index}-desc`" class="col-12 col-lg-9 py-2">
               {{ item.description }}
             </div>
           </div>
