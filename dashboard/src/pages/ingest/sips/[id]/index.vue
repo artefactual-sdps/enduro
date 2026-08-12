@@ -125,7 +125,7 @@ onMounted(() => {
         @update:show="(value) => (showHelp = value)"
       />
 
-      <div id="workflows" class="accordion mb-2">
+      <div id="workflows" class="accordion mb-3">
         <WorkflowCollapse
           v-for="(workflow, index) in sipStore.currentWorkflows?.workflows"
           :key="workflow.uuid"

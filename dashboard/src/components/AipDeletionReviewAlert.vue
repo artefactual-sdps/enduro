@@ -31,7 +31,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div v-if="aipStore.isPending" class="alert alert-info" role="alert">
+  <div v-if="aipStore.isPending" class="alert alert-info mb-0" role="alert">
     <h4 class="alert-heading">Task: Review AIP deletion request</h4>
     <p class="line-break">
       <EmailLinkedText :text="note" />
