@@ -125,7 +125,7 @@ const icon = computed<Component | undefined>(() => {
       {{ props.status.toUpperCase() }}
       <div
         v-if="props.status == api.EnduroIngestSipWorkflowStatusEnum.InProgress"
-        class="spinner-border spinner-border-sm text-black"
+        class="spinner-border status-badge-spinner text-black"
         role="progress"
         aria-hidden="true"
       />
@@ -135,3 +135,11 @@ const icon = computed<Component | undefined>(() => {
     >
   </span>
 </template>
+
+<style scoped>
+.status-badge-spinner {
+  --bs-spinner-width: 1em;
+  --bs-spinner-height: 1em;
+  --bs-spinner-border-width: 0.2em;
+}
+</style>
