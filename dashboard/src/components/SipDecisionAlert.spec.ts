@@ -45,7 +45,7 @@ describe("SipDecisionAlert.vue", () => {
     });
 
     getByRole("alert");
-    getByText("Task: User decision required");
+    getByText("Task: user decision required");
     getByText("Choose how to continue");
     expect((getByLabelText("Continue") as HTMLInputElement).checked).toBe(
       false,

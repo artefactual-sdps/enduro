@@ -35,7 +35,7 @@ onMounted(() => {
 
 <template>
   <div v-if="aipStore.isPending" class="alert alert-info mb-0" role="alert">
-    <h4 class="alert-heading">Task: Review AIP deletion request</h4>
+    <h4 class="alert-heading">Task: review AIP deletion request</h4>
     <p :class="['line-break', { 'mb-0': !canCancel && !canReview }]">
       <EmailLinkedText :text="note" />
     </p>

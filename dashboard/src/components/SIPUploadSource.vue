@@ -116,7 +116,7 @@ const clickSip = (key: string) => {
     />
   </div>
 
-  <h2 class="mb-3">1. Select SIPs to Ingest</h2>
+  <h2 class="mb-3">1. Select SIPs to ingest</h2>
   <div class="mb-3 table">
     <div class="form-text d-flex gap-2 justify-content-end">
       <span>Selected SIPs: {{ selectedSips.length }}</span>
@@ -189,7 +189,7 @@ const clickSip = (key: string) => {
   </div>
 
   <div>
-    <h2 class="mb-3">2. Configure Ingest</h2>
+    <h2 class="mb-3">2. Configure ingest</h2>
     <div class="form-check form-switch mb-3">
       <input
         id="batch-switch"
@@ -222,13 +222,13 @@ const clickSip = (key: string) => {
     </div>
   </div>
 
-  <h2 class="mb-3">3. Launch Ingest</h2>
+  <h2 class="mb-3">3. Launch ingest</h2>
   <button
     class="btn btn-primary"
     :disabled="selectedSips.length === 0"
     @click="startIngest"
   >
-    Start Ingest
+    Start ingest
   </button>
 </template>
 

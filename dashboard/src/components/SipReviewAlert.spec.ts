@@ -49,7 +49,7 @@ describe("SipReviewAlert.vue", () => {
   it("does not offer the obsolete task expansion action", () => {
     const wrapper = mountPendingAlert();
 
-    expect(wrapper.text()).toContain("Task: Review AIP");
+    expect(wrapper.text()).toContain("Task: review AIP");
     expect(wrapper.text()).not.toContain("Expand");
   });
 

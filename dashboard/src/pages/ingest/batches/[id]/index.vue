@@ -118,7 +118,7 @@ onMounted(() => {
 
     <BatchReviewAlert />
 
-    <h2 class="mb-3">SIPs in Batch</h2>
+    <h2 class="mb-3">SIPs in batch</h2>
     <StatusLegend
       :show="showLegend"
       :items="statuses"

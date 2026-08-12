@@ -18,7 +18,7 @@ const submitDecision = async () => {
     class="alert alert-info mb-0"
     role="alert"
   >
-    <h4 class="alert-heading">Task: User decision required</h4>
+    <h4 class="alert-heading">Task: user decision required</h4>
     <p>{{ sipStore.currentDecision.message }}</p>
     <hr />
     <form @submit.prevent="submitDecision">
