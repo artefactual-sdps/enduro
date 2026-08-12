@@ -110,14 +110,13 @@ const toggle = () => {
   display: grid;
   grid-template-areas:
     "number name time status"
-    ". note note status";
+    ". note note .";
   grid-template-columns: var(
     --workflow-task-columns,
     2.5rem minmax(0, 1fr) 12rem 7.25rem
   );
-  align-items: start;
-  gap: 0.125rem 0.75rem;
-  min-width: 0;
+  align-items: center;
+  column-gap: 0.75rem;
   padding: 0.5rem 0.75rem;
 }
 
@@ -147,6 +146,7 @@ const toggle = () => {
 .workflow-task-note {
   grid-area: note;
   min-width: 0;
+  margin-top: 0.125rem;
   color: var(--bs-secondary-color);
   overflow-wrap: anywhere;
 }
@@ -156,6 +156,13 @@ const toggle = () => {
   justify-self: end;
 }
 
+@media (min-width: 992px) {
+  .workflow-task-time,
+  .workflow-task-status {
+    align-self: baseline;
+  }
+}
+
 @media (max-width: 991.98px) {
   .workflow-task {
     grid-template-areas:
@@ -163,10 +170,15 @@ const toggle = () => {
       ". time time"
       ". note note";
     grid-template-columns: 2.5rem minmax(0, 1fr) max-content;
+    row-gap: 0.125rem;
   }
 
   .workflow-task-time {
     white-space: normal;
+  }
+
+  .workflow-task-note {
+    margin-top: 0;
   }
 }
 </style>
