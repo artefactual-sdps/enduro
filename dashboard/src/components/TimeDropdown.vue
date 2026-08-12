@@ -221,6 +221,23 @@ const earliestTimeFromOption = (value: string) => {
 </template>
 
 <style lang="scss" scoped>
+.dropdown {
+  /* VueDatePicker owns these internal elements, so scoped styles need :deep(). */
+  :deep(.dp__theme_light) {
+    --dp-font-family: var(--bs-body-font-family);
+    --dp-primary-color: var(--bs-primary);
+    --dp-primary-disabled-color: var(--bs-primary);
+  }
+
+  :deep(.dp__action_button) {
+    height: auto;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--bs-border-radius-sm);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+}
+
 .dropdown-menu {
   width: 300px;
 }
