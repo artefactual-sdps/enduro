@@ -13,7 +13,11 @@ const submitDecision = async () => {
 </script>
 
 <template>
-  <div v-if="sipStore.currentDecision" class="alert alert-info" role="alert">
+  <div
+    v-if="sipStore.currentDecision"
+    class="alert alert-info mb-0"
+    role="alert"
+  >
     <h4 class="alert-heading">Task: User decision required</h4>
     <p>{{ sipStore.currentDecision.message }}</p>
     <hr />

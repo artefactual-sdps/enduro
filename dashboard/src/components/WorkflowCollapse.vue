@@ -138,7 +138,7 @@ const showTasks = computed(() => {
 
 <template>
   <div
-    class="accordion-item workflow-accordion-item mb-2"
+    class="accordion-item workflow-accordion-item mb-1"
     :style="workflowItemStyle"
   >
     <h4
