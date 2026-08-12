@@ -103,7 +103,7 @@ describe("TimeDropdown.vue", () => {
     );
     await nextTick();
 
-    expect(button.text()).toBe("Started: Custom");
+    expect(button.text()).toBe("Started: custom");
     expect(wrapper.emitted("change")).toEqual([
       ["createdAt", "2025-01-01T12:00:00Z", ""],
     ]);
@@ -120,7 +120,7 @@ describe("TimeDropdown.vue", () => {
     );
     await nextTick();
 
-    expect(button.text()).toBe("Started: Custom");
+    expect(button.text()).toBe("Started: custom");
     expect(wrapper.emitted("change")).toEqual([
       ["createdAt", "", "2025-01-01T12:00:00Z"],
     ]);
@@ -139,7 +139,7 @@ describe("TimeDropdown.vue initialized with start and end times", () => {
     });
     await nextTick();
 
-    expect(wrapper.find(".dropdown-toggle").text()).toBe("Started: Custom");
+    expect(wrapper.find(".dropdown-toggle").text()).toBe("Started: custom");
 
     const start = wrapper.find("#tdd-createdAt-start input");
     const end = wrapper.find("#tdd-createdAt-end input");

@@ -174,8 +174,8 @@ describe("WorkflowCollapse.vue", () => {
       }),
     );
 
-    expect(getByRole("alert").textContent).toContain("Task: Review AIP");
-    expect(queryByText("Task: User decision required")).toBeNull();
+    expect(getByRole("alert").textContent).toContain("Task: review AIP");
+    expect(queryByText("Task: user decision required")).toBeNull();
     expect(container.querySelector("#wf0-tasks")?.classList).toContain("show");
   });
 
@@ -189,13 +189,13 @@ describe("WorkflowCollapse.vue", () => {
       });
 
     expect(getByRole("alert").textContent).toContain(
-      "Task: User decision required",
+      "Task: user decision required",
     );
     getByText("Choose how to continue");
     expect((getByLabelText("Continue") as HTMLInputElement).checked).toBe(
       false,
     );
-    expect(queryByText("Task: Review AIP")).toBeNull();
+    expect(queryByText("Task: review AIP")).toBeNull();
     expect(container.querySelector("#wf0-tasks")?.classList).toContain("show");
   });
 

@@ -26,7 +26,7 @@ onUnmounted(() => {
 
 <template>
   <div v-if="sipStore.isPending" class="alert alert-info mb-0" role="alert">
-    <h4 class="alert-heading">Task: Review AIP</h4>
+    <h4 class="alert-heading">Task: review AIP</h4>
     <p>
       Please review the output and decide if you would like to keep the AIP or
       reject it.

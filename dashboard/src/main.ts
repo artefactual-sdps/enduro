@@ -51,7 +51,7 @@ app.config.globalProperties.$filters = {
       case api.EnduroIngestSipWorkflowTypeEnum.CreateAip:
         return "Create AIP";
       case api.EnduroIngestSipWorkflowTypeEnum.CreateAndReviewAip:
-        return "Create and Review AIP";
+        return "Create and review AIP";
       case api.EnduroStorageAipWorkflowTypeEnum.UploadAip:
         return "Upload AIP";
       case api.EnduroStorageAipWorkflowTypeEnum.MoveAip:
@@ -81,7 +81,7 @@ app.config.globalProperties.$filters = {
   getLocationPurposeLabel(value: api.EnduroStorageLocationPurposeEnum) {
     switch (value) {
       case api.EnduroStorageLocationPurposeEnum.AipStore:
-        return "AIP Store";
+        return "AIP store";
       case api.EnduroStorageLocationPurposeEnum.Unspecified:
         return "Unspecified";
       default:

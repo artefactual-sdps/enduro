@@ -49,11 +49,11 @@ onMounted(() => {
   if (el.value) dropdown.value = new Dropdown(el.value);
   if (props.start) {
     startTime.value = props.start;
-    btnLabel.value = defaultLabel + ": Custom";
+    btnLabel.value = defaultLabel + ": custom";
   }
   if (props.end) {
     endTime.value = props.end;
-    btnLabel.value = defaultLabel + ": Custom";
+    btnLabel.value = defaultLabel + ": custom";
   }
 });
 
@@ -80,7 +80,7 @@ const emitChange = () => {
 };
 
 const handleCustomTimeChange = () => {
-  btnLabel.value = defaultLabel + ": Custom";
+  btnLabel.value = defaultLabel + ": custom";
   selectedPreset.value = "";
 
   emitChange();
