@@ -17,7 +17,7 @@ const sipStore = useSipStore();
     class="card mb-3"
   >
     <div class="card-body">
-      <h4 class="card-title">Related Packages</h4>
+      <h4 class="card-title text-primary">Related packages</h4>
       <template v-if="sipStore.current?.aipUuid">
         <p class="card-text">
           <strong>AIP</strong>

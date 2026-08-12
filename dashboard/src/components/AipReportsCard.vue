@@ -48,7 +48,7 @@ const downloadDeletionReport = async () => {
     class="card mb-3"
   >
     <div class="card-body">
-      <h4 class="card-title">Reports</h4>
+      <h4 class="card-title text-primary">Reports</h4>
       <div v-if="error" class="alert alert-warning" role="alert">
         {{ error }}
       </div>
