@@ -38,32 +38,17 @@ a:not(.btn),
   min-width: 0;
 }
 
-.accordion-button {
-  background-color: $light;
-  border: solid 1px $gray-500;
+@media (prefers-reduced-motion: reduce) {
+  .v-enter-active,
+  .v-leave-active,
+  .fade-enter-active,
+  .fade-leave-active {
+    transition: none !important;
+  }
 }
 
-.accordion-button:hover,
-.accordion-button:focus {
-  background-color: $primary-bg-subtle;
-  border-color: $primary;
-}
-
-.accordion-button.collapsed .h4 {
-  color: $dark;
-}
-
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.3s ease-in;
-}
-
-.fade-enter-to,
-.fade-leave-from {
-  opacity: 1;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
+@include color-mode(dark) {
+  .text-primary {
+    color: var(--bs-body-color) !important;
+  }
 }

@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import SigninPage from "@/pages/user/signin.vue";
 import { useAuthStore } from "@/stores/auth";
+import { themeController } from "@/theme";
 
 function mountPage() {
   const pinia = createTestingPinia({ createSpy: vi.fn });
@@ -20,15 +21,18 @@ function mountPage() {
 describe("signin.vue", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.setItem("enduro-theme", "light");
+    themeController.initialize();
   });
 
   afterEach(() => {
+    localStorage.clear();
     vi.unstubAllGlobals();
   });
 
   it("presents the OIDC sign-in action accessibly", () => {
     const { wrapper } = mountPage();
-    const button = wrapper.get("button");
+    const button = wrapper.get(".signin-button");
 
     expect(wrapper.get("h1").text()).toBe("Welcome to Enduro");
     expect(button.text()).toContain("Sign in with your organization");
@@ -60,6 +64,13 @@ describe("signin.vue", () => {
       rel: "noopener noreferrer",
       target: "_blank",
     });
+
+    const themeToggle = wrapper.get(".signin-theme-toggle");
+    expect(themeToggle.attributes("aria-label")).toBe("Dark theme");
+    expect(themeToggle.text()).toBe("");
+    expect(themeToggle.element.parentElement).toBe(
+      wrapper.get(".signin-panel").element,
+    );
   });
 
   it("smoothly tracks the pointer across the document", () => {
@@ -121,7 +132,7 @@ describe("signin.vue", () => {
 
   it("prevents repeated sign-in requests while redirecting", async () => {
     const { authStore, wrapper } = mountPage();
-    const button = wrapper.get("button");
+    const button = wrapper.get(".signin-button");
 
     await button.trigger("click");
     await button.trigger("click");
@@ -140,13 +151,15 @@ describe("signin.vue", () => {
       new Error("OIDC discovery failed"),
     );
 
-    await wrapper.get("button").trigger("click");
+    await wrapper.get(".signin-button").trigger("click");
     await flushPromises();
 
     expect(wrapper.get('[role="alert"]').text()).toContain(
       "We couldn't connect to the sign-in service",
     );
-    expect(wrapper.get("button").attributes("disabled")).toBeUndefined();
-    expect(document.activeElement).toBe(wrapper.get("button").element);
+    expect(
+      wrapper.get(".signin-button").attributes("disabled"),
+    ).toBeUndefined();
+    expect(document.activeElement).toBe(wrapper.get(".signin-button").element);
   });
 });

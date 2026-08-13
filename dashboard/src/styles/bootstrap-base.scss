@@ -8,6 +8,7 @@ $sidebar-collapsed-width: 90px;
 // Bootstrap variable overrides.
 $primary: #5e2750;
 $link-color: #0d6efd;
+$link-color-dark: #6ea8fe;
 $offcanvas-horizontal-width: $sidebar-width;
 $headings-color: $primary;
 $headings-font-weight: 400;
@@ -15,16 +16,14 @@ $border-radius: 0;
 $border-radius-sm: 0;
 $border-radius-lg: 0;
 $badge-border-radius: 0.5em;
-
-// Accordion overrides.
-$accordion-button-active-bg: white;
-$accordion-icon-active-color: $primary;
+$accordion-icon-color-dark: #fff;
+$accordion-icon-active-color-dark: #fff;
 
 // Bootstrap required.
 @import "bootstrap/scss/variables";
 @import "bootstrap/scss/variables-dark";
 
-// Extend theme colors with blue.
+// Register custom theme colors before Bootstrap derives its maps.
 $theme-colors: map-merge(
   $theme-colors,
   (
@@ -32,6 +31,47 @@ $theme-colors: map-merge(
   )
 );
 
-// Default map overrides.
+// Build Bootstrap's derived theme and utility maps.
 @import "bootstrap/scss/maps";
+
+// Add light and dark variants for custom theme colors.
+$theme-colors-text: map-merge(
+  $theme-colors-text,
+  (
+    "blue": shade-color($blue, 60%),
+  )
+);
+$theme-colors-text-dark: map-merge(
+  $theme-colors-text-dark,
+  (
+    "blue": tint-color($blue, 40%),
+  )
+);
+$theme-colors-bg-subtle: map-merge(
+  $theme-colors-bg-subtle,
+  (
+    "blue": tint-color($blue, 80%),
+  )
+);
+$theme-colors-bg-subtle-dark: map-merge(
+  $theme-colors-bg-subtle-dark,
+  (
+    "blue": shade-color($blue, 80%),
+  )
+);
+
+// Expose the custom variants through Bootstrap utilities.
+$utilities-text-emphasis-colors: map-merge(
+  $utilities-text-emphasis-colors,
+  (
+    "blue-emphasis": var(--#{$prefix}blue-text-emphasis),
+  )
+);
+$utilities-bg-subtle: map-merge(
+  $utilities-bg-subtle,
+  (
+    "blue-subtle": var(--#{$prefix}blue-bg-subtle),
+  )
+);
+
 @import "bootstrap/scss/mixins";

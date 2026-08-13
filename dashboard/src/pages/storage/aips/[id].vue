@@ -49,7 +49,7 @@ onUnmounted(() => {
       <AipPendingAlert />
 
       <h1 class="d-flex mb-3">
-        <IconAIPs class="flex-shrink-0 me-3 text-dark" />{{
+        <IconAIPs class="flex-shrink-0 me-3 text-body" />{{
           aipStore.current.name
         }}
       </h1>

@@ -100,7 +100,7 @@ onUnmounted(() => {
 
 <style scoped>
 .current {
-  background-color: #f5f5f5;
+  --bs-table-bg: var(--bs-tertiary-bg);
 }
 
 table .btn {

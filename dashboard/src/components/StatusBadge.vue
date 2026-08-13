@@ -41,24 +41,61 @@ const packageStyle: {
   [key in PackageEnum]: BadgeStyle;
 } = {
   ingested: [
-    "text-dark",
+    "text-success-emphasis",
     "bg-success-subtle",
     "border border-2 border-success",
   ],
-  stored: ["text-dark", "bg-success-subtle", "border border-2 border-success"],
-  deleted: ["text-dark", "bg-danger-subtle", "border border-2 border-danger"],
-  failed: ["text-dark", "bg-danger-subtle", "border border-2 border-danger"],
-  error: ["text-dark", "bg-danger-subtle", "border border-2 border-danger"],
+  stored: [
+    "text-success-emphasis",
+    "bg-success-subtle",
+    "border border-2 border-success",
+  ],
+  deleted: [
+    "text-danger-emphasis",
+    "bg-danger-subtle",
+    "border border-2 border-danger",
+  ],
+  failed: [
+    "text-danger-emphasis",
+    "bg-danger-subtle",
+    "border border-2 border-danger",
+  ],
+  error: [
+    "text-danger-emphasis",
+    "bg-danger-subtle",
+    "border border-2 border-danger",
+  ],
   queued: [
-    "text-dark",
+    "text-secondary-emphasis",
     "bg-secondary-subtle",
     "border border-2 border-secondary",
   ],
-  processing: ["text-dark", "bg-info-subtle", "border border-2 border-info"],
-  pending: ["text-dark", "bg-warning-subtle", "border border-2 border-warning"],
-  unspecified: ["text-dark", "bg-dark-subtle", "border border-2 border-dark"],
-  validated: ["text-dark", "bg-blue-subtle", "border border-2 border-blue"],
-  canceled: ["text-dark", "bg-dark-subtle", "border border-2 border-dark"],
+  processing: [
+    "text-info-emphasis",
+    "bg-info-subtle",
+    "border border-2 border-info",
+  ],
+  pending: [
+    "text-warning-emphasis",
+    "bg-warning-subtle",
+    "border border-2 border-warning",
+  ],
+  unspecified: [
+    "text-body-emphasis",
+    "bg-dark-subtle",
+    "border border-2 border-dark",
+  ],
+  validated: [
+    "text-blue-emphasis",
+    "bg-blue-subtle",
+    "border border-2 border-blue",
+  ],
+  canceled: [
+    "status-canceled",
+    "text-body-emphasis",
+    "bg-dark-subtle",
+    "border border-2",
+  ],
 };
 
 const packageIcon: Record<PackageEnum, Component | undefined> = {
@@ -130,7 +167,7 @@ const icon = computed<Component | undefined>(() => {
         aria-hidden="true"
       />
     </span>
-    <span v-if="props.note" class="badge text-dark fw-normal"
+    <span v-if="props.note" class="badge text-body fw-normal"
       >({{ props.note }})</span
     >
   </span>
@@ -141,5 +178,9 @@ const icon = computed<Component | undefined>(() => {
   --bs-spinner-width: 1em;
   --bs-spinner-height: 1em;
   --bs-spinner-border-width: 0.2em;
+}
+
+.status-canceled {
+  --bs-border-color: currentColor;
 }
 </style>

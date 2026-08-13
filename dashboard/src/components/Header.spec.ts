@@ -1,13 +1,14 @@
 import { createTestingPinia } from "@pinia/testing";
 import { cleanup, fireEvent, render } from "@testing-library/vue";
 import { User } from "oidc-client-ts";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createRouter, createWebHistory } from "vue-router";
 
 import AboutDialog from "@/components/AboutDialog.vue";
 import Header from "@/components/Header.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
+import { themeController } from "@/theme";
 
 const openDialogMock = vi.hoisted(() => vi.fn());
 vi.mock("@/dialogs/dialog", () => ({
@@ -20,8 +21,14 @@ const router = createRouter({
 });
 
 describe("Header.vue", () => {
+  beforeEach(() => {
+    localStorage.setItem("enduro-theme", "light");
+    themeController.initialize();
+  });
+
   afterEach(() => {
     cleanup();
+    localStorage.clear();
     vi.resetAllMocks();
   });
 
@@ -90,6 +97,41 @@ describe("Header.vue", () => {
     await fireEvent.click(getByRole("button", { name: "About" }));
 
     expect(openDialogMock).toHaveBeenCalledWith(AboutDialog);
+  });
+
+  it("switches from light to dark theme in the user menu", async () => {
+    const { getByRole } = render(Header, {
+      global: {
+        plugins: [createTestingPinia({ createSpy: vi.fn }), router],
+      },
+    });
+    const userMenuButton = getByRole("button", { name: "Open user menu" });
+
+    await fireEvent.click(userMenuButton);
+    await fireEvent.click(getByRole("button", { name: "Dark theme" }));
+
+    expect(document.documentElement.dataset.bsTheme).toBe("dark");
+    expect(localStorage.getItem("enduro-theme")).toBe("dark");
+    getByRole("button", { name: "Light theme" });
+  });
+
+  it("switches from dark to light theme in the user menu", async () => {
+    localStorage.setItem("enduro-theme", "dark");
+    themeController.initialize();
+
+    const { getByRole } = render(Header, {
+      global: {
+        plugins: [createTestingPinia({ createSpy: vi.fn }), router],
+      },
+    });
+    const userMenuButton = getByRole("button", { name: "Open user menu" });
+
+    await fireEvent.click(userMenuButton);
+    await fireEvent.click(getByRole("button", { name: "Light theme" }));
+
+    expect(document.documentElement.dataset.bsTheme).toBe("light");
+    expect(localStorage.getItem("enduro-theme")).toBe("light");
+    getByRole("button", { name: "Dark theme" });
   });
 
   it("shows the authenticated user menu and logs out", async () => {

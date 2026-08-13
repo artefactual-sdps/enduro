@@ -44,7 +44,7 @@ onUnmounted(() => {
 
     <template v-if="batchStore.current">
       <h1 class="d-flex mb-3">
-        <IconBatches class="flex-shrink-0 me-3 text-dark" />{{
+        <IconBatches class="flex-shrink-0 me-3 text-body" />{{
           batchStore.current.identifier
         }}
       </h1>

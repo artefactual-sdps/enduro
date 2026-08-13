@@ -10,6 +10,7 @@ import IconUser from "~icons/clarity/user-solid";
 import AboutDialog from "@/components/AboutDialog.vue";
 import Breadcrumb from "@/components/Breadcrumb.vue";
 import InstitutionLogo from "@/components/InstitutionLogo.vue";
+import ThemeToggle from "@/components/ThemeToggle.vue";
 import { openDialog } from "@/dialogs/dialog";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
@@ -23,16 +24,10 @@ onMounted(() => {
 });
 
 const showAbout = () => openDialog(AboutDialog);
-
-const institution: { logo: string; name: string; url: string } = {
-  logo: import.meta.env.VITE_INSTITUTION_LOGO,
-  name: import.meta.env.VITE_INSTITUTION_NAME,
-  url: import.meta.env.VITE_INSTITUTION_URL,
-};
 </script>
 
 <template>
-  <header class="bg-white border-bottom sticky-top">
+  <header class="bg-body border-bottom sticky-top">
     <nav class="navbar navbar-expand-md p-0">
       <!-- Open offcanvas button, only visible in sm. -->
       <button
@@ -43,7 +38,7 @@ const institution: { logo: string; name: string; url: string } = {
         aria-controls="menu-offcanvas"
         aria-label="Open navigation"
       >
-        <IconMenu class="text-dark fs-4 mx-1" aria-hidden="true" />
+        <IconMenu class="text-body fs-4 mx-1" aria-hidden="true" />
       </button>
 
       <!-- Collapse/expand sidebar button, visible in md or higher. -->
@@ -56,7 +51,7 @@ const institution: { logo: string; name: string; url: string } = {
         "
         @click="layoutStore.toggleSidebar()"
       >
-        <IconMenu class="text-dark fs-4 mx-1" aria-hidden="true" />
+        <IconMenu class="text-body fs-4 mx-1" aria-hidden="true" />
       </button>
 
       <RouterLink
@@ -72,11 +67,7 @@ const institution: { logo: string; name: string; url: string } = {
         <Breadcrumb />
       </div>
 
-      <InstitutionLogo
-        :logo="institution.logo"
-        :name="institution.name"
-        :url="institution.url"
-      />
+      <InstitutionLogo />
 
       <div class="dropdown">
         <button
@@ -98,6 +89,9 @@ const institution: { logo: string; name: string; url: string } = {
                   : "Unauthenticated"
               }}
             </h6>
+          </li>
+          <li>
+            <ThemeToggle />
           </li>
           <li>
             <button

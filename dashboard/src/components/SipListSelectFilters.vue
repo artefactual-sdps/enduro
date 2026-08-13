@@ -6,7 +6,7 @@ const sipStore = useSipStore();
 </script>
 
 <template>
-  <div class="d-flex flex-wrap gap-3 mb-3 p-3 border bg-light">
+  <div class="d-flex flex-wrap gap-3 mb-3 p-3 border bg-body-tertiary">
     <h3 class="mb-0 pe-3 border-end">Filters</h3>
     <div class="d-flex gap-2">
       <label for="filter-status" class="align-self-center">Status</label>

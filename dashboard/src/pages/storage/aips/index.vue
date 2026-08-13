@@ -281,7 +281,7 @@ onUnmounted(() => {
 <template>
   <div class="container-xxl">
     <h1 class="d-flex mb-0">
-      <IconAIPs class="flex-shrink-0 me-3 text-dark" />AIPs
+      <IconAIPs class="flex-shrink-0 me-3 text-body" />AIPs
     </h1>
 
     <div class="text-muted mb-3">

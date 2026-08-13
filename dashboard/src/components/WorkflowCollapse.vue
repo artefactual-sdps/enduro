@@ -162,7 +162,7 @@ const showTasks = computed(() => {
         :aria-controls="'wf' + index + '-tasks'"
       >
         <div class="workflow-summary">
-          <div class="workflow-summary-title">
+          <div class="workflow-summary-title text-body">
             <span>{{ $filters.getWorkflowLabel(workflow.type) }}</span>
           </div>
           <div class="workflow-summary-meta">
@@ -247,7 +247,8 @@ const showTasks = computed(() => {
 
 <style lang="scss" scoped>
 .accordion-item.workflow-accordion-item {
-  border: 1px solid var(--bs-border-color);
+  border: var(--bs-accordion-border-width) solid
+    var(--bs-accordion-border-color);
   border-radius: var(--bs-accordion-border-radius);
 }
 
@@ -263,7 +264,11 @@ const showTasks = computed(() => {
 }
 
 .workflow-accordion-button {
+  --bs-accordion-transition: none;
+  --bs-accordion-btn-icon-transition: none;
+
   padding-block: 0.75rem;
+  background-color: var(--bs-tertiary-bg);
   border: 0;
 }
 
@@ -290,6 +295,7 @@ const showTasks = computed(() => {
 }
 
 .workflow-accordion-button:not(.collapsed) {
+  background-color: var(--bs-body-bg);
   box-shadow: none;
 }
 
@@ -356,8 +362,8 @@ const showTasks = computed(() => {
   padding: 0.375rem 0.75rem;
   color: var(--bs-secondary-color);
   background: var(--bs-tertiary-bg);
-  border-top: 1px solid var(--bs-border-color);
-  border-bottom: 1px solid var(--bs-border-color);
+  border-top: var(--bs-border-width) solid var(--bs-border-color);
+  border-bottom: var(--bs-border-width) solid var(--bs-border-color);
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.025em;
@@ -380,7 +386,7 @@ const showTasks = computed(() => {
 }
 
 .workflow-task-list-item + .workflow-task-list-item {
-  border-top: 1px solid var(--bs-border-color);
+  border-top: var(--bs-border-width) solid var(--bs-border-color);
 }
 
 @media (max-width: 991.98px) {
@@ -389,7 +395,7 @@ const showTasks = computed(() => {
   }
 
   .workflow-task-list {
-    border-top: 1px solid var(--bs-border-color);
+    border-top: var(--bs-border-width) solid var(--bs-border-color);
   }
 }
 </style>

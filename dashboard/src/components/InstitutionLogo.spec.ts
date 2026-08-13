@@ -1,68 +1,102 @@
 import { cleanup } from "@testing-library/vue";
-import { VueWrapper, mount } from "@vue/test-utils";
-import { afterEach, describe, expect, it } from "vitest";
+import { mount } from "@vue/test-utils";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { nextTick } from "vue";
 
 import InstitutionLogo from "@/components/InstitutionLogo.vue";
+import { themeController } from "@/theme";
+
+function stubInstitution({
+  dark = "",
+  legacy = "",
+  light = "",
+  name = "Example institution",
+  url = "https://example.com",
+}: {
+  dark?: string;
+  legacy?: string;
+  light?: string;
+  name?: string;
+  url?: string;
+} = {}) {
+  vi.stubEnv("VITE_INSTITUTION_LOGO", legacy);
+  vi.stubEnv("VITE_INSTITUTION_LOGO_LIGHT", light);
+  vi.stubEnv("VITE_INSTITUTION_LOGO_DARK", dark);
+  vi.stubEnv("VITE_INSTITUTION_NAME", name);
+  vi.stubEnv("VITE_INSTITUTION_URL", url);
+}
 
 describe("InstitutionLogo.vue", () => {
-  afterEach(() => cleanup());
+  beforeEach(() => {
+    localStorage.setItem("enduro-theme", "light");
+    themeController.initialize();
+  });
 
-  it("renders a logo with link and alt text", async () => {
-    const wrapper: VueWrapper = mount(InstitutionLogo, {
-      attachTo: document.body,
-      props: {
-        logo: "http://localhost:8080/artefactual-logo.png",
-        name: "Artefactual Systems Inc.",
-        url: "http://localhost:8080",
-      },
+  afterEach(() => {
+    cleanup();
+    localStorage.clear();
+    vi.unstubAllEnvs();
+  });
+
+  it("switches the configured logo with the active theme", async () => {
+    stubInstitution({
+      dark: "https://example.com/logo-dark.png",
+      legacy: "https://example.com/logo.png",
+      light: "https://example.com/logo-light.png",
     });
+    const wrapper = mount(InstitutionLogo, { attachTo: document.body });
 
     const logo = wrapper.get("img");
 
-    expect(wrapper.get("a").attributes("href")).toEqual(
-      "http://localhost:8080",
-    );
-    expect(logo.attributes("alt")).toEqual("Artefactual Systems Inc.");
-    expect(logo.attributes("src")).toEqual(
-      "http://localhost:8080/artefactual-logo.png",
-    );
-    expect(wrapper.html()).toMatchInlineSnapshot(
-      `"<div data-v-5841bc2f="" class="d-none d-sm-block mx-3"><a data-v-5841bc2f="" href="http://localhost:8080" target="_blank" rel="external"><img data-v-5841bc2f="" src="http://localhost:8080/artefactual-logo.png" alt="Artefactual Systems Inc."></a></div>"`,
+    expect(wrapper.get("a").attributes("href")).toBe("https://example.com");
+    expect(logo.attributes("alt")).toBe("Example institution");
+    expect(logo.attributes("src")).toBe("https://example.com/logo-light.png");
+
+    themeController.toggle();
+    await nextTick();
+
+    expect(logo.attributes("src")).toBe("https://example.com/logo-dark.png");
+  });
+
+  it("falls back to the legacy institution logo", () => {
+    stubInstitution({ legacy: "https://example.com/logo.png" });
+    const wrapper = mount(InstitutionLogo);
+
+    expect(wrapper.get("img").attributes("src")).toBe(
+      "https://example.com/logo.png",
     );
   });
 
-  it("renders a logo with alt text", async () => {
-    const wrapper: VueWrapper = mount(InstitutionLogo, {
-      attachTo: document.body,
-      props: {
-        logo: "http://localhost:8080/artefactual-logo.png",
-        name: "Artefactual Systems Inc.",
-        url: "",
-      },
+  it("does not use the light logo as the dark logo fallback", () => {
+    localStorage.setItem("enduro-theme", "dark");
+    themeController.initialize();
+    stubInstitution({
+      light: "https://example.com/logo-light.png",
     });
+    const wrapper = mount(InstitutionLogo);
 
-    const logo = wrapper.get("img");
+    expect(wrapper.find("img").exists()).toBe(false);
+  });
+
+  it("renders an unlinked logo when no institution URL is configured", () => {
+    stubInstitution({
+      light: "https://example.com/logo-light.png",
+      url: "",
+    });
+    const wrapper = mount(InstitutionLogo);
 
     expect(wrapper.find("a").exists()).toBe(false);
-    expect(logo.attributes("alt")).toEqual("Artefactual Systems Inc.");
-    expect(logo.attributes("src")).toEqual(
-      "http://localhost:8080/artefactual-logo.png",
-    );
-    expect(wrapper.html()).toMatchInlineSnapshot(
-      `"<div data-v-5841bc2f="" class="d-none d-sm-block mx-3"><img data-v-5841bc2f="" src="http://localhost:8080/artefactual-logo.png" alt="Artefactual Systems Inc."></div>"`,
-    );
+    expect(wrapper.get("img").attributes()).toMatchObject({
+      alt: "Example institution",
+      src: "https://example.com/logo-light.png",
+    });
   });
 
-  it("renders nothing if logo and url are empty", async () => {
-    const wrapper: VueWrapper = mount(InstitutionLogo, {
-      attachTo: document.body,
-      props: {
-        logo: "",
-        name: "Artefactual Systems Inc.",
-        url: "",
-      },
-    });
+  it("renders nothing when no logo is configured for the active theme", () => {
+    stubInstitution();
+    const wrapper = mount(InstitutionLogo);
 
+    expect(wrapper.find("img").exists()).toBe(false);
     expect(wrapper.html()).toBe("<!--v-if-->");
   });
 });
