@@ -22,6 +22,8 @@ interface ImportMetaEnv {
   readonly VITE_OIDC_ABAC_USE_ROLES: string;
   readonly VITE_OIDC_ABAC_ROLES_MAPPING: string;
   readonly VITE_INSTITUTION_LOGO: string;
+  readonly VITE_INSTITUTION_LOGO_LIGHT: string;
+  readonly VITE_INSTITUTION_LOGO_DARK: string;
   readonly VITE_INSTITUTION_NAME: string;
   readonly VITE_INSTITUTION_URL: string;
   readonly VITE_CUSTOM_HOME_URL: string;

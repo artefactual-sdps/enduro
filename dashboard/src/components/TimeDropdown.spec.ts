@@ -3,6 +3,8 @@ import { VueDatePicker } from "@vuepic/vue-datepicker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
+import { themeController } from "@/theme";
+
 import TimeDropdown from "./TimeDropdown.vue";
 
 describe("TimeDropdown.vue", () => {
@@ -147,5 +149,37 @@ describe("TimeDropdown.vue initialized with start and end times", () => {
     // Local times are offset -6 hours from UTC times.
     expect(start.element.getAttribute("value")).toEqual("2024-12-31 18:00");
     expect(end.element.getAttribute("value")).toEqual("2025-01-31 17:59");
+  });
+});
+
+describe("TimeDropdown.vue theme", () => {
+  afterEach(() => {
+    localStorage.clear();
+  });
+
+  it("keeps both datepickers in sync with the application theme", async () => {
+    localStorage.setItem("enduro-theme", "dark");
+    themeController.initialize();
+
+    const wrapper = mount(TimeDropdown, {
+      props: {
+        name: "createdAt",
+      },
+    });
+    const datePickers = wrapper.findAllComponents(VueDatePicker);
+
+    expect(datePickers).toHaveLength(2);
+    datePickers.forEach((datePicker) => {
+      expect(datePicker.props("dark")).toBe(true);
+    });
+
+    themeController.toggle();
+    await nextTick();
+
+    datePickers.forEach((datePicker) => {
+      expect(datePicker.props("dark")).toBe(false);
+    });
+
+    wrapper.unmount();
   });
 });

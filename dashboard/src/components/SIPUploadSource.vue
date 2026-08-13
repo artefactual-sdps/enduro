@@ -145,7 +145,7 @@ const clickSip = (key: string) => {
             v-for="item in items"
             v-else
             :key="item.key"
-            :class="selectedSips.includes(item.key) ? 'table-primary' : ''"
+            :class="{ 'sip-row-selected': selectedSips.includes(item.key) }"
             role="button"
             @click="clickSip(item.key)"
           >
@@ -233,6 +233,10 @@ const clickSip = (key: string) => {
 </template>
 
 <style scoped>
+.sip-row-selected {
+  --bs-table-bg: var(--bs-tertiary-bg);
+}
+
 /* Remove top border from selected items when the previous item is also selected. */
 .list-group-item.border-primary + .list-group-item.border-primary {
   border-top: none !important;

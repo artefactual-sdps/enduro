@@ -91,7 +91,7 @@ const closeOffcanvas = () => {
   <div
     id="menu-offcanvas"
     ref="offcanvas"
-    class="sidebar offcanvas-md offcanvas-start d-flex bg-light"
+    class="sidebar offcanvas-md offcanvas-start d-flex bg-body-tertiary"
     :class="layoutStore.sidebarCollapsed ? 'collapsed' : ''"
     tabindex="-1"
     aria-labelledby="offcanvasLabel"
@@ -164,24 +164,31 @@ const closeOffcanvas = () => {
 
 <style lang="scss" scoped>
 .sidebar-link {
-  color: $dark;
+  color: var(--bs-body-color);
 
-  &.active {
-    color: $primary;
+  &.active:not(.exact-active) {
+    color: var(--bs-primary);
+    font-weight: $font-weight-bold;
   }
 
   &.exact-active {
-    color: $white;
-    background-color: $primary;
+    color: var(--bs-white);
+    background-color: var(--bs-primary);
   }
 
   &:hover,
   &:focus {
-    background-color: shade-color($light, 25%) !important;
+    background-color: var(--bs-secondary-bg);
 
     &.exact-active {
-      background-color: shade-color($primary, 25%) !important;
+      background-color: color-mix(in srgb, var(--bs-primary) 75%, black);
     }
+  }
+}
+
+@include color-mode(dark) {
+  .sidebar-link.active:not(.exact-active) {
+    color: var(--bs-emphasis-color);
   }
 }
 
@@ -192,7 +199,7 @@ const closeOffcanvas = () => {
     height: calc(100vh - $header-height);
     overflow-y: auto;
     overflow-x: hidden;
-    border-right: $border-width $border-style $border-color;
+    border-right: var(--bs-border-width) $border-style var(--bs-border-color);
     width: $sidebar-width;
     min-width: $sidebar-width;
 

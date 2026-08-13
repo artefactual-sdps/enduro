@@ -48,7 +48,7 @@ const emit = defineEmits<{
 
 <template>
   <Transition>
-    <div v-show="show" id="workflow-help" class="card bg-light mb-3">
+    <div v-show="show" id="workflow-help" class="card bg-body-tertiary mb-3">
       <div class="card-body">
         <div class="d-flex align-items-start">
           <div class="flex-grow-1">

@@ -12,6 +12,9 @@ import {
 } from "./composables/format";
 import router from "./router";
 import "./styles/main.scss";
+import { themeController } from "./theme";
+
+themeController.initialize();
 
 const pinia = createPinia();
 pinia.use(PiniaDebounce(debounce));

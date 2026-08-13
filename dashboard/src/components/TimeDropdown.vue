@@ -3,13 +3,16 @@ import { VueDatePicker } from "@vuepic/vue-datepicker";
 import type { ModelValue } from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import Dropdown from "bootstrap/js/dist/dropdown";
-import { onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 
 import IconClose from "~icons/clarity/close-line";
+
+import { themeController } from "@/theme";
 
 const dateFormat = "yyyy-MM-dd HH:mm";
 const pickerFormats = { input: dateFormat };
 const pickerTimeConfig = { timePickerInline: true };
+const isDarkTheme = computed(() => themeController.theme.value === "dark");
 
 const emit = defineEmits<{
   change: [name: string, start: string, end: string];
@@ -198,6 +201,7 @@ const earliestTimeFromOption = (value: string) => {
           :id="'tdd-' + props.name + '-start'"
           v-model="startTime"
           :formats="pickerFormats"
+          :dark="isDarkTheme"
           :input-attrs="getInputAttrs('start')"
           :time-config="pickerTimeConfig"
           placeholder="Start time"
@@ -210,6 +214,7 @@ const earliestTimeFromOption = (value: string) => {
           :id="'tdd-' + props.name + '-end'"
           v-model="endTime"
           :formats="pickerFormats"
+          :dark="isDarkTheme"
           :input-attrs="getInputAttrs('end')"
           :time-config="pickerTimeConfig"
           placeholder="End time"
@@ -220,22 +225,37 @@ const earliestTimeFromOption = (value: string) => {
   </div>
 </template>
 
-<style lang="scss" scoped>
-.dropdown {
-  /* VueDatePicker owns these internal elements, so scoped styles need :deep(). */
-  :deep(.dp__theme_light) {
-    --dp-font-family: var(--bs-body-font-family);
-    --dp-primary-color: var(--bs-primary);
-    --dp-primary-disabled-color: var(--bs-primary);
-  }
+<style scoped>
+/* VueDatePicker owns these internal elements, so scoped styles need :deep(). */
+.dropdown :deep(.dp__theme_light),
+.dropdown :deep(.dp__theme_dark) {
+  --dp-background-color: var(--bs-tertiary-bg);
+  --dp-font-family: var(--bs-body-font-family);
+  --dp-primary-color: var(--bs-primary);
+  --dp-primary-disabled-color: var(--bs-primary);
+}
 
-  :deep(.dp__action_button) {
-    height: auto;
-    padding: 0.25rem 0.5rem;
-    border-radius: var(--bs-border-radius-sm);
-    font-size: 0.875rem;
-    line-height: 1.5;
-  }
+.dropdown :deep(.dp__action_button) {
+  height: auto;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--bs-border-radius-sm);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.dropdown :deep(.dp__action_buttons .dp__action_select:not(:disabled):hover) {
+  background-color: color-mix(in srgb, var(--bs-primary) 85%, black);
+}
+
+.dropdown :deep(.dp__action_cancel) {
+  color: var(--bs-white);
+  background-color: var(--bs-secondary);
+  border-color: transparent;
+}
+
+.dropdown :deep(.dp__action_cancel:hover) {
+  background-color: color-mix(in srgb, var(--bs-secondary) 85%, black);
+  border-color: transparent;
 }
 
 .dropdown-menu {

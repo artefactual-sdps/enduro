@@ -14,19 +14,27 @@ setting the following [Vite environment variables].
 ### Institution logo configuration values
 
 ```bash
-VITE_INSTITUTION_LOGO=http://localhost:8080/artefactual-logo.png
+VITE_INSTITUTION_LOGO_LIGHT=http://localhost:8080/institution-logo-light.png
+VITE_INSTITUTION_LOGO_DARK=http://localhost:8080/institution-logo-dark.png
+VITE_INSTITUTION_LOGO=http://localhost:8080/institution-logo.png
 ```
 
-`VITE_INSTITUTION_LOGO` sets a URL for the institution logo image file. The logo
-file can be hosted on a remote server or CDN (such as Cloudflare). A local logo
-can be used by placing the logo file in the `dashboard/public/` directory before
-building the Dashboard application. The URL for a local logo file will be the
-schema and hostname of the Dashboard server plus the name of the logo file. For
-instance, in the Tilt development environment the example URL will load the
-local Artefactual logo file at `dashboard/public/artefactual-logo.png`.
+`VITE_INSTITUTION_LOGO_LIGHT` and `VITE_INSTITUTION_LOGO_DARK` set the logo URL
+for the light and dark themes. For each theme, an unset or empty theme-specific
+setting falls back to `VITE_INSTITUTION_LOGO`. This keeps existing single-logo
+configurations working. If neither the active theme's setting nor
+`VITE_INSTITUTION_LOGO` is configured, no institutional logo is displayed.
 
-If the `VITE_INSTITUTION_LOGO` is not set, or set to any empty string, then no
-institutional logo will be displayed.
+Logo files can be hosted on a remote server or CDN. A local logo can be placed
+in `dashboard/public/` before building the dashboard; its URL uses the dashboard
+server's scheme and host plus the file name.
+
+!!! note
+
+    If a configured logo URL is hosted on a different origin, update the
+    dashboard Content Security Policy (CSP) `img-src` directive to allow that
+    origin. Otherwise, the browser will block the logo. See the
+    [nginx configuration example].
 
 ```bash
 VITE_INSTITUTION_NAME="Artefactual Systems Inc."

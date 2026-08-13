@@ -382,7 +382,7 @@ onUnmounted(() => {
 <template>
   <div class="container-xxl">
     <h1 class="d-flex mb-0">
-      <IconSIPs class="flex-shrink-0 me-3 text-dark" />SIPs
+      <IconSIPs class="flex-shrink-0 me-3 text-body" />SIPs
     </h1>
 
     <div class="text-muted mb-3">

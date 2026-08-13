@@ -50,7 +50,9 @@ const is404 = computed(() => {
     <slot>
       <p>It was not possible to load this page.</p>
     </slot>
-    <pre v-if="error" class="mb-0 p-2 rounded bg-light">{{ error }}</pre>
+    <pre v-if="error" class="mb-0 p-2 rounded bg-body-tertiary">{{
+      error
+    }}</pre>
     <template v-if="execute">
       <hr />
       <button class="btn btn-danger" @click="retry">Retry</button>

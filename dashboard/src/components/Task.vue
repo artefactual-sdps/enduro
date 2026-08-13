@@ -47,7 +47,7 @@ const toggle = () => {
 <template>
   <div :id="`${idPrefix}-body`" class="workflow-task">
     <div class="workflow-task-number">
-      <span class="badge rounded-pill border border-primary text-primary">
+      <span class="badge rounded-pill border text-primary">
         {{ index }}
       </span>
     </div>
@@ -127,6 +127,7 @@ const toggle = () => {
 }
 
 .workflow-task-number .badge {
+  --bs-border-color: currentColor;
   min-width: 2rem;
 }
 
@@ -154,6 +155,21 @@ const toggle = () => {
 .workflow-task-status {
   grid-area: status;
   justify-self: end;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease-in;
+}
+
+.fade-enter-to,
+.fade-leave-from {
+  opacity: 1;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
 @media (min-width: 992px) {

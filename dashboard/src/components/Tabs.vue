@@ -34,7 +34,7 @@ function isActive(tab: Tab): boolean {
           class="nav-link text-primary text-nowrap d-flex align-items-center"
           :class="{ active: isActive(tab) }"
         >
-          <span class="me-2 text-dark" aria-hidden="true">
+          <span class="me-2 text-body" aria-hidden="true">
             <component :is="tab.icon" v-if="tab.icon" />
           </span>
           {{ tab.text }}
@@ -48,5 +48,9 @@ function isActive(tab: Tab): boolean {
 nav {
   overflow-x: auto;
   overflow-y: hidden;
+}
+
+.nav-link {
+  transition: none;
 }
 </style>

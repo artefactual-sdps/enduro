@@ -1,9 +1,16 @@
 <script setup lang="ts">
-defineProps<{
-  logo: string;
-  name: string;
-  url?: string;
-}>();
+import { computed } from "vue";
+
+import { themeController } from "@/theme";
+
+const logos = {
+  light: import.meta.env.VITE_INSTITUTION_LOGO_LIGHT,
+  dark: import.meta.env.VITE_INSTITUTION_LOGO_DARK,
+  legacy: import.meta.env.VITE_INSTITUTION_LOGO,
+};
+const name = import.meta.env.VITE_INSTITUTION_NAME;
+const url = import.meta.env.VITE_INSTITUTION_URL;
+const logo = computed(() => logos[themeController.theme.value] || logos.legacy);
 </script>
 
 <template>

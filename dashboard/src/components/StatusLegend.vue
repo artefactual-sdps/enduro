@@ -27,7 +27,7 @@ const visible = computed(() => show);
 
 <template>
   <Transition>
-    <div v-if="visible" class="card bg-light mb-3">
+    <div v-if="visible" class="card bg-body-tertiary mb-3">
       <div class="card-body">
         <div class="d-flex align-items-start">
           <div class="container-fluid flex-grow-1">

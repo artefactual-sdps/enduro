@@ -5,6 +5,7 @@ import IconDocumentation from "~icons/clarity/book-line";
 import IconLogin from "~icons/clarity/login-line";
 import IconShield from "~icons/clarity/shield-check-line";
 
+import ThemeToggle from "@/components/ThemeToggle.vue";
 import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
@@ -182,13 +183,15 @@ async function signin() {
     </div>
 
     <div class="signin-panel d-flex flex-column align-items-center px-4 py-5">
+      <ThemeToggle compact class="signin-theme-toggle" />
+
       <div class="signin-card w-100">
         <div class="signin-brand d-flex align-items-center gap-3 mb-5">
           <img src="/logo.png" alt="" width="52" height="52" />
           <span class="fs-4 fw-semibold text-primary">Enduro</span>
         </div>
 
-        <p class="signin-eyebrow mb-2">Secure workspace</p>
+        <p class="signin-eyebrow text-primary mb-2">Secure workspace</p>
         <h1 id="signin-title" class="signin-title mb-3">Welcome to Enduro</h1>
         <p id="signin-description" class="signin-description mb-4">
           Sign in through your organization to manage digital preservation
@@ -233,7 +236,10 @@ async function signin() {
           id="signin-security-note"
           class="signin-security-note d-flex align-items-start gap-2 mb-0 mt-4"
         >
-          <IconShield aria-hidden="true" class="flex-shrink-0 fs-5" />
+          <IconShield
+            aria-hidden="true"
+            class="flex-shrink-0 fs-5 text-primary"
+          />
           <span>
             You’ll continue to your organization’s secure login page.
           </span>
@@ -246,7 +252,7 @@ async function signin() {
           aria-label="Enduro and Artefactual resources"
         >
           <a
-            class="signin-footer-link"
+            class="signin-footer-link text-decoration-none"
             href="https://enduro.readthedocs.io/"
             target="_blank"
             rel="noopener noreferrer"
@@ -259,7 +265,7 @@ async function signin() {
           </a>
           <span class="signin-footer-separator" aria-hidden="true">·</span>
           <a
-            class="signin-footer-link"
+            class="signin-footer-link text-decoration-none"
             href="https://www.artefactual.com/"
             target="_blank"
             rel="noopener noreferrer"
@@ -278,23 +284,18 @@ async function signin() {
 
 <style scoped lang="scss">
 .signin-page {
-  --signin-ink: #291426;
-  --signin-muted: #6f6270;
-  --signin-purple: #5e2750;
-  --signin-purple-dark: #301128;
-  --signin-purple-light: #8b4779;
-  --signin-orange: #f36f2a;
-  --signin-focus: #b44712;
-  --signin-surface: #fbf9fb;
-
   display: grid;
   min-height: 100vh;
   min-height: 100svh;
   overflow: hidden;
-  color: var(--signin-ink);
+  color: var(--bs-emphasis-color);
   background:
-    radial-gradient(circle at 100% 0%, rgb(94 39 80 / 9%), transparent 38%),
-    var(--signin-surface);
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(var(--bs-primary-rgb), 0.09),
+      transparent 38%
+    ),
+    var(--bs-body-bg);
 }
 
 .signin-visual {
@@ -315,30 +316,34 @@ async function signin() {
   min-width: 0;
   padding: clamp(2rem, 4vw, 4.5rem);
   overflow: hidden;
-  color: #fff;
+  color: var(--bs-white);
   isolation: isolate;
   background:
     radial-gradient(
       circle at var(--signin-gradient-x) var(--signin-gradient-y),
-      rgb(243 111 42 / 48%),
-      rgb(243 111 42 / 10%) 29%,
+      color-mix(in srgb, var(--bs-orange) 48%, transparent),
+      color-mix(in srgb, var(--bs-orange) 10%, transparent) 29%,
       transparent 54%
     ),
     radial-gradient(
       circle at var(--signin-gradient-secondary-x)
         var(--signin-gradient-secondary-y),
-      rgb(167 74 132 / 38%),
+      color-mix(
+        in srgb,
+        color-mix(in srgb, var(--bs-primary) 60%, var(--bs-pink)) 38%,
+        transparent
+      ),
       transparent 46%
     ),
     linear-gradient(
       var(--signin-gradient-angle),
-      var(--signin-purple-light),
+      color-mix(in srgb, var(--bs-primary) 80%, var(--bs-white)),
       transparent 45%
     ),
     linear-gradient(
       155deg,
-      var(--signin-purple) 0%,
-      var(--signin-purple-dark) 78%
+      var(--bs-primary) 0%,
+      color-mix(in srgb, var(--bs-primary) 50%, var(--bs-black)) 78%
     );
   animation: signin-gradient-rotation 5s ease-out both;
 
@@ -349,8 +354,12 @@ async function signin() {
     content: "";
     pointer-events: none;
     background-image:
-      linear-gradient(rgb(255 255 255 / 7%) 1px, transparent 1px),
-      linear-gradient(90deg, rgb(255 255 255 / 7%) 1px, transparent 1px);
+      linear-gradient(rgba(var(--bs-white-rgb), 0.07) 1px, transparent 1px),
+      linear-gradient(
+        90deg,
+        rgba(var(--bs-white-rgb), 0.07) 1px,
+        transparent 1px
+      );
     background-size: 3rem 3rem;
     mask-image: linear-gradient(
       135deg,
@@ -374,8 +383,13 @@ async function signin() {
     pointer-events: none;
     background: radial-gradient(
       circle,
-      rgb(243 111 42 / 34%) 0%,
-      rgb(179 78 115 / 20%) 33%,
+      color-mix(in srgb, var(--bs-orange) 34%, transparent) 0%,
+      color-mix(
+          in srgb,
+          color-mix(in srgb, var(--bs-primary) 40%, var(--bs-pink)) 20%,
+          transparent
+        )
+        33%,
       transparent 70%
     );
     border-radius: 50%;
@@ -416,9 +430,13 @@ async function signin() {
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #fff;
   border-radius: 0.8rem;
-  box-shadow: 0 0.75rem 2rem rgb(32 8 26 / 24%);
+  box-shadow: 0 0.75rem 2rem
+    color-mix(
+      in srgb,
+      color-mix(in srgb, var(--bs-primary) 50%, var(--bs-black)) 24%,
+      transparent
+    );
 
   img {
     width: 100%;
@@ -440,7 +458,7 @@ async function signin() {
 
 .signin-visual-description {
   max-width: 32rem;
-  color: rgb(255 255 255 / 76%);
+  color: rgba(var(--bs-white-rgb), 0.76);
   font-size: clamp(1rem, 1.4vw, 1.2rem);
 }
 
@@ -449,18 +467,24 @@ async function signin() {
   min-width: 0;
 }
 
+.signin-theme-toggle {
+  position: absolute;
+  z-index: 3;
+  top: 1rem;
+  right: 1rem;
+}
+
 .signin-card {
   max-width: 29rem;
   margin-block: auto;
 }
 
 .signin-brand img {
-  border-radius: 0.85rem;
-  box-shadow: 0 0.75rem 2rem rgb(94 39 80 / 16%);
+  border-radius: var(--bs-border-radius-lg);
+  box-shadow: 0 0.75rem 2rem rgba(var(--bs-primary-rgb), 0.16);
 }
 
 .signin-eyebrow {
-  color: var(--signin-purple);
   font-size: 0.78rem;
   font-weight: 750;
   letter-spacing: 0.11em;
@@ -468,7 +492,7 @@ async function signin() {
 }
 
 .signin-title {
-  color: var(--signin-ink);
+  color: var(--bs-emphasis-color);
   font-size: clamp(2.25rem, 6vw, 3.25rem);
   font-weight: 650;
   letter-spacing: -0.025em;
@@ -477,7 +501,7 @@ async function signin() {
 
 .signin-description {
   max-width: 27rem;
-  color: var(--signin-muted);
+  color: var(--bs-secondary-color);
   font-size: 1.05rem;
   line-height: 1.65;
 }
@@ -487,46 +511,26 @@ async function signin() {
   padding: 0.9rem 1.25rem;
   font-size: 1rem;
   font-weight: 650;
-  border-color: var(--signin-purple);
-  background: var(--signin-purple);
-  box-shadow: 0 0.9rem 2rem rgb(94 39 80 / 20%);
+  box-shadow: 0 0.9rem 2rem rgba(var(--bs-primary-rgb), 0.2);
   transition:
-    transform 150ms ease,
-    box-shadow 150ms ease,
-    background-color 150ms ease;
+    $btn-transition,
+    transform 150ms ease;
 
   &:hover:not(:disabled) {
-    border-color: #4f1e43;
-    background: #4f1e43;
-    box-shadow: 0 1rem 2.4rem rgb(94 39 80 / 28%);
+    box-shadow: 0 1rem 2.4rem rgba(var(--bs-primary-rgb), 0.28);
     transform: translateY(-1px);
-  }
-
-  &:focus-visible {
-    outline: 3px solid var(--signin-focus);
-    outline-offset: 3px;
-    box-shadow: 0 0 0 0.25rem rgb(94 39 80 / 22%);
-  }
-
-  &:disabled {
-    border-color: var(--signin-purple);
-    background: var(--signin-purple);
   }
 }
 
 .signin-security-note {
-  color: var(--signin-muted);
+  color: var(--bs-secondary-color);
   font-size: 0.86rem;
   line-height: 1.5;
-
-  svg {
-    color: var(--signin-purple);
-  }
 }
 
 .signin-footer {
   max-width: 29rem;
-  border-top: 1px solid #eee8ec;
+  border-top: var(--bs-border-width) solid var(--bs-border-color);
 }
 
 .signin-footer-links {
@@ -541,13 +545,12 @@ async function signin() {
   align-items: center;
   gap: 0.4rem;
   padding: 0.4rem 0.55rem;
-  color: #786d76;
+  color: var(--bs-secondary-color);
   font-size: 0.8rem;
   font-weight: 500;
-  text-decoration: none !important;
   background: transparent;
-  border: 1px solid transparent;
-  border-radius: 2rem;
+  border: var(--bs-border-width) solid transparent;
+  border-radius: var(--bs-border-radius-pill);
   transition:
     color 150ms ease,
     background-color 150ms ease,
@@ -555,13 +558,13 @@ async function signin() {
 
   &:hover,
   &:focus-visible {
-    color: var(--signin-muted);
-    background: rgb(94 39 80 / 4%);
-    border-color: rgb(94 39 80 / 9%);
+    color: var(--bs-secondary-color);
+    background: var(--bs-tertiary-bg);
+    border-color: var(--bs-border-color);
   }
 
   &:focus-visible {
-    outline: 3px solid var(--signin-focus);
+    outline: var(--bs-focus-ring-width) solid var(--bs-focus-ring-color);
     outline-offset: 2px;
   }
 }
@@ -573,7 +576,6 @@ async function signin() {
   flex: 0 0 auto;
   align-items: center;
   justify-content: center;
-  color: var(--signin-purple);
   opacity: 0.72;
   transition: opacity 150ms ease;
 
@@ -599,7 +601,7 @@ async function signin() {
 }
 
 .signin-footer-separator {
-  color: #c7bec5;
+  color: var(--bs-border-color);
   font-size: 0.9rem;
 }
 
@@ -647,8 +649,8 @@ async function signin() {
   }
 
   .signin-panel {
-    background: rgb(251 249 251 / 96%);
-    box-shadow: -2rem 0 5rem rgb(34 12 29 / 18%);
+    background: rgba(var(--bs-body-bg-rgb), 0.96);
+    box-shadow: -2rem 0 5rem rgba(var(--bs-primary-rgb), 0.18);
   }
 }
 
