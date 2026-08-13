@@ -6,26 +6,78 @@ updates:
       interval: "daily"
     open-pull-requests-limit: 1
     groups:
-      all-actions:
+      github-workflow-actions:
         patterns:
           - "*"
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 1
+    groups:
+      application-dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: "gomod"
+    directory: "/hack/pulumi"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      pulumi-dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: "gomod"
+    directory: "/hack/pulumi/azure-storage"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      azure-storage-dependencies:
+        patterns:
+          - "*"
+  - package-ecosystem: "pre-commit"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      pre-commit-hooks:
+        patterns:
+          - "*"
+  - package-ecosystem: "github-actions"
+    directory: "/.github/actions/skip-codecov"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      github-skip-codecov-dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 1
+    groups:
+      application-images:
+        patterns:
+          - "*"
   - package-ecosystem: "docker"
     directory: "/dashboard"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 1
+    groups:
+      dashboard-images:
+        patterns:
+          - "*"
   - package-ecosystem: "npm"
     directory: "/dashboard"
     schedule:
       interval: "weekly"
-    open-pull-requests-limit: 0
+    open-pull-requests-limit: 1
+    groups:
+      dashboard-dependencies:
+        patterns:
+          - "*"
