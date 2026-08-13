@@ -13,34 +13,43 @@ Access the documentation directory:
 
     cd enduro/docs
 
-Create a Python virtual environment if it has not been created yet:
+Install [uv](https://docs.astral.sh/uv/getting-started/installation/) if it is
+not already available, then synchronize the project environment:
 
-    python3 -m venv .venv
-
-Enable the virtual environment:
-
-    source .venv/bin/activate
-
-Install the dependencies:
-
-    pip install -r requirements.txt
-
-Optionally, synchronize the environment:
-
-    pip-sync
+    uv sync
 
 ## Writing workflow
 
 Run the builtin development server with live reloading support, which should
 be accessible under <http://127.0.0.1:8000/>.
 
-    mkdocs serve
+    uv run mkdocs serve
 
 Run the following command to perform some basic linting before pushing your
 changes to GitHub:
 
-    pre-commit run --all-files
+    uv run pre-commit run --all-files
 
 The previous command uses `markdownlint-cli` to lint the docs using a library
 of [rules](https://github.com/DavidAnson/markdownlint/blob/main/doc/Rules.md).
 Please follow the link to troubleshoot any linting issues.
+
+## Dependency maintenance
+
+The documentation dependencies are declared in `pyproject.toml` and pinned in
+`uv.lock`. Dependabot maintains them automatically. To update them manually,
+first preview the changes without modifying the lockfile:
+
+    uv lock --upgrade --dry-run
+
+When the proposed changes are acceptable, update the lockfile and synchronize
+the local environment:
+
+    uv lock --upgrade
+    uv sync
+
+Before committing the result, verify that the lockfile is current and build the
+documentation:
+
+    uv lock --check
+    uv run mkdocs build --strict
