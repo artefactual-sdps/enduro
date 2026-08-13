@@ -1,0 +1,16 @@
+[project]
+name = "enduro-docs"
+version = "0.1.0"
+description = "Enduro documentation build dependencies"
+requires-python = ">=3.12"
+dependencies = [
+  "mkdocs",
+  "mkdocs-autorefs",
+  "mkdocs-literate-nav",
+  "mkdocs-material",
+  "mkdocs-swagger-ui-tag",
+  "pre-commit",
+]
+
+[tool.uv]
+package = false

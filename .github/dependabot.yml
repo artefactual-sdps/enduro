@@ -54,6 +54,15 @@ updates:
       github-skip-codecov-dependencies:
         patterns:
           - "*"
+  - package-ecosystem: "uv"
+    directory: "/docs"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 1
+    groups:
+      docs-dependencies:
+        patterns:
+          - "*"
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
