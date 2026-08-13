@@ -51,7 +51,7 @@ onMounted(async () => {
     <!-- Default content -->
     <div v-if="!url || error">
       <h1 class="d-flex mb-3">
-        <IconHome class="me-3 text-dark" />Welcome<span
+        <IconHome class="flex-shrink-0 me-3 text-dark" />Welcome<span
           v-if="authStore.isEnabled"
           >, {{ authStore.getUserDisplayName }}</span
         >!

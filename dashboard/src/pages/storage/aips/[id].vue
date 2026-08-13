@@ -49,7 +49,9 @@ onUnmounted(() => {
       <AipPendingAlert />
 
       <h1 class="d-flex mb-3">
-        <IconAIPs class="me-3 text-dark" />{{ aipStore.current.name }}
+        <IconAIPs class="flex-shrink-0 me-3 text-dark" />{{
+          aipStore.current.name
+        }}
       </h1>
 
       <Tabs :tabs="tabs" param="id" />

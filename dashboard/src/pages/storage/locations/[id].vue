@@ -53,7 +53,9 @@ onUnmounted(() => {
     <PageLoadingAlert v-if="error" :execute="execute" :error="error" />
 
     <h1 v-if="locationStore.current" class="d-flex mb-3">
-      <IconLocations class="me-3 text-dark" />{{ locationStore.current.name }}
+      <IconLocations class="flex-shrink-0 me-3 text-dark" />{{
+        locationStore.current.name
+      }}
     </h1>
 
     <Tabs :tabs="tabs" param="id" />
