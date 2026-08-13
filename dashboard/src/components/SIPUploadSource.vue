@@ -130,7 +130,7 @@ const clickSip = (key: string) => {
     <div class="table-responsive overflow-auto">
       <table ref="listContainer" class="table table-hover mb-1">
         <thead>
-          <tr class="sticky-top">
+          <tr class="sticky-top z-1">
             <th scope="col">&nbsp;</th>
             <th scope="col">Name</th>
             <th scope="col" class="d-none d-sm-table-cell">Size</th>
