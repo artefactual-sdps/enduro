@@ -7,6 +7,7 @@ html {
 
 main {
   overflow-x: clip;
+  overflow-wrap: anywhere;
 }
 
 button:focus:not(:focus-visible),
