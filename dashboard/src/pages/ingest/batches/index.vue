@@ -343,7 +343,9 @@ onUnmounted(() => {
 
 <template>
   <div class="container-xxl">
-    <h1 class="d-flex mb-0"><IconBatches class="me-3 text-dark" />Batches</h1>
+    <h1 class="d-flex mb-0">
+      <IconBatches class="flex-shrink-0 me-3 text-dark" />Batches
+    </h1>
 
     <div class="text-muted mb-3">
       <ResultCounter

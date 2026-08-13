@@ -56,7 +56,9 @@ onUnmounted(() => {
     <SipPendingAlert v-if="sipStore.current" />
 
     <h1 v-if="sipStore.current" class="d-flex mb-3">
-      <IconSIPs class="me-3 text-dark" />{{ sipStore.current.name }}
+      <IconSIPs class="flex-shrink-0 me-3 text-dark" />{{
+        sipStore.current.name
+      }}
     </h1>
 
     <Tabs :tabs="tabs" param="id" />

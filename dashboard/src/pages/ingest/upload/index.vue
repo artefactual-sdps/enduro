@@ -64,7 +64,9 @@ const tabs = computed(() => [
 
 <template>
   <div class="container-xxl">
-    <h1 class="d-flex mb-3"><IconAdd class="me-3 text-dark" />Upload SIPs</h1>
+    <h1 class="d-flex mb-3">
+      <IconAdd class="flex-shrink-0 me-3 text-dark" />Upload SIPs
+    </h1>
 
     <div class="mb-3">
       <Tabs :tabs="tabs" param="from" />
