@@ -13,13 +13,41 @@
  */
 
 import { mapValues } from '../runtime';
-import type { CreateLocationRequestBodyConfigValue } from './CreateLocationRequestBodyConfigValue';
+import type { CreateLocationRequestBodyConfigAnyOf } from './CreateLocationRequestBodyConfigAnyOf';
 import {
-    CreateLocationRequestBodyConfigValueFromJSON,
-    CreateLocationRequestBodyConfigValueFromJSONTyped,
-    CreateLocationRequestBodyConfigValueToJSON,
-    CreateLocationRequestBodyConfigValueToJSONTyped,
-} from './CreateLocationRequestBodyConfigValue';
+    CreateLocationRequestBodyConfigAnyOfFromJSON,
+    CreateLocationRequestBodyConfigAnyOfFromJSONTyped,
+    CreateLocationRequestBodyConfigAnyOfToJSON,
+    CreateLocationRequestBodyConfigAnyOfToJSONTyped,
+} from './CreateLocationRequestBodyConfigAnyOf';
+import type { URLConfig } from './URLConfig';
+import {
+    URLConfigFromJSON,
+    URLConfigFromJSONTyped,
+    URLConfigToJSON,
+    URLConfigToJSONTyped,
+} from './URLConfig';
+import type { CreateLocationRequestBodyConfigAnyOf1 } from './CreateLocationRequestBodyConfigAnyOf1';
+import {
+    CreateLocationRequestBodyConfigAnyOf1FromJSON,
+    CreateLocationRequestBodyConfigAnyOf1FromJSONTyped,
+    CreateLocationRequestBodyConfigAnyOf1ToJSON,
+    CreateLocationRequestBodyConfigAnyOf1ToJSONTyped,
+} from './CreateLocationRequestBodyConfigAnyOf1';
+import type { CreateLocationRequestBodyConfigAnyOf2 } from './CreateLocationRequestBodyConfigAnyOf2';
+import {
+    CreateLocationRequestBodyConfigAnyOf2FromJSON,
+    CreateLocationRequestBodyConfigAnyOf2FromJSONTyped,
+    CreateLocationRequestBodyConfigAnyOf2ToJSON,
+    CreateLocationRequestBodyConfigAnyOf2ToJSONTyped,
+} from './CreateLocationRequestBodyConfigAnyOf2';
+import type { CreateLocationRequestBodyConfigAnyOf3 } from './CreateLocationRequestBodyConfigAnyOf3';
+import {
+    CreateLocationRequestBodyConfigAnyOf3FromJSON,
+    CreateLocationRequestBodyConfigAnyOf3FromJSONTyped,
+    CreateLocationRequestBodyConfigAnyOf3ToJSON,
+    CreateLocationRequestBodyConfigAnyOf3ToJSONTyped,
+} from './CreateLocationRequestBodyConfigAnyOf3';
 
 /**
  * 
@@ -35,10 +63,10 @@ export interface CreateLocationRequestBodyConfig {
     type: CreateLocationRequestBodyConfigTypeEnum;
     /**
      * 
-     * @type {CreateLocationRequestBodyConfigValue}
+     * @type {URLConfig}
      * @memberof CreateLocationRequestBodyConfig
      */
-    value: CreateLocationRequestBodyConfigValue;
+    value: URLConfig;
 }
 
 
@@ -74,7 +102,7 @@ export function CreateLocationRequestBodyConfigFromJSONTyped(json: any, ignoreDi
     return {
         
         'type': json['type'],
-        'value': CreateLocationRequestBodyConfigValueFromJSON(json['value']),
+        'value': URLConfigFromJSON(json['value']),
     };
 }
 
@@ -90,7 +118,7 @@ export function CreateLocationRequestBodyConfigToJSONTyped(value?: CreateLocatio
     return {
         
         'type': value['type'],
-        'value': CreateLocationRequestBodyConfigValueToJSON(value['value']),
+        'value': URLConfigToJSON(value['value']),
     };
 }
 

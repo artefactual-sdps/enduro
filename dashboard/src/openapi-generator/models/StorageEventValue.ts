@@ -13,13 +13,83 @@
  */
 
 import { mapValues } from '../runtime';
-import type { StorageEventValueValue } from './StorageEventValueValue';
+import type { StorageEventValueAnyOf9 } from './StorageEventValueAnyOf9';
 import {
-    StorageEventValueValueFromJSON,
-    StorageEventValueValueFromJSONTyped,
-    StorageEventValueValueToJSON,
-    StorageEventValueValueToJSONTyped,
-} from './StorageEventValueValue';
+    StorageEventValueAnyOf9FromJSON,
+    StorageEventValueAnyOf9FromJSONTyped,
+    StorageEventValueAnyOf9ToJSON,
+    StorageEventValueAnyOf9ToJSONTyped,
+} from './StorageEventValueAnyOf9';
+import type { StorageEventValueAnyOf6 } from './StorageEventValueAnyOf6';
+import {
+    StorageEventValueAnyOf6FromJSON,
+    StorageEventValueAnyOf6FromJSONTyped,
+    StorageEventValueAnyOf6ToJSON,
+    StorageEventValueAnyOf6ToJSONTyped,
+} from './StorageEventValueAnyOf6';
+import type { AIPTaskUpdatedEvent } from './AIPTaskUpdatedEvent';
+import {
+    AIPTaskUpdatedEventFromJSON,
+    AIPTaskUpdatedEventFromJSONTyped,
+    AIPTaskUpdatedEventToJSON,
+    AIPTaskUpdatedEventToJSONTyped,
+} from './AIPTaskUpdatedEvent';
+import type { StorageEventValueAnyOf5 } from './StorageEventValueAnyOf5';
+import {
+    StorageEventValueAnyOf5FromJSON,
+    StorageEventValueAnyOf5FromJSONTyped,
+    StorageEventValueAnyOf5ToJSON,
+    StorageEventValueAnyOf5ToJSONTyped,
+} from './StorageEventValueAnyOf5';
+import type { StorageEventValueAnyOf } from './StorageEventValueAnyOf';
+import {
+    StorageEventValueAnyOfFromJSON,
+    StorageEventValueAnyOfFromJSONTyped,
+    StorageEventValueAnyOfToJSON,
+    StorageEventValueAnyOfToJSONTyped,
+} from './StorageEventValueAnyOf';
+import type { StorageEventValueAnyOf8 } from './StorageEventValueAnyOf8';
+import {
+    StorageEventValueAnyOf8FromJSON,
+    StorageEventValueAnyOf8FromJSONTyped,
+    StorageEventValueAnyOf8ToJSON,
+    StorageEventValueAnyOf8ToJSONTyped,
+} from './StorageEventValueAnyOf8';
+import type { StorageEventValueAnyOf7 } from './StorageEventValueAnyOf7';
+import {
+    StorageEventValueAnyOf7FromJSON,
+    StorageEventValueAnyOf7FromJSONTyped,
+    StorageEventValueAnyOf7ToJSON,
+    StorageEventValueAnyOf7ToJSONTyped,
+} from './StorageEventValueAnyOf7';
+import type { StorageEventValueAnyOf2 } from './StorageEventValueAnyOf2';
+import {
+    StorageEventValueAnyOf2FromJSON,
+    StorageEventValueAnyOf2FromJSONTyped,
+    StorageEventValueAnyOf2ToJSON,
+    StorageEventValueAnyOf2ToJSONTyped,
+} from './StorageEventValueAnyOf2';
+import type { StorageEventValueAnyOf1 } from './StorageEventValueAnyOf1';
+import {
+    StorageEventValueAnyOf1FromJSON,
+    StorageEventValueAnyOf1FromJSONTyped,
+    StorageEventValueAnyOf1ToJSON,
+    StorageEventValueAnyOf1ToJSONTyped,
+} from './StorageEventValueAnyOf1';
+import type { StorageEventValueAnyOf4 } from './StorageEventValueAnyOf4';
+import {
+    StorageEventValueAnyOf4FromJSON,
+    StorageEventValueAnyOf4FromJSONTyped,
+    StorageEventValueAnyOf4ToJSON,
+    StorageEventValueAnyOf4ToJSONTyped,
+} from './StorageEventValueAnyOf4';
+import type { StorageEventValueAnyOf3 } from './StorageEventValueAnyOf3';
+import {
+    StorageEventValueAnyOf3FromJSON,
+    StorageEventValueAnyOf3FromJSONTyped,
+    StorageEventValueAnyOf3ToJSON,
+    StorageEventValueAnyOf3ToJSONTyped,
+} from './StorageEventValueAnyOf3';
 
 /**
  * 
@@ -35,10 +105,10 @@ export interface StorageEventValue {
     type: StorageEventValueTypeEnum;
     /**
      * 
-     * @type {StorageEventValueValue}
+     * @type {AIPTaskUpdatedEvent}
      * @memberof StorageEventValue
      */
-    value: StorageEventValueValue;
+    value: AIPTaskUpdatedEvent;
 }
 
 
@@ -80,7 +150,7 @@ export function StorageEventValueFromJSONTyped(json: any, ignoreDiscriminator: b
     return {
         
         'type': json['type'],
-        'value': StorageEventValueValueFromJSON(json['value']),
+        'value': AIPTaskUpdatedEventFromJSON(json['value']),
     };
 }
 
@@ -96,7 +166,7 @@ export function StorageEventValueToJSONTyped(value?: StorageEventValue | null, i
     return {
         
         'type': value['type'],
-        'value': StorageEventValueValueToJSON(value['value']),
+        'value': AIPTaskUpdatedEventToJSON(value['value']),
     };
 }
 

@@ -9,6 +9,7 @@
 package client
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -71,17 +72,17 @@ type CancelAipDeletionRequestBody struct {
 // CreateLocationRequestBody is the type of the "storage" service
 // "create_location" endpoint HTTP request body.
 type CreateLocationRequestBody struct {
-	Name        string  `form:"name" json:"name" xml:"name"`
-	Description *string `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
-	Source      string  `form:"source" json:"source" xml:"source"`
-	Purpose     string  `form:"purpose" json:"purpose" xml:"purpose"`
-	Config      Config2 `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
+	Name        string   `form:"name" json:"name" xml:"name"`
+	Description *string  `form:"description,omitempty" json:"description,omitempty" xml:"description,omitempty"`
+	Source      string   `form:"source" json:"source" xml:"source"`
+	Purpose     string   `form:"purpose" json:"purpose" xml:"purpose"`
+	Config      *Config2 `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 }
 
 // MonitorResponseBody is the type of the "storage" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
-	Value Value `form:"value,omitempty" json:"value,omitempty" xml:"value,omitempty"`
+	Value *Value `form:"value,omitempty" json:"value,omitempty" xml:"value,omitempty"`
 }
 
 // ListAipsResponseBody is the type of the "storage" service "list_aips"
@@ -836,7 +837,7 @@ type LocationResponseBody struct {
 	// Purpose of the location
 	Purpose *string    `form:"purpose,omitempty" json:"purpose,omitempty" xml:"purpose,omitempty"`
 	UUID    *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
-	Config  Config     `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
+	Config  *Config    `form:"config,omitempty" json:"config,omitempty" xml:"config,omitempty"`
 	// Creation datetime
 	CreatedAt *string `form:"created_at,omitempty" json:"created_at,omitempty" xml:"created_at,omitempty"`
 }
@@ -1091,7 +1092,7 @@ func (u Config) Kind() ConfigKind {
 	return u.kind
 }
 
-// NewConfigAmss constructs a Config with the amss branch set.
+// NewConfigAmss constructs Config with the amss branch set.
 func NewConfigAmss(v *AMSSConfigResponseBody) Config {
 	return Config{
 		kind: ConfigKindAmss,
@@ -1113,7 +1114,7 @@ func (u *Config) SetAmss(v *AMSSConfigResponseBody) {
 	u.Amss = v
 }
 
-// NewConfigS3 constructs a Config with the s3 branch set.
+// NewConfigS3 constructs Config with the s3 branch set.
 func NewConfigS3(v *S3ConfigResponseBody) Config {
 	return Config{
 		kind: ConfigKindS3,
@@ -1135,7 +1136,7 @@ func (u *Config) SetS3(v *S3ConfigResponseBody) {
 	u.S3 = v
 }
 
-// NewConfigSftp constructs a Config with the sftp branch set.
+// NewConfigSftp constructs Config with the sftp branch set.
 func NewConfigSftp(v *SFTPConfigResponseBody) Config {
 	return Config{
 		kind: ConfigKindSftp,
@@ -1157,7 +1158,7 @@ func (u *Config) SetSftp(v *SFTPConfigResponseBody) {
 	u.Sftp = v
 }
 
-// NewConfigURL constructs a Config with the url branch set.
+// NewConfigURL constructs Config with the url branch set.
 func NewConfigURL(v *URLConfigResponseBody) Config {
 	return Config{
 		kind: ConfigKindURL,
@@ -1190,12 +1191,24 @@ func (u Config) Validate() error {
 			string(ConfigKindURL),
 		})
 	case ConfigKindAmss:
+		if u.Amss == nil {
+			return goa.MissingFieldError("value", "Config")
+		}
 		return nil
 	case ConfigKindS3:
+		if u.S3 == nil {
+			return goa.MissingFieldError("value", "Config")
+		}
 		return nil
 	case ConfigKindSftp:
+		if u.Sftp == nil {
+			return goa.MissingFieldError("value", "Config")
+		}
 		return nil
 	case ConfigKindURL:
+		if u.URL == nil {
+			return goa.MissingFieldError("value", "Config")
+		}
 		return nil
 	default:
 		return goa.InvalidEnumValueError("type", u.kind, []any{
@@ -1245,6 +1258,12 @@ func (u *Config) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
+	if len(raw.Value) == 0 {
+		return goa.MissingFieldError("value", "Config")
+	}
+	if bytes.Equal(bytes.TrimSpace(raw.Value), []byte("null")) {
+		return goa.InvalidFieldTypeError("value", nil, "non-null JSON value")
+	}
 	switch raw.Type {
 	case string(ConfigKindAmss):
 		var v *AMSSConfigResponseBody
@@ -1275,7 +1294,15 @@ func (u *Config) UnmarshalJSON(data []byte) error {
 		u.kind = ConfigKindURL
 		u.URL = v
 	default:
-		return fmt.Errorf("unexpected Config type %q", raw.Type)
+		if raw.Type == "" {
+			return goa.MissingFieldError("type", "Config")
+		}
+		return goa.InvalidEnumValueError("type", raw.Type, []any{
+			string(ConfigKindAmss),
+			string(ConfigKindS3),
+			string(ConfigKindSftp),
+			string(ConfigKindURL),
+		})
 	}
 	return nil
 }
@@ -1308,7 +1335,7 @@ func (u Config2) Kind() Config2Kind {
 	return u.kind
 }
 
-// NewConfig2Amss constructs a Config2 with the amss branch set.
+// NewConfig2Amss constructs Config2 with the amss branch set.
 func NewConfig2Amss(v *AMSSConfigRequestBody) Config2 {
 	return Config2{
 		kind: Config2KindAmss,
@@ -1330,7 +1357,7 @@ func (u *Config2) SetAmss(v *AMSSConfigRequestBody) {
 	u.Amss = v
 }
 
-// NewConfig2S3 constructs a Config2 with the s3 branch set.
+// NewConfig2S3 constructs Config2 with the s3 branch set.
 func NewConfig2S3(v *S3ConfigRequestBody) Config2 {
 	return Config2{
 		kind: Config2KindS3,
@@ -1352,7 +1379,7 @@ func (u *Config2) SetS3(v *S3ConfigRequestBody) {
 	u.S3 = v
 }
 
-// NewConfig2Sftp constructs a Config2 with the sftp branch set.
+// NewConfig2Sftp constructs Config2 with the sftp branch set.
 func NewConfig2Sftp(v *SFTPConfigRequestBody) Config2 {
 	return Config2{
 		kind: Config2KindSftp,
@@ -1374,7 +1401,7 @@ func (u *Config2) SetSftp(v *SFTPConfigRequestBody) {
 	u.Sftp = v
 }
 
-// NewConfig2URL constructs a Config2 with the url branch set.
+// NewConfig2URL constructs Config2 with the url branch set.
 func NewConfig2URL(v *URLConfigRequestBody) Config2 {
 	return Config2{
 		kind: Config2KindURL,
@@ -1407,12 +1434,24 @@ func (u Config2) Validate() error {
 			string(Config2KindURL),
 		})
 	case Config2KindAmss:
+		if u.Amss == nil {
+			return goa.MissingFieldError("value", "Config2")
+		}
 		return nil
 	case Config2KindS3:
+		if u.S3 == nil {
+			return goa.MissingFieldError("value", "Config2")
+		}
 		return nil
 	case Config2KindSftp:
+		if u.Sftp == nil {
+			return goa.MissingFieldError("value", "Config2")
+		}
 		return nil
 	case Config2KindURL:
+		if u.URL == nil {
+			return goa.MissingFieldError("value", "Config2")
+		}
 		return nil
 	default:
 		return goa.InvalidEnumValueError("type", u.kind, []any{
@@ -1462,6 +1501,12 @@ func (u *Config2) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
+	if len(raw.Value) == 0 {
+		return goa.MissingFieldError("value", "Config2")
+	}
+	if bytes.Equal(bytes.TrimSpace(raw.Value), []byte("null")) {
+		return goa.InvalidFieldTypeError("value", nil, "non-null JSON value")
+	}
 	switch raw.Type {
 	case string(Config2KindAmss):
 		var v *AMSSConfigRequestBody
@@ -1492,7 +1537,15 @@ func (u *Config2) UnmarshalJSON(data []byte) error {
 		u.kind = Config2KindURL
 		u.URL = v
 	default:
-		return fmt.Errorf("unexpected Config2 type %q", raw.Type)
+		if raw.Type == "" {
+			return goa.MissingFieldError("type", "Config2")
+		}
+		return goa.InvalidEnumValueError("type", raw.Type, []any{
+			string(Config2KindAmss),
+			string(Config2KindS3),
+			string(Config2KindSftp),
+			string(Config2KindURL),
+		})
 	}
 	return nil
 }
@@ -1543,7 +1596,7 @@ func (u Value) Kind() ValueKind {
 	return u.kind
 }
 
-// NewValueStoragePingEvent constructs a Value with the storage_ping_event branch set.
+// NewValueStoragePingEvent constructs Value with the storage_ping_event branch set.
 func NewValueStoragePingEvent(v *StoragePingEventResponseBody) Value {
 	return Value{
 		kind:             ValueKindStoragePingEvent,
@@ -1565,7 +1618,7 @@ func (u *Value) SetStoragePingEvent(v *StoragePingEventResponseBody) {
 	u.StoragePingEvent = v
 }
 
-// NewValueLocationCreatedEvent constructs a Value with the location_created_event branch set.
+// NewValueLocationCreatedEvent constructs Value with the location_created_event branch set.
 func NewValueLocationCreatedEvent(v *LocationCreatedEventResponseBody) Value {
 	return Value{
 		kind:                 ValueKindLocationCreatedEvent,
@@ -1587,7 +1640,7 @@ func (u *Value) SetLocationCreatedEvent(v *LocationCreatedEventResponseBody) {
 	u.LocationCreatedEvent = v
 }
 
-// NewValueAipCreatedEvent constructs a Value with the aip_created_event branch set.
+// NewValueAipCreatedEvent constructs Value with the aip_created_event branch set.
 func NewValueAipCreatedEvent(v *AIPCreatedEventResponseBody) Value {
 	return Value{
 		kind:            ValueKindAipCreatedEvent,
@@ -1609,7 +1662,7 @@ func (u *Value) SetAipCreatedEvent(v *AIPCreatedEventResponseBody) {
 	u.AipCreatedEvent = v
 }
 
-// NewValueAipUpdatedEvent constructs a Value with the aip_updated_event branch set.
+// NewValueAipUpdatedEvent constructs Value with the aip_updated_event branch set.
 func NewValueAipUpdatedEvent(v *AIPUpdatedEventResponseBody) Value {
 	return Value{
 		kind:            ValueKindAipUpdatedEvent,
@@ -1631,7 +1684,7 @@ func (u *Value) SetAipUpdatedEvent(v *AIPUpdatedEventResponseBody) {
 	u.AipUpdatedEvent = v
 }
 
-// NewValueAipStatusUpdatedEvent constructs a Value with the aip_status_updated_event branch set.
+// NewValueAipStatusUpdatedEvent constructs Value with the aip_status_updated_event branch set.
 func NewValueAipStatusUpdatedEvent(v *AIPStatusUpdatedEventResponseBody) Value {
 	return Value{
 		kind:                  ValueKindAipStatusUpdatedEvent,
@@ -1653,7 +1706,7 @@ func (u *Value) SetAipStatusUpdatedEvent(v *AIPStatusUpdatedEventResponseBody) {
 	u.AipStatusUpdatedEvent = v
 }
 
-// NewValueAipLocationUpdatedEvent constructs a Value with the aip_location_updated_event branch set.
+// NewValueAipLocationUpdatedEvent constructs Value with the aip_location_updated_event branch set.
 func NewValueAipLocationUpdatedEvent(v *AIPLocationUpdatedEventResponseBody) Value {
 	return Value{
 		kind:                    ValueKindAipLocationUpdatedEvent,
@@ -1675,7 +1728,7 @@ func (u *Value) SetAipLocationUpdatedEvent(v *AIPLocationUpdatedEventResponseBod
 	u.AipLocationUpdatedEvent = v
 }
 
-// NewValueAipWorkflowCreatedEvent constructs a Value with the aip_workflow_created_event branch set.
+// NewValueAipWorkflowCreatedEvent constructs Value with the aip_workflow_created_event branch set.
 func NewValueAipWorkflowCreatedEvent(v *AIPWorkflowCreatedEventResponseBody) Value {
 	return Value{
 		kind:                    ValueKindAipWorkflowCreatedEvent,
@@ -1697,7 +1750,7 @@ func (u *Value) SetAipWorkflowCreatedEvent(v *AIPWorkflowCreatedEventResponseBod
 	u.AipWorkflowCreatedEvent = v
 }
 
-// NewValueAipWorkflowUpdatedEvent constructs a Value with the aip_workflow_updated_event branch set.
+// NewValueAipWorkflowUpdatedEvent constructs Value with the aip_workflow_updated_event branch set.
 func NewValueAipWorkflowUpdatedEvent(v *AIPWorkflowUpdatedEventResponseBody) Value {
 	return Value{
 		kind:                    ValueKindAipWorkflowUpdatedEvent,
@@ -1719,7 +1772,7 @@ func (u *Value) SetAipWorkflowUpdatedEvent(v *AIPWorkflowUpdatedEventResponseBod
 	u.AipWorkflowUpdatedEvent = v
 }
 
-// NewValueAipTaskCreatedEvent constructs a Value with the aip_task_created_event branch set.
+// NewValueAipTaskCreatedEvent constructs Value with the aip_task_created_event branch set.
 func NewValueAipTaskCreatedEvent(v *AIPTaskCreatedEventResponseBody) Value {
 	return Value{
 		kind:                ValueKindAipTaskCreatedEvent,
@@ -1741,7 +1794,7 @@ func (u *Value) SetAipTaskCreatedEvent(v *AIPTaskCreatedEventResponseBody) {
 	u.AipTaskCreatedEvent = v
 }
 
-// NewValueAipTaskUpdatedEvent constructs a Value with the aip_task_updated_event branch set.
+// NewValueAipTaskUpdatedEvent constructs Value with the aip_task_updated_event branch set.
 func NewValueAipTaskUpdatedEvent(v *AIPTaskUpdatedEventResponseBody) Value {
 	return Value{
 		kind:                ValueKindAipTaskUpdatedEvent,
@@ -1780,24 +1833,54 @@ func (u Value) Validate() error {
 			string(ValueKindAipTaskUpdatedEvent),
 		})
 	case ValueKindStoragePingEvent:
+		if u.StoragePingEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindLocationCreatedEvent:
+		if u.LocationCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipCreatedEvent:
+		if u.AipCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipUpdatedEvent:
+		if u.AipUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipStatusUpdatedEvent:
+		if u.AipStatusUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipLocationUpdatedEvent:
+		if u.AipLocationUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipWorkflowCreatedEvent:
+		if u.AipWorkflowCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipWorkflowUpdatedEvent:
+		if u.AipWorkflowUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipTaskCreatedEvent:
+		if u.AipTaskCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipTaskUpdatedEvent:
+		if u.AipTaskUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	default:
 		return goa.InvalidEnumValueError("type", u.kind, []any{
@@ -1864,6 +1947,12 @@ func (u *Value) UnmarshalJSON(data []byte) error {
 	}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
+	}
+	if len(raw.Value) == 0 {
+		return goa.MissingFieldError("value", "Value")
+	}
+	if bytes.Equal(bytes.TrimSpace(raw.Value), []byte("null")) {
+		return goa.InvalidFieldTypeError("value", nil, "non-null JSON value")
 	}
 	switch raw.Type {
 	case string(ValueKindStoragePingEvent):
@@ -1937,7 +2026,21 @@ func (u *Value) UnmarshalJSON(data []byte) error {
 		u.kind = ValueKindAipTaskUpdatedEvent
 		u.AipTaskUpdatedEvent = v
 	default:
-		return fmt.Errorf("unexpected Value type %q", raw.Type)
+		if raw.Type == "" {
+			return goa.MissingFieldError("type", "Value")
+		}
+		return goa.InvalidEnumValueError("type", raw.Type, []any{
+			string(ValueKindStoragePingEvent),
+			string(ValueKindLocationCreatedEvent),
+			string(ValueKindAipCreatedEvent),
+			string(ValueKindAipUpdatedEvent),
+			string(ValueKindAipStatusUpdatedEvent),
+			string(ValueKindAipLocationUpdatedEvent),
+			string(ValueKindAipWorkflowCreatedEvent),
+			string(ValueKindAipWorkflowUpdatedEvent),
+			string(ValueKindAipTaskCreatedEvent),
+			string(ValueKindAipTaskUpdatedEvent),
+		})
 	}
 	return nil
 }
@@ -2017,32 +2120,34 @@ func NewCreateLocationRequestBody(p *storage.CreateLocationPayload) *CreateLocat
 		Purpose:     p.Purpose,
 	}
 	if p.Config.Kind() != "" {
+		var configValue Config2
 		switch string(p.Config.Kind()) {
 		case "amss":
 			actual, _ := p.Config.AsAmss()
 			obj := marshalStorageAMSSConfigToAMSSConfigRequestBody(actual)
-			u := body.Config
+			u := configValue
 			u.SetAmss((*AMSSConfigRequestBody)(obj))
-			body.Config = u
+			configValue = u
 		case "s3":
 			actual, _ := p.Config.AsS3()
 			obj := marshalStorageS3ConfigToS3ConfigRequestBody(actual)
-			u := body.Config
+			u := configValue
 			u.SetS3((*S3ConfigRequestBody)(obj))
-			body.Config = u
+			configValue = u
 		case "sftp":
 			actual, _ := p.Config.AsSftp()
 			obj := marshalStorageSFTPConfigToSFTPConfigRequestBody(actual)
-			u := body.Config
+			u := configValue
 			u.SetSftp((*SFTPConfigRequestBody)(obj))
-			body.Config = u
+			configValue = u
 		case "url":
 			actual, _ := p.Config.AsURL()
 			obj := marshalStorageURLConfigToURLConfigRequestBody(actual)
-			u := body.Config
+			u := configValue
 			u.SetURL((*URLConfigRequestBody)(obj))
-			body.Config = u
+			configValue = u
 		}
+		body.Config = &configValue
 	}
 	return body
 }
@@ -2051,7 +2156,7 @@ func NewCreateLocationRequestBody(p *storage.CreateLocationPayload) *CreateLocat
 // result from a HTTP "OK" response.
 func NewMonitorStorageEventOK(body *MonitorResponseBody) *storage.StorageEvent {
 	v := &storage.StorageEvent{}
-	if body.Value.Kind() != "" {
+	if body.Value != nil {
 		switch string(body.Value.Kind()) {
 		case "storage_ping_event":
 			actual, _ := body.Value.AsStoragePingEvent()
@@ -3192,72 +3297,74 @@ func NewListLocationAipsUnauthorized(body string) storage.Unauthorized {
 // ValidateMonitorResponseBody runs the validations defined on
 // MonitorResponseBody
 func ValidateMonitorResponseBody(body *MonitorResponseBody) (err error) {
-	switch string(body.Value.Kind()) {
-	case "location_created_event":
-		actual, _ := body.Value.AsLocationCreatedEvent()
-		if actual != nil {
-			if err2 := ValidateLocationCreatedEventResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
+	if body.Value != nil {
+		switch string(body.Value.Kind()) {
+		case "location_created_event":
+			actual, _ := body.Value.AsLocationCreatedEvent()
+			if actual != nil {
+				if err2 := ValidateLocationCreatedEventResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "aip_created_event":
+			actual, _ := body.Value.AsAipCreatedEvent()
+			if actual != nil {
+				if err2 := ValidateAIPCreatedEventResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "aip_updated_event":
+			actual, _ := body.Value.AsAipUpdatedEvent()
+			if actual != nil {
+				if err2 := ValidateAIPUpdatedEventResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "aip_status_updated_event":
+			actual, _ := body.Value.AsAipStatusUpdatedEvent()
+			if actual != nil {
+				if err2 := ValidateAIPStatusUpdatedEventResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "aip_location_updated_event":
+			actual, _ := body.Value.AsAipLocationUpdatedEvent()
+			if actual != nil {
+				if err2 := ValidateAIPLocationUpdatedEventResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "aip_workflow_created_event":
+			actual, _ := body.Value.AsAipWorkflowCreatedEvent()
+			if actual != nil {
+				if err2 := ValidateAIPWorkflowCreatedEventResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "aip_workflow_updated_event":
+			actual, _ := body.Value.AsAipWorkflowUpdatedEvent()
+			if actual != nil {
+				if err2 := ValidateAIPWorkflowUpdatedEventResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "aip_task_created_event":
+			actual, _ := body.Value.AsAipTaskCreatedEvent()
+			if actual != nil {
+				if err2 := ValidateAIPTaskCreatedEventResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "aip_task_updated_event":
+			actual, _ := body.Value.AsAipTaskUpdatedEvent()
+			if actual != nil {
+				if err2 := ValidateAIPTaskUpdatedEventResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
 			}
 		}
-	case "aip_created_event":
-		actual, _ := body.Value.AsAipCreatedEvent()
-		if actual != nil {
-			if err2 := ValidateAIPCreatedEventResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	case "aip_updated_event":
-		actual, _ := body.Value.AsAipUpdatedEvent()
-		if actual != nil {
-			if err2 := ValidateAIPUpdatedEventResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	case "aip_status_updated_event":
-		actual, _ := body.Value.AsAipStatusUpdatedEvent()
-		if actual != nil {
-			if err2 := ValidateAIPStatusUpdatedEventResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	case "aip_location_updated_event":
-		actual, _ := body.Value.AsAipLocationUpdatedEvent()
-		if actual != nil {
-			if err2 := ValidateAIPLocationUpdatedEventResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	case "aip_workflow_created_event":
-		actual, _ := body.Value.AsAipWorkflowCreatedEvent()
-		if actual != nil {
-			if err2 := ValidateAIPWorkflowCreatedEventResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	case "aip_workflow_updated_event":
-		actual, _ := body.Value.AsAipWorkflowUpdatedEvent()
-		if actual != nil {
-			if err2 := ValidateAIPWorkflowUpdatedEventResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	case "aip_task_created_event":
-		actual, _ := body.Value.AsAipTaskCreatedEvent()
-		if actual != nil {
-			if err2 := ValidateAIPTaskCreatedEventResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	case "aip_task_updated_event":
-		actual, _ := body.Value.AsAipTaskUpdatedEvent()
-		if actual != nil {
-			if err2 := ValidateAIPTaskUpdatedEventResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	}
 
+	}
 	return
 }
 
@@ -4177,37 +4284,39 @@ func ValidateLocationResponseBody(body *LocationResponseBody) (err error) {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.purpose", *body.Purpose, []any{"unspecified", "aip_store"}))
 		}
 	}
-	switch string(body.Config.Kind()) {
-	case "amss":
-		actual, _ := body.Config.AsAmss()
-		if actual != nil {
-			if err2 := ValidateAMSSConfigResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
+	if body.Config != nil {
+		switch string(body.Config.Kind()) {
+		case "amss":
+			actual, _ := body.Config.AsAmss()
+			if actual != nil {
+				if err2 := ValidateAMSSConfigResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "s3":
+			actual, _ := body.Config.AsS3()
+			if actual != nil {
+				if err2 := ValidateS3ConfigResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "sftp":
+			actual, _ := body.Config.AsSftp()
+			if actual != nil {
+				if err2 := ValidateSFTPConfigResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
+			}
+		case "url":
+			actual, _ := body.Config.AsURL()
+			if actual != nil {
+				if err2 := ValidateURLConfigResponseBody(actual); err2 != nil {
+					err = goa.MergeErrors(err, err2)
+				}
 			}
 		}
-	case "s3":
-		actual, _ := body.Config.AsS3()
-		if actual != nil {
-			if err2 := ValidateS3ConfigResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	case "sftp":
-		actual, _ := body.Config.AsSftp()
-		if actual != nil {
-			if err2 := ValidateSFTPConfigResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	case "url":
-		actual, _ := body.Config.AsURL()
-		if actual != nil {
-			if err2 := ValidateURLConfigResponseBody(actual); err2 != nil {
-				err = goa.MergeErrors(err, err2)
-			}
-		}
-	}
 
+	}
 	if body.CreatedAt != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.created_at", *body.CreatedAt, goa.FormatDateTime))
 	}

@@ -14,7 +14,7 @@
 
 import { mapValues } from '../runtime';
 /**
- * 
+ * Request body for aip_deletion_auto.
  * @export
  * @interface AipDeletionAutoRequestBody
  */

@@ -71,7 +71,7 @@
         "type": "object"
       },
       "AIPNotFound": {
-        "description": "AIP not found.",
+        "description": "AIP not found",
         "example": {
           "message": "abc123",
           "uuid": "abc123"
@@ -446,6 +446,7 @@
         "type": "object"
       },
       "AddBatchRequestBody": {
+        "description": "Request body for add_batch.",
         "example": {
           "identifier": "abc123",
           "keys": [
@@ -484,6 +485,7 @@
         "type": "object"
       },
       "AddSipRequestBody": {
+        "description": "Request body for add_sip.",
         "example": {
           "key": "abc123",
           "source_id": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
@@ -525,6 +527,7 @@
         "type": "object"
       },
       "AipDeletionAutoRequestBody": {
+        "description": "Request body for aip_deletion_auto.",
         "example": {
           "reason": "abc123",
           "skip_report": false
@@ -598,7 +601,7 @@
         "type": "object"
       },
       "BatchNotFound": {
-        "description": "Batch not found.",
+        "description": "Batch not found",
         "example": {
           "message": "abc123",
           "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
@@ -655,6 +658,7 @@
         "type": "object"
       },
       "CancelAipDeletionRequestBody": {
+        "description": "Request body for cancel_aip_deletion.",
         "example": {
           "check": false
         },
@@ -668,6 +672,7 @@
         "type": "object"
       },
       "ConfirmSipRequestBody": {
+        "description": "Request body for confirm_sip.",
         "example": {
           "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
         },
@@ -684,6 +689,7 @@
         "type": "object"
       },
       "CreateAipRequestBody": {
+        "description": "Request body for create_aip.",
         "example": {
           "location_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
           "name": "abc123",
@@ -737,25 +743,11 @@
         "type": "object"
       },
       "CreateLocationRequestBody": {
+        "description": "Request body for create_location.",
         "example": {
           "config": {
-            "bucket": "abc123",
-            "endpoint": "abc123",
-            "key": "abc123",
-            "path_style": false,
-            "profile": "abc123",
-            "region": "abc123",
-            "secret": "abc123",
-            "token": "abc123"
-          },
-          "description": "abc123",
-          "name": "abc123",
-          "purpose": "aip_store",
-          "source": "s3"
-        },
-        "properties": {
-          "config": {
-            "example": {
+            "type": "s3",
+            "value": {
               "bucket": "abc123",
               "endpoint": "abc123",
               "key": "abc123",
@@ -764,38 +756,102 @@
               "region": "abc123",
               "secret": "abc123",
               "token": "abc123"
-            },
-            "properties": {
-              "type": {
-                "enum": [
-                  "amss",
-                  "s3",
-                  "sftp",
-                  "url"
-                ],
-                "type": "string"
-              },
-              "value": {
-                "anyOf": [
-                  {
+            }
+          },
+          "description": "abc123",
+          "name": "abc123",
+          "purpose": "aip_store",
+          "source": "s3"
+        },
+        "properties": {
+          "config": {
+            "anyOf": [
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "amss"
+                    ],
+                    "type": "string"
+                  },
+                  "value": {
                     "$ref": "#/components/schemas/AMSSConfig"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "s3"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/S3Config"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "sftp"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/SFTPConfig"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "url"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/URLConfig"
                   }
-                ]
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              }
+            ],
+            "example": {
+              "type": "s3",
+              "value": {
+                "bucket": "abc123",
+                "endpoint": "abc123",
+                "key": "abc123",
+                "path_style": false,
+                "profile": "abc123",
+                "region": "abc123",
+                "secret": "abc123",
+                "token": "abc123"
               }
             },
-            "required": [
-              "type",
-              "value"
-            ],
             "type": "object"
           },
           "description": {
@@ -1892,14 +1948,17 @@
         "description": "A Location describes a location retrieved by the storage service.",
         "example": {
           "config": {
-            "bucket": "abc123",
-            "endpoint": "abc123",
-            "key": "abc123",
-            "path_style": false,
-            "profile": "abc123",
-            "region": "abc123",
-            "secret": "abc123",
-            "token": "abc123"
+            "type": "s3",
+            "value": {
+              "bucket": "abc123",
+              "endpoint": "abc123",
+              "key": "abc123",
+              "path_style": false,
+              "profile": "abc123",
+              "region": "abc123",
+              "secret": "abc123",
+              "token": "abc123"
+            }
           },
           "created_at": "1970-01-01T00:00:01Z",
           "description": "abc123",
@@ -1910,47 +1969,93 @@
         },
         "properties": {
           "config": {
-            "example": {
-              "bucket": "abc123",
-              "endpoint": "abc123",
-              "key": "abc123",
-              "path_style": false,
-              "profile": "abc123",
-              "region": "abc123",
-              "secret": "abc123",
-              "token": "abc123"
-            },
-            "properties": {
-              "type": {
-                "enum": [
-                  "amss",
-                  "s3",
-                  "sftp",
-                  "url"
-                ],
-                "type": "string"
-              },
-              "value": {
-                "anyOf": [
-                  {
+            "anyOf": [
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "amss"
+                    ],
+                    "type": "string"
+                  },
+                  "value": {
                     "$ref": "#/components/schemas/AMSSConfig"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "s3"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/S3Config"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "sftp"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/SFTPConfig"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "url"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/URLConfig"
                   }
-                ]
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              }
+            ],
+            "example": {
+              "type": "s3",
+              "value": {
+                "bucket": "abc123",
+                "endpoint": "abc123",
+                "key": "abc123",
+                "path_style": false,
+                "profile": "abc123",
+                "region": "abc123",
+                "secret": "abc123",
+                "token": "abc123"
               }
             },
-            "required": [
-              "type",
-              "value"
-            ],
             "type": "object"
           },
           "created_at": {
@@ -2007,6 +2112,7 @@
         "type": "object"
       },
       "Error": {
+        "description": "Error response result type",
         "example": {
           "fault": false,
           "id": "123abc",
@@ -2060,30 +2166,8 @@
       "IngestEvent": {
         "example": {
           "value": {
-            "item": {
-              "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-              "batch_identifier": "abc123",
-              "batch_status": "processing",
-              "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-              "completed_at": "1970-01-01T00:00:01Z",
-              "created_at": "1970-01-01T00:00:01Z",
-              "failed_as": "PIP",
-              "failed_key": "abc123",
-              "file_count": 1,
-              "name": "abc123",
-              "started_at": "1970-01-01T00:00:01Z",
-              "status": "failed",
-              "uploader_email": "abc123",
-              "uploader_name": "abc123",
-              "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-              "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-            },
-            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-          }
-        },
-        "properties": {
-          "value": {
-            "example": {
+            "type": "sip_created_event",
+            "value": {
               "item": {
                 "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
                 "batch_identifier": "abc123",
@@ -2103,62 +2187,217 @@
                 "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
               },
               "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-            },
-            "properties": {
-              "type": {
-                "enum": [
-                  "ingest_ping_event",
-                  "sip_created_event",
-                  "sip_updated_event",
-                  "sip_status_updated_event",
-                  "sip_workflow_created_event",
-                  "sip_workflow_updated_event",
-                  "sip_task_created_event",
-                  "sip_task_updated_event",
-                  "batch_created_event",
-                  "batch_updated_event"
-                ],
-                "type": "string"
-              },
-              "value": {
-                "anyOf": [
-                  {
+            }
+          }
+        },
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "ingest_ping_event"
+                    ],
+                    "type": "string"
+                  },
+                  "value": {
                     "$ref": "#/components/schemas/IngestPingEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "sip_created_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/SIPCreatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "sip_updated_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/SIPUpdatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "sip_status_updated_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/SIPStatusUpdatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "sip_workflow_created_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/SIPWorkflowCreatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "sip_workflow_updated_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/SIPWorkflowUpdatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "sip_task_created_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/SIPTaskCreatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "sip_task_updated_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/SIPTaskUpdatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "batch_created_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/BatchCreatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "batch_updated_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/BatchUpdatedEvent"
                   }
-                ]
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              }
+            ],
+            "example": {
+              "type": "sip_created_event",
+              "value": {
+                "item": {
+                  "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                  "batch_identifier": "abc123",
+                  "batch_status": "processing",
+                  "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                  "completed_at": "1970-01-01T00:00:01Z",
+                  "created_at": "1970-01-01T00:00:01Z",
+                  "failed_as": "PIP",
+                  "failed_key": "abc123",
+                  "file_count": 1,
+                  "name": "abc123",
+                  "started_at": "1970-01-01T00:00:01Z",
+                  "status": "failed",
+                  "uploader_email": "abc123",
+                  "uploader_name": "abc123",
+                  "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                  "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                },
+                "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
               }
             },
-            "required": [
-              "type",
-              "value"
-            ],
             "type": "object"
           }
         },
@@ -2180,14 +2419,17 @@
         "example": {
           "item": {
             "config": {
-              "bucket": "abc123",
-              "endpoint": "abc123",
-              "key": "abc123",
-              "path_style": false,
-              "profile": "abc123",
-              "region": "abc123",
-              "secret": "abc123",
-              "token": "abc123"
+              "type": "s3",
+              "value": {
+                "bucket": "abc123",
+                "endpoint": "abc123",
+                "key": "abc123",
+                "path_style": false,
+                "profile": "abc123",
+                "region": "abc123",
+                "secret": "abc123",
+                "token": "abc123"
+              }
             },
             "created_at": "1970-01-01T00:00:01Z",
             "description": "abc123",
@@ -2215,7 +2457,7 @@
         "type": "object"
       },
       "LocationNotFound": {
-        "description": "Storage location not found.",
+        "description": "Storage location not found",
         "example": {
           "message": "abc123",
           "uuid": "abc123"
@@ -2334,6 +2576,7 @@
         "type": "object"
       },
       "RequestAipDeletionRequestBody": {
+        "description": "Request body for request_aip_deletion.",
         "example": {
           "reason": "abc123"
         },
@@ -2349,6 +2592,7 @@
         "type": "object"
       },
       "ReviewAipDeletionRequestBody": {
+        "description": "Request body for review_aip_deletion.",
         "example": {
           "approved": false
         },
@@ -2364,6 +2608,7 @@
         "type": "object"
       },
       "ReviewBatchRequestBody": {
+        "description": "Request body for review_batch.",
         "example": {
           "continue": false
         },
@@ -2527,7 +2772,7 @@
         "type": "object"
       },
       "SIPNotFound": {
-        "description": "SIP not found.",
+        "description": "SIP not found",
         "example": {
           "message": "abc123",
           "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
@@ -2821,40 +3066,21 @@
       "StorageEvent": {
         "example": {
           "value": {
-            "item": {
-              "config": {
-                "bucket": "abc123",
-                "endpoint": "abc123",
-                "key": "abc123",
-                "path_style": false,
-                "profile": "abc123",
-                "region": "abc123",
-                "secret": "abc123",
-                "token": "abc123"
-              },
-              "created_at": "1970-01-01T00:00:01Z",
-              "description": "abc123",
-              "name": "abc123",
-              "purpose": "aip_store",
-              "source": "s3",
-              "uuid": "abc123"
-            },
-            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-          }
-        },
-        "properties": {
-          "value": {
-            "example": {
+            "type": "location_created_event",
+            "value": {
               "item": {
                 "config": {
-                  "bucket": "abc123",
-                  "endpoint": "abc123",
-                  "key": "abc123",
-                  "path_style": false,
-                  "profile": "abc123",
-                  "region": "abc123",
-                  "secret": "abc123",
-                  "token": "abc123"
+                  "type": "s3",
+                  "value": {
+                    "bucket": "abc123",
+                    "endpoint": "abc123",
+                    "key": "abc123",
+                    "path_style": false,
+                    "profile": "abc123",
+                    "region": "abc123",
+                    "secret": "abc123",
+                    "token": "abc123"
+                  }
                 },
                 "created_at": "1970-01-01T00:00:01Z",
                 "description": "abc123",
@@ -2864,62 +3090,220 @@
                 "uuid": "abc123"
               },
               "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-            },
-            "properties": {
-              "type": {
-                "enum": [
-                  "storage_ping_event",
-                  "location_created_event",
-                  "aip_created_event",
-                  "aip_updated_event",
-                  "aip_status_updated_event",
-                  "aip_location_updated_event",
-                  "aip_workflow_created_event",
-                  "aip_workflow_updated_event",
-                  "aip_task_created_event",
-                  "aip_task_updated_event"
-                ],
-                "type": "string"
-              },
-              "value": {
-                "anyOf": [
-                  {
+            }
+          }
+        },
+        "properties": {
+          "value": {
+            "anyOf": [
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "storage_ping_event"
+                    ],
+                    "type": "string"
+                  },
+                  "value": {
                     "$ref": "#/components/schemas/StoragePingEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "location_created_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/LocationCreatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "aip_created_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/AIPCreatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "aip_updated_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/AIPUpdatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "aip_status_updated_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/AIPStatusUpdatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "aip_location_updated_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/AIPLocationUpdatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "aip_workflow_created_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/AIPWorkflowCreatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "aip_workflow_updated_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/AIPWorkflowUpdatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "aip_task_created_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/AIPTaskCreatedEvent"
+                  }
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              },
+              {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "aip_task_updated_event"
+                    ],
+                    "type": "string"
                   },
-                  {
+                  "value": {
                     "$ref": "#/components/schemas/AIPTaskUpdatedEvent"
                   }
-                ]
+                },
+                "required": [
+                  "type",
+                  "value"
+                ],
+                "type": "object"
+              }
+            ],
+            "example": {
+              "type": "location_created_event",
+              "value": {
+                "item": {
+                  "config": {
+                    "type": "s3",
+                    "value": {
+                      "bucket": "abc123",
+                      "endpoint": "abc123",
+                      "key": "abc123",
+                      "path_style": false,
+                      "profile": "abc123",
+                      "region": "abc123",
+                      "secret": "abc123",
+                      "token": "abc123"
+                    }
+                  },
+                  "created_at": "1970-01-01T00:00:01Z",
+                  "description": "abc123",
+                  "name": "abc123",
+                  "purpose": "aip_store",
+                  "source": "s3",
+                  "uuid": "abc123"
+                },
+                "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
               }
             },
-            "required": [
-              "type",
-              "value"
-            ],
             "type": "object"
           }
         },
@@ -2938,6 +3322,7 @@
         "type": "object"
       },
       "SubmitSipDecisionRequestBody": {
+        "description": "Request body for submit_sip_decision.",
         "example": {
           "option": "abc123"
         },
@@ -3029,6 +3414,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3191,6 +3577,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3203,6 +3590,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3252,6 +3640,7 @@
               }
             }
           },
+          "description": "Request body for add_batch.",
           "required": true
         },
         "responses": {
@@ -3283,6 +3672,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3295,6 +3685,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3384,6 +3775,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3396,6 +3788,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3472,6 +3865,7 @@
               }
             }
           },
+          "description": "Request body for review_batch.",
           "required": true
         },
         "responses": {
@@ -3493,6 +3887,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3505,6 +3900,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3561,25 +3957,28 @@
               "text/event-stream": {
                 "example": {
                   "value": {
-                    "item": {
-                      "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-                      "batch_identifier": "abc123",
-                      "batch_status": "processing",
-                      "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-                      "completed_at": "1970-01-01T00:00:01Z",
-                      "created_at": "1970-01-01T00:00:01Z",
-                      "failed_as": "PIP",
-                      "failed_key": "abc123",
-                      "file_count": 1,
-                      "name": "abc123",
-                      "started_at": "1970-01-01T00:00:01Z",
-                      "status": "failed",
-                      "uploader_email": "abc123",
-                      "uploader_name": "abc123",
-                      "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                    "type": "sip_created_event",
+                    "value": {
+                      "item": {
+                        "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                        "batch_identifier": "abc123",
+                        "batch_status": "processing",
+                        "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                        "completed_at": "1970-01-01T00:00:01Z",
+                        "created_at": "1970-01-01T00:00:01Z",
+                        "failed_as": "PIP",
+                        "failed_key": "abc123",
+                        "file_count": 1,
+                        "name": "abc123",
+                        "started_at": "1970-01-01T00:00:01Z",
+                        "status": "failed",
+                        "uploader_email": "abc123",
+                        "uploader_name": "abc123",
+                        "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                        "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                      },
                       "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-                    },
-                    "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                    }
                   }
                 },
                 "schema": {
@@ -3594,6 +3993,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3606,6 +4006,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3718,6 +4119,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3730,6 +4132,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3948,6 +4351,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3960,6 +4364,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -3996,6 +4401,7 @@
               }
             }
           },
+          "description": "Request body for add_sip.",
           "required": true
         },
         "responses": {
@@ -4027,6 +4433,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4039,6 +4446,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4077,7 +4485,6 @@
         "operationId": "ingest#upload_sip",
         "parameters": [
           {
-            "allowEmptyValue": true,
             "description": "Content-Type header, must define value for multipart boundary.",
             "example": "multipart/form-data; boundary=goa",
             "in": "header",
@@ -4120,6 +4527,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4132,6 +4540,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4217,6 +4626,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4229,6 +4639,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4305,6 +4716,7 @@
               }
             }
           },
+          "description": "Request body for confirm_sip.",
           "required": true
         },
         "responses": {
@@ -4326,6 +4738,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4338,6 +4751,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4435,6 +4849,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4447,6 +4862,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4531,6 +4947,7 @@
               }
             }
           },
+          "description": "Request body for submit_sip_decision.",
           "required": true
         },
         "responses": {
@@ -4552,6 +4969,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4564,6 +4982,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4639,7 +5058,6 @@
             }
           },
           {
-            "allowEmptyValue": true,
             "example": "abc123",
             "in": "cookie",
             "name": "enduro-sip-download-ticket",
@@ -4700,6 +5118,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4712,6 +5131,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4796,6 +5216,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4808,6 +5229,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4892,6 +5314,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -4904,6 +5327,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5009,6 +5433,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5021,6 +5446,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5154,6 +5580,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5166,6 +5593,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5316,6 +5744,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5328,6 +5757,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5377,6 +5807,7 @@
               }
             }
           },
+          "description": "Request body for create_aip.",
           "required": true
         },
         "responses": {
@@ -5414,6 +5845,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5426,6 +5858,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5492,6 +5925,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5504,6 +5938,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5571,6 +6006,7 @@
               }
             }
           },
+          "description": "Request body for aip_deletion_auto.",
           "required": true
         },
         "responses": {
@@ -5592,6 +6028,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5604,6 +6041,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5680,6 +6118,7 @@
               }
             }
           },
+          "description": "Request body for cancel_aip_deletion.",
           "required": true
         },
         "responses": {
@@ -5701,6 +6140,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5713,6 +6153,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5778,7 +6219,6 @@
             }
           },
           {
-            "allowEmptyValue": true,
             "example": "abc123",
             "in": "cookie",
             "name": "enduro-delreport-ticket",
@@ -5839,6 +6279,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5851,6 +6292,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5931,6 +6373,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -5943,6 +6386,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6015,6 +6459,7 @@
               }
             }
           },
+          "description": "Request body for request_aip_deletion.",
           "required": true
         },
         "responses": {
@@ -6036,6 +6481,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6048,6 +6494,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6124,6 +6571,7 @@
               }
             }
           },
+          "description": "Request body for review_aip_deletion.",
           "required": true
         },
         "responses": {
@@ -6145,6 +6593,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6157,6 +6606,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6222,7 +6672,6 @@
             }
           },
           {
-            "allowEmptyValue": true,
             "example": "abc123",
             "in": "cookie",
             "name": "enduro-aip-download-ticket",
@@ -6283,6 +6732,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6295,6 +6745,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6379,6 +6830,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6391,6 +6843,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6475,6 +6928,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6487,6 +6941,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6571,6 +7026,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6583,6 +7039,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6657,6 +7114,7 @@
               }
             }
           },
+          "description": "Request body for move_aip.",
           "required": true
         },
         "responses": {
@@ -6678,6 +7136,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6690,6 +7149,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6830,6 +7290,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6842,6 +7303,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6908,6 +7370,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6920,6 +7383,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -6949,14 +7413,17 @@
             "application/json": {
               "example": {
                 "config": {
-                  "bucket": "abc123",
-                  "endpoint": "abc123",
-                  "key": "abc123",
-                  "path_style": false,
-                  "profile": "abc123",
-                  "region": "abc123",
-                  "secret": "abc123",
-                  "token": "abc123"
+                  "type": "s3",
+                  "value": {
+                    "bucket": "abc123",
+                    "endpoint": "abc123",
+                    "key": "abc123",
+                    "path_style": false,
+                    "profile": "abc123",
+                    "region": "abc123",
+                    "secret": "abc123",
+                    "token": "abc123"
+                  }
                 },
                 "description": "abc123",
                 "name": "abc123",
@@ -6968,6 +7435,7 @@
               }
             }
           },
+          "description": "Request body for create_location.",
           "required": true
         },
         "responses": {
@@ -6999,6 +7467,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -7011,6 +7480,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -7058,14 +7528,17 @@
               "application/json": {
                 "example": {
                   "config": {
-                    "bucket": "abc123",
-                    "endpoint": "abc123",
-                    "key": "abc123",
-                    "path_style": false,
-                    "profile": "abc123",
-                    "region": "abc123",
-                    "secret": "abc123",
-                    "token": "abc123"
+                    "type": "s3",
+                    "value": {
+                      "bucket": "abc123",
+                      "endpoint": "abc123",
+                      "key": "abc123",
+                      "path_style": false,
+                      "profile": "abc123",
+                      "region": "abc123",
+                      "secret": "abc123",
+                      "token": "abc123"
+                    }
                   },
                   "created_at": "1970-01-01T00:00:01Z",
                   "description": "abc123",
@@ -7086,6 +7559,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -7098,6 +7572,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -7190,6 +7665,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -7202,6 +7678,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -7248,25 +7725,31 @@
               "text/event-stream": {
                 "example": {
                   "value": {
-                    "item": {
-                      "config": {
-                        "bucket": "abc123",
-                        "endpoint": "abc123",
-                        "key": "abc123",
-                        "path_style": false,
-                        "profile": "abc123",
-                        "region": "abc123",
-                        "secret": "abc123",
-                        "token": "abc123"
+                    "type": "location_created_event",
+                    "value": {
+                      "item": {
+                        "config": {
+                          "type": "s3",
+                          "value": {
+                            "bucket": "abc123",
+                            "endpoint": "abc123",
+                            "key": "abc123",
+                            "path_style": false,
+                            "profile": "abc123",
+                            "region": "abc123",
+                            "secret": "abc123",
+                            "token": "abc123"
+                          }
+                        },
+                        "created_at": "1970-01-01T00:00:01Z",
+                        "description": "abc123",
+                        "name": "abc123",
+                        "purpose": "aip_store",
+                        "source": "s3",
+                        "uuid": "abc123"
                       },
-                      "created_at": "1970-01-01T00:00:01Z",
-                      "description": "abc123",
-                      "name": "abc123",
-                      "purpose": "aip_store",
-                      "source": "s3",
-                      "uuid": "abc123"
-                    },
-                    "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                      "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+                    }
                   }
                 },
                 "schema": {
@@ -7281,6 +7764,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Unauthorized",
                   "example": "abc123",
                   "type": "string"
                 }
@@ -7293,6 +7777,7 @@
               "application/json": {
                 "example": "abc123",
                 "schema": {
+                  "description": "Forbidden",
                   "example": "abc123",
                   "type": "string"
                 }

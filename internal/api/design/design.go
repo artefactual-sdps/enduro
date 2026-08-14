@@ -69,6 +69,7 @@ func BearerAuthScopes(scopes ...string) {
 
 var _ = API("enduro", func() {
 	Title("Enduro API")
+	Meta("openapi:versions", "2.0", "3.0", "3.2")
 	ServerInterceptor(OperationTimeout)
 	Randomizer(expr.NewDeterministicRandomizer())
 	Server("enduro", func() {

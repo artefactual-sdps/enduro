@@ -9,6 +9,7 @@
 package views
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -293,7 +294,7 @@ func (u Config) Kind() ConfigKind {
 	return u.kind
 }
 
-// NewConfigAmss constructs a Config with the amss branch set.
+// NewConfigAmss constructs Config with the amss branch set.
 func NewConfigAmss(v *AMSSConfigView) Config {
 	return Config{
 		kind: ConfigKindAmss,
@@ -315,7 +316,7 @@ func (u *Config) SetAmss(v *AMSSConfigView) {
 	u.Amss = v
 }
 
-// NewConfigS3 constructs a Config with the s3 branch set.
+// NewConfigS3 constructs Config with the s3 branch set.
 func NewConfigS3(v *S3ConfigView) Config {
 	return Config{
 		kind: ConfigKindS3,
@@ -337,7 +338,7 @@ func (u *Config) SetS3(v *S3ConfigView) {
 	u.S3 = v
 }
 
-// NewConfigSftp constructs a Config with the sftp branch set.
+// NewConfigSftp constructs Config with the sftp branch set.
 func NewConfigSftp(v *SFTPConfigView) Config {
 	return Config{
 		kind: ConfigKindSftp,
@@ -359,7 +360,7 @@ func (u *Config) SetSftp(v *SFTPConfigView) {
 	u.Sftp = v
 }
 
-// NewConfigURL constructs a Config with the url branch set.
+// NewConfigURL constructs Config with the url branch set.
 func NewConfigURL(v *URLConfigView) Config {
 	return Config{
 		kind: ConfigKindURL,
@@ -392,12 +393,24 @@ func (u Config) Validate() error {
 			string(ConfigKindURL),
 		})
 	case ConfigKindAmss:
+		if u.Amss == nil {
+			return goa.MissingFieldError("value", "Config")
+		}
 		return nil
 	case ConfigKindS3:
+		if u.S3 == nil {
+			return goa.MissingFieldError("value", "Config")
+		}
 		return nil
 	case ConfigKindSftp:
+		if u.Sftp == nil {
+			return goa.MissingFieldError("value", "Config")
+		}
 		return nil
 	case ConfigKindURL:
+		if u.URL == nil {
+			return goa.MissingFieldError("value", "Config")
+		}
 		return nil
 	default:
 		return goa.InvalidEnumValueError("type", u.kind, []any{
@@ -447,6 +460,12 @@ func (u *Config) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
 	}
+	if len(raw.Value) == 0 {
+		return goa.MissingFieldError("value", "Config")
+	}
+	if bytes.Equal(bytes.TrimSpace(raw.Value), []byte("null")) {
+		return goa.InvalidFieldTypeError("value", nil, "non-null JSON value")
+	}
 	switch raw.Type {
 	case string(ConfigKindAmss):
 		var v *AMSSConfigView
@@ -477,7 +496,15 @@ func (u *Config) UnmarshalJSON(data []byte) error {
 		u.kind = ConfigKindURL
 		u.URL = v
 	default:
-		return fmt.Errorf("unexpected Config type %q", raw.Type)
+		if raw.Type == "" {
+			return goa.MissingFieldError("type", "Config")
+		}
+		return goa.InvalidEnumValueError("type", raw.Type, []any{
+			string(ConfigKindAmss),
+			string(ConfigKindS3),
+			string(ConfigKindSftp),
+			string(ConfigKindURL),
+		})
 	}
 	return nil
 }
@@ -528,7 +555,7 @@ func (u Value) Kind() ValueKind {
 	return u.kind
 }
 
-// NewValueStoragePingEvent constructs a Value with the storage_ping_event branch set.
+// NewValueStoragePingEvent constructs Value with the storage_ping_event branch set.
 func NewValueStoragePingEvent(v *StoragePingEventView) Value {
 	return Value{
 		kind:             ValueKindStoragePingEvent,
@@ -550,7 +577,7 @@ func (u *Value) SetStoragePingEvent(v *StoragePingEventView) {
 	u.StoragePingEvent = v
 }
 
-// NewValueLocationCreatedEvent constructs a Value with the location_created_event branch set.
+// NewValueLocationCreatedEvent constructs Value with the location_created_event branch set.
 func NewValueLocationCreatedEvent(v *LocationCreatedEventView) Value {
 	return Value{
 		kind:                 ValueKindLocationCreatedEvent,
@@ -572,7 +599,7 @@ func (u *Value) SetLocationCreatedEvent(v *LocationCreatedEventView) {
 	u.LocationCreatedEvent = v
 }
 
-// NewValueAipCreatedEvent constructs a Value with the aip_created_event branch set.
+// NewValueAipCreatedEvent constructs Value with the aip_created_event branch set.
 func NewValueAipCreatedEvent(v *AIPCreatedEventView) Value {
 	return Value{
 		kind:            ValueKindAipCreatedEvent,
@@ -594,7 +621,7 @@ func (u *Value) SetAipCreatedEvent(v *AIPCreatedEventView) {
 	u.AipCreatedEvent = v
 }
 
-// NewValueAipUpdatedEvent constructs a Value with the aip_updated_event branch set.
+// NewValueAipUpdatedEvent constructs Value with the aip_updated_event branch set.
 func NewValueAipUpdatedEvent(v *AIPUpdatedEventView) Value {
 	return Value{
 		kind:            ValueKindAipUpdatedEvent,
@@ -616,7 +643,7 @@ func (u *Value) SetAipUpdatedEvent(v *AIPUpdatedEventView) {
 	u.AipUpdatedEvent = v
 }
 
-// NewValueAipStatusUpdatedEvent constructs a Value with the aip_status_updated_event branch set.
+// NewValueAipStatusUpdatedEvent constructs Value with the aip_status_updated_event branch set.
 func NewValueAipStatusUpdatedEvent(v *AIPStatusUpdatedEventView) Value {
 	return Value{
 		kind:                  ValueKindAipStatusUpdatedEvent,
@@ -638,7 +665,7 @@ func (u *Value) SetAipStatusUpdatedEvent(v *AIPStatusUpdatedEventView) {
 	u.AipStatusUpdatedEvent = v
 }
 
-// NewValueAipLocationUpdatedEvent constructs a Value with the aip_location_updated_event branch set.
+// NewValueAipLocationUpdatedEvent constructs Value with the aip_location_updated_event branch set.
 func NewValueAipLocationUpdatedEvent(v *AIPLocationUpdatedEventView) Value {
 	return Value{
 		kind:                    ValueKindAipLocationUpdatedEvent,
@@ -660,7 +687,7 @@ func (u *Value) SetAipLocationUpdatedEvent(v *AIPLocationUpdatedEventView) {
 	u.AipLocationUpdatedEvent = v
 }
 
-// NewValueAipWorkflowCreatedEvent constructs a Value with the aip_workflow_created_event branch set.
+// NewValueAipWorkflowCreatedEvent constructs Value with the aip_workflow_created_event branch set.
 func NewValueAipWorkflowCreatedEvent(v *AIPWorkflowCreatedEventView) Value {
 	return Value{
 		kind:                    ValueKindAipWorkflowCreatedEvent,
@@ -682,7 +709,7 @@ func (u *Value) SetAipWorkflowCreatedEvent(v *AIPWorkflowCreatedEventView) {
 	u.AipWorkflowCreatedEvent = v
 }
 
-// NewValueAipWorkflowUpdatedEvent constructs a Value with the aip_workflow_updated_event branch set.
+// NewValueAipWorkflowUpdatedEvent constructs Value with the aip_workflow_updated_event branch set.
 func NewValueAipWorkflowUpdatedEvent(v *AIPWorkflowUpdatedEventView) Value {
 	return Value{
 		kind:                    ValueKindAipWorkflowUpdatedEvent,
@@ -704,7 +731,7 @@ func (u *Value) SetAipWorkflowUpdatedEvent(v *AIPWorkflowUpdatedEventView) {
 	u.AipWorkflowUpdatedEvent = v
 }
 
-// NewValueAipTaskCreatedEvent constructs a Value with the aip_task_created_event branch set.
+// NewValueAipTaskCreatedEvent constructs Value with the aip_task_created_event branch set.
 func NewValueAipTaskCreatedEvent(v *AIPTaskCreatedEventView) Value {
 	return Value{
 		kind:                ValueKindAipTaskCreatedEvent,
@@ -726,7 +753,7 @@ func (u *Value) SetAipTaskCreatedEvent(v *AIPTaskCreatedEventView) {
 	u.AipTaskCreatedEvent = v
 }
 
-// NewValueAipTaskUpdatedEvent constructs a Value with the aip_task_updated_event branch set.
+// NewValueAipTaskUpdatedEvent constructs Value with the aip_task_updated_event branch set.
 func NewValueAipTaskUpdatedEvent(v *AIPTaskUpdatedEventView) Value {
 	return Value{
 		kind:                ValueKindAipTaskUpdatedEvent,
@@ -765,24 +792,54 @@ func (u Value) Validate() error {
 			string(ValueKindAipTaskUpdatedEvent),
 		})
 	case ValueKindStoragePingEvent:
+		if u.StoragePingEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindLocationCreatedEvent:
+		if u.LocationCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipCreatedEvent:
+		if u.AipCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipUpdatedEvent:
+		if u.AipUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipStatusUpdatedEvent:
+		if u.AipStatusUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipLocationUpdatedEvent:
+		if u.AipLocationUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipWorkflowCreatedEvent:
+		if u.AipWorkflowCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipWorkflowUpdatedEvent:
+		if u.AipWorkflowUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipTaskCreatedEvent:
+		if u.AipTaskCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindAipTaskUpdatedEvent:
+		if u.AipTaskUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	default:
 		return goa.InvalidEnumValueError("type", u.kind, []any{
@@ -849,6 +906,12 @@ func (u *Value) UnmarshalJSON(data []byte) error {
 	}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
+	}
+	if len(raw.Value) == 0 {
+		return goa.MissingFieldError("value", "Value")
+	}
+	if bytes.Equal(bytes.TrimSpace(raw.Value), []byte("null")) {
+		return goa.InvalidFieldTypeError("value", nil, "non-null JSON value")
 	}
 	switch raw.Type {
 	case string(ValueKindStoragePingEvent):
@@ -922,7 +985,21 @@ func (u *Value) UnmarshalJSON(data []byte) error {
 		u.kind = ValueKindAipTaskUpdatedEvent
 		u.AipTaskUpdatedEvent = v
 	default:
-		return fmt.Errorf("unexpected Value type %q", raw.Type)
+		if raw.Type == "" {
+			return goa.MissingFieldError("type", "Value")
+		}
+		return goa.InvalidEnumValueError("type", raw.Type, []any{
+			string(ValueKindStoragePingEvent),
+			string(ValueKindLocationCreatedEvent),
+			string(ValueKindAipCreatedEvent),
+			string(ValueKindAipUpdatedEvent),
+			string(ValueKindAipStatusUpdatedEvent),
+			string(ValueKindAipLocationUpdatedEvent),
+			string(ValueKindAipWorkflowCreatedEvent),
+			string(ValueKindAipWorkflowUpdatedEvent),
+			string(ValueKindAipTaskCreatedEvent),
+			string(ValueKindAipTaskUpdatedEvent),
+		})
 	}
 	return nil
 }

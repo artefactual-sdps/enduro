@@ -2342,32 +2342,34 @@ func marshalStorageLocationToLocationResponseBody(v *storage.Location) *Location
 		CreatedAt:   v.CreatedAt,
 	}
 	if v.Config.Kind() != "" {
+		var configValue Config
 		switch string(v.Config.Kind()) {
 		case "amss":
 			actual, _ := v.Config.AsAmss()
 			obj := marshalStorageAMSSConfigToAMSSConfigResponseBody(actual)
-			u := res.Config
+			u := configValue
 			u.SetAmss((*AMSSConfigResponseBody)(obj))
-			res.Config = u
+			configValue = u
 		case "s3":
 			actual, _ := v.Config.AsS3()
 			obj := marshalStorageS3ConfigToS3ConfigResponseBody(actual)
-			u := res.Config
+			u := configValue
 			u.SetS3((*S3ConfigResponseBody)(obj))
-			res.Config = u
+			configValue = u
 		case "sftp":
 			actual, _ := v.Config.AsSftp()
 			obj := marshalStorageSFTPConfigToSFTPConfigResponseBody(actual)
-			u := res.Config
+			u := configValue
 			u.SetSftp((*SFTPConfigResponseBody)(obj))
-			res.Config = u
+			configValue = u
 		case "url":
 			actual, _ := v.Config.AsURL()
 			obj := marshalStorageURLConfigToURLConfigResponseBody(actual)
-			u := res.Config
+			u := configValue
 			u.SetURL((*URLConfigResponseBody)(obj))
-			res.Config = u
+			configValue = u
 		}
+		res.Config = &configValue
 	}
 
 	return res

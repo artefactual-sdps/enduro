@@ -13,13 +13,83 @@
  */
 
 import { mapValues } from '../runtime';
-import type { IngestEventValueValue } from './IngestEventValueValue';
+import type { IngestEventValueAnyOf1 } from './IngestEventValueAnyOf1';
 import {
-    IngestEventValueValueFromJSON,
-    IngestEventValueValueFromJSONTyped,
-    IngestEventValueValueToJSON,
-    IngestEventValueValueToJSONTyped,
-} from './IngestEventValueValue';
+    IngestEventValueAnyOf1FromJSON,
+    IngestEventValueAnyOf1FromJSONTyped,
+    IngestEventValueAnyOf1ToJSON,
+    IngestEventValueAnyOf1ToJSONTyped,
+} from './IngestEventValueAnyOf1';
+import type { IngestEventValueAnyOf3 } from './IngestEventValueAnyOf3';
+import {
+    IngestEventValueAnyOf3FromJSON,
+    IngestEventValueAnyOf3FromJSONTyped,
+    IngestEventValueAnyOf3ToJSON,
+    IngestEventValueAnyOf3ToJSONTyped,
+} from './IngestEventValueAnyOf3';
+import type { BatchUpdatedEvent } from './BatchUpdatedEvent';
+import {
+    BatchUpdatedEventFromJSON,
+    BatchUpdatedEventFromJSONTyped,
+    BatchUpdatedEventToJSON,
+    BatchUpdatedEventToJSONTyped,
+} from './BatchUpdatedEvent';
+import type { IngestEventValueAnyOf2 } from './IngestEventValueAnyOf2';
+import {
+    IngestEventValueAnyOf2FromJSON,
+    IngestEventValueAnyOf2FromJSONTyped,
+    IngestEventValueAnyOf2ToJSON,
+    IngestEventValueAnyOf2ToJSONTyped,
+} from './IngestEventValueAnyOf2';
+import type { IngestEventValueAnyOf5 } from './IngestEventValueAnyOf5';
+import {
+    IngestEventValueAnyOf5FromJSON,
+    IngestEventValueAnyOf5FromJSONTyped,
+    IngestEventValueAnyOf5ToJSON,
+    IngestEventValueAnyOf5ToJSONTyped,
+} from './IngestEventValueAnyOf5';
+import type { IngestEventValueAnyOf4 } from './IngestEventValueAnyOf4';
+import {
+    IngestEventValueAnyOf4FromJSON,
+    IngestEventValueAnyOf4FromJSONTyped,
+    IngestEventValueAnyOf4ToJSON,
+    IngestEventValueAnyOf4ToJSONTyped,
+} from './IngestEventValueAnyOf4';
+import type { IngestEventValueAnyOf7 } from './IngestEventValueAnyOf7';
+import {
+    IngestEventValueAnyOf7FromJSON,
+    IngestEventValueAnyOf7FromJSONTyped,
+    IngestEventValueAnyOf7ToJSON,
+    IngestEventValueAnyOf7ToJSONTyped,
+} from './IngestEventValueAnyOf7';
+import type { IngestEventValueAnyOf6 } from './IngestEventValueAnyOf6';
+import {
+    IngestEventValueAnyOf6FromJSON,
+    IngestEventValueAnyOf6FromJSONTyped,
+    IngestEventValueAnyOf6ToJSON,
+    IngestEventValueAnyOf6ToJSONTyped,
+} from './IngestEventValueAnyOf6';
+import type { IngestEventValueAnyOf9 } from './IngestEventValueAnyOf9';
+import {
+    IngestEventValueAnyOf9FromJSON,
+    IngestEventValueAnyOf9FromJSONTyped,
+    IngestEventValueAnyOf9ToJSON,
+    IngestEventValueAnyOf9ToJSONTyped,
+} from './IngestEventValueAnyOf9';
+import type { IngestEventValueAnyOf8 } from './IngestEventValueAnyOf8';
+import {
+    IngestEventValueAnyOf8FromJSON,
+    IngestEventValueAnyOf8FromJSONTyped,
+    IngestEventValueAnyOf8ToJSON,
+    IngestEventValueAnyOf8ToJSONTyped,
+} from './IngestEventValueAnyOf8';
+import type { IngestEventValueAnyOf } from './IngestEventValueAnyOf';
+import {
+    IngestEventValueAnyOfFromJSON,
+    IngestEventValueAnyOfFromJSONTyped,
+    IngestEventValueAnyOfToJSON,
+    IngestEventValueAnyOfToJSONTyped,
+} from './IngestEventValueAnyOf';
 
 /**
  * 
@@ -35,10 +105,10 @@ export interface IngestEventValue {
     type: IngestEventValueTypeEnum;
     /**
      * 
-     * @type {IngestEventValueValue}
+     * @type {BatchUpdatedEvent}
      * @memberof IngestEventValue
      */
-    value: IngestEventValueValue;
+    value: BatchUpdatedEvent;
 }
 
 
@@ -80,7 +150,7 @@ export function IngestEventValueFromJSONTyped(json: any, ignoreDiscriminator: bo
     return {
         
         'type': json['type'],
-        'value': IngestEventValueValueFromJSON(json['value']),
+        'value': BatchUpdatedEventFromJSON(json['value']),
     };
 }
 
@@ -96,7 +166,7 @@ export function IngestEventValueToJSONTyped(value?: IngestEventValue | null, ign
     return {
         
         'type': value['type'],
-        'value': IngestEventValueValueToJSON(value['value']),
+        'value': BatchUpdatedEventToJSON(value['value']),
     };
 }
 

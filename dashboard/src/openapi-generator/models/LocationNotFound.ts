@@ -14,7 +14,7 @@
 
 import { mapValues } from '../runtime';
 /**
- * Storage location not found.
+ * Storage location not found
  * @export
  * @interface LocationNotFound
  */

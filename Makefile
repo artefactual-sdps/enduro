@@ -117,6 +117,7 @@ gen-goa: tool-goa
 	goa gen github.com/artefactual-sdps/enduro/internal/api/design -o internal/api
 	$(MAKE) gen-goa-json-pretty
 	cp internal/api/gen/http/openapi3.json docs/src/dev-manual/api/openapi3.json
+	cp internal/api/gen/http/openapi3.2.json docs/src/dev-manual/api/openapi3.2.json
 
 gen-goa-json-pretty: HTTP_DIR = "internal/api/gen/http"
 gen-goa-json-pretty: JSON_FILES = $(shell find $(HTTP_DIR) -type f -name "*.json" | sort -u)

@@ -14,7 +14,7 @@
 
 import { mapValues } from '../runtime';
 /**
- * AIP not found.
+ * AIP not found
  * @export
  * @interface AIPNotFound
  */

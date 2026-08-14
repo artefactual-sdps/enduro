@@ -14,7 +14,7 @@
 
 import { mapValues } from '../runtime';
 /**
- * 
+ * Request body for create_aip.
  * @export
  * @interface CreateAipRequestBody
  */
