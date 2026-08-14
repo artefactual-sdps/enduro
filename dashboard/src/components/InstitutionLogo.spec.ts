@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import InstitutionLogo from "@/components/InstitutionLogo.vue";
+import { setTheme } from "@/test/theme";
 import { themeController } from "@/theme";
 
 function stubInstitution({
@@ -27,9 +28,8 @@ function stubInstitution({
 }
 
 describe("InstitutionLogo.vue", () => {
-  beforeEach(() => {
-    localStorage.setItem("enduro-theme", "light");
-    themeController.initialize();
+  beforeEach(async () => {
+    await setTheme("light");
   });
 
   afterEach(() => {
@@ -67,9 +67,8 @@ describe("InstitutionLogo.vue", () => {
     );
   });
 
-  it("does not use the light logo as the dark logo fallback", () => {
-    localStorage.setItem("enduro-theme", "dark");
-    themeController.initialize();
+  it("does not use the light logo as the dark logo fallback", async () => {
+    await setTheme("dark");
     stubInstitution({
       light: "https://example.com/logo-light.png",
     });

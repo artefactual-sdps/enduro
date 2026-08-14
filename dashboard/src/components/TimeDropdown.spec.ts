@@ -3,6 +3,7 @@ import { VueDatePicker } from "@vuepic/vue-datepicker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
+import { setTheme } from "@/test/theme";
 import { themeController } from "@/theme";
 
 import TimeDropdown from "./TimeDropdown.vue";
@@ -158,8 +159,7 @@ describe("TimeDropdown.vue theme", () => {
   });
 
   it("keeps both datepickers in sync with the application theme", async () => {
-    localStorage.setItem("enduro-theme", "dark");
-    themeController.initialize();
+    await setTheme("dark");
 
     const wrapper = mount(TimeDropdown, {
       props: {

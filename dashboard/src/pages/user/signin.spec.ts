@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import SigninPage from "@/pages/user/signin.vue";
 import { useAuthStore } from "@/stores/auth";
-import { themeController } from "@/theme";
+import { setTheme } from "@/test/theme";
 
 function mountPage() {
   const pinia = createTestingPinia({ createSpy: vi.fn });
@@ -19,10 +19,9 @@ function mountPage() {
 }
 
 describe("signin.vue", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     vi.clearAllMocks();
-    localStorage.setItem("enduro-theme", "light");
-    themeController.initialize();
+    await setTheme("light");
   });
 
   afterEach(() => {

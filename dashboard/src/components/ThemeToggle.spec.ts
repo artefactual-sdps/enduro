@@ -5,11 +5,12 @@ import IconMoon from "~icons/clarity/moon-line";
 import IconSun from "~icons/clarity/sun-line";
 
 import ThemeToggle from "@/components/ThemeToggle.vue";
-import { themeController } from "@/theme";
+import { setTheme } from "@/test/theme";
 
 describe("ThemeToggle.vue", () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     localStorage.clear();
+    await setTheme("light");
   });
 
   afterEach(() => {
@@ -17,8 +18,6 @@ describe("ThemeToggle.vue", () => {
   });
 
   it("offers dark mode with a moon icon while light mode is active", () => {
-    localStorage.setItem("enduro-theme", "light");
-    themeController.initialize();
     const wrapper = mount(ThemeToggle);
 
     expect(wrapper.get("button").text()).toBe("Dark theme");
@@ -26,9 +25,8 @@ describe("ThemeToggle.vue", () => {
     expect(wrapper.findComponent(IconSun).exists()).toBe(false);
   });
 
-  it("offers light mode with a sun icon in compact mode", () => {
-    localStorage.setItem("enduro-theme", "dark");
-    themeController.initialize();
+  it("offers light mode with a sun icon in compact mode", async () => {
+    await setTheme("dark");
     const wrapper = mount(ThemeToggle, { props: { compact: true } });
 
     expect(wrapper.get("button").attributes("aria-label")).toBe("Light theme");
@@ -38,8 +36,6 @@ describe("ThemeToggle.vue", () => {
   });
 
   it("toggles and persists the opposite theme", async () => {
-    localStorage.setItem("enduro-theme", "light");
-    themeController.initialize();
     const wrapper = mount(ThemeToggle);
 
     await wrapper.get("button").trigger("click");
