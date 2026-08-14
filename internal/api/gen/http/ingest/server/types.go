@@ -9,6 +9,7 @@
 package server
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -61,7 +62,7 @@ type ReviewBatchRequestBody struct {
 // MonitorResponseBody is the type of the "ingest" service "monitor" endpoint
 // HTTP response body.
 type MonitorResponseBody struct {
-	Value Value `form:"value,omitempty" json:"value,omitempty" xml:"value,omitempty"`
+	Value *Value `form:"value,omitempty" json:"value,omitempty" xml:"value,omitempty"`
 }
 
 // ListSipsResponseBody is the type of the "ingest" service "list_sips"
@@ -1169,7 +1170,7 @@ func (u Value) Kind() ValueKind {
 	return u.kind
 }
 
-// NewValueIngestPingEvent constructs a Value with the ingest_ping_event branch set.
+// NewValueIngestPingEvent constructs Value with the ingest_ping_event branch set.
 func NewValueIngestPingEvent(v *IngestPingEventResponseBody) Value {
 	return Value{
 		kind:            ValueKindIngestPingEvent,
@@ -1191,7 +1192,7 @@ func (u *Value) SetIngestPingEvent(v *IngestPingEventResponseBody) {
 	u.IngestPingEvent = v
 }
 
-// NewValueSipCreatedEvent constructs a Value with the sip_created_event branch set.
+// NewValueSipCreatedEvent constructs Value with the sip_created_event branch set.
 func NewValueSipCreatedEvent(v *SIPCreatedEventResponseBody) Value {
 	return Value{
 		kind:            ValueKindSipCreatedEvent,
@@ -1213,7 +1214,7 @@ func (u *Value) SetSipCreatedEvent(v *SIPCreatedEventResponseBody) {
 	u.SipCreatedEvent = v
 }
 
-// NewValueSipUpdatedEvent constructs a Value with the sip_updated_event branch set.
+// NewValueSipUpdatedEvent constructs Value with the sip_updated_event branch set.
 func NewValueSipUpdatedEvent(v *SIPUpdatedEventResponseBody) Value {
 	return Value{
 		kind:            ValueKindSipUpdatedEvent,
@@ -1235,7 +1236,7 @@ func (u *Value) SetSipUpdatedEvent(v *SIPUpdatedEventResponseBody) {
 	u.SipUpdatedEvent = v
 }
 
-// NewValueSipStatusUpdatedEvent constructs a Value with the sip_status_updated_event branch set.
+// NewValueSipStatusUpdatedEvent constructs Value with the sip_status_updated_event branch set.
 func NewValueSipStatusUpdatedEvent(v *SIPStatusUpdatedEventResponseBody) Value {
 	return Value{
 		kind:                  ValueKindSipStatusUpdatedEvent,
@@ -1257,7 +1258,7 @@ func (u *Value) SetSipStatusUpdatedEvent(v *SIPStatusUpdatedEventResponseBody) {
 	u.SipStatusUpdatedEvent = v
 }
 
-// NewValueSipWorkflowCreatedEvent constructs a Value with the sip_workflow_created_event branch set.
+// NewValueSipWorkflowCreatedEvent constructs Value with the sip_workflow_created_event branch set.
 func NewValueSipWorkflowCreatedEvent(v *SIPWorkflowCreatedEventResponseBody) Value {
 	return Value{
 		kind:                    ValueKindSipWorkflowCreatedEvent,
@@ -1279,7 +1280,7 @@ func (u *Value) SetSipWorkflowCreatedEvent(v *SIPWorkflowCreatedEventResponseBod
 	u.SipWorkflowCreatedEvent = v
 }
 
-// NewValueSipWorkflowUpdatedEvent constructs a Value with the sip_workflow_updated_event branch set.
+// NewValueSipWorkflowUpdatedEvent constructs Value with the sip_workflow_updated_event branch set.
 func NewValueSipWorkflowUpdatedEvent(v *SIPWorkflowUpdatedEventResponseBody) Value {
 	return Value{
 		kind:                    ValueKindSipWorkflowUpdatedEvent,
@@ -1301,7 +1302,7 @@ func (u *Value) SetSipWorkflowUpdatedEvent(v *SIPWorkflowUpdatedEventResponseBod
 	u.SipWorkflowUpdatedEvent = v
 }
 
-// NewValueSipTaskCreatedEvent constructs a Value with the sip_task_created_event branch set.
+// NewValueSipTaskCreatedEvent constructs Value with the sip_task_created_event branch set.
 func NewValueSipTaskCreatedEvent(v *SIPTaskCreatedEventResponseBody) Value {
 	return Value{
 		kind:                ValueKindSipTaskCreatedEvent,
@@ -1323,7 +1324,7 @@ func (u *Value) SetSipTaskCreatedEvent(v *SIPTaskCreatedEventResponseBody) {
 	u.SipTaskCreatedEvent = v
 }
 
-// NewValueSipTaskUpdatedEvent constructs a Value with the sip_task_updated_event branch set.
+// NewValueSipTaskUpdatedEvent constructs Value with the sip_task_updated_event branch set.
 func NewValueSipTaskUpdatedEvent(v *SIPTaskUpdatedEventResponseBody) Value {
 	return Value{
 		kind:                ValueKindSipTaskUpdatedEvent,
@@ -1345,7 +1346,7 @@ func (u *Value) SetSipTaskUpdatedEvent(v *SIPTaskUpdatedEventResponseBody) {
 	u.SipTaskUpdatedEvent = v
 }
 
-// NewValueBatchCreatedEvent constructs a Value with the batch_created_event branch set.
+// NewValueBatchCreatedEvent constructs Value with the batch_created_event branch set.
 func NewValueBatchCreatedEvent(v *BatchCreatedEventResponseBody) Value {
 	return Value{
 		kind:              ValueKindBatchCreatedEvent,
@@ -1367,7 +1368,7 @@ func (u *Value) SetBatchCreatedEvent(v *BatchCreatedEventResponseBody) {
 	u.BatchCreatedEvent = v
 }
 
-// NewValueBatchUpdatedEvent constructs a Value with the batch_updated_event branch set.
+// NewValueBatchUpdatedEvent constructs Value with the batch_updated_event branch set.
 func NewValueBatchUpdatedEvent(v *BatchUpdatedEventResponseBody) Value {
 	return Value{
 		kind:              ValueKindBatchUpdatedEvent,
@@ -1406,24 +1407,54 @@ func (u Value) Validate() error {
 			string(ValueKindBatchUpdatedEvent),
 		})
 	case ValueKindIngestPingEvent:
+		if u.IngestPingEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipCreatedEvent:
+		if u.SipCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipUpdatedEvent:
+		if u.SipUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipStatusUpdatedEvent:
+		if u.SipStatusUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipWorkflowCreatedEvent:
+		if u.SipWorkflowCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipWorkflowUpdatedEvent:
+		if u.SipWorkflowUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipTaskCreatedEvent:
+		if u.SipTaskCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipTaskUpdatedEvent:
+		if u.SipTaskUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindBatchCreatedEvent:
+		if u.BatchCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindBatchUpdatedEvent:
+		if u.BatchUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	default:
 		return goa.InvalidEnumValueError("type", u.kind, []any{
@@ -1490,6 +1521,12 @@ func (u *Value) UnmarshalJSON(data []byte) error {
 	}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
+	}
+	if len(raw.Value) == 0 {
+		return goa.MissingFieldError("value", "Value")
+	}
+	if bytes.Equal(bytes.TrimSpace(raw.Value), []byte("null")) {
+		return goa.InvalidFieldTypeError("value", nil, "non-null JSON value")
 	}
 	switch raw.Type {
 	case string(ValueKindIngestPingEvent):
@@ -1563,7 +1600,21 @@ func (u *Value) UnmarshalJSON(data []byte) error {
 		u.kind = ValueKindBatchUpdatedEvent
 		u.BatchUpdatedEvent = v
 	default:
-		return fmt.Errorf("unexpected Value type %q", raw.Type)
+		if raw.Type == "" {
+			return goa.MissingFieldError("type", "Value")
+		}
+		return goa.InvalidEnumValueError("type", raw.Type, []any{
+			string(ValueKindIngestPingEvent),
+			string(ValueKindSipCreatedEvent),
+			string(ValueKindSipUpdatedEvent),
+			string(ValueKindSipStatusUpdatedEvent),
+			string(ValueKindSipWorkflowCreatedEvent),
+			string(ValueKindSipWorkflowUpdatedEvent),
+			string(ValueKindSipTaskCreatedEvent),
+			string(ValueKindSipTaskUpdatedEvent),
+			string(ValueKindBatchCreatedEvent),
+			string(ValueKindBatchUpdatedEvent),
+		})
 	}
 	return nil
 }
@@ -1573,68 +1624,70 @@ func (u *Value) UnmarshalJSON(data []byte) error {
 func NewMonitorResponseBody(res *ingest.IngestEvent) *MonitorResponseBody {
 	body := &MonitorResponseBody{}
 	if res.Value.Kind() != "" {
+		var valueValue Value
 		switch string(res.Value.Kind()) {
 		case "ingest_ping_event":
 			actual, _ := res.Value.AsIngestPingEvent()
 			obj := marshalIngestIngestPingEventToIngestPingEventResponseBody(actual)
-			u := body.Value
+			u := valueValue
 			u.SetIngestPingEvent((*IngestPingEventResponseBody)(obj))
-			body.Value = u
+			valueValue = u
 		case "sip_created_event":
 			actual, _ := res.Value.AsSipCreatedEvent()
 			obj := marshalIngestSIPCreatedEventToSIPCreatedEventResponseBody(actual)
-			u := body.Value
+			u := valueValue
 			u.SetSipCreatedEvent((*SIPCreatedEventResponseBody)(obj))
-			body.Value = u
+			valueValue = u
 		case "sip_updated_event":
 			actual, _ := res.Value.AsSipUpdatedEvent()
 			obj := marshalIngestSIPUpdatedEventToSIPUpdatedEventResponseBody(actual)
-			u := body.Value
+			u := valueValue
 			u.SetSipUpdatedEvent((*SIPUpdatedEventResponseBody)(obj))
-			body.Value = u
+			valueValue = u
 		case "sip_status_updated_event":
 			actual, _ := res.Value.AsSipStatusUpdatedEvent()
 			obj := marshalIngestSIPStatusUpdatedEventToSIPStatusUpdatedEventResponseBody(actual)
-			u := body.Value
+			u := valueValue
 			u.SetSipStatusUpdatedEvent((*SIPStatusUpdatedEventResponseBody)(obj))
-			body.Value = u
+			valueValue = u
 		case "sip_workflow_created_event":
 			actual, _ := res.Value.AsSipWorkflowCreatedEvent()
 			obj := marshalIngestSIPWorkflowCreatedEventToSIPWorkflowCreatedEventResponseBody(actual)
-			u := body.Value
+			u := valueValue
 			u.SetSipWorkflowCreatedEvent((*SIPWorkflowCreatedEventResponseBody)(obj))
-			body.Value = u
+			valueValue = u
 		case "sip_workflow_updated_event":
 			actual, _ := res.Value.AsSipWorkflowUpdatedEvent()
 			obj := marshalIngestSIPWorkflowUpdatedEventToSIPWorkflowUpdatedEventResponseBody(actual)
-			u := body.Value
+			u := valueValue
 			u.SetSipWorkflowUpdatedEvent((*SIPWorkflowUpdatedEventResponseBody)(obj))
-			body.Value = u
+			valueValue = u
 		case "sip_task_created_event":
 			actual, _ := res.Value.AsSipTaskCreatedEvent()
 			obj := marshalIngestSIPTaskCreatedEventToSIPTaskCreatedEventResponseBody(actual)
-			u := body.Value
+			u := valueValue
 			u.SetSipTaskCreatedEvent((*SIPTaskCreatedEventResponseBody)(obj))
-			body.Value = u
+			valueValue = u
 		case "sip_task_updated_event":
 			actual, _ := res.Value.AsSipTaskUpdatedEvent()
 			obj := marshalIngestSIPTaskUpdatedEventToSIPTaskUpdatedEventResponseBody(actual)
-			u := body.Value
+			u := valueValue
 			u.SetSipTaskUpdatedEvent((*SIPTaskUpdatedEventResponseBody)(obj))
-			body.Value = u
+			valueValue = u
 		case "batch_created_event":
 			actual, _ := res.Value.AsBatchCreatedEvent()
 			obj := marshalIngestBatchCreatedEventToBatchCreatedEventResponseBody(actual)
-			u := body.Value
+			u := valueValue
 			u.SetBatchCreatedEvent((*BatchCreatedEventResponseBody)(obj))
-			body.Value = u
+			valueValue = u
 		case "batch_updated_event":
 			actual, _ := res.Value.AsBatchUpdatedEvent()
 			obj := marshalIngestBatchUpdatedEventToBatchUpdatedEventResponseBody(actual)
-			u := body.Value
+			u := valueValue
 			u.SetBatchUpdatedEvent((*BatchUpdatedEventResponseBody)(obj))
-			body.Value = u
+			valueValue = u
 		}
+		body.Value = &valueValue
 	}
 	return body
 }

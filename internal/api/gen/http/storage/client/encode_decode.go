@@ -2855,7 +2855,7 @@ func unmarshalLocationResponseBodyToStorageLocation(v *LocationResponseBody) *st
 		UUID:        *v.UUID,
 		CreatedAt:   *v.CreatedAt,
 	}
-	if v.Config.Kind() != "" {
+	if v.Config != nil {
 		switch string(v.Config.Kind()) {
 		case "amss":
 			actual, _ := v.Config.AsAmss()

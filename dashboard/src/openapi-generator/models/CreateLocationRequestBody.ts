@@ -22,7 +22,7 @@ import {
 } from './CreateLocationRequestBodyConfig';
 
 /**
- * 
+ * Request body for create_location.
  * @export
  * @interface CreateLocationRequestBody
  */

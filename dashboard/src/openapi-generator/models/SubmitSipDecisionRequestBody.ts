@@ -14,7 +14,7 @@
 
 import { mapValues } from '../runtime';
 /**
- * 
+ * Request body for submit_sip_decision.
  * @export
  * @interface SubmitSipDecisionRequestBody
  */

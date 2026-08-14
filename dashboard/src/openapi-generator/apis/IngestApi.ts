@@ -170,7 +170,7 @@ export interface IngestUploadSipRequest {
 export interface IngestApiInterface {
     /**
      * Creates request options for ingestAddBatch without sending the request
-     * @param {AddBatchRequestBody} addBatchRequestBody 
+     * @param {AddBatchRequestBody} addBatchRequestBody Request body for add_batch.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
@@ -179,7 +179,7 @@ export interface IngestApiInterface {
     /**
      * Ingest a Batch from a SIP Source
      * @summary add_batch ingest
-     * @param {AddBatchRequestBody} addBatchRequestBody 
+     * @param {AddBatchRequestBody} addBatchRequestBody Request body for add_batch.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
@@ -194,7 +194,7 @@ export interface IngestApiInterface {
 
     /**
      * Creates request options for ingestAddSip without sending the request
-     * @param {AddSipRequestBody} addSipRequestBody 
+     * @param {AddSipRequestBody} addSipRequestBody Request body for add_sip.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
@@ -203,7 +203,7 @@ export interface IngestApiInterface {
     /**
      * Ingest a SIP from a SIP Source
      * @summary add_sip ingest
-     * @param {AddSipRequestBody} addSipRequestBody 
+     * @param {AddSipRequestBody} addSipRequestBody Request body for add_sip.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
@@ -219,7 +219,7 @@ export interface IngestApiInterface {
     /**
      * Creates request options for ingestConfirmSip without sending the request
      * @param {string} uuid Identifier of SIP to look up
-     * @param {ConfirmSipRequestBody} confirmSipRequestBody 
+     * @param {ConfirmSipRequestBody} confirmSipRequestBody Request body for confirm_sip.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
@@ -229,7 +229,7 @@ export interface IngestApiInterface {
      * Signal the SIP has been reviewed and accepted
      * @summary confirm_sip ingest
      * @param {string} uuid Identifier of SIP to look up
-     * @param {ConfirmSipRequestBody} confirmSipRequestBody 
+     * @param {ConfirmSipRequestBody} confirmSipRequestBody Request body for confirm_sip.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
@@ -499,7 +499,7 @@ export interface IngestApiInterface {
     /**
      * Creates request options for ingestReviewBatch without sending the request
      * @param {string} uuid Identifier of Batch to review
-     * @param {ReviewBatchRequestBody} reviewBatchRequestBody 
+     * @param {ReviewBatchRequestBody} reviewBatchRequestBody Request body for review_batch.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
@@ -509,7 +509,7 @@ export interface IngestApiInterface {
      * Review a Batch awaiting user decision
      * @summary review_batch ingest
      * @param {string} uuid Identifier of Batch to review
-     * @param {ReviewBatchRequestBody} reviewBatchRequestBody 
+     * @param {ReviewBatchRequestBody} reviewBatchRequestBody Request body for review_batch.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
@@ -597,7 +597,7 @@ export interface IngestApiInterface {
     /**
      * Creates request options for ingestSubmitSipDecision without sending the request
      * @param {string} uuid Identifier of SIP to look up
-     * @param {SubmitSipDecisionRequestBody} submitSipDecisionRequestBody 
+     * @param {SubmitSipDecisionRequestBody} submitSipDecisionRequestBody Request body for submit_sip_decision.
      * @throws {RequiredError}
      * @memberof IngestApiInterface
      */
@@ -607,7 +607,7 @@ export interface IngestApiInterface {
      * Submit a selected child workflow decision option for a SIP
      * @summary submit_sip_decision ingest
      * @param {string} uuid Identifier of SIP to look up
-     * @param {SubmitSipDecisionRequestBody} submitSipDecisionRequestBody 
+     * @param {SubmitSipDecisionRequestBody} submitSipDecisionRequestBody Request body for submit_sip_decision.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof IngestApiInterface

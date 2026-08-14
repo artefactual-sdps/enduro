@@ -29,6 +29,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -144,6 +145,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -152,6 +154,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -181,6 +184,7 @@ paths:
                             source_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         schema:
                             $ref: '#/components/schemas/AddBatchRequestBody'
+                description: Request body for add_batch.
                 required: true
             responses:
                 "201":
@@ -202,6 +206,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -210,6 +215,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -270,6 +276,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -278,6 +285,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -325,6 +333,7 @@ paths:
                             continue: false
                         schema:
                             $ref: '#/components/schemas/ReviewBatchRequestBody'
+                description: Request body for review_batch.
                 required: true
             responses:
                 "202":
@@ -340,6 +349,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -348,6 +358,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -383,24 +394,26 @@ paths:
                         text/event-stream:
                             example:
                                 value:
-                                    item:
-                                        aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                                        batch_identifier: abc123
-                                        batch_status: processing
-                                        batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                                        completed_at: "1970-01-01T00:00:01Z"
-                                        created_at: "1970-01-01T00:00:01Z"
-                                        failed_as: PIP
-                                        failed_key: abc123
-                                        file_count: 1
-                                        name: abc123
-                                        started_at: "1970-01-01T00:00:01Z"
-                                        status: failed
-                                        uploader_email: abc123
-                                        uploader_name: abc123
-                                        uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                    type: sip_created_event
+                                    value:
+                                        item:
+                                            aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                            batch_identifier: abc123
+                                            batch_status: processing
+                                            batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                            completed_at: "1970-01-01T00:00:01Z"
+                                            created_at: "1970-01-01T00:00:01Z"
+                                            failed_as: PIP
+                                            failed_key: abc123
+                                            file_count: 1
+                                            name: abc123
+                                            started_at: "1970-01-01T00:00:01Z"
+                                            status: failed
+                                            uploader_email: abc123
+                                            uploader_name: abc123
+                                            uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                                         uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                             schema:
                                 $ref: '#/components/schemas/IngestEvent'
                     description: OK response.
@@ -409,6 +422,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -417,6 +431,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -492,6 +507,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -500,6 +516,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -656,6 +673,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -664,6 +682,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -685,6 +704,7 @@ paths:
                             source_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         schema:
                             $ref: '#/components/schemas/AddSipRequestBody'
+                description: Request body for add_sip.
                 required: true
             responses:
                 "201":
@@ -706,6 +726,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -714,6 +735,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -774,6 +796,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -782,6 +805,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -829,6 +853,7 @@ paths:
                             location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         schema:
                             $ref: '#/components/schemas/ConfirmSipRequestBody'
+                description: Request body for confirm_sip.
                 required: true
             responses:
                 "202":
@@ -844,6 +869,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -852,6 +878,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -914,6 +941,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -922,6 +950,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -974,6 +1003,7 @@ paths:
                             option: abc123
                         schema:
                             $ref: '#/components/schemas/SubmitSipDecisionRequestBody'
+                description: Request body for submit_sip_decision.
                 required: true
             responses:
                 "202":
@@ -989,6 +1019,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -997,6 +1028,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1048,7 +1080,6 @@ paths:
                   example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 - name: enduro-sip-download-ticket
                   in: cookie
-                  allowEmptyValue: true
                   schema:
                     type: string
                     example: abc123
@@ -1090,6 +1121,7 @@ paths:
                         application/json:
                             schema:
                                 type: string
+                                description: Unauthorized
                                 example: abc123
                             example: abc123
                 "403":
@@ -1098,6 +1130,7 @@ paths:
                         application/json:
                             schema:
                                 type: string
+                                description: Forbidden
                                 example: abc123
                             example: abc123
                 "404":
@@ -1150,6 +1183,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1158,6 +1192,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1212,6 +1247,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1220,6 +1256,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1289,6 +1326,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1297,6 +1335,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1321,8 +1360,7 @@ paths:
             description: Upload a SIP to trigger an ingest workflow
             operationId: ingest#upload_sip
             parameters:
-                - allowEmptyValue: true
-                  description: Content-Type header, must define value for multipart boundary.
+                - description: Content-Type header, must define value for multipart boundary.
                   example: multipart/form-data; boundary=goa
                   in: header
                   name: Content-Type
@@ -1352,6 +1390,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1360,6 +1399,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1447,6 +1487,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1455,6 +1496,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1560,6 +1602,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1568,6 +1611,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1598,6 +1642,7 @@ paths:
                             uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         schema:
                             $ref: '#/components/schemas/CreateAipRequestBody'
+                description: Request body for create_aip.
                 required: true
             responses:
                 "200":
@@ -1625,6 +1670,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1633,6 +1679,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1678,6 +1725,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1686,6 +1734,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1728,6 +1777,7 @@ paths:
                             skip_report: false
                         schema:
                             $ref: '#/components/schemas/AipDeletionAutoRequestBody'
+                description: Request body for aip_deletion_auto.
                 required: true
             responses:
                 "202":
@@ -1743,6 +1793,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1751,6 +1802,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1798,6 +1850,7 @@ paths:
                             check: false
                         schema:
                             $ref: '#/components/schemas/CancelAipDeletionRequestBody'
+                description: Request body for cancel_aip_deletion.
                 required: true
             responses:
                 "202":
@@ -1813,6 +1866,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1821,6 +1875,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -1866,7 +1921,6 @@ paths:
                   example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 - name: enduro-delreport-ticket
                   in: cookie
-                  allowEmptyValue: true
                   schema:
                     type: string
                     example: abc123
@@ -1908,6 +1962,7 @@ paths:
                         application/json:
                             schema:
                                 type: string
+                                description: Unauthorized
                                 example: abc123
                             example: abc123
                 "403":
@@ -1916,6 +1971,7 @@ paths:
                         application/json:
                             schema:
                                 type: string
+                                description: Forbidden
                                 example: abc123
                             example: abc123
                 "404":
@@ -1965,6 +2021,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -1973,6 +2030,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2017,6 +2075,7 @@ paths:
                             reason: abc123
                         schema:
                             $ref: '#/components/schemas/RequestAipDeletionRequestBody'
+                description: Request body for request_aip_deletion.
                 required: true
             responses:
                 "202":
@@ -2032,6 +2091,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2040,6 +2100,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2087,6 +2148,7 @@ paths:
                             approved: false
                         schema:
                             $ref: '#/components/schemas/ReviewAipDeletionRequestBody'
+                description: Request body for review_aip_deletion.
                 required: true
             responses:
                 "202":
@@ -2102,6 +2164,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2110,6 +2173,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2155,7 +2219,6 @@ paths:
                   example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 - name: enduro-aip-download-ticket
                   in: cookie
-                  allowEmptyValue: true
                   schema:
                     type: string
                     example: abc123
@@ -2197,6 +2260,7 @@ paths:
                         application/json:
                             schema:
                                 type: string
+                                description: Unauthorized
                                 example: abc123
                             example: abc123
                 "403":
@@ -2205,6 +2269,7 @@ paths:
                         application/json:
                             schema:
                                 type: string
+                                description: Forbidden
                                 example: abc123
                             example: abc123
                 "404":
@@ -2257,6 +2322,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2265,6 +2331,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2319,6 +2386,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2327,6 +2395,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2381,6 +2450,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2389,6 +2459,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2435,6 +2506,7 @@ paths:
                             location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         schema:
                             $ref: '#/components/schemas/ConfirmSipRequestBody'
+                description: Request body for move_aip.
                 required: true
             responses:
                 "202":
@@ -2450,6 +2522,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2458,6 +2531,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2554,6 +2628,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2562,6 +2637,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2604,6 +2680,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2612,6 +2689,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2630,20 +2708,23 @@ paths:
                     application/json:
                         example:
                             config:
-                                bucket: abc123
-                                endpoint: abc123
-                                key: abc123
-                                path_style: false
-                                profile: abc123
-                                region: abc123
-                                secret: abc123
-                                token: abc123
+                                type: s3
+                                value:
+                                    bucket: abc123
+                                    endpoint: abc123
+                                    key: abc123
+                                    path_style: false
+                                    profile: abc123
+                                    region: abc123
+                                    secret: abc123
+                                    token: abc123
                             description: abc123
                             name: abc123
                             purpose: aip_store
                             source: s3
                         schema:
                             $ref: '#/components/schemas/CreateLocationRequestBody'
+                description: Request body for create_location.
                 required: true
             responses:
                 "201":
@@ -2665,6 +2746,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2673,6 +2755,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2704,14 +2787,16 @@ paths:
                         application/json:
                             example:
                                 config:
-                                    bucket: abc123
-                                    endpoint: abc123
-                                    key: abc123
-                                    path_style: false
-                                    profile: abc123
-                                    region: abc123
-                                    secret: abc123
-                                    token: abc123
+                                    type: s3
+                                    value:
+                                        bucket: abc123
+                                        endpoint: abc123
+                                        key: abc123
+                                        path_style: false
+                                        profile: abc123
+                                        region: abc123
+                                        secret: abc123
+                                        token: abc123
                                 created_at: "1970-01-01T00:00:01Z"
                                 description: abc123
                                 name: abc123
@@ -2726,6 +2811,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2734,6 +2820,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2794,6 +2881,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2802,6 +2890,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2831,23 +2920,27 @@ paths:
                         text/event-stream:
                             example:
                                 value:
-                                    item:
-                                        config:
-                                            bucket: abc123
-                                            endpoint: abc123
-                                            key: abc123
-                                            path_style: false
-                                            profile: abc123
-                                            region: abc123
-                                            secret: abc123
-                                            token: abc123
-                                        created_at: "1970-01-01T00:00:01Z"
-                                        description: abc123
-                                        name: abc123
-                                        purpose: aip_store
-                                        source: s3
-                                        uuid: abc123
-                                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                    type: location_created_event
+                                    value:
+                                        item:
+                                            config:
+                                                type: s3
+                                                value:
+                                                    bucket: abc123
+                                                    endpoint: abc123
+                                                    key: abc123
+                                                    path_style: false
+                                                    profile: abc123
+                                                    region: abc123
+                                                    secret: abc123
+                                                    token: abc123
+                                            created_at: "1970-01-01T00:00:01Z"
+                                            description: abc123
+                                            name: abc123
+                                            purpose: aip_store
+                                            source: s3
+                                            uuid: abc123
+                                        uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                             schema:
                                 $ref: '#/components/schemas/StorageEvent'
                     description: OK response.
@@ -2856,6 +2949,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Unauthorized
                                 example: abc123
                                 type: string
                     description: 'unauthorized: Unauthorized response.'
@@ -2864,6 +2958,7 @@ paths:
                         application/json:
                             example: abc123
                             schema:
+                                description: Forbidden
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
@@ -2943,7 +3038,7 @@ components:
                     type: string
                     description: Identifier of missing AIP
                     example: abc123
-            description: AIP not found.
+            description: AIP not found
             example:
                 message: abc123
                 uuid: abc123
@@ -3236,6 +3331,7 @@ components:
                     description: Identifier of SIP source -- CURRENTLY NOT USED
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
+            description: Request body for add_batch.
             example:
                 identifier: abc123
                 keys:
@@ -3256,6 +3352,7 @@ components:
                     description: Identifier of SIP source
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
+            description: Request body for add_sip.
             example:
                 key: abc123
                 source_id: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -3284,6 +3381,7 @@ components:
                     type: boolean
                     description: Skip AIP deletion report generation
                     example: false
+            description: Request body for aip_deletion_auto.
             example:
                 reason: abc123
                 skip_report: false
@@ -3341,7 +3439,7 @@ components:
                     description: Identifier of missing Batch
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-            description: Batch not found.
+            description: Batch not found
             example:
                 message: abc123
                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -3380,6 +3478,7 @@ components:
                     type: boolean
                     description: If check is true, check user authorization to cancel deletion but don't execute the cancellation.
                     example: false
+            description: Request body for cancel_aip_deletion.
             example:
                 check: false
         ConfirmSipRequestBody:
@@ -3389,6 +3488,7 @@ components:
                     type: string
                     description: Identifier of storage location
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+            description: Request body for confirm_sip.
             example:
                 location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
             required:
@@ -3426,6 +3526,7 @@ components:
                     description: Identifier of the AIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
+            description: Request body for create_aip.
             example:
                 location_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                 name: abc123
@@ -3441,32 +3542,62 @@ components:
             properties:
                 config:
                     type: object
-                    properties:
-                        type:
-                            type: string
-                            enum:
-                                - amss
-                                - s3
-                                - sftp
-                                - url
-                        value:
-                            anyOf:
-                                - $ref: '#/components/schemas/AMSSConfig'
-                                - $ref: '#/components/schemas/S3Config'
-                                - $ref: '#/components/schemas/SFTPConfig'
-                                - $ref: '#/components/schemas/URLConfig'
                     example:
-                        bucket: abc123
-                        endpoint: abc123
-                        key: abc123
-                        path_style: false
-                        profile: abc123
-                        region: abc123
-                        secret: abc123
-                        token: abc123
-                    required:
-                        - type
-                        - value
+                        type: s3
+                        value:
+                            bucket: abc123
+                            endpoint: abc123
+                            key: abc123
+                            path_style: false
+                            profile: abc123
+                            region: abc123
+                            secret: abc123
+                            token: abc123
+                    anyOf:
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - amss
+                            value:
+                                $ref: '#/components/schemas/AMSSConfig'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - s3
+                            value:
+                                $ref: '#/components/schemas/S3Config'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - sftp
+                            value:
+                                $ref: '#/components/schemas/SFTPConfig'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - url
+                            value:
+                                $ref: '#/components/schemas/URLConfig'
+                          required:
+                            - type
+                            - value
                 description:
                     type: string
                     example: abc123
@@ -3488,16 +3619,19 @@ components:
                         - sftp
                         - amss
                         - filesystem
+            description: Request body for create_location.
             example:
                 config:
-                    bucket: abc123
-                    endpoint: abc123
-                    key: abc123
-                    path_style: false
-                    profile: abc123
-                    region: abc123
-                    secret: abc123
-                    token: abc123
+                    type: s3
+                    value:
+                        bucket: abc123
+                        endpoint: abc123
+                        key: abc123
+                        path_style: false
+                        profile: abc123
+                        region: abc123
+                        secret: abc123
+                        token: abc123
                 description: abc123
                 name: abc123
                 purpose: aip_store
@@ -4327,32 +4461,62 @@ components:
             properties:
                 config:
                     type: object
-                    properties:
-                        type:
-                            type: string
-                            enum:
-                                - amss
-                                - s3
-                                - sftp
-                                - url
-                        value:
-                            anyOf:
-                                - $ref: '#/components/schemas/AMSSConfig'
-                                - $ref: '#/components/schemas/S3Config'
-                                - $ref: '#/components/schemas/SFTPConfig'
-                                - $ref: '#/components/schemas/URLConfig'
                     example:
-                        bucket: abc123
-                        endpoint: abc123
-                        key: abc123
-                        path_style: false
-                        profile: abc123
-                        region: abc123
-                        secret: abc123
-                        token: abc123
-                    required:
-                        - type
-                        - value
+                        type: s3
+                        value:
+                            bucket: abc123
+                            endpoint: abc123
+                            key: abc123
+                            path_style: false
+                            profile: abc123
+                            region: abc123
+                            secret: abc123
+                            token: abc123
+                    anyOf:
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - amss
+                            value:
+                                $ref: '#/components/schemas/AMSSConfig'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - s3
+                            value:
+                                $ref: '#/components/schemas/S3Config'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - sftp
+                            value:
+                                $ref: '#/components/schemas/SFTPConfig'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - url
+                            value:
+                                $ref: '#/components/schemas/URLConfig'
+                          required:
+                            - type
+                            - value
                 created_at:
                     type: string
                     description: Creation datetime
@@ -4391,14 +4555,16 @@ components:
             description: A Location describes a location retrieved by the storage service.
             example:
                 config:
-                    bucket: abc123
-                    endpoint: abc123
-                    key: abc123
-                    path_style: false
-                    profile: abc123
-                    region: abc123
-                    secret: abc123
-                    token: abc123
+                    type: s3
+                    value:
+                        bucket: abc123
+                        endpoint: abc123
+                        key: abc123
+                        path_style: false
+                        profile: abc123
+                        region: abc123
+                        secret: abc123
+                        token: abc123
                 created_at: "1970-01-01T00:00:01Z"
                 description: abc123
                 name: abc123
@@ -4438,6 +4604,7 @@ components:
                     type: boolean
                     description: Is the error a timeout?
                     example: false
+            description: Error response result type
             example:
                 fault: false
                 id: 123abc
@@ -4457,33 +4624,142 @@ components:
             properties:
                 value:
                     type: object
-                    properties:
-                        type:
-                            type: string
-                            enum:
-                                - ingest_ping_event
-                                - sip_created_event
-                                - sip_updated_event
-                                - sip_status_updated_event
-                                - sip_workflow_created_event
-                                - sip_workflow_updated_event
-                                - sip_task_created_event
-                                - sip_task_updated_event
-                                - batch_created_event
-                                - batch_updated_event
-                        value:
-                            anyOf:
-                                - $ref: '#/components/schemas/IngestPingEvent'
-                                - $ref: '#/components/schemas/SIPCreatedEvent'
-                                - $ref: '#/components/schemas/SIPUpdatedEvent'
-                                - $ref: '#/components/schemas/SIPStatusUpdatedEvent'
-                                - $ref: '#/components/schemas/SIPWorkflowCreatedEvent'
-                                - $ref: '#/components/schemas/SIPWorkflowUpdatedEvent'
-                                - $ref: '#/components/schemas/SIPTaskCreatedEvent'
-                                - $ref: '#/components/schemas/SIPTaskUpdatedEvent'
-                                - $ref: '#/components/schemas/BatchCreatedEvent'
-                                - $ref: '#/components/schemas/BatchUpdatedEvent'
                     example:
+                        type: sip_created_event
+                        value:
+                            item:
+                                aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                batch_identifier: abc123
+                                batch_status: processing
+                                batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                completed_at: "1970-01-01T00:00:01Z"
+                                created_at: "1970-01-01T00:00:01Z"
+                                failed_as: PIP
+                                failed_key: abc123
+                                file_count: 1
+                                name: abc123
+                                started_at: "1970-01-01T00:00:01Z"
+                                status: failed
+                                uploader_email: abc123
+                                uploader_name: abc123
+                                uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    anyOf:
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - ingest_ping_event
+                            value:
+                                $ref: '#/components/schemas/IngestPingEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - sip_created_event
+                            value:
+                                $ref: '#/components/schemas/SIPCreatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - sip_updated_event
+                            value:
+                                $ref: '#/components/schemas/SIPUpdatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - sip_status_updated_event
+                            value:
+                                $ref: '#/components/schemas/SIPStatusUpdatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - sip_workflow_created_event
+                            value:
+                                $ref: '#/components/schemas/SIPWorkflowCreatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - sip_workflow_updated_event
+                            value:
+                                $ref: '#/components/schemas/SIPWorkflowUpdatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - sip_task_created_event
+                            value:
+                                $ref: '#/components/schemas/SIPTaskCreatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - sip_task_updated_event
+                            value:
+                                $ref: '#/components/schemas/SIPTaskUpdatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - batch_created_event
+                            value:
+                                $ref: '#/components/schemas/BatchCreatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - batch_updated_event
+                            value:
+                                $ref: '#/components/schemas/BatchUpdatedEvent'
+                          required:
+                            - type
+                            - value
+            example:
+                value:
+                    type: sip_created_event
+                    value:
                         item:
                             aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                             batch_identifier: abc123
@@ -4502,29 +4778,6 @@ components:
                             uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                             uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    required:
-                        - type
-                        - value
-            example:
-                value:
-                    item:
-                        aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                        batch_identifier: abc123
-                        batch_status: processing
-                        batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                        completed_at: "1970-01-01T00:00:01Z"
-                        created_at: "1970-01-01T00:00:01Z"
-                        failed_as: PIP
-                        failed_key: abc123
-                        file_count: 1
-                        name: abc123
-                        started_at: "1970-01-01T00:00:01Z"
-                        status: failed
-                        uploader_email: abc123
-                        uploader_name: abc123
-                        uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                        uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         IngestPingEvent:
             type: object
             properties:
@@ -4545,14 +4798,16 @@ components:
             example:
                 item:
                     config:
-                        bucket: abc123
-                        endpoint: abc123
-                        key: abc123
-                        path_style: false
-                        profile: abc123
-                        region: abc123
-                        secret: abc123
-                        token: abc123
+                        type: s3
+                        value:
+                            bucket: abc123
+                            endpoint: abc123
+                            key: abc123
+                            path_style: false
+                            profile: abc123
+                            region: abc123
+                            secret: abc123
+                            token: abc123
                     created_at: "1970-01-01T00:00:01Z"
                     description: abc123
                     name: abc123
@@ -4573,7 +4828,7 @@ components:
                 uuid:
                     type: string
                     example: abc123
-            description: Storage location not found.
+            description: Storage location not found
             example:
                 message: abc123
                 uuid: abc123
@@ -4660,6 +4915,7 @@ components:
                 reason:
                     type: string
                     example: abc123
+            description: Request body for request_aip_deletion.
             example:
                 reason: abc123
             required:
@@ -4670,6 +4926,7 @@ components:
                 approved:
                     type: boolean
                     example: false
+            description: Request body for review_aip_deletion.
             example:
                 approved: false
             required:
@@ -4680,6 +4937,7 @@ components:
                 continue:
                     type: boolean
                     example: false
+            description: Request body for review_batch.
             example:
                 continue: false
             required:
@@ -4812,7 +5070,7 @@ components:
                     description: Identifier of missing SIP
                     example: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     format: uuid
-            description: SIP not found.
+            description: SIP not found
             example:
                 message: abc123
                 uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -5025,43 +5283,155 @@ components:
             properties:
                 value:
                     type: object
-                    properties:
-                        type:
-                            type: string
-                            enum:
-                                - storage_ping_event
-                                - location_created_event
-                                - aip_created_event
-                                - aip_updated_event
-                                - aip_status_updated_event
-                                - aip_location_updated_event
-                                - aip_workflow_created_event
-                                - aip_workflow_updated_event
-                                - aip_task_created_event
-                                - aip_task_updated_event
-                        value:
-                            anyOf:
-                                - $ref: '#/components/schemas/StoragePingEvent'
-                                - $ref: '#/components/schemas/LocationCreatedEvent'
-                                - $ref: '#/components/schemas/AIPCreatedEvent'
-                                - $ref: '#/components/schemas/AIPUpdatedEvent'
-                                - $ref: '#/components/schemas/AIPStatusUpdatedEvent'
-                                - $ref: '#/components/schemas/AIPLocationUpdatedEvent'
-                                - $ref: '#/components/schemas/AIPWorkflowCreatedEvent'
-                                - $ref: '#/components/schemas/AIPWorkflowUpdatedEvent'
-                                - $ref: '#/components/schemas/AIPTaskCreatedEvent'
-                                - $ref: '#/components/schemas/AIPTaskUpdatedEvent'
                     example:
+                        type: location_created_event
+                        value:
+                            item:
+                                config:
+                                    type: s3
+                                    value:
+                                        bucket: abc123
+                                        endpoint: abc123
+                                        key: abc123
+                                        path_style: false
+                                        profile: abc123
+                                        region: abc123
+                                        secret: abc123
+                                        token: abc123
+                                created_at: "1970-01-01T00:00:01Z"
+                                description: abc123
+                                name: abc123
+                                purpose: aip_store
+                                source: s3
+                                uuid: abc123
+                            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                    anyOf:
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - storage_ping_event
+                            value:
+                                $ref: '#/components/schemas/StoragePingEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - location_created_event
+                            value:
+                                $ref: '#/components/schemas/LocationCreatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - aip_created_event
+                            value:
+                                $ref: '#/components/schemas/AIPCreatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - aip_updated_event
+                            value:
+                                $ref: '#/components/schemas/AIPUpdatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - aip_status_updated_event
+                            value:
+                                $ref: '#/components/schemas/AIPStatusUpdatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - aip_location_updated_event
+                            value:
+                                $ref: '#/components/schemas/AIPLocationUpdatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - aip_workflow_created_event
+                            value:
+                                $ref: '#/components/schemas/AIPWorkflowCreatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - aip_workflow_updated_event
+                            value:
+                                $ref: '#/components/schemas/AIPWorkflowUpdatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - aip_task_created_event
+                            value:
+                                $ref: '#/components/schemas/AIPTaskCreatedEvent'
+                          required:
+                            - type
+                            - value
+                        - type: object
+                          properties:
+                            type:
+                                type: string
+                                enum:
+                                    - aip_task_updated_event
+                            value:
+                                $ref: '#/components/schemas/AIPTaskUpdatedEvent'
+                          required:
+                            - type
+                            - value
+            example:
+                value:
+                    type: location_created_event
+                    value:
                         item:
                             config:
-                                bucket: abc123
-                                endpoint: abc123
-                                key: abc123
-                                path_style: false
-                                profile: abc123
-                                region: abc123
-                                secret: abc123
-                                token: abc123
+                                type: s3
+                                value:
+                                    bucket: abc123
+                                    endpoint: abc123
+                                    key: abc123
+                                    path_style: false
+                                    profile: abc123
+                                    region: abc123
+                                    secret: abc123
+                                    token: abc123
                             created_at: "1970-01-01T00:00:01Z"
                             description: abc123
                             name: abc123
@@ -5069,28 +5439,6 @@ components:
                             source: s3
                             uuid: abc123
                         uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    required:
-                        - type
-                        - value
-            example:
-                value:
-                    item:
-                        config:
-                            bucket: abc123
-                            endpoint: abc123
-                            key: abc123
-                            path_style: false
-                            profile: abc123
-                            region: abc123
-                            secret: abc123
-                            token: abc123
-                        created_at: "1970-01-01T00:00:01Z"
-                        description: abc123
-                        name: abc123
-                        purpose: aip_store
-                        source: s3
-                        uuid: abc123
-                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
         StoragePingEvent:
             type: object
             properties:
@@ -5106,6 +5454,7 @@ components:
                     type: string
                     description: Selected decision option
                     example: abc123
+            description: Request body for submit_sip_decision.
             example:
                 option: abc123
             required:

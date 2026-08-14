@@ -14,7 +14,7 @@
 
 import { mapValues } from '../runtime';
 /**
- * Batch not found.
+ * Batch not found
  * @export
  * @interface BatchNotFound
  */

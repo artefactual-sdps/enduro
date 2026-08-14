@@ -14,7 +14,7 @@
 
 import { mapValues } from '../runtime';
 /**
- * 
+ * Request body for review_batch.
  * @export
  * @interface ReviewBatchRequestBody
  */

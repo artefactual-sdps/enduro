@@ -9,6 +9,7 @@
 package views
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 
@@ -381,7 +382,7 @@ func (u Value) Kind() ValueKind {
 	return u.kind
 }
 
-// NewValueIngestPingEvent constructs a Value with the ingest_ping_event branch set.
+// NewValueIngestPingEvent constructs Value with the ingest_ping_event branch set.
 func NewValueIngestPingEvent(v *IngestPingEventView) Value {
 	return Value{
 		kind:            ValueKindIngestPingEvent,
@@ -403,7 +404,7 @@ func (u *Value) SetIngestPingEvent(v *IngestPingEventView) {
 	u.IngestPingEvent = v
 }
 
-// NewValueSipCreatedEvent constructs a Value with the sip_created_event branch set.
+// NewValueSipCreatedEvent constructs Value with the sip_created_event branch set.
 func NewValueSipCreatedEvent(v *SIPCreatedEventView) Value {
 	return Value{
 		kind:            ValueKindSipCreatedEvent,
@@ -425,7 +426,7 @@ func (u *Value) SetSipCreatedEvent(v *SIPCreatedEventView) {
 	u.SipCreatedEvent = v
 }
 
-// NewValueSipUpdatedEvent constructs a Value with the sip_updated_event branch set.
+// NewValueSipUpdatedEvent constructs Value with the sip_updated_event branch set.
 func NewValueSipUpdatedEvent(v *SIPUpdatedEventView) Value {
 	return Value{
 		kind:            ValueKindSipUpdatedEvent,
@@ -447,7 +448,7 @@ func (u *Value) SetSipUpdatedEvent(v *SIPUpdatedEventView) {
 	u.SipUpdatedEvent = v
 }
 
-// NewValueSipStatusUpdatedEvent constructs a Value with the sip_status_updated_event branch set.
+// NewValueSipStatusUpdatedEvent constructs Value with the sip_status_updated_event branch set.
 func NewValueSipStatusUpdatedEvent(v *SIPStatusUpdatedEventView) Value {
 	return Value{
 		kind:                  ValueKindSipStatusUpdatedEvent,
@@ -469,7 +470,7 @@ func (u *Value) SetSipStatusUpdatedEvent(v *SIPStatusUpdatedEventView) {
 	u.SipStatusUpdatedEvent = v
 }
 
-// NewValueSipWorkflowCreatedEvent constructs a Value with the sip_workflow_created_event branch set.
+// NewValueSipWorkflowCreatedEvent constructs Value with the sip_workflow_created_event branch set.
 func NewValueSipWorkflowCreatedEvent(v *SIPWorkflowCreatedEventView) Value {
 	return Value{
 		kind:                    ValueKindSipWorkflowCreatedEvent,
@@ -491,7 +492,7 @@ func (u *Value) SetSipWorkflowCreatedEvent(v *SIPWorkflowCreatedEventView) {
 	u.SipWorkflowCreatedEvent = v
 }
 
-// NewValueSipWorkflowUpdatedEvent constructs a Value with the sip_workflow_updated_event branch set.
+// NewValueSipWorkflowUpdatedEvent constructs Value with the sip_workflow_updated_event branch set.
 func NewValueSipWorkflowUpdatedEvent(v *SIPWorkflowUpdatedEventView) Value {
 	return Value{
 		kind:                    ValueKindSipWorkflowUpdatedEvent,
@@ -513,7 +514,7 @@ func (u *Value) SetSipWorkflowUpdatedEvent(v *SIPWorkflowUpdatedEventView) {
 	u.SipWorkflowUpdatedEvent = v
 }
 
-// NewValueSipTaskCreatedEvent constructs a Value with the sip_task_created_event branch set.
+// NewValueSipTaskCreatedEvent constructs Value with the sip_task_created_event branch set.
 func NewValueSipTaskCreatedEvent(v *SIPTaskCreatedEventView) Value {
 	return Value{
 		kind:                ValueKindSipTaskCreatedEvent,
@@ -535,7 +536,7 @@ func (u *Value) SetSipTaskCreatedEvent(v *SIPTaskCreatedEventView) {
 	u.SipTaskCreatedEvent = v
 }
 
-// NewValueSipTaskUpdatedEvent constructs a Value with the sip_task_updated_event branch set.
+// NewValueSipTaskUpdatedEvent constructs Value with the sip_task_updated_event branch set.
 func NewValueSipTaskUpdatedEvent(v *SIPTaskUpdatedEventView) Value {
 	return Value{
 		kind:                ValueKindSipTaskUpdatedEvent,
@@ -557,7 +558,7 @@ func (u *Value) SetSipTaskUpdatedEvent(v *SIPTaskUpdatedEventView) {
 	u.SipTaskUpdatedEvent = v
 }
 
-// NewValueBatchCreatedEvent constructs a Value with the batch_created_event branch set.
+// NewValueBatchCreatedEvent constructs Value with the batch_created_event branch set.
 func NewValueBatchCreatedEvent(v *BatchCreatedEventView) Value {
 	return Value{
 		kind:              ValueKindBatchCreatedEvent,
@@ -579,7 +580,7 @@ func (u *Value) SetBatchCreatedEvent(v *BatchCreatedEventView) {
 	u.BatchCreatedEvent = v
 }
 
-// NewValueBatchUpdatedEvent constructs a Value with the batch_updated_event branch set.
+// NewValueBatchUpdatedEvent constructs Value with the batch_updated_event branch set.
 func NewValueBatchUpdatedEvent(v *BatchUpdatedEventView) Value {
 	return Value{
 		kind:              ValueKindBatchUpdatedEvent,
@@ -618,24 +619,54 @@ func (u Value) Validate() error {
 			string(ValueKindBatchUpdatedEvent),
 		})
 	case ValueKindIngestPingEvent:
+		if u.IngestPingEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipCreatedEvent:
+		if u.SipCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipUpdatedEvent:
+		if u.SipUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipStatusUpdatedEvent:
+		if u.SipStatusUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipWorkflowCreatedEvent:
+		if u.SipWorkflowCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipWorkflowUpdatedEvent:
+		if u.SipWorkflowUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipTaskCreatedEvent:
+		if u.SipTaskCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindSipTaskUpdatedEvent:
+		if u.SipTaskUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindBatchCreatedEvent:
+		if u.BatchCreatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	case ValueKindBatchUpdatedEvent:
+		if u.BatchUpdatedEvent == nil {
+			return goa.MissingFieldError("value", "Value")
+		}
 		return nil
 	default:
 		return goa.InvalidEnumValueError("type", u.kind, []any{
@@ -702,6 +733,12 @@ func (u *Value) UnmarshalJSON(data []byte) error {
 	}
 	if err := json.Unmarshal(data, &raw); err != nil {
 		return err
+	}
+	if len(raw.Value) == 0 {
+		return goa.MissingFieldError("value", "Value")
+	}
+	if bytes.Equal(bytes.TrimSpace(raw.Value), []byte("null")) {
+		return goa.InvalidFieldTypeError("value", nil, "non-null JSON value")
 	}
 	switch raw.Type {
 	case string(ValueKindIngestPingEvent):
@@ -775,7 +812,21 @@ func (u *Value) UnmarshalJSON(data []byte) error {
 		u.kind = ValueKindBatchUpdatedEvent
 		u.BatchUpdatedEvent = v
 	default:
-		return fmt.Errorf("unexpected Value type %q", raw.Type)
+		if raw.Type == "" {
+			return goa.MissingFieldError("type", "Value")
+		}
+		return goa.InvalidEnumValueError("type", raw.Type, []any{
+			string(ValueKindIngestPingEvent),
+			string(ValueKindSipCreatedEvent),
+			string(ValueKindSipUpdatedEvent),
+			string(ValueKindSipStatusUpdatedEvent),
+			string(ValueKindSipWorkflowCreatedEvent),
+			string(ValueKindSipWorkflowUpdatedEvent),
+			string(ValueKindSipTaskCreatedEvent),
+			string(ValueKindSipTaskUpdatedEvent),
+			string(ValueKindBatchCreatedEvent),
+			string(ValueKindBatchUpdatedEvent),
+		})
 	}
 	return nil
 }

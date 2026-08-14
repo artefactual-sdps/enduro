@@ -1226,7 +1226,7 @@
       "type": "object"
     },
     "EnduroIngestSipDecision": {
-      "description": "show_sip_decision_response_body result type (default view)",
+      "description": "SIPDecision describes an active child workflow decision request. (default view)",
       "example": {
         "message": "abc123",
         "options": [
@@ -1404,7 +1404,7 @@
       "type": "object"
     },
     "EnduroIngestSipWorkflows": {
-      "description": "list_sip_workflows_response_body result type (default view)",
+      "description": "SIPWorkflows describes the workflows of a SIP. (default view)",
       "example": {
         "workflows": [
           {
@@ -1795,7 +1795,7 @@
       "type": "object"
     },
     "EnduroStorageAipWorkflows": {
-      "description": "list_aip_workflows_response_body result type (default view)",
+      "description": "AIPWorkflows describes the workflows of an AIP. (default view)",
       "example": {
         "workflows": [
           {
@@ -1929,7 +1929,7 @@
       "type": "object"
     },
     "IngestAddBatchInternalErrorResponseBody": {
-      "description": "add_batch_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -1982,7 +1982,7 @@
       "type": "object"
     },
     "IngestAddBatchNotValidResponseBody": {
-      "description": "add_batch_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2092,7 +2092,7 @@
       "type": "object"
     },
     "IngestAddSipInternalErrorResponseBody": {
-      "description": "add_sip_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2145,7 +2145,7 @@
       "type": "object"
     },
     "IngestAddSipNotValidResponseBody": {
-      "description": "add_sip_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2241,7 +2241,7 @@
       "type": "object"
     },
     "IngestConfirmSipNotAvailableResponseBody": {
-      "description": "confirm_sip_not_available_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2294,7 +2294,7 @@
       "type": "object"
     },
     "IngestConfirmSipNotValidResponseBody": {
-      "description": "confirm_sip_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2364,7 +2364,7 @@
       "type": "object"
     },
     "IngestDownloadSipInternalErrorResponseBody": {
-      "description": "download_sip_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2417,7 +2417,7 @@
       "type": "object"
     },
     "IngestDownloadSipNotValidResponseBody": {
-      "description": "download_sip_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2470,7 +2470,7 @@
       "type": "object"
     },
     "IngestDownloadSipRequestInternalErrorResponseBody": {
-      "description": "download_sip_request_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2523,7 +2523,7 @@
       "type": "object"
     },
     "IngestDownloadSipRequestNotValidResponseBody": {
-      "description": "download_sip_request_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2578,30 +2578,8 @@
     "IngestEvent": {
       "example": {
         "value": {
-          "item": {
-            "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-            "batch_identifier": "abc123",
-            "batch_status": "processing",
-            "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-            "completed_at": "1970-01-01T00:00:01Z",
-            "created_at": "1970-01-01T00:00:01Z",
-            "failed_as": "PIP",
-            "failed_key": "abc123",
-            "file_count": 1,
-            "name": "abc123",
-            "started_at": "1970-01-01T00:00:01Z",
-            "status": "failed",
-            "uploader_email": "abc123",
-            "uploader_name": "abc123",
-            "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
-            "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-          },
-          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-        }
-      },
-      "properties": {
-        "value": {
-          "example": {
+          "type": "sip_created_event",
+          "value": {
             "item": {
               "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
               "batch_identifier": "abc123",
@@ -2621,62 +2599,217 @@
               "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
             },
             "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-          },
-          "properties": {
-            "type": {
-              "enum": [
-                "ingest_ping_event",
-                "sip_created_event",
-                "sip_updated_event",
-                "sip_status_updated_event",
-                "sip_workflow_created_event",
-                "sip_workflow_updated_event",
-                "sip_task_created_event",
-                "sip_task_updated_event",
-                "batch_created_event",
-                "batch_updated_event"
-              ],
-              "type": "string"
-            },
-            "value": {
-              "anyOf": [
-                {
+          }
+        }
+      },
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "ingest_ping_event"
+                  ],
+                  "type": "string"
+                },
+                "value": {
                   "$ref": "#/definitions/IngestPingEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "sip_created_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/SIPCreatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "sip_updated_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/SIPUpdatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "sip_status_updated_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/SIPStatusUpdatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "sip_workflow_created_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/SIPWorkflowCreatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "sip_workflow_updated_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/SIPWorkflowUpdatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "sip_task_created_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/SIPTaskCreatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "sip_task_updated_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/SIPTaskUpdatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "batch_created_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/BatchCreatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "batch_updated_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/BatchUpdatedEvent"
                 }
-              ]
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            }
+          ],
+          "example": {
+            "type": "sip_created_event",
+            "value": {
+              "item": {
+                "aip_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                "batch_identifier": "abc123",
+                "batch_status": "processing",
+                "batch_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                "completed_at": "1970-01-01T00:00:01Z",
+                "created_at": "1970-01-01T00:00:01Z",
+                "failed_as": "PIP",
+                "failed_key": "abc123",
+                "file_count": 1,
+                "name": "abc123",
+                "started_at": "1970-01-01T00:00:01Z",
+                "status": "failed",
+                "uploader_email": "abc123",
+                "uploader_name": "abc123",
+                "uploader_uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5",
+                "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
+              },
+              "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
             }
           },
-          "required": [
-            "type",
-            "value"
-          ],
           "type": "object"
         }
       },
@@ -2684,7 +2817,7 @@
       "type": "object"
     },
     "IngestListBatchesInternalErrorResponseBody": {
-      "description": "list_batches_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2737,7 +2870,7 @@
       "type": "object"
     },
     "IngestListBatchesNotValidResponseBody": {
-      "description": "list_batches_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2790,7 +2923,7 @@
       "type": "object"
     },
     "IngestListSipSourceObjectsInternalErrorResponseBody": {
-      "description": "list_sip_source_objects_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2843,7 +2976,7 @@
       "type": "object"
     },
     "IngestListSipSourceObjectsNotFoundResponseBody": {
-      "description": "list_sip_source_objects_not_found_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2896,7 +3029,7 @@
       "type": "object"
     },
     "IngestListSipSourceObjectsNotValidResponseBody": {
-      "description": "list_sip_source_objects_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -2949,7 +3082,7 @@
       "type": "object"
     },
     "IngestListSipsNotValidResponseBody": {
-      "description": "list_sips_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3002,7 +3135,7 @@
       "type": "object"
     },
     "IngestListUsersNotValidResponseBody": {
-      "description": "list_users_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3055,7 +3188,7 @@
       "type": "object"
     },
     "IngestMonitorInternalErrorResponseBody": {
-      "description": "monitor_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3121,7 +3254,7 @@
       "type": "object"
     },
     "IngestRejectSipNotAvailableResponseBody": {
-      "description": "reject_sip_not_available_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3174,7 +3307,7 @@
       "type": "object"
     },
     "IngestRejectSipNotValidResponseBody": {
-      "description": "reject_sip_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3227,7 +3360,7 @@
       "type": "object"
     },
     "IngestReviewBatchInternalErrorResponseBody": {
-      "description": "review_batch_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3280,7 +3413,7 @@
       "type": "object"
     },
     "IngestReviewBatchNotValidResponseBody": {
-      "description": "review_batch_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3349,7 +3482,7 @@
       "type": "object"
     },
     "IngestShowBatchInternalErrorResponseBody": {
-      "description": "show_batch_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3402,7 +3535,7 @@
       "type": "object"
     },
     "IngestShowBatchNotValidResponseBody": {
-      "description": "show_batch_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3455,7 +3588,7 @@
       "type": "object"
     },
     "IngestShowSipDecisionInternalErrorResponseBody": {
-      "description": "show_sip_decision_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3508,7 +3641,7 @@
       "type": "object"
     },
     "IngestShowSipDecisionNotAvailableResponseBody": {
-      "description": "show_sip_decision_not_available_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3561,7 +3694,7 @@
       "type": "object"
     },
     "IngestShowSipDecisionNotValidResponseBody": {
-      "description": "show_sip_decision_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3614,7 +3747,7 @@
       "type": "object"
     },
     "IngestShowSipNotAvailableResponseBody": {
-      "description": "show_sip_not_available_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3667,7 +3800,7 @@
       "type": "object"
     },
     "IngestSubmitSipDecisionInternalErrorResponseBody": {
-      "description": "submit_sip_decision_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3720,7 +3853,7 @@
       "type": "object"
     },
     "IngestSubmitSipDecisionNotAvailableResponseBody": {
-      "description": "submit_sip_decision_not_available_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -3773,7 +3906,7 @@
       "type": "object"
     },
     "IngestSubmitSipDecisionNotValidResponseBody": {
-      "description": "submit_sip_decision_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -4023,14 +4156,17 @@
       "example": {
         "item": {
           "config": {
-            "bucket": "abc123",
-            "endpoint": "abc123",
-            "key": "abc123",
-            "path_style": false,
-            "profile": "abc123",
-            "region": "abc123",
-            "secret": "abc123",
-            "token": "abc123"
+            "type": "s3",
+            "value": {
+              "bucket": "abc123",
+              "endpoint": "abc123",
+              "key": "abc123",
+              "path_style": false,
+              "profile": "abc123",
+              "region": "abc123",
+              "secret": "abc123",
+              "token": "abc123"
+            }
           },
           "created_at": "1970-01-01T00:00:01Z",
           "description": "abc123",
@@ -4964,7 +5100,7 @@
       "type": "array"
     },
     "StorageAipDeletionAutoInternalErrorResponseBody": {
-      "description": "aip_deletion_auto_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5017,7 +5153,7 @@
       "type": "object"
     },
     "StorageAipDeletionAutoNotValidResponseBody": {
-      "description": "aip_deletion_auto_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5092,7 +5228,7 @@
       "type": "object"
     },
     "StorageAipDeletionReportInternalErrorResponseBody": {
-      "description": "aip_deletion_report_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5145,7 +5281,7 @@
       "type": "object"
     },
     "StorageAipDeletionReportNotFoundResponseBody": {
-      "description": "aip_deletion_report_not_found_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5198,7 +5334,7 @@
       "type": "object"
     },
     "StorageAipDeletionReportNotValidResponseBody": {
-      "description": "aip_deletion_report_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5251,7 +5387,7 @@
       "type": "object"
     },
     "StorageAipDeletionReportRequestInternalErrorResponseBody": {
-      "description": "aip_deletion_report_request_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5304,7 +5440,7 @@
       "type": "object"
     },
     "StorageAipDeletionReportRequestNotFoundResponseBody": {
-      "description": "aip_deletion_report_request_not_found_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5357,7 +5493,7 @@
       "type": "object"
     },
     "StorageAipDeletionReportRequestNotValidResponseBody": {
-      "description": "aip_deletion_report_request_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5410,7 +5546,7 @@
       "type": "object"
     },
     "StorageCancelAipDeletionInternalErrorResponseBody": {
-      "description": "cancel_aip_deletion_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5463,7 +5599,7 @@
       "type": "object"
     },
     "StorageCancelAipDeletionNotValidResponseBody": {
-      "description": "cancel_aip_deletion_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5530,7 +5666,7 @@
       "type": "object"
     },
     "StorageCreateAipNotValidResponseBody": {
-      "description": "create_aip_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5637,7 +5773,7 @@
       "type": "object"
     },
     "StorageCreateLocationNotValidResponseBody": {
-      "description": "create_location_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5692,23 +5828,8 @@
     "StorageCreateLocationRequestBody": {
       "example": {
         "config": {
-          "bucket": "abc123",
-          "endpoint": "abc123",
-          "key": "abc123",
-          "path_style": false,
-          "profile": "abc123",
-          "region": "abc123",
-          "secret": "abc123",
-          "token": "abc123"
-        },
-        "description": "abc123",
-        "name": "abc123",
-        "purpose": "aip_store",
-        "source": "s3"
-      },
-      "properties": {
-        "config": {
-          "example": {
+          "type": "s3",
+          "value": {
             "bucket": "abc123",
             "endpoint": "abc123",
             "key": "abc123",
@@ -5717,38 +5838,102 @@
             "region": "abc123",
             "secret": "abc123",
             "token": "abc123"
-          },
-          "properties": {
-            "type": {
-              "enum": [
-                "amss",
-                "s3",
-                "sftp",
-                "url"
-              ],
-              "type": "string"
-            },
-            "value": {
-              "anyOf": [
-                {
+          }
+        },
+        "description": "abc123",
+        "name": "abc123",
+        "purpose": "aip_store",
+        "source": "s3"
+      },
+      "properties": {
+        "config": {
+          "anyOf": [
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "amss"
+                  ],
+                  "type": "string"
+                },
+                "value": {
                   "$ref": "#/definitions/AMSSConfig"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "s3"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/S3Config"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "sftp"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/SFTPConfig"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "url"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/URLConfig"
                 }
-              ]
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            }
+          ],
+          "example": {
+            "type": "s3",
+            "value": {
+              "bucket": "abc123",
+              "endpoint": "abc123",
+              "key": "abc123",
+              "path_style": false,
+              "profile": "abc123",
+              "region": "abc123",
+              "secret": "abc123",
+              "token": "abc123"
             }
           },
-          "required": [
-            "type",
-            "value"
-          ],
           "type": "object"
         },
         "description": {
@@ -5788,7 +5973,7 @@
       "type": "object"
     },
     "StorageDownloadAipInternalErrorResponseBody": {
-      "description": "download_aip_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5841,7 +6026,7 @@
       "type": "object"
     },
     "StorageDownloadAipNotValidResponseBody": {
-      "description": "download_aip_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5894,7 +6079,7 @@
       "type": "object"
     },
     "StorageDownloadAipRequestInternalErrorResponseBody": {
-      "description": "download_aip_request_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5947,7 +6132,7 @@
       "type": "object"
     },
     "StorageDownloadAipRequestNotValidResponseBody": {
-      "description": "download_aip_request_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6002,40 +6187,21 @@
     "StorageEvent": {
       "example": {
         "value": {
-          "item": {
-            "config": {
-              "bucket": "abc123",
-              "endpoint": "abc123",
-              "key": "abc123",
-              "path_style": false,
-              "profile": "abc123",
-              "region": "abc123",
-              "secret": "abc123",
-              "token": "abc123"
-            },
-            "created_at": "1970-01-01T00:00:01Z",
-            "description": "abc123",
-            "name": "abc123",
-            "purpose": "aip_store",
-            "source": "s3",
-            "uuid": "abc123"
-          },
-          "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-        }
-      },
-      "properties": {
-        "value": {
-          "example": {
+          "type": "location_created_event",
+          "value": {
             "item": {
               "config": {
-                "bucket": "abc123",
-                "endpoint": "abc123",
-                "key": "abc123",
-                "path_style": false,
-                "profile": "abc123",
-                "region": "abc123",
-                "secret": "abc123",
-                "token": "abc123"
+                "type": "s3",
+                "value": {
+                  "bucket": "abc123",
+                  "endpoint": "abc123",
+                  "key": "abc123",
+                  "path_style": false,
+                  "profile": "abc123",
+                  "region": "abc123",
+                  "secret": "abc123",
+                  "token": "abc123"
+                }
               },
               "created_at": "1970-01-01T00:00:01Z",
               "description": "abc123",
@@ -6045,62 +6211,220 @@
               "uuid": "abc123"
             },
             "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
-          },
-          "properties": {
-            "type": {
-              "enum": [
-                "storage_ping_event",
-                "location_created_event",
-                "aip_created_event",
-                "aip_updated_event",
-                "aip_status_updated_event",
-                "aip_location_updated_event",
-                "aip_workflow_created_event",
-                "aip_workflow_updated_event",
-                "aip_task_created_event",
-                "aip_task_updated_event"
-              ],
-              "type": "string"
-            },
-            "value": {
-              "anyOf": [
-                {
+          }
+        }
+      },
+      "properties": {
+        "value": {
+          "anyOf": [
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "storage_ping_event"
+                  ],
+                  "type": "string"
+                },
+                "value": {
                   "$ref": "#/definitions/StoragePingEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "location_created_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/LocationCreatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "aip_created_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/AIPCreatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "aip_updated_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/AIPUpdatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "aip_status_updated_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/AIPStatusUpdatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "aip_location_updated_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/AIPLocationUpdatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "aip_workflow_created_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/AIPWorkflowCreatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "aip_workflow_updated_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/AIPWorkflowUpdatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "aip_task_created_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/AIPTaskCreatedEvent"
+                }
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            },
+            {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "aip_task_updated_event"
+                  ],
+                  "type": "string"
                 },
-                {
+                "value": {
                   "$ref": "#/definitions/AIPTaskUpdatedEvent"
                 }
-              ]
+              },
+              "required": [
+                "type",
+                "value"
+              ],
+              "type": "object"
+            }
+          ],
+          "example": {
+            "type": "location_created_event",
+            "value": {
+              "item": {
+                "config": {
+                  "type": "s3",
+                  "value": {
+                    "bucket": "abc123",
+                    "endpoint": "abc123",
+                    "key": "abc123",
+                    "path_style": false,
+                    "profile": "abc123",
+                    "region": "abc123",
+                    "secret": "abc123",
+                    "token": "abc123"
+                  }
+                },
+                "created_at": "1970-01-01T00:00:01Z",
+                "description": "abc123",
+                "name": "abc123",
+                "purpose": "aip_store",
+                "source": "s3",
+                "uuid": "abc123"
+              },
+              "uuid": "d1845cb6-a5ea-474a-9ab8-26f9bcd919f5"
             }
           },
-          "required": [
-            "type",
-            "value"
-          ],
           "type": "object"
         }
       },
@@ -6108,7 +6432,7 @@
       "type": "object"
     },
     "StorageListAipsNotAvailableResponseBody": {
-      "description": "list_aips_not_available_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6161,7 +6485,7 @@
       "type": "object"
     },
     "StorageListAipsNotValidResponseBody": {
-      "description": "list_aips_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6214,7 +6538,7 @@
       "type": "object"
     },
     "StorageListLocationAipsNotValidResponseBody": {
-      "description": "list_location_aips_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6285,7 +6609,7 @@
       "type": "array"
     },
     "StorageMonitorInternalErrorResponseBody": {
-      "description": "monitor_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6338,7 +6662,7 @@
       "type": "object"
     },
     "StorageMoveAipNotAvailableResponseBody": {
-      "description": "move_aip_not_available_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6391,7 +6715,7 @@
       "type": "object"
     },
     "StorageMoveAipNotValidResponseBody": {
-      "description": "move_aip_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6461,7 +6785,7 @@
       "type": "object"
     },
     "StorageMoveAipStatusFailedDependencyResponseBody": {
-      "description": "move_aip_status_failed_dependency_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6527,7 +6851,7 @@
       "type": "object"
     },
     "StorageRejectAipNotAvailableResponseBody": {
-      "description": "reject_aip_not_available_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6580,7 +6904,7 @@
       "type": "object"
     },
     "StorageRejectAipNotValidResponseBody": {
-      "description": "reject_aip_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6633,7 +6957,7 @@
       "type": "object"
     },
     "StorageRequestAipDeletionInternalErrorResponseBody": {
-      "description": "request_aip_deletion_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6686,7 +7010,7 @@
       "type": "object"
     },
     "StorageRequestAipDeletionNotValidResponseBody": {
-      "description": "request_aip_deletion_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6755,7 +7079,7 @@
       "type": "object"
     },
     "StorageReviewAipDeletionInternalErrorResponseBody": {
-      "description": "review_aip_deletion_internal_error_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -6808,7 +7132,7 @@
       "type": "object"
     },
     "StorageReviewAipDeletionNotValidResponseBody": {
-      "description": "review_aip_deletion_not_valid_response_body result type (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -7327,9 +7651,6 @@
       "get": {
         "description": "Obtain access to the /monitor SSE event stream",
         "operationId": "ingest#monitor",
-        "produces": [
-          "text/event-stream"
-        ],
         "responses": {
           "200": {
             "description": "OK response.",
@@ -9749,9 +10070,6 @@
       "get": {
         "description": "Obtain access to the /monitor SSE event stream",
         "operationId": "storage#monitor",
-        "produces": [
-          "text/event-stream"
-        ],
         "responses": {
           "200": {
             "description": "OK response.",

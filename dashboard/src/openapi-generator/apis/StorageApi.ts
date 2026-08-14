@@ -169,7 +169,7 @@ export interface StorageApiInterface {
     /**
      * Creates request options for storageAipDeletionAuto without sending the request
      * @param {string} uuid Identifier of AIP
-     * @param {AipDeletionAutoRequestBody} aipDeletionAutoRequestBody 
+     * @param {AipDeletionAutoRequestBody} aipDeletionAutoRequestBody Request body for aip_deletion_auto.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
@@ -179,7 +179,7 @@ export interface StorageApiInterface {
      * AIP deletion with auto-approval
      * @summary aip_deletion_auto storage
      * @param {string} uuid Identifier of AIP
-     * @param {AipDeletionAutoRequestBody} aipDeletionAutoRequestBody 
+     * @param {AipDeletionAutoRequestBody} aipDeletionAutoRequestBody Request body for aip_deletion_auto.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -245,7 +245,7 @@ export interface StorageApiInterface {
     /**
      * Creates request options for storageCancelAipDeletion without sending the request
      * @param {string} uuid Identifier of AIP
-     * @param {CancelAipDeletionRequestBody} cancelAipDeletionRequestBody 
+     * @param {CancelAipDeletionRequestBody} cancelAipDeletionRequestBody Request body for cancel_aip_deletion.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
@@ -255,7 +255,7 @@ export interface StorageApiInterface {
      * Cancel an AIP deletion request
      * @summary cancel_aip_deletion storage
      * @param {string} uuid Identifier of AIP
-     * @param {CancelAipDeletionRequestBody} cancelAipDeletionRequestBody 
+     * @param {CancelAipDeletionRequestBody} cancelAipDeletionRequestBody Request body for cancel_aip_deletion.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -270,7 +270,7 @@ export interface StorageApiInterface {
 
     /**
      * Creates request options for storageCreateAip without sending the request
-     * @param {CreateAipRequestBody} createAipRequestBody 
+     * @param {CreateAipRequestBody} createAipRequestBody Request body for create_aip.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
@@ -279,7 +279,7 @@ export interface StorageApiInterface {
     /**
      * Create a new AIP
      * @summary create_aip storage
-     * @param {CreateAipRequestBody} createAipRequestBody 
+     * @param {CreateAipRequestBody} createAipRequestBody Request body for create_aip.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -294,7 +294,7 @@ export interface StorageApiInterface {
 
     /**
      * Creates request options for storageCreateLocation without sending the request
-     * @param {CreateLocationRequestBody} createLocationRequestBody 
+     * @param {CreateLocationRequestBody} createLocationRequestBody Request body for create_location.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
@@ -303,7 +303,7 @@ export interface StorageApiInterface {
     /**
      * Create a storage location
      * @summary create_location storage
-     * @param {CreateLocationRequestBody} createLocationRequestBody 
+     * @param {CreateLocationRequestBody} createLocationRequestBody Request body for create_location.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -499,7 +499,7 @@ export interface StorageApiInterface {
     /**
      * Creates request options for storageMoveAip without sending the request
      * @param {string} uuid Identifier of AIP
-     * @param {ConfirmSipRequestBody} confirmSipRequestBody 
+     * @param {ConfirmSipRequestBody} confirmSipRequestBody Request body for move_aip.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
@@ -509,7 +509,7 @@ export interface StorageApiInterface {
      * Move an AIP to a permanent storage location
      * @summary move_aip storage
      * @param {string} uuid Identifier of AIP
-     * @param {ConfirmSipRequestBody} confirmSipRequestBody 
+     * @param {ConfirmSipRequestBody} confirmSipRequestBody Request body for move_aip.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -573,7 +573,7 @@ export interface StorageApiInterface {
     /**
      * Creates request options for storageRequestAipDeletion without sending the request
      * @param {string} uuid Identifier of AIP
-     * @param {RequestAipDeletionRequestBody} requestAipDeletionRequestBody 
+     * @param {RequestAipDeletionRequestBody} requestAipDeletionRequestBody Request body for request_aip_deletion.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
@@ -583,7 +583,7 @@ export interface StorageApiInterface {
      * Request an AIP deletion
      * @summary request_aip_deletion storage
      * @param {string} uuid Identifier of AIP
-     * @param {RequestAipDeletionRequestBody} requestAipDeletionRequestBody 
+     * @param {RequestAipDeletionRequestBody} requestAipDeletionRequestBody Request body for request_aip_deletion.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
@@ -599,7 +599,7 @@ export interface StorageApiInterface {
     /**
      * Creates request options for storageReviewAipDeletion without sending the request
      * @param {string} uuid Identifier of AIP
-     * @param {ReviewAipDeletionRequestBody} reviewAipDeletionRequestBody 
+     * @param {ReviewAipDeletionRequestBody} reviewAipDeletionRequestBody Request body for review_aip_deletion.
      * @throws {RequiredError}
      * @memberof StorageApiInterface
      */
@@ -609,7 +609,7 @@ export interface StorageApiInterface {
      * Review an AIP deletion request
      * @summary review_aip_deletion storage
      * @param {string} uuid Identifier of AIP
-     * @param {ReviewAipDeletionRequestBody} reviewAipDeletionRequestBody 
+     * @param {ReviewAipDeletionRequestBody} reviewAipDeletionRequestBody Request body for review_aip_deletion.
      * @param {*} [options] Override http request option.
      * @throws {RequiredError}
      * @memberof StorageApiInterface

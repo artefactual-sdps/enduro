@@ -274,8 +274,6 @@ paths:
         get:
             description: Obtain access to the /monitor SSE event stream
             operationId: ingest#monitor
-            produces:
-                - text/event-stream
             responses:
                 "200":
                     description: OK response.
@@ -1997,8 +1995,6 @@ paths:
         get:
             description: Obtain access to the /monitor SSE event stream
             operationId: storage#monitor
-            produces:
-                - text/event-stream
             responses:
                 "200":
                     description: OK response.
@@ -2999,7 +2995,7 @@ definitions:
                     example: abc123
                 example:
                     - abc123
-        description: show_sip_decision_response_body result type (default view)
+        description: SIPDecision describes an active child workflow decision request. (default view)
         example:
             message: abc123
             options:
@@ -3131,7 +3127,7 @@ definitions:
         properties:
             workflows:
                 $ref: '#/definitions/SIPWorkflowResponseBodyCollection'
-        description: list_sip_workflows_response_body result type (default view)
+        description: SIPWorkflows describes the workflows of a SIP. (default view)
         example:
             workflows:
                 - completed_at: "1970-01-01T00:00:01Z"
@@ -3434,7 +3430,7 @@ definitions:
         properties:
             workflows:
                 $ref: '#/definitions/AIPWorkflowResponseBodyCollection'
-        description: list_aip_workflows_response_body result type (default view)
+        description: AIPWorkflows describes the workflows of an AIP. (default view)
         example:
             workflows:
                 - aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
@@ -3558,7 +3554,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: add_batch_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3601,7 +3597,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: add_batch_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3686,7 +3682,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: add_sip_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3729,7 +3725,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: add_sip_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3804,7 +3800,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: confirm_sip_not_available_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3847,7 +3843,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: confirm_sip_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3902,7 +3898,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: download_sip_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3945,7 +3941,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: download_sip_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -3988,7 +3984,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: download_sip_request_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4031,7 +4027,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: download_sip_request_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4052,33 +4048,142 @@ definitions:
         properties:
             value:
                 type: object
-                properties:
-                    type:
-                        type: string
-                        enum:
-                            - ingest_ping_event
-                            - sip_created_event
-                            - sip_updated_event
-                            - sip_status_updated_event
-                            - sip_workflow_created_event
-                            - sip_workflow_updated_event
-                            - sip_task_created_event
-                            - sip_task_updated_event
-                            - batch_created_event
-                            - batch_updated_event
-                    value:
-                        anyOf:
-                            - $ref: '#/definitions/IngestPingEvent'
-                            - $ref: '#/definitions/SIPCreatedEvent'
-                            - $ref: '#/definitions/SIPUpdatedEvent'
-                            - $ref: '#/definitions/SIPStatusUpdatedEvent'
-                            - $ref: '#/definitions/SIPWorkflowCreatedEvent'
-                            - $ref: '#/definitions/SIPWorkflowUpdatedEvent'
-                            - $ref: '#/definitions/SIPTaskCreatedEvent'
-                            - $ref: '#/definitions/SIPTaskUpdatedEvent'
-                            - $ref: '#/definitions/BatchCreatedEvent'
-                            - $ref: '#/definitions/BatchUpdatedEvent'
                 example:
+                    type: sip_created_event
+                    value:
+                        item:
+                            aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            batch_identifier: abc123
+                            batch_status: processing
+                            batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            completed_at: "1970-01-01T00:00:01Z"
+                            created_at: "1970-01-01T00:00:01Z"
+                            failed_as: PIP
+                            failed_key: abc123
+                            file_count: 1
+                            name: abc123
+                            started_at: "1970-01-01T00:00:01Z"
+                            status: failed
+                            uploader_email: abc123
+                            uploader_name: abc123
+                            uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                            uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                        uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                anyOf:
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - ingest_ping_event
+                        value:
+                            $ref: '#/definitions/IngestPingEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - sip_created_event
+                        value:
+                            $ref: '#/definitions/SIPCreatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - sip_updated_event
+                        value:
+                            $ref: '#/definitions/SIPUpdatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - sip_status_updated_event
+                        value:
+                            $ref: '#/definitions/SIPStatusUpdatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - sip_workflow_created_event
+                        value:
+                            $ref: '#/definitions/SIPWorkflowCreatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - sip_workflow_updated_event
+                        value:
+                            $ref: '#/definitions/SIPWorkflowUpdatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - sip_task_created_event
+                        value:
+                            $ref: '#/definitions/SIPTaskCreatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - sip_task_updated_event
+                        value:
+                            $ref: '#/definitions/SIPTaskUpdatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - batch_created_event
+                        value:
+                            $ref: '#/definitions/BatchCreatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - batch_updated_event
+                        value:
+                            $ref: '#/definitions/BatchUpdatedEvent'
+                      required:
+                        - type
+                        - value
+        example:
+            value:
+                type: sip_created_event
+                value:
                     item:
                         aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         batch_identifier: abc123
@@ -4097,29 +4202,6 @@ definitions:
                         uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                         uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
                     uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                required:
-                    - type
-                    - value
-        example:
-            value:
-                item:
-                    aip_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    batch_identifier: abc123
-                    batch_status: processing
-                    batch_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    completed_at: "1970-01-01T00:00:01Z"
-                    created_at: "1970-01-01T00:00:01Z"
-                    failed_as: PIP
-                    failed_key: abc123
-                    file_count: 1
-                    name: abc123
-                    started_at: "1970-01-01T00:00:01Z"
-                    status: failed
-                    uploader_email: abc123
-                    uploader_name: abc123
-                    uploader_uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                    uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     IngestListBatchesInternalErrorResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -4148,7 +4230,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_batches_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4191,7 +4273,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_batches_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4234,7 +4316,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_sip_source_objects_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4277,7 +4359,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_sip_source_objects_not_found_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4320,7 +4402,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_sip_source_objects_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4363,7 +4445,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_sips_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4406,7 +4488,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_users_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4449,7 +4531,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: monitor_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4501,7 +4583,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: reject_sip_not_available_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4544,7 +4626,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: reject_sip_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4587,7 +4669,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: review_batch_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4630,7 +4712,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: review_batch_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4684,7 +4766,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: show_batch_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4727,7 +4809,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: show_batch_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4770,7 +4852,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: show_sip_decision_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4813,7 +4895,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: show_sip_decision_not_available_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4856,7 +4938,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: show_sip_decision_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4899,7 +4981,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: show_sip_not_available_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4942,7 +5024,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: submit_sip_decision_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -4985,7 +5067,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: submit_sip_decision_not_available_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -5028,7 +5110,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: submit_sip_decision_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -5210,14 +5292,16 @@ definitions:
         example:
             item:
                 config:
-                    bucket: abc123
-                    endpoint: abc123
-                    key: abc123
-                    path_style: false
-                    profile: abc123
-                    region: abc123
-                    secret: abc123
-                    token: abc123
+                    type: s3
+                    value:
+                        bucket: abc123
+                        endpoint: abc123
+                        key: abc123
+                        path_style: false
+                        profile: abc123
+                        region: abc123
+                        secret: abc123
+                        token: abc123
                 created_at: "1970-01-01T00:00:01Z"
                 description: abc123
                 name: abc123
@@ -5969,7 +6053,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: aip_deletion_auto_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6012,7 +6096,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: aip_deletion_auto_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6071,7 +6155,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: aip_deletion_report_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6114,7 +6198,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: aip_deletion_report_not_found_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6157,7 +6241,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: aip_deletion_report_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6200,7 +6284,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: aip_deletion_report_request_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6243,7 +6327,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: aip_deletion_report_request_not_found_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6286,7 +6370,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: aip_deletion_report_request_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6329,7 +6413,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: cancel_aip_deletion_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6372,7 +6456,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: cancel_aip_deletion_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6425,7 +6509,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: create_aip_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6512,7 +6596,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: create_location_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6533,32 +6617,62 @@ definitions:
         properties:
             config:
                 type: object
-                properties:
-                    type:
-                        type: string
-                        enum:
-                            - amss
-                            - s3
-                            - sftp
-                            - url
-                    value:
-                        anyOf:
-                            - $ref: '#/definitions/AMSSConfig'
-                            - $ref: '#/definitions/S3Config'
-                            - $ref: '#/definitions/SFTPConfig'
-                            - $ref: '#/definitions/URLConfig'
                 example:
-                    bucket: abc123
-                    endpoint: abc123
-                    key: abc123
-                    path_style: false
-                    profile: abc123
-                    region: abc123
-                    secret: abc123
-                    token: abc123
-                required:
-                    - type
-                    - value
+                    type: s3
+                    value:
+                        bucket: abc123
+                        endpoint: abc123
+                        key: abc123
+                        path_style: false
+                        profile: abc123
+                        region: abc123
+                        secret: abc123
+                        token: abc123
+                anyOf:
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - amss
+                        value:
+                            $ref: '#/definitions/AMSSConfig'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - s3
+                        value:
+                            $ref: '#/definitions/S3Config'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - sftp
+                        value:
+                            $ref: '#/definitions/SFTPConfig'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - url
+                        value:
+                            $ref: '#/definitions/URLConfig'
+                      required:
+                        - type
+                        - value
             description:
                 type: string
                 example: abc123
@@ -6582,14 +6696,16 @@ definitions:
                     - filesystem
         example:
             config:
-                bucket: abc123
-                endpoint: abc123
-                key: abc123
-                path_style: false
-                profile: abc123
-                region: abc123
-                secret: abc123
-                token: abc123
+                type: s3
+                value:
+                    bucket: abc123
+                    endpoint: abc123
+                    key: abc123
+                    path_style: false
+                    profile: abc123
+                    region: abc123
+                    secret: abc123
+                    token: abc123
             description: abc123
             name: abc123
             purpose: aip_store
@@ -6626,7 +6742,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: download_aip_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6669,7 +6785,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: download_aip_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6712,7 +6828,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: download_aip_request_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6755,7 +6871,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: download_aip_request_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6776,43 +6892,155 @@ definitions:
         properties:
             value:
                 type: object
-                properties:
-                    type:
-                        type: string
-                        enum:
-                            - storage_ping_event
-                            - location_created_event
-                            - aip_created_event
-                            - aip_updated_event
-                            - aip_status_updated_event
-                            - aip_location_updated_event
-                            - aip_workflow_created_event
-                            - aip_workflow_updated_event
-                            - aip_task_created_event
-                            - aip_task_updated_event
-                    value:
-                        anyOf:
-                            - $ref: '#/definitions/StoragePingEvent'
-                            - $ref: '#/definitions/LocationCreatedEvent'
-                            - $ref: '#/definitions/AIPCreatedEvent'
-                            - $ref: '#/definitions/AIPUpdatedEvent'
-                            - $ref: '#/definitions/AIPStatusUpdatedEvent'
-                            - $ref: '#/definitions/AIPLocationUpdatedEvent'
-                            - $ref: '#/definitions/AIPWorkflowCreatedEvent'
-                            - $ref: '#/definitions/AIPWorkflowUpdatedEvent'
-                            - $ref: '#/definitions/AIPTaskCreatedEvent'
-                            - $ref: '#/definitions/AIPTaskUpdatedEvent'
                 example:
+                    type: location_created_event
+                    value:
+                        item:
+                            config:
+                                type: s3
+                                value:
+                                    bucket: abc123
+                                    endpoint: abc123
+                                    key: abc123
+                                    path_style: false
+                                    profile: abc123
+                                    region: abc123
+                                    secret: abc123
+                                    token: abc123
+                            created_at: "1970-01-01T00:00:01Z"
+                            description: abc123
+                            name: abc123
+                            purpose: aip_store
+                            source: s3
+                            uuid: abc123
+                        uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
+                anyOf:
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - storage_ping_event
+                        value:
+                            $ref: '#/definitions/StoragePingEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - location_created_event
+                        value:
+                            $ref: '#/definitions/LocationCreatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - aip_created_event
+                        value:
+                            $ref: '#/definitions/AIPCreatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - aip_updated_event
+                        value:
+                            $ref: '#/definitions/AIPUpdatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - aip_status_updated_event
+                        value:
+                            $ref: '#/definitions/AIPStatusUpdatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - aip_location_updated_event
+                        value:
+                            $ref: '#/definitions/AIPLocationUpdatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - aip_workflow_created_event
+                        value:
+                            $ref: '#/definitions/AIPWorkflowCreatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - aip_workflow_updated_event
+                        value:
+                            $ref: '#/definitions/AIPWorkflowUpdatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - aip_task_created_event
+                        value:
+                            $ref: '#/definitions/AIPTaskCreatedEvent'
+                      required:
+                        - type
+                        - value
+                    - type: object
+                      properties:
+                        type:
+                            type: string
+                            enum:
+                                - aip_task_updated_event
+                        value:
+                            $ref: '#/definitions/AIPTaskUpdatedEvent'
+                      required:
+                        - type
+                        - value
+        example:
+            value:
+                type: location_created_event
+                value:
                     item:
                         config:
-                            bucket: abc123
-                            endpoint: abc123
-                            key: abc123
-                            path_style: false
-                            profile: abc123
-                            region: abc123
-                            secret: abc123
-                            token: abc123
+                            type: s3
+                            value:
+                                bucket: abc123
+                                endpoint: abc123
+                                key: abc123
+                                path_style: false
+                                profile: abc123
+                                region: abc123
+                                secret: abc123
+                                token: abc123
                         created_at: "1970-01-01T00:00:01Z"
                         description: abc123
                         name: abc123
@@ -6820,28 +7048,6 @@ definitions:
                         source: s3
                         uuid: abc123
                     uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
-                required:
-                    - type
-                    - value
-        example:
-            value:
-                item:
-                    config:
-                        bucket: abc123
-                        endpoint: abc123
-                        key: abc123
-                        path_style: false
-                        profile: abc123
-                        region: abc123
-                        secret: abc123
-                        token: abc123
-                    created_at: "1970-01-01T00:00:01Z"
-                    description: abc123
-                    name: abc123
-                    purpose: aip_store
-                    source: s3
-                    uuid: abc123
-                uuid: d1845cb6-a5ea-474a-9ab8-26f9bcd919f5
     StorageListAipsNotAvailableResponseBody:
         title: 'Mediatype identifier: application/vnd.goa.error; view=default'
         type: object
@@ -6870,7 +7076,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_aips_not_available_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6913,7 +7119,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_aips_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -6956,7 +7162,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: list_location_aips_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -7012,7 +7218,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: monitor_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -7055,7 +7261,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: move_aip_not_available_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -7098,7 +7304,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: move_aip_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -7153,7 +7359,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: move_aip_status_failed_dependency_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -7205,7 +7411,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: reject_aip_not_available_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -7248,7 +7454,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: reject_aip_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -7291,7 +7497,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: request_aip_deletion_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -7334,7 +7540,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: request_aip_deletion_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -7388,7 +7594,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: review_aip_deletion_internal_error_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc
@@ -7431,7 +7637,7 @@ definitions:
                 type: boolean
                 description: Is the error a timeout?
                 example: false
-        description: review_aip_deletion_not_valid_response_body result type (default view)
+        description: Error response result type (default view)
         example:
             fault: false
             id: 123abc

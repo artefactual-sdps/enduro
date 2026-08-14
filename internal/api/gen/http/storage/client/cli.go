@@ -579,7 +579,7 @@ func BuildCreateLocationPayload(storageCreateLocationBody string, storageCreateL
 	{
 		err = json.Unmarshal([]byte(storageCreateLocationBody), &body)
 		if err != nil {
-			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"bucket\": \"abc123\",\n         \"endpoint\": \"abc123\",\n         \"key\": \"abc123\",\n         \"path_style\": false,\n         \"profile\": \"abc123\",\n         \"region\": \"abc123\",\n         \"secret\": \"abc123\",\n         \"token\": \"abc123\"\n      },\n      \"description\": \"abc123\",\n      \"name\": \"abc123\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"s3\"\n   }'")
+			return nil, fmt.Errorf("invalid JSON for body, \nerror: %s, \nexample of valid JSON:\n%s", err, "'{\n      \"config\": {\n         \"type\": \"s3\",\n         \"value\": {\n            \"bucket\": \"abc123\",\n            \"endpoint\": \"abc123\",\n            \"key\": \"abc123\",\n            \"path_style\": false,\n            \"profile\": \"abc123\",\n            \"region\": \"abc123\",\n            \"secret\": \"abc123\",\n            \"token\": \"abc123\"\n         }\n      },\n      \"description\": \"abc123\",\n      \"name\": \"abc123\",\n      \"purpose\": \"aip_store\",\n      \"source\": \"s3\"\n   }'")
 		}
 		if !(body.Source == "unspecified" || body.Source == "s3" || body.Source == "sftp" || body.Source == "amss" || body.Source == "filesystem") {
 			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.source", body.Source, []any{"unspecified", "s3", "sftp", "amss", "filesystem"}))
@@ -603,7 +603,7 @@ func BuildCreateLocationPayload(storageCreateLocationBody string, storageCreateL
 		Source:      body.Source,
 		Purpose:     body.Purpose,
 	}
-	if body.Config.Kind() != "" {
+	if body.Config != nil {
 		switch string(body.Config.Kind()) {
 		case "amss":
 			actual, _ := body.Config.AsAmss()

@@ -14,7 +14,7 @@
 
 import { mapValues } from '../runtime';
 /**
- * SIP not found.
+ * SIP not found
  * @export
  * @interface SIPNotFound
  */
