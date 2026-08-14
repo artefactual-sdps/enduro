@@ -4,14 +4,15 @@ import { computed } from "vue";
 import IconMoon from "~icons/clarity/moon-line";
 import IconSun from "~icons/clarity/sun-line";
 
-import { themeController } from "@/theme";
+import { useTheme } from "@/composables/useTheme";
 
 const props = withDefaults(defineProps<{ compact?: boolean }>(), {
   compact: false,
 });
+const { isDark, toggle } = useTheme();
 
 const actionLabel = computed(() =>
-  themeController.theme.value === "light" ? "Dark theme" : "Light theme",
+  isDark.value ? "Light theme" : "Dark theme",
 );
 </script>
 
@@ -24,12 +25,9 @@ const actionLabel = computed(() =>
         : 'dropdown-item d-flex align-items-center gap-3'
     "
     :aria-label="actionLabel"
-    @click="themeController.toggle()"
+    @click="toggle"
   >
-    <IconMoon
-      v-if="themeController.theme.value === 'light'"
-      aria-hidden="true"
-    />
+    <IconMoon v-if="!isDark" aria-hidden="true" />
     <IconSun v-else aria-hidden="true" />
     <span v-if="!props.compact">{{ actionLabel }}</span>
   </button>

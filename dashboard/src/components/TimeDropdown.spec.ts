@@ -3,8 +3,8 @@ import { VueDatePicker } from "@vuepic/vue-datepicker";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
+import { useTheme } from "@/composables/useTheme";
 import { setTheme } from "@/test/theme";
-import { themeController } from "@/theme";
 
 import TimeDropdown from "./TimeDropdown.vue";
 
@@ -173,7 +173,7 @@ describe("TimeDropdown.vue theme", () => {
       expect(datePicker.props("dark")).toBe(true);
     });
 
-    themeController.toggle();
+    useTheme().toggle();
     await nextTick();
 
     datePickers.forEach((datePicker) => {

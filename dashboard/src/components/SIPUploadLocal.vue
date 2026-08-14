@@ -8,18 +8,19 @@ import { computed, onBeforeUnmount, onMounted, watch } from "vue";
 import { useRouter } from "vue-router";
 
 import { getPath } from "@/client";
+import { useTheme } from "@/composables/useTheme";
 import { useAboutStore } from "@/stores/about";
 import { useAuthStore } from "@/stores/auth";
-import { themeController } from "@/theme";
 
 const authStore = useAuthStore();
 const aboutStore = useAboutStore();
 const router = useRouter();
+const { theme } = useTheme();
 
 const gib = 1024 ** 3; // 1 GiB in bytes
 const uploadMaxDefault = 4 * gib;
 const dashboardOptions = computed(() => ({
-  theme: themeController.theme.value,
+  theme: theme.value,
   width: "100%",
 }));
 
@@ -69,8 +70,8 @@ const uppy = new Uppy({
   },
 });
 
-watch(themeController.theme, (theme) => {
-  uppy.getPlugin("Dashboard")?.setOptions({ theme });
+watch(theme, (value) => {
+  uppy.getPlugin("Dashboard")?.setOptions({ theme: value });
 });
 
 onBeforeUnmount(() => {

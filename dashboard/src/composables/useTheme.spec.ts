@@ -67,12 +67,12 @@ async function loadTheme({
   );
   vi.stubGlobal("localStorage", storage);
 
-  const themeModule = await import("@/theme");
+  const themeModule = await import("@/composables/useTheme");
 
   return { colorScheme, storage, themeModule };
 }
 
-describe("theme controller", () => {
+describe("useTheme", () => {
   afterEach(() => {
     delete document.documentElement.dataset.bsTheme;
     vi.unstubAllGlobals();
@@ -84,24 +84,41 @@ describe("theme controller", () => {
       systemDark: true,
     });
 
-    expect(themeModule.themeController.theme.value).toBe("dark");
+    const { isDark, theme } = themeModule.useTheme();
+
+    expect(theme.value).toBe("dark");
+    expect(isDark.value).toBe(true);
     expect(document.documentElement.dataset.bsTheme).toBe("dark");
     expect(storage.getItem("enduro-theme")).toBe("auto");
 
     colorScheme.setMatches(false);
     await nextTick();
 
-    expect(themeModule.themeController.theme.value).toBe("light");
+    expect(theme.value).toBe("light");
+    expect(isDark.value).toBe(false);
     expect(document.documentElement.dataset.bsTheme).toBe("light");
+  });
+
+  it("shares the theme state between consumers", async () => {
+    const { themeModule } = await loadTheme();
+    const first = themeModule.useTheme();
+    const second = themeModule.useTheme();
+
+    first.toggle();
+    await nextTick();
+
+    expect(second.theme.value).toBe("dark");
   });
 
   it("persists a toggle and ignores later system changes", async () => {
     const { colorScheme, storage, themeModule } = await loadTheme();
 
-    themeModule.themeController.toggle();
+    const { theme, toggle } = themeModule.useTheme();
+
+    toggle();
     await nextTick();
 
-    expect(themeModule.themeController.theme.value).toBe("dark");
+    expect(theme.value).toBe("dark");
     expect(document.documentElement.dataset.bsTheme).toBe("dark");
     expect(storage.getItem("enduro-theme")).toBe("dark");
 
@@ -109,7 +126,7 @@ describe("theme controller", () => {
     colorScheme.setMatches(false);
     await nextTick();
 
-    expect(themeModule.themeController.theme.value).toBe("dark");
+    expect(theme.value).toBe("dark");
     expect(document.documentElement.dataset.bsTheme).toBe("dark");
   });
 
@@ -121,7 +138,7 @@ describe("theme controller", () => {
         systemDark: storedTheme !== "dark",
       });
 
-      expect(themeModule.themeController.theme.value).toBe(storedTheme);
+      expect(themeModule.useTheme().theme.value).toBe(storedTheme);
       expect(document.documentElement.dataset.bsTheme).toBe(storedTheme);
     },
   );
@@ -139,7 +156,7 @@ describe("theme controller", () => {
     );
     await nextTick();
 
-    expect(themeModule.themeController.theme.value).toBe("dark");
+    expect(themeModule.useTheme().theme.value).toBe("dark");
     expect(document.documentElement.dataset.bsTheme).toBe("dark");
   });
 });

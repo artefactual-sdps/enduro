@@ -4,8 +4,8 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import InstitutionLogo from "@/components/InstitutionLogo.vue";
+import { useTheme } from "@/composables/useTheme";
 import { setTheme } from "@/test/theme";
-import { themeController } from "@/theme";
 
 function stubInstitution({
   dark = "",
@@ -52,7 +52,7 @@ describe("InstitutionLogo.vue", () => {
     expect(logo.attributes("alt")).toBe("Example institution");
     expect(logo.attributes("src")).toBe("https://example.com/logo-light.png");
 
-    themeController.toggle();
+    useTheme().toggle();
     await nextTick();
 
     expect(logo.attributes("src")).toBe("https://example.com/logo-dark.png");

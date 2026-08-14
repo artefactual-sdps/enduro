@@ -10,9 +10,12 @@ import {
   formatDateTimeString,
   formatDuration,
 } from "./composables/format";
+import { useTheme } from "./composables/useTheme";
 import router from "./router";
 import "./styles/main.scss";
-import "./theme";
+
+// Apply the theme before mounting to avoid a flash.
+useTheme();
 
 const pinia = createPinia();
 pinia.use(PiniaDebounce(debounce));

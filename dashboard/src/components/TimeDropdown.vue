@@ -3,16 +3,16 @@ import { VueDatePicker } from "@vuepic/vue-datepicker";
 import type { ModelValue } from "@vuepic/vue-datepicker";
 import "@vuepic/vue-datepicker/dist/main.css";
 import Dropdown from "bootstrap/js/dist/dropdown";
-import { computed, onMounted, ref, watch } from "vue";
+import { onMounted, ref, watch } from "vue";
 
 import IconClose from "~icons/clarity/close-line";
 
-import { themeController } from "@/theme";
+import { useTheme } from "@/composables/useTheme";
 
 const dateFormat = "yyyy-MM-dd HH:mm";
 const pickerFormats = { input: dateFormat };
 const pickerTimeConfig = { timePickerInline: true };
-const isDarkTheme = computed(() => themeController.theme.value === "dark");
+const { isDark } = useTheme();
 
 const emit = defineEmits<{
   change: [name: string, start: string, end: string];
@@ -201,7 +201,7 @@ const earliestTimeFromOption = (value: string) => {
           :id="'tdd-' + props.name + '-start'"
           v-model="startTime"
           :formats="pickerFormats"
-          :dark="isDarkTheme"
+          :dark="isDark"
           :input-attrs="getInputAttrs('start')"
           :time-config="pickerTimeConfig"
           placeholder="Start time"
@@ -214,7 +214,7 @@ const earliestTimeFromOption = (value: string) => {
           :id="'tdd-' + props.name + '-end'"
           v-model="endTime"
           :formats="pickerFormats"
-          :dark="isDarkTheme"
+          :dark="isDark"
           :input-attrs="getInputAttrs('end')"
           :time-config="pickerTimeConfig"
           placeholder="End time"
