@@ -138,7 +138,7 @@ const showTasks = computed(() => {
 
 <template>
   <div
-    class="accordion-item workflow-accordion-item mb-1"
+    class="accordion-item workflow-accordion-item mb-2"
     :style="workflowItemStyle"
   >
     <h4
@@ -267,7 +267,7 @@ const showTasks = computed(() => {
   --bs-accordion-transition: none;
   --bs-accordion-btn-icon-transition: none;
 
-  padding-block: 0.75rem;
+  padding-block: 0.875rem;
   background-color: var(--bs-tertiary-bg);
   border: 0;
 }
@@ -320,7 +320,7 @@ const showTasks = computed(() => {
   gap: 0.5rem;
   min-width: 0;
   font-size: 1.125rem;
-  font-weight: 600;
+  font-weight: $font-weight-medium;
 }
 
 .workflow-summary-meta,
@@ -349,6 +349,16 @@ const showTasks = computed(() => {
 
 .workflow-task-table {
   --workflow-task-columns: 2.5rem minmax(0, 1fr) 12rem 7.25rem;
+  --workflow-task-striped-bg: color-mix(
+    in srgb,
+    var(--bs-tertiary-bg) 50%,
+    var(--bs-body-bg)
+  );
+  --workflow-task-border-color: color-mix(
+    in srgb,
+    var(--bs-border-color) 50%,
+    var(--bs-body-bg)
+  );
   padding: 0;
 }
 
@@ -359,13 +369,13 @@ const showTasks = computed(() => {
   display: grid;
   grid-template-columns: var(--workflow-task-columns);
   gap: 0.75rem;
-  padding: 0.375rem 0.75rem;
+  padding: 0.5rem 1rem;
   color: var(--bs-secondary-color);
   background: var(--bs-tertiary-bg);
-  border-top: var(--bs-border-width) solid var(--bs-border-color);
-  border-bottom: var(--bs-border-width) solid var(--bs-border-color);
+  border-top: var(--bs-border-width) solid var(--workflow-task-border-color);
+  border-bottom: var(--bs-border-width) solid var(--workflow-task-border-color);
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: $font-weight-medium;
   letter-spacing: 0.025em;
   text-transform: uppercase;
 }
@@ -382,11 +392,11 @@ const showTasks = computed(() => {
 }
 
 .workflow-task-list-item:nth-child(even) {
-  background: var(--bs-tertiary-bg);
+  background: var(--workflow-task-striped-bg);
 }
 
 .workflow-task-list-item + .workflow-task-list-item {
-  border-top: var(--bs-border-width) solid var(--bs-border-color);
+  border-top: var(--bs-border-width) solid var(--workflow-task-border-color);
 }
 
 @media (max-width: 991.98px) {
@@ -395,7 +405,7 @@ const showTasks = computed(() => {
   }
 
   .workflow-task-list {
-    border-top: var(--bs-border-width) solid var(--bs-border-color);
+    border-top: var(--bs-border-width) solid var(--workflow-task-border-color);
   }
 }
 </style>

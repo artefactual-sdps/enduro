@@ -105,7 +105,7 @@ const toggle = () => {
   </div>
 </template>
 
-<style scoped>
+<style lang="scss" scoped>
 .workflow-task {
   display: grid;
   grid-template-areas:
@@ -117,7 +117,7 @@ const toggle = () => {
   );
   align-items: center;
   column-gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.625rem 1rem;
 }
 
 .workflow-task-number {
@@ -134,7 +134,7 @@ const toggle = () => {
 .workflow-task-name {
   grid-area: name;
   min-width: 0;
-  font-weight: 600;
+  font-weight: $font-weight-medium;
   overflow-wrap: anywhere;
 }
 

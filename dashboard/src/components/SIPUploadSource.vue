@@ -128,7 +128,10 @@ const clickSip = (key: string) => {
       <a href="#" @click.prevent="selectedSips = []">Clear selections</a>
     </div>
     <div class="table-responsive overflow-auto">
-      <table ref="listContainer" class="table table-hover mb-1">
+      <table
+        ref="listContainer"
+        class="table table-hover sip-source-table mb-1"
+      >
         <thead>
           <tr class="sticky-top z-1">
             <th scope="col">&nbsp;</th>
@@ -233,8 +236,21 @@ const clickSip = (key: string) => {
 </template>
 
 <style scoped>
+.sip-source-table {
+  --sip-row-state-bg: color-mix(
+    in srgb,
+    var(--bs-tertiary-bg) 50%,
+    var(--bs-body-bg)
+  );
+  --bs-table-hover-bg: var(--sip-row-state-bg);
+}
+
 .sip-row-selected {
   --bs-table-bg: var(--bs-tertiary-bg);
+}
+
+.sip-row-selected:hover > * {
+  --bs-table-bg-state: var(--sip-row-state-bg);
 }
 
 /* Remove top border from selected items when the previous item is also selected. */
