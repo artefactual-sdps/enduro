@@ -8,7 +8,7 @@ import AboutDialog from "@/components/AboutDialog.vue";
 import Header from "@/components/Header.vue";
 import { useAuthStore } from "@/stores/auth";
 import { useLayoutStore } from "@/stores/layout";
-import { themeController } from "@/theme";
+import { setTheme } from "@/test/theme";
 
 const openDialogMock = vi.hoisted(() => vi.fn());
 vi.mock("@/dialogs/dialog", () => ({
@@ -21,9 +21,8 @@ const router = createRouter({
 });
 
 describe("Header.vue", () => {
-  beforeEach(() => {
-    localStorage.setItem("enduro-theme", "light");
-    themeController.initialize();
+  beforeEach(async () => {
+    await setTheme("light");
   });
 
   afterEach(() => {
@@ -116,8 +115,7 @@ describe("Header.vue", () => {
   });
 
   it("switches from dark to light theme in the user menu", async () => {
-    localStorage.setItem("enduro-theme", "dark");
-    themeController.initialize();
+    await setTheme("dark");
 
     const { getByRole } = render(Header, {
       global: {

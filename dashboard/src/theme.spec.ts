@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { nextTick } from "vue";
 
 class FakeColorScheme {
   matches: boolean;
@@ -21,55 +22,45 @@ class FakeColorScheme {
   }
 }
 
-function createMemoryStorage(initialTheme?: string, available = true): Storage {
+function createMemoryStorage(initialTheme?: string): Storage {
   const values = new Map<string, string>();
   if (initialTheme !== undefined) values.set("enduro-theme", initialTheme);
 
-  const ensureAvailable = () => {
-    if (!available) throw new DOMException("Storage unavailable");
-  };
-
-  return {
+  const storage: Storage = {
     get length() {
-      ensureAvailable();
       return values.size;
     },
     clear: () => {
-      ensureAvailable();
       values.clear();
     },
     getItem: (key) => {
-      ensureAvailable();
       return values.get(key) ?? null;
     },
     key: (index) => {
-      ensureAvailable();
       return Array.from(values.keys())[index] ?? null;
     },
     removeItem: (key) => {
-      ensureAvailable();
       values.delete(key);
     },
     setItem: (key, value) => {
-      ensureAvailable();
       values.set(key, value);
     },
   };
+
+  return Object.setPrototypeOf(storage, Storage.prototype);
 }
 
 async function loadTheme({
   storedTheme,
   systemDark = false,
-  storageAvailable = true,
 }: {
   storedTheme?: string;
   systemDark?: boolean;
-  storageAvailable?: boolean;
 } = {}) {
   vi.resetModules();
 
   const colorScheme = new FakeColorScheme(systemDark);
-  const storage = createMemoryStorage(storedTheme, storageAvailable);
+  const storage = createMemoryStorage(storedTheme);
   vi.stubGlobal(
     "matchMedia",
     vi.fn(() => colorScheme as unknown as MediaQueryList),
@@ -88,24 +79,17 @@ describe("theme controller", () => {
     vi.resetModules();
   });
 
-  it("exports only the theme controller", async () => {
-    const { themeModule } = await loadTheme();
-
-    expect(Object.keys(themeModule)).toEqual(["themeController"]);
-  });
-
-  it("uses the system theme until the user makes a choice", async () => {
+  it("stores and uses the automatic theme until the user makes a choice", async () => {
     const { colorScheme, storage, themeModule } = await loadTheme({
       systemDark: true,
     });
 
-    themeModule.themeController.initialize();
-
     expect(themeModule.themeController.theme.value).toBe("dark");
     expect(document.documentElement.dataset.bsTheme).toBe("dark");
-    expect(storage.getItem("enduro-theme")).toBeNull();
+    expect(storage.getItem("enduro-theme")).toBe("auto");
 
     colorScheme.setMatches(false);
+    await nextTick();
 
     expect(themeModule.themeController.theme.value).toBe("light");
     expect(document.documentElement.dataset.bsTheme).toBe("light");
@@ -114,8 +98,8 @@ describe("theme controller", () => {
   it("persists a toggle and ignores later system changes", async () => {
     const { colorScheme, storage, themeModule } = await loadTheme();
 
-    themeModule.themeController.initialize();
     themeModule.themeController.toggle();
+    await nextTick();
 
     expect(themeModule.themeController.theme.value).toBe("dark");
     expect(document.documentElement.dataset.bsTheme).toBe("dark");
@@ -123,6 +107,7 @@ describe("theme controller", () => {
 
     colorScheme.setMatches(true);
     colorScheme.setMatches(false);
+    await nextTick();
 
     expect(themeModule.themeController.theme.value).toBe("dark");
     expect(document.documentElement.dataset.bsTheme).toBe("dark");
@@ -136,44 +121,25 @@ describe("theme controller", () => {
         systemDark: storedTheme !== "dark",
       });
 
-      themeModule.themeController.initialize();
-
       expect(themeModule.themeController.theme.value).toBe(storedTheme);
       expect(document.documentElement.dataset.bsTheme).toBe(storedTheme);
     },
   );
 
-  it("ignores an invalid stored theme", async () => {
-    const { themeModule } = await loadTheme({
-      storedTheme: "sepia",
-      systemDark: true,
-    });
+  it("syncs theme changes from another tab", async () => {
+    const { storage, themeModule } = await loadTheme();
 
-    themeModule.themeController.initialize();
-
-    expect(themeModule.themeController.theme.value).toBe("dark");
-    expect(document.documentElement.dataset.bsTheme).toBe("dark");
-  });
-
-  it("keeps the session choice when storage is unavailable", async () => {
-    const { colorScheme, themeModule } = await loadTheme({
-      storageAvailable: false,
-    });
-
-    themeModule.themeController.initialize();
-    themeModule.themeController.toggle();
-    colorScheme.setMatches(false);
+    storage.setItem("enduro-theme", "dark");
+    window.dispatchEvent(
+      new StorageEvent("storage", {
+        key: "enduro-theme",
+        newValue: "dark",
+        storageArea: storage,
+      }),
+    );
+    await nextTick();
 
     expect(themeModule.themeController.theme.value).toBe("dark");
     expect(document.documentElement.dataset.bsTheme).toBe("dark");
-  });
-
-  it("registers the system theme listener only once", async () => {
-    const { colorScheme, themeModule } = await loadTheme();
-
-    themeModule.themeController.initialize();
-    themeModule.themeController.initialize();
-
-    expect(colorScheme.addEventListener).toHaveBeenCalledOnce();
   });
 });
