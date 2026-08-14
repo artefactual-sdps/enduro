@@ -8,6 +8,23 @@ requests.
 
 ## [Unreleased]
 
+## [0.33.0] - 2026-08-14
+
+### Added
+
+- Add dark theme support to the dashboard ([#1739])
+
+### Changed
+
+- Move user menu to header ([#1723])
+- Move about button into user menu ([#1723])
+
+### Fixed
+
+- Restore workflow details toggling ([#1737])
+- Allow dashboard content to shrink ([#1737])
+- Wrap long dashboard content ([#1473])
+
 ## [0.32.0] - 2026-08-10
 
 ### Security
@@ -417,7 +434,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.32.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.33.0...HEAD
+[0.33.0]: https://github.com/artefactual-sdps/enduro/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/artefactual-sdps/enduro/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/artefactual-sdps/enduro/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/artefactual-sdps/enduro/compare/v0.29.0...v0.30.0
@@ -450,10 +468,13 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1739]: https://github.com/artefactual-sdps/enduro/pull/1739
+[#1737]: https://github.com/artefactual-sdps/enduro/pull/1737
 [#1735]: https://github.com/artefactual-sdps/enduro/issues/1735
 [#1727]: https://github.com/artefactual-sdps/enduro/pull/1727
 [#1726]: https://github.com/artefactual-sdps/enduro/pull/1726
 [#1725]: https://github.com/artefactual-sdps/enduro/pull/1725
+[#1723]: https://github.com/artefactual-sdps/enduro/issues/1723
 [#1715]: https://github.com/artefactual-sdps/enduro/issues/1715
 [#1714]: https://github.com/artefactual-sdps/enduro/pull/1714
 [#1708]: https://github.com/artefactual-sdps/enduro/pull/1708
