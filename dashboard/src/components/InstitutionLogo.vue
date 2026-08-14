@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-import { themeController } from "@/theme";
+import { useTheme } from "@/composables/useTheme";
 
 const logos = {
   light: import.meta.env.VITE_INSTITUTION_LOGO_LIGHT,
@@ -10,7 +10,8 @@ const logos = {
 };
 const name = import.meta.env.VITE_INSTITUTION_NAME;
 const url = import.meta.env.VITE_INSTITUTION_URL;
-const logo = computed(() => logos[themeController.theme.value] || logos.legacy);
+const { theme } = useTheme();
+const logo = computed(() => logos[theme.value] || logos.legacy);
 </script>
 
 <template>
