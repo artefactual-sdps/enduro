@@ -12,63 +12,92 @@
  * Do not edit the class manually.
  */
 
-
 import * as runtime from '../runtime';
-import type {
-  AddBatchRequestBody,
-  AddSipRequestBody,
-  AddSipResponseBody,
-  BatchNotFound,
-  ConfirmSipRequestBody,
-  EnduroIngestBatch,
-  EnduroIngestBatches,
-  EnduroIngestSip,
-  EnduroIngestSipDecision,
-  EnduroIngestSipWorkflows,
-  EnduroIngestSips,
-  EnduroIngestSipsourceObjects,
-  EnduroIngestUsers,
-  IngestEvent,
-  ReviewBatchRequestBody,
-  SIPNotFound,
-  SubmitSipDecisionRequestBody,
-} from '../models/index';
 import {
+    type AddBatchRequestBody,
     AddBatchRequestBodyFromJSON,
     AddBatchRequestBodyToJSON,
+} from '../models/AddBatchRequestBody';
+import {
+    type AddSipRequestBody,
     AddSipRequestBodyFromJSON,
     AddSipRequestBodyToJSON,
+} from '../models/AddSipRequestBody';
+import {
+    type AddSipResponseBody,
     AddSipResponseBodyFromJSON,
     AddSipResponseBodyToJSON,
+} from '../models/AddSipResponseBody';
+import {
+    type BatchNotFound,
     BatchNotFoundFromJSON,
     BatchNotFoundToJSON,
+} from '../models/BatchNotFound';
+import {
+    type ConfirmSipRequestBody,
     ConfirmSipRequestBodyFromJSON,
     ConfirmSipRequestBodyToJSON,
+} from '../models/ConfirmSipRequestBody';
+import {
+    type EnduroIngestBatch,
     EnduroIngestBatchFromJSON,
     EnduroIngestBatchToJSON,
+} from '../models/EnduroIngestBatch';
+import {
+    type EnduroIngestBatches,
     EnduroIngestBatchesFromJSON,
     EnduroIngestBatchesToJSON,
+} from '../models/EnduroIngestBatches';
+import {
+    type EnduroIngestSip,
     EnduroIngestSipFromJSON,
     EnduroIngestSipToJSON,
+} from '../models/EnduroIngestSip';
+import {
+    type EnduroIngestSipDecision,
     EnduroIngestSipDecisionFromJSON,
     EnduroIngestSipDecisionToJSON,
+} from '../models/EnduroIngestSipDecision';
+import {
+    type EnduroIngestSipWorkflows,
     EnduroIngestSipWorkflowsFromJSON,
     EnduroIngestSipWorkflowsToJSON,
+} from '../models/EnduroIngestSipWorkflows';
+import {
+    type EnduroIngestSips,
     EnduroIngestSipsFromJSON,
     EnduroIngestSipsToJSON,
+} from '../models/EnduroIngestSips';
+import {
+    type EnduroIngestSipsourceObjects,
     EnduroIngestSipsourceObjectsFromJSON,
     EnduroIngestSipsourceObjectsToJSON,
+} from '../models/EnduroIngestSipsourceObjects';
+import {
+    type EnduroIngestUsers,
     EnduroIngestUsersFromJSON,
     EnduroIngestUsersToJSON,
+} from '../models/EnduroIngestUsers';
+import {
+    type IngestEvent,
     IngestEventFromJSON,
     IngestEventToJSON,
+} from '../models/IngestEvent';
+import {
+    type ReviewBatchRequestBody,
     ReviewBatchRequestBodyFromJSON,
     ReviewBatchRequestBodyToJSON,
+} from '../models/ReviewBatchRequestBody';
+import {
+    type SIPNotFound,
     SIPNotFoundFromJSON,
     SIPNotFoundToJSON,
+} from '../models/SIPNotFound';
+import {
+    type SubmitSipDecisionRequestBody,
     SubmitSipDecisionRequestBodyFromJSON,
     SubmitSipDecisionRequestBodyToJSON,
-} from '../models/index';
+} from '../models/SubmitSipDecisionRequestBody';
 
 export interface IngestAddBatchRequest {
     addBatchRequestBody: AddBatchRequestBody;
@@ -799,7 +828,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
         }
 
         let urlPath = `/ingest/sips/{uuid}/confirm`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -846,7 +875,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
 
 
         let urlPath = `/ingest/sips/{uuid}/download`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -901,7 +930,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
         }
 
         let urlPath = `/ingest/sips/{uuid}/download`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1038,7 +1067,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
         }
 
         let urlPath = `/ingest/sip-sources/{uuid}/objects`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1093,7 +1122,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
         }
 
         let urlPath = `/ingest/sips/{uuid}/workflows`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1341,7 +1370,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
         }
 
         let urlPath = `/ingest/sips/{uuid}/reject`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1404,7 +1433,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
         }
 
         let urlPath = `/ingest/batches/{uuid}/review`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1459,7 +1488,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
         }
 
         let urlPath = `/ingest/batches/{uuid}`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1514,7 +1543,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
         }
 
         let urlPath = `/ingest/sips/{uuid}`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1569,7 +1598,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
         }
 
         let urlPath = `/ingest/sips/{uuid}/decision`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1633,7 +1662,7 @@ export class IngestApi extends runtime.BaseAPI implements IngestApiInterface {
         }
 
         let urlPath = `/ingest/sips/{uuid}/decision`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,

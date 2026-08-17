@@ -56,6 +56,8 @@ export type IngestEventValueAnyOf7TypeEnum = typeof IngestEventValueAnyOf7TypeEn
  */
 export function instanceOfIngestEventValueAnyOf7(value: object): value is IngestEventValueAnyOf7 {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (value['type'] !== 'sip_task_updated_event') return false;
+    
     if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }

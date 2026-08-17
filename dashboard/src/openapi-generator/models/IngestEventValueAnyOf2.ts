@@ -56,6 +56,8 @@ export type IngestEventValueAnyOf2TypeEnum = typeof IngestEventValueAnyOf2TypeEn
  */
 export function instanceOfIngestEventValueAnyOf2(value: object): value is IngestEventValueAnyOf2 {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (value['type'] !== 'sip_updated_event') return false;
+    
     if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }

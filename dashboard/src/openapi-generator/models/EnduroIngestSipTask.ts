@@ -86,7 +86,7 @@ export function instanceOfEnduroIngestSipTask(value: object): value is EnduroIng
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     if (!('uuid' in value) || value['uuid'] === undefined) return false;
-    if (!('workflowUuid' in value) || value['workflowUuid'] === undefined) return false;
+    if ((!('workflowUuid' in (value as Record<string, any>)) && !('workflow_uuid' in (value as Record<string, any>))) || ((value as Record<string, any>)['workflowUuid'] === undefined && (value as Record<string, any>)['workflow_uuid'] === undefined)) return false;
     return true;
 }
 

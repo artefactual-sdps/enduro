@@ -107,10 +107,10 @@ export type EnduroIngestSipWorkflowTypeEnum = typeof EnduroIngestSipWorkflowType
  * Check if a given object implements the EnduroIngestSipWorkflow interface.
  */
 export function instanceOfEnduroIngestSipWorkflow(value: object): value is EnduroIngestSipWorkflow {
-    if (!('sipUuid' in value) || value['sipUuid'] === undefined) return false;
-    if (!('startedAt' in value) || value['startedAt'] === undefined) return false;
+    if ((!('sipUuid' in (value as Record<string, any>)) && !('sip_uuid' in (value as Record<string, any>))) || ((value as Record<string, any>)['sipUuid'] === undefined && (value as Record<string, any>)['sip_uuid'] === undefined)) return false;
+    if ((!('startedAt' in (value as Record<string, any>)) && !('started_at' in (value as Record<string, any>))) || ((value as Record<string, any>)['startedAt'] === undefined && (value as Record<string, any>)['started_at'] === undefined)) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
-    if (!('temporalId' in value) || value['temporalId'] === undefined) return false;
+    if ((!('temporalId' in (value as Record<string, any>)) && !('temporal_id' in (value as Record<string, any>))) || ((value as Record<string, any>)['temporalId'] === undefined && (value as Record<string, any>)['temporal_id'] === undefined)) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('uuid' in value) || value['uuid'] === undefined) return false;
     return true;

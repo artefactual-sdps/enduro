@@ -31,7 +31,7 @@ export interface ReviewBatchRequestBody {
  * Check if a given object implements the ReviewBatchRequestBody interface.
  */
 export function instanceOfReviewBatchRequestBody(value: object): value is ReviewBatchRequestBody {
-    if (!('_continue' in value) || value['_continue'] === undefined) return false;
+    if ((!('_continue' in (value as Record<string, any>)) && !('continue' in (value as Record<string, any>))) || ((value as Record<string, any>)['_continue'] === undefined && (value as Record<string, any>)['continue'] === undefined)) return false;
     return true;
 }
 

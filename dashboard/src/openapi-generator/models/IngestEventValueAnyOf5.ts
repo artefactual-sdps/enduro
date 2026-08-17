@@ -56,6 +56,8 @@ export type IngestEventValueAnyOf5TypeEnum = typeof IngestEventValueAnyOf5TypeEn
  */
 export function instanceOfIngestEventValueAnyOf5(value: object): value is IngestEventValueAnyOf5 {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (value['type'] !== 'sip_workflow_updated_event') return false;
+    
     if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }

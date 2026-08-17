@@ -69,7 +69,7 @@ env:
 gen-dashboard-client: # @HELP Generate the Dashboard web client from the OpenAPI spec.
 gen-dashboard-client:
 	rm -rf $(CURDIR)/dashboard/src/openapi-generator
-	docker container run --rm --user $(shell id -u):$(shell id -g) --volume $(CURDIR):/local openapitools/openapi-generator-cli:v7.21.0 \
+	docker container run --rm --user $(shell id -u):$(shell id -g) --volume $(CURDIR):/local openapitools/openapi-generator-cli:v7.24.0 \
 		generate \
 			--input-spec /local/internal/api/gen/http/openapi3.yaml \
 			--generator-name typescript-fetch \

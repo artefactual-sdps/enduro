@@ -56,6 +56,8 @@ export type IngestEventValueAnyOfTypeEnum = typeof IngestEventValueAnyOfTypeEnum
  */
 export function instanceOfIngestEventValueAnyOf(value: object): value is IngestEventValueAnyOf {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (value['type'] !== 'ingest_ping_event') return false;
+    
     if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }

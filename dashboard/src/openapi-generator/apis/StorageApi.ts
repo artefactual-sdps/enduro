@@ -12,66 +12,97 @@
  * Do not edit the class manually.
  */
 
-
 import * as runtime from '../runtime';
-import type {
-  AIPNotFound,
-  AIPResponse,
-  AipDeletionAutoRequestBody,
-  CancelAipDeletionRequestBody,
-  ConfirmSipRequestBody,
-  CreateAipRequestBody,
-  CreateLocationRequestBody,
-  CreateLocationResult,
-  EnduroStorageAip,
-  EnduroStorageAipWorkflows,
-  EnduroStorageAips,
-  EnduroStorageLocation,
-  LocationNotFound,
-  LocationResponse,
-  MoveStatusResult,
-  RequestAipDeletionRequestBody,
-  ReviewAipDeletionRequestBody,
-  StorageEvent,
-} from '../models/index';
 import {
+    type AIPNotFound,
     AIPNotFoundFromJSON,
     AIPNotFoundToJSON,
+} from '../models/AIPNotFound';
+import {
+    type AIPResponse,
     AIPResponseFromJSON,
     AIPResponseToJSON,
+} from '../models/AIPResponse';
+import {
+    type AipDeletionAutoRequestBody,
     AipDeletionAutoRequestBodyFromJSON,
     AipDeletionAutoRequestBodyToJSON,
+} from '../models/AipDeletionAutoRequestBody';
+import {
+    type CancelAipDeletionRequestBody,
     CancelAipDeletionRequestBodyFromJSON,
     CancelAipDeletionRequestBodyToJSON,
+} from '../models/CancelAipDeletionRequestBody';
+import {
+    type ConfirmSipRequestBody,
     ConfirmSipRequestBodyFromJSON,
     ConfirmSipRequestBodyToJSON,
+} from '../models/ConfirmSipRequestBody';
+import {
+    type CreateAipRequestBody,
     CreateAipRequestBodyFromJSON,
     CreateAipRequestBodyToJSON,
+} from '../models/CreateAipRequestBody';
+import {
+    type CreateLocationRequestBody,
     CreateLocationRequestBodyFromJSON,
     CreateLocationRequestBodyToJSON,
+} from '../models/CreateLocationRequestBody';
+import {
+    type CreateLocationResult,
     CreateLocationResultFromJSON,
     CreateLocationResultToJSON,
+} from '../models/CreateLocationResult';
+import {
+    type EnduroStorageAip,
     EnduroStorageAipFromJSON,
     EnduroStorageAipToJSON,
+} from '../models/EnduroStorageAip';
+import {
+    type EnduroStorageAipWorkflows,
     EnduroStorageAipWorkflowsFromJSON,
     EnduroStorageAipWorkflowsToJSON,
+} from '../models/EnduroStorageAipWorkflows';
+import {
+    type EnduroStorageAips,
     EnduroStorageAipsFromJSON,
     EnduroStorageAipsToJSON,
+} from '../models/EnduroStorageAips';
+import {
+    type EnduroStorageLocation,
     EnduroStorageLocationFromJSON,
     EnduroStorageLocationToJSON,
+} from '../models/EnduroStorageLocation';
+import {
+    type LocationNotFound,
     LocationNotFoundFromJSON,
     LocationNotFoundToJSON,
+} from '../models/LocationNotFound';
+import {
+    type LocationResponse,
     LocationResponseFromJSON,
     LocationResponseToJSON,
+} from '../models/LocationResponse';
+import {
+    type MoveStatusResult,
     MoveStatusResultFromJSON,
     MoveStatusResultToJSON,
+} from '../models/MoveStatusResult';
+import {
+    type RequestAipDeletionRequestBody,
     RequestAipDeletionRequestBodyFromJSON,
     RequestAipDeletionRequestBodyToJSON,
+} from '../models/RequestAipDeletionRequestBody';
+import {
+    type ReviewAipDeletionRequestBody,
     ReviewAipDeletionRequestBodyFromJSON,
     ReviewAipDeletionRequestBodyToJSON,
+} from '../models/ReviewAipDeletionRequestBody';
+import {
+    type StorageEvent,
     StorageEventFromJSON,
     StorageEventToJSON,
-} from '../models/index';
+} from '../models/StorageEvent';
 
 export interface StorageAipDeletionAutoRequest {
     uuid: string;
@@ -711,7 +742,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}/deletion-auto`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -758,7 +789,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
 
         let urlPath = `/storage/aips/{uuid}/deletion-report`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -813,7 +844,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}/deletion-report`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -876,7 +907,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}/deletion-cancel`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1037,7 +1068,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
 
 
         let urlPath = `/storage/aips/{uuid}/download`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1092,7 +1123,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}/download`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1154,7 +1185,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}/workflows`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1280,7 +1311,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/locations/{uuid}/aips`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1438,7 +1469,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}/store`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1493,7 +1524,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}/store`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1548,7 +1579,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}/reject`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1611,7 +1642,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}/deletion-request`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1675,7 +1706,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}/deletion-review`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1730,7 +1761,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/aips/{uuid}`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,
@@ -1785,7 +1816,7 @@ export class StorageApi extends runtime.BaseAPI implements StorageApiInterface {
         }
 
         let urlPath = `/storage/locations/{uuid}`;
-        urlPath = urlPath.replace(`{${"uuid"}}`, encodeURIComponent(String(requestParameters['uuid'])));
+        urlPath = urlPath.replace('{uuid}', encodeURIComponent(String(requestParameters['uuid'])));
 
         return {
             path: urlPath,

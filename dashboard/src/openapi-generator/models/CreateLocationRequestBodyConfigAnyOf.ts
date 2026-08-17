@@ -56,6 +56,8 @@ export type CreateLocationRequestBodyConfigAnyOfTypeEnum = typeof CreateLocation
  */
 export function instanceOfCreateLocationRequestBodyConfigAnyOf(value: object): value is CreateLocationRequestBodyConfigAnyOf {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (value['type'] !== 'amss') return false;
+    
     if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }

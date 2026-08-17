@@ -56,6 +56,8 @@ export type IngestEventValueAnyOf8TypeEnum = typeof IngestEventValueAnyOf8TypeEn
  */
 export function instanceOfIngestEventValueAnyOf8(value: object): value is IngestEventValueAnyOf8 {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (value['type'] !== 'batch_created_event') return false;
+    
     if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }

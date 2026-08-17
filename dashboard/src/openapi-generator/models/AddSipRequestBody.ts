@@ -38,7 +38,7 @@ export interface AddSipRequestBody {
  */
 export function instanceOfAddSipRequestBody(value: object): value is AddSipRequestBody {
     if (!('key' in value) || value['key'] === undefined) return false;
-    if (!('sourceId' in value) || value['sourceId'] === undefined) return false;
+    if ((!('sourceId' in (value as Record<string, any>)) && !('source_id' in (value as Record<string, any>))) || ((value as Record<string, any>)['sourceId'] === undefined && (value as Record<string, any>)['source_id'] === undefined)) return false;
     return true;
 }
 

@@ -12,15 +12,12 @@
  * Do not edit the class manually.
  */
 
-
 import * as runtime from '../runtime';
-import type {
-  EnduroAbout,
-} from '../models/index';
 import {
+    type EnduroAbout,
     EnduroAboutFromJSON,
     EnduroAboutToJSON,
-} from '../models/index';
+} from '../models/EnduroAbout';
 
 /**
  * AboutApi - interface

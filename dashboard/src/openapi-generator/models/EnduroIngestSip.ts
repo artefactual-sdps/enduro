@@ -160,7 +160,7 @@ export type EnduroIngestSipStatusEnum = typeof EnduroIngestSipStatusEnum[keyof t
  * Check if a given object implements the EnduroIngestSip interface.
  */
 export function instanceOfEnduroIngestSip(value: object): value is EnduroIngestSip {
-    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if ((!('createdAt' in (value as Record<string, any>)) && !('created_at' in (value as Record<string, any>))) || ((value as Record<string, any>)['createdAt'] === undefined && (value as Record<string, any>)['created_at'] === undefined)) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     if (!('uuid' in value) || value['uuid'] === undefined) return false;
     return true;
