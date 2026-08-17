@@ -31,7 +31,7 @@ export interface ConfirmSipRequestBody {
  * Check if a given object implements the ConfirmSipRequestBody interface.
  */
 export function instanceOfConfirmSipRequestBody(value: object): value is ConfirmSipRequestBody {
-    if (!('locationUuid' in value) || value['locationUuid'] === undefined) return false;
+    if ((!('locationUuid' in (value as Record<string, any>)) && !('location_uuid' in (value as Record<string, any>))) || ((value as Record<string, any>)['locationUuid'] === undefined && (value as Record<string, any>)['location_uuid'] === undefined)) return false;
     return true;
 }
 

@@ -108,9 +108,9 @@ export type EnduroStorageAipWorkflowTypeEnum = typeof EnduroStorageAipWorkflowTy
  * Check if a given object implements the EnduroStorageAipWorkflow interface.
  */
 export function instanceOfEnduroStorageAipWorkflow(value: object): value is EnduroStorageAipWorkflow {
-    if (!('aipUuid' in value) || value['aipUuid'] === undefined) return false;
+    if ((!('aipUuid' in (value as Record<string, any>)) && !('aip_uuid' in (value as Record<string, any>))) || ((value as Record<string, any>)['aipUuid'] === undefined && (value as Record<string, any>)['aip_uuid'] === undefined)) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
-    if (!('temporalId' in value) || value['temporalId'] === undefined) return false;
+    if ((!('temporalId' in (value as Record<string, any>)) && !('temporal_id' in (value as Record<string, any>))) || ((value as Record<string, any>)['temporalId'] === undefined && (value as Record<string, any>)['temporal_id'] === undefined)) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
     if (!('uuid' in value) || value['uuid'] === undefined) return false;
     return true;

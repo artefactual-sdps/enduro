@@ -82,9 +82,9 @@ export type EnduroStorageAipStatusEnum = typeof EnduroStorageAipStatusEnum[keyof
  * Check if a given object implements the EnduroStorageAip interface.
  */
 export function instanceOfEnduroStorageAip(value: object): value is EnduroStorageAip {
-    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if ((!('createdAt' in (value as Record<string, any>)) && !('created_at' in (value as Record<string, any>))) || ((value as Record<string, any>)['createdAt'] === undefined && (value as Record<string, any>)['created_at'] === undefined)) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
-    if (!('objectKey' in value) || value['objectKey'] === undefined) return false;
+    if ((!('objectKey' in (value as Record<string, any>)) && !('object_key' in (value as Record<string, any>))) || ((value as Record<string, any>)['objectKey'] === undefined && (value as Record<string, any>)['object_key'] === undefined)) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     if (!('uuid' in value) || value['uuid'] === undefined) return false;
     return true;

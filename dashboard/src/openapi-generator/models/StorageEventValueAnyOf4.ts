@@ -56,6 +56,8 @@ export type StorageEventValueAnyOf4TypeEnum = typeof StorageEventValueAnyOf4Type
  */
 export function instanceOfStorageEventValueAnyOf4(value: object): value is StorageEventValueAnyOf4 {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (value['type'] !== 'aip_status_updated_event') return false;
+    
     if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }

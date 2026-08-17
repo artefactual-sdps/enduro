@@ -49,7 +49,7 @@ export interface EnduroIngestUser {
  * Check if a given object implements the EnduroIngestUser interface.
  */
 export function instanceOfEnduroIngestUser(value: object): value is EnduroIngestUser {
-    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if ((!('createdAt' in (value as Record<string, any>)) && !('created_at' in (value as Record<string, any>))) || ((value as Record<string, any>)['createdAt'] === undefined && (value as Record<string, any>)['created_at'] === undefined)) return false;
     if (!('email' in value) || value['email'] === undefined) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('uuid' in value) || value['uuid'] === undefined) return false;

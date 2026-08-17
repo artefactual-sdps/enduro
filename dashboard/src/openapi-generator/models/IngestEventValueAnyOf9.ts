@@ -56,6 +56,8 @@ export type IngestEventValueAnyOf9TypeEnum = typeof IngestEventValueAnyOf9TypeEn
  */
 export function instanceOfIngestEventValueAnyOf9(value: object): value is IngestEventValueAnyOf9 {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (value['type'] !== 'batch_updated_event') return false;
+    
     if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }

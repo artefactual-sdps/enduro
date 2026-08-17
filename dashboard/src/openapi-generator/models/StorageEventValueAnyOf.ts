@@ -56,6 +56,8 @@ export type StorageEventValueAnyOfTypeEnum = typeof StorageEventValueAnyOfTypeEn
  */
 export function instanceOfStorageEventValueAnyOf(value: object): value is StorageEventValueAnyOf {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (value['type'] !== 'storage_ping_event') return false;
+    
     if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }

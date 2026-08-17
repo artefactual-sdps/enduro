@@ -37,7 +37,7 @@ export interface AIPLocationUpdatedEvent {
  * Check if a given object implements the AIPLocationUpdatedEvent interface.
  */
 export function instanceOfAIPLocationUpdatedEvent(value: object): value is AIPLocationUpdatedEvent {
-    if (!('locationUuid' in value) || value['locationUuid'] === undefined) return false;
+    if ((!('locationUuid' in (value as Record<string, any>)) && !('location_uuid' in (value as Record<string, any>))) || ((value as Record<string, any>)['locationUuid'] === undefined && (value as Record<string, any>)['location_uuid'] === undefined)) return false;
     if (!('uuid' in value) || value['uuid'] === undefined) return false;
     return true;
 }

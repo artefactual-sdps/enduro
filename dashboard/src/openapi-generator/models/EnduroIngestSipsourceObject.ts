@@ -49,7 +49,7 @@ export interface EnduroIngestSipsourceObject {
  * Check if a given object implements the EnduroIngestSipsourceObject interface.
  */
 export function instanceOfEnduroIngestSipsourceObject(value: object): value is EnduroIngestSipsourceObject {
-    if (!('isDir' in value) || value['isDir'] === undefined) return false;
+    if ((!('isDir' in (value as Record<string, any>)) && !('is_dir' in (value as Record<string, any>))) || ((value as Record<string, any>)['isDir'] === undefined && (value as Record<string, any>)['is_dir'] === undefined)) return false;
     if (!('key' in value) || value['key'] === undefined) return false;
     return true;
 }

@@ -100,9 +100,9 @@ export type EnduroIngestBatchStatusEnum = typeof EnduroIngestBatchStatusEnum[key
  * Check if a given object implements the EnduroIngestBatch interface.
  */
 export function instanceOfEnduroIngestBatch(value: object): value is EnduroIngestBatch {
-    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if ((!('createdAt' in (value as Record<string, any>)) && !('created_at' in (value as Record<string, any>))) || ((value as Record<string, any>)['createdAt'] === undefined && (value as Record<string, any>)['created_at'] === undefined)) return false;
     if (!('identifier' in value) || value['identifier'] === undefined) return false;
-    if (!('sipsCount' in value) || value['sipsCount'] === undefined) return false;
+    if ((!('sipsCount' in (value as Record<string, any>)) && !('sips_count' in (value as Record<string, any>))) || ((value as Record<string, any>)['sipsCount'] === undefined && (value as Record<string, any>)['sips_count'] === undefined)) return false;
     if (!('status' in value) || value['status'] === undefined) return false;
     if (!('uuid' in value) || value['uuid'] === undefined) return false;
     return true;

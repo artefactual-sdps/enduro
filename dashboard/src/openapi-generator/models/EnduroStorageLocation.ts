@@ -98,7 +98,7 @@ export type EnduroStorageLocationSourceEnum = typeof EnduroStorageLocationSource
  * Check if a given object implements the EnduroStorageLocation interface.
  */
 export function instanceOfEnduroStorageLocation(value: object): value is EnduroStorageLocation {
-    if (!('createdAt' in value) || value['createdAt'] === undefined) return false;
+    if ((!('createdAt' in (value as Record<string, any>)) && !('created_at' in (value as Record<string, any>))) || ((value as Record<string, any>)['createdAt'] === undefined && (value as Record<string, any>)['created_at'] === undefined)) return false;
     if (!('name' in value) || value['name'] === undefined) return false;
     if (!('purpose' in value) || value['purpose'] === undefined) return false;
     if (!('source' in value) || value['source'] === undefined) return false;

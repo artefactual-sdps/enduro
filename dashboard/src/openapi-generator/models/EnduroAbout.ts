@@ -57,8 +57,8 @@ export interface EnduroAbout {
  * Check if a given object implements the EnduroAbout interface.
  */
 export function instanceOfEnduroAbout(value: object): value is EnduroAbout {
-    if (!('preservationSystem' in value) || value['preservationSystem'] === undefined) return false;
-    if (!('uploadMaxSize' in value) || value['uploadMaxSize'] === undefined) return false;
+    if ((!('preservationSystem' in (value as Record<string, any>)) && !('preservation_system' in (value as Record<string, any>))) || ((value as Record<string, any>)['preservationSystem'] === undefined && (value as Record<string, any>)['preservation_system'] === undefined)) return false;
+    if ((!('uploadMaxSize' in (value as Record<string, any>)) && !('upload_max_size' in (value as Record<string, any>))) || ((value as Record<string, any>)['uploadMaxSize'] === undefined && (value as Record<string, any>)['upload_max_size'] === undefined)) return false;
     if (!('version' in value) || value['version'] === undefined) return false;
     return true;
 }

@@ -43,7 +43,7 @@ export interface AMSSConfig {
  * Check if a given object implements the AMSSConfig interface.
  */
 export function instanceOfAMSSConfig(value: object): value is AMSSConfig {
-    if (!('apiKey' in value) || value['apiKey'] === undefined) return false;
+    if ((!('apiKey' in (value as Record<string, any>)) && !('api_key' in (value as Record<string, any>))) || ((value as Record<string, any>)['apiKey'] === undefined && (value as Record<string, any>)['api_key'] === undefined)) return false;
     if (!('url' in value) || value['url'] === undefined) return false;
     if (!('username' in value) || value['username'] === undefined) return false;
     return true;

@@ -44,7 +44,7 @@ export interface AddBatchRequestBody {
  */
 export function instanceOfAddBatchRequestBody(value: object): value is AddBatchRequestBody {
     if (!('keys' in value) || value['keys'] === undefined) return false;
-    if (!('sourceId' in value) || value['sourceId'] === undefined) return false;
+    if ((!('sourceId' in (value as Record<string, any>)) && !('source_id' in (value as Record<string, any>))) || ((value as Record<string, any>)['sourceId'] === undefined && (value as Record<string, any>)['source_id'] === undefined)) return false;
     return true;
 }
 

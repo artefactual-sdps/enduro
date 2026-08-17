@@ -71,7 +71,7 @@ export type CreateAipRequestBodyStatusEnum = typeof CreateAipRequestBodyStatusEn
  */
 export function instanceOfCreateAipRequestBody(value: object): value is CreateAipRequestBody {
     if (!('name' in value) || value['name'] === undefined) return false;
-    if (!('objectKey' in value) || value['objectKey'] === undefined) return false;
+    if ((!('objectKey' in (value as Record<string, any>)) && !('object_key' in (value as Record<string, any>))) || ((value as Record<string, any>)['objectKey'] === undefined && (value as Record<string, any>)['object_key'] === undefined)) return false;
     if (!('uuid' in value) || value['uuid'] === undefined) return false;
     return true;
 }

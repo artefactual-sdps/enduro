@@ -55,9 +55,9 @@ export type EnduroChildworkflowTypeEnum = typeof EnduroChildworkflowTypeEnum[key
  * Check if a given object implements the EnduroChildworkflow interface.
  */
 export function instanceOfEnduroChildworkflow(value: object): value is EnduroChildworkflow {
-    if (!('taskQueue' in value) || value['taskQueue'] === undefined) return false;
+    if ((!('taskQueue' in (value as Record<string, any>)) && !('task_queue' in (value as Record<string, any>))) || ((value as Record<string, any>)['taskQueue'] === undefined && (value as Record<string, any>)['task_queue'] === undefined)) return false;
     if (!('type' in value) || value['type'] === undefined) return false;
-    if (!('workflowName' in value) || value['workflowName'] === undefined) return false;
+    if ((!('workflowName' in (value as Record<string, any>)) && !('workflow_name' in (value as Record<string, any>))) || ((value as Record<string, any>)['workflowName'] === undefined && (value as Record<string, any>)['workflow_name'] === undefined)) return false;
     return true;
 }
 

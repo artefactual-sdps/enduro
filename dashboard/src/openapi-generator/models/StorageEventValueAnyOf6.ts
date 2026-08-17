@@ -56,6 +56,8 @@ export type StorageEventValueAnyOf6TypeEnum = typeof StorageEventValueAnyOf6Type
  */
 export function instanceOfStorageEventValueAnyOf6(value: object): value is StorageEventValueAnyOf6 {
     if (!('type' in value) || value['type'] === undefined) return false;
+    if (value['type'] !== 'aip_workflow_created_event') return false;
+    
     if (!('value' in value) || value['value'] === undefined) return false;
     return true;
 }
