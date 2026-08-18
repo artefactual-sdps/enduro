@@ -1,6 +1,6 @@
 module enduro-dev-azure-storage
 
-go 1.26.5
+go 1.26.6
 
 require (
 	github.com/pulumi/pulumi-azure-native-sdk/resources/v2 v2.92.3
