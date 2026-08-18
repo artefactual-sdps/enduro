@@ -128,7 +128,7 @@ Treat Node as a runtime dependency managed in a few coordinated places:
 * `/dashboard/package.json` (`engines.node`): supported Node major version,
   enforced by `/dashboard/.npmrc`
 * `/dashboard/package.json` and `/dashboard/package-lock.json`: Node-related
-  TypeScript packages such as `@tsconfig/node24` and `@types/node`
+  TypeScript packages such as `@tsconfig/node26` and `@types/node`
 
 Typical Node update:
 

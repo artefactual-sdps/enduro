@@ -7,8 +7,7 @@ type WorkflowEnum =
   | api.EnduroIngestSipWorkflowStatusEnum
   | api.EnduroStorageAipWorkflowStatusEnum;
 type TaskEnum =
-  | api.EnduroIngestSipTaskStatusEnum
-  | api.EnduroStorageAipTaskStatusEnum;
+  api.EnduroIngestSipTaskStatusEnum | api.EnduroStorageAipTaskStatusEnum;
 
 export type StatusEnum = PackageEnum | WorkflowEnum | TaskEnum;
 </script>

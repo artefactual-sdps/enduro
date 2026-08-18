@@ -227,15 +227,15 @@ const earliestTimeFromOption = (value: string) => {
 
 <style scoped>
 /* VueDatePicker owns these internal elements, so scoped styles need :deep(). */
-.dropdown :deep(.dp__theme_light),
-.dropdown :deep(.dp__theme_dark) {
+.dropdown :deep(.dp--theme-light),
+.dropdown :deep(.dp--theme-dark) {
   --dp-background-color: var(--bs-tertiary-bg);
   --dp-font-family: var(--bs-body-font-family);
   --dp-primary-color: var(--bs-primary);
   --dp-primary-disabled-color: var(--bs-primary);
 }
 
-.dropdown :deep(.dp__action_button) {
+.dropdown :deep(.dp--action-button) {
   height: auto;
   padding: 0.25rem 0.5rem;
   border-radius: var(--bs-border-radius-sm);
@@ -243,17 +243,17 @@ const earliestTimeFromOption = (value: string) => {
   line-height: 1.5;
 }
 
-.dropdown :deep(.dp__action_buttons .dp__action_select:not(:disabled):hover) {
+.dropdown :deep(.dp--action-buttons .dp--action-select:not(:disabled):hover) {
   background-color: color-mix(in srgb, var(--bs-primary) 85%, black);
 }
 
-.dropdown :deep(.dp__action_cancel) {
+.dropdown :deep(.dp--action-cancel) {
   color: var(--bs-white);
   background-color: var(--bs-secondary);
   border-color: transparent;
 }
 
-.dropdown :deep(.dp__action_cancel:hover) {
+.dropdown :deep(.dp--action-cancel:hover) {
   background-color: color-mix(in srgb, var(--bs-secondary) 85%, black);
   border-color: transparent;
 }

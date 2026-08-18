@@ -14,11 +14,15 @@ import type {
   ParamValueZeroOrMore,
   ParamValueZeroOrOne,
 } from 'vue-router'
+import type {
+  _ExtractParamParserType,
+} from 'vue-router/experimental'
 
 declare module 'vue-router' {
   interface TypesConfig {
-    ParamParsers:
-      | never
+    _ParamParsers: {}
+    RouteNamedMap: import('vue-router/auto-routes').RouteNamedMap
+    _RouteFileInfoMap: import('vue-router/auto-routes')._RouteFileInfoMap
   }
 }
 
@@ -263,12 +267,16 @@ declare module 'vue-router/auto-routes' {
         | '/'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/[...path].vue': {
       routes:
         | '/[...path]'
       views:
         | never
+      pathParamNames:
+        | 'path'
     }
     'src/pages/ingest.vue': {
       routes:
@@ -285,6 +293,8 @@ declare module 'vue-router/auto-routes' {
         | '/ingest/upload/'
       views:
         | 'default'
+      pathParamNames:
+        | never
     }
     'src/pages/ingest/batches.vue': {
       routes:
@@ -294,11 +304,15 @@ declare module 'vue-router/auto-routes' {
         | '/ingest/batches/[id]/'
       views:
         | 'default'
+      pathParamNames:
+        | never
     }
     'src/pages/ingest/batches/index.vue': {
       routes:
         | '/ingest/batches/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/ingest/batches/[id].vue': {
@@ -307,11 +321,15 @@ declare module 'vue-router/auto-routes' {
         | '/ingest/batches/[id]/'
       views:
         | 'default'
+      pathParamNames:
+        | 'id'
     }
     'src/pages/ingest/batches/[id]/index.vue': {
       routes:
         | '/ingest/batches/[id]/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/ingest/sips.vue': {
@@ -322,11 +340,15 @@ declare module 'vue-router/auto-routes' {
         | '/ingest/sips/[id]/'
       views:
         | 'default'
+      pathParamNames:
+        | never
     }
     'src/pages/ingest/sips/index.vue': {
       routes:
         | '/ingest/sips/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/ingest/sips/[id].vue': {
@@ -335,11 +357,15 @@ declare module 'vue-router/auto-routes' {
         | '/ingest/sips/[id]/'
       views:
         | 'default'
+      pathParamNames:
+        | 'id'
     }
     'src/pages/ingest/sips/[id]/index.vue': {
       routes:
         | '/ingest/sips/[id]/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/ingest/upload.vue': {
@@ -348,11 +374,15 @@ declare module 'vue-router/auto-routes' {
         | '/ingest/upload/'
       views:
         | 'default'
+      pathParamNames:
+        | never
     }
     'src/pages/ingest/upload/index.vue': {
       routes:
         | '/ingest/upload/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/storage.vue': {
@@ -369,6 +399,8 @@ declare module 'vue-router/auto-routes' {
         | '/storage/locations/[id]/aips'
       views:
         | 'default'
+      pathParamNames:
+        | never
     }
     'src/pages/storage/aips.vue': {
       routes:
@@ -378,11 +410,15 @@ declare module 'vue-router/auto-routes' {
         | '/storage/aips/[id]/'
       views:
         | 'default'
+      pathParamNames:
+        | never
     }
     'src/pages/storage/aips/index.vue': {
       routes:
         | '/storage/aips/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/storage/aips/[id].vue': {
@@ -391,11 +427,15 @@ declare module 'vue-router/auto-routes' {
         | '/storage/aips/[id]/'
       views:
         | 'default'
+      pathParamNames:
+        | 'id'
     }
     'src/pages/storage/aips/[id]/index.vue': {
       routes:
         | '/storage/aips/[id]/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/storage/locations.vue': {
@@ -407,11 +447,15 @@ declare module 'vue-router/auto-routes' {
         | '/storage/locations/[id]/aips'
       views:
         | 'default'
+      pathParamNames:
+        | never
     }
     'src/pages/storage/locations/index.vue': {
       routes:
         | '/storage/locations/'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/storage/locations/[id].vue': {
@@ -421,17 +465,23 @@ declare module 'vue-router/auto-routes' {
         | '/storage/locations/[id]/aips'
       views:
         | 'default'
+      pathParamNames:
+        | 'id'
     }
     'src/pages/storage/locations/[id]/index.vue': {
       routes:
         | '/storage/locations/[id]/'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/storage/locations/[id]/aips.vue': {
       routes:
         | '/storage/locations/[id]/aips'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/user.vue': {
@@ -442,11 +492,15 @@ declare module 'vue-router/auto-routes' {
         | '/user/signout-callback'
       views:
         | 'default'
+      pathParamNames:
+        | never
     }
     'src/pages/user/signin.vue': {
       routes:
         | '/user/signin'
       views:
+        | never
+      pathParamNames:
         | never
     }
     'src/pages/user/signin-callback.vue': {
@@ -454,11 +508,15 @@ declare module 'vue-router/auto-routes' {
         | '/user/signin-callback'
       views:
         | never
+      pathParamNames:
+        | never
     }
     'src/pages/user/signout-callback.vue': {
       routes:
         | '/user/signout-callback'
       views:
+        | never
+      pathParamNames:
         | never
     }
   }
