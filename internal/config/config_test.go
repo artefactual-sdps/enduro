@@ -104,10 +104,11 @@ func TestConfigRead(t *testing.T) {
 	t.Parallel()
 
 	type test struct {
-		name    string
-		config  string
-		want    config.Configuration
-		wantErr string
+		name            string
+		config          string
+		want            config.Configuration
+		wantErr         string
+		wantErrContains string
 	}
 	for _, tc := range []test{
 		{
@@ -285,25 +286,19 @@ defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
 			name: "Returns error if string to UUID hook fails",
 			config: `[ingest.storage]
 defaultPermanentLocationId = "not-a-uuid"`,
-			wantErr: `failed to unmarshal configuration: 1 error(s) decoding:
-
-* error decoding 'Ingest.Storage.DefaultPermanentLocationID': invalid UUID length: 10`,
+			wantErrContains: `'Ingest.Storage.DefaultPermanentLocationID' invalid UUID length: 10`,
 		},
 		{
 			name: "Returns error if string to map hook fails",
 			config: `[api.auth.oidc.abac]
 rolesMapping = "not-a-json"`,
-			wantErr: `failed to unmarshal configuration: 1 error(s) decoding:
-
-* error decoding 'API.Auth.OIDC[0].ABAC.RolesMapping': invalid character 'o' in literal null (expecting 'u')`,
+			wantErrContains: `'API.Auth.OIDC[0].ABAC.RolesMapping' invalid character 'o' in literal null (expecting 'u')`,
 		},
 		{
 			name: "Returns error if string to log level hook fails",
 			config: `[api.log]
 level = "panic"`,
-			wantErr: `failed to unmarshal configuration: 1 error(s) decoding:
-
-* error decoding 'API.Log.Level': invalid log level 'panic', valid values are: debug, info, warn, error`,
+			wantErrContains: `'API.Log.Level' invalid log level 'panic', valid values are: debug, info, warn, error`,
 		},
 		{
 			name: "Returns error if validation fails",
@@ -326,6 +321,11 @@ aipCompressionLevel = 10`,
 
 			var c config.Configuration
 			found, configFileUsed, err := config.Read(&c, configFile)
+			if tc.wantErrContains != "" {
+				assert.ErrorContains(t, err, "failed to unmarshal configuration:")
+				assert.ErrorContains(t, err, tc.wantErrContains)
+				return
+			}
 			if tc.wantErr != "" {
 				assert.Error(t, err, tc.wantErr)
 				return

@@ -104,7 +104,7 @@ func TestRedisStore(t *testing.T) {
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
 		value := "value"
-		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, value, time.Minute).Err()
+		err := redisClient.Set(ctx, "prefix:ticket:"+storeKey, value, time.Minute).Err()
 		assert.NilError(t, err)
 
 		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
@@ -150,7 +150,7 @@ func TestRedisStore(t *testing.T) {
 		redisServer := miniredis.RunT(t)
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
-		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, nil, time.Second*5).Err()
+		err := redisClient.Set(ctx, "prefix:ticket:"+storeKey, nil, time.Second*5).Err()
 		assert.NilError(t, err)
 
 		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{
@@ -171,7 +171,7 @@ func TestRedisStore(t *testing.T) {
 		redisServer := miniredis.RunT(t)
 		redisClient := redis.NewClient(&redis.Options{Addr: redisServer.Addr()})
 
-		err := redisClient.SetEx(ctx, "prefix:ticket:"+storeKey, nil, time.Second*5).Err()
+		err := redisClient.Set(ctx, "prefix:ticket:"+storeKey, nil, time.Second*5).Err()
 		assert.NilError(t, err)
 
 		store, err := auth.NewRedisStore(ctx, tp, &auth.RedisConfig{

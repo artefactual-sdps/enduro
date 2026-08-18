@@ -3,13 +3,13 @@ project = "enduro-sdps"
 
 [[bins]]
 name = "atlas"
-version = "0.37.0"
+version = "1.3.0"
 url = "https://release.ariga.io/atlas"
 
 [[bins]]
 name = "ent"
 go_package = "entgo.io/ent/cmd/ent"
-version = "0.14.5"
+version = "0.14.6"
 
 [[bins]]
 name = "go-enum"

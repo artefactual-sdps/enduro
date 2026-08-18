@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -437,10 +438,11 @@ func TestDelete(t *testing.T) {
 	}
 
 	type test struct {
-		name    string
-		params  params
-		wantFs  []tfs.PathOp
-		wantErr string
+		name      string
+		params    params
+		wantFs    []tfs.PathOp
+		wantErr   string
+		wantErrIs error
 	}
 	for _, tc := range []test{
 		{
@@ -461,7 +463,8 @@ func TestDelete(t *testing.T) {
 				},
 				file: "test.txt",
 			},
-			wantErr: "SFTP: unable to remove \"test.txt\": file does not exist",
+			wantErr:   "SFTP: unable to remove \"test.txt\": file does not exist",
+			wantErrIs: os.ErrNotExist,
 		},
 		{
 			name: "Errors when there are insufficient permissions",
@@ -474,7 +477,8 @@ func TestDelete(t *testing.T) {
 				restrictDir: "restricted",
 				file:        "restricted/test.txt",
 			},
-			wantErr: "SFTP: unable to remove \"restricted/test.txt\": permission denied",
+			wantErr:   "SFTP: unable to remove \"restricted/test.txt\": permission denied",
+			wantErrIs: os.ErrPermission,
 		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
@@ -503,6 +507,7 @@ func TestDelete(t *testing.T) {
 			err := client.Delete(context.Background(), tc.params.file)
 			if tc.wantErr != "" {
 				assert.Error(t, err, tc.wantErr)
+				assert.Assert(t, errors.Is(err, tc.wantErrIs))
 				return
 			}
 

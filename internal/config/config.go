@@ -13,8 +13,8 @@ import (
 
 	"github.com/artefactual-sdps/temporal-activities/archiveextract"
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/google/uuid"
-	"github.com/mitchellh/mapstructure"
 	"github.com/spf13/viper"
 	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/log"

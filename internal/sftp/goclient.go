@@ -44,8 +44,11 @@ func (c *GoClient) Delete(ctx context.Context, dest string) error {
 
 	if err := conn.RemoveAll(remotePath); err != nil {
 		head := fmt.Sprintf("SFTP: unable to remove %q", dest)
-		if errors.Is(err, fs.ErrNotExist) || errors.Is(err, fs.ErrPermission) {
-			return fmt.Errorf("%s: %w", head, err)
+		if errors.Is(err, fs.ErrNotExist) {
+			return fmt.Errorf("%s: %w", head, fs.ErrNotExist)
+		}
+		if errors.Is(err, fs.ErrPermission) {
+			return fmt.Errorf("%s: %w", head, fs.ErrPermission)
 		}
 		if statusErr, ok := err.(*sftp.StatusError); ok {
 			return fmt.Errorf("%s: %s", head, formatStatusError(statusErr))
