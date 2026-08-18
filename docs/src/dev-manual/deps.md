@@ -20,15 +20,17 @@ available minor and patch upgrades only for our direct dependencies:
     golang.org/x/sync: v0.1.0 -> v0.2.0
     google.golang.org/grpc: v1.54.0 -> v1.55.0
 
-Alternatively, using `make deps` (uses gomajor):
+Alternatively, use `make deps` (uses `go-mod-outdated`, managed with bine):
 
-    $ make deps
-    github.com/aws/aws-sdk-go: v1.45.10 [latest v1.45.11]
-    go.artefactual.dev/tools: v0.4.0 [latest v0.6.0]
-    go.uber.org/mock: v0.2.0 [latest v0.3.0]
-    gotest.tools/v3: v3.5.0 [latest v3.5.1]
+    +---------------------+---------+-------------+--------+------------------+
+    |       MODULE        | VERSION | NEW VERSION | DIRECT | VALID TIMESTAMPS |
+    +---------------------+---------+-------------+--------+------------------+
+    | ariga.io/atlas      | v0.37.0 | v1.3.0      | true   | true             |
+    | entgo.io/ent        | v0.14.5 | v0.14.6     | true   | true             |
+    | github.com/pkg/sftp | v1.13.6 | v1.13.11    | true   | true             |
+    +---------------------+---------+-------------+--------+------------------+
 
-Update `golang.org/x/sync` individually to the latest version with:
+For example, update `golang.org/x/sync` individually to the latest version with:
 `go get golang.org/x/sync` or `go get golang.org/x/sync@latest` (`v0.2.0`). This
 is the preferred method.
 
@@ -61,12 +63,15 @@ While dealing with this type of module update requires more care, tools like
 
 Update the dependency:
 
-    go get entgo.io/ent@v0.11.10
+    go get entgo.io/ent@vX.Y.Z
     go mod tidy
 
-Edit `hack/make/dep_ent.mk` to update the binary installation:
+Update the `ent` binary version in `.bine.toml` to match:
 
-    ENT_VERSION ?= 0.11.10
+    [[bins]]
+    name = "ent"
+    go_package = "entgo.io/ent/cmd/ent"
+    version = "X.Y.Z"
 
 Now you can generate the code with:
 
@@ -74,14 +79,18 @@ Now you can generate the code with:
 
 ### `goa.design/goa/v3`
 
-Update the dependency:
+Update Goa and its plugins:
 
-    go get goa.design/goa/v3/cmd/goa@v3.11.3
+    go get goa.design/goa/v3@vX.Y.Z
+    go get goa.design/plugins/v3@vX.Y.Z
     go mod tidy
 
-Edit `hack/make/dep_goa.mk` to update the binary installation:
+Update the `goa` binary version in `.bine.toml` to match:
 
-    GOA_VERSION ?= 0.11.10
+    [[bins]]
+    name = "goa"
+    go_package = "goa.design/goa/v3/cmd/goa"
+    version = "X.Y.Z"
 
 Now you can generate the code with:
 
@@ -89,17 +98,19 @@ Now you can generate the code with:
 
 ## Version updates
 
-We have configured Dependabot alerts to be generated only for security updates
-because regular version updates are frequent, generating too many pull requests.
+Dependabot handles regular version updates in addition to security updates. Its
+configuration groups related updates and limits the number of open pull requests
+for each package ecosystem and directory to keep the volume manageable.
 
 The following sections describe how to identify version updates in different
 areas of the project.
 
 ### Automated process
 
-We don't have an automated process yet, but we suspect that we could run
-dependabote-core locally for this purpose and generate a report that could be
-delivered via Slack or email, e.g. on a weekly basis.
+Dependabot checks the package ecosystems configured in
+`.github/dependabot.yml`. Most checks run weekly, while the main GitHub Actions
+check runs daily. Review the resulting grouped pull requests, their release
+notes, and the CI results before merging them.
 
 ### Manual process
 
@@ -107,9 +118,10 @@ delivered via Slack or email, e.g. on a weekly basis.
 
     make deps
 
-#### Tools under `hack/make`
+#### Development binaries
 
-Review manually.
+Review the versions in `.bine.toml` manually. Bine manages the installation of
+development binaries such as Ent, Goa, and `go-mod-outdated`.
 
 #### Dashboard dependencies
 
