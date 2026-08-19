@@ -7,8 +7,6 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/exp/maps"
 
-	ingest_enums "github.com/artefactual-sdps/enduro/internal/enums"
-	storage_enums "github.com/artefactual-sdps/enduro/internal/storage/enums"
 	"github.com/artefactual-sdps/enduro/internal/timerange"
 )
 
@@ -170,39 +168,6 @@ func (f *Filter[Q, O, P]) addFilter(column string, selector func(s *sql.Selector
 	f.filters = append(f.filters, columnFilter[P]{column, selector})
 }
 
-// validPtrValue returns true if the given pointer ptr is not nil, and the
-// underlying value is valid.
-//
-// Validating pointers is complicated because ptr has an interface{} type. The
-// conditional `ptr == nil` doesn't evaluate true when ptr is a typed nil like
-// (*enums.SIPStatus)(nil). A type switch case on the validator interface
-// can then assign the nil *enums.SIPStatus to the validator interface and
-// calling `t.IsValid()` causes a panic from trying to call `IsValid()` on a
-// nil pointer.
-func validPtrValue(ptr any) bool {
-	if ptr == nil {
-		return false
-	}
-
-	switch t := ptr.(type) {
-	case *storage_enums.AIPStatus:
-		return t != nil && t.IsValid()
-	case *ingest_enums.SIPStatus:
-		return t != nil && t.IsValid()
-	case *ingest_enums.BatchStatus:
-		return t != nil && t.IsValid()
-	case *int:
-		return t != nil
-	case *string:
-		return t != nil
-	case *uuid.UUID:
-		return t != nil && *t != uuid.Nil
-	default:
-		// Return false when v's type is unknown.
-		return false
-	}
-}
-
 // Contains adds a filter on column containing the given string.
 func (f *Filter[Q, O, P]) Contains(column string, value *string) {
 	if value == nil || *value == "" {
@@ -231,14 +196,10 @@ func (f *Filter[Q, O, P]) ContainsAny(columns []string, value *string) {
 	})
 }
 
-// Equals adds a filter on column being equal to value. If value implements the
-// validator interface, value is validated before the filter is added.
-func (f *Filter[Q, O, P]) Equals(column string, value any) {
-	// The current code always calls this function with a pointer value (e.g.
-	// *string, *enums.SIPStatus). If we need to pass value types (e.g.
-	// (string, enums.SIPStatus) in the future we'll have to combine the
-	// validPtrValue() & validValue() type switch cases.
-	if !validPtrValue(value) {
+// Equals adds a filter on column being equal to value. If the underlying value
+// implements validator, it is validated before the filter is added.
+func (f *Filter[Q, O, P]) Equals[T any](column string, value *T) {
+	if value == nil || !validValue(*value) {
 		return
 	}
 
@@ -269,16 +230,15 @@ func validValue(v any) bool {
 // In adds a filter on column being equal to one of the given values. Each
 // element in values that implements validator is validated before being added
 // to the list of filter values.
-func (f *Filter[Q, O, P]) In(column string, values []any) {
+func (f *Filter[Q, O, P]) In[T any](column string, values []T) {
 	if len(values) == 0 {
 		return
 	}
 
 	validated := make([]any, 0, len(values))
 	for _, val := range values {
-		// I can't see any reason we'd want to pass pointers as elements in the
-		// values slice. We can and do pass ([]any)(nil) but doing so skips this
-		// loop altogether.
+		// Callers are expected to pass value slices, not slices of pointers.
+		// A nil slice returns above before this loop.
 		if !validValue(val) {
 			continue
 		}
