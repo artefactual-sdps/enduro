@@ -49,14 +49,14 @@ func HTTPServer(
 	mux.Use(otelhttp.NewMiddleware("api", otelhttp.WithTracerProvider(tp)))
 	mux.Use(middleware.Recover(logger))
 
-	operationInterceptors := newOperationInterceptors(logger)
+	serverInterceptors := newServerInterceptors(logger)
 
 	// Ingest service.
 	ingestEndpoints := ingest.NewEndpoints(
 		ingestsvc,
-		&ingestServerInterceptors{operationInterceptors: operationInterceptors},
+		&ingestServerInterceptors{serverInterceptors: serverInterceptors},
 	)
-	ingestErrorHandler := errorHandler(logger, "Ingest error.")
+	ingestErrorHandler := transportErrorHandler(logger, "Ingest transport error.")
 	ingestServer := ingestsvr.New(ingestEndpoints, mux, dec, enc, ingestErrorHandler, nil)
 	ingestServer.Monitor = middleware.WriteTimeout(0)(ingestServer.Monitor)
 	ingestServer.DownloadSip = middleware.WriteTimeout(0)(ingestServer.DownloadSip)
@@ -67,9 +67,9 @@ func HTTPServer(
 	// Storage service.
 	storageEndpoints := storage.NewEndpoints(
 		storagesvc,
-		&storageServerInterceptors{operationInterceptors: operationInterceptors},
+		&storageServerInterceptors{serverInterceptors: serverInterceptors},
 	)
-	storageErrorHandler := errorHandler(logger, "Storage error.")
+	storageErrorHandler := transportErrorHandler(logger, "Storage transport error.")
 	storageServer := storagesvr.New(storageEndpoints, mux, dec, enc, storageErrorHandler, nil)
 	storageServer.Monitor = middleware.WriteTimeout(0)(storageServer.Monitor)
 	// Streaming downloads can legitimately take longer than the API write
@@ -81,9 +81,9 @@ func HTTPServer(
 	// About service.
 	aboutEndpoints := about.NewEndpoints(
 		aboutsvc,
-		&aboutServerInterceptors{operationInterceptors: operationInterceptors},
+		&aboutServerInterceptors{serverInterceptors: serverInterceptors},
 	)
-	aboutErrorHandler := errorHandler(logger, "About error.")
+	aboutErrorHandler := transportErrorHandler(logger, "About transport error.")
 	aboutServer := aaboutsvr.New(aboutEndpoints, mux, dec, enc, aboutErrorHandler, nil)
 	aaboutsvr.Mount(mux, aboutServer)
 
@@ -113,9 +113,10 @@ type errorMessage struct {
 	Error     error
 }
 
-// errorHandler returns a function that writes and logs the given error
-// including the request ID.
-func errorHandler(logger logr.Logger, msg string) func(context.Context, http.ResponseWriter, error) {
+// transportErrorHandler handles failures raised while the generated HTTP
+// transport encodes a response. Endpoint errors are logged and sanitized by
+// the Goa ServerErrorHandler interceptor before they reach this layer.
+func transportErrorHandler(logger logr.Logger, msg string) func(context.Context, http.ResponseWriter, error) {
 	return func(ctx context.Context, w http.ResponseWriter, err error) {
 		reqID, ok := ctx.Value(goamiddleware.RequestIDKey).(string)
 		if !ok {
@@ -124,6 +125,6 @@ func errorHandler(logger logr.Logger, msg string) func(context.Context, http.Res
 
 		_ = json.NewEncoder(w).Encode(&errorMessage{RequestID: reqID})
 
-		logger.Error(err, "Service error.", "reqID", reqID, "msg", msg)
+		logger.Error(err, "HTTP transport error.", "reqID", reqID, "msg", msg)
 	}
 }

@@ -4332,6 +4332,16 @@
               }
             },
             "description": "forbidden: Forbidden response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -4509,7 +4519,7 @@
                 }
               }
             },
-            "description": "internal_error: Fault while processing upload."
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -4610,7 +4620,7 @@
             },
             "description": "not_found: SIP not found"
           },
-          "409": {
+          "500": {
             "content": {
               "application/vnd.goa.error": {
                 "schema": {
@@ -4618,7 +4628,7 @@
                 }
               }
             },
-            "description": "not_available: Conflict response."
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -4727,6 +4737,16 @@
               }
             },
             "description": "not_available: Conflict response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -5283,6 +5303,16 @@
               }
             },
             "description": "not_available: Conflict response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -5388,6 +5418,16 @@
               }
             },
             "description": "not_found: SIP not found"
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -5517,6 +5557,16 @@
               }
             },
             "description": "forbidden: Forbidden response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -5678,7 +5728,7 @@
             },
             "description": "forbidden: Forbidden response."
           },
-          "409": {
+          "500": {
             "content": {
               "application/vnd.goa.error": {
                 "schema": {
@@ -5686,7 +5736,7 @@
                 }
               }
             },
-            "description": "not_available: Conflict response."
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -5774,6 +5824,16 @@
               }
             },
             "description": "forbidden: Forbidden response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -5864,6 +5924,16 @@
               }
             },
             "description": "not_found: AIP not found"
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -6832,7 +6902,7 @@
             },
             "description": "not_found: AIP not found"
           },
-          "409": {
+          "500": {
             "content": {
               "application/vnd.goa.error": {
                 "schema": {
@@ -6840,7 +6910,7 @@
                 }
               }
             },
-            "description": "not_available: Conflict response."
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -6935,6 +7005,16 @@
               }
             },
             "description": "failed_dependency: Failed Dependency response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -7032,7 +7112,7 @@
             },
             "description": "not_found: AIP not found"
           },
-          "409": {
+          "500": {
             "content": {
               "application/vnd.goa.error": {
                 "schema": {
@@ -7040,7 +7120,7 @@
                 }
               }
             },
-            "description": "not_available: Conflict response."
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -7181,6 +7261,16 @@
               }
             },
             "description": "not_found: AIP not found"
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -7243,6 +7333,16 @@
               }
             },
             "description": "forbidden: Forbidden response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -7336,6 +7436,16 @@
               }
             },
             "description": "forbidden: Forbidden response."
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -7438,6 +7548,16 @@
               }
             },
             "description": "not_found: Storage location not found"
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [
@@ -7540,6 +7660,16 @@
               }
             },
             "description": "not_found: Storage location not found"
+          },
+          "500": {
+            "content": {
+              "application/vnd.goa.error": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            },
+            "description": "internal_error: Internal Server Error response."
           }
         },
         "security": [

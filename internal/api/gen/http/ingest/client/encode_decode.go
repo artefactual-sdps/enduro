@@ -208,6 +208,7 @@ func EncodeListSipsRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 // should be restored after having been read.
 // DecodeListSipsResponse may return the following errors:
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -257,6 +258,20 @@ func DecodeListSipsResponse(decoder func(*http.Response) goahttp.Decoder, restor
 				return nil, goahttp.ErrValidationError("ingest", "list_sips", err)
 			}
 			return nil, NewListSipsNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body ListSipsInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_sips", err)
+			}
+			err = ValidateListSipsInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_sips", err)
+			}
+			return nil, NewListSipsInternalError(&body)
 		case http.StatusForbidden:
 			var (
 				body string
@@ -333,7 +348,7 @@ func EncodeShowSipRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 // show_sip endpoint. restoreBody controls whether the response body should be
 // restored after having been read.
 // DecodeShowSipResponse may return the following errors:
-//   - "not_available" (type *goa.ServiceError): http.StatusConflict
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
@@ -370,20 +385,20 @@ func DecodeShowSipResponse(decoder func(*http.Response) goahttp.Decoder, restore
 			}
 			res := ingest.NewSIP(vres)
 			return res, nil
-		case http.StatusConflict:
+		case http.StatusInternalServerError:
 			var (
-				body ShowSipNotAvailableResponseBody
+				body ShowSipInternalErrorResponseBody
 				err  error
 			)
 			err = decoder(resp).Decode(&body)
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("ingest", "show_sip", err)
 			}
-			err = ValidateShowSipNotAvailableResponseBody(&body)
+			err = ValidateShowSipInternalErrorResponseBody(&body)
 			if err != nil {
 				return nil, goahttp.ErrValidationError("ingest", "show_sip", err)
 			}
-			return nil, NewShowSipNotAvailable(&body)
+			return nil, NewShowSipInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body ShowSipNotFoundResponseBody
@@ -474,6 +489,7 @@ func EncodeListSipWorkflowsRequest(encoder func(*http.Request) goahttp.Encoder) 
 // the ingest list_sip_workflows endpoint. restoreBody controls whether the
 // response body should be restored after having been read.
 // DecodeListSipWorkflowsResponse may return the following errors:
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
@@ -510,6 +526,20 @@ func DecodeListSipWorkflowsResponse(decoder func(*http.Response) goahttp.Decoder
 			}
 			res := ingest.NewSIPWorkflows(vres)
 			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body ListSipWorkflowsInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_sip_workflows", err)
+			}
+			err = ValidateListSipWorkflowsInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_sip_workflows", err)
+			}
+			return nil, NewListSipWorkflowsInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body ListSipWorkflowsNotFoundResponseBody
@@ -606,6 +636,7 @@ func EncodeConfirmSipRequest(encoder func(*http.Request) goahttp.Encoder) func(*
 // DecodeConfirmSipResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
@@ -655,6 +686,20 @@ func DecodeConfirmSipResponse(decoder func(*http.Response) goahttp.Decoder, rest
 				return nil, goahttp.ErrValidationError("ingest", "confirm_sip", err)
 			}
 			return nil, NewConfirmSipNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body ConfirmSipInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "confirm_sip", err)
+			}
+			err = ValidateConfirmSipInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "confirm_sip", err)
+			}
+			return nil, NewConfirmSipInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body ConfirmSipNotFoundResponseBody
@@ -747,6 +792,7 @@ func EncodeRejectSipRequest(encoder func(*http.Request) goahttp.Encoder) func(*h
 // DecodeRejectSipResponse may return the following errors:
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
@@ -796,6 +842,20 @@ func DecodeRejectSipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 				return nil, goahttp.ErrValidationError("ingest", "reject_sip", err)
 			}
 			return nil, NewRejectSipNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body RejectSipInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "reject_sip", err)
+			}
+			err = ValidateRejectSipInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "reject_sip", err)
+			}
+			return nil, NewRejectSipInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body RejectSipNotFoundResponseBody
@@ -886,9 +946,9 @@ func EncodeShowSipDecisionRequest(encoder func(*http.Request) goahttp.Encoder) f
 // the ingest show_sip_decision endpoint. restoreBody controls whether the
 // response body should be restored after having been read.
 // DecodeShowSipDecisionResponse may return the following errors:
-//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
@@ -925,20 +985,6 @@ func DecodeShowSipDecisionResponse(decoder func(*http.Response) goahttp.Decoder,
 			}
 			res := ingest.NewSIPDecision(vres)
 			return res, nil
-		case http.StatusInternalServerError:
-			var (
-				body ShowSipDecisionInternalErrorResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("ingest", "show_sip_decision", err)
-			}
-			err = ValidateShowSipDecisionInternalErrorResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("ingest", "show_sip_decision", err)
-			}
-			return nil, NewShowSipDecisionInternalError(&body)
 		case http.StatusConflict:
 			var (
 				body ShowSipDecisionNotAvailableResponseBody
@@ -967,6 +1013,20 @@ func DecodeShowSipDecisionResponse(decoder func(*http.Response) goahttp.Decoder,
 				return nil, goahttp.ErrValidationError("ingest", "show_sip_decision", err)
 			}
 			return nil, NewShowSipDecisionNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body ShowSipDecisionInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "show_sip_decision", err)
+			}
+			err = ValidateShowSipDecisionInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "show_sip_decision", err)
+			}
+			return nil, NewShowSipDecisionInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body ShowSipDecisionNotFoundResponseBody
@@ -1061,9 +1121,9 @@ func EncodeSubmitSipDecisionRequest(encoder func(*http.Request) goahttp.Encoder)
 // the ingest submit_sip_decision endpoint. restoreBody controls whether the
 // response body should be restored after having been read.
 // DecodeSubmitSipDecisionResponse may return the following errors:
-//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *ingest.SIPNotFound): http.StatusNotFound
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
@@ -1085,20 +1145,6 @@ func DecodeSubmitSipDecisionResponse(decoder func(*http.Response) goahttp.Decode
 		switch resp.StatusCode {
 		case http.StatusAccepted:
 			return nil, nil
-		case http.StatusInternalServerError:
-			var (
-				body SubmitSipDecisionInternalErrorResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("ingest", "submit_sip_decision", err)
-			}
-			err = ValidateSubmitSipDecisionInternalErrorResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("ingest", "submit_sip_decision", err)
-			}
-			return nil, NewSubmitSipDecisionInternalError(&body)
 		case http.StatusConflict:
 			var (
 				body SubmitSipDecisionNotAvailableResponseBody
@@ -1127,6 +1173,20 @@ func DecodeSubmitSipDecisionResponse(decoder func(*http.Response) goahttp.Decode
 				return nil, goahttp.ErrValidationError("ingest", "submit_sip_decision", err)
 			}
 			return nil, NewSubmitSipDecisionNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body SubmitSipDecisionInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "submit_sip_decision", err)
+			}
+			err = ValidateSubmitSipDecisionInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "submit_sip_decision", err)
+			}
+			return nil, NewSubmitSipDecisionInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body SubmitSipDecisionNotFoundResponseBody
@@ -1859,6 +1919,7 @@ func EncodeListUsersRequest(encoder func(*http.Request) goahttp.Encoder) func(*h
 // should be restored after having been read.
 // DecodeListUsersResponse may return the following errors:
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "forbidden" (type ingest.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type ingest.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -1908,6 +1969,20 @@ func DecodeListUsersResponse(decoder func(*http.Response) goahttp.Decoder, resto
 				return nil, goahttp.ErrValidationError("ingest", "list_users", err)
 			}
 			return nil, NewListUsersNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body ListUsersInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("ingest", "list_users", err)
+			}
+			err = ValidateListUsersInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("ingest", "list_users", err)
+			}
+			return nil, NewListUsersInternalError(&body)
 		case http.StatusForbidden:
 			var (
 				body string

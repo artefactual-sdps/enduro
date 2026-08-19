@@ -11,10 +11,14 @@ var _ = Service("ingest", func() {
 	Description("The ingest service manages ingested SIPs.")
 	Error("unauthorized", String, "Unauthorized")
 	Error("forbidden", String, "Forbidden")
+	Error("internal_error", ErrorResult, func() {
+		Fault()
+	})
 	HTTP(func() {
 		Path("/ingest")
 		Response("unauthorized", StatusUnauthorized)
 		Response("forbidden", StatusForbidden)
+		Response("internal_error", StatusInternalServerError)
 	})
 	Method("monitor", func() {
 		Description("Obtain access to the /monitor SSE event stream")
@@ -23,11 +27,9 @@ var _ = Service("ingest", func() {
 			BearerToken("token", String)
 		})
 		StreamingResult(IngestEvent)
-		Error("internal_error")
 		HTTP(func() {
 			GET("/monitor")
 			ServerSentEvents()
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("list_sips", func() {
@@ -81,12 +83,10 @@ var _ = Service("ingest", func() {
 		})
 		Result(SIP)
 		Error("not_found", SIPNotFound, "SIP not found")
-		Error("not_available")
 		HTTP(func() {
 			GET("/sips/{uuid}")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
-			Response("not_available", StatusConflict)
 		})
 	})
 	Method("list_sip_workflows", func() {
@@ -154,14 +154,12 @@ var _ = Service("ingest", func() {
 		})
 		Result(SIPDecision)
 		Error("not_found", SIPNotFound, "SIP not found")
-		Error("internal_error")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
 			GET("/sips/{uuid}/decision")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
-			Response("internal_error", StatusInternalServerError)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
@@ -176,14 +174,12 @@ var _ = Service("ingest", func() {
 			Required("uuid", "option")
 		})
 		Error("not_found", SIPNotFound, "SIP not found")
-		Error("internal_error")
 		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
 			POST("/sips/{uuid}/decision")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
-			Response("internal_error", StatusInternalServerError)
 			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
@@ -202,12 +198,10 @@ var _ = Service("ingest", func() {
 			Required("uuid")
 		})
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			POST("/sips")
 			Response(StatusCreated)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("upload_sip", func() {
@@ -237,8 +231,6 @@ var _ = Service("ingest", func() {
 			ErrorResult,
 			"Error returned when the request body is not a valid multipart content.",
 		)
-		Error("internal_error", ErrorResult, "Fault while processing upload.")
-
 		HTTP(func() {
 			POST("/sips/upload")
 			Header("content_type:Content-Type")
@@ -253,7 +245,6 @@ var _ = Service("ingest", func() {
 			// Define error HTTP statuses.
 			Response("invalid_media_type", StatusBadRequest)
 			Response("invalid_multipart_request", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("download_sip_request", func() {
@@ -269,7 +260,6 @@ var _ = Service("ingest", func() {
 		})
 		Error("not_found", SIPNotFound, "SIP not found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			POST("/sips/{uuid}/download")
 			Response(StatusOK, func() {
@@ -280,7 +270,6 @@ var _ = Service("ingest", func() {
 			})
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("download_sip", func() {
@@ -305,7 +294,6 @@ var _ = Service("ingest", func() {
 		})
 		Error("not_found", SIPNotFound, "SIP not found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			GET("/sips/{uuid}/download")
 			Cookie("ticket:enduro-sip-download-ticket")
@@ -317,7 +305,6 @@ var _ = Service("ingest", func() {
 			})
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("list_users", func() {
@@ -366,13 +353,11 @@ var _ = Service("ingest", func() {
 		Result(SIPSourceObjects)
 		Error("not_found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			GET("/sip-sources/{uuid}/objects")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 			Params(func() {
 				Param("limit")
 				Param("cursor")
@@ -394,12 +379,10 @@ var _ = Service("ingest", func() {
 			Required("uuid")
 		})
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			POST("/batches")
 			Response(StatusCreated)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("list_batches", func() {
@@ -424,12 +407,10 @@ var _ = Service("ingest", func() {
 		})
 		Result(Batches)
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			GET("/batches")
 			Response(StatusOK)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 			Params(func() {
 				Param("identifier")
 				Param("earliest_created_time")
@@ -452,13 +433,11 @@ var _ = Service("ingest", func() {
 		Result(Batch)
 		Error("not_found", BatchNotFound, "Batch not found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			GET("/batches/{uuid}")
 			Response(StatusOK)
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("review_batch", func() {
@@ -472,13 +451,11 @@ var _ = Service("ingest", func() {
 		})
 		Error("not_found", BatchNotFound, "Batch not found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			POST("/batches/{uuid}/review")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 })

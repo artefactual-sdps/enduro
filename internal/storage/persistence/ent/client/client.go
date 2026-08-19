@@ -63,7 +63,7 @@ func (c *Client) CreateAIP(ctx context.Context, goaaip *goastorage.AIP) (*goasto
 					UUID: *goaaip.LocationUUID, Message: "location not found",
 				}
 			} else {
-				return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+				return nil, goastorage.MakeInternalError(fmt.Errorf("resolve AIP location: %v", err))
 			}
 		}
 		q.SetLocationID(id)
@@ -108,11 +108,11 @@ func (c *Client) ListAIPs(ctx context.Context, payload *goastorage.ListAipsPaylo
 
 	res, err := page.All(ctx)
 	if err != nil {
-		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		return nil, goastorage.MakeInternalError(fmt.Errorf("list AIPs: %v", err))
 	}
 	total, err := whole.Count(ctx)
 	if err != nil {
-		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		return nil, goastorage.MakeInternalError(fmt.Errorf("count AIPs: %v", err))
 	}
 
 	aips := []*goastorage.AIP{}
@@ -142,7 +142,7 @@ func (c *Client) ReadAIP(ctx context.Context, aipID uuid.UUID) (*goastorage.AIP,
 		if db.IsNotFound(err) {
 			return nil, &goastorage.AIPNotFound{UUID: aipID, Message: "AIP not found"}
 		} else {
-			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+			return nil, goastorage.MakeInternalError(fmt.Errorf("read AIP: %v", err))
 		}
 	}
 
@@ -378,7 +378,7 @@ func (c *Client) ReadLocation(ctx context.Context, locationID uuid.UUID) (*goast
 		if db.IsNotFound(err) {
 			return nil, &goastorage.LocationNotFound{UUID: locationID, Message: "location not found"}
 		} else {
-			return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+			return nil, goastorage.MakeInternalError(fmt.Errorf("read location: %v", err))
 		}
 	}
 

@@ -97,9 +97,8 @@ type serviceImpl struct {
 var _ Service = (*serviceImpl)(nil)
 
 var (
-	ErrUnauthorized  error = goastorage.Unauthorized("Unauthorized")
-	ErrForbidden     error = goastorage.Forbidden("Forbidden")
-	ErrInternalError error = goastorage.MakeInternalError(errors.New("internal error"))
+	ErrUnauthorized error = goastorage.Unauthorized("Unauthorized")
+	ErrForbidden    error = goastorage.Forbidden("Forbidden")
 )
 
 func NewService(
@@ -215,7 +214,12 @@ func (s *serviceImpl) ListLocations(
 	ctx context.Context,
 	payload *goastorage.ListLocationsPayload,
 ) (goastorage.LocationCollection, error) {
-	return s.storagePersistence.ListLocations(ctx)
+	locations, err := s.storagePersistence.ListLocations(ctx)
+	if err != nil {
+		return nil, goastorage.MakeInternalError(fmt.Errorf("list locations: %v", err))
+	}
+
+	return locations, nil
 }
 
 func (s *serviceImpl) ListAips(
@@ -242,8 +246,7 @@ func (s *serviceImpl) MoveAip(ctx context.Context, payload *goastorage.MoveAipPa
 		TaskQueue:  s.config.TaskQueue,
 	})
 	if err != nil {
-		s.logger.Error(err, "error initializing move workflow")
-		return goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		return goastorage.MakeInternalError(fmt.Errorf("start AIP move workflow: %v", err))
 	}
 
 	return nil
@@ -265,7 +268,7 @@ func (s *serviceImpl) MoveAipStatus(
 
 	resp, err := s.tc.DescribeWorkflowExecution(ctx, fmt.Sprintf("%s-%s", StorageMoveWorkflowName, p.UUID), "")
 	if err != nil {
-		return nil, goastorage.MakeFailedDependency(errors.New("cannot perform operation"))
+		return nil, goastorage.MakeInternalError(fmt.Errorf("describe AIP move workflow: %v", err))
 	}
 
 	var done bool
@@ -291,7 +294,11 @@ func (s *serviceImpl) RejectAip(ctx context.Context, payload *goastorage.RejectA
 		return goastorage.MakeNotValid(errors.New("cannot perform operation"))
 	}
 
-	return s.UpdateAipStatus(ctx, aipID, enums.AIPStatusDeleted)
+	if err := s.UpdateAipStatus(ctx, aipID, enums.AIPStatusDeleted); err != nil {
+		return goastorage.MakeInternalError(fmt.Errorf("reject AIP: %v", err))
+	}
+
+	return nil
 }
 
 func (s *serviceImpl) ShowAip(ctx context.Context, payload *goastorage.ShowAipPayload) (*goastorage.AIP, error) {
@@ -476,7 +483,7 @@ func (s *serviceImpl) ListAipWorkflows(
 
 	workflows, err := s.storagePersistence.ListWorkflows(ctx, &f)
 	if err != nil {
-		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		return nil, goastorage.MakeInternalError(fmt.Errorf("list AIP workflows: %v", err))
 	}
 
 	return &goastorage.AIPWorkflows{Workflows: workflows}, nil
@@ -521,7 +528,7 @@ func (s *serviceImpl) CreateLocation(
 		UUID:        UUID,
 	}, &config)
 	if err != nil {
-		return nil, goastorage.MakeNotValid(errors.New("cannot persist location"))
+		return nil, goastorage.MakeInternalError(fmt.Errorf("create location: %v", err))
 	}
 
 	PublishEvent(ctx, s.evsvc, &goastorage.LocationCreatedEvent{
@@ -536,8 +543,7 @@ func (s *serviceImpl) CreateLocation(
 // layer.
 //
 // A `goastorage.LocationNotFound` error is returned if location UUID doesn't
-// exist. A `goa.ServiceError` "not_available" error is returned for all other
-// errors.
+// exist. Unexpected persistence errors are returned as internal errors.
 func (s *serviceImpl) ReadLocation(ctx context.Context, UUID uuid.UUID) (*goastorage.Location, error) {
 	return s.storagePersistence.ReadLocation(ctx, UUID)
 }
@@ -565,7 +571,7 @@ func (s *serviceImpl) ListLocationAips(
 
 	aips, err := s.storagePersistence.LocationAIPs(ctx, locationID)
 	if err != nil {
-		return nil, goastorage.MakeNotAvailable(errors.New("cannot perform operation"))
+		return nil, goastorage.MakeInternalError(fmt.Errorf("list location AIPs: %v", err))
 	}
 
 	return aips, nil

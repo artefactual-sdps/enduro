@@ -265,3 +265,255 @@ func wrapReviewBatchOperationTimeout(endpoint goa.Endpoint, i ServerInterceptors
 		return i.OperationTimeout(ctx, info, endpoint)
 	}
 }
+
+// wrapServerErrorHandlerMonitor applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapMonitorServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "Monitor",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerListSips applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapListSipsServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "ListSips",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerShowSip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapShowSipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "ShowSip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerListSipWorkflows applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapListSipWorkflowsServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "ListSipWorkflows",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerConfirmSip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapConfirmSipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "ConfirmSip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerRejectSip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapRejectSipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "RejectSip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerShowSipDecision applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapShowSipDecisionServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "ShowSipDecision",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerSubmitSipDecision applies the ServerErrorHandler
+// server interceptor to endpoints.
+func wrapSubmitSipDecisionServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "SubmitSipDecision",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerAddSip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapAddSipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "AddSip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerUploadSip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapUploadSipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "UploadSip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerDownloadSipRequest applies the ServerErrorHandler
+// server interceptor to endpoints.
+func wrapDownloadSipRequestServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "DownloadSipRequest",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerDownloadSip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapDownloadSipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "DownloadSip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerListUsers applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapListUsersServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "ListUsers",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerListSipSourceObjects applies the ServerErrorHandler
+// server interceptor to endpoints.
+func wrapListSipSourceObjectsServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "ListSipSourceObjects",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerAddBatch applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapAddBatchServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "AddBatch",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerListBatches applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapListBatchesServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "ListBatches",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerShowBatch applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapShowBatchServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "ShowBatch",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerReviewBatch applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapReviewBatchServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "ingest",
+			method:     "ReviewBatch",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}

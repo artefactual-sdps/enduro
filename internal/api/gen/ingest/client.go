@@ -63,9 +63,9 @@ func NewClient(monitor, listSips, showSip, listSipWorkflows, confirmSip, rejectS
 
 // Monitor calls the "monitor" endpoint of the "ingest" service.
 // Monitor may return the following errors:
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) Monitor(ctx context.Context, p *MonitorPayload) (res MonitorClientStream, err error) {
 	var ires any
@@ -81,6 +81,7 @@ func (c *Client) Monitor(ctx context.Context, p *MonitorPayload) (res MonitorCli
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ListSips(ctx context.Context, p *ListSipsPayload) (res *SIPs, err error) {
 	var ires any
@@ -94,9 +95,9 @@ func (c *Client) ListSips(ctx context.Context, p *ListSipsPayload) (res *SIPs, e
 // ShowSip calls the "show_sip" endpoint of the "ingest" service.
 // ShowSip may return the following errors:
 //   - "not_found" (type *SIPNotFound): SIP not found
-//   - "not_available" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ShowSip(ctx context.Context, p *ShowSipPayload) (res *SIP, err error) {
 	var ires any
@@ -113,6 +114,7 @@ func (c *Client) ShowSip(ctx context.Context, p *ShowSipPayload) (res *SIP, err 
 //   - "not_found" (type *SIPNotFound): SIP not found
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ListSipWorkflows(ctx context.Context, p *ListSipWorkflowsPayload) (res *SIPWorkflows, err error) {
 	var ires any
@@ -130,6 +132,7 @@ func (c *Client) ListSipWorkflows(ctx context.Context, p *ListSipWorkflowsPayloa
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ConfirmSip(ctx context.Context, p *ConfirmSipPayload) (err error) {
 	_, err = c.ConfirmSipEndpoint(ctx, p)
@@ -143,6 +146,7 @@ func (c *Client) ConfirmSip(ctx context.Context, p *ConfirmSipPayload) (err erro
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) RejectSip(ctx context.Context, p *RejectSipPayload) (err error) {
 	_, err = c.RejectSipEndpoint(ctx, p)
@@ -153,11 +157,11 @@ func (c *Client) RejectSip(ctx context.Context, p *RejectSipPayload) (err error)
 // service.
 // ShowSipDecision may return the following errors:
 //   - "not_found" (type *SIPNotFound): SIP not found
-//   - "internal_error" (type *goa.ServiceError)
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ShowSipDecision(ctx context.Context, p *ShowSipDecisionPayload) (res *SIPDecision, err error) {
 	var ires any
@@ -172,11 +176,11 @@ func (c *Client) ShowSipDecision(ctx context.Context, p *ShowSipDecisionPayload)
 // service.
 // SubmitSipDecision may return the following errors:
 //   - "not_found" (type *SIPNotFound): SIP not found
-//   - "internal_error" (type *goa.ServiceError)
 //   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) SubmitSipDecision(ctx context.Context, p *SubmitSipDecisionPayload) (err error) {
 	_, err = c.SubmitSipDecisionEndpoint(ctx, p)
@@ -186,9 +190,9 @@ func (c *Client) SubmitSipDecision(ctx context.Context, p *SubmitSipDecisionPayl
 // AddSip calls the "add_sip" endpoint of the "ingest" service.
 // AddSip may return the following errors:
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) AddSip(ctx context.Context, p *AddSipPayload) (res *AddSipResult, err error) {
 	var ires any
@@ -203,9 +207,9 @@ func (c *Client) AddSip(ctx context.Context, p *AddSipPayload) (res *AddSipResul
 // UploadSip may return the following errors:
 //   - "invalid_media_type" (type *goa.ServiceError): Error returned when the Content-Type header does not define a multipart request.
 //   - "invalid_multipart_request" (type *goa.ServiceError): Error returned when the request body is not a valid multipart content.
-//   - "internal_error" (type *goa.ServiceError): Fault while processing upload.
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) UploadSip(ctx context.Context, p *UploadSipPayload, req io.ReadCloser) (res *UploadSipResult, err error) {
 	var ires any
@@ -221,9 +225,9 @@ func (c *Client) UploadSip(ctx context.Context, p *UploadSipPayload, req io.Read
 // DownloadSipRequest may return the following errors:
 //   - "not_found" (type *SIPNotFound): SIP not found
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) DownloadSipRequest(ctx context.Context, p *DownloadSipRequestPayload) (res *DownloadSipRequestResult, err error) {
 	var ires any
@@ -238,9 +242,9 @@ func (c *Client) DownloadSipRequest(ctx context.Context, p *DownloadSipRequestPa
 // DownloadSip may return the following errors:
 //   - "not_found" (type *SIPNotFound): SIP not found
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) DownloadSip(ctx context.Context, p *DownloadSipPayload) (res *DownloadSipResult, resp io.ReadCloser, err error) {
 	var ires any
@@ -257,6 +261,7 @@ func (c *Client) DownloadSip(ctx context.Context, p *DownloadSipPayload) (res *D
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ListUsers(ctx context.Context, p *ListUsersPayload) (res *Users, err error) {
 	var ires any
@@ -272,9 +277,9 @@ func (c *Client) ListUsers(ctx context.Context, p *ListUsersPayload) (res *Users
 // ListSipSourceObjects may return the following errors:
 //   - "not_found" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ListSipSourceObjects(ctx context.Context, p *ListSipSourceObjectsPayload) (res *SIPSourceObjects, err error) {
 	var ires any
@@ -288,9 +293,9 @@ func (c *Client) ListSipSourceObjects(ctx context.Context, p *ListSipSourceObjec
 // AddBatch calls the "add_batch" endpoint of the "ingest" service.
 // AddBatch may return the following errors:
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) AddBatch(ctx context.Context, p *AddBatchPayload) (res *AddBatchResult, err error) {
 	var ires any
@@ -304,9 +309,9 @@ func (c *Client) AddBatch(ctx context.Context, p *AddBatchPayload) (res *AddBatc
 // ListBatches calls the "list_batches" endpoint of the "ingest" service.
 // ListBatches may return the following errors:
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ListBatches(ctx context.Context, p *ListBatchesPayload) (res *Batches, err error) {
 	var ires any
@@ -321,9 +326,9 @@ func (c *Client) ListBatches(ctx context.Context, p *ListBatchesPayload) (res *B
 // ShowBatch may return the following errors:
 //   - "not_found" (type *BatchNotFound): Batch not found
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ShowBatch(ctx context.Context, p *ShowBatchPayload) (res *Batch, err error) {
 	var ires any
@@ -338,9 +343,9 @@ func (c *Client) ShowBatch(ctx context.Context, p *ShowBatchPayload) (res *Batch
 // ReviewBatch may return the following errors:
 //   - "not_found" (type *BatchNotFound): Batch not found
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ReviewBatch(ctx context.Context, p *ReviewBatchPayload) (err error) {
 	_, err = c.ReviewBatchEndpoint(ctx, p)

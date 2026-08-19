@@ -67,9 +67,9 @@ func NewClient(monitor, listAips, createAip, downloadAipRequest, downloadAip, mo
 
 // Monitor calls the "monitor" endpoint of the "storage" service.
 // Monitor may return the following errors:
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) Monitor(ctx context.Context, p *MonitorPayload) (res MonitorClientStream, err error) {
 	var ires any
@@ -82,10 +82,10 @@ func (c *Client) Monitor(ctx context.Context, p *MonitorPayload) (res MonitorCli
 
 // ListAips calls the "list_aips" endpoint of the "storage" service.
 // ListAips may return the following errors:
-//   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ListAips(ctx context.Context, p *ListAipsPayload) (res *AIPs, err error) {
 	var ires any
@@ -101,6 +101,7 @@ func (c *Client) ListAips(ctx context.Context, p *ListAipsPayload) (res *AIPs, e
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) CreateAip(ctx context.Context, p *CreateAipPayload) (res *AIP, err error) {
 	var ires any
@@ -116,9 +117,9 @@ func (c *Client) CreateAip(ctx context.Context, p *CreateAipPayload) (res *AIP, 
 // DownloadAipRequest may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) DownloadAipRequest(ctx context.Context, p *DownloadAipRequestPayload) (res *DownloadAipRequestResult, err error) {
 	var ires any
@@ -133,9 +134,9 @@ func (c *Client) DownloadAipRequest(ctx context.Context, p *DownloadAipRequestPa
 // DownloadAip may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) DownloadAip(ctx context.Context, p *DownloadAipPayload) (res *DownloadAipResult, resp io.ReadCloser, err error) {
 	var ires any
@@ -150,10 +151,10 @@ func (c *Client) DownloadAip(ctx context.Context, p *DownloadAipPayload) (res *D
 // MoveAip calls the "move_aip" endpoint of the "storage" service.
 // MoveAip may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
-//   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) MoveAip(ctx context.Context, p *MoveAipPayload) (err error) {
 	_, err = c.MoveAipEndpoint(ctx, p)
@@ -166,6 +167,7 @@ func (c *Client) MoveAip(ctx context.Context, p *MoveAipPayload) (err error) {
 //   - "failed_dependency" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) MoveAipStatus(ctx context.Context, p *MoveAipStatusPayload) (res *MoveStatusResult, err error) {
 	var ires any
@@ -179,10 +181,10 @@ func (c *Client) MoveAipStatus(ctx context.Context, p *MoveAipStatusPayload) (re
 // RejectAip calls the "reject_aip" endpoint of the "storage" service.
 // RejectAip may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
-//   - "not_available" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) RejectAip(ctx context.Context, p *RejectAipPayload) (err error) {
 	_, err = c.RejectAipEndpoint(ctx, p)
@@ -194,6 +196,7 @@ func (c *Client) RejectAip(ctx context.Context, p *RejectAipPayload) (err error)
 //   - "not_found" (type *AIPNotFound): AIP not found
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ShowAip(ctx context.Context, p *ShowAipPayload) (res *AIP, err error) {
 	var ires any
@@ -210,6 +213,7 @@ func (c *Client) ShowAip(ctx context.Context, p *ShowAipPayload) (res *AIP, err 
 //   - "not_found" (type *AIPNotFound): AIP not found
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ListAipWorkflows(ctx context.Context, p *ListAipWorkflowsPayload) (res *AIPWorkflows, err error) {
 	var ires any
@@ -225,9 +229,9 @@ func (c *Client) ListAipWorkflows(ctx context.Context, p *ListAipWorkflowsPayloa
 // AipDeletionAuto may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) AipDeletionAuto(ctx context.Context, p *AipDeletionAutoPayload) (err error) {
 	_, err = c.AipDeletionAutoEndpoint(ctx, p)
@@ -239,9 +243,9 @@ func (c *Client) AipDeletionAuto(ctx context.Context, p *AipDeletionAutoPayload)
 // RequestAipDeletion may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) RequestAipDeletion(ctx context.Context, p *RequestAipDeletionPayload) (err error) {
 	_, err = c.RequestAipDeletionEndpoint(ctx, p)
@@ -253,9 +257,9 @@ func (c *Client) RequestAipDeletion(ctx context.Context, p *RequestAipDeletionPa
 // ReviewAipDeletion may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ReviewAipDeletion(ctx context.Context, p *ReviewAipDeletionPayload) (err error) {
 	_, err = c.ReviewAipDeletionEndpoint(ctx, p)
@@ -267,9 +271,9 @@ func (c *Client) ReviewAipDeletion(ctx context.Context, p *ReviewAipDeletionPayl
 // CancelAipDeletion may return the following errors:
 //   - "not_found" (type *AIPNotFound): AIP not found
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) CancelAipDeletion(ctx context.Context, p *CancelAipDeletionPayload) (err error) {
 	_, err = c.CancelAipDeletionEndpoint(ctx, p)
@@ -281,9 +285,9 @@ func (c *Client) CancelAipDeletion(ctx context.Context, p *CancelAipDeletionPayl
 // AipDeletionReportRequest may return the following errors:
 //   - "not_found" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) AipDeletionReportRequest(ctx context.Context, p *AipDeletionReportRequestPayload) (res *AipDeletionReportRequestResult, err error) {
 	var ires any
@@ -299,9 +303,9 @@ func (c *Client) AipDeletionReportRequest(ctx context.Context, p *AipDeletionRep
 // AipDeletionReport may return the following errors:
 //   - "not_found" (type *goa.ServiceError)
 //   - "not_valid" (type *goa.ServiceError)
-//   - "internal_error" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) AipDeletionReport(ctx context.Context, p *AipDeletionReportPayload) (res *AipDeletionReportResult, resp io.ReadCloser, err error) {
 	var ires any
@@ -317,6 +321,7 @@ func (c *Client) AipDeletionReport(ctx context.Context, p *AipDeletionReportPayl
 // ListLocations may return the following errors:
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ListLocations(ctx context.Context, p *ListLocationsPayload) (res LocationCollection, err error) {
 	var ires any
@@ -332,6 +337,7 @@ func (c *Client) ListLocations(ctx context.Context, p *ListLocationsPayload) (re
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) CreateLocation(ctx context.Context, p *CreateLocationPayload) (res *CreateLocationResult, err error) {
 	var ires any
@@ -347,6 +353,7 @@ func (c *Client) CreateLocation(ctx context.Context, p *CreateLocationPayload) (
 //   - "not_found" (type *LocationNotFound): Storage location not found
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res *Location, err error) {
 	var ires any
@@ -364,6 +371,7 @@ func (c *Client) ShowLocation(ctx context.Context, p *ShowLocationPayload) (res 
 //   - "not_valid" (type *goa.ServiceError)
 //   - "unauthorized" (type Unauthorized)
 //   - "forbidden" (type Forbidden)
+//   - "internal_error" (type *goa.ServiceError)
 //   - error: internal error
 func (c *Client) ListLocationAips(ctx context.Context, p *ListLocationAipsPayload) (res AIPCollection, err error) {
 	var ires any

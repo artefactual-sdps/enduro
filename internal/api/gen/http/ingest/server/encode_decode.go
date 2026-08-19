@@ -248,6 +248,19 @@ func EncodeListSipsError(encoder func(context.Context, http.ResponseWriter) goah
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
+		case "internal_error":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewListSipsInternalErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
 		case "forbidden":
 			var res ingest.Forbidden
 			errors.As(v, &res)
@@ -326,7 +339,7 @@ func EncodeShowSipError(encoder func(context.Context, http.ResponseWriter) goaht
 			return encodeError(ctx, w, v)
 		}
 		switch en.GoaErrorName() {
-		case "not_available":
+		case "internal_error":
 			var res *goa.ServiceError
 			errors.As(v, &res)
 			enc := encoder(ctx, w)
@@ -334,10 +347,10 @@ func EncodeShowSipError(encoder func(context.Context, http.ResponseWriter) goaht
 			if formatter != nil {
 				body = formatter(ctx, res)
 			} else {
-				body = NewShowSipNotAvailableResponseBody(res)
+				body = NewShowSipInternalErrorResponseBody(res)
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
-			w.WriteHeader(http.StatusConflict)
+			w.WriteHeader(http.StatusInternalServerError)
 			return enc.Encode(body)
 		case "not_found":
 			var res *ingest.SIPNotFound
@@ -430,6 +443,19 @@ func EncodeListSipWorkflowsError(encoder func(context.Context, http.ResponseWrit
 			return encodeError(ctx, w, v)
 		}
 		switch en.GoaErrorName() {
+		case "internal_error":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewListSipWorkflowsInternalErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
 		case "not_found":
 			var res *ingest.SIPNotFound
 			errors.As(v, &res)
@@ -563,6 +589,19 @@ func EncodeConfirmSipError(encoder func(context.Context, http.ResponseWriter) go
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
+		case "internal_error":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewConfirmSipInternalErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
 		case "not_found":
 			var res *ingest.SIPNotFound
 			errors.As(v, &res)
@@ -677,6 +716,19 @@ func EncodeRejectSipError(encoder func(context.Context, http.ResponseWriter) goa
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
 			return enc.Encode(body)
+		case "internal_error":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewRejectSipInternalErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
+			return enc.Encode(body)
 		case "not_found":
 			var res *ingest.SIPNotFound
 			errors.As(v, &res)
@@ -768,19 +820,6 @@ func EncodeShowSipDecisionError(encoder func(context.Context, http.ResponseWrite
 			return encodeError(ctx, w, v)
 		}
 		switch en.GoaErrorName() {
-		case "internal_error":
-			var res *goa.ServiceError
-			errors.As(v, &res)
-			enc := encoder(ctx, w)
-			var body any
-			if formatter != nil {
-				body = formatter(ctx, res)
-			} else {
-				body = NewShowSipDecisionInternalErrorResponseBody(res)
-			}
-			w.Header().Set("goa-error", res.GoaErrorName())
-			w.WriteHeader(http.StatusInternalServerError)
-			return enc.Encode(body)
 		case "not_available":
 			var res *goa.ServiceError
 			errors.As(v, &res)
@@ -806,6 +845,19 @@ func EncodeShowSipDecisionError(encoder func(context.Context, http.ResponseWrite
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "internal_error":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewShowSipDecisionInternalErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
 			return enc.Encode(body)
 		case "not_found":
 			var res *ingest.SIPNotFound
@@ -914,19 +966,6 @@ func EncodeSubmitSipDecisionError(encoder func(context.Context, http.ResponseWri
 			return encodeError(ctx, w, v)
 		}
 		switch en.GoaErrorName() {
-		case "internal_error":
-			var res *goa.ServiceError
-			errors.As(v, &res)
-			enc := encoder(ctx, w)
-			var body any
-			if formatter != nil {
-				body = formatter(ctx, res)
-			} else {
-				body = NewSubmitSipDecisionInternalErrorResponseBody(res)
-			}
-			w.Header().Set("goa-error", res.GoaErrorName())
-			w.WriteHeader(http.StatusInternalServerError)
-			return enc.Encode(body)
 		case "not_available":
 			var res *goa.ServiceError
 			errors.As(v, &res)
@@ -952,6 +991,19 @@ func EncodeSubmitSipDecisionError(encoder func(context.Context, http.ResponseWri
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "internal_error":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewSubmitSipDecisionInternalErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
 			return enc.Encode(body)
 		case "not_found":
 			var res *ingest.SIPNotFound
@@ -1566,6 +1618,19 @@ func EncodeListUsersError(encoder func(context.Context, http.ResponseWriter) goa
 			}
 			w.Header().Set("goa-error", res.GoaErrorName())
 			w.WriteHeader(http.StatusBadRequest)
+			return enc.Encode(body)
+		case "internal_error":
+			var res *goa.ServiceError
+			errors.As(v, &res)
+			enc := encoder(ctx, w)
+			var body any
+			if formatter != nil {
+				body = formatter(ctx, res)
+			} else {
+				body = NewListUsersInternalErrorResponseBody(res)
+			}
+			w.Header().Set("goa-error", res.GoaErrorName())
+			w.WriteHeader(http.StatusInternalServerError)
 			return enc.Encode(body)
 		case "forbidden":
 			var res ingest.Forbidden

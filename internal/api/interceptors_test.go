@@ -3,10 +3,13 @@ package api
 import (
 	"context"
 	"errors"
+	"fmt"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/go-logr/logr"
+	"github.com/go-logr/logr/funcr"
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"
@@ -19,6 +22,145 @@ import (
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
 )
+
+func TestServerErrorHandlerLogsAndSanitizesInternalError(t *testing.T) {
+	t.Parallel()
+
+	cause := errors.New("database unavailable")
+	returned := goastorage.MakeInternalError(fmt.Errorf("load AIP data: %v", cause))
+	var logged string
+	logger := funcr.New(
+		func(_, args string) { logged = args },
+		funcr.Options{},
+	)
+	endpoint := goastorage.WrapShowAipEndpoint(
+		func(context.Context, any) (any, error) { return nil, returned },
+		newStorageServerInterceptors(logger),
+	)
+
+	_, err := endpoint(context.Background(), "payload")
+
+	var serr *goa.ServiceError
+	assert.Assert(t, errors.As(err, &serr))
+	assert.DeepEqual(t, serr, &goa.ServiceError{
+		Name:    "internal_error",
+		ID:      returned.ID,
+		Message: apiInternalErrorMsg,
+		Fault:   true,
+	}, cmpopts.IgnoreUnexported(goa.ServiceError{}))
+	assert.Assert(t, strings.Contains(logged, "load AIP data: database unavailable"))
+	assert.Assert(t, strings.Contains(logged, `"service"="storage"`))
+	assert.Assert(t, strings.Contains(logged, `"method"="ShowAip"`))
+	assert.Assert(t, strings.Contains(logged, fmt.Sprintf(`"error_id"=%q`, serr.ID)))
+}
+
+func TestServerErrorHandlerClassifiesRawError(t *testing.T) {
+	t.Parallel()
+
+	cause := errors.New("unexpected failure")
+	var logged string
+	logger := funcr.New(
+		func(_, args string) { logged = args },
+		funcr.Options{},
+	)
+	endpoint := goaabout.WrapAboutEndpoint(
+		func(context.Context, any) (any, error) { return nil, cause },
+		newAboutServerInterceptors(logger),
+	)
+
+	_, err := endpoint(context.Background(), "payload")
+
+	var serr *goa.ServiceError
+	assert.Assert(t, errors.As(err, &serr))
+	assert.DeepEqual(t, serr, &goa.ServiceError{
+		Name:    "internal_error",
+		Message: apiInternalErrorMsg,
+		Fault:   true,
+	},
+		cmpopts.IgnoreFields(goa.ServiceError{}, "ID"),
+		cmpopts.IgnoreUnexported(goa.ServiceError{}),
+	)
+	assert.Assert(t, strings.Contains(logged, cause.Error()))
+}
+
+func TestServerErrorHandlerPassesThroughOtherFault(t *testing.T) {
+	t.Parallel()
+
+	cause := errors.New("unexpected dependency fault")
+	returned := goa.NewServiceError(cause, "dependency_fault", false, false, true)
+	var logged string
+	logger := funcr.New(
+		func(_, args string) { logged = args },
+		funcr.Options{},
+	)
+	endpoint := goaabout.WrapAboutEndpoint(
+		func(context.Context, any) (any, error) {
+			return nil, returned
+		},
+		newAboutServerInterceptors(logger),
+	)
+
+	_, err := endpoint(context.Background(), "payload")
+
+	assert.DeepEqual(t, err, returned, cmpopts.IgnoreUnexported(goa.ServiceError{}))
+	assert.Equal(t, logged, "")
+}
+
+func TestServerErrorHandlerPassesThroughDomainError(t *testing.T) {
+	t.Parallel()
+
+	domainErr := &goastorage.AIPNotFound{Message: "AIP not found"}
+	var logged string
+	logger := funcr.New(
+		func(_, args string) { logged = args },
+		funcr.Options{},
+	)
+	endpoint := goastorage.WrapShowAipEndpoint(
+		func(context.Context, any) (any, error) { return nil, domainErr },
+		newStorageServerInterceptors(logger),
+	)
+
+	_, err := endpoint(context.Background(), "payload")
+
+	assert.DeepEqual(t, err, domainErr)
+	assert.Equal(t, logged, "")
+}
+
+func TestServerErrorHandlerLogsTimeoutOnce(t *testing.T) {
+	t.Parallel()
+
+	var logs []string
+	logger := funcr.New(
+		func(_, args string) { logs = append(logs, args) },
+		funcr.Options{},
+	)
+	interceptors := newAboutServerInterceptors(logger)
+	interceptors.operationTimeout = time.Nanosecond
+	endpoint := goaabout.WrapAboutEndpoint(
+		func(ctx context.Context, _ any) (any, error) {
+			<-ctx.Done()
+			return nil, ctx.Err()
+		},
+		interceptors,
+	)
+
+	_, err := endpoint(context.Background(), "payload")
+
+	var serr *goa.ServiceError
+	assert.Assert(t, errors.As(err, &serr))
+	assert.DeepEqual(t, serr, &goa.ServiceError{
+		Name:    "internal_error",
+		Message: apiInternalErrorMsg,
+		Timeout: true,
+		Fault:   true,
+	},
+		cmpopts.IgnoreFields(goa.ServiceError{}, "ID"),
+		cmpopts.IgnoreUnexported(goa.ServiceError{}),
+	)
+	assert.Equal(t, len(logs), 1)
+	assert.Assert(t, strings.Contains(logs[0], apiOperationTimeoutMsg))
+	assert.Assert(t, strings.Contains(logs[0], fmt.Sprintf(`"error_id"=%q`, serr.ID)))
+}
 
 func TestOperationTimeoutMapsDeadlineExceeded(t *testing.T) {
 	t.Parallel()
@@ -36,7 +178,7 @@ func TestOperationTimeoutMapsDeadlineExceeded(t *testing.T) {
 	assert.Assert(t, errors.As(err, &serr))
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
-		Message: apiOperationTimeoutMsg,
+		Message: apiInternalErrorMsg,
 		Timeout: true,
 		Fault:   true,
 	},
@@ -172,7 +314,7 @@ func TestOperationTimeoutRecordsSpanError(t *testing.T) {
 	assert.Assert(t, errors.As(err, &serr))
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
-		Message: apiOperationTimeoutMsg,
+		Message: apiInternalErrorMsg,
 		Timeout: true,
 		Fault:   true,
 	},
@@ -213,10 +355,10 @@ func deadlineEndpoint(t *testing.T, wantDeadline bool) goa.Endpoint {
 }
 
 func newTestStorageServerInterceptors(timeout time.Duration) *storageServerInterceptors {
-	i := newOperationInterceptors(logr.Discard())
+	i := newServerInterceptors(logr.Discard())
 	i.operationTimeout = timeout
 
-	return &storageServerInterceptors{operationInterceptors: i}
+	return &storageServerInterceptors{serverInterceptors: i}
 }
 
 func spanAttribute(

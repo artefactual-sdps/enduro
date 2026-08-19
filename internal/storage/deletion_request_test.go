@@ -308,7 +308,7 @@ func TestRequestAipDeletion(t *testing.T) {
 					},
 				).Return(nil, errors.New("temporal error"))
 			},
-			wantErr: "internal error",
+			wantErr: "start AIP deletion workflow: temporal error",
 		},
 		{
 			name: "Requests AIP deletion",
@@ -463,7 +463,7 @@ func TestReviewAipDeletion(t *testing.T) {
 					Status:  ref.New(enums.DeletionRequestStatusPending),
 				}).Return(nil, errors.New("persistence error"))
 			},
-			wantErr: "internal error",
+			wantErr: "list pending AIP deletion requests: persistence error",
 		},
 		{
 			name: "Fails to review AIP deletion (reviewer matches requester)",
@@ -526,7 +526,7 @@ func TestReviewAipDeletion(t *testing.T) {
 					},
 				).Return(errors.New("temporal error"))
 			},
-			wantErr: "internal error",
+			wantErr: "signal AIP deletion review: temporal error",
 		},
 		{
 			name: "Reviews AIP deletion",
@@ -636,7 +636,7 @@ func TestCancelAipDeletion(t *testing.T) {
 					}).
 					Return(nil, errors.New("db: deletion_request not found"))
 			},
-			wantErr: "db: deletion_request not found",
+			wantErr: "list pending AIP deletion requests: db: deletion_request not found",
 		},
 		{
 			name: "Fails on deletion request read error",
@@ -656,7 +656,7 @@ func TestCancelAipDeletion(t *testing.T) {
 					}).
 					Return(nil, errors.New("db: persistence error"))
 			},
-			wantErr: "db: persistence error",
+			wantErr: "list pending AIP deletion requests: db: persistence error",
 		},
 		{
 			name: "Fails if no valid deletion request is found",
@@ -741,7 +741,7 @@ func TestCancelAipDeletion(t *testing.T) {
 					},
 				).Return(errors.New("temporal error"))
 			},
-			wantErr: "internal error",
+			wantErr: "signal AIP deletion cancellation: temporal error",
 		},
 		{
 			name: "Cancels AIP deletion request",

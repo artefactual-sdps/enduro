@@ -12,10 +12,14 @@ var _ = Service("storage", func() {
 	Description("The storage service manages locations and AIPs.")
 	Error("unauthorized", String, "Unauthorized")
 	Error("forbidden", String, "Forbidden")
+	Error("internal_error", ErrorResult, func() {
+		Fault()
+	})
 	HTTP(func() {
 		Path("/storage")
 		Response("unauthorized", StatusUnauthorized)
 		Response("forbidden", StatusForbidden)
+		Response("internal_error", StatusInternalServerError)
 	})
 	Method("monitor", func() {
 		Description("Obtain access to the /monitor SSE event stream")
@@ -24,11 +28,9 @@ var _ = Service("storage", func() {
 			BearerToken("token", String)
 		})
 		StreamingResult(StorageEvent)
-		Error("internal_error")
 		HTTP(func() {
 			GET("/monitor")
 			ServerSentEvents()
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("list_aips", func() {
@@ -51,12 +53,10 @@ var _ = Service("storage", func() {
 			BearerToken("token", String)
 		})
 		Result(AIPs)
-		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
 			GET("/aips")
 			Response(StatusOK)
-			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 			Params(func() {
 				Param("query")
@@ -104,7 +104,6 @@ var _ = Service("storage", func() {
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			POST("/aips/{uuid}/download")
 			Response(StatusOK, func() {
@@ -115,7 +114,6 @@ var _ = Service("storage", func() {
 			})
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("download_aip", func() {
@@ -136,7 +134,6 @@ var _ = Service("storage", func() {
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			GET("/aips/{uuid}/download")
 			Cookie("ticket:enduro-aip-download-ticket")
@@ -148,7 +145,6 @@ var _ = Service("storage", func() {
 			})
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("move_aip", func() {
@@ -161,13 +157,11 @@ var _ = Service("storage", func() {
 			Required("uuid", "location_uuid")
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
-		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
 			POST("/aips/{uuid}/store")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
-			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
 	})
@@ -198,13 +192,11 @@ var _ = Service("storage", func() {
 			Required("uuid")
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
-		Error("not_available")
 		Error("not_valid")
 		HTTP(func() {
 			POST("/aips/{uuid}/reject")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
-			Response("not_available", StatusConflict)
 			Response("not_valid", StatusBadRequest)
 		})
 	})
@@ -262,13 +254,11 @@ var _ = Service("storage", func() {
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			POST("/aips/{uuid}/deletion-auto")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("request_aip_deletion", func() {
@@ -282,13 +272,11 @@ var _ = Service("storage", func() {
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			POST("/aips/{uuid}/deletion-request")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("review_aip_deletion", func() {
@@ -302,13 +290,11 @@ var _ = Service("storage", func() {
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			POST("/aips/{uuid}/deletion-review")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("cancel_aip_deletion", func() {
@@ -326,13 +312,11 @@ var _ = Service("storage", func() {
 		})
 		Error("not_found", AIPNotFound, "AIP not found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			POST("/aips/{uuid}/deletion-cancel")
 			Response(StatusAccepted)
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("aip_deletion_report_request", func() {
@@ -348,7 +332,6 @@ var _ = Service("storage", func() {
 		})
 		Error("not_found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			POST("/aips/{uuid}/deletion-report")
 			Response(StatusOK, func() {
@@ -359,7 +342,6 @@ var _ = Service("storage", func() {
 			})
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("aip_deletion_report", func() {
@@ -380,7 +362,6 @@ var _ = Service("storage", func() {
 		})
 		Error("not_found")
 		Error("not_valid")
-		Error("internal_error")
 		HTTP(func() {
 			GET("/aips/{uuid}/deletion-report")
 			Cookie("ticket:enduro-delreport-ticket")
@@ -392,7 +373,6 @@ var _ = Service("storage", func() {
 			})
 			Response("not_found", StatusNotFound)
 			Response("not_valid", StatusBadRequest)
-			Response("internal_error", StatusInternalServerError)
 		})
 	})
 	Method("list_locations", func() {

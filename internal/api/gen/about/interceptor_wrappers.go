@@ -27,3 +27,17 @@ func wrapAboutOperationTimeout(endpoint goa.Endpoint, i ServerInterceptors) goa.
 		return i.OperationTimeout(ctx, info, endpoint)
 	}
 }
+
+// wrapServerErrorHandlerAbout applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapAboutServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "about",
+			method:     "About",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}

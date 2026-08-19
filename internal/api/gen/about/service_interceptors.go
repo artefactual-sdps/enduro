@@ -20,6 +20,7 @@ import (
 // next to complete the request.
 type ServerInterceptors interface {
 	OperationTimeout(ctx context.Context, info *OperationTimeoutInfo, next goa.Endpoint) (any, error)
+	ServerErrorHandler(ctx context.Context, info *ServerErrorHandlerInfo, next goa.Endpoint) (any, error)
 }
 
 // Access interfaces for interceptor payloads and results
@@ -32,6 +33,14 @@ type (
 		callType   goa.InterceptorCallType
 		rawPayload any
 	}
+	// ServerErrorHandlerInfo provides metadata about the current interception.
+	// It includes service name, method name, and access to the endpoint.
+	ServerErrorHandlerInfo struct {
+		service    string
+		method     string
+		callType   goa.InterceptorCallType
+		rawPayload any
+	}
 )
 
 // WrapAboutEndpoint wraps the about endpoint with the server-side interceptors
@@ -39,6 +48,7 @@ type (
 func WrapAboutEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapAboutOperationTimeout(endpoint, i)
+		endpoint = wrapAboutServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -62,5 +72,25 @@ func (info *OperationTimeoutInfo) CallType() goa.InterceptorCallType {
 
 // RawPayload returns the raw payload of the request.
 func (info *OperationTimeoutInfo) RawPayload() any {
+	return info.rawPayload
+}
+
+// Service returns the name of the service handling the request.
+func (info *ServerErrorHandlerInfo) Service() string {
+	return info.service
+}
+
+// Method returns the name of the method handling the request.
+func (info *ServerErrorHandlerInfo) Method() string {
+	return info.method
+}
+
+// CallType returns the type of call the interceptor is handling.
+func (info *ServerErrorHandlerInfo) CallType() goa.InterceptorCallType {
+	return info.callType
+}
+
+// RawPayload returns the raw payload of the request.
+func (info *ServerErrorHandlerInfo) RawPayload() any {
 	return info.rawPayload
 }

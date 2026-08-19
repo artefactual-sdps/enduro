@@ -293,3 +293,283 @@ func wrapListLocationAipsOperationTimeout(endpoint goa.Endpoint, i ServerInterce
 		return i.OperationTimeout(ctx, info, endpoint)
 	}
 }
+
+// wrapServerErrorHandlerMonitor applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapMonitorServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "Monitor",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerListAips applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapListAipsServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "ListAips",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerCreateAip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapCreateAipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "CreateAip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerDownloadAipRequest applies the ServerErrorHandler
+// server interceptor to endpoints.
+func wrapDownloadAipRequestServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "DownloadAipRequest",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerDownloadAip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapDownloadAipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "DownloadAip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerMoveAip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapMoveAipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "MoveAip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerMoveAipStatus applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapMoveAipStatusServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "MoveAipStatus",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerRejectAip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapRejectAipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "RejectAip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerShowAip applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapShowAipServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "ShowAip",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerListAipWorkflows applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapListAipWorkflowsServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "ListAipWorkflows",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerAipDeletionAuto applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapAipDeletionAutoServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "AipDeletionAuto",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerRequestAipDeletion applies the ServerErrorHandler
+// server interceptor to endpoints.
+func wrapRequestAipDeletionServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "RequestAipDeletion",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerReviewAipDeletion applies the ServerErrorHandler
+// server interceptor to endpoints.
+func wrapReviewAipDeletionServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "ReviewAipDeletion",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerCancelAipDeletion applies the ServerErrorHandler
+// server interceptor to endpoints.
+func wrapCancelAipDeletionServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "CancelAipDeletion",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerAipDeletionReportRequest applies the
+// ServerErrorHandler server interceptor to endpoints.
+func wrapAipDeletionReportRequestServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "AipDeletionReportRequest",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerAipDeletionReport applies the ServerErrorHandler
+// server interceptor to endpoints.
+func wrapAipDeletionReportServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "AipDeletionReport",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerListLocations applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapListLocationsServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "ListLocations",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerCreateLocation applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapCreateLocationServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "CreateLocation",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerShowLocation applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapShowLocationServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "ShowLocation",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}
+
+// wrapServerErrorHandlerListLocationAips applies the ServerErrorHandler server
+// interceptor to endpoints.
+func wrapListLocationAipsServerErrorHandler(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
+	return func(ctx context.Context, req any) (any, error) {
+		info := &ServerErrorHandlerInfo{
+			service:    "storage",
+			method:     "ListLocationAips",
+			callType:   goa.InterceptorUnary,
+			rawPayload: req,
+		}
+		return i.ServerErrorHandler(ctx, info, endpoint)
+	}
+}

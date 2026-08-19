@@ -30,8 +30,7 @@ func (s *serviceImpl) DownloadAipRequest(
 
 	bucket, err := s.openAIPBucket(ctx, aip)
 	if err != nil {
-		s.logger.Error(fmt.Errorf("open AIP bucket: %v", err), "AIP UUID", aip.UUID)
-		return nil, goastorage.MakeInternalError(errors.New("error opening AIP storage location"))
+		return nil, goastorage.MakeInternalError(fmt.Errorf("open AIP storage location: %v", err))
 	}
 	defer bucket.Close()
 
@@ -43,7 +42,7 @@ func (s *serviceImpl) DownloadAipRequest(
 				Message: "AIP not found",
 			}
 		} else {
-			return nil, goastorage.MakeInternalError(errors.New("error getting AIP attributes"))
+			return nil, goastorage.MakeInternalError(fmt.Errorf("get AIP attributes: %v", err))
 		}
 	}
 
@@ -53,7 +52,7 @@ func (s *serviceImpl) DownloadAipRequest(
 		payload.UUID,
 	))
 	if err != nil {
-		return nil, goastorage.MakeInternalError(errors.New("ticket request failed"))
+		return nil, goastorage.MakeInternalError(fmt.Errorf("request AIP download ticket: %v", err))
 	}
 
 	res := &goastorage.DownloadAipRequestResult{}
@@ -113,7 +112,7 @@ func (s *serviceImpl) DownloadAip(
 				Message: "AIP not found",
 			}
 		} else {
-			return nil, nil, goastorage.MakeInternalError(errors.New("error reading AIP file"))
+			return nil, nil, goastorage.MakeInternalError(fmt.Errorf("read AIP file: %v", err))
 		}
 	}
 

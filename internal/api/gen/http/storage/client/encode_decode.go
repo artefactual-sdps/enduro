@@ -197,8 +197,8 @@ func EncodeListAipsRequest(encoder func(*http.Request) goahttp.Encoder) func(*ht
 // storage list_aips endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeListAipsResponse may return the following errors:
-//   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -234,20 +234,6 @@ func DecodeListAipsResponse(decoder func(*http.Response) goahttp.Decoder, restor
 			}
 			res := storage.NewAIPs(vres)
 			return res, nil
-		case http.StatusConflict:
-			var (
-				body ListAipsNotAvailableResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "list_aips", err)
-			}
-			err = ValidateListAipsNotAvailableResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "list_aips", err)
-			}
-			return nil, NewListAipsNotAvailable(&body)
 		case http.StatusBadRequest:
 			var (
 				body ListAipsNotValidResponseBody
@@ -262,6 +248,20 @@ func DecodeListAipsResponse(decoder func(*http.Response) goahttp.Decoder, restor
 				return nil, goahttp.ErrValidationError("storage", "list_aips", err)
 			}
 			return nil, NewListAipsNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body ListAipsInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aips", err)
+			}
+			err = ValidateListAipsInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_aips", err)
+			}
+			return nil, NewListAipsInternalError(&body)
 		case http.StatusForbidden:
 			var (
 				body string
@@ -333,6 +333,7 @@ func EncodeCreateAipRequest(encoder func(*http.Request) goahttp.Encoder) func(*h
 // should be restored after having been read.
 // DecodeCreateAipResponse may return the following errors:
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -382,6 +383,20 @@ func DecodeCreateAipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 				return nil, goahttp.ErrValidationError("storage", "create_aip", err)
 			}
 			return nil, NewCreateAipNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body CreateAipInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "create_aip", err)
+			}
+			err = ValidateCreateAipInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "create_aip", err)
+			}
+			return nil, NewCreateAipInternalError(&body)
 		case http.StatusForbidden:
 			var (
 				body string
@@ -789,8 +804,8 @@ func EncodeMoveAipRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 // storage move_aip endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeMoveAipResponse may return the following errors:
-//   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
@@ -812,20 +827,6 @@ func DecodeMoveAipResponse(decoder func(*http.Response) goahttp.Decoder, restore
 		switch resp.StatusCode {
 		case http.StatusAccepted:
 			return nil, nil
-		case http.StatusConflict:
-			var (
-				body MoveAipNotAvailableResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "move_aip", err)
-			}
-			err = ValidateMoveAipNotAvailableResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "move_aip", err)
-			}
-			return nil, NewMoveAipNotAvailable(&body)
 		case http.StatusBadRequest:
 			var (
 				body MoveAipNotValidResponseBody
@@ -840,6 +841,20 @@ func DecodeMoveAipResponse(decoder func(*http.Response) goahttp.Decoder, restore
 				return nil, goahttp.ErrValidationError("storage", "move_aip", err)
 			}
 			return nil, NewMoveAipNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body MoveAipInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move_aip", err)
+			}
+			err = ValidateMoveAipInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "move_aip", err)
+			}
+			return nil, NewMoveAipInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body MoveAipNotFoundResponseBody
@@ -931,6 +946,7 @@ func EncodeMoveAipStatusRequest(encoder func(*http.Request) goahttp.Encoder) fun
 // body should be restored after having been read.
 // DecodeMoveAipStatusResponse may return the following errors:
 //   - "failed_dependency" (type *goa.ServiceError): http.StatusFailedDependency
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
@@ -979,6 +995,20 @@ func DecodeMoveAipStatusResponse(decoder func(*http.Response) goahttp.Decoder, r
 				return nil, goahttp.ErrValidationError("storage", "move_aip_status", err)
 			}
 			return nil, NewMoveAipStatusFailedDependency(&body)
+		case http.StatusInternalServerError:
+			var (
+				body MoveAipStatusInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "move_aip_status", err)
+			}
+			err = ValidateMoveAipStatusInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "move_aip_status", err)
+			}
+			return nil, NewMoveAipStatusInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body MoveAipStatusNotFoundResponseBody
@@ -1069,8 +1099,8 @@ func EncodeRejectAipRequest(encoder func(*http.Request) goahttp.Encoder) func(*h
 // storage reject_aip endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeRejectAipResponse may return the following errors:
-//   - "not_available" (type *goa.ServiceError): http.StatusConflict
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
@@ -1092,20 +1122,6 @@ func DecodeRejectAipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 		switch resp.StatusCode {
 		case http.StatusAccepted:
 			return nil, nil
-		case http.StatusConflict:
-			var (
-				body RejectAipNotAvailableResponseBody
-				err  error
-			)
-			err = decoder(resp).Decode(&body)
-			if err != nil {
-				return nil, goahttp.ErrDecodingError("storage", "reject_aip", err)
-			}
-			err = ValidateRejectAipNotAvailableResponseBody(&body)
-			if err != nil {
-				return nil, goahttp.ErrValidationError("storage", "reject_aip", err)
-			}
-			return nil, NewRejectAipNotAvailable(&body)
 		case http.StatusBadRequest:
 			var (
 				body RejectAipNotValidResponseBody
@@ -1120,6 +1136,20 @@ func DecodeRejectAipResponse(decoder func(*http.Response) goahttp.Decoder, resto
 				return nil, goahttp.ErrValidationError("storage", "reject_aip", err)
 			}
 			return nil, NewRejectAipNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body RejectAipInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "reject_aip", err)
+			}
+			err = ValidateRejectAipInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "reject_aip", err)
+			}
+			return nil, NewRejectAipInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body RejectAipNotFoundResponseBody
@@ -1210,6 +1240,7 @@ func EncodeShowAipRequest(encoder func(*http.Request) goahttp.Encoder) func(*htt
 // storage show_aip endpoint. restoreBody controls whether the response body
 // should be restored after having been read.
 // DecodeShowAipResponse may return the following errors:
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
@@ -1246,6 +1277,20 @@ func DecodeShowAipResponse(decoder func(*http.Response) goahttp.Decoder, restore
 			}
 			res := storage.NewAIP(vres)
 			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body ShowAipInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "show_aip", err)
+			}
+			err = ValidateShowAipInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "show_aip", err)
+			}
+			return nil, NewShowAipInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body ShowAipNotFoundResponseBody
@@ -1344,6 +1389,7 @@ func EncodeListAipWorkflowsRequest(encoder func(*http.Request) goahttp.Encoder) 
 // the storage list_aip_workflows endpoint. restoreBody controls whether the
 // response body should be restored after having been read.
 // DecodeListAipWorkflowsResponse may return the following errors:
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *storage.AIPNotFound): http.StatusNotFound
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
@@ -1380,6 +1426,20 @@ func DecodeListAipWorkflowsResponse(decoder func(*http.Response) goahttp.Decoder
 			}
 			res := storage.NewAIPWorkflows(vres)
 			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body ListAipWorkflowsInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_aip_workflows", err)
+			}
+			err = ValidateListAipWorkflowsInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_aip_workflows", err)
+			}
+			return nil, NewListAipWorkflowsInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body ListAipWorkflowsNotFoundResponseBody
@@ -2368,6 +2428,7 @@ func EncodeListLocationsRequest(encoder func(*http.Request) goahttp.Encoder) fun
 // storage list_locations endpoint. restoreBody controls whether the response
 // body should be restored after having been read.
 // DecodeListLocationsResponse may return the following errors:
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -2403,6 +2464,20 @@ func DecodeListLocationsResponse(decoder func(*http.Response) goahttp.Decoder, r
 			}
 			res := storage.NewLocationCollection(vres)
 			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body ListLocationsInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_locations", err)
+			}
+			err = ValidateListLocationsInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_locations", err)
+			}
+			return nil, NewListLocationsInternalError(&body)
 		case http.StatusForbidden:
 			var (
 				body string
@@ -2474,6 +2549,7 @@ func EncodeCreateLocationRequest(encoder func(*http.Request) goahttp.Encoder) fu
 // body should be restored after having been read.
 // DecodeCreateLocationResponse may return the following errors:
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
 //   - error: internal error
@@ -2521,6 +2597,20 @@ func DecodeCreateLocationResponse(decoder func(*http.Response) goahttp.Decoder, 
 				return nil, goahttp.ErrValidationError("storage", "create_location", err)
 			}
 			return nil, NewCreateLocationNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body CreateLocationInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "create_location", err)
+			}
+			err = ValidateCreateLocationInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "create_location", err)
+			}
+			return nil, NewCreateLocationInternalError(&body)
 		case http.StatusForbidden:
 			var (
 				body string
@@ -2597,6 +2687,7 @@ func EncodeShowLocationRequest(encoder func(*http.Request) goahttp.Encoder) func
 // storage show_location endpoint. restoreBody controls whether the response
 // body should be restored after having been read.
 // DecodeShowLocationResponse may return the following errors:
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *storage.LocationNotFound): http.StatusNotFound
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
@@ -2633,6 +2724,20 @@ func DecodeShowLocationResponse(decoder func(*http.Response) goahttp.Decoder, re
 			}
 			res := storage.NewLocation(vres)
 			return res, nil
+		case http.StatusInternalServerError:
+			var (
+				body ShowLocationInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "show_location", err)
+			}
+			err = ValidateShowLocationInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "show_location", err)
+			}
+			return nil, NewShowLocationInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body ShowLocationNotFoundResponseBody
@@ -2724,6 +2829,7 @@ func EncodeListLocationAipsRequest(encoder func(*http.Request) goahttp.Encoder) 
 // response body should be restored after having been read.
 // DecodeListLocationAipsResponse may return the following errors:
 //   - "not_valid" (type *goa.ServiceError): http.StatusBadRequest
+//   - "internal_error" (type *goa.ServiceError): http.StatusInternalServerError
 //   - "not_found" (type *storage.LocationNotFound): http.StatusNotFound
 //   - "forbidden" (type storage.Forbidden): http.StatusForbidden
 //   - "unauthorized" (type storage.Unauthorized): http.StatusUnauthorized
@@ -2774,6 +2880,20 @@ func DecodeListLocationAipsResponse(decoder func(*http.Response) goahttp.Decoder
 				return nil, goahttp.ErrValidationError("storage", "list_location_aips", err)
 			}
 			return nil, NewListLocationAipsNotValid(&body)
+		case http.StatusInternalServerError:
+			var (
+				body ListLocationAipsInternalErrorResponseBody
+				err  error
+			)
+			err = decoder(resp).Decode(&body)
+			if err != nil {
+				return nil, goahttp.ErrDecodingError("storage", "list_location_aips", err)
+			}
+			err = ValidateListLocationAipsInternalErrorResponseBody(&body)
+			if err != nil {
+				return nil, goahttp.ErrValidationError("storage", "list_location_aips", err)
+			}
+			return nil, NewListLocationAipsInternalError(&body)
 		case http.StatusNotFound:
 			var (
 				body ListLocationAipsNotFoundResponseBody

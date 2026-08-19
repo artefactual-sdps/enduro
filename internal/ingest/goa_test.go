@@ -144,16 +144,16 @@ func TestListSipWorkflowsErrors(t *testing.T) {
 			wantErr: "not_valid",
 		},
 		{
-			name: "Returns not available when SIP cannot be read",
+			name: "Returns internal error when SIP cannot be read",
 			uuid: sipUUID.String(),
 			mock: func(psvc *persistence_fake.MockService) {
 				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
 					Return(nil, errors.New("database failed"))
 			},
-			wantErr: "not_available",
+			wantErr: "internal_error",
 		},
 		{
-			name: "Returns not available when workflows cannot be listed",
+			name: "Returns internal error when workflows cannot be listed",
 			uuid: sipUUID.String(),
 			mock: func(psvc *persistence_fake.MockService) {
 				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
@@ -161,7 +161,7 @@ func TestListSipWorkflowsErrors(t *testing.T) {
 				psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
 					Return(nil, errors.New("database failed"))
 			},
-			wantErr: "not_available",
+			wantErr: "internal_error",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -277,14 +277,14 @@ func TestShowSipDecision(t *testing.T) {
 			wantErrName: "not_available",
 		},
 		{
-			name: "Returns not available when workflows cannot be listed",
+			name: "Returns internal error when workflows cannot be listed",
 			mock: func(t *testing.T, psvc *persistence_fake.MockService, tc *temporalsdk_mocks.Client) {
 				psvc.EXPECT().ReadSIP(mockutil.Context(), sipUUID).
 					Return(&datatypes.SIP{UUID: sipUUID}, nil)
 				psvc.EXPECT().ListWorkflowsBySIP(mockutil.Context(), sipUUID).
 					Return(nil, errors.New("database failed"))
 			},
-			wantErrName: "not_available",
+			wantErrName: "internal_error",
 		},
 		{
 			name: "Returns internal error when child decision query fails",
@@ -676,7 +676,7 @@ func TestAddSIP(t *testing.T) {
 					},
 				).Return(errors.New("persistence error"))
 			},
-			wantErr: "internal error",
+			wantErr: "create SIP: persistence error",
 		},
 		{
 			name:    "Returns Temporal error",
@@ -720,7 +720,7 @@ func TestAddSIP(t *testing.T) {
 						return nil
 					})
 			},
-			wantErr: "internal error",
+			wantErr: "start SIP processing workflow: temporal error",
 		},
 		{
 			name:    "Uploads a SIP",
@@ -1032,10 +1032,10 @@ func TestListSIPs(t *testing.T) {
 				).Return(
 					[]*datatypes.SIP{},
 					&persistence.Page{},
-					persistence.ErrNotFound,
+					persistence.ErrInternal,
 				)
 			},
-			wantErr: "not found error",
+			wantErr: "list SIPs: internal error",
 		},
 		{
 			name: "Errors on a bad aip_uuid",
@@ -1256,7 +1256,7 @@ func TestListUsers(t *testing.T) {
 					Total: 1,
 				},
 			},
-			wantErr: "internal error",
+			wantErr: "list users: internal error",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1421,7 +1421,7 @@ func TestListSIPSourceObjects(t *testing.T) {
 					errors.New("internal error"),
 				)
 			},
-			wantErr: "internal error",
+			wantErr: "list SIP source objects: internal error",
 		},
 		{
 			name: "Returns an empty page when no objects found",

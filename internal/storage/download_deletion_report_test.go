@@ -69,7 +69,7 @@ func TestAipDeletionReportRequest(t *testing.T) {
 			) {
 				psvc.EXPECT().
 					ReadAIP(ctx, aipID).
-					Return(nil, goastorage.MakeNotAvailable(errors.New("persistence error")))
+					Return(nil, goastorage.MakeInternalError(errors.New("persistence error")))
 			},
 			wantErr: "persistence error",
 		},
@@ -134,7 +134,7 @@ func TestAipDeletionReportRequest(t *testing.T) {
 					).
 					Return(errors.New("ticket error"))
 			},
-			wantErr: "ticket request failed",
+			wantErr: "request deletion report ticket: error storing ticket: ticket error",
 		},
 		{
 			name:    "Requests a deletion report download",

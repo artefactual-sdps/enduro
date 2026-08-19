@@ -947,7 +947,7 @@ func TestListAipWorkflows(t *testing.T) {
 					ListWorkflows(ctx, &persistence.WorkflowFilter{AIPUUID: &aipID}).
 					Return(nil, errors.New("persistence error"))
 			},
-			wantErr: "cannot perform operation",
+			wantErr: "list AIP workflows: persistence error",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
@@ -1016,7 +1016,7 @@ func TestServiceMove(t *testing.T) {
 		assert.ErrorContains(t, err, "AIP not found")
 	})
 
-	t.Run("Returns not_available if workflow cannot be executed", func(t *testing.T) {
+	t.Run("Returns internal_error if workflow cannot be executed", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1055,8 +1055,8 @@ func TestServiceMove(t *testing.T) {
 			UUID:         aipID.String(),
 			LocationUUID: locationID,
 		})
-		assert.Equal(t, err.(*goa.ServiceError).Name, "not_available")
-		assert.ErrorContains(t, err, "cannot perform operation")
+		assert.Equal(t, err.(*goa.ServiceError).Name, "internal_error")
+		assert.ErrorContains(t, err, "start AIP move workflow: something went wrong")
 	})
 
 	t.Run("Returns no error if AIP is moved", func(t *testing.T) {
@@ -1146,7 +1146,7 @@ func TestServiceMoveStatus(t *testing.T) {
 		assert.ErrorContains(t, err, "AIP not found")
 	})
 
-	t.Run("Returns failed_dependency error if workflow execution cannot be found", func(t *testing.T) {
+	t.Run("Returns internal_error if workflow execution cannot be described", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1181,8 +1181,8 @@ func TestServiceMoveStatus(t *testing.T) {
 			UUID: aipID.String(),
 		})
 		assert.Assert(t, res == nil)
-		assert.Equal(t, err.(*goa.ServiceError).Name, "failed_dependency")
-		assert.ErrorContains(t, err, "cannot perform operation")
+		assert.Equal(t, err.(*goa.ServiceError).Name, "internal_error")
+		assert.ErrorContains(t, err, "describe AIP move workflow: something went wrong")
 	})
 
 	t.Run("Returns failed_dependency error if workflow execution failed", func(t *testing.T) {
@@ -1349,7 +1349,7 @@ func TestServiceAddLocation(t *testing.T) {
 		assert.ErrorContains(t, err, "invalid configuration")
 	})
 
-	t.Run("Returns not_valid if cannot persist location", func(t *testing.T) {
+	t.Run("Returns internal_error if location cannot be persisted", func(t *testing.T) {
 		attrs := &setUpAttrs{}
 		ctx := t.Context()
 		svc := setUpService(t, ctx, attrs)
@@ -1386,8 +1386,8 @@ func TestServiceAddLocation(t *testing.T) {
 			}),
 		})
 		assert.Assert(t, res == nil)
-		assert.Equal(t, err.(*goa.ServiceError).Name, "not_valid")
-		assert.ErrorContains(t, err, "cannot persist location")
+		assert.Equal(t, err.(*goa.ServiceError).Name, "internal_error")
+		assert.ErrorContains(t, err, "create location: unexpected error")
 	})
 
 	t.Run("Returns result with location UUID", func(t *testing.T) {
@@ -1533,7 +1533,7 @@ func TestServiceListLocationAips(t *testing.T) {
 		assert.ErrorContains(t, err, "cannot perform operation")
 	})
 
-	t.Run("Returns not_available if AIPs cannot be read", func(t *testing.T) {
+	t.Run("Returns internal_error if AIPs cannot be read", func(t *testing.T) {
 		t.Parallel()
 
 		attrs := &setUpAttrs{}
@@ -1555,8 +1555,8 @@ func TestServiceListLocationAips(t *testing.T) {
 			UUID: locationID.String(),
 		})
 		assert.Assert(t, res == nil)
-		assert.Equal(t, err.(*goa.ServiceError).Name, "not_available")
-		assert.ErrorContains(t, err, "cannot perform operation")
+		assert.Equal(t, err.(*goa.ServiceError).Name, "internal_error")
+		assert.ErrorContains(t, err, "list location AIPs: unexpected error")
 	})
 
 	t.Run("Returns stored AIPs", func(t *testing.T) {

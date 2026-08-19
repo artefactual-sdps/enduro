@@ -76,7 +76,7 @@ func TestDownloadAipRequest(t *testing.T) {
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockStorage) {
 				psvc.EXPECT().
 					ReadAIP(ctx, aipID).
-					Return(nil, goastorage.MakeNotAvailable(errors.New("persistence error")))
+					Return(nil, goastorage.MakeInternalError(errors.New("persistence error")))
 			},
 			wantErr: "persistence error",
 		},
@@ -156,7 +156,7 @@ func TestDownloadAipRequest(t *testing.T) {
 					).
 					Return(errors.New("ticket error"))
 			},
-			wantErr: "ticket request failed",
+			wantErr: "request AIP download ticket: error storing ticket: ticket error",
 		},
 		{
 			name:    "Requests a AIP download",
@@ -321,7 +321,7 @@ func TestDownloadAip(t *testing.T) {
 				expectStorageTicketGrant(ctx, ts, aipDownloadGrant(aipID.String()))
 				psvc.EXPECT().
 					ReadAIP(ctx, aipID).
-					Return(nil, goastorage.MakeNotAvailable(errors.New("persistence error")))
+					Return(nil, goastorage.MakeInternalError(errors.New("persistence error")))
 			},
 			wantErr: "persistence error",
 		},

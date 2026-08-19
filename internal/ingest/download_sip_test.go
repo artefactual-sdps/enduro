@@ -103,7 +103,7 @@ func TestDownloadSipRequest(t *testing.T) {
 			mock: func(ctx context.Context, ts *auth_fake.MockTicketStore, psvc *persistence_fake.MockService) {
 				psvc.EXPECT().ReadSIP(ctx, sipUUID).Return(nil, persistence.ErrInternal)
 			},
-			wantErr: "error reading SIP",
+			wantErr: "read SIP: internal error",
 		},
 		{
 			name:    "Fails to request a SIP download (missing failed values)",
@@ -145,7 +145,7 @@ func TestDownloadSipRequest(t *testing.T) {
 					).
 					Return(errors.New("ticket error"))
 			},
-			wantErr: "ticket request failed",
+			wantErr: "request SIP download ticket: error storing ticket: ticket error",
 		},
 		{
 			name:    "Requests a SIP download",
@@ -289,7 +289,7 @@ func TestDownloadSip(t *testing.T) {
 				expectIngestTicketGrant(ctx, ts, sipDownloadGrant(sipUUID.String()))
 				psvc.EXPECT().ReadSIP(ctx, sipUUID).Return(nil, persistence.ErrInternal)
 			},
-			wantErr: "error reading SIP",
+			wantErr: "read SIP: internal error",
 		},
 		{
 			name: "Fails to download a SIP (missing failed values)",

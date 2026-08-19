@@ -2240,6 +2240,59 @@
       "title": "IngestAddSipResponseBody",
       "type": "object"
     },
+    "IngestConfirmSipInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
     "IngestConfirmSipNotAvailableResponseBody": {
       "description": "Error response result type (default view)",
       "example": {
@@ -3081,7 +3134,166 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
+    "IngestListSipWorkflowsInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListSipsInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
     "IngestListSipsNotValidResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "IngestListUsersInternalErrorResponseBody": {
       "description": "Error response result type (default view)",
       "example": {
         "fault": false,
@@ -3251,6 +3463,59 @@
         }
       },
       "title": "IngestPingEvent",
+      "type": "object"
+    },
+    "IngestRejectSipInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
     "IngestRejectSipNotAvailableResponseBody": {
@@ -3746,7 +4011,7 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "IngestShowSipNotAvailableResponseBody": {
+    "IngestShowSipInternalErrorResponseBody": {
       "description": "Error response result type (default view)",
       "example": {
         "fault": false,
@@ -3976,7 +4241,7 @@
       "type": "object"
     },
     "IngestUploadSipInternalErrorResponseBody": {
-      "description": "Fault while processing upload. (default view)",
+      "description": "Error response result type (default view)",
       "example": {
         "fault": false,
         "id": "123abc",
@@ -5665,6 +5930,59 @@
       "title": "StorageCancelAipDeletionRequestBody",
       "type": "object"
     },
+    "StorageCreateAipInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
     "StorageCreateAipNotValidResponseBody": {
       "description": "Error response result type (default view)",
       "example": {
@@ -5770,6 +6088,59 @@
         "object_key"
       ],
       "title": "StorageCreateAipRequestBody",
+      "type": "object"
+    },
+    "StorageCreateLocationInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
     "StorageCreateLocationNotValidResponseBody": {
@@ -6431,7 +6802,60 @@
       "title": "StorageEvent",
       "type": "object"
     },
-    "StorageListAipsNotAvailableResponseBody": {
+    "StorageListAipWorkflowsInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageListAipsInternalErrorResponseBody": {
       "description": "Error response result type (default view)",
       "example": {
         "fault": false,
@@ -6537,7 +6961,113 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
+    "StorageListLocationAipsInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
     "StorageListLocationAipsNotValidResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageListLocationsInternalErrorResponseBody": {
       "description": "Error response result type (default view)",
       "example": {
         "fault": false,
@@ -6661,7 +7191,7 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
-    "StorageMoveAipNotAvailableResponseBody": {
+    "StorageMoveAipInternalErrorResponseBody": {
       "description": "Error response result type (default view)",
       "example": {
         "fault": false,
@@ -6837,6 +7367,59 @@
       "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
+    "StorageMoveAipStatusInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
     "StoragePingEvent": {
       "example": {
         "message": "abc123"
@@ -6850,7 +7433,7 @@
       "title": "StoragePingEvent",
       "type": "object"
     },
-    "StorageRejectAipNotAvailableResponseBody": {
+    "StorageRejectAipInternalErrorResponseBody": {
       "description": "Error response result type (default view)",
       "example": {
         "fault": false,
@@ -7198,6 +7781,112 @@
         "approved"
       ],
       "title": "StorageReviewAipDeletionRequestBody",
+      "type": "object"
+    },
+    "StorageShowAipInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
+      "type": "object"
+    },
+    "StorageShowLocationInternalErrorResponseBody": {
+      "description": "Error response result type (default view)",
+      "example": {
+        "fault": false,
+        "id": "123abc",
+        "message": "parameter 'p' must be an integer",
+        "name": "bad_request",
+        "temporary": false,
+        "timeout": false
+      },
+      "properties": {
+        "fault": {
+          "description": "Is the error a server-side fault?",
+          "example": false,
+          "type": "boolean"
+        },
+        "id": {
+          "description": "ID is a unique identifier for this particular occurrence of the problem.",
+          "example": "123abc",
+          "type": "string"
+        },
+        "message": {
+          "description": "Message is a human-readable explanation specific to this occurrence of the problem.",
+          "example": "parameter 'p' must be an integer",
+          "type": "string"
+        },
+        "name": {
+          "description": "Name is the name of this class of errors.",
+          "example": "bad_request",
+          "type": "string"
+        },
+        "temporary": {
+          "description": "Is the error temporary?",
+          "example": false,
+          "type": "boolean"
+        },
+        "timeout": {
+          "description": "Is the error a timeout?",
+          "example": false,
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "name",
+        "id",
+        "message",
+        "temporary",
+        "timeout",
+        "fault"
+      ],
+      "title": "Mediatype identifier: application/vnd.goa.error; view=default",
       "type": "object"
     },
     "URLConfig": {
@@ -7882,6 +8571,12 @@
             "schema": {
               "type": "string"
             }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSipsInternalErrorResponseBody"
+            }
           }
         },
         "schemes": [
@@ -8079,10 +8774,10 @@
               ]
             }
           },
-          "409": {
-            "description": "Conflict response.",
+          "500": {
+            "description": "Internal Server Error response.",
             "schema": {
-              "$ref": "#/definitions/IngestShowSipNotAvailableResponseBody"
+              "$ref": "#/definitions/IngestShowSipInternalErrorResponseBody"
             }
           }
         },
@@ -8164,6 +8859,12 @@
             "description": "Conflict response.",
             "schema": {
               "$ref": "#/definitions/IngestConfirmSipNotAvailableResponseBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestConfirmSipInternalErrorResponseBody"
             }
           }
         },
@@ -8542,6 +9243,12 @@
             "schema": {
               "$ref": "#/definitions/IngestRejectSipNotAvailableResponseBody"
             }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestRejectSipInternalErrorResponseBody"
+            }
           }
         },
         "schemes": [
@@ -8602,6 +9309,12 @@
                 "message",
                 "uuid"
               ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListSipWorkflowsInternalErrorResponseBody"
             }
           }
         },
@@ -8681,6 +9394,12 @@
             "description": "Forbidden response.",
             "schema": {
               "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/IngestListUsersInternalErrorResponseBody"
             }
           }
         },
@@ -8783,10 +9502,10 @@
               "type": "string"
             }
           },
-          "409": {
-            "description": "Conflict response.",
+          "500": {
+            "description": "Internal Server Error response.",
             "schema": {
-              "$ref": "#/definitions/StorageListAipsNotAvailableResponseBody"
+              "$ref": "#/definitions/StorageListAipsInternalErrorResponseBody"
             }
           }
         },
@@ -8848,6 +9567,12 @@
             "schema": {
               "type": "string"
             }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageCreateAipInternalErrorResponseBody"
+            }
           }
         },
         "schemes": [
@@ -8908,6 +9633,12 @@
                 "message",
                 "uuid"
               ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageShowAipInternalErrorResponseBody"
             }
           }
         },
@@ -9573,10 +10304,10 @@
               ]
             }
           },
-          "409": {
-            "description": "Conflict response.",
+          "500": {
+            "description": "Internal Server Error response.",
             "schema": {
-              "$ref": "#/definitions/StorageRejectAipNotAvailableResponseBody"
+              "$ref": "#/definitions/StorageRejectAipInternalErrorResponseBody"
             }
           }
         },
@@ -9647,6 +10378,12 @@
             "description": "Failed Dependency response.",
             "schema": {
               "$ref": "#/definitions/StorageMoveAipStatusFailedDependencyResponseBody"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageMoveAipStatusInternalErrorResponseBody"
             }
           }
         },
@@ -9722,10 +10459,10 @@
               ]
             }
           },
-          "409": {
-            "description": "Conflict response.",
+          "500": {
+            "description": "Internal Server Error response.",
             "schema": {
-              "$ref": "#/definitions/StorageMoveAipNotAvailableResponseBody"
+              "$ref": "#/definitions/StorageMoveAipInternalErrorResponseBody"
             }
           }
         },
@@ -9815,6 +10552,12 @@
                 "uuid"
               ]
             }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageListAipWorkflowsInternalErrorResponseBody"
+            }
           }
         },
         "schemes": [
@@ -9855,6 +10598,12 @@
             "description": "Forbidden response.",
             "schema": {
               "type": "string"
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageListLocationsInternalErrorResponseBody"
             }
           }
         },
@@ -9919,6 +10668,12 @@
             "schema": {
               "type": "string"
             }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageCreateLocationInternalErrorResponseBody"
+            }
           }
         },
         "schemes": [
@@ -9979,6 +10734,12 @@
                 "message",
                 "uuid"
               ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageShowLocationInternalErrorResponseBody"
             }
           }
         },
@@ -10046,6 +10807,12 @@
                 "message",
                 "uuid"
               ]
+            }
+          },
+          "500": {
+            "description": "Internal Server Error response.",
+            "schema": {
+              "$ref": "#/definitions/StorageListLocationAipsInternalErrorResponseBody"
             }
           }
         },

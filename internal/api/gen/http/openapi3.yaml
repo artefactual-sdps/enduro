@@ -686,6 +686,12 @@ paths:
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: list_sips ingest
@@ -818,12 +824,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/SIPNotFound'
                     description: 'not_found: SIP not found'
-                "409":
+                "500":
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
-                    description: 'not_available: Conflict response.'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: show_sip ingest
@@ -897,6 +903,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
                     description: 'not_available: Conflict response.'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: confirm_sip ingest
@@ -1275,6 +1287,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
                     description: 'not_available: Conflict response.'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: reject_sip ingest
@@ -1348,6 +1366,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/SIPNotFound'
                     description: 'not_found: SIP not found'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: list_sip_workflows ingest
@@ -1408,7 +1432,7 @@ paths:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
-                    description: 'internal_error: Fault while processing upload.'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: upload_sip ingest
@@ -1500,6 +1524,12 @@ paths:
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: list_users ingest
@@ -1615,12 +1645,12 @@ paths:
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
-                "409":
+                "500":
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
-                    description: 'not_available: Conflict response.'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: list_aips storage
@@ -1683,6 +1713,12 @@ paths:
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: create_aip storage
@@ -1747,6 +1783,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/AIPNotFound'
                     description: 'not_found: AIP not found'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: show_aip storage
@@ -2408,12 +2450,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/AIPNotFound'
                     description: 'not_found: AIP not found'
-                "409":
+                "500":
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
-                    description: 'not_available: Conflict response.'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: reject_aip storage
@@ -2478,6 +2520,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/Error'
                     description: 'failed_dependency: Failed Dependency response.'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: move_aip_status storage
@@ -2544,12 +2592,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/AIPNotFound'
                     description: 'not_found: AIP not found'
-                "409":
+                "500":
                     content:
                         application/vnd.goa.error:
                             schema:
                                 $ref: '#/components/schemas/Error'
-                    description: 'not_available: Conflict response.'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: move_aip storage
@@ -2650,6 +2698,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/AIPNotFound'
                     description: 'not_found: AIP not found'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: list_aip_workflows storage
@@ -2693,6 +2747,12 @@ paths:
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: list_locations storage
@@ -2759,6 +2819,12 @@ paths:
                                 example: abc123
                                 type: string
                     description: 'forbidden: Forbidden response.'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: create_location storage
@@ -2833,6 +2899,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/LocationNotFound'
                     description: 'not_found: Storage location not found'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: show_location storage
@@ -2903,6 +2975,12 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/LocationNotFound'
                     description: 'not_found: Storage location not found'
+                "500":
+                    content:
+                        application/vnd.goa.error:
+                            schema:
+                                $ref: '#/components/schemas/Error'
+                    description: 'internal_error: Internal Server Error response.'
             security:
                 - bearer_header_Authorization: []
             summary: list_location_aips storage

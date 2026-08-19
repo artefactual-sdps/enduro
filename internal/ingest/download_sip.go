@@ -28,7 +28,7 @@ func (svc *ingestImpl) readSIP(ctx context.Context, id string) (*datatypes.SIP, 
 		if errors.Is(err, persistence.ErrNotFound) {
 			return nil, &goaingest.SIPNotFound{UUID: id, Message: "SIP not found"}
 		} else {
-			return nil, goaingest.MakeInternalError(errors.New("error reading SIP"))
+			return nil, goaingest.MakeInternalError(fmt.Errorf("read SIP: %v", err))
 		}
 	}
 
@@ -52,7 +52,7 @@ func (svc *ingestImpl) DownloadSipRequest(
 	// Check if the failed SIP/PIP exists in the internal bucket.
 	exists, err := svc.internalStorage.Exists(ctx, sip.FailedKey)
 	if err != nil {
-		return nil, goaingest.MakeInternalError(errors.New("error checking SIP/PIP file"))
+		return nil, goaingest.MakeInternalError(fmt.Errorf("check SIP/PIP file: %v", err))
 	}
 
 	if !exists {
@@ -68,7 +68,7 @@ func (svc *ingestImpl) DownloadSipRequest(
 		payload.UUID,
 	))
 	if err != nil {
-		return nil, goaingest.MakeInternalError(errors.New("ticket request failed"))
+		return nil, goaingest.MakeInternalError(fmt.Errorf("request SIP download ticket: %v", err))
 	}
 
 	// A ticket is not provided when authentication is disabled.
@@ -114,7 +114,7 @@ func (svc *ingestImpl) DownloadSip(
 				Message: "Failed SIP/PIP file not found in the internal storage",
 			}
 		} else {
-			return nil, nil, goaingest.MakeInternalError(errors.New("error reading SIP file"))
+			return nil, nil, goaingest.MakeInternalError(fmt.Errorf("read SIP file: %v", err))
 		}
 	}
 

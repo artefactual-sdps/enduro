@@ -3,6 +3,7 @@ package api
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log/slog"
 	"net/http"
 	"net/http/httptest"
@@ -235,4 +236,59 @@ func TestHTTPServerMonitorAuth(t *testing.T) {
 			assert.Equal(t, tt.authCalls(api), 1)
 		})
 	}
+}
+
+func TestHTTPServerInternalError(t *testing.T) {
+	api := newTestAPI(t)
+	internalErr := goastorage.MakeInternalError(errors.New("database password leaked"))
+	api.storage.EXPECT().
+		ListAips(gomock.Any(), gomock.Any()).
+		Return(nil, internalErr)
+
+	req := httptest.NewRequest(http.MethodGet, "/storage/aips", nil)
+	req.Header.Set("Authorization", "Bearer token")
+	rec := httptest.NewRecorder()
+	api.handler.ServeHTTP(rec, req)
+
+	assert.Equal(t, rec.Code, http.StatusInternalServerError)
+	var body map[string]any
+	assert.NilError(t, json.NewDecoder(rec.Body).Decode(&body))
+	assert.DeepEqual(t, body, map[string]any{
+		"name":      "internal_error",
+		"id":        internalErr.ID,
+		"message":   apiInternalErrorMsg,
+		"temporary": false,
+		"timeout":   false,
+		"fault":     true,
+	})
+}
+
+func TestHTTPServerConflict(t *testing.T) {
+	api := newTestAPI(t)
+	sipID := uuid.MustParse("9ef28482-bad9-4823-96f7-0fd1f3e956fd")
+	conflictErr := goaingest.MakeNotAvailable(errors.New("no decision is pending"))
+	api.ingest.EXPECT().
+		ShowSipDecision(gomock.Any(), gomock.Any()).
+		Return(nil, conflictErr)
+
+	req := httptest.NewRequest(
+		http.MethodGet,
+		"/ingest/sips/"+sipID.String()+"/decision",
+		nil,
+	)
+	req.Header.Set("Authorization", "Bearer token")
+	rec := httptest.NewRecorder()
+	api.handler.ServeHTTP(rec, req)
+
+	assert.Equal(t, rec.Code, http.StatusConflict)
+	var body map[string]any
+	assert.NilError(t, json.NewDecoder(rec.Body).Decode(&body))
+	assert.DeepEqual(t, body, map[string]any{
+		"name":      "not_available",
+		"id":        conflictErr.ID,
+		"message":   "no decision is pending",
+		"temporary": false,
+		"timeout":   false,
+		"fault":     false,
+	})
 }

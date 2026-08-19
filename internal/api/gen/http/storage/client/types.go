@@ -184,24 +184,6 @@ type MonitorInternalErrorResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// ListAipsNotAvailableResponseBody is the type of the "storage" service
-// "list_aips" endpoint HTTP response body for the "not_available" error.
-type ListAipsNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Is the error temporary?
-	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
-	// Is the error a timeout?
-	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
-	// Is the error a server-side fault?
-	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
-}
-
 // ListAipsNotValidResponseBody is the type of the "storage" service
 // "list_aips" endpoint HTTP response body for the "not_valid" error.
 type ListAipsNotValidResponseBody struct {
@@ -220,9 +202,45 @@ type ListAipsNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// ListAipsInternalErrorResponseBody is the type of the "storage" service
+// "list_aips" endpoint HTTP response body for the "internal_error" error.
+type ListAipsInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // CreateAipNotValidResponseBody is the type of the "storage" service
 // "create_aip" endpoint HTTP response body for the "not_valid" error.
 type CreateAipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// CreateAipInternalErrorResponseBody is the type of the "storage" service
+// "create_aip" endpoint HTTP response body for the "internal_error" error.
+type CreateAipInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -329,9 +347,9 @@ type DownloadAipNotFoundResponseBody struct {
 	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
-// MoveAipNotAvailableResponseBody is the type of the "storage" service
-// "move_aip" endpoint HTTP response body for the "not_available" error.
-type MoveAipNotAvailableResponseBody struct {
+// MoveAipNotValidResponseBody is the type of the "storage" service "move_aip"
+// endpoint HTTP response body for the "not_valid" error.
+type MoveAipNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -347,9 +365,9 @@ type MoveAipNotAvailableResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// MoveAipNotValidResponseBody is the type of the "storage" service "move_aip"
-// endpoint HTTP response body for the "not_valid" error.
-type MoveAipNotValidResponseBody struct {
+// MoveAipInternalErrorResponseBody is the type of the "storage" service
+// "move_aip" endpoint HTTP response body for the "internal_error" error.
+type MoveAipInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -393,18 +411,9 @@ type MoveAipStatusFailedDependencyResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// MoveAipStatusNotFoundResponseBody is the type of the "storage" service
-// "move_aip_status" endpoint HTTP response body for the "not_found" error.
-type MoveAipStatusNotFoundResponseBody struct {
-	// Message of error
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Identifier of missing AIP
-	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
-}
-
-// RejectAipNotAvailableResponseBody is the type of the "storage" service
-// "reject_aip" endpoint HTTP response body for the "not_available" error.
-type RejectAipNotAvailableResponseBody struct {
+// MoveAipStatusInternalErrorResponseBody is the type of the "storage" service
+// "move_aip_status" endpoint HTTP response body for the "internal_error" error.
+type MoveAipStatusInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -420,9 +429,36 @@ type RejectAipNotAvailableResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// MoveAipStatusNotFoundResponseBody is the type of the "storage" service
+// "move_aip_status" endpoint HTTP response body for the "not_found" error.
+type MoveAipStatusNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing AIP
+	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
 // RejectAipNotValidResponseBody is the type of the "storage" service
 // "reject_aip" endpoint HTTP response body for the "not_valid" error.
 type RejectAipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// RejectAipInternalErrorResponseBody is the type of the "storage" service
+// "reject_aip" endpoint HTTP response body for the "internal_error" error.
+type RejectAipInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -447,6 +483,24 @@ type RejectAipNotFoundResponseBody struct {
 	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
+// ShowAipInternalErrorResponseBody is the type of the "storage" service
+// "show_aip" endpoint HTTP response body for the "internal_error" error.
+type ShowAipInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // ShowAipNotFoundResponseBody is the type of the "storage" service "show_aip"
 // endpoint HTTP response body for the "not_found" error.
 type ShowAipNotFoundResponseBody struct {
@@ -454,6 +508,25 @@ type ShowAipNotFoundResponseBody struct {
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing AIP
 	UUID *uuid.UUID `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
+// ListAipWorkflowsInternalErrorResponseBody is the type of the "storage"
+// service "list_aip_workflows" endpoint HTTP response body for the
+// "internal_error" error.
+type ListAipWorkflowsInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
 // ListAipWorkflowsNotFoundResponseBody is the type of the "storage" service
@@ -761,9 +834,63 @@ type AipDeletionReportInternalErrorResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
+// ListLocationsInternalErrorResponseBody is the type of the "storage" service
+// "list_locations" endpoint HTTP response body for the "internal_error" error.
+type ListLocationsInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
 // CreateLocationNotValidResponseBody is the type of the "storage" service
 // "create_location" endpoint HTTP response body for the "not_valid" error.
 type CreateLocationNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// CreateLocationInternalErrorResponseBody is the type of the "storage" service
+// "create_location" endpoint HTTP response body for the "internal_error" error.
+type CreateLocationInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ShowLocationInternalErrorResponseBody is the type of the "storage" service
+// "show_location" endpoint HTTP response body for the "internal_error" error.
+type ShowLocationInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -790,6 +917,25 @@ type ShowLocationNotFoundResponseBody struct {
 // ListLocationAipsNotValidResponseBody is the type of the "storage" service
 // "list_location_aips" endpoint HTTP response body for the "not_valid" error.
 type ListLocationAipsNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListLocationAipsInternalErrorResponseBody is the type of the "storage"
+// service "list_location_aips" endpoint HTTP response body for the
+// "internal_error" error.
+type ListLocationAipsInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -2272,9 +2418,9 @@ func NewListAipsAIPsOK(body *ListAipsResponseBody) *storageviews.AIPsView {
 	return v
 }
 
-// NewListAipsNotAvailable builds a storage service list_aips endpoint
-// not_available error.
-func NewListAipsNotAvailable(body *ListAipsNotAvailableResponseBody) *goa.ServiceError {
+// NewListAipsNotValid builds a storage service list_aips endpoint not_valid
+// error.
+func NewListAipsNotValid(body *ListAipsNotValidResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -2287,9 +2433,9 @@ func NewListAipsNotAvailable(body *ListAipsNotAvailableResponseBody) *goa.Servic
 	return v
 }
 
-// NewListAipsNotValid builds a storage service list_aips endpoint not_valid
-// error.
-func NewListAipsNotValid(body *ListAipsNotValidResponseBody) *goa.ServiceError {
+// NewListAipsInternalError builds a storage service list_aips endpoint
+// internal_error error.
+func NewListAipsInternalError(body *ListAipsInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -2337,6 +2483,21 @@ func NewCreateAipAIPOK(body *CreateAipResponseBody) *storageviews.AIPView {
 // NewCreateAipNotValid builds a storage service create_aip endpoint not_valid
 // error.
 func NewCreateAipNotValid(body *CreateAipNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewCreateAipInternalError builds a storage service create_aip endpoint
+// internal_error error.
+func NewCreateAipInternalError(body *CreateAipInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -2499,9 +2660,9 @@ func NewDownloadAipUnauthorized(body string) storage.Unauthorized {
 	return v
 }
 
-// NewMoveAipNotAvailable builds a storage service move_aip endpoint
-// not_available error.
-func NewMoveAipNotAvailable(body *MoveAipNotAvailableResponseBody) *goa.ServiceError {
+// NewMoveAipNotValid builds a storage service move_aip endpoint not_valid
+// error.
+func NewMoveAipNotValid(body *MoveAipNotValidResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -2514,9 +2675,9 @@ func NewMoveAipNotAvailable(body *MoveAipNotAvailableResponseBody) *goa.ServiceE
 	return v
 }
 
-// NewMoveAipNotValid builds a storage service move_aip endpoint not_valid
-// error.
-func NewMoveAipNotValid(body *MoveAipNotValidResponseBody) *goa.ServiceError {
+// NewMoveAipInternalError builds a storage service move_aip endpoint
+// internal_error error.
+func NewMoveAipInternalError(body *MoveAipInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -2581,6 +2742,21 @@ func NewMoveAipStatusFailedDependency(body *MoveAipStatusFailedDependencyRespons
 	return v
 }
 
+// NewMoveAipStatusInternalError builds a storage service move_aip_status
+// endpoint internal_error error.
+func NewMoveAipStatusInternalError(body *MoveAipStatusInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
 // NewMoveAipStatusNotFound builds a storage service move_aip_status endpoint
 // not_found error.
 func NewMoveAipStatusNotFound(body *MoveAipStatusNotFoundResponseBody) *storage.AIPNotFound {
@@ -2608,9 +2784,9 @@ func NewMoveAipStatusUnauthorized(body string) storage.Unauthorized {
 	return v
 }
 
-// NewRejectAipNotAvailable builds a storage service reject_aip endpoint
-// not_available error.
-func NewRejectAipNotAvailable(body *RejectAipNotAvailableResponseBody) *goa.ServiceError {
+// NewRejectAipNotValid builds a storage service reject_aip endpoint not_valid
+// error.
+func NewRejectAipNotValid(body *RejectAipNotValidResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -2623,9 +2799,9 @@ func NewRejectAipNotAvailable(body *RejectAipNotAvailableResponseBody) *goa.Serv
 	return v
 }
 
-// NewRejectAipNotValid builds a storage service reject_aip endpoint not_valid
-// error.
-func NewRejectAipNotValid(body *RejectAipNotValidResponseBody) *goa.ServiceError {
+// NewRejectAipInternalError builds a storage service reject_aip endpoint
+// internal_error error.
+func NewRejectAipInternalError(body *RejectAipInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -2681,6 +2857,21 @@ func NewShowAipAIPOK(body *ShowAipResponseBody) *storageviews.AIPView {
 	return v
 }
 
+// NewShowAipInternalError builds a storage service show_aip endpoint
+// internal_error error.
+func NewShowAipInternalError(body *ShowAipInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
 // NewShowAipNotFound builds a storage service show_aip endpoint not_found
 // error.
 func NewShowAipNotFound(body *ShowAipNotFoundResponseBody) *storage.AIPNotFound {
@@ -2721,6 +2912,21 @@ func NewListAipWorkflowsAIPWorkflowsOK(body *ListAipWorkflowsResponseBody) *stor
 			}
 			v.Workflows[i] = unmarshalAIPWorkflowResponseBodyToStorageviewsAIPWorkflowView(val)
 		}
+	}
+
+	return v
+}
+
+// NewListAipWorkflowsInternalError builds a storage service list_aip_workflows
+// endpoint internal_error error.
+func NewListAipWorkflowsInternalError(body *ListAipWorkflowsInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
 	}
 
 	return v
@@ -3138,6 +3344,21 @@ func NewListLocationsLocationCollectionOK(body LocationResponseCollection) stora
 	return v
 }
 
+// NewListLocationsInternalError builds a storage service list_locations
+// endpoint internal_error error.
+func NewListLocationsInternalError(body *ListLocationsInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
 // NewListLocationsForbidden builds a storage service list_locations endpoint
 // forbidden error.
 func NewListLocationsForbidden(body string) storage.Forbidden {
@@ -3179,6 +3400,21 @@ func NewCreateLocationNotValid(body *CreateLocationNotValidResponseBody) *goa.Se
 	return v
 }
 
+// NewCreateLocationInternalError builds a storage service create_location
+// endpoint internal_error error.
+func NewCreateLocationInternalError(body *CreateLocationInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
 // NewCreateLocationForbidden builds a storage service create_location endpoint
 // forbidden error.
 func NewCreateLocationForbidden(body string) storage.Forbidden {
@@ -3205,6 +3441,21 @@ func NewShowLocationLocationOK(body *ShowLocationResponseBody) *storageviews.Loc
 		Purpose:     body.Purpose,
 		UUID:        body.UUID,
 		CreatedAt:   body.CreatedAt,
+	}
+
+	return v
+}
+
+// NewShowLocationInternalError builds a storage service show_location endpoint
+// internal_error error.
+func NewShowLocationInternalError(body *ShowLocationInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
 	}
 
 	return v
@@ -3255,6 +3506,21 @@ func NewListLocationAipsAIPCollectionOK(body AIPResponseCollection) storageviews
 // NewListLocationAipsNotValid builds a storage service list_location_aips
 // endpoint not_valid error.
 func NewListLocationAipsNotValid(body *ListLocationAipsNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListLocationAipsInternalError builds a storage service list_location_aips
+// endpoint internal_error error.
+func NewListLocationAipsInternalError(body *ListLocationAipsInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -3410,30 +3676,6 @@ func ValidateMonitorInternalErrorResponseBody(body *MonitorInternalErrorResponse
 	return
 }
 
-// ValidateListAipsNotAvailableResponseBody runs the validations defined on
-// list_aips_not_available_response_body
-func ValidateListAipsNotAvailableResponseBody(body *ListAipsNotAvailableResponseBody) (err error) {
-	if body.Name == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
-	}
-	if body.ID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
-	}
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.Temporary == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
-	}
-	if body.Timeout == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
-	}
-	if body.Fault == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
-	}
-	return
-}
-
 // ValidateListAipsNotValidResponseBody runs the validations defined on
 // list_aips_not_valid_response_body
 func ValidateListAipsNotValidResponseBody(body *ListAipsNotValidResponseBody) (err error) {
@@ -3458,9 +3700,57 @@ func ValidateListAipsNotValidResponseBody(body *ListAipsNotValidResponseBody) (e
 	return
 }
 
+// ValidateListAipsInternalErrorResponseBody runs the validations defined on
+// list_aips_internal_error_response_body
+func ValidateListAipsInternalErrorResponseBody(body *ListAipsInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
 // ValidateCreateAipNotValidResponseBody runs the validations defined on
 // create_aip_not_valid_response_body
 func ValidateCreateAipNotValidResponseBody(body *CreateAipNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateCreateAipInternalErrorResponseBody runs the validations defined on
+// create_aip_internal_error_response_body
+func ValidateCreateAipInternalErrorResponseBody(body *CreateAipInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -3602,9 +3892,9 @@ func ValidateDownloadAipNotFoundResponseBody(body *DownloadAipNotFoundResponseBo
 	return
 }
 
-// ValidateMoveAipNotAvailableResponseBody runs the validations defined on
-// move_aip_not_available_response_body
-func ValidateMoveAipNotAvailableResponseBody(body *MoveAipNotAvailableResponseBody) (err error) {
+// ValidateMoveAipNotValidResponseBody runs the validations defined on
+// move_aip_not_valid_response_body
+func ValidateMoveAipNotValidResponseBody(body *MoveAipNotValidResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -3626,9 +3916,9 @@ func ValidateMoveAipNotAvailableResponseBody(body *MoveAipNotAvailableResponseBo
 	return
 }
 
-// ValidateMoveAipNotValidResponseBody runs the validations defined on
-// move_aip_not_valid_response_body
-func ValidateMoveAipNotValidResponseBody(body *MoveAipNotValidResponseBody) (err error) {
+// ValidateMoveAipInternalErrorResponseBody runs the validations defined on
+// move_aip_internal_error_response_body
+func ValidateMoveAipInternalErrorResponseBody(body *MoveAipInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -3686,21 +3976,9 @@ func ValidateMoveAipStatusFailedDependencyResponseBody(body *MoveAipStatusFailed
 	return
 }
 
-// ValidateMoveAipStatusNotFoundResponseBody runs the validations defined on
-// move_aip_status_not_found_response_body
-func ValidateMoveAipStatusNotFoundResponseBody(body *MoveAipStatusNotFoundResponseBody) (err error) {
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.UUID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
-	}
-	return
-}
-
-// ValidateRejectAipNotAvailableResponseBody runs the validations defined on
-// reject_aip_not_available_response_body
-func ValidateRejectAipNotAvailableResponseBody(body *RejectAipNotAvailableResponseBody) (err error) {
+// ValidateMoveAipStatusInternalErrorResponseBody runs the validations defined
+// on move_aip_status_internal_error_response_body
+func ValidateMoveAipStatusInternalErrorResponseBody(body *MoveAipStatusInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -3722,9 +4000,45 @@ func ValidateRejectAipNotAvailableResponseBody(body *RejectAipNotAvailableRespon
 	return
 }
 
+// ValidateMoveAipStatusNotFoundResponseBody runs the validations defined on
+// move_aip_status_not_found_response_body
+func ValidateMoveAipStatusNotFoundResponseBody(body *MoveAipStatusNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
 // ValidateRejectAipNotValidResponseBody runs the validations defined on
 // reject_aip_not_valid_response_body
 func ValidateRejectAipNotValidResponseBody(body *RejectAipNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateRejectAipInternalErrorResponseBody runs the validations defined on
+// reject_aip_internal_error_response_body
+func ValidateRejectAipInternalErrorResponseBody(body *RejectAipInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -3758,6 +4072,30 @@ func ValidateRejectAipNotFoundResponseBody(body *RejectAipNotFoundResponseBody) 
 	return
 }
 
+// ValidateShowAipInternalErrorResponseBody runs the validations defined on
+// show_aip_internal_error_response_body
+func ValidateShowAipInternalErrorResponseBody(body *ShowAipInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
 // ValidateShowAipNotFoundResponseBody runs the validations defined on
 // show_aip_not_found_response_body
 func ValidateShowAipNotFoundResponseBody(body *ShowAipNotFoundResponseBody) (err error) {
@@ -3766,6 +4104,30 @@ func ValidateShowAipNotFoundResponseBody(body *ShowAipNotFoundResponseBody) (err
 	}
 	if body.UUID == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	return
+}
+
+// ValidateListAipWorkflowsInternalErrorResponseBody runs the validations
+// defined on list_aip_workflows_internal_error_response_body
+func ValidateListAipWorkflowsInternalErrorResponseBody(body *ListAipWorkflowsInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
 	}
 	return
 }
@@ -4167,9 +4529,81 @@ func ValidateAipDeletionReportInternalErrorResponseBody(body *AipDeletionReportI
 	return
 }
 
+// ValidateListLocationsInternalErrorResponseBody runs the validations defined
+// on list_locations_internal_error_response_body
+func ValidateListLocationsInternalErrorResponseBody(body *ListLocationsInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
 // ValidateCreateLocationNotValidResponseBody runs the validations defined on
 // create_location_not_valid_response_body
 func ValidateCreateLocationNotValidResponseBody(body *CreateLocationNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateCreateLocationInternalErrorResponseBody runs the validations defined
+// on create_location_internal_error_response_body
+func ValidateCreateLocationInternalErrorResponseBody(body *CreateLocationInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateShowLocationInternalErrorResponseBody runs the validations defined
+// on show_location_internal_error_response_body
+func ValidateShowLocationInternalErrorResponseBody(body *ShowLocationInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -4206,6 +4640,30 @@ func ValidateShowLocationNotFoundResponseBody(body *ShowLocationNotFoundResponse
 // ValidateListLocationAipsNotValidResponseBody runs the validations defined on
 // list_location_aips_not_valid_response_body
 func ValidateListLocationAipsNotValidResponseBody(body *ListLocationAipsNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListLocationAipsInternalErrorResponseBody runs the validations
+// defined on list_location_aips_internal_error_response_body
+func ValidateListLocationAipsInternalErrorResponseBody(body *ListLocationAipsInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

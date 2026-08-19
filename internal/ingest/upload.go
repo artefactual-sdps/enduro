@@ -70,17 +70,14 @@ func (svc *ingestImpl) UploadSip(
 	objectKey := fmt.Sprintf("%s%s-%s%s", SIPPrefix, name, sipUUID.String(), ext)
 	wr, err := svc.internalStorage.NewWriter(ctx, objectKey, &blob.WriterOptions{})
 	if err != nil {
-		return nil, err
+		return nil, goaingest.MakeInternalError(fmt.Errorf("create SIP upload writer: %v", err))
 	}
 
 	_, copyErr := io.Copy(wr, stream)
 	closeErr := wr.Close()
 
-	if copyErr != nil {
-		return nil, copyErr
-	}
-	if closeErr != nil {
-		return nil, closeErr
+	if err := errors.Join(copyErr, closeErr); err != nil {
+		return nil, goaingest.MakeInternalError(fmt.Errorf("write SIP upload: %v", err))
 	}
 
 	if err := svc.initSIP(
@@ -99,8 +96,7 @@ func (svc *ingestImpl) UploadSip(
 				return svc.internalStorage.Delete(cleanupCtx, objectKey)
 			}),
 		)
-		svc.logger.Error(err, "upload SIP")
-		return nil, ErrInternalError
+		return nil, goaingest.MakeInternalError(fmt.Errorf("initialize uploaded SIP: %v", err))
 	}
 
 	return &goaingest.UploadSipResult{UUID: sipUUID.String()}, nil

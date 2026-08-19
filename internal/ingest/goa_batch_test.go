@@ -105,7 +105,7 @@ func TestAddBatch(t *testing.T) {
 					},
 				).Return(errors.New("persistence error"))
 			},
-			wantErr: "internal error",
+			wantErr: "create batch: persistence error",
 		},
 		{
 			name:    "Returns Temporal error",
@@ -139,7 +139,7 @@ func TestAddBatch(t *testing.T) {
 						return nil
 					})
 			},
-			wantErr: "internal error",
+			wantErr: "start batch workflow: temporal error",
 		},
 		{
 			name:    "Uploads a SIP",
@@ -269,7 +269,7 @@ func TestShowBatch(t *testing.T) {
 			mock: func(ctx context.Context, psvc *persistence_fake.MockService) {
 				psvc.EXPECT().ReadBatch(ctx, batchUUID).Return(nil, persistence.ErrInternal)
 			},
-			wantErr: "internal error",
+			wantErr: "read batch: internal error",
 		},
 		{
 			name:    "Returns batch",
@@ -355,7 +355,7 @@ func TestReviewBatch(t *testing.T) {
 			mock: func(ctx context.Context, psvc *persistence_fake.MockService, _ *temporalsdk_mocks.Client) {
 				psvc.EXPECT().ReadBatch(ctx, batchUUID).Return(nil, persistence.ErrInternal)
 			},
-			wantErr: "internal error",
+			wantErr: "read batch for review: internal error",
 		},
 		{
 			name:    "Returns not valid error (not pending)",
@@ -385,7 +385,7 @@ func TestReviewBatch(t *testing.T) {
 					ingest.BatchDecisionSignal{Continue: true},
 				).Return(errors.New("temporal error"))
 			},
-			wantErr: "internal error",
+			wantErr: "signal batch review: temporal error",
 		},
 		{
 			name:    "Signals batch decision",
@@ -595,7 +595,7 @@ func TestListBatches(t *testing.T) {
 					},
 				).Return(nil, nil, persistence.ErrInternal)
 			},
-			wantErr: "internal error",
+			wantErr: "list batches: internal error",
 		},
 		{
 			name: "Errors on a bad uploader_uuid",

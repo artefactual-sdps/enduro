@@ -24,7 +24,6 @@ var (
 	ErrBulkStatusUnavailable error = errors.New("bulk status unavailable")
 	ErrForbidden             error = goaingest.Forbidden("Forbidden")
 	ErrUnauthorized          error = goaingest.Unauthorized("Unauthorized")
-	ErrInternalError         error = goaingest.MakeInternalError(errors.New("internal error"))
 )
 
 func (svc *ingestImpl) BearerAuth(
@@ -88,8 +87,7 @@ func (svc *ingestImpl) AddSip(ctx context.Context, payload *goaingest.AddSipPayl
 	}
 
 	if err := svc.perSvc.CreateSIP(ctx, s); err != nil {
-		svc.logger.Error(err, "add SIP")
-		return nil, ErrInternalError
+		return nil, goaingest.MakeInternalError(fmt.Errorf("create SIP: %v", err))
 	}
 
 	// Initialize the processing workflow.
@@ -110,8 +108,7 @@ func (svc *ingestImpl) AddSip(ctx context.Context, payload *goaingest.AddSipPayl
 				return svc.perSvc.DeleteSIP(cleanupCtx, s.UUID)
 			}),
 		)
-		svc.logger.Error(err, "add SIP")
-		return nil, ErrInternalError
+		return nil, goaingest.MakeInternalError(fmt.Errorf("start SIP processing workflow: %v", err))
 	}
 
 	PublishEvent(ctx, svc.evsvc, sipToCreatedEvent(s))
@@ -140,7 +137,7 @@ func (svc *ingestImpl) ListSips(ctx context.Context, payload *goaingest.ListSips
 
 	r, pg, err := svc.perSvc.ListSIPs(ctx, pf)
 	if err != nil {
-		return nil, goaingest.MakeInternalError(err)
+		return nil, goaingest.MakeInternalError(fmt.Errorf("list SIPs: %v", err))
 	}
 
 	items := make([]*goaingest.SIP, len(r))
@@ -170,7 +167,7 @@ func (svc *ingestImpl) ShowSip(
 	if err == persistence.ErrNotFound {
 		return nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP not found"}
 	} else if err != nil {
-		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
+		return nil, goaingest.MakeInternalError(fmt.Errorf("read SIP: %v", err))
 	}
 
 	return s.Goa(), nil
@@ -188,12 +185,12 @@ func (svc *ingestImpl) ListSipWorkflows(
 	if _, err := svc.perSvc.ReadSIP(ctx, sipUUID); err == persistence.ErrNotFound {
 		return nil, &goaingest.SIPNotFound{UUID: payload.UUID, Message: "SIP not found"}
 	} else if err != nil {
-		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
+		return nil, goaingest.MakeInternalError(fmt.Errorf("read SIP: %v", err))
 	}
 
 	workflows, err := svc.perSvc.ListWorkflowsBySIP(ctx, sipUUID)
 	if err != nil {
-		return nil, goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
+		return nil, goaingest.MakeInternalError(fmt.Errorf("list SIP workflows: %v", err))
 	}
 
 	result := &goaingest.SIPWorkflows{
@@ -218,7 +215,7 @@ func (svc *ingestImpl) ConfirmSip(ctx context.Context, payload *goaingest.Confir
 	}
 	err = svc.tc.SignalWorkflow(ctx, temporalID, "", ReviewPerformedSignalName, signal)
 	if err != nil {
-		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
+		return goaingest.MakeInternalError(fmt.Errorf("signal SIP confirmation: %v", err))
 	}
 
 	return nil
@@ -233,7 +230,7 @@ func (svc *ingestImpl) RejectSip(ctx context.Context, payload *goaingest.RejectS
 	signal := ReviewPerformedSignal{Accepted: false}
 	err = svc.tc.SignalWorkflow(ctx, temporalID, "", ReviewPerformedSignalName, signal)
 	if err != nil {
-		return goaingest.MakeNotAvailable(errors.New("cannot perform operation"))
+		return goaingest.MakeInternalError(fmt.Errorf("signal SIP rejection: %v", err))
 	}
 
 	return nil
@@ -286,12 +283,10 @@ func (svc *ingestImpl) SubmitSipDecision(
 		WaitForStage: temporalsdk_client.WorkflowUpdateStageCompleted,
 	})
 	if err != nil {
-		svc.logger.Error(err, "submit SIP decision: update workflow")
-		return ErrInternalError
+		return goaingest.MakeInternalError(fmt.Errorf("submit SIP decision update: %v", err))
 	}
 	if err := handle.Get(ctx, nil); err != nil {
-		svc.logger.Error(err, "submit SIP decision: update workflow result")
-		return ErrInternalError
+		return goaingest.MakeInternalError(fmt.Errorf("get SIP decision update result: %v", err))
 	}
 
 	return nil
@@ -315,14 +310,16 @@ func (svc *ingestImpl) pendingSIPWorkflowTemporalID(ctx context.Context, sipID s
 func (svc *ingestImpl) findChildDecision(ctx context.Context, temporalID string) (childwf.DecisionRequest, error) {
 	encoded, err := svc.tc.QueryWorkflow(ctx, temporalID, "", ChildDecisionQueryName)
 	if err != nil {
-		svc.logger.Error(err, "find child decision: query workflow", "workflow_id", temporalID)
-		return childwf.DecisionRequest{}, ErrInternalError
+		return childwf.DecisionRequest{}, goaingest.MakeInternalError(
+			fmt.Errorf("query child workflow decision %q: %v", temporalID, err),
+		)
 	}
 
 	var decision childwf.DecisionRequest
 	if err := encoded.Get(&decision); err != nil {
-		svc.logger.Error(err, "find child decision: decode query result", "workflow_id", temporalID)
-		return childwf.DecisionRequest{}, ErrInternalError
+		return childwf.DecisionRequest{}, goaingest.MakeInternalError(
+			fmt.Errorf("decode child workflow decision %q: %v", temporalID, err),
+		)
 	}
 	if decision.Message == "" {
 		return childwf.DecisionRequest{}, goaingest.MakeNotAvailable(
@@ -346,7 +343,7 @@ func (svc *ingestImpl) ListUsers(ctx context.Context, payload *goaingest.ListUse
 
 	r, pg, err := svc.perSvc.ListUsers(ctx, pf)
 	if err != nil {
-		return nil, goaingest.MakeInternalError(err)
+		return nil, goaingest.MakeInternalError(fmt.Errorf("list users: %v", err))
 	}
 
 	items := make([]*goaingest.User, len(r))
@@ -393,8 +390,7 @@ func (w *ingestImpl) ListSipSourceObjects(
 			return nil, goaingest.MakeNotValid(errors.New("invalid cursor"))
 		}
 
-		w.logger.Error(err, "Listing SIP source objects")
-		return nil, goaingest.MakeInternalError(errors.New("internal error"))
+		return nil, goaingest.MakeInternalError(fmt.Errorf("list SIP source objects: %v", err))
 	}
 
 	if page == nil {

@@ -228,9 +228,27 @@ type ListSipsNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// ShowSipNotAvailableResponseBody is the type of the "ingest" service
-// "show_sip" endpoint HTTP response body for the "not_available" error.
-type ShowSipNotAvailableResponseBody struct {
+// ListSipsInternalErrorResponseBody is the type of the "ingest" service
+// "list_sips" endpoint HTTP response body for the "internal_error" error.
+type ListSipsInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ShowSipInternalErrorResponseBody is the type of the "ingest" service
+// "show_sip" endpoint HTTP response body for the "internal_error" error.
+type ShowSipInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -253,6 +271,25 @@ type ShowSipNotFoundResponseBody struct {
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 	// Identifier of missing SIP
 	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
+}
+
+// ListSipWorkflowsInternalErrorResponseBody is the type of the "ingest"
+// service "list_sip_workflows" endpoint HTTP response body for the
+// "internal_error" error.
+type ListSipWorkflowsInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
 // ListSipWorkflowsNotFoundResponseBody is the type of the "ingest" service
@@ -285,6 +322,24 @@ type ConfirmSipNotAvailableResponseBody struct {
 // ConfirmSipNotValidResponseBody is the type of the "ingest" service
 // "confirm_sip" endpoint HTTP response body for the "not_valid" error.
 type ConfirmSipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ConfirmSipInternalErrorResponseBody is the type of the "ingest" service
+// "confirm_sip" endpoint HTTP response body for the "internal_error" error.
+type ConfirmSipInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -345,19 +400,9 @@ type RejectSipNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// RejectSipNotFoundResponseBody is the type of the "ingest" service
-// "reject_sip" endpoint HTTP response body for the "not_found" error.
-type RejectSipNotFoundResponseBody struct {
-	// Message of error
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Identifier of missing SIP
-	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
-}
-
-// ShowSipDecisionInternalErrorResponseBody is the type of the "ingest" service
-// "show_sip_decision" endpoint HTTP response body for the "internal_error"
-// error.
-type ShowSipDecisionInternalErrorResponseBody struct {
+// RejectSipInternalErrorResponseBody is the type of the "ingest" service
+// "reject_sip" endpoint HTTP response body for the "internal_error" error.
+type RejectSipInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -371,6 +416,15 @@ type ShowSipDecisionInternalErrorResponseBody struct {
 	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
 	// Is the error a server-side fault?
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// RejectSipNotFoundResponseBody is the type of the "ingest" service
+// "reject_sip" endpoint HTTP response body for the "not_found" error.
+type RejectSipNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing SIP
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // ShowSipDecisionNotAvailableResponseBody is the type of the "ingest" service
@@ -410,19 +464,10 @@ type ShowSipDecisionNotValidResponseBody struct {
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
 }
 
-// ShowSipDecisionNotFoundResponseBody is the type of the "ingest" service
-// "show_sip_decision" endpoint HTTP response body for the "not_found" error.
-type ShowSipDecisionNotFoundResponseBody struct {
-	// Message of error
-	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
-	// Identifier of missing SIP
-	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
-}
-
-// SubmitSipDecisionInternalErrorResponseBody is the type of the "ingest"
-// service "submit_sip_decision" endpoint HTTP response body for the
-// "internal_error" error.
-type SubmitSipDecisionInternalErrorResponseBody struct {
+// ShowSipDecisionInternalErrorResponseBody is the type of the "ingest" service
+// "show_sip_decision" endpoint HTTP response body for the "internal_error"
+// error.
+type ShowSipDecisionInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -436,6 +481,15 @@ type SubmitSipDecisionInternalErrorResponseBody struct {
 	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
 	// Is the error a server-side fault?
 	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ShowSipDecisionNotFoundResponseBody is the type of the "ingest" service
+// "show_sip_decision" endpoint HTTP response body for the "not_found" error.
+type ShowSipDecisionNotFoundResponseBody struct {
+	// Message of error
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Identifier of missing SIP
+	UUID *string `form:"uuid,omitempty" json:"uuid,omitempty" xml:"uuid,omitempty"`
 }
 
 // SubmitSipDecisionNotAvailableResponseBody is the type of the "ingest"
@@ -460,6 +514,25 @@ type SubmitSipDecisionNotAvailableResponseBody struct {
 // SubmitSipDecisionNotValidResponseBody is the type of the "ingest" service
 // "submit_sip_decision" endpoint HTTP response body for the "not_valid" error.
 type SubmitSipDecisionNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// SubmitSipDecisionInternalErrorResponseBody is the type of the "ingest"
+// service "submit_sip_decision" endpoint HTTP response body for the
+// "internal_error" error.
+type SubmitSipDecisionInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -669,6 +742,24 @@ type DownloadSipNotFoundResponseBody struct {
 // ListUsersNotValidResponseBody is the type of the "ingest" service
 // "list_users" endpoint HTTP response body for the "not_valid" error.
 type ListUsersNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID *string `form:"id,omitempty" json:"id,omitempty" xml:"id,omitempty"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+	// Is the error temporary?
+	Temporary *bool `form:"temporary,omitempty" json:"temporary,omitempty" xml:"temporary,omitempty"`
+	// Is the error a timeout?
+	Timeout *bool `form:"timeout,omitempty" json:"timeout,omitempty" xml:"timeout,omitempty"`
+	// Is the error a server-side fault?
+	Fault *bool `form:"fault,omitempty" json:"fault,omitempty" xml:"fault,omitempty"`
+}
+
+// ListUsersInternalErrorResponseBody is the type of the "ingest" service
+// "list_users" endpoint HTTP response body for the "internal_error" error.
+type ListUsersInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -1808,6 +1899,21 @@ func NewListSipsNotValid(body *ListSipsNotValidResponseBody) *goa.ServiceError {
 	return v
 }
 
+// NewListSipsInternalError builds a ingest service list_sips endpoint
+// internal_error error.
+func NewListSipsInternalError(body *ListSipsInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
 // NewListSipsForbidden builds a ingest service list_sips endpoint forbidden
 // error.
 func NewListSipsForbidden(body string) ingest.Forbidden {
@@ -1849,9 +1955,9 @@ func NewShowSipSIPOK(body *ShowSipResponseBody) *ingestviews.SIPView {
 	return v
 }
 
-// NewShowSipNotAvailable builds a ingest service show_sip endpoint
-// not_available error.
-func NewShowSipNotAvailable(body *ShowSipNotAvailableResponseBody) *goa.ServiceError {
+// NewShowSipInternalError builds a ingest service show_sip endpoint
+// internal_error error.
+func NewShowSipInternalError(body *ShowSipInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -1908,6 +2014,21 @@ func NewListSipWorkflowsSIPWorkflowsOK(body *ListSipWorkflowsResponseBody) *inge
 	return v
 }
 
+// NewListSipWorkflowsInternalError builds a ingest service list_sip_workflows
+// endpoint internal_error error.
+func NewListSipWorkflowsInternalError(body *ListSipWorkflowsInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
 // NewListSipWorkflowsNotFound builds a ingest service list_sip_workflows
 // endpoint not_found error.
 func NewListSipWorkflowsNotFound(body *ListSipWorkflowsNotFoundResponseBody) *ingest.SIPNotFound {
@@ -1953,6 +2074,21 @@ func NewConfirmSipNotAvailable(body *ConfirmSipNotAvailableResponseBody) *goa.Se
 // NewConfirmSipNotValid builds a ingest service confirm_sip endpoint not_valid
 // error.
 func NewConfirmSipNotValid(body *ConfirmSipNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewConfirmSipInternalError builds a ingest service confirm_sip endpoint
+// internal_error error.
+func NewConfirmSipInternalError(body *ConfirmSipInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -2022,6 +2158,21 @@ func NewRejectSipNotValid(body *RejectSipNotValidResponseBody) *goa.ServiceError
 	return v
 }
 
+// NewRejectSipInternalError builds a ingest service reject_sip endpoint
+// internal_error error.
+func NewRejectSipInternalError(body *RejectSipInternalErrorResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
 // NewRejectSipNotFound builds a ingest service reject_sip endpoint not_found
 // error.
 func NewRejectSipNotFound(body *RejectSipNotFoundResponseBody) *ingest.SIPNotFound {
@@ -2063,21 +2214,6 @@ func NewShowSipDecisionSIPDecisionOK(body *ShowSipDecisionResponseBody) *ingestv
 	return v
 }
 
-// NewShowSipDecisionInternalError builds a ingest service show_sip_decision
-// endpoint internal_error error.
-func NewShowSipDecisionInternalError(body *ShowSipDecisionInternalErrorResponseBody) *goa.ServiceError {
-	v := &goa.ServiceError{
-		Name:      *body.Name,
-		ID:        *body.ID,
-		Message:   *body.Message,
-		Temporary: *body.Temporary,
-		Timeout:   *body.Timeout,
-		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
 // NewShowSipDecisionNotAvailable builds a ingest service show_sip_decision
 // endpoint not_available error.
 func NewShowSipDecisionNotAvailable(body *ShowSipDecisionNotAvailableResponseBody) *goa.ServiceError {
@@ -2096,6 +2232,21 @@ func NewShowSipDecisionNotAvailable(body *ShowSipDecisionNotAvailableResponseBod
 // NewShowSipDecisionNotValid builds a ingest service show_sip_decision
 // endpoint not_valid error.
 func NewShowSipDecisionNotValid(body *ShowSipDecisionNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewShowSipDecisionInternalError builds a ingest service show_sip_decision
+// endpoint internal_error error.
+func NewShowSipDecisionInternalError(body *ShowSipDecisionInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -2135,21 +2286,6 @@ func NewShowSipDecisionUnauthorized(body string) ingest.Unauthorized {
 	return v
 }
 
-// NewSubmitSipDecisionInternalError builds a ingest service
-// submit_sip_decision endpoint internal_error error.
-func NewSubmitSipDecisionInternalError(body *SubmitSipDecisionInternalErrorResponseBody) *goa.ServiceError {
-	v := &goa.ServiceError{
-		Name:      *body.Name,
-		ID:        *body.ID,
-		Message:   *body.Message,
-		Temporary: *body.Temporary,
-		Timeout:   *body.Timeout,
-		Fault:     *body.Fault,
-	}
-
-	return v
-}
-
 // NewSubmitSipDecisionNotAvailable builds a ingest service submit_sip_decision
 // endpoint not_available error.
 func NewSubmitSipDecisionNotAvailable(body *SubmitSipDecisionNotAvailableResponseBody) *goa.ServiceError {
@@ -2168,6 +2304,21 @@ func NewSubmitSipDecisionNotAvailable(body *SubmitSipDecisionNotAvailableRespons
 // NewSubmitSipDecisionNotValid builds a ingest service submit_sip_decision
 // endpoint not_valid error.
 func NewSubmitSipDecisionNotValid(body *SubmitSipDecisionNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewSubmitSipDecisionInternalError builds a ingest service
+// submit_sip_decision endpoint internal_error error.
+func NewSubmitSipDecisionInternalError(body *SubmitSipDecisionInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -2486,6 +2637,21 @@ func NewListUsersUsersOK(body *ListUsersResponseBody) *ingestviews.UsersView {
 // NewListUsersNotValid builds a ingest service list_users endpoint not_valid
 // error.
 func NewListUsersNotValid(body *ListUsersNotValidResponseBody) *goa.ServiceError {
+	v := &goa.ServiceError{
+		Name:      *body.Name,
+		ID:        *body.ID,
+		Message:   *body.Message,
+		Temporary: *body.Temporary,
+		Timeout:   *body.Timeout,
+		Fault:     *body.Fault,
+	}
+
+	return v
+}
+
+// NewListUsersInternalError builds a ingest service list_users endpoint
+// internal_error error.
+func NewListUsersInternalError(body *ListUsersInternalErrorResponseBody) *goa.ServiceError {
 	v := &goa.ServiceError{
 		Name:      *body.Name,
 		ID:        *body.ID,
@@ -3004,9 +3170,33 @@ func ValidateListSipsNotValidResponseBody(body *ListSipsNotValidResponseBody) (e
 	return
 }
 
-// ValidateShowSipNotAvailableResponseBody runs the validations defined on
-// show_sip_not_available_response_body
-func ValidateShowSipNotAvailableResponseBody(body *ShowSipNotAvailableResponseBody) (err error) {
+// ValidateListSipsInternalErrorResponseBody runs the validations defined on
+// list_sips_internal_error_response_body
+func ValidateListSipsInternalErrorResponseBody(body *ListSipsInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateShowSipInternalErrorResponseBody runs the validations defined on
+// show_sip_internal_error_response_body
+func ValidateShowSipInternalErrorResponseBody(body *ShowSipInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -3039,6 +3229,30 @@ func ValidateShowSipNotFoundResponseBody(body *ShowSipNotFoundResponseBody) (err
 	}
 	if body.UUID != nil {
 		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
+	}
+	return
+}
+
+// ValidateListSipWorkflowsInternalErrorResponseBody runs the validations
+// defined on list_sip_workflows_internal_error_response_body
+func ValidateListSipWorkflowsInternalErrorResponseBody(body *ListSipWorkflowsInternalErrorResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
 	}
 	return
 }
@@ -3085,6 +3299,30 @@ func ValidateConfirmSipNotAvailableResponseBody(body *ConfirmSipNotAvailableResp
 // ValidateConfirmSipNotValidResponseBody runs the validations defined on
 // confirm_sip_not_valid_response_body
 func ValidateConfirmSipNotValidResponseBody(body *ConfirmSipNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateConfirmSipInternalErrorResponseBody runs the validations defined on
+// confirm_sip_internal_error_response_body
+func ValidateConfirmSipInternalErrorResponseBody(body *ConfirmSipInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -3169,24 +3407,9 @@ func ValidateRejectSipNotValidResponseBody(body *RejectSipNotValidResponseBody) 
 	return
 }
 
-// ValidateRejectSipNotFoundResponseBody runs the validations defined on
-// reject_sip_not_found_response_body
-func ValidateRejectSipNotFoundResponseBody(body *RejectSipNotFoundResponseBody) (err error) {
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.UUID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
-	}
-	if body.UUID != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
-	}
-	return
-}
-
-// ValidateShowSipDecisionInternalErrorResponseBody runs the validations
-// defined on show_sip_decision_internal_error_response_body
-func ValidateShowSipDecisionInternalErrorResponseBody(body *ShowSipDecisionInternalErrorResponseBody) (err error) {
+// ValidateRejectSipInternalErrorResponseBody runs the validations defined on
+// reject_sip_internal_error_response_body
+func ValidateRejectSipInternalErrorResponseBody(body *RejectSipInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -3204,6 +3427,21 @@ func ValidateShowSipDecisionInternalErrorResponseBody(body *ShowSipDecisionInter
 	}
 	if body.Fault == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateRejectSipNotFoundResponseBody runs the validations defined on
+// reject_sip_not_found_response_body
+func ValidateRejectSipNotFoundResponseBody(body *RejectSipNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.UUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
 	}
 	return
 }
@@ -3256,24 +3494,9 @@ func ValidateShowSipDecisionNotValidResponseBody(body *ShowSipDecisionNotValidRe
 	return
 }
 
-// ValidateShowSipDecisionNotFoundResponseBody runs the validations defined on
-// show_sip_decision_not_found_response_body
-func ValidateShowSipDecisionNotFoundResponseBody(body *ShowSipDecisionNotFoundResponseBody) (err error) {
-	if body.Message == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
-	}
-	if body.UUID == nil {
-		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
-	}
-	if body.UUID != nil {
-		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
-	}
-	return
-}
-
-// ValidateSubmitSipDecisionInternalErrorResponseBody runs the validations
-// defined on submit_sip_decision_internal_error_response_body
-func ValidateSubmitSipDecisionInternalErrorResponseBody(body *SubmitSipDecisionInternalErrorResponseBody) (err error) {
+// ValidateShowSipDecisionInternalErrorResponseBody runs the validations
+// defined on show_sip_decision_internal_error_response_body
+func ValidateShowSipDecisionInternalErrorResponseBody(body *ShowSipDecisionInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -3291,6 +3514,21 @@ func ValidateSubmitSipDecisionInternalErrorResponseBody(body *SubmitSipDecisionI
 	}
 	if body.Fault == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateShowSipDecisionNotFoundResponseBody runs the validations defined on
+// show_sip_decision_not_found_response_body
+func ValidateShowSipDecisionNotFoundResponseBody(body *ShowSipDecisionNotFoundResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.UUID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("uuid", "body"))
+	}
+	if body.UUID != nil {
+		err = goa.MergeErrors(err, goa.ValidateFormat("body.uuid", *body.UUID, goa.FormatUUID))
 	}
 	return
 }
@@ -3322,6 +3560,30 @@ func ValidateSubmitSipDecisionNotAvailableResponseBody(body *SubmitSipDecisionNo
 // ValidateSubmitSipDecisionNotValidResponseBody runs the validations defined
 // on submit_sip_decision_not_valid_response_body
 func ValidateSubmitSipDecisionNotValidResponseBody(body *SubmitSipDecisionNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateSubmitSipDecisionInternalErrorResponseBody runs the validations
+// defined on submit_sip_decision_internal_error_response_body
+func ValidateSubmitSipDecisionInternalErrorResponseBody(body *SubmitSipDecisionInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}
@@ -3607,6 +3869,30 @@ func ValidateDownloadSipNotFoundResponseBody(body *DownloadSipNotFoundResponseBo
 // ValidateListUsersNotValidResponseBody runs the validations defined on
 // list_users_not_valid_response_body
 func ValidateListUsersNotValidResponseBody(body *ListUsersNotValidResponseBody) (err error) {
+	if body.Name == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
+	}
+	if body.ID == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("id", "body"))
+	}
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	if body.Temporary == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("temporary", "body"))
+	}
+	if body.Timeout == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timeout", "body"))
+	}
+	if body.Fault == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("fault", "body"))
+	}
+	return
+}
+
+// ValidateListUsersInternalErrorResponseBody runs the validations defined on
+// list_users_internal_error_response_body
+func ValidateListUsersInternalErrorResponseBody(body *ListUsersInternalErrorResponseBody) (err error) {
 	if body.Name == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("name", "body"))
 	}

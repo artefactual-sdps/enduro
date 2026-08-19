@@ -20,6 +20,7 @@ import (
 // next to complete the request.
 type ServerInterceptors interface {
 	OperationTimeout(ctx context.Context, info *OperationTimeoutInfo, next goa.Endpoint) (any, error)
+	ServerErrorHandler(ctx context.Context, info *ServerErrorHandlerInfo, next goa.Endpoint) (any, error)
 }
 
 // Access interfaces for interceptor payloads and results
@@ -32,6 +33,14 @@ type (
 		callType   goa.InterceptorCallType
 		rawPayload any
 	}
+	// ServerErrorHandlerInfo provides metadata about the current interception.
+	// It includes service name, method name, and access to the endpoint.
+	ServerErrorHandlerInfo struct {
+		service    string
+		method     string
+		callType   goa.InterceptorCallType
+		rawPayload any
+	}
 )
 
 // WrapMonitorEndpoint wraps the monitor endpoint with the server-side
@@ -39,6 +48,7 @@ type (
 func WrapMonitorEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapMonitorOperationTimeout(endpoint, i)
+		endpoint = wrapMonitorServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -48,6 +58,7 @@ func WrapMonitorEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoi
 func WrapListAipsEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapListAipsOperationTimeout(endpoint, i)
+		endpoint = wrapListAipsServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -57,6 +68,7 @@ func WrapListAipsEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpo
 func WrapCreateAipEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapCreateAipOperationTimeout(endpoint, i)
+		endpoint = wrapCreateAipServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -66,6 +78,7 @@ func WrapCreateAipEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endp
 func WrapDownloadAipRequestEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapDownloadAipRequestOperationTimeout(endpoint, i)
+		endpoint = wrapDownloadAipRequestServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -75,6 +88,7 @@ func WrapDownloadAipRequestEndpoint(endpoint goa.Endpoint, i ServerInterceptors)
 func WrapDownloadAipEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapDownloadAipOperationTimeout(endpoint, i)
+		endpoint = wrapDownloadAipServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -84,6 +98,7 @@ func WrapDownloadAipEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.En
 func WrapMoveAipEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapMoveAipOperationTimeout(endpoint, i)
+		endpoint = wrapMoveAipServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -93,6 +108,7 @@ func WrapMoveAipEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoi
 func WrapMoveAipStatusEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapMoveAipStatusOperationTimeout(endpoint, i)
+		endpoint = wrapMoveAipStatusServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -102,6 +118,7 @@ func WrapMoveAipStatusEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.
 func WrapRejectAipEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapRejectAipOperationTimeout(endpoint, i)
+		endpoint = wrapRejectAipServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -111,6 +128,7 @@ func WrapRejectAipEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endp
 func WrapShowAipEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapShowAipOperationTimeout(endpoint, i)
+		endpoint = wrapShowAipServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -120,6 +138,7 @@ func WrapShowAipEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoi
 func WrapListAipWorkflowsEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapListAipWorkflowsOperationTimeout(endpoint, i)
+		endpoint = wrapListAipWorkflowsServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -129,6 +148,7 @@ func WrapListAipWorkflowsEndpoint(endpoint goa.Endpoint, i ServerInterceptors) g
 func WrapAipDeletionAutoEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapAipDeletionAutoOperationTimeout(endpoint, i)
+		endpoint = wrapAipDeletionAutoServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -138,6 +158,7 @@ func WrapAipDeletionAutoEndpoint(endpoint goa.Endpoint, i ServerInterceptors) go
 func WrapRequestAipDeletionEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapRequestAipDeletionOperationTimeout(endpoint, i)
+		endpoint = wrapRequestAipDeletionServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -147,6 +168,7 @@ func WrapRequestAipDeletionEndpoint(endpoint goa.Endpoint, i ServerInterceptors)
 func WrapReviewAipDeletionEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapReviewAipDeletionOperationTimeout(endpoint, i)
+		endpoint = wrapReviewAipDeletionServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -156,6 +178,7 @@ func WrapReviewAipDeletionEndpoint(endpoint goa.Endpoint, i ServerInterceptors) 
 func WrapCancelAipDeletionEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapCancelAipDeletionOperationTimeout(endpoint, i)
+		endpoint = wrapCancelAipDeletionServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -165,6 +188,7 @@ func WrapCancelAipDeletionEndpoint(endpoint goa.Endpoint, i ServerInterceptors) 
 func WrapAipDeletionReportRequestEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapAipDeletionReportRequestOperationTimeout(endpoint, i)
+		endpoint = wrapAipDeletionReportRequestServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -174,6 +198,7 @@ func WrapAipDeletionReportRequestEndpoint(endpoint goa.Endpoint, i ServerInterce
 func WrapAipDeletionReportEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapAipDeletionReportOperationTimeout(endpoint, i)
+		endpoint = wrapAipDeletionReportServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -183,6 +208,7 @@ func WrapAipDeletionReportEndpoint(endpoint goa.Endpoint, i ServerInterceptors) 
 func WrapListLocationsEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapListLocationsOperationTimeout(endpoint, i)
+		endpoint = wrapListLocationsServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -192,6 +218,7 @@ func WrapListLocationsEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.
 func WrapCreateLocationEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapCreateLocationOperationTimeout(endpoint, i)
+		endpoint = wrapCreateLocationServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -201,6 +228,7 @@ func WrapCreateLocationEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa
 func WrapShowLocationEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapShowLocationOperationTimeout(endpoint, i)
+		endpoint = wrapShowLocationServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -210,6 +238,7 @@ func WrapShowLocationEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.E
 func WrapListLocationAipsEndpoint(endpoint goa.Endpoint, i ServerInterceptors) goa.Endpoint {
 	if i != nil {
 		endpoint = wrapListLocationAipsOperationTimeout(endpoint, i)
+		endpoint = wrapListLocationAipsServerErrorHandler(endpoint, i)
 	}
 	return endpoint
 }
@@ -233,5 +262,25 @@ func (info *OperationTimeoutInfo) CallType() goa.InterceptorCallType {
 
 // RawPayload returns the raw payload of the request.
 func (info *OperationTimeoutInfo) RawPayload() any {
+	return info.rawPayload
+}
+
+// Service returns the name of the service handling the request.
+func (info *ServerErrorHandlerInfo) Service() string {
+	return info.service
+}
+
+// Method returns the name of the method handling the request.
+func (info *ServerErrorHandlerInfo) Method() string {
+	return info.method
+}
+
+// CallType returns the type of call the interceptor is handling.
+func (info *ServerErrorHandlerInfo) CallType() goa.InterceptorCallType {
+	return info.callType
+}
+
+// RawPayload returns the raw payload of the request.
+func (info *ServerErrorHandlerInfo) RawPayload() any {
 	return info.rawPayload
 }

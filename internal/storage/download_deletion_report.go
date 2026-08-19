@@ -38,12 +38,12 @@ func deletionReportReader(
 
 	loc, err := s.Location(ctx, uuid.Nil)
 	if err != nil {
-		return nil, "", err
+		return nil, "", goastorage.MakeInternalError(fmt.Errorf("get deletion report location: %v", err))
 	}
 
 	b, err := loc.OpenBucket(ctx)
 	if err != nil {
-		return nil, "", err
+		return nil, "", goastorage.MakeInternalError(fmt.Errorf("open deletion report bucket: %v", err))
 	}
 
 	r, err = b.NewReader(ctx, *aip.DeletionReportKey, nil)
@@ -51,7 +51,7 @@ func deletionReportReader(
 		if gcerrors.Code(err) == gcerrors.NotFound {
 			return nil, "", goastorage.MakeNotFound(errors.New("deletion report not found"))
 		} else {
-			return nil, "", goastorage.MakeInternalError(errors.New("error reading deletion report"))
+			return nil, "", goastorage.MakeInternalError(fmt.Errorf("read deletion report: %v", err))
 		}
 	}
 	return r, *aip.DeletionReportKey, nil
@@ -67,7 +67,9 @@ func (s *serviceImpl) AipDeletionReportRequest(
 	if err != nil {
 		return nil, err
 	}
-	r.Close()
+	if err := r.Close(); err != nil {
+		return nil, goastorage.MakeInternalError(fmt.Errorf("close deletion report reader: %v", err))
+	}
 
 	// Request a ticket.
 	ticket, err := s.ticketProvider.Request(ctx, auth.NewTicketGrant(
@@ -75,7 +77,7 @@ func (s *serviceImpl) AipDeletionReportRequest(
 		payload.UUID,
 	))
 	if err != nil {
-		return nil, goastorage.MakeInternalError(errors.New("ticket request failed"))
+		return nil, goastorage.MakeInternalError(fmt.Errorf("request deletion report ticket: %v", err))
 	}
 
 	res := &goastorage.AipDeletionReportRequestResult{}

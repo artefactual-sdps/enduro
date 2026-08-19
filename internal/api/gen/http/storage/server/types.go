@@ -184,24 +184,6 @@ type MonitorInternalErrorResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// ListAipsNotAvailableResponseBody is the type of the "storage" service
-// "list_aips" endpoint HTTP response body for the "not_available" error.
-type ListAipsNotAvailableResponseBody struct {
-	// Name is the name of this class of errors.
-	Name string `form:"name" json:"name" xml:"name"`
-	// ID is a unique identifier for this particular occurrence of the problem.
-	ID string `form:"id" json:"id" xml:"id"`
-	// Message is a human-readable explanation specific to this occurrence of the
-	// problem.
-	Message string `form:"message" json:"message" xml:"message"`
-	// Is the error temporary?
-	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
-	// Is the error a timeout?
-	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
-	// Is the error a server-side fault?
-	Fault bool `form:"fault" json:"fault" xml:"fault"`
-}
-
 // ListAipsNotValidResponseBody is the type of the "storage" service
 // "list_aips" endpoint HTTP response body for the "not_valid" error.
 type ListAipsNotValidResponseBody struct {
@@ -220,9 +202,45 @@ type ListAipsNotValidResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// ListAipsInternalErrorResponseBody is the type of the "storage" service
+// "list_aips" endpoint HTTP response body for the "internal_error" error.
+type ListAipsInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // CreateAipNotValidResponseBody is the type of the "storage" service
 // "create_aip" endpoint HTTP response body for the "not_valid" error.
 type CreateAipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// CreateAipInternalErrorResponseBody is the type of the "storage" service
+// "create_aip" endpoint HTTP response body for the "internal_error" error.
+type CreateAipInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -329,9 +347,9 @@ type DownloadAipNotFoundResponseBody struct {
 	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
-// MoveAipNotAvailableResponseBody is the type of the "storage" service
-// "move_aip" endpoint HTTP response body for the "not_available" error.
-type MoveAipNotAvailableResponseBody struct {
+// MoveAipNotValidResponseBody is the type of the "storage" service "move_aip"
+// endpoint HTTP response body for the "not_valid" error.
+type MoveAipNotValidResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -347,9 +365,9 @@ type MoveAipNotAvailableResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// MoveAipNotValidResponseBody is the type of the "storage" service "move_aip"
-// endpoint HTTP response body for the "not_valid" error.
-type MoveAipNotValidResponseBody struct {
+// MoveAipInternalErrorResponseBody is the type of the "storage" service
+// "move_aip" endpoint HTTP response body for the "internal_error" error.
+type MoveAipInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -393,18 +411,9 @@ type MoveAipStatusFailedDependencyResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
-// MoveAipStatusNotFoundResponseBody is the type of the "storage" service
-// "move_aip_status" endpoint HTTP response body for the "not_found" error.
-type MoveAipStatusNotFoundResponseBody struct {
-	// Message of error
-	Message string `form:"message" json:"message" xml:"message"`
-	// Identifier of missing AIP
-	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
-}
-
-// RejectAipNotAvailableResponseBody is the type of the "storage" service
-// "reject_aip" endpoint HTTP response body for the "not_available" error.
-type RejectAipNotAvailableResponseBody struct {
+// MoveAipStatusInternalErrorResponseBody is the type of the "storage" service
+// "move_aip_status" endpoint HTTP response body for the "internal_error" error.
+type MoveAipStatusInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -420,9 +429,36 @@ type RejectAipNotAvailableResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// MoveAipStatusNotFoundResponseBody is the type of the "storage" service
+// "move_aip_status" endpoint HTTP response body for the "not_found" error.
+type MoveAipStatusNotFoundResponseBody struct {
+	// Message of error
+	Message string `form:"message" json:"message" xml:"message"`
+	// Identifier of missing AIP
+	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
 // RejectAipNotValidResponseBody is the type of the "storage" service
 // "reject_aip" endpoint HTTP response body for the "not_valid" error.
 type RejectAipNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// RejectAipInternalErrorResponseBody is the type of the "storage" service
+// "reject_aip" endpoint HTTP response body for the "internal_error" error.
+type RejectAipInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -447,6 +483,24 @@ type RejectAipNotFoundResponseBody struct {
 	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
 }
 
+// ShowAipInternalErrorResponseBody is the type of the "storage" service
+// "show_aip" endpoint HTTP response body for the "internal_error" error.
+type ShowAipInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // ShowAipNotFoundResponseBody is the type of the "storage" service "show_aip"
 // endpoint HTTP response body for the "not_found" error.
 type ShowAipNotFoundResponseBody struct {
@@ -454,6 +508,25 @@ type ShowAipNotFoundResponseBody struct {
 	Message string `form:"message" json:"message" xml:"message"`
 	// Identifier of missing AIP
 	UUID uuid.UUID `form:"uuid" json:"uuid" xml:"uuid"`
+}
+
+// ListAipWorkflowsInternalErrorResponseBody is the type of the "storage"
+// service "list_aip_workflows" endpoint HTTP response body for the
+// "internal_error" error.
+type ListAipWorkflowsInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
 // ListAipWorkflowsNotFoundResponseBody is the type of the "storage" service
@@ -761,9 +834,63 @@ type AipDeletionReportInternalErrorResponseBody struct {
 	Fault bool `form:"fault" json:"fault" xml:"fault"`
 }
 
+// ListLocationsInternalErrorResponseBody is the type of the "storage" service
+// "list_locations" endpoint HTTP response body for the "internal_error" error.
+type ListLocationsInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
 // CreateLocationNotValidResponseBody is the type of the "storage" service
 // "create_location" endpoint HTTP response body for the "not_valid" error.
 type CreateLocationNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// CreateLocationInternalErrorResponseBody is the type of the "storage" service
+// "create_location" endpoint HTTP response body for the "internal_error" error.
+type CreateLocationInternalErrorResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ShowLocationInternalErrorResponseBody is the type of the "storage" service
+// "show_location" endpoint HTTP response body for the "internal_error" error.
+type ShowLocationInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -790,6 +917,25 @@ type ShowLocationNotFoundResponseBody struct {
 // ListLocationAipsNotValidResponseBody is the type of the "storage" service
 // "list_location_aips" endpoint HTTP response body for the "not_valid" error.
 type ListLocationAipsNotValidResponseBody struct {
+	// Name is the name of this class of errors.
+	Name string `form:"name" json:"name" xml:"name"`
+	// ID is a unique identifier for this particular occurrence of the problem.
+	ID string `form:"id" json:"id" xml:"id"`
+	// Message is a human-readable explanation specific to this occurrence of the
+	// problem.
+	Message string `form:"message" json:"message" xml:"message"`
+	// Is the error temporary?
+	Temporary bool `form:"temporary" json:"temporary" xml:"temporary"`
+	// Is the error a timeout?
+	Timeout bool `form:"timeout" json:"timeout" xml:"timeout"`
+	// Is the error a server-side fault?
+	Fault bool `form:"fault" json:"fault" xml:"fault"`
+}
+
+// ListLocationAipsInternalErrorResponseBody is the type of the "storage"
+// service "list_location_aips" endpoint HTTP response body for the
+// "internal_error" error.
+type ListLocationAipsInternalErrorResponseBody struct {
 	// Name is the name of this class of errors.
 	Name string `form:"name" json:"name" xml:"name"`
 	// ID is a unique identifier for this particular occurrence of the problem.
@@ -2261,20 +2407,6 @@ func NewMonitorInternalErrorResponseBody(res *goa.ServiceError) *MonitorInternal
 	return body
 }
 
-// NewListAipsNotAvailableResponseBody builds the HTTP response body from the
-// result of the "list_aips" endpoint of the "storage" service.
-func NewListAipsNotAvailableResponseBody(res *goa.ServiceError) *ListAipsNotAvailableResponseBody {
-	body := &ListAipsNotAvailableResponseBody{
-		Name:      res.Name,
-		ID:        res.ID,
-		Message:   res.Message,
-		Temporary: res.Temporary,
-		Timeout:   res.Timeout,
-		Fault:     res.Fault,
-	}
-	return body
-}
-
 // NewListAipsNotValidResponseBody builds the HTTP response body from the
 // result of the "list_aips" endpoint of the "storage" service.
 func NewListAipsNotValidResponseBody(res *goa.ServiceError) *ListAipsNotValidResponseBody {
@@ -2289,10 +2421,38 @@ func NewListAipsNotValidResponseBody(res *goa.ServiceError) *ListAipsNotValidRes
 	return body
 }
 
+// NewListAipsInternalErrorResponseBody builds the HTTP response body from the
+// result of the "list_aips" endpoint of the "storage" service.
+func NewListAipsInternalErrorResponseBody(res *goa.ServiceError) *ListAipsInternalErrorResponseBody {
+	body := &ListAipsInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewCreateAipNotValidResponseBody builds the HTTP response body from the
 // result of the "create_aip" endpoint of the "storage" service.
 func NewCreateAipNotValidResponseBody(res *goa.ServiceError) *CreateAipNotValidResponseBody {
 	body := &CreateAipNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewCreateAipInternalErrorResponseBody builds the HTTP response body from the
+// result of the "create_aip" endpoint of the "storage" service.
+func NewCreateAipInternalErrorResponseBody(res *goa.ServiceError) *CreateAipInternalErrorResponseBody {
+	body := &CreateAipInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -2380,10 +2540,10 @@ func NewDownloadAipNotFoundResponseBody(res *storage.AIPNotFound) *DownloadAipNo
 	return body
 }
 
-// NewMoveAipNotAvailableResponseBody builds the HTTP response body from the
-// result of the "move_aip" endpoint of the "storage" service.
-func NewMoveAipNotAvailableResponseBody(res *goa.ServiceError) *MoveAipNotAvailableResponseBody {
-	body := &MoveAipNotAvailableResponseBody{
+// NewMoveAipNotValidResponseBody builds the HTTP response body from the result
+// of the "move_aip" endpoint of the "storage" service.
+func NewMoveAipNotValidResponseBody(res *goa.ServiceError) *MoveAipNotValidResponseBody {
+	body := &MoveAipNotValidResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -2394,10 +2554,10 @@ func NewMoveAipNotAvailableResponseBody(res *goa.ServiceError) *MoveAipNotAvaila
 	return body
 }
 
-// NewMoveAipNotValidResponseBody builds the HTTP response body from the result
-// of the "move_aip" endpoint of the "storage" service.
-func NewMoveAipNotValidResponseBody(res *goa.ServiceError) *MoveAipNotValidResponseBody {
-	body := &MoveAipNotValidResponseBody{
+// NewMoveAipInternalErrorResponseBody builds the HTTP response body from the
+// result of the "move_aip" endpoint of the "storage" service.
+func NewMoveAipInternalErrorResponseBody(res *goa.ServiceError) *MoveAipInternalErrorResponseBody {
+	body := &MoveAipInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -2432,20 +2592,10 @@ func NewMoveAipStatusFailedDependencyResponseBody(res *goa.ServiceError) *MoveAi
 	return body
 }
 
-// NewMoveAipStatusNotFoundResponseBody builds the HTTP response body from the
-// result of the "move_aip_status" endpoint of the "storage" service.
-func NewMoveAipStatusNotFoundResponseBody(res *storage.AIPNotFound) *MoveAipStatusNotFoundResponseBody {
-	body := &MoveAipStatusNotFoundResponseBody{
-		Message: res.Message,
-		UUID:    res.UUID,
-	}
-	return body
-}
-
-// NewRejectAipNotAvailableResponseBody builds the HTTP response body from the
-// result of the "reject_aip" endpoint of the "storage" service.
-func NewRejectAipNotAvailableResponseBody(res *goa.ServiceError) *RejectAipNotAvailableResponseBody {
-	body := &RejectAipNotAvailableResponseBody{
+// NewMoveAipStatusInternalErrorResponseBody builds the HTTP response body from
+// the result of the "move_aip_status" endpoint of the "storage" service.
+func NewMoveAipStatusInternalErrorResponseBody(res *goa.ServiceError) *MoveAipStatusInternalErrorResponseBody {
+	body := &MoveAipStatusInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -2456,10 +2606,34 @@ func NewRejectAipNotAvailableResponseBody(res *goa.ServiceError) *RejectAipNotAv
 	return body
 }
 
+// NewMoveAipStatusNotFoundResponseBody builds the HTTP response body from the
+// result of the "move_aip_status" endpoint of the "storage" service.
+func NewMoveAipStatusNotFoundResponseBody(res *storage.AIPNotFound) *MoveAipStatusNotFoundResponseBody {
+	body := &MoveAipStatusNotFoundResponseBody{
+		Message: res.Message,
+		UUID:    res.UUID,
+	}
+	return body
+}
+
 // NewRejectAipNotValidResponseBody builds the HTTP response body from the
 // result of the "reject_aip" endpoint of the "storage" service.
 func NewRejectAipNotValidResponseBody(res *goa.ServiceError) *RejectAipNotValidResponseBody {
 	body := &RejectAipNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewRejectAipInternalErrorResponseBody builds the HTTP response body from the
+// result of the "reject_aip" endpoint of the "storage" service.
+func NewRejectAipInternalErrorResponseBody(res *goa.ServiceError) *RejectAipInternalErrorResponseBody {
+	body := &RejectAipInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -2480,12 +2654,41 @@ func NewRejectAipNotFoundResponseBody(res *storage.AIPNotFound) *RejectAipNotFou
 	return body
 }
 
+// NewShowAipInternalErrorResponseBody builds the HTTP response body from the
+// result of the "show_aip" endpoint of the "storage" service.
+func NewShowAipInternalErrorResponseBody(res *goa.ServiceError) *ShowAipInternalErrorResponseBody {
+	body := &ShowAipInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewShowAipNotFoundResponseBody builds the HTTP response body from the result
 // of the "show_aip" endpoint of the "storage" service.
 func NewShowAipNotFoundResponseBody(res *storage.AIPNotFound) *ShowAipNotFoundResponseBody {
 	body := &ShowAipNotFoundResponseBody{
 		Message: res.Message,
 		UUID:    res.UUID,
+	}
+	return body
+}
+
+// NewListAipWorkflowsInternalErrorResponseBody builds the HTTP response body
+// from the result of the "list_aip_workflows" endpoint of the "storage"
+// service.
+func NewListAipWorkflowsInternalErrorResponseBody(res *goa.ServiceError) *ListAipWorkflowsInternalErrorResponseBody {
+	body := &ListAipWorkflowsInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
 	}
 	return body
 }
@@ -2743,10 +2946,52 @@ func NewAipDeletionReportInternalErrorResponseBody(res *goa.ServiceError) *AipDe
 	return body
 }
 
+// NewListLocationsInternalErrorResponseBody builds the HTTP response body from
+// the result of the "list_locations" endpoint of the "storage" service.
+func NewListLocationsInternalErrorResponseBody(res *goa.ServiceError) *ListLocationsInternalErrorResponseBody {
+	body := &ListLocationsInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
 // NewCreateLocationNotValidResponseBody builds the HTTP response body from the
 // result of the "create_location" endpoint of the "storage" service.
 func NewCreateLocationNotValidResponseBody(res *goa.ServiceError) *CreateLocationNotValidResponseBody {
 	body := &CreateLocationNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewCreateLocationInternalErrorResponseBody builds the HTTP response body
+// from the result of the "create_location" endpoint of the "storage" service.
+func NewCreateLocationInternalErrorResponseBody(res *goa.ServiceError) *CreateLocationInternalErrorResponseBody {
+	body := &CreateLocationInternalErrorResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewShowLocationInternalErrorResponseBody builds the HTTP response body from
+// the result of the "show_location" endpoint of the "storage" service.
+func NewShowLocationInternalErrorResponseBody(res *goa.ServiceError) *ShowLocationInternalErrorResponseBody {
+	body := &ShowLocationInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,
@@ -2771,6 +3016,21 @@ func NewShowLocationNotFoundResponseBody(res *storage.LocationNotFound) *ShowLoc
 // the result of the "list_location_aips" endpoint of the "storage" service.
 func NewListLocationAipsNotValidResponseBody(res *goa.ServiceError) *ListLocationAipsNotValidResponseBody {
 	body := &ListLocationAipsNotValidResponseBody{
+		Name:      res.Name,
+		ID:        res.ID,
+		Message:   res.Message,
+		Temporary: res.Temporary,
+		Timeout:   res.Timeout,
+		Fault:     res.Fault,
+	}
+	return body
+}
+
+// NewListLocationAipsInternalErrorResponseBody builds the HTTP response body
+// from the result of the "list_location_aips" endpoint of the "storage"
+// service.
+func NewListLocationAipsInternalErrorResponseBody(res *goa.ServiceError) *ListLocationAipsInternalErrorResponseBody {
+	body := &ListLocationAipsInternalErrorResponseBody{
 		Name:      res.Name,
 		ID:        res.ID,
 		Message:   res.Message,

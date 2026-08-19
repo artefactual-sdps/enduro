@@ -59,8 +59,7 @@ func (svc *ingestImpl) AddBatch(
 	}
 
 	if err := svc.perSvc.CreateBatch(ctx, b); err != nil {
-		svc.logger.Error(err, "AddBatch")
-		return nil, ErrInternalError
+		return nil, goaingest.MakeInternalError(fmt.Errorf("create batch: %v", err))
 	}
 
 	req := BatchWorkflowRequest{
@@ -78,8 +77,7 @@ func (svc *ingestImpl) AddBatch(
 				return svc.perSvc.DeleteBatch(cleanupCtx, b.UUID)
 			}),
 		)
-		svc.logger.Error(err, "AddBatch")
-		return nil, ErrInternalError
+		return nil, goaingest.MakeInternalError(fmt.Errorf("start batch workflow: %v", err))
 	}
 
 	PublishEvent(ctx, svc.evsvc, batchToCreatedEvent(b))
@@ -103,8 +101,7 @@ func (svc *ingestImpl) ListBatches(
 
 	r, pg, err := svc.perSvc.ListBatches(ctx, pf)
 	if err != nil {
-		svc.logger.Error(err, "ListBatches")
-		return nil, ErrInternalError
+		return nil, goaingest.MakeInternalError(fmt.Errorf("list batches: %v", err))
 	}
 
 	items := make([]*goaingest.Batch, len(r))
@@ -133,8 +130,7 @@ func (svc *ingestImpl) ShowBatch(
 	if err == persistence.ErrNotFound {
 		return nil, &goaingest.BatchNotFound{UUID: payload.UUID, Message: "Batch not found"}
 	} else if err != nil {
-		svc.logger.Error(err, "ShowBatch")
-		return nil, ErrInternalError
+		return nil, goaingest.MakeInternalError(fmt.Errorf("read batch: %v", err))
 	}
 
 	return b.Goa(), nil
@@ -150,8 +146,7 @@ func (svc *ingestImpl) ReviewBatch(ctx context.Context, payload *goaingest.Revie
 	if err == persistence.ErrNotFound {
 		return &goaingest.BatchNotFound{UUID: payload.UUID, Message: "Batch not found"}
 	} else if err != nil {
-		svc.logger.Error(err, "ReviewBatch")
-		return ErrInternalError
+		return goaingest.MakeInternalError(fmt.Errorf("read batch for review: %v", err))
 	}
 
 	if b.Status != enums.BatchStatusPending {
@@ -161,8 +156,7 @@ func (svc *ingestImpl) ReviewBatch(ctx context.Context, payload *goaingest.Revie
 	signal := BatchDecisionSignal{Continue: payload.Continue}
 	err = svc.tc.SignalWorkflow(ctx, BatchWorkflowID(batchUUID), "", BatchDecisionSignalName, signal)
 	if err != nil {
-		svc.logger.Error(err, "ReviewBatch")
-		return ErrInternalError
+		return goaingest.MakeInternalError(fmt.Errorf("signal batch review: %v", err))
 	}
 
 	return nil

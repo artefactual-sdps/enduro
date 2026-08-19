@@ -50,7 +50,10 @@ var BearerAuth = BearerSecurity("bearer", func() {
 	Scope(auth.StorageLocationsReadAttr)
 })
 
-var OperationTimeout = Interceptor("OperationTimeout")
+var (
+	OperationTimeout   = Interceptor("OperationTimeout")
+	ServerErrorHandler = Interceptor("ServerErrorHandler")
+)
 
 func BearerAuthScopes(scopes ...string) {
 	Security(BearerAuth, func() {
@@ -71,6 +74,7 @@ var _ = API("enduro", func() {
 	Title("Enduro API")
 	Meta("openapi:versions", "2.0", "3.0", "3.2")
 	ServerInterceptor(OperationTimeout)
+	ServerInterceptor(ServerErrorHandler)
 	Randomizer(expr.NewDeterministicRandomizer())
 	Server("enduro", func() {
 		Services("about", "ingest", "storage")

@@ -1137,7 +1137,7 @@ func (u *Value) UnmarshalJSON(data []byte) error {
 
 // MakeInternalError builds a goa.ServiceError from an error.
 func MakeInternalError(err error) *goa.ServiceError {
-	return goa.NewServiceError(err, "internal_error", false, false, false)
+	return goa.NewServiceError(err, "internal_error", false, false, true)
 }
 
 // MakeNotValid builds a goa.ServiceError from an error.

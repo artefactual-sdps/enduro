@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/google/uuid"
 	"go.artefactual.dev/tools/ref"
@@ -102,8 +103,7 @@ func (s *serviceImpl) requestAIPDeletion(
 		SkipReport:  skipReport,
 	})
 	if err != nil {
-		s.logger.Error(err, "error initializing delete workflow")
-		return ErrInternalError
+		return goastorage.MakeInternalError(fmt.Errorf("start AIP deletion workflow: %v", err))
 	}
 
 	return nil
@@ -134,9 +134,11 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 		AIPUUID: &aipID,
 		Status:  ref.New(enums.DeletionRequestStatusPending),
 	})
-	if err != nil || len(drs) == 0 {
-		s.logger.Error(err, "deletion request not found", "aip_id", aipID)
-		return ErrInternalError
+	if err != nil {
+		return goastorage.MakeInternalError(fmt.Errorf("list pending AIP deletion requests: %v", err))
+	}
+	if len(drs) == 0 {
+		return goastorage.MakeInternalError(errors.New("pending AIP deletion request not found"))
 	}
 
 	if drs[0].RequesterIss == claims.Iss && drs[0].RequesterSub == claims.Sub {
@@ -156,8 +158,7 @@ func (s *serviceImpl) ReviewAipDeletion(ctx context.Context, payload *goastorage
 	}
 	err = s.tc.SignalWorkflow(ctx, StorageDeleteWorkflowID(aipID), "", DeletionDecisionSignalName, signal)
 	if err != nil {
-		s.logger.Error(err, "error signaling delete workflow")
-		return ErrInternalError
+		return goastorage.MakeInternalError(fmt.Errorf("signal AIP deletion review: %v", err))
 	}
 
 	return nil
@@ -183,7 +184,7 @@ func (s *serviceImpl) CancelAipDeletion(
 		Status:  ref.New(enums.DeletionRequestStatusPending),
 	})
 	if err != nil {
-		return err
+		return goastorage.MakeInternalError(fmt.Errorf("list pending AIP deletion requests: %v", err))
 	}
 	if len(drs) == 0 {
 		return goastorage.MakeNotValid(errors.New("no valid deletion requests"))
@@ -212,8 +213,7 @@ func (s *serviceImpl) CancelAipDeletion(
 		},
 	)
 	if err != nil {
-		s.logger.Error(err, "error signaling delete workflow")
-		return ErrInternalError
+		return goastorage.MakeInternalError(fmt.Errorf("signal AIP deletion cancellation: %v", err))
 	}
 
 	return nil

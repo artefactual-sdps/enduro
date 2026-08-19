@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -20,8 +21,7 @@ func (s *serviceImpl) Monitor(
 	// Subscribe to the event service.
 	sub, err := s.evsvc.Subscribe(ctx)
 	if err != nil {
-		s.logger.Error(err, "failed to subscribe to event service")
-		return ErrInternalError
+		return goastorage.MakeInternalError(fmt.Errorf("subscribe to storage events: %v", err))
 	}
 	defer sub.Close()
 

@@ -106,7 +106,7 @@ func TestUpload(t *testing.T) {
 			multipartBody: zipMmultipartBody,
 			contentType:   "multipart/form-data; boundary=foobar",
 			maxUploadSize: 102400000,
-			wantErr:       "internal error",
+			wantErr:       "initialize uploaded SIP: persistence error",
 		},
 		{
 			name: "Returns Temporal error",
@@ -151,7 +151,7 @@ func TestUpload(t *testing.T) {
 			multipartBody: zipMmultipartBody,
 			contentType:   "multipart/form-data; boundary=foobar",
 			maxUploadSize: 102400000,
-			wantErr:       "internal error",
+			wantErr:       "initialize uploaded SIP: temporal error",
 		},
 		{
 			name:   "Uploads a SIP",

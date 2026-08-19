@@ -2,6 +2,7 @@ package ingest
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	goaingest "github.com/artefactual-sdps/enduro/internal/api/gen/ingest"
@@ -20,8 +21,7 @@ func (svc *ingestImpl) Monitor(
 	// Subscribe to the event service.
 	sub, err := svc.evsvc.Subscribe(ctx)
 	if err != nil {
-		svc.logger.Error(err, "failed to subscribe to event service")
-		return ErrInternalError
+		return goaingest.MakeInternalError(fmt.Errorf("subscribe to ingest events: %v", err))
 	}
 	defer sub.Close()
 
