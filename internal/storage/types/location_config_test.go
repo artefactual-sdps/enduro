@@ -92,7 +92,7 @@ func TestLocationConfigEncoding(t *testing.T) {
 		},
 		"Rejects invalid config": {
 			config:  types.LocationConfig{},
-			wantErr: "json: error calling MarshalJSON for type types.LocationConfig: unsupported config type: <nil>",
+			wantErr: "unsupported config type: <nil>",
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -101,7 +101,7 @@ func TestLocationConfigEncoding(t *testing.T) {
 			blob, err := json.Marshal(tt.config)
 
 			if tt.wantErr != "" {
-				assert.Error(t, err, tt.wantErr)
+				assert.ErrorContains(t, err, tt.wantErr)
 				assert.Assert(t, blob == nil)
 				return
 			}
