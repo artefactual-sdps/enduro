@@ -403,11 +403,9 @@ func TestFilter(t *testing.T) {
 		aipID := uuid.New()
 
 		f.Equals("id", &id)                 // Filter on an *int value.
-		f.Equals("id2", id)                 // Ignore a non-pointer (int) value.
 		f.Equals("name", &name)             // Filter on a *string value.
 		f.Equals("aip_id", &aipID)          // Filter on a *uuid.UUID value.
 		f.Equals("address", (*string)(nil)) // Ignore a typed nil value.
-		f.Equals("address2", nil)           // Ignore (interface{})(nil).
 		_, whole := f.Apply()
 
 		assert.Equal(t, whole.where, "(`data`.`id` = ? AND `data`.`name` = ?) AND `data`.`aip_id` = ?")
@@ -445,9 +443,9 @@ func TestFilter(t *testing.T) {
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
-		f.In("name", []any{"foo", "bar", ""})
-		f.In("empty", []any{})    // Ignore an empty slice.
-		f.In("nil", ([]any)(nil)) // Ignore a nil slice.
+		f.In("name", []string{"foo", "bar", ""})
+		f.In("empty", []string{})    // Ignore an empty slice.
+		f.In("nil", ([]string)(nil)) // Ignore a nil slice.
 		_, whole := f.Apply()
 
 		assert.Equal(t, whole.where, "`data`.`name` IN (?, ?, ?)")
@@ -461,7 +459,7 @@ func TestFilter(t *testing.T) {
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
-		f.In("status", []any{
+		f.In("status", []enums.SIPStatus{
 			enums.SIPStatusProcessing,
 			enums.SIPStatusIngested,
 			enums.SIPStatus("invalid"), // Ignore an invalid enum.
@@ -486,7 +484,7 @@ func TestFilter(t *testing.T) {
 			&query{table: "data"},
 			newSortableFields("id"),
 		)
-		f.In("aip_id", []any{
+		f.In("aip_id", []uuid.UUID{
 			uuid0,
 			uuid1,
 			uuid2, // Ignore a nil UUID.
