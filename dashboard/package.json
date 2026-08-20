@@ -51,7 +51,7 @@
     "minimatch": "10.2.5"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.5",
+    "@eslint/js": "^10.0.1",
     "@iconify/json": "^2.2.517",
     "@pinia/testing": "^2.0.1",
     "@testing-library/vue": "^8.1.0",
@@ -65,7 +65,7 @@
     "@vitest/coverage-v8": "^4.1.10",
     "@vue/tsconfig": "^0.9.1",
     "bootstrap": "^5.3.8",
-    "eslint": "^9.39.5",
+    "eslint": "^10.8.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-import-resolver-typescript": "^4.4.5",
     "eslint-plugin-import": "^2.32.0",
@@ -79,7 +79,7 @@
     "npm-run-all2": "^9.0.3",
     "prettier": "^3.9.6",
     "sass": "^1.102.0",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "typescript-eslint": "^8.67.0",
     "unplugin-icons": "^23.0.1",
     "vite": "^8.2.1",
