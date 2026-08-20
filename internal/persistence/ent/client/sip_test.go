@@ -766,7 +766,7 @@ func TestListSIPs(t *testing.T) {
 				},
 			},
 			filter: &persistence.SIPFilter{
-				Page: persistence.Page{Limit: 1},
+				Limit: 1,
 			},
 			want: results{
 				data: []*datatypes.SIP{
@@ -824,7 +824,7 @@ func TestListSIPs(t *testing.T) {
 				},
 			},
 			filter: &persistence.SIPFilter{
-				Page: persistence.Page{Limit: 1, Offset: 1},
+				Limit: 1, Offset: 1,
 			},
 			want: results{
 				data: []*datatypes.SIP{
