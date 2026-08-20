@@ -32,7 +32,7 @@ type oidcVerifier struct {
 	cfg      OIDCConfig
 }
 
-var _ TokenVerifier = (OIDCTokenVerifiers)(nil)
+var _ TokenVerifier = OIDCTokenVerifiers(nil)
 
 func NewOIDCTokenVerifiers(ctx context.Context, cfgs OIDCConfigs) (OIDCTokenVerifiers, error) {
 	if len(cfgs) == 0 {
@@ -142,7 +142,7 @@ func (t *oidcVerifier) parseAttributes(token *oidc.IDToken) ([]string, error) {
 
 			filteredValue := []string{}
 			for i := range val.Len() {
-				str, ok := val.Index(i).Interface().(string)
+				str, ok := reflect.TypeAssert[string](val.Index(i))
 				if ok {
 					if cutAttr, found := strings.CutPrefix(str, t.cfg.ABAC.ClaimValuePrefix); found {
 						filteredValue = append(filteredValue, cutAttr)

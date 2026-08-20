@@ -63,7 +63,10 @@ formatters:
       no-inline-comments: true
       no-prefix-comments: false
     gofumpt:
-      extra-rules: true
+      extra:
+        group-params: true
+        clothe-returns: true
+        balance-calls: true
     golines:
       max-len: 120
       shorten-comments: true

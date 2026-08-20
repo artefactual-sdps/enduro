@@ -629,7 +629,7 @@ func TestListBatches(t *testing.T) {
 				},
 			},
 			batchFilter: &persistence.BatchFilter{
-				Page: persistence.Page{Limit: 1},
+				Limit: 1,
 			},
 			want: results{
 				data: []*datatypes.Batch{
@@ -679,7 +679,7 @@ func TestListBatches(t *testing.T) {
 				},
 			},
 			batchFilter: &persistence.BatchFilter{
-				Page: persistence.Page{Limit: 1, Offset: 1},
+				Limit: 1, Offset: 1,
 			},
 			want: results{
 				data: []*datatypes.Batch{

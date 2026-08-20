@@ -120,10 +120,8 @@ func listSipsPayloadToSIPFilter(payload *goaingest.ListSipsPayload) (*persistenc
 		UploaderID: uploaderID,
 		BatchID:    batchID,
 		Sort:       entfilter.NewSort().AddCol("id", true),
-		Page: persistence.Page{
-			Limit:  ref.DerefZero(payload.Limit),
-			Offset: ref.DerefZero(payload.Offset),
-		},
+		Limit:      ref.DerefZero(payload.Limit),
+		Offset:     ref.DerefZero(payload.Offset),
 	}
 
 	return &pf, nil
@@ -145,12 +143,10 @@ func listUsersPayloadToUserFilter(payload *goaingest.ListUsersPayload) (*persist
 	}
 
 	f := persistence.UserFilter{
-		Email: email,
-		Name:  name,
-		Page: persistence.Page{
-			Limit:  ref.DerefZero(payload.Limit),
-			Offset: ref.DerefZero(payload.Offset),
-		},
+		Email:  email,
+		Name:   name,
+		Limit:  ref.DerefZero(payload.Limit),
+		Offset: ref.DerefZero(payload.Offset),
 	}
 
 	return &f, nil
@@ -182,10 +178,8 @@ func listBatchesPayloadToBatchFilter(payload *goaingest.ListBatchesPayload) (*pe
 		CreatedAt:  createdAt,
 		UploaderID: uploaderID,
 		Sort:       entfilter.NewSort().AddCol("id", true),
-		Page: persistence.Page{
-			Limit:  ref.DerefZero(payload.Limit),
-			Offset: ref.DerefZero(payload.Offset),
-		},
+		Limit:      ref.DerefZero(payload.Limit),
+		Offset:     ref.DerefZero(payload.Offset),
 	}
 
 	return &pf, nil

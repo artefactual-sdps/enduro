@@ -112,7 +112,8 @@ func TestJobTracker(t *testing.T) {
 							CompletedAt:  completedAt,
 							WorkflowUUID: wUUID,
 						},
-					}).Return(nil)
+					},
+				).Return(nil)
 			},
 			want: 1,
 		},

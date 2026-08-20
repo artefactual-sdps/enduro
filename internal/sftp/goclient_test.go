@@ -160,14 +160,19 @@ func TestUploadFile(t *testing.T) {
 
 	host, port := startSFTPServer(t)
 
-	// Start a listener on an open port and use the address to test a bad SFTP
-	// server address.
+	// Find an open port and close its listener so the address can be used to
+	// test a bad SFTP server address.
 	ln, err := net.Listen("tcp", "127.0.0.1:0")
 	if err != nil {
 		t.Fatalf("Couldn't start listener: %v", err)
 	}
-	defer ln.Close()
-	badHost, badPort, _ := net.SplitHostPort(ln.Addr().String())
+	badHost, badPort, err := net.SplitHostPort(ln.Addr().String())
+	if err != nil {
+		t.Fatalf("Couldn't parse listener address: %v", err)
+	}
+	if err := ln.Close(); err != nil {
+		t.Fatalf("Couldn't close listener: %v", err)
+	}
 
 	type params struct {
 		src  io.Reader
