@@ -43,7 +43,7 @@ require (
 	github.com/spf13/afero v1.15.0
 	github.com/spf13/pflag v1.0.10
 	github.com/spf13/viper v1.21.0
-	github.com/stretchr/testify v1.12.0
+	github.com/stretchr/testify v1.12.1
 	go.artefactual.dev/amclient v0.5.0
 	go.artefactual.dev/ssclient v0.11.0
 	go.artefactual.dev/tools v0.26.0
