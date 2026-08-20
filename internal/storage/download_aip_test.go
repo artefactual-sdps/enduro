@@ -33,7 +33,7 @@ func expectStorageTicketGrant(
 	ts.EXPECT().
 		GetDel(ctx, "valid-ticket", gomock.AssignableToTypeOf(&auth.TicketGrant{})).
 		DoAndReturn(func(ctx context.Context, key string, dst any) error {
-			*(dst.(*auth.TicketGrant)) = grant
+			*dst.(*auth.TicketGrant) = grant
 			return nil
 		})
 }

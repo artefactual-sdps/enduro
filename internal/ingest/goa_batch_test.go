@@ -549,10 +549,8 @@ func TestListBatches(t *testing.T) {
 						},
 						UploaderID: new(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
 						Sort:       entfilter.NewSort().AddCol("id", true),
-						Page: persistence.Page{
-							Limit:  10,
-							Offset: 1,
-						},
+						Limit:      10,
+						Offset:     1,
 					},
 				).Return(
 					testBatches[0:1],

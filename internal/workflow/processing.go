@@ -1070,7 +1070,8 @@ func (w *ProcessingWorkflow) transferAM(
 				ObjectKey:  state.aip.id,
 				LocationID: &w.cfg.Ingest.Storage.DefaultPermanentLocationID,
 				Status:     "stored",
-			}).
+			},
+		).
 			Get(activityOpts, nil)
 		if err != nil {
 			return sessCtx, err
