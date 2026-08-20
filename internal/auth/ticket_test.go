@@ -125,7 +125,7 @@ func TestTicketProviderCheck(t *testing.T) {
 		store.EXPECT().
 			GetDel(gomock.Any(), ticket, gomock.AssignableToTypeOf(&auth.TicketGrant{})).
 			DoAndReturn(func(ctx context.Context, key string, val any) error {
-				*(val.(*auth.TicketGrant)) = grant
+				*val.(*auth.TicketGrant) = grant
 				return nil
 			})
 

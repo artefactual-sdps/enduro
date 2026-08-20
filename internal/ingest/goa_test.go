@@ -984,10 +984,8 @@ func TestListSIPs(t *testing.T) {
 						BatchID:    new(uuid.MustParse("ffdb12f4-1735-4022-b746-a9bf4a32109b")),
 						UploaderID: new(uuid.MustParse("0b075937-458c-43d9-b46c-222a072d62a9")),
 						Sort:       entfilter.NewSort().AddCol("id", true),
-						Page: persistence.Page{
-							Limit:  10,
-							Offset: 1,
-						},
+						Limit:      10,
+						Offset:     1,
 					},
 				).Return(
 					testSIPs[0:1],
@@ -1190,12 +1188,10 @@ func TestListUsers(t *testing.T) {
 				mr.ListUsers(
 					mockutil.Context(),
 					&persistence.UserFilter{
-						Email: new("user1@example.com"),
-						Name:  new("User One"),
-						Page: persistence.Page{
-							Limit:  10,
-							Offset: 0,
-						},
+						Email:  new("user1@example.com"),
+						Name:   new("User One"),
+						Limit:  10,
+						Offset: 0,
 					},
 				).Return(
 					testUsers[0:1],
