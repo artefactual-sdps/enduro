@@ -14,7 +14,7 @@ version = "0.14.6"
 [[bins]]
 name = "go-enum"
 url = "https://github.com/abice/go-enum"
-version = "0.9.1"
+version = "0.9.4"
 
 [[bins]]
 name = "go-mod-outdated"
