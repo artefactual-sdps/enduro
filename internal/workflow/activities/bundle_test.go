@@ -1,8 +1,10 @@
 package activities_test
 
 import (
+	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"go.artefactual.dev/tools/temporal"
 	temporalsdk_activity "go.temporal.io/sdk/activity"
@@ -16,16 +18,19 @@ import (
 func TestBundleActivity(t *testing.T) {
 	t.Parallel()
 
+	wantModTime := time.Date(2001, time.February, 3, 4, 5, 6, 0, time.UTC)
 	sourceDir := fs.NewDir(t, "enduro-bundle-test",
 		fs.FromDir("../../testdata"),
 	)
 	destDir := fs.NewDir(t, "enduro-bundle-test")
 
 	type test struct {
-		name    string
-		params  *activities.BundleActivityParams
-		wantFs  fs.Manifest
-		wantErr string
+		name     string
+		params   *activities.BundleActivityParams
+		wantFs   fs.Manifest
+		wantErr  string
+		mtimeSrc string
+		mtimeDst string
 	}
 	for _, tt := range []test{
 		{
@@ -42,6 +47,8 @@ func TestBundleActivity(t *testing.T) {
 				),
 				fs.WithDir("metadata", fs.WithMode(activities.ModeDir)),
 			),
+			mtimeSrc: sourceDir.Join("single_file_transfer", "small.txt"),
+			mtimeDst: filepath.Join("objects", "small.txt"),
 		},
 		{
 			name: "Bundles a local standard transfer directory",
@@ -60,6 +67,8 @@ func TestBundleActivity(t *testing.T) {
 				),
 				fs.WithFile("small.txt", "I am a small file.\n", fs.WithMode(activities.ModeFile)),
 			),
+			mtimeSrc: sourceDir.Join("standard_transfer", "small", "small.txt"),
+			mtimeDst: "small.txt",
 		},
 		{
 			name: "Bundles a BagIt transfer",
@@ -116,10 +125,13 @@ e91f941be5973ff71f1dccbdd1a32d598881893a7f21be516aca743da38b1689 bagit.txt
 					),
 				),
 			),
+			mtimeSrc: sourceDir.Join("bag", "small_bag", "data", "small.txt"),
+			mtimeDst: "small.txt",
 		},
 	} {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
+			assert.NilError(t, os.Chtimes(tt.mtimeSrc, wantModTime, wantModTime))
 
 			ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 			env := ts.NewTestActivityEnvironment()
@@ -145,7 +157,10 @@ e91f941be5973ff71f1dccbdd1a32d598881893a7f21be516aca743da38b1689 bagit.txt
 			if tt.wantFs != (fs.Manifest{}) {
 				assert.Assert(t, fs.Equal(res.FullPath, tt.wantFs))
 			}
+
+			info, err := os.Stat(filepath.Join(res.FullPath, tt.mtimeDst))
 			assert.NilError(t, err)
+			assert.Equal(t, info.ModTime().Unix(), wantModTime.Unix())
 
 			rp, err := filepath.Rel(tt.params.TransferDir, res.FullPath)
 			assert.NilError(t, err)

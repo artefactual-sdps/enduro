@@ -151,6 +151,13 @@ func startSFTPServer(t *testing.T) (string, string) {
 func TestUploadFile(t *testing.T) {
 	t.Parallel()
 
+	source := tfs.NewFile(t, "", tfs.WithContent("Testing 1-2-3"))
+	wantModTime := time.Date(2000, time.January, 2, 3, 4, 5, 0, time.UTC)
+	assert.NilError(t, os.Chtimes(source.Path(), wantModTime, wantModTime))
+	sourceFile, err := os.Open(source.Path())
+	assert.NilError(t, err)
+	t.Cleanup(func() { _ = sourceFile.Close() })
+
 	host, port := startSFTPServer(t)
 
 	// Start a listener on an open port and use the address to test a bad SFTP
@@ -167,8 +174,9 @@ func TestUploadFile(t *testing.T) {
 		dest string
 	}
 	type results struct {
-		Bytes int64
-		Paths []tfs.PathOp
+		Bytes   int64
+		Paths   []tfs.PathOp
+		ModTime time.Time
 	}
 
 	type test struct {
@@ -190,12 +198,13 @@ func TestUploadFile(t *testing.T) {
 				},
 			},
 			params: params{
-				src:  strings.NewReader("Testing 1-2-3"),
+				src:  sourceFile,
 				dest: "test.txt",
 			},
 			want: results{
-				Bytes: 13,
-				Paths: []tfs.PathOp{tfs.WithFile("test.txt", "Testing 1-2-3")},
+				Bytes:   13,
+				Paths:   []tfs.PathOp{tfs.WithFile("test.txt", "Testing 1-2-3")},
+				ModTime: wantModTime,
 			},
 		},
 		{
@@ -321,6 +330,11 @@ func TestUploadFile(t *testing.T) {
 			case <-upload.Done():
 				assert.Equal(t, upload.Bytes(), tc.want.Bytes)
 				assert.Assert(t, tfs.Equal(remoteDir.Path(), tfs.Expected(t, tc.want.Paths...)))
+				if !tc.want.ModTime.IsZero() {
+					info, err := os.Stat(remotePath)
+					assert.NilError(t, err)
+					assert.Equal(t, info.ModTime().Unix(), tc.want.ModTime.Unix())
+				}
 			case err = <-upload.Err():
 				t.Fatal(err)
 			}
@@ -333,8 +347,16 @@ func TestUploadDirectory(t *testing.T) {
 
 	testTransferDir := tfs.NewDir(t, "test_transfer",
 		tfs.WithFile("test.txt", "Testing 1-2-3"),
-		tfs.WithFile("test2.txt", "Testing 4-5-6-7"),
+		tfs.WithDir("nested",
+			tfs.WithFile("test2.txt", "Testing 4-5-6-7"),
+		),
 	)
+	fileModTime := time.Date(2001, time.February, 3, 4, 5, 6, 0, time.UTC)
+	nestedDirModTime := time.Date(2002, time.March, 4, 5, 6, 7, 0, time.UTC)
+	rootDirModTime := time.Date(2003, time.April, 5, 6, 7, 8, 0, time.UTC)
+	assert.NilError(t, os.Chtimes(testTransferDir.Join("test.txt"), fileModTime, fileModTime))
+	assert.NilError(t, os.Chtimes(testTransferDir.Join("nested"), nestedDirModTime, nestedDirModTime))
+	assert.NilError(t, os.Chtimes(testTransferDir.Path(), rootDirModTime, rootDirModTime))
 
 	host, port := startSFTPServer(t)
 
@@ -421,6 +443,18 @@ func TestUploadDirectory(t *testing.T) {
 			select {
 			case <-upload.Done():
 				assert.Equal(t, upload.Bytes(), tc.wantBytes)
+				info, err := os.Stat(filepath.Join(remotePath, "test.txt"))
+				assert.NilError(t, err)
+				assert.Equal(t, info.ModTime().Unix(), fileModTime.Unix())
+
+				for path, want := range map[string]time.Time{
+					remotePath:                          rootDirModTime,
+					filepath.Join(remotePath, "nested"): nestedDirModTime,
+				} {
+					info, err := os.Stat(path)
+					assert.NilError(t, err)
+					assert.Equal(t, info.ModTime().Unix(), want.Unix())
+				}
 			case err = <-upload.Err():
 				t.Fatal(err)
 			}

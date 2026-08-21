@@ -114,10 +114,18 @@ func (a *BundleActivity) SingleFile(
 		return "", fmt.Errorf("open source file: %v", err)
 	}
 	defer src.Close()
+	info, err := src.Stat()
+	if err != nil {
+		return "", fmt.Errorf("stat source file: %v", err)
+	}
 
-	err = b.Write(filepath.Join("objects", filepath.Base(sourcePath)), src)
+	objectPath := filepath.Join("objects", filepath.Base(sourcePath))
+	err = b.Write(objectPath, src)
 	if err != nil {
 		return "", fmt.Errorf("write file: %v", err)
+	}
+	if err := os.Chtimes(filepath.Join(b.FullBaseFsPath(), objectPath), info.ModTime(), info.ModTime()); err != nil {
+		return "", fmt.Errorf("preserve file modification time: %v", err)
 	}
 
 	if err := b.Bundle(); err != nil {
@@ -152,7 +160,7 @@ func (a *BundleActivity) Copy(ctx context.Context, src, dst string) (string, err
 		return "", fmt.Errorf("error creating temporary directory: %s", err)
 	}
 
-	if err := copy.Copy(src, tempDir); err != nil {
+	if err := copy.Copy(src, tempDir, copy.Options{PreserveTimes: true}); err != nil {
 		return "", fmt.Errorf("error copying transfer: %v", err)
 	}
 

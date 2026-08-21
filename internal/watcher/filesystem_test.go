@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"syscall"
 	"testing"
 	"time"
 
@@ -163,6 +164,46 @@ func TestFileSystemWatcher(t *testing.T) {
 		)))
 	})
 
+	t.Run("Dispose preserves mtimes across filesystems", func(t *testing.T) {
+		watchedDir := t.TempDir()
+		completedDir, err := os.MkdirTemp("/dev/shm", "enduro-completed-")
+		if err != nil {
+			t.Skipf("cross-filesystem test requires writable /dev/shm: %v", err)
+		}
+		t.Cleanup(func() { _ = os.RemoveAll(completedDir) })
+
+		deviceID := func(path string) uint64 {
+			info, err := os.Stat(path)
+			assert.NilError(t, err)
+			stat, ok := info.Sys().(*syscall.Stat_t)
+			assert.Assert(t, ok)
+			return uint64(stat.Dev)
+		}
+		if deviceID(watchedDir) == deviceID(completedDir) {
+			t.Skip("temporary and completed directories are on the same filesystem")
+		}
+
+		sourceDir := filepath.Join(watchedDir, "example-sip")
+		sourceFile := filepath.Join(sourceDir, "objects", "test.txt")
+		assert.NilError(t, os.MkdirAll(filepath.Dir(sourceFile), 0o755))
+		assert.NilError(t, os.WriteFile(sourceFile, []byte("A test file."), 0o600))
+		wantModTime := time.Date(2001, time.February, 3, 4, 5, 6, 0, time.UTC)
+		assert.NilError(t, os.Chtimes(sourceFile, wantModTime, wantModTime))
+
+		w, err := watcher.NewFilesystemWatcher(t.Context(), &watcher.FilesystemConfig{
+			Name:            "filesystem",
+			Path:            watchedDir,
+			CompletedDir:    completedDir,
+			RetentionPeriod: -1 * time.Second,
+		})
+		assert.NilError(t, err)
+		assert.NilError(t, w.Dispose("example-sip"))
+
+		info, err := os.Stat(filepath.Join(completedDir, "example-sip", "objects", "test.txt"))
+		assert.NilError(t, err)
+		assert.Equal(t, info.ModTime().Unix(), wantModTime.Unix())
+	})
+
 	t.Run("Download copies a file to the destination path", func(t *testing.T) {
 		t.Parallel()
 
@@ -171,6 +212,8 @@ func TestFileSystemWatcher(t *testing.T) {
 		src := fs.NewDir(t, "enduro-test-fswatcher",
 			fs.WithFile("sip.zip", "A test file."),
 		)
+		wantModTime := time.Date(2001, time.February, 3, 4, 5, 6, 0, time.UTC)
+		assert.NilError(t, os.Chtimes(src.Join("sip.zip"), wantModTime, wantModTime))
 		dest := fs.NewDir(t, "enduro-test-fswatcher")
 
 		w, err := watcher.NewFilesystemWatcher(ctx, &watcher.FilesystemConfig{
@@ -186,6 +229,7 @@ func TestFileSystemWatcher(t *testing.T) {
 		info, err := os.Stat(destPath)
 		assert.NilError(t, err)
 		assert.Assert(t, !info.IsDir())
+		assert.Equal(t, info.ModTime().Unix(), wantModTime.Unix())
 
 		got, err := os.ReadFile(destPath)
 		assert.NilError(t, err)
@@ -203,6 +247,8 @@ func TestFileSystemWatcher(t *testing.T) {
 				fs.WithFile("test2", "Another test file."),
 			),
 		)
+		wantModTime := time.Date(2001, time.February, 3, 4, 5, 6, 0, time.UTC)
+		assert.NilError(t, os.Chtimes(src.Join("example-sip", "test.txt"), wantModTime, wantModTime))
 		dest := fs.NewDir(t, "enduro-test-fswatcher")
 
 		w, err := watcher.NewFilesystemWatcher(ctx, &watcher.FilesystemConfig{
@@ -220,5 +266,8 @@ func TestFileSystemWatcher(t *testing.T) {
 				fs.WithFile("test2", "Another test file.", fs.WithMode(0o644)),
 			),
 		)))
+		info, err := os.Stat(filepath.Join(dest.Path(), "example-sip", "test.txt"))
+		assert.NilError(t, err)
+		assert.Equal(t, info.ModTime().Unix(), wantModTime.Unix())
 	})
 }

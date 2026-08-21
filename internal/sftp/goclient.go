@@ -114,7 +114,31 @@ func (c *GoClient) UploadDirectory(ctx context.Context, srcPath string) (string,
 func uploadFile(ctx context.Context, src io.Reader, remotePath string, upload *AsyncUploadImpl) {
 	defer upload.Close()
 
-	remoteCopy(ctx, upload, src, remotePath)
+	var info fs.FileInfo
+	if file, ok := src.(fs.File); ok {
+		var err error
+		info, err = file.Stat()
+		if err != nil {
+			upload.Err() <- fmt.Errorf("goclient: stat source file: %v", err)
+			return
+		}
+	}
+
+	if err := remoteCopy(ctx, upload, src, remotePath); err != nil {
+		upload.Err() <- err
+		return
+	}
+	if info != nil {
+		modTime := info.ModTime()
+		if err := upload.conn.Chtimes(remotePath, modTime, modTime); err != nil {
+			upload.Err() <- fmt.Errorf(
+				"preserve remote file %q modification time: %v",
+				remotePath,
+				err,
+			)
+			return
+		}
+	}
 
 	upload.Done() <- true
 }
@@ -132,6 +156,12 @@ func uploadDirectory(ctx context.Context, srcPath, remoteDir string, upload *Asy
 	}
 	defer scopedRoot.Close()
 
+	type directoryModTime struct {
+		path string
+		info fs.FileInfo
+	}
+	var directories []directoryModTime
+
 	err = fs.WalkDir(scopedRoot.FS(), ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -148,9 +178,25 @@ func uploadDirectory(ctx context.Context, srcPath, remoteDir string, upload *Asy
 				return err
 			}
 			defer f.Close()
+			info, err := f.Stat()
+			if err != nil {
+				return err
+			}
 
-			remoteCopy(ctx, upload, f, remotePath)
+			if err := remoteCopy(ctx, upload, f, remotePath); err != nil {
+				return err
+			}
+			modTime := info.ModTime()
+			if err := upload.conn.Chtimes(remotePath, modTime, modTime); err != nil {
+				return fmt.Errorf("preserve remote file %q modification time: %v", remotePath, err)
+			}
 		} else {
+			info, err := d.Info()
+			if err != nil {
+				return err
+			}
+			directories = append(directories, directoryModTime{path: remotePath, info: info})
+
 			err = upload.conn.MkdirAll(remotePath)
 			if err != nil {
 				return err
@@ -161,6 +207,30 @@ func uploadDirectory(ctx context.Context, srcPath, remoteDir string, upload *Asy
 	})
 	if err != nil {
 		upload.Err() <- fmt.Errorf("goclient: %v", err)
+		return
+	}
+
+	// Avoid remote calls if the upload was canceled during the directory walk.
+	if err := ctx.Err(); err != nil {
+		upload.Err() <- fmt.Errorf(
+			"goclient: restore directory modification times: %v",
+			err,
+		)
+		return
+	}
+
+	// Creating files and subdirectories updates their parent directories' mtimes,
+	// so restore directory mtimes only after the walk is complete.
+	for _, directory := range directories {
+		modTime := directory.info.ModTime()
+		if err := upload.conn.Chtimes(directory.path, modTime, modTime); err != nil {
+			upload.Err() <- fmt.Errorf(
+				"goclient: preserve remote directory %q modification time: %v",
+				directory.path,
+				err,
+			)
+			return
+		}
 	}
 
 	upload.Done() <- true
@@ -189,17 +259,15 @@ func (c *GoClient) dial(ctx context.Context) (*connection, error) {
 	return &conn, nil
 }
 
-// remoteCopy copies data from the src reader to a remote file at dest, and
-// updates upload progress asynchronously. Upload status and progress will be
-// sent to the upload struct via the `upload.Done()` and `upload.Error()` channels.
-func remoteCopy(ctx context.Context, upload *AsyncUploadImpl, src io.Reader, dest string) {
+// remoteCopy copies data from the src reader to a remote file at dest and
+// updates upload progress asynchronously. It closes the remote file before
+// returning so callers can safely update its metadata.
+func remoteCopy(ctx context.Context, upload *AsyncUploadImpl, src io.Reader, dest string) error {
 	// Note: Some SFTP servers don't support O_RDWR mode.
 	w, err := upload.conn.OpenFile(dest, (os.O_WRONLY | os.O_CREATE | os.O_TRUNC))
 	if err != nil {
-		upload.Err() <- fmt.Errorf("sftp: open remote file %q: %v", dest, err)
-		return
+		return fmt.Errorf("sftp: open remote file %q: %v", dest, err)
 	}
-	defer w.Close()
 
 	// Write the number of bytes copied to upload.
 	src = contextio.NewReader(ctx, src)
@@ -207,10 +275,16 @@ func remoteCopy(ctx context.Context, upload *AsyncUploadImpl, src io.Reader, des
 
 	// Use contextio to stop the upload if a context cancellation signal is
 	// received.
-	_, err = io.Copy(contextio.NewWriter(ctx, w), src)
-	if err != nil {
-		upload.Err() <- fmt.Errorf("remote copy: %v", err)
+	_, copyErr := io.Copy(contextio.NewWriter(ctx, w), src)
+	closeErr := w.Close()
+	if copyErr != nil {
+		copyErr = fmt.Errorf("remote copy: %v", copyErr)
 	}
+	if closeErr != nil {
+		closeErr = fmt.Errorf("close remote file %q: %v", dest, closeErr)
+	}
+
+	return errors.Join(copyErr, closeErr)
 }
 
 var statusCodeRegex = regexp.MustCompile(`\(SSH_[A-Z_]+\)$`)

@@ -8,11 +8,11 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
+	"syscall"
 
 	"github.com/fsnotify/fsnotify"
 	cp "github.com/otiai10/copy"
 	"go.artefactual.dev/tools/bucket"
-	"go.artefactual.dev/tools/fsutil"
 	"gocloud.dev/blob"
 
 	"github.com/artefactual-sdps/enduro/internal/filenotify"
@@ -174,13 +174,37 @@ func (w *filesystemWatcher) Dispose(key string) error {
 	src := filepath.Join(w.path, key)
 	dst := filepath.Join(w.completedDir, key)
 
-	return fsutil.Move(src, dst)
+	return movePreservingTimes(src, dst)
+}
+
+func movePreservingTimes(src, dst string) error {
+	if _, err := os.Stat(dst); err == nil {
+		return errors.New("destination already exists")
+	}
+
+	if err := os.Rename(src, dst); err != nil {
+		if !errors.Is(err, syscall.EXDEV) {
+			return err
+		}
+
+		if err := cp.Copy(src, dst, cp.Options{
+			Sync:          true,
+			PreserveTimes: true,
+			OnDirExists:   func(src, dst string) cp.DirExistsAction { return cp.Untouchable },
+		}); err != nil {
+			return err
+		}
+
+		return os.RemoveAll(src)
+	}
+
+	return nil
 }
 
 // Download copies key to dest. Key may be the name of a directory or file.
 func (w *filesystemWatcher) Download(ctx context.Context, dest, key string) error {
 	src := filepath.Clean(filepath.Join(w.path, key))
-	if err := cp.Copy(src, filepath.Clean(dest)); err != nil {
+	if err := cp.Copy(src, filepath.Clean(dest), cp.Options{PreserveTimes: true}); err != nil {
 		return fmt.Errorf("filesystem watcher: download: %v", err)
 	}
 
