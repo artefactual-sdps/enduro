@@ -93,8 +93,8 @@ github.com/artefactual-labs/bagit-gython v0.6.1 h1:yCs4Zk+xDn4m2YvYZSGOapp7RQhrS
 github.com/artefactual-labs/bagit-gython v0.6.1/go.mod h1:4l3AoC/OlXJgfC2me9g9SC6QLV2n/wi8ZltiGB2NQvU=
 github.com/artefactual-labs/bine v0.28.3 h1:pDPcxuxjL102JPa3aG7oitYkuZxRJqVZEoW1IHBVtjE=
 github.com/artefactual-labs/bine v0.28.3/go.mod h1:E0JTUTzaakkToz6UlUOViEMkCCzHbGTKw5G5mgeYj0M=
-github.com/artefactual-sdps/temporal-activities v0.0.0-20260727224957-bc414cd11e01 h1:1epg+jHuUIE+auoiEu9YjHXVXM7f4hDgaSBQB/p7Y3A=
-github.com/artefactual-sdps/temporal-activities v0.0.0-20260727224957-bc414cd11e01/go.mod h1:apjykeFf9cvBJNzbHajrfpV8+0O1Zd20Lv8Nf47e9sw=
+github.com/artefactual-sdps/temporal-activities v0.0.0-20260824175558-e5c91dc26e57 h1:rysnWkiROMhUI616R5IonuaRR3r3pCfLy55bV6ptQfg=
+github.com/artefactual-sdps/temporal-activities v0.0.0-20260824175558-e5c91dc26e57/go.mod h1:apjykeFf9cvBJNzbHajrfpV8+0O1Zd20Lv8Nf47e9sw=
 github.com/aws/aws-sdk-go-v2 v1.41.9 h1:/rYeyO2+HrMztAmxAq9++XJtFMqSIpSsNA0yDGALYq4=
 github.com/aws/aws-sdk-go-v2 v1.41.9/go.mod h1:+HsoOEX80qAVUitj1A2DhCNTjmb3edVyuDypb6LNEeo=
 github.com/aws/aws-sdk-go-v2/aws/protocol/eventstream v1.7.11 h1:h5+3VT69KUBK24grGuuA5saDJTj2IIjLb9au668Fo5I=
