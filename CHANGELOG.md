@@ -8,6 +8,13 @@ requests.
 
 ## [Unreleased]
 
+## [0.34.0] - 2026-08-24
+
+### Fixed
+
+- Return API failures as HTTP 500 ([#1757])
+- Preserve SIP modification times ([#1663])
+
 ## [0.33.0] - 2026-08-14
 
 ### Added
@@ -434,7 +441,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.33.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.34.0...HEAD
+[0.34.0]: https://github.com/artefactual-sdps/enduro/compare/v0.33.0...v0.34.0
 [0.33.0]: https://github.com/artefactual-sdps/enduro/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/artefactual-sdps/enduro/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/artefactual-sdps/enduro/compare/v0.30.0...v0.31.0
@@ -468,6 +476,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1757]: https://github.com/artefactual-sdps/enduro/issues/1757
 [#1739]: https://github.com/artefactual-sdps/enduro/pull/1739
 [#1737]: https://github.com/artefactual-sdps/enduro/pull/1737
 [#1735]: https://github.com/artefactual-sdps/enduro/issues/1735
@@ -486,6 +495,7 @@ Initial release.
 [#1682]: https://github.com/artefactual-sdps/enduro/pull/1682
 [#1677]: https://github.com/artefactual-sdps/enduro/pull/1677
 [#1666]: https://github.com/artefactual-sdps/enduro/issues/1666
+[#1663]: https://github.com/artefactual-sdps/enduro/issues/1663
 [#1660]: https://github.com/artefactual-sdps/enduro/issues/1660
 [#1646]: https://github.com/artefactual-sdps/enduro/pull/1646
 [#1637]: https://github.com/artefactual-sdps/enduro/issues/1637
