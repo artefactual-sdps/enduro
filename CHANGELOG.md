@@ -12,8 +12,8 @@ requests.
 
 ### Fixed
 
-- Return API failures as HTTP 500 ([#1757])
-- Preserve SIP modification times ([#1663])
+- Return API failures as HTTP 500 ([#1663])
+- Preserve SIP modification times ([#1757])
 
 ## [0.33.0] - 2026-08-14
 
