@@ -40,8 +40,8 @@ func TestServerErrorHandlerLogsAndSanitizesInternalError(t *testing.T) {
 
 	_, err := endpoint(context.Background(), "payload")
 
-	var serr *goa.ServiceError
-	assert.Assert(t, errors.As(err, &serr))
+	serr, ok := errors.AsType[*goa.ServiceError](err)
+	assert.Assert(t, ok)
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
 		ID:      returned.ID,
@@ -70,8 +70,8 @@ func TestServerErrorHandlerClassifiesRawError(t *testing.T) {
 
 	_, err := endpoint(context.Background(), "payload")
 
-	var serr *goa.ServiceError
-	assert.Assert(t, errors.As(err, &serr))
+	serr, ok := errors.AsType[*goa.ServiceError](err)
+	assert.Assert(t, ok)
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
 		Message: apiInternalErrorMsg,
@@ -110,20 +110,52 @@ func TestServerErrorHandlerPassesThroughDomainError(t *testing.T) {
 	t.Parallel()
 
 	domainErr := &goastorage.AIPNotFound{Message: "AIP not found"}
-	var logged string
-	logger := funcr.New(
-		func(_, args string) { logged = args },
-		funcr.Options{},
-	)
-	endpoint := goastorage.WrapShowAipEndpoint(
-		func(context.Context, any) (any, error) { return nil, domainErr },
-		newStorageServerInterceptors(logger),
-	)
+	for _, tt := range []struct {
+		name     string
+		returned error
+	}{
+		{name: "direct", returned: domainErr},
+		{name: "wrapped", returned: fmt.Errorf("show AIP: %w", domainErr)},
+		{name: "joined", returned: errors.Join(errors.New("additional context"), domainErr)},
+		{name: "custom As", returned: &domainErrorAdapter{named: domainErr}},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 
-	_, err := endpoint(context.Background(), "payload")
+			var logged string
+			logger := funcr.New(
+				func(_, args string) { logged = args },
+				funcr.Options{},
+			)
+			endpoint := goastorage.WrapShowAipEndpoint(
+				func(context.Context, any) (any, error) { return nil, tt.returned },
+				newStorageServerInterceptors(logger),
+			)
 
-	assert.DeepEqual(t, err, domainErr)
-	assert.Equal(t, logged, "")
+			_, err := endpoint(context.Background(), "payload")
+
+			assert.Equal(t, err, tt.returned)
+			assert.Equal(t, logged, "")
+		})
+	}
+}
+
+// domainErrorAdapter exposes a named error only through the original Goa target.
+type domainErrorAdapter struct {
+	named goa.GoaErrorNamer
+}
+
+func (e *domainErrorAdapter) Error() string {
+	return "adapted domain error"
+}
+
+func (e *domainErrorAdapter) As(target any) bool {
+	named, ok := target.(*goa.GoaErrorNamer)
+	if !ok {
+		return false
+	}
+	*named = e.named
+	return true
 }
 
 func TestServerErrorHandlerLogsTimeoutOnce(t *testing.T) {
@@ -146,8 +178,8 @@ func TestServerErrorHandlerLogsTimeoutOnce(t *testing.T) {
 
 	_, err := endpoint(context.Background(), "payload")
 
-	var serr *goa.ServiceError
-	assert.Assert(t, errors.As(err, &serr))
+	serr, ok := errors.AsType[*goa.ServiceError](err)
+	assert.Assert(t, ok)
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
 		Message: apiInternalErrorMsg,
@@ -174,8 +206,8 @@ func TestOperationTimeoutMapsDeadlineExceeded(t *testing.T) {
 	)
 
 	_, err := endpoint(context.Background(), "payload")
-	var serr *goa.ServiceError
-	assert.Assert(t, errors.As(err, &serr))
+	serr, ok := errors.AsType[*goa.ServiceError](err)
+	assert.Assert(t, ok)
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
 		Message: apiInternalErrorMsg,
@@ -310,8 +342,8 @@ func TestOperationTimeoutRecordsSpanError(t *testing.T) {
 	_, err := endpoint(ctx, "payload")
 	endSpan()
 
-	var serr *goa.ServiceError
-	assert.Assert(t, errors.As(err, &serr))
+	serr, ok := errors.AsType[*goa.ServiceError](err)
+	assert.Assert(t, ok)
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
 		Message: apiInternalErrorMsg,

@@ -146,8 +146,8 @@ func (a *ClearIngestedSIPsActivity) deleteAIP(ctx context.Context, batchUUID uui
 }
 
 func isAIPNotStoredError(err error) bool {
-	var serviceErr *goa.ServiceError
-	if !errors.As(err, &serviceErr) {
+	serviceErr, ok := errors.AsType[*goa.ServiceError](err)
+	if !ok {
 		return false
 	}
 

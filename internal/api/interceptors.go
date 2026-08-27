@@ -168,8 +168,8 @@ func (i *serverInterceptors) handleServerError(
 	// Check ServiceError first because it also implements GoaErrorNamer. Only
 	// the declared internal_error belongs to this handler; other service errors
 	// already have their own Goa classification and must pass through unchanged.
-	var serviceErr *goa.ServiceError
-	if errors.As(err, &serviceErr) {
+	serviceErr, ok := errors.AsType[*goa.ServiceError](err)
+	if ok {
 		if serviceErr.Name != "internal_error" {
 			return res, err
 		}
@@ -177,8 +177,9 @@ func (i *serverInterceptors) handleServerError(
 		// Generated domain errors implement GoaErrorNamer without being
 		// ServiceErrors. Their generated transport mappings are authoritative,
 		// so preserve them instead of converting them to internal_error.
-		var namedErr goa.GoaErrorNamer
-		if errors.As(err, &namedErr) {
+		// Keep the original target type for custom As methods. GoaErrorNamer
+		// does not embed error, so it cannot be matched with errors.AsType.
+		if errors.As(err, new(goa.GoaErrorNamer)) {
 			return res, err
 		}
 
