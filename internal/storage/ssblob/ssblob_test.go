@@ -26,8 +26,8 @@ func setUpTest(t *testing.T, h http.HandlerFunc, opts *ssblob.Options) *blob.Buc
 		opts = &ssblob.Options{}
 	}
 
-	srv := httptest.NewServer(h)
-	t.Cleanup(func() { srv.Close() })
+	srv := httptest.NewTestServer(t, h)
+	opts.HTTPClient = srv.Client()
 	opts.URL = srv.URL
 
 	b, err := ssblob.OpenBucket(opts)
