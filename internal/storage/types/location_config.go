@@ -2,7 +2,8 @@ package types
 
 import (
 	"context"
-	"encoding/json"
+	"encoding/json/jsontext"
+	"encoding/json/v2"
 	"errors"
 	"fmt"
 	"net/http"
@@ -70,7 +71,7 @@ func (c LocationConfig) MarshalJSON() ([]byte, error) {
 
 func (c *LocationConfig) UnmarshalJSON(blob []byte) error {
 	// Raise an error if the doc describes multiple configs.
-	keys := map[string]json.RawMessage{}
+	keys := map[string]jsontext.Value{}
 	err := json.Unmarshal(blob, &keys)
 	if err != nil {
 		return errors.New("undefined configuration format")
@@ -105,7 +106,7 @@ type S3Config struct {
 	Bucket    string `json:"bucket"`
 	Region    string `json:"region"`
 	Endpoint  string `json:"endpoint,omitempty"`
-	PathStyle bool   `json:"path_style,omitempty"`
+	PathStyle bool   `json:"path_style,omitzero"`
 	Profile   string `json:"profile,omitempty"`
 	Key       string `json:"key,omitempty"`
 	Secret    string `json:"secret,omitempty"`
