@@ -35,6 +35,7 @@ IGNORED_PACKAGES := \
 PACKAGES = $(shell go list ./...)
 TEST_PACKAGES = $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 TEST_IGNORED_PACKAGES = $(filter $(IGNORED_PACKAGES),$(PACKAGES))
+MODERNIZE_PACKAGES = $(filter-out github.com/artefactual-sdps/enduro/dashboard/%,$(TEST_PACKAGES))
 
 # Configure bine.
 export PATH := $(shell go tool bine path):$(PATH)
@@ -180,11 +181,15 @@ mod-tidy-check: # @HELP Check that mod files are tidy.
 	go mod tidy -diff
 	cd hack/pulumi && go mod tidy -diff
 
+modernize-check: # @HELP Check for modern Go simplifications with all go fix analyzers.
+	go fix -diff $(MODERNIZE_PACKAGES)
+
 pre-commit: # @HELP Check that code is ready to commit.
 pre-commit:
 	$(MAKE) -j \
 		lint \
 		mod-tidy-check \
+		modernize-check \
 		shfmt \
 		test-race \
 		workflowcheck \
