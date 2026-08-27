@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"testing"
-	"time"
+	"testing/synctest"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/uuid"
@@ -123,39 +123,34 @@ func TestMonitor(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			evsvc := event.NewServiceInMem[*goaingest.IngestEvent]()
-			stream := &mockMonitorServerStream{}
+			synctest.Test(t, func(t *testing.T) {
+				evsvc := event.NewServiceInMem[*goaingest.IngestEvent]()
+				stream := &mockMonitorServerStream{}
 
-			svc := ingest.NewService(ingest.ServiceParams{
-				EventService: evsvc,
+				svc := ingest.NewService(ingest.ServiceParams{
+					EventService: evsvc,
+				})
+
+				ctx, cancel := context.WithCancel(t.Context())
+				ctx = auth.WithUserClaims(ctx, tt.claims)
+
+				errCh := make(chan error, 1)
+				go func() {
+					errCh <- svc.Monitor(ctx, &goaingest.MonitorPayload{}, stream)
+				}()
+
+				// Wait until Monitor has subscribed and is blocked for input.
+				synctest.Wait()
+				for _, event := range tt.events {
+					evsvc.PublishEvent(t.Context(), event)
+				}
+				// Wait until Monitor has handled every published event.
+				synctest.Wait()
+
+				cancel()
+				assert.NilError(t, <-errCh)
+				assert.DeepEqual(t, stream.events, tt.wantEvents, cmp.AllowUnexported(goaingest.Value{}))
 			})
-
-			// Create a context that will be cancelled to stop the monitor.
-			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
-			defer cancel()
-			ctx = auth.WithUserClaims(ctx, tt.claims)
-
-			// Start monitor in a goroutine.
-			errCh := make(chan error, 1)
-			go func() {
-				errCh <- svc.Monitor(ctx, &goaingest.MonitorPayload{}, stream)
-			}()
-
-			// Send test events after a short delay.
-			time.Sleep(10 * time.Millisecond)
-			for _, event := range tt.events {
-				evsvc.PublishEvent(t.Context(), event)
-			}
-
-			// Wait for the monitor to finish.
-			select {
-			case err := <-errCh:
-				assert.NilError(t, err)
-			case <-time.After(200 * time.Millisecond):
-				t.Fatal("Monitor did not complete in expected time")
-			}
-
-			assert.DeepEqual(t, stream.events, tt.wantEvents, cmp.AllowUnexported(goaingest.Value{}))
 		})
 	}
 }
@@ -191,35 +186,38 @@ func TestMonitorReturnsNilOnStreamSendError(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			evsvc := event.NewServiceInMem[*goaingest.IngestEvent]()
-			stream := &mockMonitorServerStream{failOnSend: tt.failOnSend}
-			svc := ingest.NewService(ingest.ServiceParams{
-				EventService: evsvc,
+			synctest.Test(t, func(t *testing.T) {
+				evsvc := event.NewServiceInMem[*goaingest.IngestEvent]()
+				stream := &mockMonitorServerStream{failOnSend: tt.failOnSend}
+				svc := ingest.NewService(ingest.ServiceParams{
+					EventService: evsvc,
+				})
+
+				ctx, cancel := context.WithCancel(t.Context())
+				defer cancel()
+				ctx = auth.WithUserClaims(ctx, &auth.Claims{Attributes: []string{"*"}})
+
+				errCh := make(chan error, 1)
+				go func() {
+					errCh <- svc.Monitor(ctx, &goaingest.MonitorPayload{}, stream)
+				}()
+
+				// Wait for the hello send and subscription setup to settle.
+				synctest.Wait()
+				if tt.publish != nil {
+					tt.publish(t.Context(), evsvc)
+					synctest.Wait()
+				}
+
+				select {
+				case err := <-errCh:
+					assert.NilError(t, err)
+				default:
+					t.Fatal("Monitor did not return after stream send error")
+				}
+				assert.Assert(t, stream.closed)
+				assert.DeepEqual(t, stream.events, tt.wantEvents, cmp.AllowUnexported(goaingest.Value{}))
 			})
-
-			ctx, cancel := context.WithTimeout(t.Context(), 100*time.Millisecond)
-			defer cancel()
-			ctx = auth.WithUserClaims(ctx, &auth.Claims{Attributes: []string{"*"}})
-
-			errCh := make(chan error, 1)
-			go func() {
-				errCh <- svc.Monitor(ctx, &goaingest.MonitorPayload{}, stream)
-			}()
-
-			if tt.publish != nil {
-				time.Sleep(10 * time.Millisecond)
-				tt.publish(t.Context(), evsvc)
-			}
-
-			select {
-			case err := <-errCh:
-				assert.NilError(t, err)
-			case <-time.After(200 * time.Millisecond):
-				t.Fatal("Monitor did not complete in expected time")
-			}
-
-			assert.Assert(t, stream.closed)
-			assert.DeepEqual(t, stream.events, tt.wantEvents, cmp.AllowUnexported(goaingest.Value{}))
 		})
 	}
 }
