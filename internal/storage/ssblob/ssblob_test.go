@@ -331,8 +331,8 @@ func TestBucket(t *testing.T) {
 
 		_, err := b.Attributes(context.Background(), aipID)
 
-		var apiErr *ssblob.APIError
-		assert.Assert(t, errors.As(err, &apiErr))
+		apiErr, ok := errors.AsType[*ssblob.APIError](err)
+		assert.Assert(t, ok)
 		assert.Equal(t, apiErr.Code, http.StatusNotFound)
 		assert.Equal(t, apiErr.Error(), "Not Found")
 		assert.Equal(t, apiErr.Cause.Error(), "resource deleted")
