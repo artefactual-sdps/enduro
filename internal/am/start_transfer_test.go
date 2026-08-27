@@ -255,8 +255,7 @@ func newStartTransferTestClient(
 ) *amclient.Client {
 	t.Helper()
 
-	server := httptest.NewServer(serverInfoHandler)
-	t.Cleanup(server.Close)
+	server := httptest.NewTestServer(t, serverInfoHandler)
 	client := amclient.NewClient(server.Client(), server.URL+"/", "test", "test")
 	client.Package = packageService
 
