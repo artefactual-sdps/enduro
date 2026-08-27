@@ -201,6 +201,23 @@ func TestLocationConfigDecoding(t *testing.T) {
 			blob:    `{"xxxxxx":{}}`,
 			wantErr: "undefined configuration document",
 		},
+		"Rejects case-insensitive config name": {
+			blob:    `{"S3":{"bucket":"perma-aips-1","region":"eu-west-1"}}`,
+			wantErr: "undefined configuration document",
+		},
+		"Rejects duplicate config name": {
+			blob: `{
+				"s3":{"bucket":"perma-aips-1","region":"eu-west-1"},
+				"s3":{"bucket":"perma-aips-2","region":"eu-west-1"}
+			}`,
+			wantErr: "undefined configuration format",
+		},
+		"Rejects duplicate config field": {
+			blob: `{
+				"s3":{"bucket":"perma-aips-1","bucket":"perma-aips-2","region":"eu-west-1"}
+			}`,
+			wantErr: "undefined configuration format",
+		},
 		"Rejects unexpected JSON": {
 			blob:    `[1, 2, 3]`,
 			wantErr: "undefined configuration format",
