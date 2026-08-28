@@ -51,6 +51,18 @@ description of the AIP and its components is available in the Archivematica
 documentation - see: [AIP
 structure](https://www.archivematica.org/docs/latest/user-manual/archival-storage/aip-structure/#aip-structure).
 
+## Batch
+
+A collection of one or more [Submission Information Packages
+(SIPs)](#submission-information-package-sip), linked by a batch identifier.
+SIPs can be ingested as part of a batch by using the [source location upload
+option].
+
+Marking SIPs as part of a batch allows for easier tracking of SIP that are need
+to managed as a group, whether for intellectual or pragmatic reasons. It is also
+possible to write a [child workflow](#child-workflow) that will act on a batch
+of SIPs, rather than an individual SIP.
+
 ## Child workflow
 
 A **workflow** started by another workflow, known as its parent. The parent and
@@ -409,4 +421,5 @@ Version 3.0. June 2015. Glossary, p. 270.
 [Postbatch child workflows]: ../dev-manual/child-workflows/postbatch.md
 [Poststorage child workflows]: ../dev-manual/child-workflows/poststorage.md
 [Preprocessing child workflows]: ../dev-manual/child-workflows/preprocessing.md
+[source location upload option]: ../user-manual/ingest/submitting-content.md/#initiate-ingest-using-sips-uploaded-to-a-source-location
 [Watched location configuration]: ../admin-manual/configuration.md#watched-location-configuration
