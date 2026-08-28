@@ -8,6 +8,12 @@ requests.
 
 ## [Unreleased]
 
+## [0.34.1] - 2026-08-28
+
+### Fixed
+
+- Fix bag creation for SIPs with nested directories ([#1769])
+
 ## [0.34.0] - 2026-08-24
 
 ### Fixed
@@ -441,7 +447,8 @@ requests.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.34.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.34.1...HEAD
+[0.34.1]: https://github.com/artefactual-sdps/enduro/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/artefactual-sdps/enduro/compare/v0.33.0...v0.34.0
 [0.33.0]: https://github.com/artefactual-sdps/enduro/compare/v0.32.0...v0.33.0
 [0.32.0]: https://github.com/artefactual-sdps/enduro/compare/v0.31.0...v0.32.0
@@ -476,6 +483,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1769]: https://github.com/artefactual-sdps/enduro/issues/1769
 [#1757]: https://github.com/artefactual-sdps/enduro/issues/1757
 [#1739]: https://github.com/artefactual-sdps/enduro/pull/1739
 [#1737]: https://github.com/artefactual-sdps/enduro/pull/1737
