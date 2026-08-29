@@ -59,7 +59,7 @@ formatters:
       sections:
         - standard
         - default
-        - prefix(github.com/artefactual-sdps/enduro)
+        - localmodule
       no-inline-comments: true
       no-prefix-comments: false
     gofumpt:
