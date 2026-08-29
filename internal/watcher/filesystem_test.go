@@ -172,14 +172,14 @@ func TestFileSystemWatcher(t *testing.T) {
 		}
 		t.Cleanup(func() { _ = os.RemoveAll(completedDir) })
 
-		deviceID := func(path string) uint64 {
+		fileStat := func(path string) *syscall.Stat_t {
 			info, err := os.Stat(path)
 			assert.NilError(t, err)
 			stat, ok := info.Sys().(*syscall.Stat_t)
 			assert.Assert(t, ok)
-			return uint64(stat.Dev)
+			return stat
 		}
-		if deviceID(watchedDir) == deviceID(completedDir) {
+		if fileStat(watchedDir).Dev == fileStat(completedDir).Dev {
 			t.Skip("temporary and completed directories are on the same filesystem")
 		}
 
