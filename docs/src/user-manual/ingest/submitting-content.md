@@ -197,6 +197,13 @@ on the result of a batch, rather than the result of an individual SIP.
    page. If you do not enter a custom batch identifier, Enduro will generate one
    using a 32-digit UUID.
 
+
+    !!! note
+
+        The batch identifier is not preserved in the resulting AIP. If you need
+        this identifier for future use, ensure that it is recorded in AIP's
+        metadata.
+
 3. When you are happy with your batch configuration, click the "Start ingest"
    button at the bottom of the page.
 
