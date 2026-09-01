@@ -4,7 +4,10 @@ Depending on how Enduro is configured during installation, there are several
 different ways that operators can initiate an ingest workflow. Currently, in all
 cases Enduro needs one or more
 [SIPs](../glossary.md#submission-information-package-sip) to initiate an ingest
-workflow. Below are instructions on the 3 different ways that operators can
+workflow. SIPs can be uploaded individually or you can upload several SIPs
+together and have Enduro treat them as a [batch](../glossary.md#batch).
+
+Below are instructions on the 3 different ways that operators can
 submit SIPs for ingest in Enduro.
 
 ## Prepare digital objects
@@ -125,7 +128,11 @@ configured source location and initiate ingest via the user interface.
 
 The deposit or upload process will depend on the source location used.
 
-**To initiate ingest using SIPs in a source location**:
+SIPs placed in a source location can be uploaded either individually or as part
+of a [batch](../glossary.md#batch). Using the batch functionality allows for
+easier tracking of related SIPs.
+
+### Ingest individual SIPs in a source location
 
 1. Using the [navbar](../overview.md#navigation) on the left side of the screen,
    click on "Upload SIPs." Enduro will redirect you to the SIP upload  page.
@@ -161,7 +168,8 @@ The deposit or upload process will depend on the source location used.
     ![2 SIPs selected from a source location](../screenshots/sip-source-start-upload.png)
 
 4. When you are happy with your SIP selection, click the "Start ingest" button
-   at the bottom of the page.
+   at the bottom of the page. Each SIP will be treated as an individual,
+   unrelated SIP.
 
     After a moment, the page will reload and you will be redirected to the SIP
     browse page, where any new worklfows started by this process  will be
@@ -169,6 +177,46 @@ The deposit or upload process will depend on the source location used.
     separately in its own workflow.
 
     ![SIP ingests started from a source location](../screenshots/sip-source-upload-started.png)
+
+### Ingest a batch of SIPs in a source location
+
+You can also use the source location ingest method to ingest a collection of
+SIPs as a [batch]. The batch functionality groups individual SIPs together,
+making it easier to track a selection of SIPs as they are ingested into Enduro.
+It is also possible to write a [child workflow] that performs an actions based
+on the result of a batch, rather than the result of an individual SIP.
+
+1. To process a selection of SIPs as a batch, follow steps 1-3 above but before
+   clicking on Start Ingest, click on the toggle next to "Treat this ingest as a
+   batch?"
+
+    ![The batch toggle](../screenshots/sip-source-add-batch-id.png)
+
+2. If you wish, you can add a custom batch identifier. This identifier will be
+   used to link the SIPs together and to search for the batch on the Batches
+   page. If you do not enter a custom batch identifier, Enduro will generate one
+   using a 32-digit UUID.
+
+    !!! note
+
+        The batch identifier is not preserved in the resulting AIP. If you need
+        this identifier for future use, ensure that it is recorded in AIP's
+        metadata.
+
+3. When you are happy with your batch configuration, click the "Start ingest"
+   button at the bottom of the page.
+
+    After a moment, the page will reload and you will be redirected to the
+    Batches browse page, where any new batch started by this process  will
+    be visible at the top of the browse results. While each SIP is still
+    ingested separately in its own workflow, the SIPs will also be related
+    through the batch identifier.
+
+    From the Batches browse page, click on the batch identifier to see a list of
+    all the SIPs in the batch, the status of each SIP, and the status of the
+    batch as a whole.
+
+    ![List of all batches](../screenshots/batch-page.png)
 
 ## Initiate ingest via a watched location upload
 
@@ -196,6 +244,8 @@ locations for those sources.
 [a3m]: https://github.com/artefactual-labs/a3m
 [Archivematica]: https://archivematica.org
 [BagIt]: https://tools.ietf.org/html/rfc8493
+[batch]: ../glossary.md#batch
+[child workflow]: ../glossary.md#child-workflow
 [SIP source configuration]: ../../admin-manual/configuration.md#sip-source-location-configuration
 [watched location configuration]: ../../admin-manual/configuration.md#watched-location-configuration
 [source location]: ../glossary.md#source-location
