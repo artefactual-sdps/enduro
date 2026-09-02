@@ -14,7 +14,7 @@ version = "0.14.6"
 [[bins]]
 name = "go-enum"
 url = "https://github.com/abice/go-enum"
-version = "0.9.1"
+version = "0.9.4"
 
 [[bins]]
 name = "go-mod-outdated"
@@ -29,7 +29,7 @@ version = "3.29.2"
 [[bins]]
 name = "golangci-lint"
 url = "https://github.com/golangci/golangci-lint"
-version = "2.11.2"
+version = "2.13.1"
 
 [[bins]]
 name = "gomajor"

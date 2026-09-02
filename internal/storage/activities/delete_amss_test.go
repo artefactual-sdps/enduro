@@ -21,9 +21,7 @@ import (
 
 func setupServer(t *testing.T, h http.HandlerFunc) *httptest.Server {
 	t.Helper()
-	srv := httptest.NewServer(h)
-	t.Cleanup(func() { srv.Close() })
-	return srv
+	return httptest.NewTestServer(t, h)
 }
 
 func TestDeleteFromAMSSLocationActivity(t *testing.T) {
@@ -496,6 +494,7 @@ func TestDeleteFromAMSSLocationActivity(t *testing.T) {
 			url := tt.url
 			if tt.handler != nil {
 				srv := setupServer(t, tt.handler)
+				httpClient = srv.Client()
 				url = srv.URL
 			}
 			pollInterval := tt.poll

@@ -89,7 +89,8 @@ func TestUpdateAIP(t *testing.T) {
 				func(aip *types.AIP) (*types.AIP, error) {
 					aip.Name = "test"
 					return aip, nil
-				})
+				},
+			)
 			if tc.wantErr != "" {
 				assert.Error(t, err, tc.wantErr)
 				return

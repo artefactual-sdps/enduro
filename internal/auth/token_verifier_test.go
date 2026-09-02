@@ -67,19 +67,21 @@ func TestOIDCTokenVerifier(t *testing.T) {
 					EmailVerified: true,
 				})
 
-				return auth.OIDCConfigs{
-						{ProviderURL: iss, ClientID: audience},
-					}, []verification{
-						{
-							token: token,
-							wantClaims: &auth.Claims{
-								Email:         "info@artefactual.com",
-								EmailVerified: true,
-								Iss:           iss,
-								Sub:           subject,
-							},
+				configs := auth.OIDCConfigs{
+					{ProviderURL: iss, ClientID: audience},
+				}
+				verifications := []verification{
+					{
+						token: token,
+						wantClaims: &auth.Claims{
+							Email:         "info@artefactual.com",
+							EmailVerified: true,
+							Iss:           iss,
+							Sub:           subject,
 						},
-					}
+					},
+				}
+				return configs, verifications
 			},
 		},
 		{
@@ -90,22 +92,24 @@ func TestOIDCTokenVerifier(t *testing.T) {
 					Email: "info@artefactual.com",
 				})
 
-				return auth.OIDCConfigs{
-						{
-							ProviderURL:            iss,
-							ClientID:               audience,
-							SkipEmailVerifiedCheck: true,
+				configs := auth.OIDCConfigs{
+					{
+						ProviderURL:            iss,
+						ClientID:               audience,
+						SkipEmailVerifiedCheck: true,
+					},
+				}
+				verifications := []verification{
+					{
+						token: token,
+						wantClaims: &auth.Claims{
+							Email: "info@artefactual.com",
+							Iss:   iss,
+							Sub:   subject,
 						},
-					}, []verification{
-						{
-							token: token,
-							wantClaims: &auth.Claims{
-								Email: "info@artefactual.com",
-								Iss:   iss,
-								Sub:   subject,
-							},
-						},
-					}
+					},
+				}
+				return configs, verifications
 			},
 		},
 		{
@@ -116,14 +120,16 @@ func TestOIDCTokenVerifier(t *testing.T) {
 					Email: "info@artefactual.com",
 				})
 
-				return auth.OIDCConfigs{
-						{ProviderURL: iss, ClientID: audience},
-					}, []verification{
-						{
-							token:     token,
-							wantErrIs: auth.ErrUnauthorized,
-						},
-					}
+				configs := auth.OIDCConfigs{
+					{ProviderURL: iss, ClientID: audience},
+				}
+				verifications := []verification{
+					{
+						token:     token,
+						wantErrIs: auth.ErrUnauthorized,
+					},
+				}
+				return configs, verifications
 			},
 		},
 		{
@@ -135,16 +141,18 @@ func TestOIDCTokenVerifier(t *testing.T) {
 					EmailVerified: false,
 				})
 
-				return auth.OIDCConfigs{
-						{ProviderURL: iss, ClientID: "--- wrong-audience ---"},
-					}, []verification{
-						{
-							token: token,
-							wantErrContains: []string{
-								`oidc: expected audience "--- wrong-audience ---" got ["test-audience"]`,
-							},
+				configs := auth.OIDCConfigs{
+					{ProviderURL: iss, ClientID: "--- wrong-audience ---"},
+				}
+				verifications := []verification{
+					{
+						token: token,
+						wantErrContains: []string{
+							`oidc: expected audience "--- wrong-audience ---" got ["test-audience"]`,
 						},
-					}
+					},
+				}
+				return configs, verifications
 			},
 		},
 		{
@@ -161,29 +169,31 @@ func TestOIDCTokenVerifier(t *testing.T) {
 					EmailVerified: true,
 				})
 
-				return auth.OIDCConfigs{
-						{ProviderURL: issA, ClientID: audience},
-						{ProviderURL: issB, ClientID: audience},
-					}, []verification{
-						{
-							token: tokenA,
-							wantClaims: &auth.Claims{
-								Email:         "example@artefactual.com",
-								EmailVerified: true,
-								Iss:           issA,
-								Sub:           subject,
-							},
+				configs := auth.OIDCConfigs{
+					{ProviderURL: issA, ClientID: audience},
+					{ProviderURL: issB, ClientID: audience},
+				}
+				verifications := []verification{
+					{
+						token: tokenA,
+						wantClaims: &auth.Claims{
+							Email:         "example@artefactual.com",
+							EmailVerified: true,
+							Iss:           issA,
+							Sub:           subject,
 						},
-						{
-							token: tokenB,
-							wantClaims: &auth.Claims{
-								Email:         "example@artefactual.com",
-								EmailVerified: true,
-								Iss:           issB,
-								Sub:           subject,
-							},
+					},
+					{
+						token: tokenB,
+						wantClaims: &auth.Claims{
+							Email:         "example@artefactual.com",
+							EmailVerified: true,
+							Iss:           issB,
+							Sub:           subject,
 						},
-					}
+					},
+				}
+				return configs, verifications
 			},
 		},
 		{
@@ -194,27 +204,29 @@ func TestOIDCTokenVerifier(t *testing.T) {
 					Email: "example@artefactual.com",
 				})
 
-				return auth.OIDCConfigs{
-						{
-							ProviderURL:            iss,
-							ClientID:               audience,
-							SkipEmailVerifiedCheck: false,
+				configs := auth.OIDCConfigs{
+					{
+						ProviderURL:            iss,
+						ClientID:               audience,
+						SkipEmailVerifiedCheck: false,
+					},
+					{
+						ProviderURL:            iss,
+						ClientID:               audience,
+						SkipEmailVerifiedCheck: true,
+					},
+				}
+				verifications := []verification{
+					{
+						token: token,
+						wantClaims: &auth.Claims{
+							Email: "example@artefactual.com",
+							Iss:   iss,
+							Sub:   subject,
 						},
-						{
-							ProviderURL:            iss,
-							ClientID:               audience,
-							SkipEmailVerifiedCheck: true,
-						},
-					}, []verification{
-						{
-							token: token,
-							wantClaims: &auth.Claims{
-								Email: "example@artefactual.com",
-								Iss:   iss,
-								Sub:   subject,
-							},
-						},
-					}
+					},
+				}
+				return configs, verifications
 			},
 		},
 		{
@@ -227,35 +239,37 @@ func TestOIDCTokenVerifier(t *testing.T) {
 					"attributes":     []string{"*"},
 				})
 
-				return auth.OIDCConfigs{
-						{
-							ProviderURL: iss,
-							ClientID:    audience,
-							ABAC: auth.OIDCABACConfig{
-								Enabled:   true,
-								ClaimPath: "missing",
-							},
+				configs := auth.OIDCConfigs{
+					{
+						ProviderURL: iss,
+						ClientID:    audience,
+						ABAC: auth.OIDCABACConfig{
+							Enabled:   true,
+							ClaimPath: "missing",
 						},
-						{
-							ProviderURL: iss,
-							ClientID:    audience,
-							ABAC: auth.OIDCABACConfig{
-								Enabled:   true,
-								ClaimPath: "attributes",
-							},
+					},
+					{
+						ProviderURL: iss,
+						ClientID:    audience,
+						ABAC: auth.OIDCABACConfig{
+							Enabled:   true,
+							ClaimPath: "attributes",
 						},
-					}, []verification{
-						{
-							token: token,
-							wantClaims: &auth.Claims{
-								Email:         "example@artefactual.com",
-								EmailVerified: true,
-								Iss:           iss,
-								Sub:           subject,
-								Attributes:    []string{"*"},
-							},
+					},
+				}
+				verifications := []verification{
+					{
+						token: token,
+						wantClaims: &auth.Claims{
+							Email:         "example@artefactual.com",
+							EmailVerified: true,
+							Iss:           iss,
+							Sub:           subject,
+							Attributes:    []string{"*"},
 						},
-					}
+					},
+				}
+				return configs, verifications
 			},
 		},
 		{
@@ -267,18 +281,20 @@ func TestOIDCTokenVerifier(t *testing.T) {
 					EmailVerified: true,
 				})
 
-				return auth.OIDCConfigs{
-						{ProviderURL: iss, ClientID: "wrong-audience-a"},
-						{ProviderURL: iss, ClientID: "wrong-audience-b"},
-					}, []verification{
-						{
-							token: token,
-							wantErrContains: []string{
-								`oidc: expected audience "wrong-audience-a" got ["test-audience"]`,
-								`oidc: expected audience "wrong-audience-b" got ["test-audience"]`,
-							},
+				configs := auth.OIDCConfigs{
+					{ProviderURL: iss, ClientID: "wrong-audience-a"},
+					{ProviderURL: iss, ClientID: "wrong-audience-b"},
+				}
+				verifications := []verification{
+					{
+						token: token,
+						wantErrContains: []string{
+							`oidc: expected audience "wrong-audience-a" got ["test-audience"]`,
+							`oidc: expected audience "wrong-audience-b" got ["test-audience"]`,
 						},
-					}
+					},
+				}
+				return configs, verifications
 			},
 		},
 		{
@@ -289,15 +305,17 @@ func TestOIDCTokenVerifier(t *testing.T) {
 					Email: "example@artefactual.com",
 				})
 
-				return auth.OIDCConfigs{
-						{ProviderURL: iss, ClientID: audience},
-						{ProviderURL: iss, ClientID: audience},
-					}, []verification{
-						{
-							token:     token,
-							wantErrIs: auth.ErrUnauthorized,
-						},
-					}
+				configs := auth.OIDCConfigs{
+					{ProviderURL: iss, ClientID: audience},
+					{ProviderURL: iss, ClientID: audience},
+				}
+				verifications := []verification{
+					{
+						token:     token,
+						wantErrIs: auth.ErrUnauthorized,
+					},
+				}
+				return configs, verifications
 			},
 		},
 	} {

@@ -35,6 +35,13 @@ IGNORED_PACKAGES := \
 PACKAGES = $(shell go list ./...)
 TEST_PACKAGES = $(filter-out $(IGNORED_PACKAGES),$(PACKAGES))
 TEST_IGNORED_PACKAGES = $(filter $(IGNORED_PACKAGES),$(PACKAGES))
+MODERNIZE_PACKAGES = $(filter-out github.com/artefactual-sdps/enduro/dashboard/%,$(TEST_PACKAGES))
+# Go 1.27's errorsastype fixer emits an uncompilable AsType conversion for
+# GoaErrorNamer, which does not implement error. Package-level exclusion is the
+# narrowest exception supported by go fix.
+ERRORS_ASTYPE_PACKAGES = $(filter-out \
+	github.com/artefactual-sdps/enduro/internal/api, \
+	$(MODERNIZE_PACKAGES))
 
 # Configure bine.
 export PATH := $(shell go tool bine path):$(PATH)
@@ -180,11 +187,16 @@ mod-tidy-check: # @HELP Check that mod files are tidy.
 	go mod tidy -diff
 	cd hack/pulumi && go mod tidy -diff
 
+modernize-check: # @HELP Check for modern Go simplifications with all go fix analyzers.
+	go fix -diff -errorsastype=false $(MODERNIZE_PACKAGES)
+	go fix -diff -errorsastype $(ERRORS_ASTYPE_PACKAGES)
+
 pre-commit: # @HELP Check that code is ready to commit.
 pre-commit:
 	$(MAKE) -j \
 		lint \
 		mod-tidy-check \
+		modernize-check \
 		shfmt \
 		test-race \
 		workflowcheck \

@@ -26,8 +26,8 @@ func setUpTest(t *testing.T, h http.HandlerFunc, opts *ssblob.Options) *blob.Buc
 		opts = &ssblob.Options{}
 	}
 
-	srv := httptest.NewServer(h)
-	t.Cleanup(func() { srv.Close() })
+	srv := httptest.NewTestServer(t, h)
+	opts.HTTPClient = srv.Client()
 	opts.URL = srv.URL
 
 	b, err := ssblob.OpenBucket(opts)
@@ -331,8 +331,8 @@ func TestBucket(t *testing.T) {
 
 		_, err := b.Attributes(context.Background(), aipID)
 
-		var apiErr *ssblob.APIError
-		assert.Assert(t, errors.As(err, &apiErr))
+		apiErr, ok := errors.AsType[*ssblob.APIError](err)
+		assert.Assert(t, ok)
 		assert.Equal(t, apiErr.Code, http.StatusNotFound)
 		assert.Equal(t, apiErr.Error(), "Not Found")
 		assert.Equal(t, apiErr.Cause.Error(), "resource deleted")
