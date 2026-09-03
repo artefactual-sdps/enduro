@@ -1,6 +1,6 @@
 # syntax = docker/dockerfile:1.4
 
-FROM node:26.7.0 AS builder
+FROM node:26.8.1 AS builder
 WORKDIR /app
 COPY --link package.json package-lock.json ./
 RUN --mount=type=cache,target=/app/.npm \
