@@ -1,6 +1,6 @@
 module github.com/artefactual-sdps/enduro
 
-go 1.26.6
+go 1.26.8
 
 require (
 	ariga.io/atlas v1.3.0
@@ -30,7 +30,7 @@ require (
 	github.com/jonboulle/clockwork v0.5.0
 	github.com/mattn/go-sqlite3 v1.14.50
 	github.com/mholt/archives v0.1.5
-	github.com/nyudlts/go-bagit v0.3.1-alpha
+	github.com/nyudlts/go-bagit v0.3.1-alpha.0.20260910131009-ba8b18a010d2
 	github.com/oklog/run v1.2.0
 	github.com/otiai10/copy v1.14.1
 	github.com/pdfcpu/pdfcpu v0.15.0

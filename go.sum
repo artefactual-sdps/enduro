@@ -418,8 +418,8 @@ github.com/nexus-rpc/sdk-go v0.7.0 h1:38NrfY5rLnZAiMMs2ZfCKI/CSDzdfJG+27iAgfA8bU
 github.com/nexus-rpc/sdk-go v0.7.0/go.mod h1:FHdPfVQwRuJFZFTF0Y2GOAxCrbIBNrcPna9slkGKPYk=
 github.com/nwaples/rardecode/v2 v2.2.1 h1:DgHK/O/fkTQEKBJxBMC5d9IU8IgauifbpG78+rZJMnI=
 github.com/nwaples/rardecode/v2 v2.2.1/go.mod h1:7uz379lSxPe6j9nvzxUZ+n7mnJNgjsRNb6IbvGVHRmw=
-github.com/nyudlts/go-bagit v0.3.1-alpha h1:jE/pg+8rVL/3eP3VkUhYorscnjRsldVhiPT5MbgTOLs=
-github.com/nyudlts/go-bagit v0.3.1-alpha/go.mod h1:2kmka4Dlu0RDaTUaKQY7vuV6mOv04hQX6kETEPo/+ZU=
+github.com/nyudlts/go-bagit v0.3.1-alpha.0.20260910131009-ba8b18a010d2 h1:obPvz/VOFJTGcFiqsfktiGNcKvUf+d1oTKYxH67mMK8=
+github.com/nyudlts/go-bagit v0.3.1-alpha.0.20260910131009-ba8b18a010d2/go.mod h1:eVYUb+3JxJTyDb6xA5JpBDs34xniAeuIgjhalcUN/ak=
 github.com/oasdiff/yaml v0.1.1 h1:6nHx+pn9gBRM6YpBlFZFQGCCd1nuvqOBtTD3KKTgGxY=
 github.com/oasdiff/yaml v0.1.1/go.mod h1:EYJNoyktvWMJ0Hmhx+6qTaqMOsalUaRGT8Sj1hNcegU=
 github.com/oasdiff/yaml3 v0.0.14 h1:aLJee3hxBK2H5wdXd9iPcIXb93Nty1Ge0pT171eHtkw=
