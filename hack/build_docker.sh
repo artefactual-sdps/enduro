@@ -49,7 +49,8 @@ if [ -z "$GO_VERSION" ]; then
 	exit 1
 fi
 
-env DOCKER_BUILDKIT=1 docker build \
+docker buildx build \
+	--load \
 	-t "$IMAGE_NAME" \
 	-f "$FOLDER/Dockerfile" \
 	--build-arg="TARGET=$TARGET" \
