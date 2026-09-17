@@ -45,13 +45,17 @@ server {
     # add_header Reporting-Endpoints 'csp="https://example.com/csp"' always;
     # (Append to CSP) ... ; report-to csp
 
-    location ~ "^/api/ingest/sips/([0-9a-fA-F-]{36})/download" {
+    # Keep the brace-free regex consistent with the Ansible download locations.
+    location ~ "^/api/ingest/sips/([0-9a-fA-F-]+)/download" {
       proxy_pass http://backend/ingest/sips/\$1/download;
       proxy_buffering off;
     }
-    location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/download" {
+    # Keep the brace-free regex consistent with the Ansible download locations.
+    # Extend the read timeout while the Storage Service prepares the AIP.
+    location ~ "^/api/storage/aips/([0-9a-fA-F-]+)/download" {
       proxy_pass http://backend/storage/aips/\$1/download;
       proxy_buffering off;
+      proxy_read_timeout 3600s;
     }
     location ~ "^/api/storage/aips/([0-9a-fA-F-]{36})/deletion-report" {
       proxy_pass http://backend/storage/aips/\$1/deletion-report;
