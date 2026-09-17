@@ -18,12 +18,12 @@ require (
 	github.com/dolmen-go/contextio v1.0.0
 	github.com/fsnotify/fsnotify v1.10.1
 	github.com/gliderlabs/ssh v0.3.8
-	github.com/go-chi/httplog/v3 v3.4.0
+	github.com/go-chi/httplog/v3 v3.5.0
 	github.com/go-jose/go-jose/v4 v4.1.5
 	github.com/go-logr/logr v1.4.4
 	github.com/go-sql-driver/mysql v1.10.1
 	github.com/go-viper/mapstructure/v2 v2.5.0
-	github.com/golang-migrate/migrate/v4 v4.20.0
+	github.com/golang-migrate/migrate/v4 v4.20.1
 	github.com/google/go-cmp v0.7.0
 	github.com/google/uuid v1.6.0
 	github.com/hashicorp/go-cleanhttp v0.5.2
@@ -54,7 +54,7 @@ require (
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.46.0
 	go.opentelemetry.io/otel/sdk v1.46.0
 	go.opentelemetry.io/otel/trace v1.46.0
-	go.temporal.io/api v1.63.5
+	go.temporal.io/api v1.63.6
 	go.temporal.io/sdk v1.48.0
 	go.temporal.io/sdk/contrib/opentelemetry v0.8.1
 	go.uber.org/mock v0.6.0
