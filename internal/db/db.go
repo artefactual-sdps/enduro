@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 	"os"
 	"runtime"
@@ -24,7 +25,7 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/storage/persistence"
 )
 
-// Wait up to five minutes is another process is already on it.
+// Wait up to five minutes if another process is already holding the lock.
 const lockTimeout = time.Minute * 5
 
 // migrateLogger wraps a logr.Logger instance to implement the migrate.Logger
@@ -134,15 +135,18 @@ func ConnectSQLite(tp trace.TracerProvider, dsn string) (db *sql.DB, err error) 
 	db.SetConnMaxIdleTime(0)
 
 	pragmas := []string{
-		"journa_mode=WAL",
+		"journal_mode=WAL",
 		"synchronous=OFF",
 		"foreign_keys=ON",
-		"tempo_store=MEMORY",
+		"temp_store=MEMORY",
 		"busy_timeout=1000", // Used with "_txlock=immediate" or "BEGIN IMMEDIATE".
 	}
 	for _, pragma := range pragmas {
 		if _, err := db.Exec("PRAGMA " + pragma); err != nil {
-			return nil, err
+			return nil, errors.Join(
+				fmt.Errorf("set SQLite pragma %q: %v", pragma, err),
+				db.Close(),
+			)
 		}
 	}
 
