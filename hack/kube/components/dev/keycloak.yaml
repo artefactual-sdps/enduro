@@ -226,6 +226,9 @@ data:
           "clientId": "enduro-s2s",
           "name": "Enduro S2S",
           "enabled": true,
+          "attributes": {
+            "access.token.lifespan": "36000"
+          },
           "secret": "uSh7f2r4j2U5wA9d7mJ3xP6nQ8cT1vL0",
           "protocol": "openid-connect",
           "serviceAccountsEnabled": true,
