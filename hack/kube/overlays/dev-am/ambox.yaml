@@ -31,6 +31,33 @@ spec:
               containerPort: 64081
             - name: am-sftp
               containerPort: 64022
+          # Configuration is applied once during s6 startup, after AM and SS
+          # respond. Allow up to five minutes before treating startup as failed.
+          startupProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - /command/s6-rc -a list | grep -qx config
+            periodSeconds: 5
+            timeoutSeconds: 3
+            failureThreshold: 60
+          # Check both HTTP front doors and the SFTP banner before routing work.
+          # No liveness probe: s6 supervises services without restarting MySQL
+          # and interrupting every in-flight transfer on a transient failure.
+          readinessProbe:
+            exec:
+              command:
+                - /bin/bash
+                - -ec
+                - |
+                  curl --fail --silent --show-error --max-time 2 --output /dev/null http://127.0.0.1:64080/
+                  curl --fail --silent --show-error --max-time 2 --output /dev/null http://127.0.0.1:64081/
+                  read -r -t 2 ssh_banner < /dev/tcp/127.0.0.1/64022
+                  [[ "$ssh_banner" == SSH-2.0-* ]]
+            periodSeconds: 10
+            timeoutSeconds: 8
+            failureThreshold: 3
           volumeMounts:
             # Mount only storage endpoints so image-provided directories and
             # bundled sample transfers remain available on a fresh pod.
