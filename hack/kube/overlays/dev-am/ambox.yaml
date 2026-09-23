@@ -74,6 +74,10 @@ spec:
             - name: ambox-config
               mountPath: /etc/ambox/config.yaml
               subPath: config.yaml
+      # TODO: support and test retaining MySQL and associated files together.
+      # These volumes disappear with the pod; MySQL is in the container layer.
+      # Replacing ambox can leave Enduro records pointing to unavailable AIPs.
+      # Persisting only these file volumes would not preserve AMSS records.
       volumes:
         - name: am-aip-store
           emptyDir: {}
