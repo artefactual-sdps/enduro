@@ -27,10 +27,14 @@ spec:
             - name: am-sftp
               containerPort: 64022
           volumeMounts:
-            - name: am-shared-directory
-              mountPath: /var/archivematica/sharedDirectory
-            - name: am-home
-              mountPath: /home/archivematica
+            # Mount only storage endpoints so image-provided directories and
+            # bundled sample transfers remain available on a fresh pod.
+            - name: am-aip-store
+              mountPath: /var/archivematica/sharedDirectory/www/AIPsStore
+            - name: am-dip-store
+              mountPath: /var/archivematica/sharedDirectory/www/DIPsStore
+            - name: am-transfers
+              mountPath: /home/archivematica/transfers
             - name: ambox-hostkey
               mountPath: /etc/sftpgo/keys/host_ed25519
               subPath: host_ed25519
@@ -39,9 +43,11 @@ spec:
               mountPath: /etc/ambox/config.yaml
               subPath: config.yaml
       volumes:
-        - name: am-shared-directory
+        - name: am-aip-store
           emptyDir: {}
-        - name: am-home
+        - name: am-dip-store
+          emptyDir: {}
+        - name: am-transfers
           emptyDir: {}
         - name: ambox-hostkey
           secret:
