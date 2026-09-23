@@ -19,6 +19,8 @@ spec:
       labels:
         app: ambox
     spec:
+      # ambox does not use the Kubernetes API.
+      automountServiceAccountToken: false
       securityContext:
         fsGroup: 1000
       containers:
