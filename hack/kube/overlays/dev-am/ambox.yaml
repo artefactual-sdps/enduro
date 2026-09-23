@@ -6,6 +6,11 @@ metadata:
     app: ambox
 spec:
   replicas: 1
+  # Each ambox pod has its own database and files. A rolling update could
+  # send an SFTP upload to one pod and its transfer API request to another.
+  # Stop the old pod before starting its replacement; downtime is intentional.
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: ambox
