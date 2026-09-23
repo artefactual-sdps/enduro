@@ -247,6 +247,44 @@ func TestBucket(t *testing.T) {
 		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
 		assert.NilError(t, err)
 		defer r.Close()
+	})
+
+	t.Run("Exposes the underlying ssclient file stream", func(t *testing.T) {
+		t.Parallel()
+
+		b := setUpTest(t,
+			func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				_, err := w.Write([]byte("Hello World!"))
+				assert.NilError(t, err)
+			},
+			nil,
+		)
+
+		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
+		assert.NilError(t, err)
+		defer r.Close()
+
+		var stream *ssclient.FileStream
+		assert.Equal(t, r.As(&stream), true)
+		assert.Equal(t, stream.ContentType, "text/plain")
+	})
+
+	t.Run("Returns false using As with an unsupported type", func(t *testing.T) {
+		t.Parallel()
+
+		b := setUpTest(t,
+			func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				_, err := w.Write([]byte("Hello World!"))
+				assert.NilError(t, err)
+			},
+			nil,
+		)
+
+		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
+		assert.NilError(t, err)
+		defer r.Close()
 
 		var s string
 		assert.Equal(t, r.As(&s), false)
