@@ -195,6 +195,7 @@ func (b *bucket) NewRangeReader(
 			ContentType: stream.ContentType,
 			Size:        stream.ContentLength,
 		},
+		raw: stream,
 	}, nil
 }
 
@@ -226,6 +227,7 @@ func (b *bucket) Close() error {
 type reader struct {
 	r     io.ReadCloser
 	attrs driver.ReaderAttributes
+	raw   *ssclient.FileStream
 }
 
 func (r *reader) Read(p []byte) (int, error) {
@@ -241,7 +243,12 @@ func (r *reader) Attributes() *driver.ReaderAttributes {
 }
 
 func (r *reader) As(i any) bool {
-	return false
+	p, ok := i.(**ssclient.FileStream)
+	if !ok {
+		return false
+	}
+	*p = r.raw
+	return true
 }
 
 func apiError(err error) *APIError {

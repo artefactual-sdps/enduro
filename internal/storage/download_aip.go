@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 
+	"go.artefactual.dev/ssclient"
 	"go.artefactual.dev/tools/fsutil"
 	"gocloud.dev/gcerrors"
 
@@ -118,9 +119,16 @@ func (s *serviceImpl) DownloadAip(
 
 	filename := fmt.Sprintf("%s-%s.7z", fsutil.BaseNoExt(aip.Name), aip.UUID)
 
+	// If reading from the Storage Service, override the filename with the one
+	// provided by the service.
+	var stream *ssclient.FileStream
+	if reader.As(&stream) {
+		filename = stream.Filename
+	}
+
 	return &goastorage.DownloadAipResult{
 		ContentType:        reader.ContentType(),
 		ContentLength:      reader.Size(),
-		ContentDisposition: fmt.Sprintf("attachment; filename=\"%s\"", filename),
+		ContentDisposition: fmt.Sprintf("attachment; filename=%q", filename),
 	}, reader, nil
 }
