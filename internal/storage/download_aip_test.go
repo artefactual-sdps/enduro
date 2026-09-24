@@ -46,7 +46,7 @@ func TestDownloadAipRequest(t *testing.T) {
 	missingAIPUUID := uuid.New()
 
 	// Write a test blob to the bucket.
-	writeTestBlob(ctx, t, "file://"+td.Path(), aipID.String())
+	writeTestBlob(ctx, t, "file://"+td.Path(), aipName)
 
 	for _, tt := range []struct {
 		name    string
@@ -128,6 +128,7 @@ func TestDownloadAipRequest(t *testing.T) {
 					ReadAIP(ctx, aipID).
 					Return(
 						&goastorage.AIP{
+							Name:         aipName,
 							UUID:         aipID,
 							Status:       enums.AIPStatusStored.String(),
 							ObjectKey:    aipID,
@@ -140,6 +141,7 @@ func TestDownloadAipRequest(t *testing.T) {
 					ReadLocation(ctx, locationID).
 					Return(
 						&goastorage.Location{
+							Name: aipName,
 							UUID: locationID,
 							Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 								URL: "file://" + td.Path(),
@@ -166,6 +168,7 @@ func TestDownloadAipRequest(t *testing.T) {
 					ReadAIP(ctx, aipID).
 					Return(
 						&goastorage.AIP{
+							Name:         aipName,
 							UUID:         aipID,
 							Status:       enums.AIPStatusStored.String(),
 							ObjectKey:    aipID,
@@ -178,6 +181,7 @@ func TestDownloadAipRequest(t *testing.T) {
 					ReadLocation(ctx, locationID).
 					Return(
 						&goastorage.Location{
+							Name: aipName,
 							UUID: locationID,
 							Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 								URL: "file://" + td.Path(),
@@ -233,9 +237,10 @@ func TestDownloadAip(t *testing.T) {
 	td := fs.NewDir(t, "enduro-service-test")
 	missingAIPUUID := uuid.New()
 	content := []byte("Testing 1-2-3!")
+	aipName := fmt.Sprintf("sip.zip-%s.7z", aipID.String())
 
 	// Write a test blob to the bucket.
-	writeTestBlob(ctx, t, "file://"+td.Path(), aipID.String())
+	writeTestBlob(ctx, t, "file://"+td.Path(), aipName)
 
 	for _, tt := range []struct {
 		name     string
@@ -385,7 +390,7 @@ func TestDownloadAip(t *testing.T) {
 					ReadAIP(ctx, aipID).
 					Return(
 						&goastorage.AIP{
-							Name:         "AIP.zip",
+							Name:         aipName,
 							UUID:         aipID,
 							Status:       enums.AIPStatusStored.String(),
 							ObjectKey:    aipID,
@@ -398,6 +403,7 @@ func TestDownloadAip(t *testing.T) {
 					ReadLocation(ctx, locationID).
 					Return(
 						&goastorage.Location{
+							Name: aipName,
 							UUID: locationID,
 							Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 								URL: "file://" + td.Path(),
@@ -408,7 +414,7 @@ func TestDownloadAip(t *testing.T) {
 			},
 			wantBody: content,
 			wantRes: &goastorage.DownloadAipResult{
-				ContentDisposition: fmt.Sprintf("attachment; filename=%q", fmt.Sprintf("AIP-%s.7z", aipID)),
+				ContentDisposition: fmt.Sprintf("attachment; filename=%q", aipName),
 				ContentType:        "text/plain; charset=utf-8",
 				ContentLength:      int64(len(content)),
 			},

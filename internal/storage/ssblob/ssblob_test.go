@@ -2,6 +2,7 @@ package ssblob_test
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -12,6 +13,7 @@ import (
 	"github.com/google/go-cmp/cmp/cmpopts"
 	"go.artefactual.dev/ssclient"
 	"gocloud.dev/blob"
+	"gocloud.dev/blob/driver"
 	"gocloud.dev/gcerrors"
 	"gotest.tools/v3/assert"
 
@@ -37,14 +39,288 @@ func setUpTest(t *testing.T, h http.HandlerFunc, opts *ssblob.Options) *blob.Buc
 	return b
 }
 
-func TestBucket(t *testing.T) {
+func TestAPIErrorError(t *testing.T) {
 	t.Parallel()
 
-	t.Run("Downloads an AIP from SS", func(t *testing.T) {
+	type testCase struct {
+		name string
+		err  *ssblob.APIError
+		want string
+	}
+	for _, tc := range []testCase{
+		{
+			name: "Error returns <nil>",
+			want: "<nil>",
+		},
+		{
+			name: "Error returns status",
+			err:  &ssblob.APIError{Status: "Not Found", Code: http.StatusNotFound},
+			want: "Not Found",
+		},
+		{
+			name: "Error returns underlying cause error",
+			err:  &ssblob.APIError{Cause: errors.New("underlying cause")},
+			want: "underlying cause",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, tc.err.Error(), tc.want)
+		})
+	}
+}
+
+func TestAPIErrorUnwrap(t *testing.T) {
+	t.Parallel()
+
+	wrappedErr := errors.New("underlying cause")
+
+	type testCase struct {
+		name string
+		err  *ssblob.APIError
+		want error
+	}
+	for _, tc := range []testCase{
+		{
+			name: "Unwrap nil error",
+			want: nil,
+		},
+		{
+			name: "Unwrap underlying error",
+			err:  &ssblob.APIError{Cause: wrappedErr},
+			want: wrappedErr,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+			assert.Equal(t, errors.Unwrap(tc.err), tc.want)
+		})
+	}
+}
+
+func TestOpenBucket(t *testing.T) {
+	t.Parallel()
+
+	t.Run("OpenBucket error when the URL is invalid", func(t *testing.T) {
 		t.Parallel()
 
-		b := setUpTest(t,
-			func(w http.ResponseWriter, r *http.Request) {
+		b, err := ssblob.OpenBucket(&ssblob.Options{
+			URL: string([]byte{0x7f}), // DEL character is rejected.
+		})
+		assert.ErrorContains(t, err, "net/url: invalid control character in URL")
+		assert.Assert(t, b == nil)
+	})
+}
+
+func TestBucketAs(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Exposes the underlying Storage Service client", func(t *testing.T) {
+		t.Parallel()
+
+		b := setUpTest(t, nil, nil)
+
+		// Supported type.
+		var client *ssclient.Client
+		assert.Equal(t, b.As(&client), true)
+		assert.Assert(t, client != nil)
+
+		// Unsupported type.
+		var s string
+		assert.Equal(t, b.As(&s), false)
+	})
+}
+
+func TestBucketErrorAs(t *testing.T) {
+	t.Parallel()
+
+	type testCase struct {
+		name    string
+		wrapped error
+		toType  any
+		want    bool
+	}
+	for _, tc := range []testCase{
+		{
+			name: "ErrorAs returns true when casting wrapped to APIError",
+			wrapped: fmt.Errorf("wrapped: %w", &ssblob.APIError{
+				Status: http.StatusText(http.StatusNotFound),
+				Code:   http.StatusNotFound,
+			}),
+			toType: &ssblob.APIError{},
+			want:   true,
+		},
+		{
+			name:    "ErrorAs returns false if no APIError is in the error chain",
+			wrapped: fmt.Errorf("wrapped: %w", errors.New("some other error")),
+			toType:  &ssblob.APIError{},
+		},
+		{
+			name: "ErrorAs returns false if casting to a type other than APIError",
+			wrapped: fmt.Errorf("wrapped: %w", &ssblob.APIError{
+				Status: http.StatusText(http.StatusNotFound),
+				Code:   http.StatusNotFound,
+			}),
+			toType: "",
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			b := setUpTest(t, nil, nil)
+			switch i := tc.toType.(type) {
+			case *ssblob.APIError:
+				assert.Equal(t, b.ErrorAs(tc.wrapped, &i), tc.want)
+			case string:
+				assert.Equal(t, b.ErrorAs(tc.wrapped, &i), false)
+			default:
+				t.Fatalf("unsupported ErrorAs type: %T", tc.toType)
+			}
+		})
+	}
+}
+
+func TestBucketAttributes(t *testing.T) {
+	t.Parallel()
+
+	aipID := "2db707f3-3cd2-44b7-9012-9b68eb10d207"
+
+	type testCase struct {
+		name        string
+		httpHandler http.HandlerFunc
+		want        *blob.Attributes
+		wantErr     *ssblob.APIError
+	}
+	for _, tc := range []testCase{
+		{
+			name: "Attributes returns AIP attributes",
+			httpHandler: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.Header().Set("Content-Disposition", "inline")
+				err := json.NewEncoder(w).Encode(map[string]any{
+					"package_type": "AIP",
+					"size":         12345,
+					"status":       "UPLOADED",
+					"uuid":         aipID,
+				})
+
+				assert.NilError(t, err)
+				assert.Equal(t, r.URL.Path, fmt.Sprintf("/api/v2/file/%s/", aipID))
+			},
+			want: &blob.Attributes{
+				ContentDisposition: "attachment",
+				ContentType:        "application/octet-stream",
+				Size:               12345,
+			},
+		},
+		{
+			name: "Attributes returns error when blob is not found",
+			httpHandler: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "AIP not found.", http.StatusNotFound)
+			},
+			want: nil,
+			wantErr: &ssblob.APIError{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+			},
+		},
+		{
+			name: "Attributes returns error when AIP is deleted",
+			httpHandler: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.Header().Set("Content-Disposition", "inline")
+				w.WriteHeader(http.StatusOK)
+				err := json.NewEncoder(w).Encode(map[string]any{
+					"package_type": "AIP",
+					"size":         12345,
+					"status":       "DELETED",
+					"uuid":         aipID,
+				})
+				assert.NilError(t, err)
+			},
+			want: nil,
+			wantErr: &ssblob.APIError{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			b := setUpTest(t, tc.httpHandler, nil)
+			attrs, err := b.Attributes(context.Background(), aipID)
+
+			assert.DeepEqual(t, attrs, tc.want, cmpopts.IgnoreUnexported(blob.Attributes{}))
+			if tc.wantErr != nil {
+				apiErr, ok := errors.AsType[*ssblob.APIError](err)
+				assert.Assert(t, ok)
+				assert.Equal(t, apiErr.Code, tc.wantErr.Code)
+				assert.Equal(t, apiErr.Status, tc.wantErr.Status)
+			} else {
+				assert.NilError(t, err)
+			}
+		})
+	}
+}
+
+func TestBucketNewRangeReader(t *testing.T) {
+	t.Parallel()
+
+	type testCase struct {
+		name    string
+		offset  int64
+		length  int64
+		wantErr *ssblob.APIError
+	}
+	for _, tc := range []testCase{
+		{
+			name:    "Rejects offset ranged reads",
+			offset:  1,
+			length:  10,
+			wantErr: &ssblob.APIError{},
+		},
+		{
+			name:    "Rejects zero-length ranged reads",
+			offset:  0,
+			length:  0,
+			wantErr: &ssblob.APIError{},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
+				t.Fatal("unexpected request")
+			}, nil)
+
+			r, err := b.NewRangeReader(
+				context.Background(),
+				"2db707f3-3cd2-44b7-9012-9b68eb10d207",
+				tc.offset,
+				tc.length,
+				nil,
+			)
+			assert.Equal(t, gcerrors.Code(err), gcerrors.Unimplemented)
+			assert.Assert(t, r == nil)
+		})
+	}
+}
+
+func TestBucketNewReader(t *testing.T) {
+	t.Parallel()
+
+	type testCase struct {
+		name        string
+		httpHandler http.HandlerFunc
+		want        []byte
+		wantAttrs   driver.ReaderAttributes
+		wantAPIErr  *ssblob.APIError
+	}
+	for _, tc := range []testCase{
+		{
+			name: "Returns file reader",
+			httpHandler: func(w http.ResponseWriter, r *http.Request) {
 				assert.Equal(t, r.Header.Get("Authorization"), "ApiKey test:test")
 				assert.Equal(t, r.URL.Path, "/api/v2/file/2db707f3-3cd2-44b7-9012-9b68eb10d207/download/")
 
@@ -53,108 +329,109 @@ func TestBucket(t *testing.T) {
 				_, err := w.Write([]byte("Hello World!"))
 				assert.NilError(t, err)
 			},
-			&ssblob.Options{
-				Username: "test",
-				Key:      "test",
+			wantAttrs: driver.ReaderAttributes{
+				ContentType: "text/plain",
+				Size:        int64(len("Hello World!")),
 			},
-		)
+			want: []byte("Hello World!"),
+		},
+		{
+			name: "Returns an error if the package is unavailable",
+			httpHandler: func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusAccepted)
+				err := fmt.Errorf(`{"message":"package is not available"}`)
+				_, writeErr := w.Write([]byte(err.Error()))
+				assert.NilError(t, writeErr)
+			},
+			wantAPIErr: &ssblob.APIError{
+				Code:   http.StatusAccepted,
+				Status: http.StatusText(http.StatusAccepted),
+			},
+		},
+		{
+			name: "401 Unauthorized error",
+			httpHandler: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "User is unauthorized.", http.StatusUnauthorized)
+			},
+			wantAPIErr: &ssblob.APIError{
+				Code:   http.StatusUnauthorized,
+				Status: http.StatusText(http.StatusUnauthorized),
+			},
+		},
+		{
+			name: "403 Forbidden error",
+			httpHandler: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "Forbidden", http.StatusForbidden)
+			},
+			wantAPIErr: &ssblob.APIError{
+				Code:   http.StatusForbidden,
+				Status: http.StatusText(http.StatusForbidden),
+			},
+		},
+		{
+			name: "404 Not found error",
+			httpHandler: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "AIP not found.", http.StatusNotFound)
+			},
+			wantAPIErr: &ssblob.APIError{
+				Code:   http.StatusNotFound,
+				Status: http.StatusText(http.StatusNotFound),
+			},
+		},
+		{
+			name: "500 Internal server error",
+			httpHandler: func(w http.ResponseWriter, r *http.Request) {
+				http.Error(w, "Internal server error.", http.StatusInternalServerError)
+			},
+			wantAPIErr: &ssblob.APIError{
+				Code:   http.StatusInternalServerError,
+				Status: http.StatusText(http.StatusInternalServerError),
+			},
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
 
-		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
-		assert.NilError(t, err)
-		defer r.Close()
+			b := setUpTest(t,
+				tc.httpHandler,
+				&ssblob.Options{
+					Username: "test",
+					Key:      "test",
+				},
+			)
+			r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
+			if tc.wantAPIErr != nil {
+				gotErr := &ssblob.APIError{}
+				assert.Equal(t, b.ErrorAs(err, &gotErr), true)
+				assert.Equal(t, gotErr.Code, tc.wantAPIErr.Code)
+				assert.Equal(t, gotErr.Status, tc.wantAPIErr.Status)
+				assert.Assert(t, r == nil)
+				return
+			}
+			defer r.Close()
 
-		blob, err := io.ReadAll(r)
-		assert.NilError(t, err)
-		assert.DeepEqual(t, string(blob), "Hello World!")
-		assert.Equal(t, r.ContentType(), "text/plain")
-	})
+			assert.Equal(t, r.Size(), tc.wantAttrs.Size)
+			assert.Equal(t, r.ContentType(), tc.wantAttrs.ContentType)
 
-	t.Run("Exposes the underlying Storage Service client", func(t *testing.T) {
-		t.Parallel()
-
-		b := setUpTest(t, nil, nil)
-
-		var client *ssclient.Client
-		assert.Equal(t, b.As(&client), true)
-		assert.Assert(t, client != nil)
-	})
-
-	t.Run("Rejects unsupported As types", func(t *testing.T) {
-		t.Parallel()
-
-		b := setUpTest(t, nil, nil)
-
-		var s string
-		assert.Equal(t, b.As(&s), false)
-	})
-
-	t.Run("Returns an error if the AIP is not found", func(t *testing.T) {
-		t.Parallel()
-
-		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
-			http.Error(w, "AIP not found.", http.StatusNotFound)
-		}, nil)
-
-		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
-		assert.Equal(t, gcerrors.Code(err), gcerrors.NotFound)
-		assert.Assert(t, r == nil)
-
-		apiErr := &ssblob.APIError{}
-		assert.Equal(t, b.ErrorAs(err, &apiErr), true)
-		assert.Equal(t, apiErr.Code, http.StatusNotFound)
-	})
-
-	t.Run("Returns an internal error on server failure", func(t *testing.T) {
-		t.Parallel()
-
-		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
-			http.Error(w, "server error", http.StatusInternalServerError)
-		}, nil)
-
-		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
-		assert.Equal(t, gcerrors.Code(err), gcerrors.Internal)
-		assert.Assert(t, r == nil)
-
-		apiErr := &ssblob.APIError{}
-		assert.Equal(t, b.ErrorAs(err, &apiErr), true)
-		assert.Equal(t, apiErr.Code, http.StatusInternalServerError)
-	})
-
-	t.Run("Matches wrapped API errors", func(t *testing.T) {
-		t.Parallel()
-
-		b := setUpTest(t, nil, nil)
-
-		wrapped := fmt.Errorf("wrapped: %w", &ssblob.APIError{
-			Status: http.StatusText(http.StatusNotFound),
-			Code:   http.StatusNotFound,
+			got, readErr := io.ReadAll(r)
+			assert.NilError(t, readErr)
+			assert.DeepEqual(t, got, tc.want)
 		})
+	}
+}
 
-		apiErr := &ssblob.APIError{}
-		assert.Equal(t, b.ErrorAs(wrapped, &apiErr), true)
-		assert.Equal(t, apiErr.Code, http.StatusNotFound)
-	})
+func TestBucketUnsupportedMethods(t *testing.T) {
+	t.Parallel()
 
-	t.Run("Rejects ranged reads", func(t *testing.T) {
+	t.Run("Bucket rejects unsupported methods", func(t *testing.T) {
 		t.Parallel()
 
 		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
 			t.Fatal("unexpected request")
 		}, nil)
 
-		r, err := b.NewRangeReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", 1, 10, nil)
-		assert.Equal(t, gcerrors.Code(err), gcerrors.Unimplemented)
-		assert.Assert(t, r == nil)
-	})
-
-	t.Run("Rejects unsupported operations", func(t *testing.T) {
-		t.Parallel()
-
-		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
-			t.Fatal("unexpected request")
-		}, nil)
-
-		ctx := context.Background()
+		ctx := t.Context()
 
 		objs, nextPageToken, err := b.ListPage(ctx, nil, 10, nil)
 		assert.Assert(t, objs == nil)
@@ -179,61 +456,34 @@ func TestBucket(t *testing.T) {
 		assert.Equal(t, signedURL, "")
 		assert.Equal(t, gcerrors.Code(err), gcerrors.Unimplemented)
 	})
+}
 
-	t.Run("Rejects zero-length ranged reads", func(t *testing.T) {
+func TestReaderAs(t *testing.T) {
+	t.Parallel()
+
+	t.Run("Exposes the underlying ssclient file stream", func(t *testing.T) {
 		t.Parallel()
 
-		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
-			t.Fatal("unexpected request")
-		}, nil)
-
-		r, err := b.NewRangeReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", 0, 0, nil)
-		assert.Equal(t, gcerrors.Code(err), gcerrors.Unimplemented)
-		assert.Assert(t, r == nil)
-	})
-
-	t.Run("Returns an error if the request is unauthorized", func(t *testing.T) {
-		t.Parallel()
-
-		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
-			http.Error(w, "User is unauthorized.", http.StatusUnauthorized)
-		}, nil)
+		b := setUpTest(t,
+			func(w http.ResponseWriter, r *http.Request) {
+				w.Header().Set("Content-Type", "text/plain")
+				_, err := w.Write([]byte("Hello World!"))
+				assert.NilError(t, err)
+			},
+			nil,
+		)
 
 		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
-		assert.Equal(t, gcerrors.Code(err), gcerrors.PermissionDenied)
-		assert.Assert(t, r == nil)
+		assert.NilError(t, err)
+		defer r.Close()
 
-		apiErr := &ssblob.APIError{}
-		assert.Equal(t, b.ErrorAs(err, &apiErr), true)
-		assert.Equal(t, apiErr.Code, http.StatusUnauthorized)
+		var stream *ssclient.FileStream
+		assert.Equal(t, r.As(&stream), true)
+		assert.Equal(t, stream.ContentType, "text/plain")
 	})
 
-	t.Run("Returns an error if the package is not available", func(t *testing.T) {
+	t.Run("Returns false using As with an unsupported type", func(t *testing.T) {
 		t.Parallel()
-
-		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Content-Type", "application/json")
-			w.WriteHeader(http.StatusAccepted)
-			err := fmt.Errorf(`{"message":"package is not available"}`)
-			_, writeErr := w.Write([]byte(err.Error()))
-			assert.NilError(t, writeErr)
-		}, nil)
-
-		r, err := b.NewReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", nil)
-		assert.Assert(t, r == nil)
-
-		apiErr := &ssblob.APIError{}
-		assert.Equal(t, b.ErrorAs(err, &apiErr), true)
-		assert.Equal(t, apiErr.Code, http.StatusAccepted)
-		assert.Equal(t, apiErr.Error(), http.StatusText(http.StatusAccepted))
-	})
-
-	t.Run("Exposes reader and API error behavior", func(t *testing.T) {
-		t.Parallel()
-
-		apiErr := &ssblob.APIError{Cause: errors.New("boom")}
-		assert.Equal(t, apiErr.Error(), "boom")
-		assert.Equal(t, errors.Unwrap(apiErr).Error(), "boom")
 
 		b := setUpTest(t,
 			func(w http.ResponseWriter, r *http.Request) {
@@ -250,91 +500,5 @@ func TestBucket(t *testing.T) {
 
 		var s string
 		assert.Equal(t, r.As(&s), false)
-	})
-
-	t.Run("Returns an error if the URL is invalid", func(t *testing.T) {
-		b, err := ssblob.OpenBucket(&ssblob.Options{
-			URL: string([]byte{0x7f}), // DEL character is rejected.
-		})
-		assert.ErrorContains(t, err, "net/url: invalid control character in URL")
-		assert.Assert(t, b == nil)
-	})
-
-	t.Run("Returns blob attributes", func(t *testing.T) {
-		t.Parallel()
-
-		aipID := "2db707f3-3cd2-44b7-9012-9b68eb10d207"
-
-		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
-			assert.Equal(t, r.URL.Path, fmt.Sprintf("/api/v2/file/%s/", aipID))
-
-			w.Header().Set("Content-Type", "application/json")
-			w.Header().Set("Content-Disposition", "inline")
-			w.WriteHeader(http.StatusAccepted)
-			_, err := w.Write([]byte(`{
-"package_type": "AIP",
-"size": 12345,
-"status": "UPLOADED",
-"uuid": "` + aipID + `"
-}`))
-			assert.NilError(t, err)
-		}, nil)
-
-		attrs, err := b.Attributes(context.Background(), aipID)
-		assert.NilError(t, err)
-		assert.DeepEqual(t,
-			attrs,
-			&blob.Attributes{
-				ContentDisposition: "attachment",
-				ContentType:        "application/octet-stream",
-				Size:               12345,
-			},
-			cmpopts.IgnoreUnexported(blob.Attributes{}),
-		)
-	})
-
-	t.Run("bucket.Attributes returns not found when file deleted", func(t *testing.T) {
-		t.Parallel()
-
-		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
-			http.Error(w, "AIP not found.", http.StatusNotFound)
-		}, nil)
-
-		attrs, err := b.Attributes(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207")
-		assert.Equal(t, gcerrors.Code(err), gcerrors.NotFound)
-		assert.Assert(t, attrs == nil)
-
-		apiErr := &ssblob.APIError{}
-		assert.Equal(t, b.ErrorAs(err, &apiErr), true)
-		assert.Equal(t, apiErr.Code, http.StatusNotFound)
-	})
-
-	t.Run("Returns blob attributes", func(t *testing.T) {
-		t.Parallel()
-
-		aipID := "2db707f3-3cd2-44b7-9012-9b68eb10d207"
-
-		b := setUpTest(t, func(w http.ResponseWriter, r *http.Request) {
-			assert.Equal(t, r.URL.Path, fmt.Sprintf("/api/v2/file/%s/", aipID))
-
-			w.Header().Set("Content-Type", "application/json")
-			w.Header().Set("Content-Disposition", "inline")
-			w.WriteHeader(http.StatusAccepted)
-			_, err := w.Write([]byte(`{
-"package_type": "AIP",
-"size": 12345,
-"status": "DELETED",
-"uuid": "` + aipID + `"
-}`))
-			assert.NilError(t, err)
-		}, nil)
-
-		_, err := b.Attributes(context.Background(), aipID)
-
-		var apiErr *ssblob.APIError
-		assert.Assert(t, errors.As(err, &apiErr))
-		assert.Equal(t, apiErr.Code, http.StatusNotFound)
-		assert.Equal(t, apiErr.Error(), "Not Found")
-		assert.Equal(t, apiErr.Cause.Error(), "resource deleted")
 	})
 }

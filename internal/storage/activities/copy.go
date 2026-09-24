@@ -50,7 +50,7 @@ func (a *CopyToPermanentLocationActivity) Execute(
 	}
 	defer bucket.Close()
 
-	writer, err := bucket.NewWriter(ctx, params.AIPID.String(), nil)
+	writer, err := bucket.NewWriter(ctx, p.Name, nil)
 	if err != nil {
 		return &CopyToPermanentLocationActivityResult{}, err
 	}

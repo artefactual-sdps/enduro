@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"io"
 
-	"go.artefactual.dev/tools/fsutil"
+	"go.artefactual.dev/ssclient"
 	"gocloud.dev/gcerrors"
 
 	goastorage "github.com/artefactual-sdps/enduro/internal/api/gen/storage"
@@ -34,7 +34,7 @@ func (s *serviceImpl) DownloadAipRequest(
 	}
 	defer bucket.Close()
 
-	_, err = bucket.Attributes(ctx, aip.UUID.String())
+	_, err = bucket.Attributes(ctx, aip.Name)
 	if err != nil {
 		if gcerrors.Code(err) == gcerrors.NotFound {
 			return nil, &goastorage.AIPNotFound{
@@ -116,11 +116,18 @@ func (s *serviceImpl) DownloadAip(
 		}
 	}
 
-	filename := fmt.Sprintf("%s-%s.7z", fsutil.BaseNoExt(aip.Name), aip.UUID)
+	// For a3m AIPs the AIP filename is stored in the database.
+	filename := aip.Name
+
+	// For AM AIPs, we have to get the AIP filename from the AMSS API response.
+	var stream *ssclient.FileStream
+	if reader.As(&stream) {
+		filename = stream.Filename
+	}
 
 	return &goastorage.DownloadAipResult{
 		ContentType:        reader.ContentType(),
 		ContentLength:      reader.Size(),
-		ContentDisposition: fmt.Sprintf("attachment; filename=\"%s\"", filename),
+		ContentDisposition: fmt.Sprintf("attachment; filename=%q", filename),
 	}, reader, nil
 }
