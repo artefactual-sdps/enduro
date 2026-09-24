@@ -393,7 +393,7 @@ func (s *serviceImpl) AipReader(ctx context.Context, a *goastorage.AIP) (*blob.R
 	}
 	defer bucket.Close()
 
-	reader, err := bucket.NewReader(ctx, a.UUID.String(), nil)
+	reader, err := bucket.NewReader(ctx, a.Name, nil)
 	if err != nil {
 		return nil, fmt.Errorf("new AIP reader: %w", err)
 	}

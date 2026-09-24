@@ -294,7 +294,13 @@ func TestBucketNewRangeReader(t *testing.T) {
 				t.Fatal("unexpected request")
 			}, nil)
 
-			r, err := b.NewRangeReader(context.Background(), "2db707f3-3cd2-44b7-9012-9b68eb10d207", tc.offset, tc.length, nil)
+			r, err := b.NewRangeReader(
+				context.Background(),
+				"2db707f3-3cd2-44b7-9012-9b68eb10d207",
+				tc.offset,
+				tc.length,
+				nil,
+			)
 			assert.Equal(t, gcerrors.Code(err), gcerrors.Unimplemented)
 			assert.Assert(t, r == nil)
 		})

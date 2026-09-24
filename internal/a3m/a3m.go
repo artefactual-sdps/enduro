@@ -37,6 +37,7 @@ type CreateAIPActivityParams struct {
 }
 
 type CreateAIPActivityResult struct {
+	Name string
 	Path string
 	UUID string
 }
@@ -147,7 +148,9 @@ func (a *CreateAIPActivity) Execute(
 						return errors.New("package failed or rejected")
 					}
 
-					result.Path = fmt.Sprintf("%s/completed/%s-%s.7z", a.cfg.ShareDir, opts.Name, result.UUID)
+					result.Name = fmt.Sprintf("%s-%s.7z", opts.Name, result.UUID)
+					result.Path = fmt.Sprintf("%s/completed/%s", a.cfg.ShareDir, result.Name)
+
 					logger.Info("We have run a3m successfully", "path", result.Path)
 
 					break

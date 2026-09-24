@@ -1,6 +1,7 @@
 package a3m_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -26,6 +27,8 @@ func TestCreateAIPActivity(t *testing.T) {
 	t.Parallel()
 
 	taskUUID := uuid.New()
+	aipID := "55f00def-cdf7-4e9c-97fd-700980b993b3"
+
 	ts := &temporalsdk_testsuite.WorkflowTestSuite{}
 	env := ts.NewTestActivityEnvironment()
 	ctrl := gomock.NewController(t)
@@ -39,7 +42,7 @@ func TestCreateAIPActivity(t *testing.T) {
 		).
 		Return(
 			&transferservice.SubmitResponse{
-				Id: "55f00def-cdf7-4e9c-97fd-700980b993b3",
+				Id: aipID,
 			},
 			nil,
 		)
@@ -47,11 +50,12 @@ func TestCreateAIPActivity(t *testing.T) {
 		Read(
 			mockutil.Context(),
 			&transferservice.ReadRequest{
-				Id: "55f00def-cdf7-4e9c-97fd-700980b993b3",
+				Id: aipID,
 			},
 		).
 		Return(
 			&transferservice.ReadResponse{
+				Status: transferservice.PackageStatus_PACKAGE_STATUS_COMPLETE,
 				Jobs: []*transferservice.Job{
 					{
 						Id:        taskUUID.String(),
@@ -68,18 +72,24 @@ func TestCreateAIPActivity(t *testing.T) {
 		mockutil.Context(),
 		[]*datatypes.Task{
 			{
-				UUID:      taskUUID,
-				Status:    enums.TaskStatusDone,
-				StartedAt: time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+				UUID:         taskUUID,
+				Status:       enums.TaskStatusDone,
+				StartedAt:    time.Date(2009, time.November, 10, 23, 0, 0, 0, time.UTC),
+				WorkflowUUID: uuid.MustParse("bbb608ab-95e9-4e60-be8e-0372195d8e05"),
 			},
 		},
 	).Return(nil)
+
+	shareDir := t.TempDir()
 
 	env.RegisterActivityWithOptions(
 		a3m.NewCreateAIPActivity(
 			noop.Tracer{},
 			a3mTransferServiceClient,
-			&a3m.Config{},
+			&a3m.Config{
+				Name:     "sip.zip",
+				ShareDir: shareDir,
+			},
 			ingestsvc,
 		).Execute,
 		temporalsdk_activity.RegisterOptions{
@@ -87,7 +97,18 @@ func TestCreateAIPActivity(t *testing.T) {
 		},
 	)
 
-	_, err := env.ExecuteActivity(a3m.CreateAIPActivityName, &a3m.CreateAIPActivityParams{})
-
+	future, err := env.ExecuteActivity(a3m.CreateAIPActivityName, &a3m.CreateAIPActivityParams{
+		Name:         "sip.zip",
+		Path:         shareDir + "/sip.zip",
+		WorkflowUUID: uuid.MustParse("bbb608ab-95e9-4e60-be8e-0372195d8e05"),
+	})
 	assert.NilError(t, err)
+
+	var got *a3m.CreateAIPActivityResult
+	assert.NilError(t, future.Get(&got))
+	assert.DeepEqual(t, got, &a3m.CreateAIPActivityResult{
+		Name: fmt.Sprintf("sip.zip-%s.7z", aipID),
+		Path: fmt.Sprintf("%s/completed/sip.zip-%s.7z", shareDir, aipID),
+		UUID: aipID,
+	})
 }
