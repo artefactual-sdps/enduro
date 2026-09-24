@@ -666,6 +666,7 @@ func (w *ProcessingWorkflow) transferA3m(
 
 		state.aip = &aipInfo{
 			id:   result.UUID,
+			name: result.Name,
 			path: result.Path,
 		}
 	}
@@ -708,7 +709,7 @@ func (w *ProcessingWorkflow) transferA3m(
 		err := temporalsdk_workflow.ExecuteActivity(activityOpts, activities.UploadActivityName, &activities.UploadActivityParams{
 			AIPPath: state.aip.path,
 			AIPID:   state.aip.id,
-			Name:    state.sip.name,
+			Name:    state.aip.name,
 		}).
 			Get(activityOpts, nil)
 		if err != nil {

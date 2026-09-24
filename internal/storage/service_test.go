@@ -39,6 +39,7 @@ import (
 
 var (
 	aipID      = uuid.MustParse("488c64cc-d89b-4916-9131-c94152dfb12e")
+	aipName    = fmt.Sprintf("sip.zip-%s.7z", aipID.String())
 	locationID = uuid.MustParse("a06a155c-9cf0-4416-a2b6-e90e58ef3186")
 	objectKey  = uuid.MustParse("e2630293-a714-4787-ab6d-e68254a6fb6a")
 	uuid0      = uuid.MustParse("52fdfc07-2182-454f-963f-5f0f9a621d72")
@@ -751,7 +752,7 @@ func TestAipReader(t *testing.T) {
 		svc := setUpService(t, ctx, &attrs)
 
 		// Write a test blob to the bucket.
-		writeTestBlob(ctx, t, "file://"+td.Path(), aipID.String())
+		writeTestBlob(ctx, t, "file://"+td.Path(), aipName)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -761,6 +762,7 @@ func TestAipReader(t *testing.T) {
 			).
 			Return(
 				&goastorage.Location{
+					Name: aipName,
 					UUID: locationID,
 					Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 						URL: "file://" + td.Path(),
@@ -770,6 +772,7 @@ func TestAipReader(t *testing.T) {
 			)
 
 		reader, err := svc.AipReader(ctx, &goastorage.AIP{
+			Name:         aipName,
 			UUID:         aipID,
 			ObjectKey:    aipID,
 			LocationUUID: &locationID,
@@ -823,6 +826,7 @@ func TestAipReader(t *testing.T) {
 			).
 			Return(
 				&goastorage.Location{
+					Name: aipName,
 					UUID: locationID,
 					Config: goastorage.NewConfigURL(&goastorage.URLConfig{
 						URL: "mem://",
@@ -832,13 +836,14 @@ func TestAipReader(t *testing.T) {
 			)
 
 		_, err := svc.AipReader(ctx, &goastorage.AIP{
+			Name:         aipName,
 			UUID:         aipID,
 			ObjectKey:    aipID,
 			LocationUUID: &locationID,
 		})
 		assert.Error(t, err, fmt.Sprintf(
 			"new AIP reader: blob (key %q) (code=NotFound): blob not found",
-			aipID.String(),
+			aipName,
 		))
 	})
 }
