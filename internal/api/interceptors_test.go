@@ -40,8 +40,8 @@ func TestServerErrorHandlerLogsAndSanitizesInternalError(t *testing.T) {
 
 	_, err := endpoint(context.Background(), "payload")
 
-	var serr *goa.ServiceError
-	assert.Assert(t, errors.As(err, &serr))
+	serr, ok := errors.AsType[*goa.ServiceError](err)
+	assert.Assert(t, ok)
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
 		ID:      returned.ID,
@@ -70,8 +70,8 @@ func TestServerErrorHandlerClassifiesRawError(t *testing.T) {
 
 	_, err := endpoint(context.Background(), "payload")
 
-	var serr *goa.ServiceError
-	assert.Assert(t, errors.As(err, &serr))
+	serr, ok := errors.AsType[*goa.ServiceError](err)
+	assert.Assert(t, ok)
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
 		Message: apiInternalErrorMsg,
@@ -146,8 +146,8 @@ func TestServerErrorHandlerLogsTimeoutOnce(t *testing.T) {
 
 	_, err := endpoint(context.Background(), "payload")
 
-	var serr *goa.ServiceError
-	assert.Assert(t, errors.As(err, &serr))
+	serr, ok := errors.AsType[*goa.ServiceError](err)
+	assert.Assert(t, ok)
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
 		Message: apiInternalErrorMsg,
@@ -174,8 +174,8 @@ func TestOperationTimeoutMapsDeadlineExceeded(t *testing.T) {
 	)
 
 	_, err := endpoint(context.Background(), "payload")
-	var serr *goa.ServiceError
-	assert.Assert(t, errors.As(err, &serr))
+	serr, ok := errors.AsType[*goa.ServiceError](err)
+	assert.Assert(t, ok)
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
 		Message: apiInternalErrorMsg,
@@ -310,8 +310,8 @@ func TestOperationTimeoutRecordsSpanError(t *testing.T) {
 	_, err := endpoint(ctx, "payload")
 	endSpan()
 
-	var serr *goa.ServiceError
-	assert.Assert(t, errors.As(err, &serr))
+	serr, ok := errors.AsType[*goa.ServiceError](err)
+	assert.Assert(t, ok)
 	assert.DeepEqual(t, serr, &goa.ServiceError{
 		Name:    "internal_error",
 		Message: apiInternalErrorMsg,

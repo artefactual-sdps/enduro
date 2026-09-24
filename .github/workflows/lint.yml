@@ -31,6 +31,8 @@ jobs:
         run: make lint LINT_FLAGS=--fix=0
         env:
           GOLANGCI_LINT_CACHE: ${{ runner.temp }}/golangci-lint-cache
+      - name: Check Go modernization
+        run: make modernize-check
   shfmt:
     runs-on: ubuntu-latest
     steps:

@@ -92,7 +92,7 @@ func TestLocationConfigEncoding(t *testing.T) {
 		},
 		"Rejects invalid config": {
 			config:  types.LocationConfig{},
-			wantErr: "json: error calling MarshalJSON for type types.LocationConfig: unsupported config type: <nil>",
+			wantErr: "unsupported config type: <nil>",
 		},
 	} {
 		t.Run(name, func(t *testing.T) {
@@ -101,7 +101,7 @@ func TestLocationConfigEncoding(t *testing.T) {
 			blob, err := json.Marshal(tt.config)
 
 			if tt.wantErr != "" {
-				assert.Error(t, err, tt.wantErr)
+				assert.ErrorContains(t, err, tt.wantErr)
 				assert.Assert(t, blob == nil)
 				return
 			}
@@ -200,6 +200,23 @@ func TestLocationConfigDecoding(t *testing.T) {
 		"Rejects unknown config": {
 			blob:    `{"xxxxxx":{}}`,
 			wantErr: "undefined configuration document",
+		},
+		"Rejects case-insensitive config name": {
+			blob:    `{"S3":{"bucket":"perma-aips-1","region":"eu-west-1"}}`,
+			wantErr: "undefined configuration document",
+		},
+		"Rejects duplicate config name": {
+			blob: `{
+				"s3":{"bucket":"perma-aips-1","region":"eu-west-1"},
+				"s3":{"bucket":"perma-aips-2","region":"eu-west-1"}
+			}`,
+			wantErr: "undefined configuration format",
+		},
+		"Rejects duplicate config field": {
+			blob: `{
+				"s3":{"bucket":"perma-aips-1","bucket":"perma-aips-2","region":"eu-west-1"}
+			}`,
+			wantErr: "undefined configuration format",
 		},
 		"Rejects unexpected JSON": {
 			blob:    `[1, 2, 3]`,
