@@ -161,10 +161,6 @@ func (b *bucket) Attributes(ctx context.Context, key string) (*driver.Attributes
 	return drv, nil
 }
 
-func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driver.ListPage, error) {
-	return nil, errNotImplemented
-}
-
 func (b *bucket) NewRangeReader(
 	ctx context.Context,
 	key string,
@@ -197,6 +193,10 @@ func (b *bucket) NewRangeReader(
 		},
 		raw: stream,
 	}, nil
+}
+
+func (b *bucket) ListPaged(ctx context.Context, opts *driver.ListOptions) (*driver.ListPage, error) {
+	return nil, errNotImplemented
 }
 
 func (b *bucket) NewTypedWriter(
