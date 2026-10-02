@@ -259,34 +259,35 @@ configured with a TOML array-of-tables syntax with the same structure. When
 API authentication is enabled, at least one OIDC provider must be configured to
 verify tokens.
 
-For more details on OIDC configuration, consult the [OIDC specification].
+For API, dashboard, and ingest configuration examples, see
+[Identity and access control](iac.md#api-configuration). For more details on
+OIDC, consult the [OIDC specification].
 
 **Example configuration**:
 
 ```toml
 [[api.auth.oidc]]
-providerURL = "https://idp-public.example.com/realms/enduro"
+providerURL = "https://idp.example.com"
 clientID = "enduro"
 
 [[api.auth.oidc]]
-providerURL = "https://idp-public.example.com/realms/enduro"
+providerURL = "https://idp.example.com"
 clientID = "enduro-s2s"
 skipEmailVerifiedCheck = true
 ```
 
 * `providerURL`: Defines the OIDC provider URL. This parameter is required when
   API authentication is enabled.
-* `clientID`: Defines the OIDC client ID. The client ID must be included in the
-  intended audience (`aud`) claim of the submitted access token. Also required
-  when API authentication is enabled.
-* `skipEmailVerifiedCheck`: One of the standard claim elements that can be
-  requested and/or returned in an OIDC ID token or UserInfo response is the
-  `email_verified` claim - When this claim value is true, this means that the
-  OIDC provider "took affirmative steps to ensure that this e-mail address was
-  controlled by the End-User at the time the verification was performed." When
-  `skipEmailVerifiedCheck` is set to **false**, Enduro will check any submitted
-  tokens or UserInfo responses for the verified email claim. When set to
-  **true**, this check is skipped.
+* `clientID`: Defines the expected access token audience. This value must be
+  included in the intended audience (`aud`) claim of the submitted access token.
+  It can differ from the client ID used by the dashboard or ingest to request
+  tokens. Required when API authentication is enabled.
+* `skipEmailVerifiedCheck`: When set to **false** (the default), Enduro requires
+  the `email_verified` claim to be present and set to `true` in the submitted
+  access token. When set to **true**, this check is skipped for this verifier.
+  This can be needed when the provider does not supply the claim or when
+  service identities do not have an email address. A claim supplied only in an
+  ID token or UserInfo response does not satisfy this check.
 
 ##### Enable Attribute Based Access Control for the API OIDC authentication
 
@@ -302,19 +303,19 @@ after the verifier configuration if ABAC is needed.
 
 ```toml
 [[api.auth.oidc]]
-providerURL = "https://idp-public.example.com/realms/enduro"
+providerURL = "https://idp.example.com"
 clientID = "enduro"
 
 [api.auth.oidc.abac]
 enabled = true
-claimPath = "enduro"
+claimPath = "roles"
 claimPathSeparator = ""
 claimValuePrefix = ""
-useRoles = false
-rolesMapping =
+useRoles = true
+rolesMapping = '{"admin": ["*"]}'
 
 [[api.auth.oidc]]
-providerURL = "https://idp-public.example.com/realms/enduro"
+providerURL = "https://idp.example.com"
 clientID = "enduro-s2s"
 skipEmailVerifiedCheck = true
 ```

@@ -17,32 +17,10 @@ recommend using [nvm] to install and select the exact pinned version.
 
 ## Environment
 
-The following environment variables are used to configure the dashboard:
-
-```txt
-VITE_OIDC_ENABLED
-VITE_OIDC_BASE_URL
-VITE_OIDC_AUTHORITY
-VITE_OIDC_CLIENT_ID
-VITE_OIDC_SCOPES
-VITE_OIDC_ABAC_ENABLED
-VITE_OIDC_ABAC_CLAIM_PATH
-VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR
-VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX
-VITE_OIDC_ABAC_USE_ROLES
-VITE_OIDC_ABAC_ROLES_MAPPING
-
-VITE_INSTITUTION_LOGO
-VITE_INSTITUTION_LOGO_LIGHT
-VITE_INSTITUTION_LOGO_DARK
-VITE_INSTITUTION_NAME
-VITE_INSTITUTION_URL
-```
-
-See the [Dashboard configuration](dashboard-config.md) for more information
-about these variables. When building from source, these variables will be read
-from the process environment or else will fall back to the values in the `.env`
-file.
+The dashboard is configured through the environment variables documented in
+[Dashboard configuration](dashboard-config.md). When building from source,
+these variables are read from the process environment or fall back to the
+values in the `.env` file.
 
 !!! important
 
