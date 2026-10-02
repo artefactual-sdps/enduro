@@ -373,7 +373,7 @@ func (s *serviceImpl) DeleteAip(ctx context.Context, aipID uuid.UUID) error {
 	}
 	defer bucket.Close()
 
-	err = bucket.Delete(ctx, aip.UUID.String())
+	err = bucket.Delete(ctx, aip.Name)
 	if err != nil {
 		return fmt.Errorf("delete AIP: %v", err)
 	}

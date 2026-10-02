@@ -58,7 +58,7 @@ func (a *UploadActivity) uploadToAIPStagingBucket(ctx context.Context, params *U
 	}
 	defer f.Close()
 
-	w, err := a.aipStagingBucket.NewWriter(ctx, params.AIPID, nil)
+	w, err := a.aipStagingBucket.NewWriter(ctx, params.Name, nil)
 	if err != nil {
 		return err
 	}
