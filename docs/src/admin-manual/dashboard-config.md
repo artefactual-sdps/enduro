@@ -1,8 +1,9 @@
 # Dashboard configuration
 
-This page describes how to configure a custom institutional logo to be displayed
-in the page header of the user interface. For additional Enduro configuration,
-see:
+This page describes the environment variables for dashboard branding, custom
+home page content, and authentication. See
+[Building and serving the dashboard](dashboard-build.md#environment) for how to
+apply these settings. For additional Enduro configuration, see:
 
 * [Configuration]
 
@@ -86,6 +87,7 @@ VITE_OIDC_BASE_URL
 VITE_OIDC_AUTHORITY
 VITE_OIDC_CLIENT_ID
 VITE_OIDC_SCOPES
+VITE_OIDC_EXTRA_QUERY_PARAMS
 VITE_OIDC_ABAC_ENABLED
 VITE_OIDC_ABAC_CLAIM_PATH
 VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR
@@ -94,7 +96,9 @@ VITE_OIDC_ABAC_USE_ROLES
 VITE_OIDC_ABAC_ROLES_MAPPING
 ```
 
-Check the [Identity and access control](iac.md) page for more information.
+See [Identity and access control](iac.md#dashboard-configuration) for the
+authentication requirements and how these settings relate to the identity
+provider and API configuration.
 
 [alt]: https://developer.mozilla.org/en-US/docs/Web/API/HTMLImageElement/alt
 [Configuration]: configuration.md
