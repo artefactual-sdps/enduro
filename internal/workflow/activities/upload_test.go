@@ -101,7 +101,7 @@ func TestUploadActivity(t *testing.T) {
 			assert.NilError(t, err)
 
 			if tc.wantContent != "" {
-				contents, err := os.ReadFile(sharedDir.Join("aips/", aipUUID))
+				contents, err := os.ReadFile(sharedDir.Join("aips/", aipName))
 				assert.NilError(t, err)
 				assert.DeepEqual(t, string(contents), tc.wantContent)
 			}

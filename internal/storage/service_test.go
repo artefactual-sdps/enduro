@@ -564,7 +564,7 @@ func TestServiceDeleteAip(t *testing.T) {
 		svc := setUpService(t, ctx, &attrs)
 
 		// Write a test blob to the internal bucket with an AIP prefix.
-		writeTestBlob(ctx, t, "file://"+attrs.config.Internal.URL, storage.AIPPrefix+aipID.String())
+		writeTestBlob(ctx, t, "file://"+attrs.config.Internal.URL, storage.AIPPrefix+aipName)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -574,8 +574,8 @@ func TestServiceDeleteAip(t *testing.T) {
 			).
 			Return(
 				&goastorage.AIP{
+					Name:         aipName,
 					UUID:         aipID,
-					ObjectKey:    aipID,
 					LocationUUID: &uuid.Nil,
 				},
 				nil,
@@ -595,7 +595,7 @@ func TestServiceDeleteAip(t *testing.T) {
 		svc := setUpService(t, ctx, &attrs)
 
 		// Write a test blob to the perma location.
-		writeTestBlob(ctx, t, "file://"+td.Path(), aipID.String())
+		writeTestBlob(ctx, t, "file://"+td.Path(), aipName)
 
 		attrs.persistenceMock.
 			EXPECT().
@@ -605,8 +605,8 @@ func TestServiceDeleteAip(t *testing.T) {
 			).
 			Return(
 				&goastorage.AIP{
+					Name:         aipName,
 					UUID:         aipID,
-					ObjectKey:    aipID,
 					LocationUUID: &locationID,
 				},
 				nil,
@@ -649,8 +649,8 @@ func TestServiceDeleteAip(t *testing.T) {
 			).
 			Return(
 				&goastorage.AIP{
+					Name:         aipName,
 					UUID:         aipID,
-					ObjectKey:    objectKey,
 					LocationUUID: &locationID,
 				},
 				nil,
@@ -675,7 +675,7 @@ func TestServiceDeleteAip(t *testing.T) {
 		err := svc.DeleteAip(ctx, aipID)
 		assert.Error(t, err, fmt.Sprintf(
 			"delete AIP: blob (key %q) (code=NotFound): remove %s/%s: no such file or directory",
-			aipID.String(), td.Path(), aipID.String(),
+			aipName, td.Path(), aipName,
 		))
 	})
 
