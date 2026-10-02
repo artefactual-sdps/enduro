@@ -34,7 +34,8 @@ func (s *serviceImpl) DownloadAipRequest(
 	}
 	defer bucket.Close()
 
-	_, err = bucket.Attributes(ctx, aip.Name)
+	key := aipKey(bucket, aip)
+	_, err = bucket.Attributes(ctx, key)
 	if err != nil {
 		if gcerrors.Code(err) == gcerrors.NotFound {
 			return nil, &goastorage.AIPNotFound{

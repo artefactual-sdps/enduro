@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-logr/logr"
 	"github.com/google/uuid"
+	"go.artefactual.dev/ssclient"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
 	temporalsdk_client "go.temporal.io/sdk/client"
 	"goa.design/goa/v3/security"
@@ -393,7 +394,8 @@ func (s *serviceImpl) AipReader(ctx context.Context, a *goastorage.AIP) (*blob.R
 	}
 	defer bucket.Close()
 
-	reader, err := bucket.NewReader(ctx, a.Name, nil)
+	key := aipKey(bucket, a)
+	reader, err := bucket.NewReader(ctx, key, nil)
 	if err != nil {
 		return nil, fmt.Errorf("new AIP reader: %w", err)
 	}
@@ -680,4 +682,15 @@ func (svc *serviceImpl) UpdateDeletionRequest(
 	svc.auditLogger.Log(ctx, deletionRequestAuditEvent(dr))
 
 	return dr, nil
+}
+
+// Return the blob key for an AIP in a storage location bucket. For AMSS
+// storage locations, the object key is the AIP UUID. For other storage
+// locations, the object key is the AIP name.
+func aipKey(bucket *blob.Bucket, aip *goastorage.AIP) string {
+	var c *ssclient.Client
+	if ok := bucket.As(&c); ok {
+		return aip.UUID.String()
+	}
+	return aip.Name
 }
