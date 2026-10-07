@@ -10,103 +10,136 @@ resources to which an authenticated user has access. It looks for a configurable
 claim in the access token to know the attributes assigned to the user in their
 external provider.
 
-This section explains how to configure the OIDC provider in Enduro's API and
-dashboard.
+This section explains the identity provider requirements and the authentication
+configuration for Enduro's API, dashboard, and ingest storage client.
+
+## Identity provider requirements
+
+Enduro supports OIDC for user authentication. Dashboard login and
+authentication between services use different OAuth 2.0 flows and can use
+different identity providers.
+
+### Dashboard login
+
+The dashboard uses the **Authorization Code flow with Proof Key for Code
+Exchange (PKCE)**, using the `S256` challenge method. It is a public browser
+application, also called a single-page application (SPA), and does not use a
+client secret.
+
+The identity provider's dashboard registration must allow this flow and include
+the sign-in and post-logout redirect URIs described in
+[Dashboard configuration](#dashboard-configuration).
+
+The dashboard requests access tokens for the Enduro API. Depending on the
+provider, this may require API scopes or additional authorization request
+parameters beyond the default `openid email profile` scopes.
+
+### Authentication between services
+
+When ingest-to-storage authentication is enabled, ingest uses the **Client
+Credentials flow** to obtain access tokens for the storage API without user
+interaction. This requires a confidential client with a client ID and client
+secret. A separate client registration is recommended so that service
+credentials and permissions can be managed independently of dashboard login.
+
+The service client can use the same identity provider as the dashboard or a
+different provider. At least one of the API's configured OIDC verifiers must
+accept its tokens. When ABAC is enabled for that verifier, the tokens must also
+contain the attributes required by the storage endpoints used by ingest.
+
+The provider, credentials, and any required scopes or audience parameter are
+configured under `[ingest.storage.oidc]`, as described in
+[Ingest storage client configuration](#ingest-storage-client-configuration).
+
+### Access-token requirements
+
+The API validates signed JWT access tokens, including their signature, issuer,
+audience, and expiry. The issuer must match a configured OIDC provider, and the
+`aud` claim must include the corresponding API `clientID` value.
+
+User access tokens must include a stable `sub` claim uniquely identifying the
+user within the issuer. Enduro uses the combination of `iss` and `sub` to
+identify users when recording ingest actions and handling deletion requests.
+Requesting, reviewing, or canceling an AIP deletion also requires at least one
+nonempty `email`, `preferred_username`, or `name` claim, checked in that order,
+for the display name. These identity claims are also required in service tokens
+used for automatic AIP deletion, such as during batch cancellation.
+
+When attribute-based access control (ABAC) is enabled, the configured
+permissions claim must contain an array ofstrings in the access token. These
+values can be Enduro attributes or roles mapped to attributes through
+`rolesMapping`. The dashboard and API must use matching access control settings
+for user tokens. See [API configuration](#api-configuration) and [Required
+attributes](#required-attributes) for the configuration and supported
+permissions.
+
+By default, the API also requires `email_verified: true` in the access token.
+The `skipEmailVerifiedCheck` setting disables this requirement for an OIDC
+verifier, for example when a provider does not supply the claim or when service
+identities do not have an email address. Claims used by the API must be present
+in the access token; providing them only in an ID token or UserInfo response is
+insufficient.
 
 ## API configuration
 
-Below is a self-documented API section from an Enduro configuration file in
-TOML format:
+The following example configures `enduro` for dashboard users and `enduro-s2s`
+for service authentication. ABAC is enabled for dashboard users only:
 
 ```toml
 [api]
 # TCP address for the server to listen on, in the form "host:port".
 listen = "0.0.0.0:9000"
 # Allowed CORS origin URL.
-corsOrigin = "http://localhost"
+corsOrigin = "https://enduro.example.com"
 
 [api.auth]
-# Enable API authentication. OIDC is the only protocol supported at the
-# moment. When enabled the API verifies the access token submitted with
-# each request. Clients are responsible for obtaining an access token
-# from a configured OIDC provider below.
+# Verify the access token submitted with each request.
 enabled = true
 
-# Multiple OIDC providers are supported. Add one `[[api.auth.oidc]]` table
-# per provider/client pair. For each provider/client pair add an
-# `[api.auth.oidc.abac]` section if ABAC is needed. Example:
-#
-# [[api.auth.oidc]]
-# providerURL = "http://keycloak:7470/realms/artefactual"
-# clientID = "enduro"
-# [api.auth.oidc.abac]
-# enabled = true
-# claimPath = "attributes.enduro"
-# claimPathSeparator = "."
-#
-# [[api.auth.oidc]]
-# providerURL = "http://keycloak:7470/realms/artefactual-internal"
-# clientID = "enduro-s2s"
+# User access tokens obtained by the dashboard.
 [[api.auth.oidc]]
-# OIDC provider URL. Required when auth. is enabled.
-providerURL = "http://keycloak:7470/realms/artefactual"
-# OIDC client ID. The client ID must be included in the `aud` claim of
-# the access token. Required when auth. is enabled.
+providerURL = "https://idp.example.com"
 clientID = "enduro"
-# Do not check if the `email_verified` claim is present and set to `true`.
 skipEmailVerifiedCheck = false
 
 [api.auth.oidc.abac]
-# Enable Attribute Based Access Control (ABAC). If enabled, the API will
-# check a configurable multivalue claim against required attributes based
-# on each endpoint configuration.
 enabled = true
-# Claim path of the Enduro attributes within the access token. If the claim
-# path is nested then include all fields separated by `claimPathSeparator`
-# (see below). E.g. "attributes.enduro" with `claimPathSeparator = "."`.
-# Required when ABAC is enabled.
-claimPath = "enduro"
-# Separator used to split the claim path fields. The default value of "" will
-# try to match the claim path as-is to a top-level field from the access token.
+claimPath = "roles"
 claimPathSeparator = ""
-# Add a prefix to filter the values of the configured claim. If the claim
-# contains values unrelated to Enduro's ABAC, the values relevant to Enduro
-# should be prefixed so they are the only values used for access control.
-# For example, a claim with values ["enduro:*", "unrelated"] will be filtered
-# to a value of ["*"] when `claimValuePrefix = "enduro:"`. The default "" will
-# not filter any value.
 claimValuePrefix = ""
-# Consider the values obtained from the claim as roles and use the `rolesMapping`
-# config below to map them to Enduro attributes.
-useRoles = false
-# A JSON formatted string specifying a mapping from expected roles to Enduro
-# attributes. JSON format:
-# {
-#   "role1": ["attribute1", "atrribute2"],
-#   "role2": ["attribute1", "atrribute2", "attribute3", "atrribute4"]
-# }
-# Example:
-# rolesMapping = '{"admin": ["*"], "operator": ["ingest:sips:list", "ingest:sips:read", "ingest:sips:upload", "ingest:sips:workflows:list"], "readonly": ["ingest:sips:list", "ingest:sips:read", "ingest:sips:workflows:list"]}'
-rolesMapping = ""
+useRoles = true
+rolesMapping = '{"admin": ["*"]}'
+
+# Service access tokens obtained by ingest.
+[[api.auth.oidc]]
+providerURL = "https://idp.example.com"
+clientID = "enduro-s2s"
+# Skip the email verification check for service tokens.
+skipEmailVerifiedCheck = true
 
 [api.auth.ticket.redis]
 # Redis URI to store tickets used for browser download handoffs.
-address = "redis://redis.enduro-sdps:6379"
+address = "redis://redis:6379"
 # Prefix used as part of the ticket keys in Redis.
 prefix = "enduro"
 ```
 
+The [API authentication reference](configuration.md#oidc-authentication-providers-configuration)
+describes all verifier and ABAC settings. The
+[required attributes](#required-attributes) determine the permissions to map
+for additional user roles or service operations.
+
 ## Ingest storage client configuration
 
 Use the following section to configure ingest as an authenticated client of the
-storage API using the OIDC client credentials flow. Tokens generated by this
+storage API using the OAuth 2.0 Client Credentials flow. Tokens generated by this
 OIDC provider must be verified by at least one of the providers from the full
 API OIDC configuration.
 
 ```toml
 [ingest.storage]
 # Storage API host:port for ingest client requests.
-address = "enduro.enduro-sdps:9002"
+address = "enduro-api:9000"
 # Default destination location for permanent storage workflows.
 defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
 
@@ -114,7 +147,7 @@ defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
 # Enable service to service OIDC authentication for storage API requests.
 enabled = true
 # OIDC provider URL used for token endpoint discovery.
-providerURL = "http://keycloak:7470/realms/artefactual"
+providerURL = "https://idp.example.com"
 # Optional token endpoint URL. If set, discovery is skipped.
 tokenURL = ""
 # OIDC client credentials used for client_credentials token requests.
@@ -135,21 +168,9 @@ retryBackoffCoefficient = 2.0
 
 ## Dashboard configuration
 
-The following environment variables can be used to configure the dashboard:
-
-```txt
-VITE_OIDC_ENABLED
-VITE_OIDC_BASE_URL
-VITE_OIDC_AUTHORITY
-VITE_OIDC_CLIENT_ID
-VITE_OIDC_SCOPES
-VITE_OIDC_ABAC_ENABLED
-VITE_OIDC_ABAC_CLAIM_PATH
-VITE_OIDC_ABAC_CLAIM_PATH_SEPARATOR
-VITE_OIDC_ABAC_CLAIM_VALUE_PREFIX
-VITE_OIDC_ABAC_USE_ROLES
-VITE_OIDC_ABAC_ROLES_MAPPING
-```
+The dashboard's [OIDC settings](dashboard-config.md#oidc-settings) configure
+authentication and access control. This section describes how those settings
+relate to the identity provider and API configuration.
 
 !!! important
 
@@ -158,54 +179,46 @@ VITE_OIDC_ABAC_ROLES_MAPPING
     ensure it ends with a slash (`/`) to allow connections to the necessary
     OIDC endpoints for authentication.
 
-They must match the ones configured in the API. `VITE_OIDC_AUTHORITY` has to be
-the same OIDC provider URL and `VITE_OIDC_CLIENT_ID` needs to be the same or a
-trusted client. This client (or the one used in the API configuration, if they
-are not the same) must be included in the `aud` claim from the access token.
+`VITE_OIDC_AUTHORITY` identifies the provider used for dashboard login and must
+correspond to one of the API's configured OIDC providers. `VITE_OIDC_CLIENT_ID`
+identifies the public dashboard client. The API's corresponding `clientID`
+setting must be included in the `aud` claim of the resulting access token and
+can differ from `VITE_OIDC_CLIENT_ID`.
+
 `VITE_OIDC_BASE_URL` will be used to generate the signin and signout callback
 URLs, to set them in the OIDC provider for this client, they will be:
 
 - Signin: `VITE_OIDC_BASE_URL` + `/user/signin-callback`
 - Signout: `VITE_OIDC_BASE_URL` + `/user/signout-callback`
 
-The authorization flow will request the `openid email profile` scopes by
-default. If needed, `VITE_OIDC_SCOPES` can be used to replace those scopes.
+The Authorization Code flow with PKCE requests the `openid email profile`
+scopes by default. `VITE_OIDC_SCOPES` replaces that list with a space-separated
+list of scopes. When additional API scopes are required, the configured list
+must also retain `openid` and any required profile scopes.
 
 `VITE_OIDC_EXTRA_QUERY_PARAMS` can be set to specify further query string
-parameters to be including in the authorization request. E.g, when using Azure
-AD a resource parameter is required, or using Auth0 you may need to send an
-audience client ID. The expected format is key-value pairs separated by `=`
-(`audience=client-id`), if more than one parameter is needed they can be added
-separated by comma (`audience=client-id,key=value`).
+parameters required by the provider in the authorization request. The expected
+format is comma-separated `key=value` pairs, for example
+`audience=api-audience,key=value`.
 
-The ABAC variables will work in the same way as they do in the API, they are
-explained in detail in the API configuration comments above.
+The ABAC variables work in the same way as the API's ABAC settings. In this
+example, they match the user token verifier:
 
-These environment variables can be set at build time, or they can be replaced in
-the final assets. For example, the following script uses `envsubst` to do the
-replacement:
-
-```bash
-#!/usr/bin/env bash
-
-ENDURO_DASHBOARD_ROOT=/usr/lib/enduro-dashboard
-TMP_DIR=/tmp/inject_vite_envs
-mkdir $TMP_DIR
-
-# Get a comma delimited list of env var names starting with "VITE"
-VITE_ENVS=$(printenv | awk -F= '$1 ~ /^VITE/ {print $1}' | sed 's/^/\$/g' | paste -sd,);
-echo "Vite envs: ${VITE_ENVS}"
-
-# Inject environment variables into distribution files
-for file in $ENDURO_DASHBOARD_ROOT/assets/*.js;
-do
-    echo "Inject VITE environment variables into $(basename $file)"
-    envsubst $VITE_ENVS < $file > $TMP_DIR/$(basename $file)
-    cp $TMP_DIR/$(basename $file) $file
-done
-
-rm -rf $TMP_DIR
+```sh
+VITE_OIDC_ENABLED=true
+VITE_OIDC_BASE_URL=https://enduro.example.com
+VITE_OIDC_AUTHORITY=https://idp.example.com
+VITE_OIDC_CLIENT_ID=enduro
+VITE_OIDC_ABAC_ENABLED=true
+VITE_OIDC_ABAC_CLAIM_PATH=roles
+VITE_OIDC_ABAC_USE_ROLES=true
+VITE_OIDC_ABAC_ROLES_MAPPING='{"admin": ["*"]}'
 ```
+
+See [Building and serving the dashboard](dashboard-build.md#environment) for
+applying these settings at build time, or
+[Environment variable injection](dashboard-build.md#environment-variable-injection)
+for configuring pre-built assets.
 
 ## Required attributes
 
