@@ -1,0 +1,204 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  backend-tests:
+    name: Backend tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Check mod tidy
+        run: make mod-tidy-check
+      - name: Test
+        run: make test-ci
+      - name: Determine skip-codecov
+        uses: ./.github/actions/skip-codecov
+        id: skip-codecov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        if: ${{ steps.skip-codecov.outputs.skip != 'true' }}
+        with:
+          files: covreport
+          flags: backend
+          name: backend
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  go-lint:
+    name: Go lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Get date
+        shell: bash
+        run: |
+          echo "DATE=$(date -u '+%Y-%m')" >> "$GITHUB_ENV"
+      - name: Restore golangci-lint cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        timeout-minutes: 10
+        continue-on-error: true
+        with:
+          path: ${{ runner.temp }}/golangci-lint-cache
+          key: ${{ runner.os }}-golangci-lint-cache-${{ env.DATE }}
+          restore-keys: |
+            ${{ runner.os }}-golangci-lint-cache-
+      - name: Run golangci-lint
+        run: make lint LINT_FLAGS=--fix=0
+        env:
+          GOLANGCI_LINT_CACHE: ${{ runner.temp }}/golangci-lint-cache
+      - name: Check Go modernization
+        run: make modernize-check
+
+  workflowcheck:
+    name: Workflowcheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Run workflowcheck
+        run: make workflowcheck
+
+  dashboard:
+    name: Dashboard
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version-file: .node-version
+      - name: Install dependencies
+        run: npm clean-install
+        working-directory: ./dashboard
+      - name: Test with coverage
+        run: npm run coverage
+        working-directory: ./dashboard
+      - name: Lint
+        run: npm run lint
+        working-directory: ./dashboard
+      - name: Determine skip-codecov
+        uses: ./.github/actions/skip-codecov
+        id: skip-codecov
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@303a32d7a59b442fa8d48b6a1cc6825c09c847a5 # v7.1.1
+        if: ${{ steps.skip-codecov.outputs.skip != 'true' }}
+        with:
+          files: dashboard/coverage/clover.xml
+          flags: dashboard
+          name: dashboard
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+  atlas:
+    name: Atlas
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Check atlas.sum
+        run: |
+          go tool bine run atlas \
+            migrate validate --dir "file://./internal/storage/persistence/migrations"
+
+  shell-format:
+    name: Shell formatting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Run shfmt
+        run: make shfmt
+
+  trivy:
+    name: Trivy
+    runs-on: ubuntu-latest
+    permissions: read-all
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run Trivy vulnerability scanner in repo mode
+        uses: aquasecurity/trivy-action@ed142fd0673e97e23eac54620cfb913e5ce36c25 # master
+        with:
+          scan-type: "config"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH,MEDIUM"
+        env:
+          TRIVY_MISCONFIG_SCANNERS: dockerfile
+
+  pre-commit:
+    name: pre-commit
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+    - uses: pre-commit/action@2c7b3805fd2a0fd8c1884dcaebf91fc102a13ecd # v3.0.1
+
+  tilt:
+    name: Tilt CI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Create k8s cluster
+        uses: AbsaOSS/k3d-action@4e8b3239042be1dc0aed6c5eb80c13b18200fc79 # v2.4.0
+        with:
+          cluster-name: sdps-ci
+          k3d-version: v5.8.3
+          args: >-
+            --registry-create sdps-ci-registry
+            --no-lb
+            --timeout 180s
+            --k3s-arg "--disable=traefik,servicelb,metrics-server@server:*"
+            --k3s-arg "--kubelet-arg=eviction-hard=imagefs.available<1%,nodefs.available<1%@server:*"
+      - name: Install Tilt
+        uses: yokawasa/action-setup-kube-tools@b16d49b2c459d33cf9d4c300a220ef0bcdbc730a # v0.14.0
+        with:
+          setup-tools: |
+            tilt
+          tilt: v0.35.2
+      - name: Check tilt ci
+        run: tilt ci
+
+  api-diff:
+    name: API diff
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'breaking-change')
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Install Go
+        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version-file: go.mod
+      - name: Run apidiff
+        uses: joelanford/go-apidiff@60c4206be8f84348ebda2a3e0c3ac9cb54b8f685 # v0.8.3
