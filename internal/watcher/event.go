@@ -19,8 +19,14 @@ type BlobEvent struct {
 	WatcherName string
 
 	// RetentionPeriod is the duration for which SIPs should be retained after
-	// a successful ingest. If negative, SIPs will be retained indefinitely.
-	RetentionPeriod time.Duration
+	// a successful ingest. If zero, SIPs will be deleted immediately after
+	// ingest. If nil or negative, SIPs will be retained indefinitely.
+	RetentionPeriod *time.Duration
+
+	// DeleteFailedSIPAfter is the duration to retain SIPs after an unsuccessful
+	// ingest. If zero, the SIP is deleted immediately. If nil or negative, the
+	// SIP is retained indefinitely.
+	DeleteFailedSIPAfter *time.Duration
 
 	// Directory where the transfer is moved to once processing has completed
 	// successfully.
@@ -41,12 +47,13 @@ type BlobEvent struct {
 
 func NewBlobEvent(w Watcher, key string, isDir bool) *BlobEvent {
 	return &BlobEvent{
-		WatcherName:     w.String(),
-		RetentionPeriod: w.RetentionPeriod(),
-		CompletedDir:    w.CompletedDir(),
-		WorkflowType:    w.WorkflowType(),
-		Key:             key,
-		IsDir:           isDir,
+		WatcherName:          w.String(),
+		RetentionPeriod:      w.RetentionPeriod(),
+		DeleteFailedSIPAfter: w.DeleteFailedSIPAfter(),
+		CompletedDir:         w.CompletedDir(),
+		WorkflowType:         w.WorkflowType(),
+		Key:                  key,
+		IsDir:                isDir,
 	}
 }
 

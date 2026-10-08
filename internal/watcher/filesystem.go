@@ -53,7 +53,7 @@ func NewFilesystemWatcher(ctx context.Context, config *FilesystemConfig) (*files
 		}
 	}
 
-	if config.CompletedDir != "" && config.RetentionPeriod >= 0 {
+	if config.CompletedDir != "" && config.RetentionPeriod != nil && *config.RetentionPeriod >= 0 {
 		return nil, errors.New("cannot use completedDir and retentionPeriod simultaneously")
 	}
 
@@ -70,10 +70,11 @@ func NewFilesystemWatcher(ctx context.Context, config *FilesystemConfig) (*files
 		path:  abspath,
 		regex: regex,
 		commonWatcherImpl: &commonWatcherImpl{
-			name:            config.Name,
-			retentionPeriod: config.RetentionPeriod,
-			completedDir:    config.CompletedDir,
-			workflowType:    config.WorkflowType,
+			name:                 config.Name,
+			retentionPeriod:      config.RetentionPeriod,
+			deleteFailedSIPAfter: config.DeleteFailedSIPAfter,
+			completedDir:         config.CompletedDir,
+			workflowType:         config.WorkflowType,
 		},
 	}
 

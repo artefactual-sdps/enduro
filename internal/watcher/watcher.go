@@ -39,7 +39,17 @@ type Watcher interface {
 	// OpenBucket returns the bucket where the blobs can be found.
 	OpenBucket(ctx context.Context) (*blob.Bucket, error)
 
-	RetentionPeriod() time.Duration
+	// RetentionPeriod returns the duration to retain SIPs after a successful
+	// ingest. A nil or negative value indicates that SIPs should be retained
+	// indefinitely. A zero value indicates that SIPs should be deleted
+	// immediately after ingest.
+	RetentionPeriod() *time.Duration
+
+	// DeleteFailedSIPAfter returns the duration to retain SIPs after an
+	// unsuccessful ingest. If zero, the SIP is deleted immediately. If nil or
+	// negative, the SIP is retained indefinitely.
+	DeleteFailedSIPAfter() *time.Duration
+
 	CompletedDir() string
 	WorkflowType() enums.WorkflowType
 
@@ -50,18 +60,23 @@ type Watcher interface {
 }
 
 type commonWatcherImpl struct {
-	name            string
-	retentionPeriod time.Duration
-	completedDir    string
-	workflowType    enums.WorkflowType
+	name                 string
+	retentionPeriod      *time.Duration
+	deleteFailedSIPAfter *time.Duration
+	completedDir         string
+	workflowType         enums.WorkflowType
 }
 
 func (w *commonWatcherImpl) String() string {
 	return w.name
 }
 
-func (w *commonWatcherImpl) RetentionPeriod() time.Duration {
+func (w *commonWatcherImpl) RetentionPeriod() *time.Duration {
 	return w.retentionPeriod
+}
+
+func (w *commonWatcherImpl) DeleteFailedSIPAfter() *time.Duration {
+	return w.deleteFailedSIPAfter
 }
 
 func (w *commonWatcherImpl) CompletedDir() string {

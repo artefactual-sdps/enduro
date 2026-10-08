@@ -24,8 +24,9 @@ type UploadConfig struct {
 	MaxSize int64
 
 	// RetentionPeriod is the duration for which SIPs should be retained after
-	// a successful ingest. If negative, SIPs will be retained indefinitely.
-	RetentionPeriod time.Duration
+	// a successful ingest. If nil or negative, SIPs will be retained
+	// indefinitely. If zero, SIPs will be deleted immediately after ingest.
+	RetentionPeriod *time.Duration
 }
 
 func (svc *ingestImpl) UploadSip(

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"time"
 
 	"github.com/google/uuid"
 	temporalapi_enums "go.temporal.io/api/enums/v1"
@@ -245,14 +244,15 @@ func (w *BatchWorkflow) startSIPWorkflow(
 		processingCtx,
 		ingest.ProcessingWorkflowName,
 		&ingest.ProcessingWorkflowRequest{
-			User:            state.user,
-			SIPUUID:         sipUUID,
-			SIPName:         key,
-			Key:             key,
-			SIPSourceID:     sourceID,
-			Type:            enums.WorkflowTypeCreateAip,
-			RetentionPeriod: -1 * time.Second,
-			BatchUUID:       state.batch.UUID,
+			User:                 state.user,
+			SIPUUID:              sipUUID,
+			SIPName:              key,
+			Key:                  key,
+			SIPSourceID:          sourceID,
+			Type:                 enums.WorkflowTypeCreateAip,
+			RetentionPeriod:      state.retentionPeriod,
+			DeleteFailedSIPAfter: state.deleteFailedSIPAfter,
+			BatchUUID:            state.batch.UUID,
 		},
 	)
 	err = wf.GetChildWorkflowExecution().Get(processingCtx, &we)

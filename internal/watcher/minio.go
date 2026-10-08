@@ -90,9 +90,10 @@ func NewMinioWatcher(
 		logger:       logger,
 		bucketConfig: bucketConfig,
 		commonWatcherImpl: &commonWatcherImpl{
-			name:            config.Name,
-			retentionPeriod: config.RetentionPeriod,
-			workflowType:    config.WorkflowType,
+			name:                 config.Name,
+			retentionPeriod:      config.RetentionPeriod,
+			deleteFailedSIPAfter: config.DeleteFailedSIPAfter,
+			workflowType:         config.WorkflowType,
 		},
 	}, nil
 }

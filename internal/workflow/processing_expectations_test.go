@@ -119,7 +119,7 @@ type expectationParams struct {
 	premisXMLPath string
 
 	// Retention period for original SIP deletion.
-	retentionPeriod time.Duration
+	retentionPeriod *time.Duration
 
 	// Completed directory for original SIP disposal.
 	completedDir string
@@ -138,7 +138,7 @@ func defaultParams() expectationParams {
 		downloadPath:    tempPath + "/" + key,
 		failedPath:      tempPath + "/" + key,
 		premisXMLPath:   filepath.Join(transferPath, "metadata", "premis.xml"),
-		retentionPeriod: retentionPeriod,
+		retentionPeriod: &retentionPeriod,
 	}
 }
 
@@ -570,12 +570,12 @@ func autoApproveA3mExpectations(s *ProcessingWorkflowTestSuite, params expectati
 
 func cleanupExpectations(s *ProcessingWorkflowTestSuite, params expectationParams) {
 	expectations["removePaths"](s, params)
-	if params.retentionPeriod >= 0 {
+	if params.retentionPeriod != nil && *params.retentionPeriod >= 0 {
 		params.updateTaskParams(
 			deleteSIPTaskID,
 			enums.TaskStatusInProgress,
 			"Delete original SIP",
-			fmt.Sprintf("The original SIP will be deleted in %s", params.retentionPeriod),
+			fmt.Sprintf("The original SIP will be deleted in %s", *params.retentionPeriod),
 		)
 		expectations["createTask"](s, params)
 		expectations["deleteOriginal"](s, params)

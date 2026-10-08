@@ -22,8 +22,13 @@ type BucketSource struct {
 	// Name is the human-readable name of the SIP source.
 	Name string
 	// retentionPeriod is the duration for which SIPs should be retained after
-	// a successful ingest. If negative, SIPs will be retained indefinitely.
-	retentionPeriod time.Duration
+	// a successful ingest. If zero, SIPs will be deleted immediately after
+	// ingest. If nil or negative, SIPs will be retained indefinitely.
+	retentionPeriod *time.Duration
+	// deleteFailedSIPAfter is the duration to retain SIPs after an unsuccessful
+	// ingest. If zero, the SIP is deleted immediately. If nil or negative, the
+	// SIP is retained indefinitely.
+	deleteFailedSIPAfter *time.Duration
 }
 
 var _ SIPSource = (*BucketSource)(nil)
@@ -41,10 +46,11 @@ func NewBucketSource(ctx context.Context, cfg *Config) (*BucketSource, error) {
 	}
 
 	return &BucketSource{
-		ID:              cfg.ID,
-		Bucket:          bucket,
-		Name:            cfg.Name,
-		retentionPeriod: cfg.RetentionPeriod,
+		ID:                   cfg.ID,
+		Bucket:               bucket,
+		Name:                 cfg.Name,
+		retentionPeriod:      cfg.RetentionPeriod,
+		deleteFailedSIPAfter: cfg.DeleteFailedSIPAfter,
 	}, nil
 }
 
@@ -143,6 +149,10 @@ func (s *BucketSource) ListObjects(ctx context.Context, opts ListOptions) (*Page
 	return &Page{Objects: page, Limit: opts.Limit, NextToken: next}, nil
 }
 
-func (s *BucketSource) RetentionPeriod() time.Duration {
+func (s *BucketSource) RetentionPeriod() *time.Duration {
 	return s.retentionPeriod
+}
+
+func (s *BucketSource) DeleteFailedSIPAfter() *time.Duration {
+	return s.deleteFailedSIPAfter
 }

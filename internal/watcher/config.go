@@ -18,18 +18,39 @@ type Config struct {
 }
 
 func (c Config) setDefaults() {
-	if c.Embedded != nil && c.Embedded.WorkflowType == "" {
-		c.Embedded.WorkflowType = enums.WorkflowTypeCreateAip
+	if c.Embedded != nil {
+		setWorkflowTypeDefault(&c.Embedded.WorkflowType)
+		setRetentionDefaults(&c.Embedded.RetentionPeriod, &c.Embedded.DeleteFailedSIPAfter)
 	}
 	for _, fs := range c.Filesystem {
-		if fs != nil && fs.WorkflowType == "" {
-			fs.WorkflowType = enums.WorkflowTypeCreateAip
+		if fs != nil {
+			setWorkflowTypeDefault(&fs.WorkflowType)
+			setRetentionDefaults(&fs.RetentionPeriod, &fs.DeleteFailedSIPAfter)
 		}
 	}
 	for _, minio := range c.Minio {
-		if minio != nil && minio.WorkflowType == "" {
-			minio.WorkflowType = enums.WorkflowTypeCreateAip
+		if minio != nil {
+			setWorkflowTypeDefault(&minio.WorkflowType)
+			setRetentionDefaults(&minio.RetentionPeriod, &minio.DeleteFailedSIPAfter)
 		}
+	}
+}
+
+func setWorkflowTypeDefault(t *enums.WorkflowType) {
+	if *t == "" {
+		*t = enums.WorkflowTypeCreateAip
+	}
+}
+
+// setRetentionDefaults sets unset (nil) retention periods to zero, so that
+// watched location SIPs are deleted immediately after ingest by default. A
+// negative value must be configured explicitly to retain SIPs indefinitely.
+func setRetentionDefaults(retention, deleteFailed **time.Duration) {
+	if *retention == nil {
+		*retention = new(time.Duration)
+	}
+	if *deleteFailed == nil {
+		*deleteFailed = new(time.Duration)
 	}
 }
 
@@ -85,8 +106,15 @@ type FilesystemConfig struct {
 	Inotify      bool
 
 	// RetentionPeriod is the duration for which SIPs should be retained after
-	// a successful ingest. If negative, SIPs will be retained indefinitely.
-	RetentionPeriod time.Duration
+	// a successful ingest. If zero or unset (default), SIPs will be deleted
+	// immediately after ingest. If negative, SIPs will be retained
+	// indefinitely.
+	RetentionPeriod *time.Duration
+
+	// DeleteFailedSIPAfter is the duration to retain SIPs after an unsuccessful
+	// ingest. If zero or unset (default), the SIP is deleted immediately.
+	// If negative, the SIP is retained indefinitely.
+	DeleteFailedSIPAfter *time.Duration
 
 	// PollInterval sets the length of time between filesystem polls (default:
 	// 200ms). If Inotify is true then PollInterval is ignored.
@@ -121,8 +149,16 @@ type MinioConfig struct {
 	URL             string
 
 	// RetentionPeriod is the duration for which SIPs should be retained after
-	// a successful ingest. If negative, SIPs will be retained indefinitely.
-	RetentionPeriod time.Duration
+	// a successful ingest. If zero or unset (default), SIPs will be deleted
+	// immediately after ingest. If negative, SIPs will be retained
+	// indefinitely.
+	RetentionPeriod *time.Duration
+
+	// DeleteFailedSIPAfter is the duration to retain SIPs after an unsuccessful
+	// ingest. A SIP is considered unsuccessful if its ingest failed, errored or
+	// was canceled. If zero or unset (default), the SIP is deleted immediately.
+	// If negative, the SIP is retained indefinitely.
+	DeleteFailedSIPAfter *time.Duration
 
 	// WatchTimeout sets the maximum time the Watch() method will wait for a
 	// Redis event when the queue is empty before returning a timeout error

@@ -63,11 +63,12 @@ func (svc *ingestImpl) AddBatch(
 	}
 
 	req := BatchWorkflowRequest{
-		User:            childWorkflowUserFromClaims(claims),
-		Batch:           *b,
-		SIPSourceID:     sourceID,
-		Keys:            payload.Keys,
-		RetentionPeriod: svc.sipSource.RetentionPeriod(),
+		User:                 childWorkflowUserFromClaims(claims),
+		Batch:                *b,
+		SIPSourceID:          sourceID,
+		Keys:                 payload.Keys,
+		RetentionPeriod:      svc.sipSource.RetentionPeriod(),
+		DeleteFailedSIPAfter: svc.sipSource.DeleteFailedSIPAfter(),
 	}
 	if err := InitBatchWorkflow(ctx, svc.tc, svc.taskQueue, &req); err != nil {
 		// Delete Batch from persistence.

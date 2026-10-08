@@ -1,6 +1,8 @@
 package workflow
 
 import (
+	"time"
+
 	"github.com/google/uuid"
 	temporalsdk_log "go.temporal.io/sdk/log"
 	temporalsdk_workflow "go.temporal.io/sdk/workflow"
@@ -25,6 +27,18 @@ type batchWorkflowState struct {
 
 	// sipDetails contains details for each SIP in the batch.
 	sipDetails []*sipDetails
+
+	// retentionPeriod is the duration to retain SIPs in the SIP source or
+	// watched location after a successful ingest. If zero, the SIP is deleted
+	// immediately. If nil or negative, the SIP is retained indefinitely.
+	retentionPeriod *time.Duration
+
+	// deleteFailedSIPAfter is the duration to retain SIPs in the SIP source or
+	// watched location after an unsuccessful ingest. A SIP is considered
+	// unsuccessful if its ingest failed, errored or was canceled. If zero, the
+	// SIP is deleted immediately. If nil or negative, the SIP is retained
+	// indefinitely.
+	deleteFailedSIPAfter *time.Duration
 
 	// workflowsCompleted prevents consuming child processing workflow futures
 	// twice. The batch workflow waits explicitly before postbatch to collect
@@ -53,10 +67,12 @@ type sipDetails struct {
 // workflow context and batch workflow request.
 func newBatchWorkflowState(ctx temporalsdk_workflow.Context, req *ingest.BatchWorkflowRequest) *batchWorkflowState {
 	return &batchWorkflowState{
-		logger:     temporalsdk_workflow.GetLogger(ctx),
-		batch:      req.Batch,
-		user:       req.User,
-		sipDetails: make([]*sipDetails, len(req.Keys)),
+		logger:               temporalsdk_workflow.GetLogger(ctx),
+		batch:                req.Batch,
+		user:                 req.User,
+		sipDetails:           make([]*sipDetails, len(req.Keys)),
+		retentionPeriod:      req.RetentionPeriod,
+		deleteFailedSIPAfter: req.DeleteFailedSIPAfter,
 	}
 }
 

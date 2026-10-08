@@ -139,10 +139,9 @@ func TestFileSystemWatcher(t *testing.T) {
 		ctx := t.Context()
 
 		w, err := watcher.NewFilesystemWatcher(ctx, &watcher.FilesystemConfig{
-			Name:            "filesystem",
-			Path:            src.Path(),
-			CompletedDir:    dest.Path(),
-			RetentionPeriod: -1 * time.Second,
+			Name:         "filesystem",
+			Path:         src.Path(),
+			CompletedDir: dest.Path(),
 		})
 		assert.NilError(t, err)
 
@@ -191,10 +190,9 @@ func TestFileSystemWatcher(t *testing.T) {
 		assert.NilError(t, os.Chtimes(sourceFile, wantModTime, wantModTime))
 
 		w, err := watcher.NewFilesystemWatcher(t.Context(), &watcher.FilesystemConfig{
-			Name:            "filesystem",
-			Path:            watchedDir,
-			CompletedDir:    completedDir,
-			RetentionPeriod: -1 * time.Second,
+			Name:         "filesystem",
+			Path:         watchedDir,
+			CompletedDir: completedDir,
 		})
 		assert.NilError(t, err)
 		assert.NilError(t, w.Dispose("example-sip"))

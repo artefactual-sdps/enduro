@@ -4,6 +4,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	"time"
 
 	"gotest.tools/v3/assert"
 
@@ -54,33 +55,75 @@ func TestValidate(t *testing.T) {
 			},
 			wantConfig: watcher.Config{
 				Filesystem: []*watcher.FilesystemConfig{
-					{Name: "fs", WorkflowType: enums.WorkflowTypeCreateAip},
+					{
+						Name:                 "fs",
+						WorkflowType:         enums.WorkflowTypeCreateAip,
+						RetentionPeriod:      new(time.Duration),
+						DeleteFailedSIPAfter: new(time.Duration),
+					},
 				},
 				Minio: []*watcher.MinioConfig{
-					{Name: "minio", WorkflowType: enums.WorkflowTypeCreateAip},
+					{
+						Name:                 "minio",
+						WorkflowType:         enums.WorkflowTypeCreateAip,
+						RetentionPeriod:      new(time.Duration),
+						DeleteFailedSIPAfter: new(time.Duration),
+					},
 				},
-				Embedded: &watcher.MinioConfig{WorkflowType: enums.WorkflowTypeCreateAip},
+				Embedded: &watcher.MinioConfig{
+					WorkflowType:         enums.WorkflowTypeCreateAip,
+					RetentionPeriod:      new(time.Duration),
+					DeleteFailedSIPAfter: new(time.Duration),
+				},
 			},
 		},
 		{
 			name: "Validates",
 			config: watcher.Config{
 				Filesystem: []*watcher.FilesystemConfig{
-					{Name: "fs", WorkflowType: "create aip"},
+					{
+						Name:                 "fs",
+						WorkflowType:         "create aip",
+						RetentionPeriod:      new(time.Hour),
+						DeleteFailedSIPAfter: new(24 * time.Hour),
+					},
 				},
 				Minio: []*watcher.MinioConfig{
-					{Name: "minio", WorkflowType: "create and review aip"},
+					{
+						Name:                 "minio",
+						WorkflowType:         enums.WorkflowTypeCreateAndReviewAip,
+						RetentionPeriod:      new(time.Duration),
+						DeleteFailedSIPAfter: new(time.Duration),
+					},
 				},
-				Embedded: &watcher.MinioConfig{WorkflowType: "create aip"},
+				Embedded: &watcher.MinioConfig{
+					WorkflowType:         enums.WorkflowTypeCreateAip,
+					RetentionPeriod:      new(-1 * time.Second),
+					DeleteFailedSIPAfter: new(-1 * time.Second),
+				},
 			},
 			wantConfig: watcher.Config{
 				Filesystem: []*watcher.FilesystemConfig{
-					{Name: "fs", WorkflowType: enums.WorkflowTypeCreateAip},
+					{
+						Name:                 "fs",
+						WorkflowType:         enums.WorkflowTypeCreateAip,
+						RetentionPeriod:      new(time.Hour),
+						DeleteFailedSIPAfter: new(24 * time.Hour),
+					},
 				},
 				Minio: []*watcher.MinioConfig{
-					{Name: "minio", WorkflowType: enums.WorkflowTypeCreateAndReviewAip},
+					{
+						Name:                 "minio",
+						WorkflowType:         enums.WorkflowTypeCreateAndReviewAip,
+						RetentionPeriod:      new(time.Duration),
+						DeleteFailedSIPAfter: new(time.Duration),
+					},
 				},
-				Embedded: &watcher.MinioConfig{WorkflowType: enums.WorkflowTypeCreateAip},
+				Embedded: &watcher.MinioConfig{
+					WorkflowType:         enums.WorkflowTypeCreateAip,
+					RetentionPeriod:      new(-1 * time.Second),
+					DeleteFailedSIPAfter: new(-1 * time.Second),
+				},
 			},
 		},
 		{

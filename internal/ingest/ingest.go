@@ -73,7 +73,7 @@ type ingestImpl struct {
 	taskQueue             string
 	internalStorage       *blob.Bucket
 	uploadMaxSize         int64
-	uploadRetentionPeriod time.Duration
+	uploadRetentionPeriod *time.Duration
 	rander                io.Reader
 	sipSource             sipsource.SIPSource
 	auditLogger           *auditlog.Logger
@@ -92,7 +92,7 @@ type ServiceParams struct {
 	TaskQueue             string
 	InternalStorage       *blob.Bucket
 	UploadMaxSize         int64
-	UploadRetentionPeriod time.Duration
+	UploadRetentionPeriod *time.Duration
 	Rander                io.Reader
 	SIPSource             sipsource.SIPSource
 	AuditLogger           *auditlog.Logger
@@ -100,18 +100,19 @@ type ServiceParams struct {
 
 func NewService(params ServiceParams) *ingestImpl {
 	return &ingestImpl{
-		logger:          params.Logger,
-		tc:              params.TemporalClient,
-		evsvc:           params.EventService,
-		perSvc:          params.PersistenceService,
-		tokenVerifier:   params.TokenVerifier,
-		ticketProvider:  params.TicketProvider,
-		taskQueue:       params.TaskQueue,
-		internalStorage: params.InternalStorage,
-		uploadMaxSize:   params.UploadMaxSize,
-		rander:          params.Rander,
-		sipSource:       params.SIPSource,
-		auditLogger:     params.AuditLogger,
+		logger:                params.Logger,
+		tc:                    params.TemporalClient,
+		evsvc:                 params.EventService,
+		perSvc:                params.PersistenceService,
+		tokenVerifier:         params.TokenVerifier,
+		ticketProvider:        params.TicketProvider,
+		taskQueue:             params.TaskQueue,
+		internalStorage:       params.InternalStorage,
+		uploadMaxSize:         params.UploadMaxSize,
+		rander:                params.Rander,
+		sipSource:             params.SIPSource,
+		auditLogger:           params.AuditLogger,
+		uploadRetentionPeriod: params.UploadRetentionPeriod,
 	}
 }
 
