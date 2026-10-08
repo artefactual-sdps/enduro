@@ -26,7 +26,7 @@ func newWatcher(t *testing.T, updateCfg func(c *watcher.MinioConfig)) (*miniredi
 		t.Fatal(err)
 	}
 
-	dur := time.Duration(time.Second)
+	dur := new(time.Second)
 
 	// Default config.
 	config := &watcher.MinioConfig{

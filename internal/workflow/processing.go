@@ -166,6 +166,13 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 	if err != nil {
 		state.logger.Error("cleanup: error completing workflow", "error", err.Error())
 	}
+
+	// Delete the original SIP based on the terminal workflow state and the
+	// `retentionPeriod` (successful) or `deleteFailedSIPAfter` (unsuccessful)
+	// settings.
+	if err := w.deleteOriginalSIP(dctx, state); err != nil {
+		state.logger.Error("cleanup: error deleting original SIP", "error", err.Error())
+	}
 }
 
 func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, state *workflowState) {
@@ -561,13 +568,11 @@ func (w *ProcessingWorkflow) SessionHandler(
 	// Set status to done so it's considered in the session cleanup.
 	state.status = enums.WorkflowStatusDone
 
-	// Original SIP cleanup for filesystem-backed inputs must run in the
-	// session so it executes on the worker with access to the local path.
-	if state.req.RetentionPeriod >= 0 {
-		if err := w.deleteOriginalSIP(sessCtx, state); err != nil {
-			state.logger.Error("Failed to delete original SIP", "err", err.Error())
-		}
-	} else if state.req.CompletedDir != "" {
+	// If no retention period is set, dispose of the original SIP in the session
+	// so it executes on the worker with access to the local path. Deletion
+	// after a retention period runs in cleanup, after the session is closed.
+	p := state.req.RetentionPeriod
+	if (p == nil || *p < 0) && state.req.CompletedDir != "" {
 		activityOpts := withActivityOptsForLocalAction(sessCtx)
 		err := temporalsdk_workflow.ExecuteActivity(
 			activityOpts,

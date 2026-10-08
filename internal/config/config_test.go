@@ -7,6 +7,7 @@ import (
 
 	"github.com/artefactual-sdps/temporal-activities/bagcreate"
 	"github.com/google/uuid"
+	"go.artefactual.dev/tools/bucket"
 	"go.artefactual.dev/tools/clientauth"
 	"go.artefactual.dev/tools/log"
 	"gotest.tools/v3/assert"
@@ -19,10 +20,13 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/bagit"
 	"github.com/artefactual-sdps/enduro/internal/childwf"
 	"github.com/artefactual-sdps/enduro/internal/config"
+	"github.com/artefactual-sdps/enduro/internal/enums"
 	"github.com/artefactual-sdps/enduro/internal/ingest"
 	"github.com/artefactual-sdps/enduro/internal/pres"
+	"github.com/artefactual-sdps/enduro/internal/sipsource"
 	"github.com/artefactual-sdps/enduro/internal/storage"
 	"github.com/artefactual-sdps/enduro/internal/temporal"
+	"github.com/artefactual-sdps/enduro/internal/watcher"
 )
 
 const testConfig = `# Config
@@ -91,6 +95,21 @@ sharedPath = "/home/enduro/shared"
 type = "poststorage"
 taskQueue = "poststorage"
 workflowName = "poststorage"
+
+[sipsource]
+id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
+name = "SIP source"
+retentionPeriod = "24h"
+deleteFailedSIPAfter = "1h"
+
+[sipsource.bucket]
+url = "mem://"
+
+[[watcher.filesystem]]
+name = "immediate"
+path = "/tmp/immediate"
+retentionPeriod = "1m"
+deleteFailedSIPAfter = "10s"
 `
 
 func TestLogFormatLoggerFormat(t *testing.T) {
@@ -216,13 +235,44 @@ func TestConfigRead(t *testing.T) {
 				Upload: ingest.UploadConfig{
 					MaxSize: 4294967296,
 				},
+				SIPSource: sipsource.Config{
+					ID:   uuid.MustParse("e6ddb29a-66d1-480e-82eb-fcfef1c825c5"),
+					Name: "SIP source",
+					Bucket: &bucket.Config{
+						URL: "mem://",
+					},
+					RetentionPeriod:      new(24 * time.Hour),
+					DeleteFailedSIPAfter: new(time.Hour),
+				},
+				Watcher: watcher.Config{
+					Filesystem: []*watcher.FilesystemConfig{
+						{
+							Name:                 "immediate",
+							Path:                 "/tmp/immediate",
+							WorkflowType:         enums.WorkflowTypeCreateAip,
+							RetentionPeriod:      new(time.Minute),
+							DeleteFailedSIPAfter: new(10 * time.Second),
+						},
+					},
+				},
 			},
 		},
 		{
 			name: "Sets default values for missing config options",
 			config: `[ingest.storage]
 address = "storage-api:9000"
-defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
+
+[sipsource]
+id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
+name = "SIP source"
+
+[sipsource.bucket]
+url = "mem://"
+
+[[watcher.filesystem]]
+name = "immediate"
+`,
 			want: config.Configuration{
 				LogFormat:   config.LogFormatJSON,
 				DebugListen: "127.0.0.1:9001",
@@ -270,6 +320,23 @@ defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"`,
 				},
 				Upload: ingest.UploadConfig{
 					MaxSize: 4294967296,
+				},
+				SIPSource: sipsource.Config{
+					ID:   uuid.MustParse("e6ddb29a-66d1-480e-82eb-fcfef1c825c5"),
+					Name: "SIP source",
+					Bucket: &bucket.Config{
+						URL: "mem://",
+					},
+				},
+				Watcher: watcher.Config{
+					Filesystem: []*watcher.FilesystemConfig{
+						{
+							Name:                 "immediate",
+							WorkflowType:         enums.WorkflowTypeCreateAip,
+							RetentionPeriod:      new(time.Duration),
+							DeleteFailedSIPAfter: new(time.Duration),
+						},
+					},
 				},
 			},
 		},

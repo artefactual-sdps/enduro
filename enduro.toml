@@ -222,14 +222,20 @@ ignore = "(^\\.)|(\\.tmp$)"
 inotify = false
 pollInterval = "200ms"
 # retentionPeriod is the duration to retain SIPs before they are deleted after
-# a successful ingest. Set to a negative value to disable automatic deletion.
-# Set to "0" (default) to delete SIPs immediately after they have been
-# ingested. It must be a string format compatible with
+# a successful ingest. If unset or "0" (default), SIPs are deleted immediately
+# after they have been ingested. If negative, SIPs are retained indefinitely.
+# The value must use a string format compatible with
 # https://pkg.go.dev/time#ParseDuration.
 retentionPeriod = "-1s"
 # completedDir moves successfully ingested SIPs instead of deleting them.
 # It can only be used when retentionPeriod is negative.
 completedDir = "/home/enduro/internal-storage/watched-complete"
+# deleteFailedSIPAfter sets the duration to retain SIPs after an unsuccessful
+# ingest, i.e. any ingest that did not complete successfully (e.g. failed,
+# error or canceled). If unset or "0" (default), the SIP is deleted
+# immediately. If negative, the SIP is retained indefinitely. The value must be
+# a string format compatible with https://pkg.go.dev/time#ParseDuration.
+# deleteFailedSIPAfter = "72h"
 # workflowType is the processing workflow type related to this watcher.
 # Available workflow types are "create aip" and "create and review aip",
 # the later only works properly when the preservation system is "a3m".
@@ -257,11 +263,18 @@ workflowType = "create aip"
 # # Default: "create aip".
 # workflowType = "create aip"
 # # retentionPeriod is the duration to retain SIPs before they are deleted after
-# # a successful ingest. Set to a negative value to disable automatic deletion of
-# # SIPs. Set to "0" (default) to delete SIPs immediately after they have been
-# # ingested. It must be a string format compatible with
+# # a successful ingest. If unset or "0" (default), SIPs are deleted
+# # immediately after they have been ingested. If negative, SIPs are retained
+# # indefinitely. The value must use a string format compatible with
 # # https://pkg.go.dev/time#ParseDuration.
-# retentionPeriod = "0"
+# # retentionPeriod = "24h"
+# # deleteFailedSIPAfter sets the duration to retain SIPs after an
+# # unsuccessful ingest, i.e. any ingest that did not complete successfully
+# # (e.g. failed, error or canceled). If unset or "0" (default), the SIP is
+# # deleted immediately. If negative, the SIP is retained indefinitely. The
+# # value must be a string format compatible with
+# # https://pkg.go.dev/time#ParseDuration.
+# # deleteFailedSIPAfter = "72h"
 
 # Change the taskqueue setting to your prefered preservation system, by default
 # it is 'am' (Archivematica). Use 'a3m' to configure a3m instead.
@@ -350,11 +363,12 @@ passphrase = ""
 # maxSize is the maximum upload size allowed by the server in bytes.
 # Default: 4294967296 (4 GiB).
 maxSize = 4294967296
-# retentionPeriod is the duration to retain SIPs before they are deleted after a
-# successful ingest. Set to a negative value to disable automatic deletion of SIPs.
-# Set to "0" (default) to delete SIPs immediately after they have been ingested.
-# It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
-retentionPeriod = "0"
+# retentionPeriod is the duration to retain SIPs before they are deleted after
+# a successful ingest. If unset (default), or negative, SIPs are retained
+# indefinitely. Set to "0" to delete SIPs immediately after they have been
+# ingested. The value must use a string format compatible with
+# https://pkg.go.dev/time#ParseDuration.
+# retentionPeriod = "24h"
 
 # https://enduro.readthedocs.io/admin-manual/configuration/#internal-storage-configuration
 [internalStorage]
@@ -367,11 +381,18 @@ url = "file:///home/enduro/internal-storage/ingest?metadata=skip&no_tmp_dir=true
 id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
 # name is a human-readable name for the SIP Source.
 name = "Filesystem SIP Source"
-# retentionPeriod is the duration to retain SIPs before they are deleted after a
-# successful ingest. Set to a negative value to disable automatic deletion of SIPs.
-# Set to "0" (default) to delete SIPs immediately after they have been ingested.
-# It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
-retentionPeriod = "-1s"
+# retentionPeriod is the duration to retain SIPs before they are deleted after
+# a successful ingest. If unset (default), or negative, SIPs are retained
+# indefinitely. Set to "0" to delete SIPs immediately after they have been
+# ingested. The value must use a string format compatible with
+# https://pkg.go.dev/time#ParseDuration.
+# retentionPeriod = "24h"
+# deleteFailedSIPAfter sets the duration to retain SIPs after an unsuccessful
+# ingest, i.e. any ingest that did not complete successfully (e.g. failed,
+# error or canceled). If unset (default) or negative, the SIP is retained
+# indefinitely. Set to "0" to delete the SIP immediately. The value must be a
+# string format compatible with https://pkg.go.dev/time#ParseDuration.
+# deleteFailedSIPAfter = "72h"
 
 # https://enduro.readthedocs.io/admin-manual/configuration/#sip-source-location-bucket
 [sipsource.bucket]

@@ -28,8 +28,14 @@ type Config struct {
 	Bucket *bucket.Config
 
 	// RetentionPeriod is the duration for which SIPs should be retained after
-	// a successful ingest. If negative, SIPs will be retained indefinitely.
-	RetentionPeriod time.Duration
+	// a successful ingest. If zero, SIPs will be deleted immediately after
+	// ingest. If nil or negative, SIPs will be retained indefinitely.
+	RetentionPeriod *time.Duration
+
+	// DeleteFailedSIPAfter is the duration to retain SIPs after an unsuccessful
+	// ingest. If zero, the SIP is deleted immediately. If nil or negative, the
+	// SIP is retained indefinitely.
+	DeleteFailedSIPAfter *time.Duration
 }
 
 func (c *Config) Validate() error {

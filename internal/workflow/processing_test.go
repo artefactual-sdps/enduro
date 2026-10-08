@@ -90,7 +90,7 @@ func (s *ProcessingWorkflowTestSuite) TestConfirmation() {
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
 		Key:             key,
 		WatcherName:     watcherName,
-		RetentionPeriod: retentionPeriod,
+		RetentionPeriod: &retentionPeriod,
 		Type:            enums.WorkflowTypeCreateAndReviewAip,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
@@ -145,7 +145,7 @@ func (s *ProcessingWorkflowTestSuite) TestRejection() {
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
 		Key:             key,
 		WatcherName:     watcherName,
-		RetentionPeriod: retentionPeriod,
+		RetentionPeriod: &retentionPeriod,
 		Type:            enums.WorkflowTypeCreateAndReviewAip,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
@@ -173,7 +173,7 @@ func (s *ProcessingWorkflowTestSuite) TestAutoApprovedAIP() {
 	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
-	params.retentionPeriod = -1 * time.Second
+	params.retentionPeriod = new(-1 * time.Second)
 	cleanupExpectations(s, params)
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
@@ -214,7 +214,7 @@ func (s *ProcessingWorkflowTestSuite) TestFilesystemWatcherDispose() {
 	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
-	params.retentionPeriod = -1 * time.Second
+	params.retentionPeriod = new(-1 * time.Second)
 	params.completedDir = completedDir
 	cleanupExpectations(s, params)
 
@@ -336,7 +336,7 @@ func (s *ProcessingWorkflowTestSuite) TestAMWorkflow() {
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
 		WatcherName:     watcherName,
-		RetentionPeriod: retentionPeriod,
+		RetentionPeriod: &retentionPeriod,
 		Type:            enums.WorkflowTypeCreateAip,
 		Key:             key,
 		SIPUUID:         sipUUID,
@@ -495,7 +495,7 @@ func (s *ProcessingWorkflowTestSuite) TestChildWorkflows() {
 	).Return(&localact.SaveChildwfTasksActivityResult{Count: 1}, nil)
 
 	params.removePaths = []string{prepDownloadPath, transferPath}
-	params.retentionPeriod = 48 * time.Hour
+	params.retentionPeriod = new(48 * time.Hour)
 	cleanupExpectations(s, params)
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
@@ -636,7 +636,7 @@ func (s *ProcessingWorkflowTestSuite) TestPreprocessingDecisionFlow() {
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
 		WatcherName:     watcherName,
-		RetentionPeriod: retentionPeriod,
+		RetentionPeriod: &retentionPeriod,
 		Type:            enums.WorkflowTypeCreateAip,
 		Key:             key,
 		SIPUUID:         sipUUID,
@@ -707,6 +707,86 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 		Type:        enums.WorkflowTypeCreateAip,
 		SIPUUID:     sipUUID,
 		SIPName:     sipName,
+	}, nil, true)
+}
+
+// TestFailedSIPDeleteOriginal tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - preprocessing child workflow error.
+// - Move to failed SIP.
+// - Watched bucket original SIP deletion after the failed retention period.
+func (s *ProcessingWorkflowTestSuite) TestFailedSIPDeleteOriginal() {
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
+		ChildWorkflows: childwf.Configs{
+			{
+				Type:         enums.ChildWorkflowTypePreprocessing,
+				TaskQueue:    "preprocessing",
+				WorkflowName: "preprocessing",
+				Extract:      true,
+				SharedPath:   prepSharedPath,
+			},
+		},
+	}, nil)
+
+	params := defaultParams()
+	params.downloadDestPath = prepSharedPath
+	params.downloadPath = prepDownloadPath + "/" + key
+	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
+
+	// Fail the workflow on preprocessing.
+	s.env.OnWorkflow(
+		"preprocessing",
+		internalCtx,
+		&childwf_pkg.PreprocessingParams{
+			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
+			SIPID:        sipUUID,
+			SIPName:      sipName,
+		},
+	).Return(
+		&childwf_pkg.PreprocessingResult{
+			Outcome:      childwf_pkg.OutcomeContentError,
+			RelativePath: strings.TrimPrefix(prepExtractPath, prepSharedPath),
+		},
+		nil,
+	)
+
+	params.sipStatus = enums.SIPStatusFailed
+	params.failedAs = enums.SIPFailedAsSIP
+	params.failedKey = failedSIPKey
+	params.failedPath = prepDownloadPath + "/" + key
+	params.removePaths = []string{prepDownloadPath}
+	expectations["uploadToFailed"](s, params)
+
+	// The original SIP is deleted only after the failed copy is stored.
+	params.updateTaskParams(
+		deleteSIPTaskID,
+		enums.TaskStatusInProgress,
+		"Delete original SIP",
+		fmt.Sprintf("The original SIP will be deleted in %s", retentionPeriod),
+	)
+	expectations["createTask"](s, params)
+	expectations["deleteOriginal"](s, params)
+	params.updateTaskParams(deleteSIPTaskID, enums.TaskStatusDone, "", "SIP successfully deleted")
+	expectations["completeTask"](s, params)
+
+	expectations["removePaths"](s, params)
+	expectations["updateSIPFailed"](s, params)
+	expectations["completeWorkflow"](s, params)
+
+	deleteAfter := retentionPeriod
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:                  key,
+		WatcherName:          watcherName,
+		DeleteFailedSIPAfter: &deleteAfter,
+		Type:                 enums.WorkflowTypeCreateAip,
+		SIPUUID:              sipUUID,
+		SIPName:              sipName,
 	}, nil, true)
 }
 
@@ -888,7 +968,7 @@ func (s *ProcessingWorkflowTestSuite) TestInternalUpload() {
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
 		Key:             key,
 		Type:            enums.WorkflowTypeCreateAip,
-		RetentionPeriod: retentionPeriod,
+		RetentionPeriod: &retentionPeriod,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
 		Extension:       ".zip",
@@ -1032,7 +1112,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPSourceUpload() {
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
 		Key:             key,
 		Type:            enums.WorkflowTypeCreateAip,
-		RetentionPeriod: retentionPeriod,
+		RetentionPeriod: &retentionPeriod,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
 		SIPSourceID:     uuid.New(),
@@ -1090,7 +1170,7 @@ func (s *ProcessingWorkflowTestSuite) TestSIPDeletionError() {
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
 		Key:             key,
 		WatcherName:     watcherName,
-		RetentionPeriod: retentionPeriod,
+		RetentionPeriod: &retentionPeriod,
 		Type:            enums.WorkflowTypeCreateAip,
 		SIPUUID:         sipUUID,
 		SIPName:         sipName,
@@ -1265,7 +1345,7 @@ func (s *ProcessingWorkflowTestSuite) TestAllowDuplicateSIP() {
 	countSIPFilesExpectations(s, params)
 	expectations["saveFileCount"](s, params)
 	autoApproveA3mExpectations(s, params)
-	params.retentionPeriod = -1 * time.Second
+	params.retentionPeriod = new(-1 * time.Second)
 	cleanupExpectations(s, params)
 
 	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{

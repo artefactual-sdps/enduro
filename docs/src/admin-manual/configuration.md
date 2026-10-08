@@ -658,6 +658,7 @@ ignore = "^\\."
 inotify = false
 pollInterval = "200ms"
 retentionPeriod = "-1s"
+deleteFailedSIPAfter = "72h"
 completedDir = "/home/enduro/watched-complete"
 workflowType = "create aip"
 ```
@@ -675,9 +676,14 @@ workflowType = "create aip"
 * `pollInterval`: Time between filesystem polls when polling is used. The
   default is `200ms`; use a string format compatible with [ParseDuration].
 * `retentionPeriod`: Duration to retain the original SIP before deleting it
-  after a successful ingest. Set to a negative value to disable automatic
-  deletion. Set to `"0"` to delete immediately. Use a string format compatible
-  with [ParseDuration].
+  after a successful ingest. If unset or `"0"` (default), the original SIP is
+  deleted immediately after ingest. If negative, the original SIP is retained
+  indefinitely. Use a string format compatible with [ParseDuration].
+* `deleteFailedSIPAfter`: Set the period to retain a SIP after an unsuccessful
+  ingest, after which it is deleted. This applies to any ingest that does not
+  complete successfully, e.g. failed, error or canceled. If unset or `"0"`
+  (default), the SIP is deleted immediately. If negative, the SIP is retained
+  indefinitely. Use a string format compatible with [ParseDuration].
 * `completedDir`: Directory where Enduro moves the original SIP after a
   successful ingest. This setting can only be used when `retentionPeriod` is
   negative.
@@ -1354,10 +1360,15 @@ bytes, KiB, MiB, GiB, and TiB. For more information, see:
 ```toml
 [upload]
 maxSize = 4294967296
+retentionPeriod = "24h"
 ```
 
 * `maxSize`: The maximum SIP size allowed for upload via the user interface,
   configured in bytes. Default value is 4294967296, i.e. 4 [Gibibytes] (GiB).
+* `retentionPeriod`: Duration to retain an uploaded SIP in the internal storage
+  before deleting it after a successful ingest. If unset (default) or negative,
+  the original SIP is retained indefinitely. Set to `"0"` to delete immediately.
+  Use a string format compatible with [ParseDuration].
 
 ### Internal storage configuration
 
@@ -1408,11 +1419,23 @@ while the bucket subsection links the specified location.
 [sipsource]
 id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
 name = "Filesystem SIP Source"
+# retentionPeriod = "24h"
+deleteFailedSIPAfter = "72h"
 ```
 
 * `id`: A UUID that unique identifies the SIP source location. Must be a valid
   [version 4 UUID].
 * `name`: A human-readable name for the SIP source.
+* `retentionPeriod`: Duration to retain the original SIP before deleting it
+  after a successful ingest. If unset (default), the original SIP is retained
+  indefinitely. Set to `"0"` to delete immediately. If negative, the original
+  SIP is retained indefinitely (the same as unset). Use a string format
+  compatible with [ParseDuration].
+* `deleteFailedSIPAfter`: Set the period to retain a SIP after an unsuccessful
+  ingest, after which it is deleted. This applies to any ingest that does not
+  complete successfully, e.g. failed, error or canceled. If unset (default) or
+  negative, the SIP is retained indefinitely. Set to `"0"` to delete the SIP
+  immediately. Use a string format compatible with [ParseDuration].
 
 #### SIP source location bucket
 

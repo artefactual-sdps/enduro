@@ -7,6 +7,7 @@ import (
 	"io"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/mock"
@@ -133,11 +134,12 @@ func TestUpload(t *testing.T) {
 					},
 					ingest.ProcessingWorkflowName,
 					&ingest.ProcessingWorkflowRequest{
-						SIPUUID:   uuid0,
-						SIPName:   "first.zip",
-						Type:      enums.WorkflowTypeCreateAip,
-						Key:       key,
-						Extension: ".zip",
+						SIPUUID:         uuid0,
+						SIPName:         "first.zip",
+						Type:            enums.WorkflowTypeCreateAip,
+						Key:             key,
+						Extension:       ".zip",
+						RetentionPeriod: new(time.Minute),
 					},
 				).Return(nil, errors.New("temporal error"))
 
@@ -176,11 +178,12 @@ func TestUpload(t *testing.T) {
 					},
 					ingest.ProcessingWorkflowName,
 					&ingest.ProcessingWorkflowRequest{
-						SIPUUID:   uuid0,
-						SIPName:   "first.zip",
-						Type:      enums.WorkflowTypeCreateAip,
-						Key:       key,
-						Extension: ".zip",
+						SIPUUID:         uuid0,
+						SIPName:         "first.zip",
+						Type:            enums.WorkflowTypeCreateAip,
+						Key:             key,
+						Extension:       ".zip",
+						RetentionPeriod: new(time.Minute),
 					},
 				).Return(nil, nil)
 			},
@@ -224,12 +227,13 @@ func TestUpload(t *testing.T) {
 					},
 					ingest.ProcessingWorkflowName,
 					&ingest.ProcessingWorkflowRequest{
-						User:      &childwf.User{Email: "nobody@example.com"},
-						SIPUUID:   uuid0,
-						SIPName:   "first.zip",
-						Type:      enums.WorkflowTypeCreateAip,
-						Key:       key,
-						Extension: ".zip",
+						User:            &childwf.User{Email: "nobody@example.com"},
+						SIPUUID:         uuid0,
+						SIPName:         "first.zip",
+						Type:            enums.WorkflowTypeCreateAip,
+						Key:             key,
+						Extension:       ".zip",
+						RetentionPeriod: new(time.Minute),
 					},
 				).Return(nil, nil)
 			},

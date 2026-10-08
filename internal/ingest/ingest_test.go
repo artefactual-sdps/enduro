@@ -44,18 +44,19 @@ func testSvc(t *testing.T, internalBucket *blob.Bucket, uploadMaxSize int64) (
 	temporalClient := new(temporalsdk_mocks.Client)
 	taskQueue := "test"
 	ingestsvc := ingest.NewService(ingest.ServiceParams{
-		Logger:             logr.Discard(),
-		DB:                 &sql.DB{},
-		TemporalClient:     temporalClient,
-		EventService:       event.NewServiceNop[*goaingest.IngestEvent](),
-		PersistenceService: psvc,
-		TokenVerifier:      &auth.NoopTokenVerifier{},
-		TicketProvider:     auth.NewTicketProvider(t.Context(), nil, nil),
-		TaskQueue:          taskQueue,
-		InternalStorage:    internalBucket,
-		UploadMaxSize:      uploadMaxSize,
-		Rander:             rand.New(rand.NewSource(1)), // #nosec: G404
-		SIPSource:          &sipsource.BucketSource{},
+		Logger:                logr.Discard(),
+		DB:                    &sql.DB{},
+		TemporalClient:        temporalClient,
+		EventService:          event.NewServiceNop[*goaingest.IngestEvent](),
+		PersistenceService:    psvc,
+		TokenVerifier:         &auth.NoopTokenVerifier{},
+		TicketProvider:        auth.NewTicketProvider(t.Context(), nil, nil),
+		TaskQueue:             taskQueue,
+		InternalStorage:       internalBucket,
+		UploadMaxSize:         uploadMaxSize,
+		UploadRetentionPeriod: new(time.Minute),
+		Rander:                rand.New(rand.NewSource(1)), // #nosec: G404
+		SIPSource:             &sipsource.BucketSource{},
 		AuditLogger: auditlog.NewFromConfig(auditlog.Config{
 			Filepath: filepath.Join(t.TempDir(), "audit.log"),
 		}),
