@@ -70,8 +70,9 @@ func TestNewBucketSource(t *testing.T) {
 
 			assert.NilError(t, err)
 			assert.DeepEqual(t, got, tt.want,
-				// We can't compare the Bucket and retentionPeriod directly, so ignore them.
-				cmpopts.IgnoreFields(sipsource.BucketSource{}, "Bucket", "retentionPeriod"),
+				// We can't compare the Bucket and retention periods directly,
+				// so ignore them.
+				cmpopts.IgnoreFields(sipsource.BucketSource{}, "Bucket", "retentionPeriod", "deleteFailedSIPAfter"),
 			)
 		})
 	}
@@ -352,6 +353,38 @@ func TestRetentionPeriod(t *testing.T) {
 			defer source.Close()
 
 			assert.Equal(t, source.RetentionPeriod(), tt.want)
+		})
+	}
+}
+
+func TestDeleteFailedSIPAfter(t *testing.T) {
+	t.Parallel()
+
+	oneHour := 1 * time.Hour
+	zero := 0 * time.Second
+
+	for _, tt := range []struct {
+		name string
+		cfg  *time.Duration
+		want *time.Duration
+	}{
+		{name: "Returns nil when not configured", cfg: nil, want: nil},
+		{name: "Returns zero when configured as 0", cfg: &zero, want: &zero},
+		{name: "Returns configured period of 1 hour", cfg: &oneHour, want: &oneHour},
+	} {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+
+			source, err := sipsource.NewBucketSource(context.Background(), &sipsource.Config{
+				ID:                   uuid.New(),
+				Name:                 "Test SIP Source",
+				Bucket:               &bucket.Config{URL: "mem://"},
+				DeleteFailedSIPAfter: tt.cfg,
+			})
+			assert.NilError(t, err)
+			defer source.Close()
+
+			assert.DeepEqual(t, source.DeleteFailedSIPAfter(), tt.want)
 		})
 	}
 }

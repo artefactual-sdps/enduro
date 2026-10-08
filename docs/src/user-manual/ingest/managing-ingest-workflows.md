@@ -377,6 +377,9 @@ If the ingest workflow encountered a [content failure] or [system error], this
 is when a copy of the failed SIP or PIP is uploaded to the configured failed
 packages location, so that it can be
 [downloaded by an operator](#errors-and-failed-package-downloads) if desired.
+If the SIP's watched location or SIP source has been configured to delete the
+SIP after a failed ingest, the original SIP is deleted from the location after
+the configured period.
 
 Enduro will then update all entity statuses (SIP, AIP, workflow) and terminate
 the workflow.
