@@ -230,6 +230,12 @@ retentionPeriod = "-1s"
 # completedDir moves successfully ingested SIPs instead of deleting them.
 # It can only be used when retentionPeriod is negative.
 completedDir = "/home/enduro/internal-storage/watched-complete"
+# failedRetentionPeriod is the duration to retain SIPs before they are deleted
+# after an unsuccessful ingest. The original SIP is only deleted after a copy
+# has been stored in the failed packages location. If unset or negative, failed
+# SIPs are never deleted. Set to "0" to delete them immediately. It must be a
+# string format compatible with https://pkg.go.dev/time#ParseDuration.
+# failedRetentionPeriod = "72h"
 # workflowType is the processing workflow type related to this watcher.
 # Available workflow types are "create aip" and "create and review aip",
 # the later only works properly when the preservation system is "a3m".
@@ -372,6 +378,12 @@ name = "Filesystem SIP Source"
 # Set to "0" (default) to delete SIPs immediately after they have been ingested.
 # It must be a string format compatible with https://pkg.go.dev/time#ParseDuration.
 retentionPeriod = "-1s"
+# failedRetentionPeriod is the duration to retain SIPs before they are deleted
+# after an unsuccessful ingest. The original SIP is only deleted after a copy
+# has been stored in the failed packages location. If unset or negative, failed
+# SIPs are never deleted. Set to "0" to delete them immediately. It must be a
+# string format compatible with https://pkg.go.dev/time#ParseDuration.
+# failedRetentionPeriod = "72h"
 
 # https://enduro.readthedocs.io/admin-manual/configuration/#sip-source-location-bucket
 [sipsource.bucket]

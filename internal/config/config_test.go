@@ -340,3 +340,51 @@ aipCompressionLevel = 10`,
 		})
 	}
 }
+
+func TestConfigReadFailedRetentionPeriod(t *testing.T) {
+	t.Parallel()
+
+	tmpDir := fs.NewDir(t, "", fs.WithFile("enduro-config.toml", `
+[temporal]
+address = "host:port"
+
+[ingest.storage]
+address = "storage-api:9000"
+defaultPermanentLocationId = "f2cc963f-c14d-4eaa-b950-bd207189a1f1"
+
+[[watcher.filesystem]]
+name = "kept"
+path = "/tmp/kept"
+retentionPeriod = "-1s"
+
+[[watcher.filesystem]]
+name = "deleted"
+path = "/tmp/deleted"
+retentionPeriod = "-1s"
+failedRetentionPeriod = "36h"
+
+[[watcher.filesystem]]
+name = "immediate"
+path = "/tmp/immediate"
+retentionPeriod = "-1s"
+failedRetentionPeriod = "0"
+
+[sipsource]
+id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
+name = "SIP source"
+failedRetentionPeriod = "1h"
+
+[sipsource.bucket]
+url = "mem://"
+`))
+
+	var c config.Configuration
+	_, _, err := config.Read(&c, tmpDir.Join("enduro-config.toml"))
+	assert.NilError(t, err)
+
+	assert.Equal(t, len(c.Watcher.Filesystem), 3)
+	assert.Assert(t, c.Watcher.Filesystem[0].FailedRetentionPeriod == nil)
+	assert.Equal(t, *c.Watcher.Filesystem[1].FailedRetentionPeriod, 36*time.Hour)
+	assert.Equal(t, *c.Watcher.Filesystem[2].FailedRetentionPeriod, time.Duration(0))
+	assert.Equal(t, *c.SIPSource.FailedRetentionPeriod, time.Hour)
+}

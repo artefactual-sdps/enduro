@@ -24,6 +24,10 @@ type BucketSource struct {
 	// retentionPeriod is the duration for which SIPs should be retained after
 	// a successful ingest. If negative, SIPs will be retained indefinitely.
 	retentionPeriod time.Duration
+	// failedRetentionPeriod is the duration for which SIPs should be retained
+	// after a failed ingest. If nil or negative, failed SIPs will be retained
+	// indefinitely.
+	failedRetentionPeriod *time.Duration
 }
 
 var _ SIPSource = (*BucketSource)(nil)
@@ -41,10 +45,11 @@ func NewBucketSource(ctx context.Context, cfg *Config) (*BucketSource, error) {
 	}
 
 	return &BucketSource{
-		ID:              cfg.ID,
-		Bucket:          bucket,
-		Name:            cfg.Name,
-		retentionPeriod: cfg.RetentionPeriod,
+		ID:                    cfg.ID,
+		Bucket:                bucket,
+		Name:                  cfg.Name,
+		retentionPeriod:       cfg.RetentionPeriod,
+		failedRetentionPeriod: cfg.FailedRetentionPeriod,
 	}, nil
 }
 
@@ -145,4 +150,8 @@ func (s *BucketSource) ListObjects(ctx context.Context, opts ListOptions) (*Page
 
 func (s *BucketSource) RetentionPeriod() time.Duration {
 	return s.retentionPeriod
+}
+
+func (s *BucketSource) FailedRetentionPeriod() *time.Duration {
+	return s.failedRetentionPeriod
 }

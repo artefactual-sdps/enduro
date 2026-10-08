@@ -92,13 +92,14 @@ func (svc *ingestImpl) AddSip(ctx context.Context, payload *goaingest.AddSipPayl
 
 	// Initialize the processing workflow.
 	req := ProcessingWorkflowRequest{
-		User:            childWorkflowUserFromClaims(claims),
-		SIPUUID:         s.UUID,
-		SIPSourceID:     sourceID,
-		SIPName:         s.Name,
-		Type:            enums.WorkflowTypeCreateAip,
-		Key:             payload.Key,
-		RetentionPeriod: svc.sipSource.RetentionPeriod(),
+		User:                  childWorkflowUserFromClaims(claims),
+		SIPUUID:               s.UUID,
+		SIPSourceID:           sourceID,
+		SIPName:               s.Name,
+		Type:                  enums.WorkflowTypeCreateAip,
+		Key:                   payload.Key,
+		RetentionPeriod:       svc.sipSource.RetentionPeriod(),
+		FailedRetentionPeriod: svc.sipSource.FailedRetentionPeriod(),
 	}
 	if err := InitProcessingWorkflow(ctx, svc.tc, svc.taskQueue, &req); err != nil {
 		// Delete SIP from persistence.

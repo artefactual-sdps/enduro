@@ -92,6 +92,13 @@ type (
 		// a successful ingest. If negative, SIPs will be retained indefinitely.
 		RetentionPeriod time.Duration
 
+		// FailedRetentionPeriod is the duration for which SIPs should be
+		// retained in the SIP source or watched location after a failed
+		// ingest. If nil or negative, failed SIPs will be retained
+		// indefinitely. Failed SIPs are only deleted after a copy has been
+		// stored in the failed bucket.
+		FailedRetentionPeriod *time.Duration
+
 		// CompletedDir is the directory where the transfer is moved to once processing
 		// has completed successfully.
 		CompletedDir string

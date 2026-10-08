@@ -477,14 +477,15 @@ func main() {
 							go func() {
 								defer span.End()
 								req := ingest.ProcessingWorkflowRequest{
-									WatcherName:     event.WatcherName,
-									RetentionPeriod: event.RetentionPeriod,
-									CompletedDir:    event.CompletedDir,
-									Key:             event.Key,
-									IsDir:           event.IsDir,
-									Type:            event.WorkflowType,
-									SIPUUID:         uuid.New(),
-									SIPName:         event.Key,
+									WatcherName:           event.WatcherName,
+									RetentionPeriod:       event.RetentionPeriod,
+									FailedRetentionPeriod: event.FailedRetentionPeriod,
+									CompletedDir:          event.CompletedDir,
+									Key:                   event.Key,
+									IsDir:                 event.IsDir,
+									Type:                  event.WorkflowType,
+									SIPUUID:               uuid.New(),
+									SIPName:               event.Key,
 								}
 								if err := ingest.InitProcessingWorkflow(
 									ctx,

@@ -88,6 +88,11 @@ type FilesystemConfig struct {
 	// a successful ingest. If negative, SIPs will be retained indefinitely.
 	RetentionPeriod time.Duration
 
+	// FailedRetentionPeriod is the duration for which SIPs should be retained
+	// after a failed ingest. If nil or negative, failed SIPs will be retained
+	// indefinitely.
+	FailedRetentionPeriod *time.Duration
+
 	// PollInterval sets the length of time between filesystem polls (default:
 	// 200ms). If Inotify is true then PollInterval is ignored.
 	PollInterval time.Duration
@@ -123,6 +128,11 @@ type MinioConfig struct {
 	// RetentionPeriod is the duration for which SIPs should be retained after
 	// a successful ingest. If negative, SIPs will be retained indefinitely.
 	RetentionPeriod time.Duration
+
+	// FailedRetentionPeriod is the duration for which SIPs should be retained
+	// after a failed ingest. If nil or negative, failed SIPs will be retained
+	// indefinitely.
+	FailedRetentionPeriod *time.Duration
 
 	// WatchTimeout sets the maximum time the Watch() method will wait for a
 	// Redis event when the queue is empty before returning a timeout error

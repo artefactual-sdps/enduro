@@ -99,6 +99,11 @@ func (w *ProcessingWorkflow) registerChildDecisionHandlers(
 }
 
 func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *workflowState) {
+	if state.cleanedUp {
+		return
+	}
+	state.cleanedUp = true
+
 	state.logger.Debug("Cleaning up workflow state")
 
 	// Set workflow status to "error" unless it completed successfully, failed
@@ -177,6 +182,14 @@ func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, st
 				"session cleanup: error sending failed SIP/PIP to internal bucket",
 				"error", err.Error(),
 			)
+		} else if p := state.req.FailedRetentionPeriod; p != nil && *p >= 0 {
+			// Persist the final SIP and workflow status now, because the
+			// deletion may wait for the whole retention period.
+			w.cleanup(ctx, state)
+
+			if err := w.deleteOriginalFailedSIP(ctx, state); err != nil {
+				state.logger.Error("session cleanup: error deleting failed original SIP", "error", err.Error())
+			}
 		}
 	}
 

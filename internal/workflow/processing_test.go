@@ -710,6 +710,86 @@ func (s *ProcessingWorkflowTestSuite) TestFailedSIP() {
 	}, nil, true)
 }
 
+// TestFailedSIPDeleteOriginal tests:
+// - a3m as preservation system.
+// - The "create AIP" workflow type.
+// - preprocessing child workflow error.
+// - Move to failed SIP.
+// - Watched bucket original SIP deletion after the failed retention period.
+func (s *ProcessingWorkflowTestSuite) TestFailedSIPDeleteOriginal() {
+	s.SetupWorkflowTest(config.Configuration{
+		A3m:          a3m.Config{ShareDir: s.CreateTransferDir()},
+		Preservation: pres.Config{TaskQueue: temporal.A3mWorkerTaskQueue},
+		Ingest:       ingest.Config{Storage: ingest.StorageConfig{DefaultPermanentLocationID: locationID}},
+		ChildWorkflows: childwf.Configs{
+			{
+				Type:         enums.ChildWorkflowTypePreprocessing,
+				TaskQueue:    "preprocessing",
+				WorkflowName: "preprocessing",
+				Extract:      true,
+				SharedPath:   prepSharedPath,
+			},
+		},
+	}, nil)
+
+	params := defaultParams()
+	params.downloadDestPath = prepSharedPath
+	params.downloadPath = prepDownloadPath + "/" + key
+	downloadExpectations(s, params)
+	calcChecksumExpectations(s, params)
+	checkDuplicateSIPExpectations(s, params)
+
+	// Fail the workflow on preprocessing.
+	s.env.OnWorkflow(
+		"preprocessing",
+		internalCtx,
+		&childwf_pkg.PreprocessingParams{
+			RelativePath: strings.TrimPrefix(prepDownloadPath+"/"+key, prepSharedPath),
+			SIPID:        sipUUID,
+			SIPName:      sipName,
+		},
+	).Return(
+		&childwf_pkg.PreprocessingResult{
+			Outcome:      childwf_pkg.OutcomeContentError,
+			RelativePath: strings.TrimPrefix(prepExtractPath, prepSharedPath),
+		},
+		nil,
+	)
+
+	params.sipStatus = enums.SIPStatusFailed
+	params.failedAs = enums.SIPFailedAsSIP
+	params.failedKey = failedSIPKey
+	params.failedPath = prepDownloadPath + "/" + key
+	params.removePaths = []string{prepDownloadPath}
+	expectations["uploadToFailed"](s, params)
+
+	// The original SIP is deleted only after the failed copy is stored.
+	params.updateTaskParams(
+		deleteSIPTaskID,
+		enums.TaskStatusInProgress,
+		"Delete original SIP",
+		fmt.Sprintf("The original SIP will be deleted in %s", retentionPeriod),
+	)
+	expectations["createTask"](s, params)
+	expectations["deleteOriginal"](s, params)
+	params.updateTaskParams(deleteSIPTaskID, enums.TaskStatusDone, "", "SIP successfully deleted")
+	expectations["completeTask"](s, params)
+
+	expectations["removePaths"](s, params)
+	expectations["updateSIPFailed"](s, params)
+	expectations["completeWorkflow"](s, params)
+
+	failedRetention := retentionPeriod
+	s.ExecuteAndValidateWorkflow(&ingest.ProcessingWorkflowRequest{
+		Key:                   key,
+		WatcherName:           watcherName,
+		FailedRetentionPeriod: &failedRetention,
+		Type:                  enums.WorkflowTypeCreateAip,
+		SIPUUID:               sipUUID,
+		SIPName:               sipName,
+	}, nil, true)
+}
+
 // TestFailedSIP tests:
 // - a3m as preservation system.
 // - The "create AIP" workflow type.

@@ -25,6 +25,11 @@ type SIPSource interface {
 	// RetentionPeriod returns the duration for which SIPs should be retained
 	// after a successful ingest. If negative, SIPs will be retained indefinitely.
 	RetentionPeriod() time.Duration
+
+	// FailedRetentionPeriod returns the duration for which SIPs should be
+	// retained after a failed ingest. If nil or negative, failed SIPs will be
+	// retained indefinitely.
+	FailedRetentionPeriod() *time.Duration
 }
 
 // ListOptions specifies options for listing SIP source objects.

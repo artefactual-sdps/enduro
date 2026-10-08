@@ -27,6 +27,10 @@ type workflowState struct {
 	// status of the ingest workflow.
 	status enums.WorkflowStatus
 
+	// cleanedUp is true after the SIP and workflow status have been persisted
+	// by cleanup.
+	cleanedUp bool
+
 	// tempDirs is a list of temporary directories that should be deleted when
 	// the workflow is complete.
 	tempDirs []string

@@ -80,6 +80,44 @@ func (c *MockSIPSourceCloseCall) DoAndReturn(f func() error) *MockSIPSourceClose
 	return c
 }
 
+// FailedRetentionPeriod mocks base method.
+func (m *MockSIPSource) FailedRetentionPeriod() *time.Duration {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FailedRetentionPeriod")
+	ret0, _ := ret[0].(*time.Duration)
+	return ret0
+}
+
+// FailedRetentionPeriod indicates an expected call of FailedRetentionPeriod.
+func (mr *MockSIPSourceMockRecorder) FailedRetentionPeriod() *MockSIPSourceFailedRetentionPeriodCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FailedRetentionPeriod", reflect.TypeOf((*MockSIPSource)(nil).FailedRetentionPeriod))
+	return &MockSIPSourceFailedRetentionPeriodCall{Call: call}
+}
+
+// MockSIPSourceFailedRetentionPeriodCall wrap *gomock.Call
+type MockSIPSourceFailedRetentionPeriodCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockSIPSourceFailedRetentionPeriodCall) Return(arg0 *time.Duration) *MockSIPSourceFailedRetentionPeriodCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockSIPSourceFailedRetentionPeriodCall) Do(f func() *time.Duration) *MockSIPSourceFailedRetentionPeriodCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockSIPSourceFailedRetentionPeriodCall) DoAndReturn(f func() *time.Duration) *MockSIPSourceFailedRetentionPeriodCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ListObjects mocks base method.
 func (m *MockSIPSource) ListObjects(arg0 context.Context, arg1 sipsource.ListOptions) (*sipsource.Page, error) {
 	m.ctrl.T.Helper()

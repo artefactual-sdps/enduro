@@ -8,6 +8,11 @@ requests.
 
 ## [Unreleased]
 
+### Added
+
+- Delete transfer source SIPs after a configurable retention period when
+  ingest fails ([#1603])
+
 ## [0.34.2] - 2026-09-24
 
 No functional changes.
@@ -488,6 +493,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1603]: https://github.com/artefactual-sdps/enduro/issues/1603
 [#1769]: https://github.com/artefactual-sdps/enduro/issues/1769
 [#1757]: https://github.com/artefactual-sdps/enduro/issues/1757
 [#1739]: https://github.com/artefactual-sdps/enduro/pull/1739

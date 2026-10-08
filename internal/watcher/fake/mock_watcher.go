@@ -120,6 +120,44 @@ func (c *MockWatcherDownloadCall) DoAndReturn(f func(context.Context, string, st
 	return c
 }
 
+// FailedRetentionPeriod mocks base method.
+func (m *MockWatcher) FailedRetentionPeriod() *time.Duration {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "FailedRetentionPeriod")
+	ret0, _ := ret[0].(*time.Duration)
+	return ret0
+}
+
+// FailedRetentionPeriod indicates an expected call of FailedRetentionPeriod.
+func (mr *MockWatcherMockRecorder) FailedRetentionPeriod() *MockWatcherFailedRetentionPeriodCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FailedRetentionPeriod", reflect.TypeOf((*MockWatcher)(nil).FailedRetentionPeriod))
+	return &MockWatcherFailedRetentionPeriodCall{Call: call}
+}
+
+// MockWatcherFailedRetentionPeriodCall wrap *gomock.Call
+type MockWatcherFailedRetentionPeriodCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockWatcherFailedRetentionPeriodCall) Return(arg0 *time.Duration) *MockWatcherFailedRetentionPeriodCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockWatcherFailedRetentionPeriodCall) Do(f func() *time.Duration) *MockWatcherFailedRetentionPeriodCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockWatcherFailedRetentionPeriodCall) DoAndReturn(f func() *time.Duration) *MockWatcherFailedRetentionPeriodCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // OpenBucket mocks base method.
 func (m *MockWatcher) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 	m.ctrl.T.Helper()

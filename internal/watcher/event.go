@@ -22,6 +22,11 @@ type BlobEvent struct {
 	// a successful ingest. If negative, SIPs will be retained indefinitely.
 	RetentionPeriod time.Duration
 
+	// FailedRetentionPeriod is the duration for which SIPs should be retained
+	// after a failed ingest. If nil or negative, failed SIPs will be retained
+	// indefinitely.
+	FailedRetentionPeriod *time.Duration
+
 	// Directory where the transfer is moved to once processing has completed
 	// successfully.
 	CompletedDir string
@@ -41,12 +46,13 @@ type BlobEvent struct {
 
 func NewBlobEvent(w Watcher, key string, isDir bool) *BlobEvent {
 	return &BlobEvent{
-		WatcherName:     w.String(),
-		RetentionPeriod: w.RetentionPeriod(),
-		CompletedDir:    w.CompletedDir(),
-		WorkflowType:    w.WorkflowType(),
-		Key:             key,
-		IsDir:           isDir,
+		WatcherName:           w.String(),
+		RetentionPeriod:       w.RetentionPeriod(),
+		FailedRetentionPeriod: w.FailedRetentionPeriod(),
+		CompletedDir:          w.CompletedDir(),
+		WorkflowType:          w.WorkflowType(),
+		Key:                   key,
+		IsDir:                 isDir,
 	}
 }
 

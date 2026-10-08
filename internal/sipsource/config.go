@@ -30,6 +30,11 @@ type Config struct {
 	// RetentionPeriod is the duration for which SIPs should be retained after
 	// a successful ingest. If negative, SIPs will be retained indefinitely.
 	RetentionPeriod time.Duration
+
+	// FailedRetentionPeriod is the duration for which SIPs should be retained
+	// after a failed ingest. If nil or negative, failed SIPs will be retained
+	// indefinitely.
+	FailedRetentionPeriod *time.Duration
 }
 
 func (c *Config) Validate() error {

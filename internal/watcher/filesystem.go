@@ -72,6 +72,7 @@ func NewFilesystemWatcher(ctx context.Context, config *FilesystemConfig) (*files
 		commonWatcherImpl: &commonWatcherImpl{
 			name:            config.Name,
 			retentionPeriod: config.RetentionPeriod,
+			failedRetention: config.FailedRetentionPeriod,
 			completedDir:    config.CompletedDir,
 			workflowType:    config.WorkflowType,
 		},

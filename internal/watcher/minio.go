@@ -92,6 +92,7 @@ func NewMinioWatcher(
 		commonWatcherImpl: &commonWatcherImpl{
 			name:            config.Name,
 			retentionPeriod: config.RetentionPeriod,
+			failedRetention: config.FailedRetentionPeriod,
 			workflowType:    config.WorkflowType,
 		},
 	}, nil
