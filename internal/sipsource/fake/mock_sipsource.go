@@ -80,6 +80,44 @@ func (c *MockSIPSourceCloseCall) DoAndReturn(f func() error) *MockSIPSourceClose
 	return c
 }
 
+// DeleteFailedSIPAfter mocks base method.
+func (m *MockSIPSource) DeleteFailedSIPAfter() *time.Duration {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteFailedSIPAfter")
+	ret0, _ := ret[0].(*time.Duration)
+	return ret0
+}
+
+// DeleteFailedSIPAfter indicates an expected call of DeleteFailedSIPAfter.
+func (mr *MockSIPSourceMockRecorder) DeleteFailedSIPAfter() *MockSIPSourceDeleteFailedSIPAfterCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFailedSIPAfter", reflect.TypeOf((*MockSIPSource)(nil).DeleteFailedSIPAfter))
+	return &MockSIPSourceDeleteFailedSIPAfterCall{Call: call}
+}
+
+// MockSIPSourceDeleteFailedSIPAfterCall wrap *gomock.Call
+type MockSIPSourceDeleteFailedSIPAfterCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockSIPSourceDeleteFailedSIPAfterCall) Return(arg0 *time.Duration) *MockSIPSourceDeleteFailedSIPAfterCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockSIPSourceDeleteFailedSIPAfterCall) Do(f func() *time.Duration) *MockSIPSourceDeleteFailedSIPAfterCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockSIPSourceDeleteFailedSIPAfterCall) DoAndReturn(f func() *time.Duration) *MockSIPSourceDeleteFailedSIPAfterCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // ListObjects mocks base method.
 func (m *MockSIPSource) ListObjects(arg0 context.Context, arg1 sipsource.ListOptions) (*sipsource.Page, error) {
 	m.ctrl.T.Helper()

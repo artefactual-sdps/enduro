@@ -658,6 +658,7 @@ ignore = "^\\."
 inotify = false
 pollInterval = "200ms"
 retentionPeriod = "-1s"
+deleteFailedSIPAfter = "72h"
 completedDir = "/home/enduro/watched-complete"
 workflowType = "create aip"
 ```
@@ -678,6 +679,10 @@ workflowType = "create aip"
   after a successful ingest. Set to a negative value to disable automatic
   deletion. Set to `"0"` to delete immediately. Use a string format compatible
   with [ParseDuration].
+* `deleteFailedSIPAfter`: Set the period to retain a SIP after a failed
+  ingest, after which it is deleted. Set to `"0"` to delete the SIP immediately
+  on failure. If unset or negative, failed SIPs are never deleted. Use a string
+  format compatible with [ParseDuration].
 * `completedDir`: Directory where Enduro moves the original SIP after a
   successful ingest. This setting can only be used when `retentionPeriod` is
   negative.
@@ -1408,11 +1413,21 @@ while the bucket subsection links the specified location.
 [sipsource]
 id = "e6ddb29a-66d1-480e-82eb-fcfef1c825c5"
 name = "Filesystem SIP Source"
+retentionPeriod = "-1s"
+deleteFailedSIPAfter = "72h"
 ```
 
 * `id`: A UUID that unique identifies the SIP source location. Must be a valid
   [version 4 UUID].
 * `name`: A human-readable name for the SIP source.
+* `retentionPeriod`: Duration to retain the original SIP before deleting it
+  after a successful ingest. Set to a negative value to disable automatic
+  deletion. Set to `"0"` to delete immediately. Use a string format compatible
+  with [ParseDuration].
+* `deleteFailedSIPAfter`: Set the period to retain a SIP after a failed
+  ingest, after which it is deleted. Set to `"0"` to delete the SIP immediately
+  on failure. If unset or negative, failed SIPs are never deleted. Use a string
+  format compatible with [ParseDuration].
 
 #### SIP source location bucket
 
