@@ -8,6 +8,12 @@ requests.
 
 ## [Unreleased]
 
+## [0.35.0] - 2026-10-20
+
+### Fixed
+
+- Fix AIP download filename ([#1787])
+
 ## [0.34.2] - 2026-09-24
 
 No functional changes.
@@ -451,7 +457,8 @@ No functional changes.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.34.2...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.35.0...HEAD
+[0.35.0]: https://github.com/artefactual-sdps/enduro/compare/v0.34.2...v0.35.0
 [0.34.2]: https://github.com/artefactual-sdps/enduro/compare/v0.34.1...v0.34.2
 [0.34.1]: https://github.com/artefactual-sdps/enduro/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/artefactual-sdps/enduro/compare/v0.33.0...v0.34.0
@@ -488,6 +495,7 @@ Initial release.
 [0.3.0]: https://github.com/artefactual-sdps/enduro/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/artefactual-sdps/enduro/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/artefactual-sdps/enduro/releases/tag/v0.1.0
+[#1787]: https://github.com/artefactual-sdps/enduro/issues/1787
 [#1769]: https://github.com/artefactual-sdps/enduro/issues/1769
 [#1757]: https://github.com/artefactual-sdps/enduro/issues/1757
 [#1739]: https://github.com/artefactual-sdps/enduro/pull/1739
