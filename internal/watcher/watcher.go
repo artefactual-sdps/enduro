@@ -40,6 +40,7 @@ type Watcher interface {
 	OpenBucket(ctx context.Context) (*blob.Bucket, error)
 
 	RetentionPeriod() time.Duration
+	DeleteFailedSIPAfter() *time.Duration
 	CompletedDir() string
 	WorkflowType() enums.WorkflowType
 
@@ -50,10 +51,11 @@ type Watcher interface {
 }
 
 type commonWatcherImpl struct {
-	name            string
-	retentionPeriod time.Duration
-	completedDir    string
-	workflowType    enums.WorkflowType
+	name                 string
+	retentionPeriod      time.Duration
+	deleteFailedSIPAfter *time.Duration
+	completedDir         string
+	workflowType         enums.WorkflowType
 }
 
 func (w *commonWatcherImpl) String() string {
@@ -62,6 +64,10 @@ func (w *commonWatcherImpl) String() string {
 
 func (w *commonWatcherImpl) RetentionPeriod() time.Duration {
 	return w.retentionPeriod
+}
+
+func (w *commonWatcherImpl) DeleteFailedSIPAfter() *time.Duration {
+	return w.deleteFailedSIPAfter
 }
 
 func (w *commonWatcherImpl) CompletedDir() string {

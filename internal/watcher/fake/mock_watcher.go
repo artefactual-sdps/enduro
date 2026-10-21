@@ -82,6 +82,44 @@ func (c *MockWatcherCompletedDirCall) DoAndReturn(f func() string) *MockWatcherC
 	return c
 }
 
+// DeleteFailedSIPAfter mocks base method.
+func (m *MockWatcher) DeleteFailedSIPAfter() *time.Duration {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteFailedSIPAfter")
+	ret0, _ := ret[0].(*time.Duration)
+	return ret0
+}
+
+// DeleteFailedSIPAfter indicates an expected call of DeleteFailedSIPAfter.
+func (mr *MockWatcherMockRecorder) DeleteFailedSIPAfter() *MockWatcherDeleteFailedSIPAfterCall {
+	mr.mock.ctrl.T.Helper()
+	call := mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteFailedSIPAfter", reflect.TypeOf((*MockWatcher)(nil).DeleteFailedSIPAfter))
+	return &MockWatcherDeleteFailedSIPAfterCall{Call: call}
+}
+
+// MockWatcherDeleteFailedSIPAfterCall wrap *gomock.Call
+type MockWatcherDeleteFailedSIPAfterCall struct {
+	*gomock.Call
+}
+
+// Return rewrite *gomock.Call.Return
+func (c *MockWatcherDeleteFailedSIPAfterCall) Return(arg0 *time.Duration) *MockWatcherDeleteFailedSIPAfterCall {
+	c.Call = c.Call.Return(arg0)
+	return c
+}
+
+// Do rewrite *gomock.Call.Do
+func (c *MockWatcherDeleteFailedSIPAfterCall) Do(f func() *time.Duration) *MockWatcherDeleteFailedSIPAfterCall {
+	c.Call = c.Call.Do(f)
+	return c
+}
+
+// DoAndReturn rewrite *gomock.Call.DoAndReturn
+func (c *MockWatcherDeleteFailedSIPAfterCall) DoAndReturn(f func() *time.Duration) *MockWatcherDeleteFailedSIPAfterCall {
+	c.Call = c.Call.DoAndReturn(f)
+	return c
+}
+
 // Download mocks base method.
 func (m *MockWatcher) Download(ctx context.Context, dest, key string) error {
 	m.ctrl.T.Helper()

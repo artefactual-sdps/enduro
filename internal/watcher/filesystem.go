@@ -70,10 +70,11 @@ func NewFilesystemWatcher(ctx context.Context, config *FilesystemConfig) (*files
 		path:  abspath,
 		regex: regex,
 		commonWatcherImpl: &commonWatcherImpl{
-			name:            config.Name,
-			retentionPeriod: config.RetentionPeriod,
-			completedDir:    config.CompletedDir,
-			workflowType:    config.WorkflowType,
+			name:                 config.Name,
+			retentionPeriod:      config.RetentionPeriod,
+			deleteFailedSIPAfter: config.DeleteFailedSIPAfter,
+			completedDir:         config.CompletedDir,
+			workflowType:         config.WorkflowType,
 		},
 	}
 
