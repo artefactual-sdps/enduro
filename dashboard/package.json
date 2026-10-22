@@ -37,7 +37,7 @@
     "@vuepic/vue-datepicker": "^14.0.0",
     "@vueuse/core": "^14.4.0",
     "buffer": "^6.0.3",
-    "dompurify": "^3.4.13",
+    "dompurify": "^3.4.17",
     "eventsource": "^5.1.0",
     "humanize-duration": "^3.34.0",
     "moment": "^2.30.1",
