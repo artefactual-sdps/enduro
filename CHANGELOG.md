@@ -8,6 +8,10 @@ requests.
 
 ## [Unreleased]
 
+## [0.35.2] - 2026-10-23
+
+No functional changes.
+
 ## [0.35.1] - 2026-10-22
 
 No functional changes.
@@ -461,7 +465,8 @@ No functional changes.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.35.0...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.35.2...HEAD
+[0.35.2]: https://github.com/artefactual-sdps/enduro/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/artefactual-sdps/enduro/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/artefactual-sdps/enduro/compare/v0.34.2...v0.35.0
 [0.34.2]: https://github.com/artefactual-sdps/enduro/compare/v0.34.1...v0.34.2
