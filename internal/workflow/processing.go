@@ -572,7 +572,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	// Original SIP cleanup for filesystem-backed inputs must run in the
 	// session so it executes on the worker with access to the local path.
 	if state.req.RetentionPeriod >= 0 {
-		if err := w.deleteOriginalSIP(sessCtx, state); err != nil {
+		if err := w.deleteSuccessfulSIP(sessCtx, state); err != nil {
 			state.logger.Error("Failed to delete original SIP", "err", err.Error())
 		}
 	} else if state.req.CompletedDir != "" {

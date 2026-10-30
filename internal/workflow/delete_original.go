@@ -14,10 +14,10 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
-// deleteOriginalSIP deletes the original SIP from its source (watched
+// deleteSuccessfulSIP deletes the original SIP from its source (watched
 // location, SIP source or internal bucket) after the request's retention
 // period, following a successful ingest.
-func (w *ProcessingWorkflow) deleteOriginalSIP(ctx temporalsdk_workflow.Context, state *workflowState) error {
+func (w *ProcessingWorkflow) deleteSuccessfulSIP(ctx temporalsdk_workflow.Context, state *workflowState) error {
 	return w.deleteOriginalSIPAfter(ctx, state, state.req.RetentionPeriod)
 }
 
