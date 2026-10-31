@@ -66,6 +66,12 @@ type (
 		// RetentionPeriod is the duration for which SIPs should be retained after
 		// a successful ingest. If negative, SIPs will be retained indefinitely.
 		RetentionPeriod time.Duration
+
+		// DeleteFailedSIPAfter is the duration to retain SIPs in the SIP source
+		// or watched location after a failed ingest. If zero, failed SIPs will
+		// be deleted immediately. If nil or negative, failed SIPs will be
+		// retained indefinitely.
+		DeleteFailedSIPAfter *time.Duration
 	}
 
 	ProcessingWorkflowRequest struct {
