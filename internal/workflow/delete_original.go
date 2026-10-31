@@ -3,6 +3,7 @@ package workflow
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/google/uuid"
@@ -13,9 +14,40 @@ import (
 	"github.com/artefactual-sdps/enduro/internal/workflow/activities"
 )
 
-func (w *ProcessingWorkflow) deleteOriginalSIP(ctx temporalsdk_workflow.Context, state *workflowState) error {
+// deleteSuccessfulSIP deletes the original SIP from its source (watched
+// location, SIP source or internal bucket) after the request's retention
+// period, following a successful ingest.
+func (w *ProcessingWorkflow) deleteSuccessfulSIP(ctx temporalsdk_workflow.Context, state *workflowState) error {
+	return w.deleteOriginalSIPAfter(ctx, state, state.req.RetentionPeriod)
+}
+
+// deleteFailedSIP deletes the original SIP from its source after the
+// request's failed retention period. It does nothing if the failed retention
+// period is not set or is negative, or if the SIP is not in a watched location
+// or SIP source. The caller must ensure a copy of the failed SIP has been
+// stored before calling this method.
+func (w *ProcessingWorkflow) deleteFailedSIP(ctx temporalsdk_workflow.Context, state *workflowState) error {
+	period := state.req.DeleteFailedSIPAfter
+	if period == nil || *period < 0 {
+		return nil
+	}
+
+	// SIPs uploaded to the internal bucket are already moved to the failed
+	// bucket and deleted from the internal bucket.
+	if state.req.WatcherName == "" && state.req.SIPSourceID == uuid.Nil {
+		return nil
+	}
+
+	return w.deleteOriginalSIPAfter(ctx, state, *period)
+}
+
+func (w *ProcessingWorkflow) deleteOriginalSIPAfter(
+	ctx temporalsdk_workflow.Context,
+	state *workflowState,
+	retentionPeriod time.Duration,
+) error {
 	// If retention period is negative, do nothing.
-	if state.req.RetentionPeriod < 0 {
+	if retentionPeriod < 0 {
 		return nil
 	}
 
@@ -24,7 +56,7 @@ func (w *ProcessingWorkflow) deleteOriginalSIP(ctx temporalsdk_workflow.Context,
 		ctx,
 		&datatypes.Task{
 			Name:         "Delete original SIP",
-			Note:         fmt.Sprintf("The original SIP will be deleted in %s", state.req.RetentionPeriod.String()),
+			Note:         fmt.Sprintf("The original SIP will be deleted in %s", retentionPeriod.String()),
 			Status:       enums.TaskStatusInProgress,
 			WorkflowUUID: state.workflowUUID,
 		},
@@ -41,13 +73,14 @@ func (w *ProcessingWorkflow) deleteOriginalSIP(ctx temporalsdk_workflow.Context,
 	}
 
 	// Set a timer for the retention period.
-	if err := temporalsdk_workflow.Sleep(ctx, state.req.RetentionPeriod); err != nil {
+	if err := temporalsdk_workflow.Sleep(ctx, retentionPeriod); err != nil {
 		return fmt.Errorf("retention period timer failed: %v", err)
 	}
 
 	// Delete the original SIP based on its origin.
 	activityOpts := withActivityOptsForRequest(ctx)
 	if state.req.WatcherName != "" {
+		// Delete the original SIP from the watched location.
 		err = temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			activities.DeleteOriginalActivityName,
@@ -55,12 +88,14 @@ func (w *ProcessingWorkflow) deleteOriginalSIP(ctx temporalsdk_workflow.Context,
 			state.req.Key,
 		).Get(activityOpts, nil)
 	} else if state.req.SIPSourceID != uuid.Nil {
+		// Delete the original SIP from the SIP source.
 		err = temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			activities.DeleteOriginalFromSIPSourceActivityName,
 			&bucketdelete.Params{Key: state.req.Key},
 		).Get(activityOpts, nil)
 	} else {
+		// Delete the original SIP from the internal bucket.
 		err = temporalsdk_workflow.ExecuteActivity(
 			activityOpts,
 			activities.DeleteOriginalFromInternalBucketActivityName,

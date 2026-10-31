@@ -166,6 +166,14 @@ func (w *ProcessingWorkflow) cleanup(ctx temporalsdk_workflow.Context, state *wo
 	if err != nil {
 		state.logger.Error("cleanup: error completing workflow", "error", err.Error())
 	}
+
+	// If ingest failed and a deletion timer was specified, delete the original
+	// SIP now.
+	if p := state.req.DeleteFailedSIPAfter; state.status == enums.WorkflowStatusFailed && p != nil && *p >= 0 {
+		if err := w.deleteFailedSIP(ctx, state); err != nil {
+			state.logger.Error("session cleanup: error deleting failed original SIP", "error", err.Error())
+		}
+	}
 }
 
 func (w *ProcessingWorkflow) sessionCleanup(ctx temporalsdk_workflow.Context, state *workflowState) {
@@ -564,7 +572,7 @@ func (w *ProcessingWorkflow) SessionHandler(
 	// Original SIP cleanup for filesystem-backed inputs must run in the
 	// session so it executes on the worker with access to the local path.
 	if state.req.RetentionPeriod >= 0 {
-		if err := w.deleteOriginalSIP(sessCtx, state); err != nil {
+		if err := w.deleteSuccessfulSIP(sessCtx, state); err != nil {
 			state.logger.Error("Failed to delete original SIP", "err", err.Error())
 		}
 	} else if state.req.CompletedDir != "" {

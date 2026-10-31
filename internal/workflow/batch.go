@@ -245,14 +245,15 @@ func (w *BatchWorkflow) startSIPWorkflow(
 		processingCtx,
 		ingest.ProcessingWorkflowName,
 		&ingest.ProcessingWorkflowRequest{
-			User:            state.user,
-			SIPUUID:         sipUUID,
-			SIPName:         key,
-			Key:             key,
-			SIPSourceID:     sourceID,
-			Type:            enums.WorkflowTypeCreateAip,
-			RetentionPeriod: -1 * time.Second,
-			BatchUUID:       state.batch.UUID,
+			User:                 state.user,
+			SIPUUID:              sipUUID,
+			SIPName:              key,
+			Key:                  key,
+			SIPSourceID:          sourceID,
+			Type:                 enums.WorkflowTypeCreateAip,
+			RetentionPeriod:      -1 * time.Second,
+			DeleteFailedSIPAfter: state.deleteFailedSIPAfter,
+			BatchUUID:            state.batch.UUID,
 		},
 	)
 	err = wf.GetChildWorkflowExecution().Get(processingCtx, &we)

@@ -16,6 +16,7 @@ import (
 
 	"ariga.io/sqlcomment"
 	"entgo.io/ent/dialect/sql"
+	"github.com/artefactual-sdps/temporal-activities/bucketdelete"
 	"github.com/google/uuid"
 	"github.com/hashicorp/go-cleanhttp"
 	"github.com/jonboulle/clockwork"
@@ -477,14 +478,15 @@ func main() {
 							go func() {
 								defer span.End()
 								req := ingest.ProcessingWorkflowRequest{
-									WatcherName:     event.WatcherName,
-									RetentionPeriod: event.RetentionPeriod,
-									CompletedDir:    event.CompletedDir,
-									Key:             event.Key,
-									IsDir:           event.IsDir,
-									Type:            event.WorkflowType,
-									SIPUUID:         uuid.New(),
-									SIPName:         event.Key,
+									WatcherName:          event.WatcherName,
+									RetentionPeriod:      event.RetentionPeriod,
+									DeleteFailedSIPAfter: event.DeleteFailedSIPAfter,
+									CompletedDir:         event.CompletedDir,
+									Key:                  event.Key,
+									IsDir:                event.IsDir,
+									Type:                 event.WorkflowType,
+									SIPUUID:              uuid.New(),
+									SIPName:              event.Key,
 								}
 								if err := ingest.InitProcessingWorkflow(
 									ctx,
@@ -550,6 +552,14 @@ func main() {
 		w.RegisterActivityWithOptions(
 			activities.NewClearIngestedSIPsActivity(ingestsvc, storageClient, time.Second*60).Execute,
 			temporalsdk_activity.RegisterOptions{Name: activities.ClearIngestedSIPsActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			activities.NewDeleteOriginalActivity(wsvc).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalActivityName},
+		)
+		w.RegisterActivityWithOptions(
+			bucketdelete.New(sipSource.Bucket).Execute,
+			temporalsdk_activity.RegisterOptions{Name: activities.DeleteOriginalFromSIPSourceActivityName},
 		)
 
 		// Storage workflows and activities.

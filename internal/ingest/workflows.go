@@ -66,6 +66,12 @@ type (
 		// RetentionPeriod is the duration for which SIPs should be retained after
 		// a successful ingest. If negative, SIPs will be retained indefinitely.
 		RetentionPeriod time.Duration
+
+		// DeleteFailedSIPAfter is the duration to retain SIPs in the SIP source
+		// or watched location after a failed ingest. If zero, failed SIPs will
+		// be deleted immediately. If nil or negative, failed SIPs will be
+		// retained indefinitely.
+		DeleteFailedSIPAfter *time.Duration
 	}
 
 	ProcessingWorkflowRequest struct {
@@ -88,22 +94,31 @@ type (
 		// SIPSourceID is the ID of the SIP source.
 		SIPSourceID uuid.UUID
 
-		// RetentionPeriod is the duration for which SIPs should be retained after
-		// a successful ingest. If negative, SIPs will be retained indefinitely.
+		// RetentionPeriod is the duration for which SIPs should be retained
+		// after a successful ingest. If negative, SIPs will be retained
+		// indefinitely.
 		RetentionPeriod time.Duration
 
-		// CompletedDir is the directory where the transfer is moved to once processing
-		// has completed successfully.
+		// DeleteFailedSIPAfter is the duration to retain SIPs in the SIP source
+		// or watched location after a failed ingest. If zero, failed SIPs will
+		// be deleted immediately. If nil or negative, failed SIPs will be
+		// retained indefinitely.
+		DeleteFailedSIPAfter *time.Duration
+
+		// CompletedDir is the directory where the transfer is moved to once
+		// processing has completed successfully.
 		CompletedDir string
 
 		// Key is the key of the blob.
 		Key string
 
-		// IsDir indicates whether the blob is a directory (used by the filesystem watcher).
+		// IsDir indicates whether the blob is a directory (used by the
+		// filesystem watcher).
 		IsDir bool
 
-		// Extension is the file extension of the original SIP. If it's missing and the SIP
-		// is not a directory, the workflow will try to obtain the value after download.
+		// Extension is the file extension of the original SIP. If it's missing
+		// and the SIP is not a directory, the workflow will try to obtain the
+		// value after download.
 		Extension string
 
 		// BatchUUID is the UUID of the batch this SIP belongs to, if any.
