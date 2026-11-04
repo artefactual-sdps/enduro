@@ -86,6 +86,13 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 1
+    ignore:
+      # TODO: typescript-eslint does not support TypeScript 7 yet (its peer
+      # range is <6.1.0). Check back on typescript-eslint and remove this
+      # ignore rule once a release supports TypeScript 7. See
+      # https://github.com/artefactual-sdps/enduro/issues/1870.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
     groups:
       dashboard-dependencies:
         patterns:
