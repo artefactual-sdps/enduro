@@ -20,14 +20,12 @@ const retry = () => {
 };
 
 const is404 = computed(() => {
-  let nf = false;
   try {
     const err = error as runtime.ResponseError;
-    nf = err.response.status === 404;
+    return err.response.status === 404;
   } catch {
     return false;
   }
-  return nf;
 });
 </script>
 

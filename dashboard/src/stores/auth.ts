@@ -158,7 +158,9 @@ export const useAuthStore = defineStore("auth", {
           }
           this.config.abac.rolesMapping = map;
         } catch (err) {
-          throw new Error(`Error parsing OIDC ABAC roles mapping: ${err}`);
+          throw new Error(`Error parsing OIDC ABAC roles mapping: ${err}`, {
+            cause: err,
+          });
         }
       }
     },
@@ -247,7 +249,9 @@ export const useAuthStore = defineStore("auth", {
           ).toString(),
         );
       } catch (err) {
-        throw new Error(`Error decoding or parsing token: ${err}`);
+        throw new Error(`Error decoding or parsing token: ${err}`, {
+          cause: err,
+        });
       }
 
       const keys = this.config.abac.claimPathSeparator

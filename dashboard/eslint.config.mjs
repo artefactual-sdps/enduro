@@ -1,5 +1,6 @@
 import pluginJs from "@eslint/js";
-import pluginImport from "eslint-plugin-import";
+import { createTypeScriptImportResolver } from "eslint-import-resolver-typescript";
+import pluginImportX from "eslint-plugin-import-x";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import pluginVue from "eslint-plugin-vue";
 import globals from "globals";
@@ -20,17 +21,17 @@ export default [
   },
   {
     settings: {
-      "import/resolver": {
-        typescript: {
+      "import-x/resolver-next": [
+        createTypeScriptImportResolver({
           project: "tsconfig*.json",
           noWarnOnMultipleProjects: true,
-        },
-      },
+        }),
+      ],
     },
   },
   { languageOptions: { globals: globals.browser } },
   pluginJs.configs.recommended,
-  pluginImport.flatConfigs.recommended,
+  pluginImportX.flatConfigs.recommended,
   ...tseslint.configs.recommended,
   ...pluginVue.configs["flat/essential"],
   ...pluginVue.configs["flat/strongly-recommended"],
@@ -39,7 +40,7 @@ export default [
     files: ["**/*.{ts,vue}"],
     languageOptions: { parserOptions: { parser: tseslint.parser } },
     rules: {
-      "import/no-unresolved": [
+      "import-x/no-unresolved": [
         "error",
         {
           ignore: ["~icons"], // ignore unplugin-icon auto import paths.

@@ -125,7 +125,7 @@ const earliestTimeFromOption = (value: string) => {
   const hour = 60 * 60 * 1000;
   const day = 24 * hour;
 
-  let start = new Date();
+  let start: Date;
   switch (value) {
     case "3h":
       start = new Date(Date.now() - 3 * hour);
