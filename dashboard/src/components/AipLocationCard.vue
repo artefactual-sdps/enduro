@@ -1,8 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
-
 import AipDeletionRequestDialog from "@/components/AipDeletionRequestDialog.vue";
-import LocationDialog from "@/components/LocationDialog.vue";
 import UUID from "@/components/UUID.vue";
 import { openDialog } from "@/dialogs/dialog";
 import { useAipStore } from "@/stores/aip";
@@ -10,19 +7,6 @@ import { useAuthStore } from "@/stores/auth";
 
 const authStore = useAuthStore();
 const aipStore = useAipStore();
-const failed = ref(false);
-
-const choose = async () => {
-  failed.value = false;
-  const locationId = await openDialog(LocationDialog, {
-    currentLocationId: aipStore.current?.locationUuid,
-  });
-  if (!locationId) return;
-  const error = await aipStore.move(locationId);
-  if (error) {
-    failed.value = true;
-  }
-};
 
 const requestDeletion = async () => {
   if (!aipStore.current) return;
@@ -36,12 +20,6 @@ const requestDeletion = async () => {
 <template>
   <div class="card mb-3">
     <div class="card-body">
-      <div v-if="failed" class="alert alert-danger" role="alert">
-        Move operation failed, try again!
-      </div>
-      <div v-if="aipStore.isMoving" class="alert alert-info" role="alert">
-        The AIP is being moved into a new location.
-      </div>
       <h4 class="card-title text-primary">Location</h4>
       <p class="card-text">
         <span v-if="aipStore.isDeleted">AIP deleted.</span>
@@ -79,26 +57,6 @@ const requestDeletion = async () => {
                 Downloading...
               </template>
               <template v-else>Download</template>
-            </button>
-            <button
-              v-if="
-                false && // TODO: Enable this also based on location type and available locations.
-                authStore.checkAttributes(['storage:aips:move'])
-              "
-              type="button"
-              class="btn btn-primary btn-sm"
-              :disabled="!aipStore.isMovable"
-              @click="choose"
-            >
-              <template v-if="aipStore.isMoving">
-                <span
-                  class="spinner-grow spinner-grow-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                />
-                Moving...
-              </template>
-              <template v-else> Move </template>
             </button>
             <button
               v-if="
