@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/rukavina/sftpblob"
 	"go.artefactual.dev/tools/bucket"
 	"gocloud.dev/blob"
 
@@ -157,7 +156,7 @@ func (c SFTPConfig) OpenBucket(ctx context.Context) (*blob.Bucket, error) {
 		return nil, err
 	}
 
-	return sftpblob.OpenBucket(url, nil)
+	return blob.OpenBucket(ctx, url.String())
 }
 
 type URLConfig struct {
