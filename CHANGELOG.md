@@ -8,6 +8,8 @@ requests.
 
 ## [Unreleased]
 
+## [0.36.0] - 2026-11-19
+
 ### Added
 
 - Delete original SIPs after a configurable retention period when ingest
@@ -470,7 +472,8 @@ No functional changes.
 
 Initial release.
 
-[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.35.2...HEAD
+[unreleased]: https://github.com/artefactual-sdps/enduro/compare/v0.36.0...HEAD
+[0.36.0]: https://github.com/artefactual-sdps/enduro/compare/v0.35.2...v0.36.0
 [0.35.2]: https://github.com/artefactual-sdps/enduro/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/artefactual-sdps/enduro/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/artefactual-sdps/enduro/compare/v0.34.2...v0.35.0
